@@ -2,6 +2,23 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-24 — The Gradest: Manual Grade Entry for Webcam Scanner
+
+**Pattern Added**: `the-gradest-bubble-scanner.md`.
+**Pattern Updated**: `classroom-gradebook-sync.md`.
+
+**Changes**:
+- **Webcam Scanner Manual Grade Entry Modal (`index.html`, `style.css`, `app.js`)**:
+  - Implemented manual grade entry on the webcam bubble scanner page (`tab-scan`) for students who completed their tests on paper without bubbling the answer sheet.
+  - Added primary access points directly on the Webcam Scanner feed controls (`btn-manual-entry-scan`), the Scanner Output header (`btn-quick-manual-output`), the empty-state scanner card (`btn-scanner-empty-manual`), and the Grades Directory (`btn-grades-manual-entry`).
+  - Added fast roster dropdown picker with live graded/ungraded tracking status (e.g. `✓ Graded: 92/100 (92%)` vs `[Not yet graded]`), auto-complete student name search on Student ID keystroke, and existing score overwrite warning.
+  - Added live percentage readout with color thresholds, quick score percentage preset chips (`100%`, `90%`, `80%`, `70%`, `50%`, `0% Missing`), and a rapid batching workflow via `"Save & Add Another"`.
+  - Persists directly into `state.grades` with status `"Manually Entered"` (styled with `.badge-manual`), renders into recent scans session log, and syncs immediately to local storage and Cloud Firestore collection `gradest_assignments`.
+- **Repository Synchronization**:
+  - Fixed unclosed `#dialog-edit-grade` backdrop container tag.
+  - Committed and pushed changes to `https://github.com/rrmudry/The_Gradest.git` `main` branch and synchronized local clone in `admin/The_Gradest/`.
+  - Refreshed site footer deployment timestamp via `node scripts/update-timestamp.js`.
+
 ## 2026-09-23 — Differentiated Curriculum: P031 Reaction Time Lab (Period 0) & Pull-Back Toy Lab (Periods 1–6)
 
 **Pattern Updated**: `dashboard-layout.md`, `cast-aligned-webapp-design.md`.
