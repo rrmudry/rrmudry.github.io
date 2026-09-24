@@ -2,6 +2,19 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-23 — Graphing Speed Story: Google Classroom Deployment & Grade Sync
+
+**Pattern Updated**: `classroom-gradebook-sync.md`, `assignment-registry.md`.
+
+**Changes**:
+- **Classroom Deployment (`sync-classroom/post-graphing-speed-story-assignment.js`)**:
+  - Created "Graphing Speed Story" (10 pts) coursework across all 7 class periods (Period 0 to Period 6) placed under "Unit 2: Motion".
+  - Attached both official student materials: Worksheet PDF (`Unit_2/worksheets/Graphing_Speed_Story.pdf`) and Student Exemplar Guide (`assets/images/graphing_speed_story_exemplar.jpg`).
+  - Registered `assignment_registry/Graphing_Speed_Story` and updated `gradest_assignments/Graphing Speed Story`.
+  - Mirrored all 66 student webcam-graded scores into individual documents in `student_results/Graphing_Speed_Story/students/{studentId}` with correct period metadata from `roster`.
+- **Grade Sync & Return**:
+  - Ran headless sync pushing and returning all 66 student grades (100% success rate: 65 at 10/10, 1 at 9/10) to Google Classroom ready for Aeries import.
+
 ## 2026-09-23 — Daily Update: Unit 2 Day 18 & 19 Curriculum Harmonization & Deployment
 
 **Pattern Updated**: `cast-aligned-webapp-design.md`, `dashboard-layout.md`.
