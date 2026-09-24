@@ -227,12 +227,15 @@
           chartDatasets.push({
             label: seriesLabel,
             data: pts,
-            backgroundColor: sColor,
+            backgroundColor: s.backgroundColor || (s.fill ? 'rgba(6, 182, 212, 0.25)' : sColor),
             borderColor: sColor,
+            borderWidth: s.borderWidth !== undefined ? s.borderWidth : 2,
             pointStyle: pStyle,
             pointRadius: pRadius,
             pointHoverRadius: pRadius + 3,
-            showLine: chartType === 'line'
+            showLine: chartType === 'line',
+            fill: s.fill !== undefined ? s.fill : false,
+            tension: s.tension !== undefined ? s.tension : 0
           });
 
           // Trendline Dataset

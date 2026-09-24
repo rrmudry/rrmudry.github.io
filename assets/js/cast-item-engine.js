@@ -282,6 +282,23 @@
       // Render Stimulus (Graph, Table, Image, or Diagram)
       this.renderStimulus();
 
+      // Connect Inspect Graph Button
+      const expandBtn = this.container.querySelector('#cast-expand-graph-btn');
+      if (expandBtn) {
+        expandBtn.addEventListener('click', () => {
+          const gData = this.challenge?.phenomenon?.graphData;
+          if (typeof window.openEnlargedGraphModal === 'function') {
+            if (gData) {
+              window.activeSessionConfig = {
+                ...(window.activeSessionConfig || {}),
+                graphData: gData
+              };
+            }
+            window.openEnlargedGraphModal();
+          }
+        });
+      }
+
       // Render Active TEI Step
       this.renderActiveStep();
     }
@@ -330,7 +347,11 @@
         container.innerHTML = '<div id="cast-stimulus-graph-wrapper" class="w-full h-full min-h-[240px]"></div>';
         const wrapper = container.querySelector('#cast-stimulus-graph-wrapper');
         if (typeof CASTGraphEngine !== 'undefined') {
-          new CASTGraphEngine(wrapper, {
+          if (this.stimulusGraphEngine) {
+            try { this.stimulusGraphEngine.destroy(); } catch(e){}
+            this.stimulusGraphEngine = null;
+          }
+          this.stimulusGraphEngine = new CASTGraphEngine(wrapper, {
             ...phen.graphData,
             theme: 'dark'
           });
