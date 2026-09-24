@@ -2437,7 +2437,7 @@ const unit2Lessons = [
     },
     "bellRinger": {
       "type": "cast_challenge",
-      "title": "Shaded Area Under the Velocity-Time Graph",
+      "title": "Finding Distance from Velocity-Time Graph Area",
       "defaultDuration": 4,
       "standards": {
         "dci": "HS-PS2.A: Forces & Motion",
@@ -2445,41 +2445,31 @@ const unit2Lessons = [
         "ccc": "CCC-2: Cause and Effect"
       },
       "phenomenon": {
-        "title": "Electric Dragster Acceleration Run",
-        "description": "An electric sports car accelerates along a test track from an initial cruising speed of v₀ = +10.0 m/s to a final speed of v<sub>f</sub> = +30.0 m/s over an elapsed time of t = 4.0 seconds. Engineers compute track displacement from the velocity-time graph.",
+        "title": "Electric Scout Vehicle Acceleration Run",
+        "description": "An electric scout cart starts from rest (v₀ = 0.0 m/s) and accelerates uniformly along a straight track, reaching a top speed of v_f = +10.0 m/s after an elapsed time of t = 4.0 seconds. The distance traveled equals the geometric area under the velocity-time graph.",
         "stimulus": {
           "type": "data_table",
-          "title": "Dragster 4.0-Second Run Telemetry",
+          "title": "Scout Cart 4.0-Second Run Telemetry",
           "headers": [
-            "Parameter",
-            "Symbol",
-            "Value",
+            "Elapsed Time (t)",
+            "Velocity (v)",
             "Geometric Feature on v-t Graph"
           ],
           "rows": [
             {
-              "col_0": "Initial Velocity",
-              "col_1": "v₀",
-              "col_2": "+10.0 m/s",
-              "col_3": "Height of bottom rectangle"
+              "col_0": "0.0 s",
+              "col_1": "0.0 m/s",
+              "col_2": "Origin point (v₀ = 0, starting from rest)"
             },
             {
-              "col_0": "Final Velocity",
-              "col_1": "v<sub>f</sub>",
-              "col_2": "+30.0 m/s",
-              "col_3": "Top peak height of trapezoid"
+              "col_0": "2.0 s",
+              "col_1": "+5.0 m/s",
+              "col_2": "Halfway timestamp (average speed = 5.0 m/s)"
             },
             {
-              "col_0": "Elapsed Time",
-              "col_1": "t",
-              "col_2": "4.0 s",
-              "col_3": "Horizontal width of base"
-            },
-            {
-              "col_0": "Velocity Change",
-              "col_1": "Δv",
-              "col_2": "+20.0 m/s",
-              "col_3": "Height of upper triangle (v<sub>f</sub> - v₀)"
+              "col_0": "4.0 s",
+              "col_1": "+10.0 m/s",
+              "col_2": "Peak final speed (height of triangle = 10.0 m/s)"
             }
           ]
         }
@@ -2488,24 +2478,24 @@ const unit2Lessons = [
         {
           "stepId": "step_1",
           "type": "cloze_dropdown",
-          "title": "Part 1: Partitioning the v-t Area into Shapes",
-          "prompt": "Partition the trapezoidal area under the v-t graph between t = 0 and t = 4.0 s into two geometric shapes:",
-          "text": "The lower shape under v = 10.0 m/s is a rectangle with area [blank1]. The upper shape above v = 10.0 m/s is a triangle with area [blank2].",
+          "title": "Part 1: Identifying the Geometric Shape Under the Line",
+          "prompt": "Inspect the v-t graph telemetry for the cart accelerating from rest:",
+          "text": "When an object speeds up uniformly starting from rest (0 m/s), the shaded region under the line forms a [blank1]. To calculate the distance traveled, we find the area using the formula [blank2].",
           "blanks": {
             "blank1": {
-              "correct": "Rectangle Area = 10.0 m/s · 4.0 s = 40.0 m",
+              "correct": "single triangle",
               "options": [
-                "Rectangle Area = 10.0 m/s · 4.0 s = 40.0 m",
-                "Rectangle Area = 30.0 m/s · 4.0 s = 120.0 m",
-                "Rectangle Area = 5.0 m/s · 4.0 s = 20.0 m"
+                "single triangle",
+                "flat horizontal rectangle",
+                "circle"
               ]
             },
             "blank2": {
-              "correct": "Triangle Area = ½ · (4.0 s) · (20.0 m/s) = 40.0 m",
+              "correct": "Area = ½ · base · height",
               "options": [
-                "Triangle Area = ½ · (4.0 s) · (20.0 m/s) = 40.0 m",
-                "Triangle Area = (4.0 s) · (20.0 m/s) = 80.0 m",
-                "Triangle Area = ½ · (4.0 s) · (30.0 m/s) = 60.0 m"
+                "Area = ½ · base · height",
+                "Area = base · height",
+                "Area = base / height"
               ]
             }
           }
@@ -2513,24 +2503,25 @@ const unit2Lessons = [
         {
           "stepId": "step_2",
           "type": "data_calculation",
-          "title": "Part 2: Calculating Total Displacement",
-          "prompt": "Sum the rectangle and triangle areas (40.0 m + 40.0 m) to calculate the total displacement in meters (Δx).",
-          "inputLabel": "Total Displacement",
+          "title": "Part 2: Calculating Distance from Triangle Area",
+          "prompt": "Calculate the total distance traveled in meters from t = 0 to t = 4.0 s by finding the area of the triangle: Area = ½ · base · height (base = 4.0 s, height = 10.0 m/s).",
+          "inputLabel": "Distance Traveled (Area)",
           "unit": "m",
-          "targetValue": 80,
-          "tolerance": 0.1,
-          "hint": "Total displacement Δx = Area<sub>rect</sub> + Area<sub>tri</sub> = 40.0 m + 40.0 m = 80.0 meters."
+          "targetValue": 20,
+          "tolerance": 0.5,
+          "formulaHint": "Area = ½ · base · height",
+          "hint": "Area = ½ · base · height = ½ · (4.0 s) · (10.0 m/s) = 20.0 meters."
         },
         {
           "stepId": "step_3",
           "type": "ai_reasoning_chat",
-          "title": "Part 3: Average Velocity Verification with AI Mentor",
-          "prompt": "Discuss your reasoning with the AI Physics Mentor: Verify the total displacement using the average velocity formula Δx = ½(v₀ + v<sub>f</sub>) · t and explain why both methods give the exact same answer.",
-          "openingPrompt": "You found that the dragster travels 80.0 meters! Now try calculating average velocity: v<sub>avg</sub> = ½(10 + 30) = 20 m/s. What is v<sub>avg</sub> · t? Why do both the geometric area method and the average velocity method give the exact same result?",
+          "title": "Part 3: Area Under the Curve Meaning with AI Mentor",
+          "prompt": "Discuss your reasoning with the AI Physics Mentor: Explain why an accelerating object travels only HALF the distance of an object moving at the top speed the entire time, and during which half of the trip it covers more ground.",
+          "openingPrompt": "You found that the vehicle travels 20.0 meters (Area = ½ · 4.0 s · 10.0 m/s)! Notice that if the vehicle had traveled at its top speed of 10.0 m/s the entire 4 seconds, it would have covered 40.0 meters (a rectangle: 10 × 4). Why does accelerating from rest cover exactly HALF of that distance? And during which 2 seconds did it travel more ground: the first 2 seconds (0 to 2 s) or the last 2 seconds (2 to 4 s)?",
           "minTurns": 1
         }
       ],
-      "teacherKey": "Step 1: Rectangle Area = 10.0 m/s · 4.0 s = 40.0 m, Triangle Area = ½ · (4.0 s) · (20.0 m/s) = 40.0 m. Step 2: 80.0 m (40.0 + 40.0). Step 3: Claim: The average velocity method and the geometric area method yield the exact same displacement of 80.0 meters. Evidence: v<sub>avg</sub> = ½(v₀ + v<sub>f</sub>) = ½(10.0 + 30.0) = 20.0 m/s. Then Δx = v<sub>avg</sub> · t = 20.0 m/s · 4.0 s = 80.0 m. Reasoning: On a graph with a linear slope (constant acceleration), the average velocity is located exactly halfway between the initial and final speeds. Multiplying this average velocity by time transforms the trapezoid into an equivalent rectangle with the exact same total area."
+      "teacherKey": "Step 1: single triangle, Area = ½ · base · height. Step 2: 20.0 m (½ · 4.0 · 10.0). Step 3: Claim: The vehicle covers 20.0 m, which is exactly half of the 40.0 m constant-speed rectangle, and it travels three times further during the second half of the time interval (from 2 to 4 s). Evidence: Because speed starts at 0 m/s and increases linearly to 10.0 m/s, the average speed is 5.0 m/s (half of maximum speed). Distance is v_avg · t = 5.0 m/s · 4.0 s = 20.0 m. In the first 2 seconds, it travels only 5.0 m (½ · 2 · 5), while in the last 2 seconds it covers 15.0 m (20 - 5). Reasoning: Geometrically, a triangle with the same base and height has exactly half the area of a rectangle. Physically, an accelerating object spends the early seconds at low velocities and the later seconds at high velocities, so distance accumulates much faster near the end of the run."
     },
     "assignments": [
       {
