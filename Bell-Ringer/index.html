@@ -1132,6 +1132,9 @@
 
         function initCastChallenge(config) {
             const castData = config.castData || config;
+            if (castData?.phenomenon?.graphData && !config.graphData) {
+                config.graphData = castData.phenomenon.graphData;
+            }
             // Prevent accidental formula substitution or answer leakage in calculation steps
             if (castData && Array.isArray(castData.steps)) {
                 castData.steps.forEach(step => {
