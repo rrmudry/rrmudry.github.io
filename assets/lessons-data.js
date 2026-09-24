@@ -2534,8 +2534,8 @@ const lessonsData = [
     "type": "Hands-On Laboratory / Data Analysis",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Students investigate the kinematics of pull-back cars accelerating from rest across a 1.0-meter track marked at 20 cm increments. Using slow-motion video telemetry with an in-frame stopwatch, students record position-time data, plot the characteristic curved x vs. t motion profile, and calculate average speed (v_avg = Δx / Δt), final speed (v_f = 2 · v_avg), and uniform acceleration (a = v_f / t).",
-    "activity": "Graphing Pull-Back Toy Motion Lab: Hands-on metric track setup, dual-shot video recording, data table completion, real-time x vs. t curve plotting, and step-by-step kinematic calculation verification via the interactive lab companion.",
+    "summary": "Students investigate the kinematics of pull-back cars accelerating from rest across a 1.0-meter track marked at 20 cm increments. Using slow-motion video telemetry with an in-frame stopwatch, students record position-time data, plot the characteristic curved x vs. t motion profile, and calculate average speed (v_avg = Δx / Δt), final speed (v_f = 2 · v_avg), and uniform acceleration (a = v_f / t). [Section Pacing Note: Period 0 Honors completed the lab today; Periods 1–6 utilized the instructional block to finalize the Kinematic Velocity Calculator and Acceleration Rate & Sign Studio, scheduling their lab for Day 19.]",
+    "activity": "Graphing Pull-Back Toy Motion Lab (Period 0 Honors): Hands-on metric track setup, dual-shot video recording, data table completion, real-time x vs. t curve plotting, and step-by-step kinematic calculation verification via the interactive lab companion. (Periods 1–6): Intensive kinematic calculation work session completing the Day 17 Kinematic Velocity Calculator and Day 16 Acceleration Rate & Sign Studio.",
     "essentialQuestion": "How can we use position-time measurements of an object accelerating from rest to determine its average velocity, final velocity, and acceleration?",
     "standards": [
       "HS-PS2-1",
@@ -2696,24 +2696,25 @@ const lessonsData = [
     "day": 19,
     "date": "2026-09-24",
     "unit": 2,
-    "title": "Calculating Distance for Accelerated Motion: Geometric Area under v-t (Δx = v₀t + ½at²)",
-    "topic": "Determining Displacement When Speed Changes: Splitting v-t into Rectangles and Triangles",
+    "title": "Differentiated Kinematics Pacing: v-t Geometric Area (Period 0) & Pull-Back Toy Motion Lab (Periods 1–6)",
+    "topic": "Period 0 Honors: Determining Displacement via Shaded Area under v-t (Δx = v₀t + ½at²) | Periods 1–6: Hands-On Metric Track Slow-Motion Telemetry & x vs. t Analysis",
     "dok": 3,
-    "type": "Direct Instruction / Guided Practice",
+    "type": "Differentiated Instruction / Lab & Guided Practice",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Connect graph geometry to kinematic displacement: because speed is constantly changing during uniform acceleration, students cannot use d = v · t. Instead, displacement equals the shaded area under the v-t graph. Students partition trapezoidal areas into a bottom rectangle (v₀ · t) and an upper triangle (½ · a · t²), deriving the foundational kinematic displacement equation: Δx = v₀t + ½at².",
-    "activity": "Geometric Area Displacement Workshop: Students calculate displacements for accelerating vehicles by physically shading and calculating areas of triangles (½ · base · height) and rectangles (base · height) on v-t graphs, then verify their geometric answers using the algebraic formula Δx = v₀t + ½at² and average velocity Δx = ½(v₀ + v<sub>f</sub>)t.",
-    "essentialQuestion": "Why does the shaded area under a velocity-time graph equal the distance traveled, even when an object's speed is continuously changing?",
+    "summary": "Differentiated learning pathways across physics sections: Period 0 (Honors Physics) advances to geometric displacement under the velocity-time graph, deriving Δx = v₀t + ½at² by partitioning trapezoids into rectangular initial velocity and triangular acceleration components. Periods 1–6 conduct the hands-on Pull-Back Toy Motion Lab, recording slow-motion video telemetry of pull-back cars across a 1.0 m track at 20 cm increments to plot x vs. t curves and calculate v_avg, v_f, and acceleration.",
+    "activity": "Differentiated Block Pacing: \n• Period 0 Honors: Geometric Area Displacement Workshop — partition v-t graphs into rectangles (v₀t) and triangles (½at²), solve shaded area problems, and verify solutions using Δx = v₀t + ½at² and average velocity Δx = ½(v₀ + v_f)t.\n• Periods 1–6: Graphing Pull-Back Toy Motion Lab — 1.0 m metric track calibration, dual-shot video recording, 5-interval position-time data collection, curve plotting, and calculation verification with the interactive lab companion.",
+    "essentialQuestion": "How do empirical position-time curves from real vehicles (Periods 1–6) and geometric areas under velocity-time graphs (Period 0) both allow us to calculate displacement and acceleration?",
     "standards": [
-      "HS-PS2-1"
+      "HS-PS2-1",
+      "HS-PS2-2"
     ],
     "wicor": {
-      "Writing": "Writing geometric and algebraic proofs demonstrating that Area = Rectangle (v₀t) + Triangle (½at²).",
-      "Inquiry": "Discovering why distance grows with the square of time (t²) when starting from rest.",
-      "Collaboration": "Partner math sprint: one student calculates geometric area; the other computes algebraic formula Δx = v₀t + ½at².",
-      "Organization": "Color-coding v-t graph regions (blue for rectangle initial velocity contribution, green for triangle acceleration contribution).",
-      "Reading": "Extracting time interval widths and velocity heights from coordinated motion graphs."
+      "Writing": "Period 0: Writing geometric proofs showing Area = Rectangle (v₀t) + Triangle (½at²). Periods 1–6: Documenting calculated velocities (v_avg, v_f, a) with units and describing curved x vs. t graphs.",
+      "Inquiry": "Period 0: Investigating why displacement grows with t² during acceleration. Periods 1–6: Capturing line-crossing timestamps from slow-motion video to analyze constant acceleration.",
+      "Collaboration": "Period 0: Partner math sprints comparing geometric vs. formulaic displacement. Periods 1–6: Lab team roles (track calibration, car release, timer, camera).",
+      "Organization": "Period 0: Color-coding v-t graph regions. Periods 1–6: Constructing 5-interval data tables and plotting coordinate curves.",
+      "Reading": "Extracting interval widths and heights from coordinate graphs and interpreting video stopwatch timestamps."
     },
     "bellRinger": {
       "type": "cast_challenge",
@@ -2814,37 +2815,64 @@ const lessonsData = [
     },
     "assignments": [
       {
-        "title": "Accelerated Motion Displacement & v-t Area Calculation Worksheet",
+        "title": "Pull-Back Toy Motion Lab (Periods 1–6)",
+        "url": "Unit_2/pull_back_toy_lab/index.html",
+        "typeLabel": "Hands-On Lab Activity & Report",
+        "submission": "Cloud Auto-Saved ✓ (10 pts)",
+        "actionLabel": "Open Lab Companion",
+        "description": "Periods 1–6: Measure 5 distance intervals (0–100 cm), plot the x vs. t curve, and verify v_avg, v_f, and acceleration calculations."
+      },
+      {
+        "title": "Accelerated Motion Displacement & v-t Area Calculation Worksheet (Period 0 Honors)",
         "typeLabel": "Classwork Practice",
-        "submission": "In-Class Handout (Subject to Pacing)",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Partition 6 acceleration v-t graphs into rectangles and triangles, calculate displacements, and verify with Δx = v₀t + ½at².",
-        "status": "planned"
+        "submission": "In-Class Handout (Period 0)",
+        "actionLabel": "In-Class Handout",
+        "description": "Period 0: Partition 6 acceleration v-t graphs into rectangles and triangles, calculate displacements, and verify with Δx = v₀t + ½at²."
       }
     ],
     "resources": [
       {
+        "title": "Pull-Back Toy Lab Setup Video",
+        "url": "https://drive.google.com/file/d/1AzjHUlsL2X34YtQUKrtjvGBCyjtupQ-k/view",
+        "typeLabel": "Demonstration Video",
+        "description": "Periods 1–6: Walkthrough video showing metric track setup, stopwatch placement, and phone camera angle."
+      },
+      {
+        "title": "Graphing Pull-Back Toy Handout (PDF)",
+        "url": "https://rrmudry.github.io/Unit_2/pull_back_toy_lab/index.html",
+        "typeLabel": "Lab Activity Guide",
+        "description": "Periods 1–6: Official laboratory procedure, safety rules, and data collection protocol."
+      },
+      {
         "title": "Dual-Graph Motion Studio",
         "url": "Unit_2/dual_graph_studio/index.html",
         "typeLabel": "Interactive Web Tool",
-        "description": "Interactive dual-canvas studio connecting position-time slopes to velocity-time area displacements."
+        "description": "Period 0 Honors: Interactive dual-canvas studio connecting position-time slopes to velocity-time area displacements."
       },
       {
         "title": "Velocity vs. Time Visualizer",
         "url": "Unit_2/velocity_time_graph_studio/index.html",
         "typeLabel": "Interactive Web Tool",
-        "description": "Simulate uniform acceleration and inspect area calculations."
+        "description": "Explore constant acceleration lines, slope readouts, and area calculations."
       }
     ],
     "practice": [
       {
+        "title": "Pull-Back Toy Motion Lab Companion",
+        "url": "Unit_2/pull_back_toy_lab/index.html",
+        "typeLabel": "Lab Companion (Periods 1–6)",
+        "description": "Interactive data table with real-time x vs. t plotting and diagnostic calculation verification."
+      },
+      {
         "title": "Dual-Graph Motion Studio",
         "url": "Unit_2/dual_graph_studio/index.html",
-        "typeLabel": "Practice Tool",
-        "description": "Analyze area under v-t graph segments."
+        "typeLabel": "Practice Tool (Period 0)",
+        "description": "Analyze area under v-t graph segments and connect to displacement."
       }
     ],
     "links": {
+      "Pull-Back Toy Motion Lab": "Unit_2/pull_back_toy_lab/index.html",
+      "Lab Setup Video": "https://drive.google.com/file/d/1AzjHUlsL2X34YtQUKrtjvGBCyjtupQ-k/view",
       "Dual-Graph Motion Studio": "Unit_2/dual_graph_studio/index.html",
       "Velocity vs. Time Visualizer": "Unit_2/velocity_time_graph_studio/index.html"
     }
