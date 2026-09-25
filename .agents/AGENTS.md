@@ -13,7 +13,7 @@ This ensures knowledge compounds across sessions rather than being lost when a c
 Whenever creating, modifying, or updating unit dashboards, lesson plans, daily activities, assignments, or student webapps across `rrmudry.github.io`:
 
 1. **Daily Lesson Standards Tagging (Mandatory)**:
-   - Every daily lesson entry in `assets/lessons-data.js` or unit lesson JSON files MUST include an explicit `standards` array (e.g. `standards: ["HS-PS2-5", "HS-PS3-5"]`).
+   - `assets/lessons-data.js` is the **single source of truth** for all curriculum data across all units. Every daily lesson entry MUST include an explicit `standards` array (e.g. `standards: ["HS-PS2-5", "HS-PS3-5"]`). Never create or maintain duplicate per-unit JSON files.
    - Daily lesson cards on dashboards must render standard pill badges (`<span data-ngss-code="HS-PS2-5">HS-PS2-5</span>`).
 
 2. **Declarative HTML Standards Alignment**:

@@ -144,10 +144,13 @@
                                 <label for="unit-select" class="text-[10px] text-slate-500 font-semibold tracking-wider uppercase">Unit</label>
                                 <select id="unit-select" onchange="onUnitChanged()" class="w-full rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-orange-500">
                                     <option value="">-- Choose Unit --</option>
-                                    <option value="1">Unit 1: Intro</option>
-                                    <option value="2">Unit 2: Kinematics & Forces</option>
-                                    <option value="6">Unit 6: Waves</option>
-                                    <option value="7">Unit 7: Electricity</option>
+                                    <option value="1">Unit 1: Intro to Physics</option>
+                                    <option value="2">Unit 2: Kinematics & Motion</option>
+                                    <option value="3">Unit 3: Newton's Laws & Dynamics</option>
+                                    <option value="4">Unit 4: Momentum & Impulse</option>
+                                    <option value="5">Unit 5: Energy, Work & Power</option>
+                                    <option value="6">Unit 6: Waves & Light</option>
+                                    <option value="7">Unit 7: Electricity & Magnetism</option>
                                 </select>
                             </div>
                             <div class="flex flex-col gap-1">
@@ -731,39 +734,46 @@ CRITICAL RULES:
 
             if (!unitVal) return;
 
-            let path = '';
-            let globalVarName = '';
-            if (unitVal === "1") {
-                path = '../Unit_1_Introduction/unit1_lessons.json';
-                globalVarName = 'unit1Lessons';
-            } else if (unitVal === "2") {
-                path = '../Unit_2/unit2_lessons.json';
-                globalVarName = 'unit2Lessons';
-            } else if (unitVal === "6") {
-                path = '../Unit_6_Waves_Radiation/unit6_lessons.json';
-                globalVarName = 'unit6Lessons';
-            } else if (unitVal === "7") {
-                path = '../Unit_7_Electricity_and_Magnetism/unit7_lessons.json';
-                globalVarName = 'unit7Lessons';
-            }
-
             statusMsg.innerText = "⏳ Loading unit calendar...";
             statusMsg.className = "text-[10px] text-yellow-500 font-medium";
             statusMsg.classList.remove('hidden');
 
             try {
-                const response = await fetch(`${path}?v=${Date.now()}`);
-                if (!response.ok) throw new Error("File not found or failed to load");
-                const text = await response.text();
-                
-                // Replace 'const unitXLessons =' with 'window.unitXLessons =' to avoid redeclaration syntax error
-                const sanitizedText = text.replace(/const\s+unit\d+Lessons\s*=/g, `window.${globalVarName} =`);
-                
-                // Evaluate in global context
-                (0, eval)(sanitizedText);
+                // Primary: Load from central assets/lessons-data.js (single source of truth for all units)
+                if (typeof window.lessonsData === 'undefined') {
+                    const response = await fetch(`../assets/lessons-data.js?v=${Date.now()}`);
+                    if (response.ok) {
+                        const text = await response.text();
+                        const sanitizedText = text.replace(/const\s+lessonsData\s*=/g, 'window.lessonsData =');
+                        (0, eval)(sanitizedText);
+                    }
+                }
 
-                const lessons = window[globalVarName];
-                if (lessons && Array.isArray(lessons)) {
+                let lessons = [];
+                if (typeof window.lessonsData !== 'undefined' && Array.isArray(window.lessonsData)) {
+                    lessons = window.lessonsData.filter(les => String(les.unit) === String(unitVal));
+                }
+
+                // Fallback for legacy standalone unit files if needed
+                if (!lessons || lessons.length === 0) {
+                    let path = '';
+                    let globalVarName = '';
+                    if (unitVal === "1") { path = '../Unit_1_Introduction/unit1_lessons.json'; globalVarName = 'unit1Lessons'; }
+                    else if (unitVal === "6") { path = '../Unit_6_Waves_Radiation/unit6_lessons.json'; globalVarName = 'unit6Lessons'; }
+                    else if (unitVal === "7") { path = '../Unit_7_Electricity_and_Magnetism/unit7_lessons.json'; globalVarName = 'unit7Lessons'; }
+                    
+                    if (path) {
+                        const response = await fetch(`${path}?v=${Date.now()}`);
+                        if (response.ok) {
+                            const text = await response.text();
+                            const sanitizedText = text.replace(/const\s+unit\d+Lessons\s*=/g, `window.${globalVarName} =`);
+                            (0, eval)(sanitizedText);
+                            lessons = window[globalVarName] || [];
+                        }
+                    }
+                }
+
+                if (lessons && Array.isArray(lessons) && lessons.length > 0) {
                     activeLessonsArray = lessons;
                     lessons.forEach((les, idx) => {
                         const opt = document.createElement('option');
@@ -775,8 +785,8 @@ CRITICAL RULES:
                     statusMsg.innerText = `✅ Loaded ${lessons.length} lessons.`;
                     statusMsg.className = "text-[10px] text-green-500 font-medium";
                 } else {
-                    statusMsg.innerText = "❌ Failed to parse calendar array.";
-                    statusMsg.className = "text-[10px] text-red-500 font-medium";
+                    statusMsg.innerText = "ℹ️ No pre-planned lessons found for this unit.";
+                    statusMsg.className = "text-[10px] text-yellow-500 font-medium";
                 }
             } catch (err) {
                 statusMsg.innerText = "❌ Lesson plan file not found or failed to load.";
