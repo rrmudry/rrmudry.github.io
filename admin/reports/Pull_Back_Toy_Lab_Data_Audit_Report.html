@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pull-Back Toy Motion Lab: Data Integrity Audit & In-Class Intervention Protocol</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap");
+
+    @page {
+      size: letter portrait;
+      margin: 0.22in 0.28in;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #0f172a;
+      background: #f1f5f9;
+      margin: 0;
+      padding: 0;
+      font-size: 7.2pt;
+      line-height: 1.25;
+    }
+
+    .page {
+      width: 8.5in;
+      min-height: 11in;
+      max-height: 11in;
+      margin: 0 auto;
+      padding: 0.24in 0.3in;
+      background: #ffffff;
+      position: relative;
+      page-break-after: always;
+      break-after: page;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .page:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+      }
+      .page {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        min-height: 10.5in;
+        max-height: 10.5in;
+        page-break-after: always;
+        break-after: page;
+      }
+      .page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+    }
+
+    /* Common Header */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #0284c7;
+      padding-bottom: 4px;
+      margin-bottom: 6px;
+    }
+    .header-title h1 {
+      margin: 0;
+      font-size: 12.5pt;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+    .header-title .subtitle {
+      font-size: 7pt;
+      color: #475569;
+      font-weight: 600;
+      margin-top: 1px;
+    }
+    .header-meta {
+      text-align: right;
+      font-size: 6.6pt;
+      color: #334155;
+      line-height: 1.25;
+    }
+    .badge-audit {
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 6.2pt;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      display: inline-block;
+      margin-bottom: 1px;
+    }
+
+    /* KPI Cards */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .kpi-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 5px;
+      padding: 3.5px 5px;
+      text-align: center;
+    }
+    .kpi-val {
+      font-size: 12.5pt;
+      font-weight: 800;
+      font-family: "JetBrains Mono", monospace;
+      line-height: 1.1;
+    }
+    .kpi-box.kpi-blue .kpi-val { color: #0284c7; }
+    .kpi-box.kpi-green .kpi-val { color: #16a34a; }
+    .kpi-box.kpi-red .kpi-val { color: #dc2626; }
+    .kpi-box.kpi-amber .kpi-val { color: #d97706; }
+    .kpi-lbl {
+      font-size: 6pt;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    /* Distribution Bar */
+    .bar-wrap {
+      margin-bottom: 6px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 5px;
+      padding: 3.5px 6px;
+    }
+    .bar-strip {
+      height: 7px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+      margin: 2px 0;
+    }
+    .bar-auth { background: #22c55e; }
+    .bar-draft { background: #f59e0b; }
+    .bar-bogus { background: #ef4444; }
+
+    /* Section Titles */
+    .section-title {
+      font-size: 7.5pt;
+      font-weight: 800;
+      color: #1e293b;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin: 5px 0 3px 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .section-title::before {
+      content: "";
+      width: 3px;
+      height: 9px;
+      background: #0284c7;
+      border-radius: 2px;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 5px;
+      font-size: 6.8pt;
+    }
+    th {
+      background: #f1f5f9;
+      color: #334155;
+      font-weight: 700;
+      text-align: left;
+      padding: 2.5px 5px;
+      border: 1px solid #cbd5e1;
+      font-size: 6.3pt;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    td {
+      padding: 2.2px 5px;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+    }
+    tr:nth-child(even) { background: #f8fafc; }
+    .font-mono { font-family: "JetBrains Mono", monospace; }
+    .text-center { text-align: center; }
+    .font-bold { font-weight: 700; }
+
+    .tag-clean { background: #dcfce7; color: #166534; padding: 0.8px 4px; border-radius: 3px; font-weight: 700; font-size: 6.1pt; }
+    .tag-bogus { background: #fee2e2; color: #991b1b; padding: 0.8px 4px; border-radius: 3px; font-weight: 700; font-size: 6.1pt; }
+
+    /* Page 1 Transition Banner */
+    .page-turn-banner {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 5px;
+      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #1e40af;
+      font-size: 6.8pt;
+      margin-top: 2px;
+    }
+    .page-turn-banner strong {
+      color: #1d4ed8;
+      font-weight: 700;
+    }
+
+    /* Page Footer */
+    .page-footer {
+      border-top: 1px solid #e2e8f0;
+      padding-top: 3px;
+      margin-top: 4px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 6.1pt;
+      color: #94a3b8;
+    }
+
+    /* PAGE 2 SPECIFIC STYLES: In-Class Intervention Dashboard */
+    .p2-header-summary {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 5px;
+      padding: 4px 8px;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 6.8pt;
+    }
+    .p2-summary-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .period-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      flex-grow: 1;
+    }
+
+    .period-card {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 5px;
+      padding: 4px 6px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    }
+
+    .period-card.clean-card {
+      border-color: #86efac;
+      background: #f0fdf4;
+    }
+
+    .period-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 2.5px;
+      margin-bottom: 3.5px;
+    }
+    .period-tag {
+      font-size: 7.2pt;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .period-pill {
+      background: #0284c7;
+      color: #ffffff;
+      padding: 0.5px 5px;
+      border-radius: 3px;
+      font-size: 6.2pt;
+      font-weight: 800;
+      font-family: "JetBrains Mono", monospace;
+    }
+    .period-card.clean-card .period-pill {
+      background: #16a34a;
+    }
+    .period-stats {
+      font-size: 6.1pt;
+      font-weight: 700;
+      color: #64748b;
+    }
+
+    .problem-box {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 4px;
+      padding: 3px 5px;
+      margin-bottom: 3.5px;
+    }
+    .problem-box.info-clean {
+      background: #ffffff;
+      border-color: #bbf7d0;
+    }
+    .problem-header {
+      font-size: 6.4pt;
+      font-weight: 800;
+      color: #991b1b;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 1.5px;
+      text-transform: uppercase;
+    }
+    .problem-header.text-green {
+      color: #166534;
+    }
+    .problem-desc {
+      font-size: 6.6pt;
+      color: #7f1d1d;
+      line-height: 1.22;
+    }
+    .problem-desc.text-green {
+      color: #14532d;
+    }
+
+    .students-line {
+      font-size: 6.5pt;
+      color: #334155;
+      margin-bottom: 3.5px;
+      line-height: 1.2;
+    }
+    .students-line strong {
+      color: #0f172a;
+    }
+
+    .action-box-p2 {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 4px;
+      padding: 3px 5px;
+      margin-bottom: 3.5px;
+    }
+    .action-header {
+      font-size: 6.4pt;
+      font-weight: 800;
+      color: #166534;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 1.5px;
+      text-transform: uppercase;
+    }
+    .action-desc {
+      font-size: 6.6pt;
+      color: #14532d;
+      line-height: 1.25;
+    }
+
+    .drafts-box {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 4px;
+      padding: 2.5px 5px;
+      font-size: 6.2pt;
+      color: #78350f;
+      line-height: 1.2;
+    }
+    .drafts-header {
+      font-weight: 800;
+      color: #92400e;
+      text-transform: uppercase;
+      font-size: 5.9pt;
+      margin-bottom: 1px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ========================================== PAGE 1: AUDIT & ANOMALY DIRECTORY ========================================== -->
+<div class="page">
+  <div>
+    <!-- Header -->
+    <div class="header-bar">
+      <div class="header-title">
+        <h1>Pull-Back Toy Motion Lab: Student Data Audit</h1>
+        <div class="subtitle">Unit 2: Kinematics & Uniform Acceleration • Data Integrity & Systematic Anomaly Review</div>
+      </div>
+      <div class="header-meta">
+        <span class="badge-audit">Forensic Telemetry</span><br>
+        Orange High School Physics • 125 Active Students • Sep 24, 2026
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-row">
+      <div class="kpi-box kpi-blue">
+        <div class="kpi-val">125</div>
+        <div class="kpi-lbl">Total Students</div>
+      </div>
+      <div class="kpi-box kpi-green">
+        <div class="kpi-val">86</div>
+        <div class="kpi-lbl">Authentic Runs (68.8%)</div>
+      </div>
+      <div class="kpi-box kpi-red">
+        <div class="kpi-val">18</div>
+        <div class="kpi-lbl">Flagged Bogus (14.4%)</div>
+      </div>
+      <div class="kpi-box kpi-amber">
+        <div class="kpi-val">21</div>
+        <div class="kpi-lbl">Incomplete / Draft (16.8%)</div>
+      </div>
+    </div>
+
+    <!-- Distribution Bar -->
+    <div class="bar-wrap">
+      <div style="display:flex; justify-content:space-between; font-size:6.1pt; font-weight:700; color:#475569; text-transform:uppercase;">
+        <span>🟢 Authentic Physical Runs: 86 (68.8%)</span>
+        <span>🟠 Incomplete / Drafts: 21 (16.8%)</span>
+        <span>🔴 Flagged / Unphysical Sets: 18 (14.4%)</span>
+      </div>
+      <div class="bar-strip">
+        <div class="bar-auth" style="width: 68.8%;"></div>
+        <div class="bar-draft" style="width: 16.8%;"></div>
+        <div class="bar-bogus" style="width: 14.4%;"></div>
+      </div>
+    </div>
+
+    <!-- Section 1: Period Matrix -->
+    <div class="section-title">1. Section Pacing & Data Integrity Matrix</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:18%;">Class Section</th>
+          <th class="text-center" style="width:9%;">Roster</th>
+          <th class="text-center" style="width:13%;">Turned In</th>
+          <th class="text-center" style="width:13%;">Authentic</th>
+          <th class="text-center" style="width:13%;">Flagged Bogus</th>
+          <th class="text-center" style="width:10%;">Incomplete</th>
+          <th>Primary Anomaly Diagnostic</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="font-bold">Period 0 (Honors Physics)</td>
+          <td class="text-center font-mono">14</td>
+          <td class="text-center font-mono font-bold" style="color:#16a34a;">14 (100%)</td>
+          <td class="text-center font-mono font-bold" style="color:#16a34a;">14 (100%)</td>
+          <td class="text-center font-mono font-bold" style="color:#16a34a;">0 (0.0%)</td>
+          <td class="text-center font-mono">0</td>
+          <td><span class="tag-clean">100% CLEAN</span> Exemplary slow-mo telemetry (0.75 s – 1.05 s).</td>
+        </tr>
+        <tr>
+          <td class="font-bold">Period 1 (Conceptual Phys)</td>
+          <td class="text-center font-mono">10</td>
+          <td class="text-center font-mono">6 (60%)</td>
+          <td class="text-center font-mono">5 (50.0%)</td>
+          <td class="text-center font-mono font-bold" style="color:#dc2626;">2 (20.0%)</td>
+          <td class="text-center font-mono">3</td>
+          <td>Raw video frames entered as seconds: [8, 27, 41, 51, 67] (67 s total).</td>
+        </tr>
+        <tr>
+          <td class="font-bold">Period 2 (Conceptual Phys)</td>
+          <td class="text-center font-mono">13</td>
+          <td class="text-center font-mono">7 (54%)</td>
+          <td class="text-center font-mono">4 (30.8%)</td>
+          <td class="text-center font-mono font-bold" style="color:#dc2626;">4 (30.8%)</td>
+          <td class="text-center font-mono">5</td>
+          <td>Pod sharing synthetic [1, 2, 3, 4, 5] integer placeholders (0 accel).</td>
+        </tr>
+        <tr>
+          <td class="font-bold">Period 3 (Conceptual Phys)</td>
+          <td class="text-center font-mono">14</td>
+          <td class="text-center font-mono">13 (93%)</td>
+          <td class="text-center font-mono">9 (64.3%)</td>
+          <td class="text-center font-mono font-bold" style="color:#dc2626;">4 (28.6%)</td>
+          <td class="text-center font-mono">1</td>
+          <td>Group typo: entered 91.00 s for 100 cm mark (took 89.8 s for 20 cm).</td>
+        </tr>
+        <tr>
+          <td class="font-bold">Period 4 (Physics Regular)</td>
+          <td class="text-center font-mono">31</td>
+          <td class="text-center font-mono">21 (68%)</td>
+          <td class="text-center font-mono font-bold" style="color:#16a34a;">25 (80.6%)</td>
+          <td class="text-center font-mono font-bold" style="color:#16a34a;">0 (0.0%)</td>
+          <td class="text-center font-mono">6</td>
+          <td><span class="tag-clean">ZERO BOGUS</span> 25 clean accelerating runs; 6 in progress.</td>
+        </tr>
+        <tr>
+          <td class="font-bold">Period 5 (Physics Regular)</td>
+          <td class="text-center font-mono">31</td>
+          <td class="text-center font-mono">25 (81%)</td>
+          <td class="text-center font-mono">24 (77.4%)</td>
+          <td class="text-center font-mono font-bold" style="color:#dc2626;">4 (12.9%)</td>
+          <td class="text-center font-mono">3</td>
+          <td>Distance typed as time (100 s); video frame numbers (79 s); stall.</td>
+        </tr>
+        <tr>
+          <td class="font-bold">Period 6 (Physics Regular)</td>
+          <td class="text-center font-mono">12</td>
+          <td class="text-center font-mono">8 (67%)</td>
+          <td class="text-center font-mono">5 (41.7%)</td>
+          <td class="text-center font-mono font-bold" style="color:#dc2626;">4 (33.3%)</td>
+          <td class="text-center font-mono">3</td>
+          <td>Fabricated constant speed (0.25 s steps), double-tap (0.18 s), frame switch.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Section 2: Master Anomaly Directory Sorted Strictly by Period -->
+    <div class="section-title">2. Master Anomaly Directory (18 Flagged Students across 9 Clusters • Ordered by Period)</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:6%;">Per</th>
+          <th style="width:26%;">Flagged Students & IDs</th>
+          <th style="width:23%;">Recorded Timestamps (0 to 100 cm)</th>
+          <th class="text-center" style="width:8%;">Total</th>
+          <th style="width:15%;">Pathology Type</th>
+          <th>Diagnostic Finding</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Period 1 -->
+        <tr>
+          <td class="font-bold" style="color:#0284c7;">P1</td>
+          <td>Destiny Carrasco (396854), Daniela Rivera (431303)</td>
+          <td class="font-mono">[0, <span style="color:#dc2626;font-weight:bold;">8.0, 27.0, 41.0, 51.0, 67.0</span>]</td>
+          <td class="text-center font-mono font-bold" style="color:#dc2626;">67.0 s</td>
+          <td><span class="tag-bogus">Frame Numbers</span></td>
+          <td>Hundredths/frames entered as seconds (car took 67 s; v = 1.5 cm/s).</td>
+        </tr>
+        <!-- Period 2 -->
+        <tr>
+          <td class="font-bold" style="color:#0284c7;">P2</td>
+          <td>Anthony Baez (389113), Marco Figueroa (397870), Azaleah Buenaflor (398861)</td>
+          <td class="font-mono">[0, <span style="color:#dc2626;font-weight:bold;">1.00, 2.00, 3.00, 4.00, 5.00</span>]</td>
+          <td class="text-center font-mono font-bold" style="color:#dc2626;">5.00 s</td>
+          <td><span class="tag-bogus">Placeholders</span></td>
+          <td>Fabricated sequential integers (constant 20 cm/s; zero acceleration).</td>
+        </tr>
+        <tr>
+          <td class="font-bold" style="color:#0284c7;">P2</td>
+          <td>Randy Valencia Molina (387527)</td>
+          <td class="font-mono">[0, <span style="color:#dc2626;font-weight:bold;">1.00, 2.00, 3.00, 4.00, 4.99</span>]</td>
+          <td class="text-center font-mono font-bold" style="color:#dc2626;">4.99 s</td>
+          <td><span class="tag-bogus">Placeholders</span></td>
+          <td>Copied 1, 2, 3, 4 then typed 4.99 s to bypass app duplicate validator.</td>
+        </tr>
+        <!-- Period 3 -->
+        <tr>
+          <td class="font-bold" style="color:#0284c7;">P3</td>
+          <td>Lesslie Enriquez (390808), Jimena Herrera (430156), Emily Miranda (435778), Marleny Vazquez (441768)</td>
+          <td class="font-mono">[0, 0.30, 0.36, 0.70, 1.21, <span style="color:#dc2626;font-weight:bold;">91.00</span>]</td>
+          <td class="text-center font-mono font-bold" style="color:#dc2626;">91.0 s</td>
+          <td><span class="tag-bogus">Shared Video Typo</span></td>
+          <td>Typo on 100 cm mark (car took 89.8 s for 20 cm). Video reads ~1.91 s.</td>
+        </tr>
+        <!-- Period 5 -->
+        <tr>
+          <td class="font-bold" style="color:#0284c7;">P5</td>
+          <td>Joshua Escobar (393188), Alexander Rosas (395643)</td>
+          <td class="font-mono">[0, <span style="color:#dc2626;font-weight:bold;">30.0, 47.0, 60.0, 65.0, 79.0</span>]</td>
+          <td class="text-center font-mono font-bold" style="color:#dc2626;">79.0 s</td>
+          <td><span class="tag-bogus">Frame Numbers</span></td>
+          <td>Slow-mo video frame counts entered directly as seconds (79 s run).</td>
+        </tr>
+        <tr>
+          <td class="font-bold" style="color:#0284c7;">P5</td>
+          <td>Kevin Velazquez (389920)</td>
+          <td class="font-mono">[0, <span style="color:#dc2626;font-weight:bold;">20.0, 40.0, 60.0, 80.0, 100.0</span>]</td>
+          <td class="text-center font-mono font-bold" style="color:#dc2626;">100.0 s</td>
+          <td><span class="tag-bogus">Distance as Time</span></td>
+          <td>Copied track distance tape markers (20-100 cm) into elapsed time boxes.</td>
+        </tr>
+        <tr>
+          <td class="font-bold" style="color:#0284c7;">P5</td>
+          <td>Valerie Cervantes (396976)</td>
+          <td class="font-mono">[0, 0.05, 0.26, 1.29, <span style="color:#dc2626;font-weight:bold;">6.44, 7.03</span>]</td>
+          <td class="text-center font-mono font-bold" style="color:#dc2626;">7.03 s</td>
+          <td><span class="tag-bogus">Severe Decel / Stall</span></td>
+          <td>Initial speed 400 cm/s; final interval crawled at 3.9 cm/s (car collision/stall).</td>
+        </tr>
+        <!-- Period 6 -->
+        <tr>
+          <td class="font-bold" style="color:#0284c7;">P6</td>
+          <td>Skyler Almaguer (390179), Oscar Bonifacio (392126)</td>
+          <td class="font-mono">[0, <span style="color:#dc2626;font-weight:bold;">0.25, 0.50, 0.75, 1.00, 1.25</span>]</td>
+          <td class="text-center font-mono font-bold" style="color:#dc2626;">1.25 s</td>
+          <td><span class="tag-bogus">Synthetic Linear</span></td>
+          <td>Identical arithmetic increments (stdev = 0.00 s; zero accel; constant speed).</td>
+        </tr>
+        <tr>
+          <td class="font-bold" style="color:#0284c7;">P6</td>
+          <td>Allison Menjivar (392908)</td>
+          <td class="font-mono">[0, 0.08, <span style="color:#dc2626;font-weight:bold;">0.09</span>, 0.11, 0.14, 0.18]</td>
+          <td class="text-center font-mono font-bold" style="color:#dc2626;">0.18 s</td>
+          <td><span class="tag-bogus">Teleportation</span></td>
+          <td>100 cm in 0.18 s (12.4 mph); interval 2 was 0.01 s (45 mph). Stopwatch double-tap.</td>
+        </tr>
+        <tr>
+          <td class="font-bold" style="color:#0284c7;">P6</td>
+          <td>Bryan Garcia Avalos (396259)</td>
+          <td class="font-mono">[0, 0.92, <span style="color:#dc2626;font-weight:bold;">41.0, 65.0, 83.0, 120.0</span>]</td>
+          <td class="text-center font-mono font-bold" style="color:#dc2626;">120.0 s</td>
+          <td><span class="tag-bogus">Mid-Table Switch</span></td>
+          <td>Entered 0.92 s for 20 cm, then switched to video frame numbers (41 to 120).</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div>
+    <!-- Transition Callout Banner -->
+    <div class="page-turn-banner">
+      <div>
+        <strong>📋 Action Protocol Guide:</strong> Turn to <strong>Page 2</strong> for the dedicated, period-by-period teacher intervention protocol with specific student diagnostics, conversational remediation scripts, and pending draft checklists.
+      </div>
+      <div style="font-weight:700; white-space:nowrap; margin-left:8px;">Page 1 of 2 →</div>
+    </div>
+
+    <!-- Page Footer -->
+    <div class="page-footer">
+      <span>Orange High School • Physics Department • Pull-Back Toy Motion Lab Telemetry Audit</span>
+      <span>Confidential Teacher Record • Generated Sep 24, 2026</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ========================================== PAGE 2: IN-CLASS TEACHER INTERVENTION PROTOCOL ========================================== -->
+<div class="page">
+  <div>
+    <!-- Header -->
+    <div class="header-bar">
+      <div class="header-title">
+        <h1>Teacher Action Protocol for In-Class Intervention</h1>
+        <div class="subtitle">Unit 2 Pull-Back Toy Motion Lab • Period-by-Period Student Diagnostics, Cited Issues & Support Steps</div>
+      </div>
+      <div class="header-meta">
+        <span class="badge-audit" style="background:#fef3c7; color:#92400e;">In-Class Action Guide</span><br>
+        Organized by Class Period • Sep 24, 2026
+      </div>
+    </div>
+
+    <!-- Top Summary Alert -->
+    <div class="p2-header-summary">
+      <div class="p2-summary-item">
+        <span class="tag-clean font-bold">PERIOD 0 HONORS</span>
+        <span style="color:#166534; font-weight:600;">14 / 14 Authentic Submissions (100% Clean) • No in-class remediation required.</span>
+      </div>
+      <div style="font-weight:700; color:#475569;">
+        Active Follow-ups: 18 Flagged Students • 21 Incomplete Drafts
+      </div>
+    </div>
+
+    <!-- 2-Column Period Grid -->
+    <div class="period-grid">
+      
+      <!-- ==================== PERIOD 1 ==================== -->
+      <div class="period-card">
+        <div>
+          <div class="period-card-top">
+            <div class="period-tag"><span class="period-pill">PERIOD 1</span> Conceptual Physics</div>
+            <div class="period-stats" style="color:#dc2626;">2 Flagged • 3 Incomplete</div>
+          </div>
+          
+          <div class="problem-box">
+            <div class="problem-header">🔴 Problem Cited: Video Frame Numbers as Seconds</div>
+            <div class="problem-desc">
+              Entered raw slow-mo frame counts / hundredths <code>[8, 27, 41, 51, 67]</code> as seconds. The car calculates as taking 67.0 s to travel 1.0 m (average speed of 1.5 cm/s).
+            </div>
+          </div>
+
+          <div class="students-line">
+            <strong>Flagged Students:</strong> Destiny Carrasco (396854), Daniela Rivera Carbajal (431303)
+          </div>
+
+          <div class="action-box-p2">
+            <div class="action-header">🟢 Support Needed / In-Class Action:</div>
+            <div class="action-desc">
+              Have students open their run video in their gallery. Explain that the digits in the scrubber overlay are video frame ticks or hundredths. Guide them to divide entries by 100 or re-read the decimal seconds display (e.g. <code>0.67 s</code> instead of 67). Updating values immediately restores their velocity calculation to an authentic ~149 cm/s.
+            </div>
+          </div>
+        </div>
+
+        <div class="drafts-box">
+          <div class="drafts-header">🟠 Pending Drafts Checklist:</div>
+          Matthew Rodriguez Garcia (392998), Brianna Lozada (398089), Pablo Galicia (403474).<br>
+          <em>Remedy: Pair with bench partners who have recorded slow-mo videos to record track times.</em>
+        </div>
+      </div>
+
+      <!-- ==================== PERIOD 4 ==================== -->
+      <div class="period-card clean-card">
+        <div>
+          <div class="period-card-top">
+            <div class="period-tag"><span class="period-pill">PERIOD 4</span> Physics Regular</div>
+            <div class="period-stats" style="color:#16a34a;">0 Flagged • 6 Drafts Pending</div>
+          </div>
+          
+          <div class="problem-box info-clean">
+            <div class="problem-header text-green">🟢 Status: 100% Authentic Data — Zero Bogus Sets!</div>
+            <div class="problem-desc text-green">
+              All 25 completed submissions show genuine physical acceleration curves (average speeds 85–140 cm/s). Zero synthetic fabrication or unit errors detected across the section!
+            </div>
+          </div>
+
+          <div class="action-box-p2" style="background:#ffffff; border-color:#86efac;">
+            <div class="action-header">🔵 Priority Action: 4 Valid Runs Need Final Submission:</div>
+            <div class="action-desc">
+              4 students have already entered authentic, valid timestamps into their draft table but haven't clicked submit:<br>
+              • <strong>Sebastian Reynoso (391714)</strong>: [0, 0.39, 0.56, 0.71, 0.80, 0.95]<br>
+              • <strong>Jacob Sanchez (393031)</strong>: [0, 0.31, 0.48, 0.58, 0.68, 0.79]<br>
+              • <strong>Miguel Alcala Laurean (395419)</strong>: [0, 0.38, 0.56, 0.71, 0.83, 0.95]<br>
+              • <strong>Wychane Randle (438294)</strong>: [0, 0.41, 0.62, 0.79, 0.93, 1.23]<br>
+              <em>Guide them to compute average/final velocity, acceleration, and hit "Submit Lab".</em>
+            </div>
+          </div>
+        </div>
+
+        <div class="drafts-box" style="background:#f0fdf4; border-color:#bbf7d0; color:#166534;">
+          <div class="drafts-header" style="color:#15803d;">🟠 Blank Drafts Checklist (6 Students):</div>
+          Joshua Sheldon (391960), Dantae Valdez (392421), Sabrina Anaya Trinidad (396311), Jazmin Panzo Garcia (396323), Bryssa Diaz (396686), Jose Guzman (397139). Prompt them to test & submit.
+        </div>
+      </div>
+
+      <!-- ==================== PERIOD 2 ==================== -->
+      <div class="period-card">
+        <div>
+          <div class="period-card-top">
+            <div class="period-tag"><span class="period-pill">PERIOD 2</span> Conceptual Physics</div>
+            <div class="period-stats" style="color:#dc2626;">4 Flagged • 5 Incomplete</div>
+          </div>
+          
+          <div class="problem-box">
+            <div class="problem-header">🔴 Problem Cited: Synthetic Integer Placeholders (0 Accel)</div>
+            <div class="problem-desc">
+              Entered synthetic integers <code>[0, 1.00, 2.00, 3.00, 4.00, 5.00]</code> (constant 20.0 cm/s; acceleration = 0.0 cm/s²). Randy typed <code>4.99 s</code> at the end to trick the duplicate checker.
+            </div>
+          </div>
+
+          <div class="students-line">
+            <strong>Flagged Students:</strong> Anthony Baez (389113), Marco Figueroa (397870), Azaleah Buenaflor (398861), Randy Valencia Molina (387527)
+          </div>
+
+          <div class="action-box-p2">
+            <div class="action-header">🟢 Support Needed / In-Class Action:</div>
+            <div class="action-desc">
+              Invalidate/reset drafts in teacher panel. Explain that pull-back cars accelerate from rest and cannot take exactly 1.000 s per 20 cm split. Require pod to present phone slow-mo video showing the car on the 100 cm tape before re-entering authentic decimal splits.
+            </div>
+          </div>
+        </div>
+
+        <div class="drafts-box">
+          <div class="drafts-header">🟠 Pending Drafts Checklist:</div>
+          Anthony Quinones Sanchez (395193), Aiden Gutierrez-Torres (398816), Kaylee Fabian Martinez (417149), Ricky Marquez (421804), Jacqueline Cabrera (425747).<br>
+          <em>Remedy: Check lab stations; provide working pull-back cars and stopwatch timers.</em>
+        </div>
+      </div>
+
+      <!-- ==================== PERIOD 5 ==================== -->
+      <div class="period-card">
+        <div>
+          <div class="period-card-top">
+            <div class="period-tag"><span class="period-pill">PERIOD 5</span> Physics Regular</div>
+            <div class="period-stats" style="color:#dc2626;">4 Flagged • 3 Incomplete</div>
+          </div>
+          
+          <div class="problem-box">
+            <div class="problem-header">🔴 Problems Cited: 3 Distinct Anomalies</div>
+            <div class="problem-desc">
+              1. <strong>Frames</strong>: Escobar & Rosas entered <code>[30, 47, 60, 65, 79]</code> (79 s run).<br>
+              2. <strong>Distance as Time</strong>: Velazquez typed <code>[20, 40, 60, 80, 100]</code> (100 s run).<br>
+              3. <strong>Severe Stall</strong>: Cervantes entered 0.05 s then 7.03 s (car died/crashed).
+            </div>
+          </div>
+
+          <div class="students-line">
+            <strong>Flagged Students:</strong> Joshua Escobar (393188), Alexander Rosas (395643), Kevin Velazquez (389920), Valerie Cervantes (396976)
+          </div>
+
+          <div class="action-box-p2">
+            <div class="action-header">🟢 Support Needed / In-Class Action:</div>
+            <div class="action-desc">
+              • <em>Escobar & Rosas</em>: Coach to divide frame entries by 100 or read seconds scrubber.<br>
+              • <em>Velazquez</em>: Explain 20-100 are cm distances; re-enter stopwatch elapsed seconds.<br>
+              • <em>Cervantes</em>: Check if car hit a ruler edge; re-film one clean 100 cm run on tile.
+            </div>
+          </div>
+        </div>
+
+        <div class="drafts-box">
+          <div class="drafts-header">🟠 Pending Drafts Checklist:</div>
+          Valid times entered, need submit: Britany Cruz Ramirez (437688), Yaretzy Solis Ruiz (445225). Blank drafts: Omar Olivares (391057), Kimberly Vargas (391727), Tianna Calderon (395490).
+        </div>
+      </div>
+
+      <!-- ==================== PERIOD 3 ==================== -->
+      <div class="period-card">
+        <div>
+          <div class="period-card-top">
+            <div class="period-tag"><span class="period-pill">PERIOD 3</span> Conceptual Physics</div>
+            <div class="period-stats" style="color:#dc2626;">4 Flagged • 1 Incomplete</div>
+          </div>
+          
+          <div class="problem-box">
+            <div class="problem-header">🔴 Problem Cited: Shared Typo on 100 cm Mark (91.00 s)</div>
+            <div class="problem-desc">
+              Splits 1–4 are realistic (0.30 s to 1.21 s), but final mark was entered as <code>91.00 s</code> instead of <code>~1.91 s</code>. Interval 4→5 implies the car took 89.8 s for 20 cm (0.22 cm/s crawl).
+            </div>
+          </div>
+
+          <div class="students-line">
+            <strong>Flagged Pod:</strong> Lesslie Enriquez Rodriguez (390808), Jimena Herrera Morales (430156), Emily Miranda Silio (435778), Marleny Vazquez Ibarra (441768)
+          </div>
+
+          <div class="action-box-p2">
+            <div class="action-header">🟢 Support Needed: 60-Second In-Class Fix</div>
+            <div class="action-desc">
+              Have the 4 students open their webapp. Ask: <em>"Did your car accelerate through 80 cm in 1.2 s, and then crawl for a minute and a half to go the last 20 cm?"</em> Check their phone video at 100 cm: it reads <code>01:91</code>. Have them change <code>91.00</code> to <code>1.91</code>. The graph and velocities instantly snap to an acceleration curve!
+            </div>
+          </div>
+        </div>
+
+        <div class="drafts-box">
+          <div class="drafts-header">🟠 Pending Drafts Checklist:</div>
+          Arturo Palos (396517) — <em>Remind Arturo to copy his group's corrected timestamps and submit.</em>
+        </div>
+      </div>
+
+      <!-- ==================== PERIOD 6 ==================== -->
+      <div class="period-card">
+        <div>
+          <div class="period-card-top">
+            <div class="period-tag"><span class="period-pill">PERIOD 6</span> Physics Regular</div>
+            <div class="period-stats" style="color:#dc2626;">4 Flagged • 3 Incomplete</div>
+          </div>
+          
+          <div class="problem-box">
+            <div class="problem-header">🔴 Problems Cited: 3 Distinct Anomalies</div>
+            <div class="problem-desc">
+              1. <strong>Synthetic Linear</strong>: Almaguer & Bonifacio entered <code>[0.25, 0.50, 0.75, 1.00, 1.25]</code>.<br>
+              2. <strong>Double-Tap</strong>: Menjivar total run = 0.18 s (interval 2 was 0.01 s = 45 mph!).<br>
+              3. <strong>Frame Switch</strong>: Garcia Avalos entered 0.92 s, then switched to frames 41-120.
+            </div>
+          </div>
+
+          <div class="students-line">
+            <strong>Flagged Students:</strong> Skyler Almaguer (390179), Oscar Bonifacio (392126), Allison Menjivar (392908), Bryan Garcia Avalos (396259)
+          </div>
+
+          <div class="action-box-p2">
+            <div class="action-header">🟢 Support Needed / In-Class Action:</div>
+            <div class="action-desc">
+              • <em>Almaguer & Bonifacio</em>: Explain accelerating intervals shorten; re-measure from video.<br>
+              • <em>Menjivar</em>: Explain reaction time limits; use video scrubber to get accurate split times.<br>
+              • <em>Garcia Avalos</em>: Convert frames 41-120 into decimal seconds for uniform units.
+            </div>
+          </div>
+        </div>
+
+        <div class="drafts-box">
+          <div class="drafts-header">🟠 Pending Drafts Checklist:</div>
+          Finley De Vaul (420924) (partial times). Blank drafts: Josiah Cook (396166), Arely Acevedo Saavedra (412208).
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Page Footer -->
+  <div class="page-footer">
+    <span>Orange High School • Physics Department • Pull-Back Toy Motion Lab Telemetry Audit</span>
+    <span>Page 2 of 2 • Teacher In-Class Intervention & Data Remediation Protocol</span>
+  </div>
+</div>
+
+</body>
+</html>
