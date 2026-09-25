@@ -3,6 +3,22 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-09-24 — Student Lab Data Audit & In-Class Intervention Protocol Standard
+
+**Pattern Added**: `student-data-audit-report.md`.
+**Workflow Added**: `.agent/workflows/audit-student-data.md` (`/audit-student-data`).
+**Skill Added**: `.agents/skills/student-data-audit-report/SKILL.md`.
+
+**Changes**:
+- **Standardized 2-Page Lab Audit Architecture**:
+  - Established persistent pattern and skill for auditing student digital telemetry from Firestore across 6–7 class sections.
+  - **Page 1: Telemetry & Quality Forensics**: Header bar, 4 KPI boxes, quality distribution bar, Section 1 pacing matrix, and Section 2 Master Anomaly Directory strictly ordered by class period (P1 -> P6).
+  - **Page 2: In-Class Teacher Intervention Protocol**: Dedicated printable clipboard/tablet dashboard organized into a 2-column layout (Morning Conceptual P1–P3 vs Afternoon Regular P4–P6). Each period card features explicit Problem Cited (red box), Flagged Students & IDs, Support Needed / Teacher Action with verbal coaching scripts (green box), and Pending Drafts Checklist (amber box).
+- **Telemetry Pathology Catalog**:
+  - Formally codified detection criteria and remediation steps for 9 established archetypes: video frame numbers vs seconds, synthetic integer placeholders, anti-validator skirting, shared quad-group typos, distance-as-time confusion, stopwatch double-tap teleportation, mid-table unit switches, and vehicle collision/stalls.
+- **Print & PDF Automation**:
+  - Exact Letter portrait CSS budget (`@page { size: letter portrait; margin: 0.22in 0.28in; }`) and headless Puppeteer render routine guaranteeing 2-page PDFs with zero overflow.
+
 ## 2026-09-24 — System Streamlining: Single Source of Truth & Wiki Log Archival
 
 **Pattern Updated**: `dashboard-layout.md`.
