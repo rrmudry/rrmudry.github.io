@@ -2,6 +2,22 @@
 
 Append-only log tracking pattern changes across sessions.
 
+## 2026-09-24 — Daily Update: Unit 2 Day 20 Stopping Distance Synthesis & CAST Engine Polish
+
+**Pattern Updated**: `cast-aligned-webapp-design.md`, `dashboard-layout.md`.
+
+**Changes**:
+- **Curriculum Harmonization (`assets/lessons-data.js`, `Unit_2/unit2_lessons.json`, `Unit_2/lesson.json`, `Unit_2/outline.md`)**:
+  - Aligned Day 20 (Kinematic Acceleration Synthesis: 2-Stage Stopping Distance Performance Challenge) for Friday (2026-09-25) across all 4 central stores with 100% key parity and dual NGSS alignment (`HS-PS2-1`, `HS-ETS1-2`).
+  - Refined Part 2 calculation prompt to preserve authentic pedagogical friction by removing inline calculation leaks from the prompt text while preserving formula references in hints.
+  - Audited all 139 lessons confirming 100% explicit NGSS standards tagging and 0 LaTeX syntax.
+- **CAST Engine Enhancement (`assets/js/cast-item-engine.js`)**:
+  - Implemented `formatSafeText()` to safely render inline HTML formatting (`<sub>`, `<sup>`, `<b>`, `<strong>`, `<i>`, `<em>`, `<code>`) across phenomenon narratives, prompts, data table captions, headers, cells, and formula hints while safely escaping untrusted markup.
+  - Extended `cleanPromptText()` regex to match subscripted delta variables (e.g. `Δx₂`).
+  - Bumped script cache busters in `Bell-Ringer/index.html` (`v=2.7`) and `unit2-dashboard.html` (`v=20260924b`).
+- **Site Deployment**:
+  - Refreshed site footer deployment timestamp via `node scripts/update-timestamp.js`.
+
 ## 2026-09-24 — The Gradest: Manual Grade Entry for Webcam Scanner
 
 **Pattern Added**: `the-gradest-bubble-scanner.md`.

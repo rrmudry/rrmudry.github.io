@@ -30,6 +30,18 @@
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
+  function formatSafeText(str) {
+    if (typeof str !== 'string') return '';
+    return escapeHtml(str)
+      .replace(/&lt;sub&gt;(.*?)&lt;\/sub&gt;/gi, '<sub>$1</sub>')
+      .replace(/&lt;sup&gt;(.*?)&lt;\/sup&gt;/gi, '<sup>$1</sup>')
+      .replace(/&lt;b&gt;(.*?)&lt;\/b&gt;/gi, '<b>$1</b>')
+      .replace(/&lt;i&gt;(.*?)&lt;\/i&gt;/gi, '<i>$1</i>')
+      .replace(/&lt;strong&gt;(.*?)&lt;\/strong&gt;/gi, '<strong>$1</strong>')
+      .replace(/&lt;em&gt;(.*?)&lt;\/em&gt;/gi, '<em>$1</em>')
+      .replace(/&lt;code&gt;(.*?)&lt;\/code&gt;/gi, '<code>$1</code>');
+  }
+
   class CASTItemEngine {
     constructor(container, options = {}) {
       this.container = typeof container === 'string' ? document.querySelector(container) : container;
@@ -169,7 +181,7 @@
               <!-- Phenomenon Context Narrative -->
               ${(ch.phenomenon?.text || ch.phenomenon?.description || ch.phenomenon?.scenario) ? `
                 <div class="text-sm sm:text-base text-slate-200 leading-relaxed bg-slate-950/60 p-3.5 rounded-xl border border-white/10">
-                  ${escapeHtml(ch.phenomenon.text || ch.phenomenon.description || ch.phenomenon.scenario)}
+                  ${formatSafeText(ch.phenomenon.text || ch.phenomenon.description || ch.phenomenon.scenario)}
                 </div>
               ` : ''}
 
@@ -200,7 +212,7 @@
                 <!-- Step Prompt Text -->
                 ${currentStep?.prompt ? `
                   <div class="text-sm sm:text-base text-slate-100 leading-relaxed font-medium">
-                    ${escapeHtml(this.cleanPromptText(currentStep.prompt))}
+                    ${formatSafeText(this.cleanPromptText(currentStep.prompt))}
                   </div>
                 ` : ''}
 
@@ -306,7 +318,7 @@
     cleanPromptText(prompt) {
       if (!prompt) return '';
       // Strip accidental answer or calculation leaks in prompts like ": Δx = (25.0 m/s) · (16.0 s)."
-      return prompt.replace(/:\s*Δ[a-zA-Z]\s*=\s*.*$/i, '.').trim();
+      return prompt.replace(/:\s*Δ[a-zA-Z0-9_₁₂₃₄]+\s*=\s*.*$/i, '.').trim();
     }
 
     formatItemTypeLabel(type) {
@@ -397,12 +409,12 @@
 
         let tHtml = `
           <div class="w-full h-full flex flex-col justify-center">
-            ${caption ? `<div class="text-xs sm:text-sm font-mono font-bold text-cyan-400 uppercase tracking-wider mb-2 flex items-center gap-1.5"><span>📊</span> ${escapeHtml(caption)}</div>` : ''}
+            ${caption ? `<div class="text-xs sm:text-sm font-mono font-bold text-cyan-400 uppercase tracking-wider mb-2 flex items-center gap-1.5"><span>📊</span> ${formatSafeText(caption)}</div>` : ''}
             <div class="w-full overflow-x-auto rounded-xl border border-white/10 shadow-md">
               <table class="w-full text-left border-collapse">
                 <thead class="bg-slate-800 text-cyan-300 font-mono text-xs sm:text-sm">
                   <tr>
-                    ${headers.map(h => `<th class="px-3.5 py-2.5 border-b border-white/10 font-bold">${escapeHtml(h)}</th>`).join('')}
+                    ${headers.map(h => `<th class="px-3.5 py-2.5 border-b border-white/10 font-bold">${formatSafeText(h)}</th>`).join('')}
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-white/5 bg-slate-950/80 text-sm sm:text-base text-slate-100 font-sans">
@@ -410,7 +422,7 @@
                     const cells = Array.isArray(row) ? row : (row && typeof row === 'object' ? Object.values(row) : [String(row ?? "")]);
                     return `
                       <tr class="${rIdx % 2 === 0 ? 'bg-slate-900/40' : 'bg-slate-950/60'} hover:bg-cyan-950/30 transition-colors">
-                        ${cells.map(cell => `<td class="px-3.5 py-2.5 font-medium">${escapeHtml(String(cell))}</td>`).join('')}
+                        ${cells.map(cell => `<td class="px-3.5 py-2.5 font-medium">${formatSafeText(String(cell))}</td>`).join('')}
                       </tr>
                     `;
                   }).join('')}
@@ -579,7 +591,7 @@
           ${formulaHint ? `
             <div class="flex items-center gap-2 text-xs sm:text-sm font-mono bg-cyan-950/50 text-cyan-200 p-3 rounded-xl border border-cyan-500/30">
               <span class="font-bold text-cyan-400">📐 Formula Reference:</span>
-              <span>${escapeHtml(formulaHint)}</span>
+              <span>${formatSafeText(formulaHint)}</span>
             </div>
           ` : ''}
 
