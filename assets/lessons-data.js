@@ -2914,31 +2914,44 @@ const lessonsData = [
         "ccc": "CCC-2: Cause and Effect"
       },
       "phenomenon": {
-        "title": "Automated Emergency Braking (AEB) Telemetry",
-        "description": "A vehicle traveling at +20.0 m/s (approx 45 mph) detects an obstacle. The driver experiences a 0.50-second reaction time before slamming the brakes, after which the vehicle decelerates at -5.0 m/s² until coming to a complete stop.",
-        "stimulus": {
-          "type": "data_table",
-          "title": "Two-Phase Stopping Event Log",
-          "headers": [
-            "Phase",
-            "Motion Type",
-            "Key Variables",
-            "Equation"
-          ],
-          "rows": [
+        "title": "Two-Stage Stopping Event: Velocity-Time Graph",
+        "type": "graph",
+        "text": "A vehicle traveling at +20.0 m/s (approx 45 mph) detects an obstacle. The driver experiences a 0.50-second reaction time before applying the brakes (Phase 1: constant velocity rectangle), followed by uniform braking deceleration at -5.0 m/s² until coming to a complete stop at t = 4.5 seconds (Phase 2: braking triangle). The shaded area under the v-t line represents the vehicle's total stopping distance (Δx = 50.0 m).",
+        "graphData": {
+          "title": "Velocity vs. Time: 2-Stage Stopping Event",
+          "chartType": "line",
+          "showBestFit": false,
+          "xAxis": {
+            "label": "Time (t)",
+            "unit": "s",
+            "min": 0,
+            "max": 5,
+            "beginAtZero": true
+          },
+          "yAxis": {
+            "label": "Velocity (v)",
+            "unit": "m/s",
+            "min": 0,
+            "max": 25,
+            "beginAtZero": true
+          },
+          "xValues": [0, 0.5, 1.5, 2.5, 3.5, 4.5],
+          "series": [
             {
-              "col_0": "Phase 1: Reaction Time",
-              "col_1": "Constant Velocity",
-              "col_2": "v = 20.0 m/s, t<sub>react</sub> = 0.50 s, a = 0",
-              "col_3": "Δx₁ = v · t<sub>react</sub>"
-            },
-            {
-              "col_0": "Phase 2: Braking Deceleration",
-              "col_1": "Uniform Acceleration",
-              "col_2": "v₀ = 20.0 m/s, v<sub>f</sub> = 0, a = -5.0 m/s²",
-              "col_3": "t<sub>brake</sub> = (0 - 20)/(-5) = 4.0 s, Δx₂ = ½(v₀)t<sub>brake</sub>"
+              "label": "Vehicle Velocity (v)",
+              "unit": "m/s",
+              "color": "#06b6d4",
+              "backgroundColor": "rgba(6, 182, 212, 0.25)",
+              "fill": true,
+              "pointStyle": "circle",
+              "pointRadius": 6,
+              "values": [20.0, 20.0, 15.0, 10.0, 5.0, 0.0]
             }
           ]
+        },
+        "stimulus": {
+          "type": "graph",
+          "title": "Velocity vs. Time: 2-Stage Stopping Event"
         }
       },
       "steps": [
@@ -2946,7 +2959,7 @@ const lessonsData = [
           "stepId": "step_1",
           "type": "cloze_dropdown",
           "title": "Part 1: Calculating Reaction Distance (Phase 1)",
-          "prompt": "During the 0.50-second reaction time before the brakes are applied, the car moves at a steady 20.0 m/s:",
+          "prompt": "Inspect the v-t graph for the vehicle during the 0.50-second reaction time before the brakes are applied (flat horizontal line at 20.0 m/s):",
           "text": "The distance traveled during reaction time is [blank1]. During this phase, the car's acceleration is [blank2].",
           "blanks": {
             "blank1": {
@@ -2971,23 +2984,23 @@ const lessonsData = [
           "stepId": "step_2",
           "type": "data_calculation",
           "title": "Part 2: Calculating Braking Distance (Phase 2)",
-          "prompt": "During braking, the car decelerates from 20.0 m/s to 0 m/s over 4.0 s. Using the average velocity formula Δx₂ = ½ · (v₀ + v_f) · t_brake, calculate the braking distance in meters.",
-          "inputLabel": "Braking Distance",
+          "prompt": "Inspect the braking phase on the v-t graph from t = 0.50 s to t = 4.50 s (the downward slope). Calculate the braking distance in meters using the triangular area under this section: Area = ½ · base · height = ½ · (4.0 s) · (20.0 m/s).",
+          "inputLabel": "Braking Distance (Triangle Area)",
           "unit": "m",
           "targetValue": 40,
           "tolerance": 0.1,
-          "hint": "Δx₂ = ½ · (20.0 m/s + 0 m/s) · (4.0 s) = ½ · (20.0) · (4.0) = 40.0 meters."
+          "hint": "Δx₂ = Area of triangle = ½ · base · height = ½ · (4.0 s) · (20.0 m/s) = 40.0 meters."
         },
         {
           "stepId": "step_3",
           "type": "ai_reasoning_chat",
           "title": "Part 3: Total Stopping Distance & Safety Analysis",
-          "prompt": "Discuss your reasoning with the AI Physics Mentor: Calculate the total stopping distance (Δx₁ + Δx₂) and explain why doubling vehicle speed more than doubles the total stopping distance.",
-          "openingPrompt": "You found that reaction distance is 10.0 m and braking distance is 40.0 m, giving a total stopping distance of 50.0 meters! Why does doubling speed from 20 m/s to 40 m/s quadruple the braking distance?",
+          "prompt": "Discuss your reasoning with the AI Physics Mentor: Look at the two shaded regions on the v-t graph (rectangle + triangle). Calculate the total stopping distance (Δx₁ + Δx₂) and explain why doubling vehicle speed more than doubles the total stopping distance.",
+          "openingPrompt": "You found that reaction distance is 10.0 m (the rectangle) and braking distance is 40.0 m (the triangle), giving a total stopping distance of 50.0 meters! Looking at the graph, why does doubling vehicle speed from 20 m/s to 40 m/s quadruple the braking distance?",
           "minTurns": 1
         }
       ],
-      "teacherKey": "Step 1: Δx₁ = 20.0 m/s · 0.50 s = 10.0 meters, zero (speed is constant). Step 2: 40.0 m (½ · 20.0 · 4.0). Step 3: Claim: Total stopping distance is 50.0 meters (10.0 m reaction + 40.0 m braking), and doubling speed quadruples braking distance. Evidence: Braking distance is proportional to initial velocity squared: Δx<sub>brake</sub> = -v₀² / (2a). At 20 m/s, (20)² / (2 · 5) = 400 / 10 = 40 m. If speed doubles to 40 m/s, (40)² / 10 = 1600 / 10 = 160 m (4 times further!). Reasoning: Kinetic energy depends on v², and the work required to stop a vehicle increases quadratically with speed, requiring four times the distance for the same braking force."
+      "teacherKey": "Step 1: Δx₁ = 20.0 m/s · 0.50 s = 10.0 meters (rectangular area), zero (speed is constant). Step 2: 40.0 m (½ · 4.0 · 20.0 triangular area). Step 3: Claim: Total stopping distance is 50.0 meters (10.0 m reaction + 40.0 m braking), and doubling speed quadruples braking distance. Evidence: On the v-t graph, reaction distance is the area of a rectangle (base 0.5 s × height 20 m/s = 10 m). Braking distance is the area of a triangle (½ × base 4.0 s × height 20 m/s = 40 m). Total distance = 10 + 40 = 50 m. Braking distance is proportional to initial velocity squared: Δx_brake = -v₀² / (2a). At 20 m/s, (20)² / (2 · 5) = 400 / 10 = 40 m. If speed doubles to 40 m/s, (40)² / 10 = 1600 / 10 = 160 m (4 times further!). Reasoning: Kinetic energy depends on v², and the work required to stop a vehicle increases quadratically with speed, requiring four times the distance for the same braking force."
     },
     "assignments": [
       {
