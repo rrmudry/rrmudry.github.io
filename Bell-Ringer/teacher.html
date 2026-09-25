@@ -1445,7 +1445,17 @@ CRITICAL RULES:
                 if (phenomenonType === 'graph') {
                     if (!parsedCast.phenomenon) parsedCast.phenomenon = {};
                     parsedCast.phenomenon.type = 'graph';
-                    parsedCast.phenomenon.graphData = graphPayload;
+                    const origGraph = currentCastData?.phenomenon?.graphData;
+                    if (origGraph) {
+                        parsedCast.phenomenon.graphData = {
+                            ...origGraph,
+                            ...graphPayload,
+                            series: origGraph.series || graphPayload?.series
+                        };
+                    } else {
+                        parsedCast.phenomenon.graphData = graphPayload;
+                    }
+                    timerPayload.graphData = parsedCast.phenomenon.graphData;
                 }
 
                 timerPayload.castData = parsedCast;
