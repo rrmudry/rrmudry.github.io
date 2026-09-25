@@ -3,6 +3,24 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-09-25 — Unit 2 Day 20: 2-Stage Stopping Distance Bell-Ringer Interactive Graph
+
+**Pattern Updated**: `bell-ringer-config.md`, `cast-aligned-webapp-design.md`.
+
+**Changes**:
+- **Interactive Shaded Velocity-Time Graph Stimulus (`assets/lessons-data.js`)**:
+  - Upgraded Day 20's CAST Challenge ("Two-Stage Stopping Distance Telemetry") from static tabular data to a dynamic, interactive shaded `v-t` graph using `CASTGraphEngine`.
+  - Visualizes automated emergency braking (AEB) telemetry:
+    - Phase 1 (Reaction time: $t = 0.0$ to $0.5\text{ s}$): flat horizontal constant-speed line at $+20.0\text{ m/s}$ ($a = 0$), forming a shaded rectangular area representing reaction distance ($\Delta x_1 = 10.0\text{ m}$).
+    - Phase 2 (Braking deceleration: $t = 0.5$ to $4.5\text{ s}$): linear downward deceleration slope ($a = -5.0\text{ m/s}^2$) stopping at $t = 4.5\text{ s}$, forming a shaded triangular area representing braking distance ($\Delta x_2 = 40.0\text{ m}$).
+    - Total shaded area under the curve equals total stopping distance ($\Delta x = 50.0\text{ m}$).
+  - Connected the `"🔍 Inspect"` modal zoom trigger (`cast-expand-graph-btn`) to allow fullscreen analysis and metric inspection.
+- **Teacher Publishing Safeguard (`Bell-Ringer/teacher.html`)**:
+  - Ensured publishing a pre-planned CAST challenge with graph stimulus preserves rich series styling (`fill: true`, `backgroundColor`, marker styling) when packaging `timerPayload.graphData`.
+- **Curriculum & Timestamp Sync**:
+  - Synchronized across `assets/lessons-data.js` and `Unit_2/outline.md`.
+  - Refreshed deployment timestamp in `partials/footer.html`.
+
 ## 2026-09-24 — Student Lab Data Audit & In-Class Intervention Protocol Standard
 
 **Pattern Added**: `student-data-audit-report.md`.
@@ -47,24 +65,6 @@ Append-only log tracking pattern changes across recent sessions.
   - Bumped script cache busters in `Bell-Ringer/index.html` (`v=2.7`) and `unit2-dashboard.html` (`v=20260924b`).
 - **Site Deployment**:
   - Refreshed site footer deployment timestamp via `node scripts/update-timestamp.js`.
-
-## 2026-09-25 — Unit 2 Day 20: 2-Stage Stopping Distance Bell-Ringer Interactive Graph
-
-**Pattern Updated**: `bell-ringer-config.md`, `cast-aligned-webapp-design.md`.
-
-**Changes**:
-- **Interactive Shaded Velocity-Time Graph Stimulus (`Unit_2/lesson.json`, `Unit_2/unit2_lessons.json`, `assets/lessons-data.js`)**:
-  - Upgraded Day 20's CAST Challenge ("Two-Stage Stopping Distance Telemetry") from static tabular data to a dynamic, interactive shaded `v-t` graph using `CASTGraphEngine`.
-  - Visualizes automated emergency braking (AEB) telemetry:
-    - Phase 1 (Reaction time: $t = 0.0$ to $0.5\text{ s}$): flat horizontal constant-speed line at $+20.0\text{ m/s}$ ($a = 0$), forming a shaded rectangular area representing reaction distance ($\Delta x_1 = 10.0\text{ m}$).
-    - Phase 2 (Braking deceleration: $t = 0.5$ to $4.5\text{ s}$): linear downward deceleration slope ($a = -5.0\text{ m/s}^2$) stopping at $t = 4.5\text{ s}$, forming a shaded triangular area representing braking distance ($\Delta x_2 = 40.0\text{ m}$).
-    - Total shaded area under the curve equals total stopping distance ($\Delta x = 50.0\text{ m}$).
-  - Connected the `"🔍 Inspect"` modal zoom trigger (`cast-expand-graph-btn`) to allow fullscreen analysis and metric inspection.
-- **Teacher Publishing Safeguard (`Bell-Ringer/teacher.html`)**:
-  - Ensured publishing a pre-planned CAST challenge with graph stimulus preserves rich series styling (`fill: true`, `backgroundColor`, marker styling) when packaging `timerPayload.graphData`.
-- **Curriculum & Timestamp Sync**:
-  - Synchronized across `Unit_2/lesson.json`, `Unit_2/unit2_lessons.json`, `assets/lessons-data.js`, and `Unit_2/outline.md`.
-  - Refreshed deployment timestamp in `partials/footer.html`.
 
 ## 2026-09-24 — The Gradest: Manual Grade Entry for Webcam Scanner
 
