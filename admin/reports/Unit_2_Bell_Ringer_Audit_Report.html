@@ -23,6 +23,10 @@
       }
     }
 
+    @media print {
+      #auth-overlay { display: none !important; }
+    }
+
     * {
       box-sizing: border-box;
       -webkit-print-color-adjust: exact !important;
@@ -1049,5 +1053,78 @@
     </div>
   </div>
 
+<!-- ==================== GOOGLE OAUTH SECURITY GUARD OVERLAY ==================== -->
+<div id="auth-overlay" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(2,6,23,0.94); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); align-items:center; justify-content:center; padding:20px; font-family:'Inter', sans-serif;">
+  <div style="background:#0f172a; border:1px solid rgba(249,115,22,0.4); border-radius:24px; padding:36px; max-width:440px; width:100%; text-align:center; box-shadow:0 25px 50px -12px rgba(0,0,0,0.7); color:#ffffff;">
+    <div style="width:64px; height:64px; background:linear-gradient(135deg,#ea580c,#f97316); border-radius:20px; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; box-shadow:0 10px 25px -5px rgba(249,115,22,0.4);">
+      <svg style="width:32px; height:32px; color:#ffffff;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+    </div>
+    <div style="font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.2em; color:#fb923c; margin-bottom:6px;">Confidential Teacher Record</div>
+    <h2 style="font-size:22px; font-weight:800; margin:0 0 10px 0; color:#ffffff; letter-spacing:-0.02em;">Teacher Access Required</h2>
+    <p style="font-size:12px; color:#94a3b8; line-height:1.5; margin:0 0 20px 0;">This report contains confidential student interaction logs, AI mentor prompts, and response telemetry.</p>
+    <div style="background:#1e293b; border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:10px 14px; margin-bottom:20px; font-size:11px; font-family:'Fira Code', monospace; color:#fdba74;">
+      Restricted to: <strong>rmudry@orangeusd.org</strong>
+    </div>
+    <button id="btn-login" style="width:100%; background:#ffffff; color:#0f172a; border:none; padding:14px; border-radius:14px; font-weight:800; font-size:12px; text-transform:uppercase; letter-spacing:0.05em; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 10px 20px -5px rgba(0,0,0,0.3); transition:all 0.2s;">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:18px; height:18px;" alt="Google">
+      Sign in with Google (Orange USD)
+    </button>
+    <div id="auth-error" style="display:none; margin-top:14px; padding:10px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); border-radius:10px; color:#fca5a5; font-size:11px; font-weight:700;"></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script>
+  const REQUIRED_EMAIL = "rmudry@orangeusd.org";
+  const overlay = document.getElementById("auth-overlay");
+  const authError = document.getElementById("auth-error");
+  const loginBtn = document.getElementById("btn-login");
+
+  // Bypass on local file / Puppeteer execution so PDF rendering works cleanly
+  if (window.location.protocol === "file:") {
+    if (overlay) overlay.style.display = "none";
+  } else {
+    if (overlay) overlay.style.display = "flex";
+
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        const email = (user.email || "").toLowerCase().trim();
+        if (email === REQUIRED_EMAIL.toLowerCase()) {
+          overlay.style.display = "none";
+        } else {
+          overlay.style.display = "flex";
+          authError.style.display = "block";
+          authError.innerHTML = `⚠️ Access Denied: <strong>${user.email}</strong> is not authorized. Access is strictly limited to <strong>${REQUIRED_EMAIL}</strong>.`;
+          auth.signOut();
+        }
+      } else {
+        overlay.style.display = "flex";
+      }
+    });
+
+    if (loginBtn) {
+      loginBtn.onclick = () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: "select_account" });
+        auth.signInWithPopup(provider).catch((err) => {
+          authError.style.display = "block";
+          authError.textContent = "Google Sign-In Error: " + err.message;
+        });
+      };
+    }
+  }
+</script>
 </body>
 </html>

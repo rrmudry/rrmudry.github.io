@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THE_PROCTOR // Audit Reports Vault</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="icon" type="image/svg+xml" href="../THE_PROCTOR/favicon.svg">
@@ -59,237 +61,371 @@
     <div class="glow-orb top-[-100px] left-[-100px]"></div>
     <div class="glow-orb bottom-[-100px] right-[-100px]"></div>
 
-    <!-- Top Navigation Bar -->
-    <nav class="max-w-6xl w-full flex items-center justify-between mb-10 relative z-10">
-        <a href="../index.html" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold uppercase tracking-wider text-slate-300 hover:text-white transition-all">
-            <i data-lucide="arrow-left" class="w-4 h-4 text-sky-400"></i> Command Center
-        </a>
-        <div class="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">
-            <span class="text-sky-400 font-mono">PORTAL_NODE //</span> 
-            <span>ADMIN_REPORTS_VAULT</span>
-        </div>
-    </nav>
-
-    <!-- Header Section -->
-    <header class="text-center mb-12 relative z-10 max-w-4xl">
-        <div class="inline-flex items-center gap-3 bg-sky-500/10 border border-sky-500/20 px-4 py-1.5 rounded-full mb-5">
-            <div class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></div>
-            <span class="text-[10px] font-black uppercase tracking-[0.35em] text-sky-300">Forensic Repository Active</span>
-        </div>
-        <h1 class="text-5xl md:text-7xl font-black uppercase tracking-tight italic leading-none mb-4">
-            DATA_<span class="text-sky-400">REPORTS</span> VAULT
-        </h1>
-        <p class="text-slate-400 text-sm md:text-base font-normal max-w-2xl mx-auto leading-relaxed">
-            Centralized archive of student telemetry audits, data integrity forensic reviews, and standardized 2-page in-class teacher intervention protocols.
-        </p>
-    </header>
-
-    <!-- Quick Telemetry Metrics Banner -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-6xl w-full mb-10 relative z-10">
-        <div class="glass p-5 rounded-2xl border border-white/5 text-center">
-            <div class="text-3xl font-black text-sky-400 mono">2</div>
-            <div class="text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-1">Published Master Audits</div>
-        </div>
-        <div class="glass p-5 rounded-2xl border border-white/5 text-center">
-            <div class="text-3xl font-black text-emerald-400 mono">250+</div>
-            <div class="text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-1">Student Datasets Analyzed</div>
-        </div>
-        <div class="glass p-5 rounded-2xl border border-white/5 text-center">
-            <div class="text-3xl font-black text-amber-400 mono">2-Page</div>
-            <div class="text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-1">Standard Letter Budget</div>
-        </div>
-        <div class="glass p-5 rounded-2xl border border-white/5 text-center">
-            <div class="text-3xl font-black text-indigo-400 mono">Live</div>
-            <div class="text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-1">Firestore Telemetry Sync</div>
-        </div>
-    </div>
-
-    <!-- Master Reports Directory -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl w-full relative z-10">
-
-        <!-- ==================== REPORT 1: PULL-BACK TOY LAB ==================== -->
-        <div class="report-card glass p-8 rounded-[2rem] border border-sky-500/20 flex flex-col justify-between relative overflow-hidden">
-            <div class="absolute -right-12 -top-12 w-36 h-36 bg-sky-500/10 rounded-full blur-2xl pointer-events-none"></div>
-
+    <!-- ==================== GOOGLE OAUTH SECURITY GUARD OVERLAY ==================== -->
+    <div id="auth-overlay" class="fixed inset-0 z-[100] bg-slate-950/85 backdrop-blur-xl flex items-center justify-center p-6">
+        <div class="glass max-w-md w-full p-8 md:p-10 rounded-[2.5rem] border border-sky-500/30 text-center space-y-6 shadow-2xl relative overflow-hidden">
+            <div class="absolute -right-16 -top-16 w-36 h-36 bg-sky-500/20 rounded-full blur-2xl pointer-events-none"></div>
+            
+            <div class="w-20 h-20 bg-gradient-to-tr from-sky-600 to-cyan-500 rounded-[1.8rem] flex items-center justify-center mx-auto shadow-xl shadow-sky-500/25 border border-sky-400/40">
+                <i data-lucide="shield-check" class="text-white w-10 h-10"></i>
+            </div>
+            
             <div>
-                <!-- Top Badges -->
-                <div class="flex items-center justify-between gap-2 mb-6">
-                    <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-sky-500/20 text-sky-300 border border-sky-500/30 flex items-center gap-1.5">
-                        <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-sky-400"></i> 2-Page Standard Protocol
-                    </span>
-                    <span class="text-xs font-mono text-slate-400">Unit 2 • Day 18</span>
+                <div class="inline-flex items-center gap-2 bg-sky-500/10 border border-sky-500/20 px-3 py-1 rounded-full mb-3">
+                    <i data-lucide="lock" class="w-3 h-3 text-sky-400"></i>
+                    <span class="text-[9px] font-black uppercase tracking-[0.3em] text-sky-300">Authentication Required</span>
                 </div>
-
-                <!-- Report Title & Activity -->
-                <h2 class="text-2xl font-black uppercase tracking-tight italic mb-2 text-white">
-                    Pull-Back Toy Motion Lab: Data Audit
-                </h2>
-                <div class="text-xs font-mono text-sky-400 mb-4 flex items-center gap-1.5">
-                    <i data-lucide="link" class="w-3.5 h-3.5"></i> unit2_day18_pull_back_toy_lab
-                </div>
-
-                <!-- Summary Description -->
-                <p class="text-slate-300 text-sm leading-relaxed mb-6 inter">
-                    Forensic audit of 125 active student submissions across 7 class periods. Analyzed 1.0 m metric split times, identified 86 authentic accelerating runs, 21 incomplete drafts, and 18 flagged bogus datasets (frame counts, synthetic integers, track distances copied to time, and stopwatch double-taps).
-                </p>
-
-                <!-- Two-Page Architecture Highlights -->
-                <div class="space-y-2.5 mb-8 bg-slate-900/60 p-4 rounded-xl border border-white/5 text-xs text-slate-300 inter">
-                    <div class="flex items-start gap-2">
-                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-sky-500/20 text-sky-300 uppercase shrink-0">Page 1</span>
-                        <span><strong>Telemetry & Quality Forensics:</strong> KPIs, section pacing matrix, and anomaly directory sorted strictly by Period (P1 → P6).</span>
-                    </div>
-                    <div class="flex items-start gap-2">
-                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-300 uppercase shrink-0">Page 2</span>
-                        <span><strong>In-Class Teacher Intervention:</strong> 2-column period cards (Morning P1–P3 vs Afternoon P4–P6) with Problem Cited, Student IDs, coaching scripts, and draft checklists.</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4 border-t border-white/10">
-                <a href="Pull_Back_Toy_Lab_Data_Audit_Report.html" target="_blank" class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-colors shadow-lg shadow-sky-500/20">
-                    <i data-lucide="external-link" class="w-4 h-4"></i> View Web Report
-                </a>
-                <a href="Pull_Back_Toy_Lab_Data_Audit_Report.pdf" target="_blank" download="Pull_Back_Toy_Lab_Data_Audit_Report.pdf" class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white font-black text-xs uppercase tracking-wider transition-colors">
-                    <i data-lucide="file-down" class="w-4 h-4 text-sky-400"></i> Download PDF
-                </a>
-            </div>
-        </div>
-
-        <!-- ==================== REPORT 2: BELL-RINGER AUDIT ==================== -->
-        <div class="report-card glass p-8 rounded-[2rem] border border-orange-500/20 flex flex-col justify-between relative overflow-hidden">
-            <div class="absolute -right-12 -top-12 w-36 h-36 bg-orange-500/10 rounded-full blur-2xl pointer-events-none"></div>
-
-            <div>
-                <!-- Top Badges -->
-                <div class="flex items-center justify-between gap-2 mb-6">
-                    <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-orange-500/20 text-orange-300 border border-orange-500/30 flex items-center gap-1.5">
-                        <i data-lucide="bell" class="w-3.5 h-3.5 text-orange-400"></i> Bell-Ringer Telemetry
-                    </span>
-                    <span class="text-xs font-mono text-slate-400">Unit 2 • Days 1–19</span>
-                </div>
-
-                <!-- Report Title & Activity -->
-                <h2 class="text-2xl font-black uppercase tracking-tight italic mb-2 text-white">
-                    Unit 2 Bell-Ringer Interaction Audit
-                </h2>
-                <div class="text-xs font-mono text-orange-400 mb-4 flex items-center gap-1.5">
-                    <i data-lucide="link" class="w-3.5 h-3.5"></i> unit2_bell_ringers_telemetry
-                </div>
-
-                <!-- Summary Description -->
-                <p class="text-slate-300 text-sm leading-relaxed mb-6 inter">
-                    Comprehensive cross-sectional audit of student interactions across Unit 2 Bell-Ringers. Evaluates completion timelines, Gemini AI Concept Chat mentor turn counts, cognitive engagement in free responses, and period-by-period pacing dynamics.
-                </p>
-
-                <!-- Architecture Highlights -->
-                <div class="space-y-2.5 mb-8 bg-slate-900/60 p-4 rounded-xl border border-white/5 text-xs text-slate-300 inter">
-                    <div class="flex items-start gap-2">
-                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-orange-500/20 text-orange-300 uppercase shrink-0">Analysis</span>
-                        <span><strong>AI Mentor Interactions:</strong> Socratic turn adherence, prompt depth, and student completion distributions.</span>
-                    </div>
-                    <div class="flex items-start gap-2">
-                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-purple-500/20 text-purple-300 uppercase shrink-0">Pacing</span>
-                        <span><strong>Cross-Sectional Timing:</strong> Comparison of Honors vs Conceptual vs Regular engagement curves and submission velocities.</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4 border-t border-white/10">
-                <a href="Unit_2_Bell_Ringer_Audit_Report.html" target="_blank" class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-orange-500 hover:bg-orange-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-colors shadow-lg shadow-orange-500/20">
-                    <i data-lucide="external-link" class="w-4 h-4"></i> View Web Report
-                </a>
-                <a href="Unit_2_Bell_Ringer_Audit_Report.pdf" target="_blank" download="Unit_2_Bell_Ringer_Audit_Report.pdf" class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white font-black text-xs uppercase tracking-wider transition-colors">
-                    <i data-lucide="file-down" class="w-4 h-4 text-orange-400"></i> Download PDF
-                </a>
-            </div>
-        </div>
-
-        <!-- ==================== REPORT 3: LIVE ANALYTICS GENERATOR ==================== -->
-        <div class="report-card glass p-8 rounded-[2rem] border border-cyan-500/20 flex flex-col justify-between relative overflow-hidden">
-            <div class="absolute -right-12 -top-12 w-36 h-36 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none"></div>
-
-            <div>
-                <div class="flex items-center justify-between gap-2 mb-6">
-                    <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 flex items-center gap-1.5">
-                        <i data-lucide="bar-chart-3" class="w-3.5 h-3.5 text-cyan-400"></i> Dynamic Engine
-                    </span>
-                    <span class="text-xs font-mono text-slate-400">Ad-Hoc Query Engine</span>
-                </div>
-
-                <h2 class="text-2xl font-black uppercase tracking-tight italic mb-2 text-white">
-                    Live Report Generator
-                </h2>
-                <div class="text-xs font-mono text-cyan-400 mb-4 flex items-center gap-1.5">
-                    <i data-lucide="database" class="w-3.5 h-3.5"></i> admin/report_generator.html
-                </div>
-
-                <p class="text-slate-300 text-sm leading-relaxed mb-6 inter">
-                    Generate ad-hoc visual reports and statistical distributions for any assessment in the database. Filter by assignment, period, and date range to produce interactive Chart.js bar graphs and export gradebook CSVs.
-                </p>
-            </div>
-
-            <div class="pt-4 border-t border-white/10">
-                <a href="../report_generator.html" class="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 hover:text-white font-black text-xs uppercase tracking-wider transition-colors">
-                    <i data-lucide="play" class="w-4 h-4"></i> Launch Report Generator
-                </a>
-            </div>
-        </div>
-
-        <!-- ==================== AUTOMATED AUDIT DISPATCHER (INFO CARD) ==================== -->
-        <div class="glass p-8 rounded-[2rem] border border-white/10 flex flex-col justify-between relative overflow-hidden bg-slate-900/40">
-            <div>
-                <div class="flex items-center justify-between gap-2 mb-6">
-                    <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-1.5">
-                        <i data-lucide="terminal" class="w-3.5 h-3.5 text-indigo-400"></i> Automated Protocol
-                    </span>
-                    <span class="text-xs font-mono text-slate-400">Workflow Trigger</span>
-                </div>
-
-                <h2 class="text-2xl font-black uppercase tracking-tight italic mb-2 text-white">
-                    Generate Future Lab Audits
-                </h2>
-                <div class="text-xs font-mono text-indigo-400 mb-4 flex items-center gap-1.5">
-                    <i data-lucide="command" class="w-3.5 h-3.5"></i> /audit-student-data
-                </div>
-
-                <p class="text-slate-300 text-sm leading-relaxed mb-4 inter">
-                    Whenever students complete a new inquiry lab or simulation (e.g. Marble Ramp Lab, Reaction Time Lab, Free Fall Lab), simply type:
-                </p>
-
-                <div class="bg-black/40 border border-white/10 p-3 rounded-xl text-xs font-mono text-emerald-400 mb-4">
-                    /audit-student-data [Assignment URL]
-                </div>
-
+                <h1 class="text-3xl font-black uppercase tracking-tight italic text-white mb-2">
+                    REPORTS_<span class="text-sky-400">VAULT</span>
+                </h1>
                 <p class="text-slate-400 text-xs leading-relaxed inter">
-                    The agent automatically queries Firestore telemetry, flags unphysical numbers, compiles the standardized 2-page HTML & PDF reports, and archives them here in the vault.
+                    Access to student forensic telemetry, data integrity audits, and teacher remediation protocols is strictly restricted to verified teacher accounts.
                 </p>
             </div>
 
-            <div class="pt-4 border-t border-white/10 text-center">
-                <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                    Procedure Codified in Wiki & Skill Architecture
-                </span>
+            <div class="bg-slate-900/80 border border-white/10 rounded-2xl p-4 text-center">
+                <div class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Authorized User:</div>
+                <div class="text-xs font-mono font-bold text-sky-300 flex items-center justify-center gap-1.5">
+                    <i data-lucide="user-check" class="w-3.5 h-3.5 text-sky-400"></i> rmudry@orangeusd.org
+                </div>
+            </div>
+
+            <button id="btn-login" class="w-full bg-white hover:bg-slate-100 text-slate-950 py-4 px-6 rounded-2xl font-black uppercase tracking-wider text-xs transition-all flex items-center justify-center gap-3 shadow-lg hover:scale-[1.02] active:scale-[0.98]">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google">
+                Sign in with Google (Orange USD)
+            </button>
+
+            <div id="auth-error" class="hidden bg-rose-500/10 border border-rose-500/30 rounded-xl p-3 text-xs font-bold text-rose-400 inter">
+                ⚠️ Unauthorized account. Access is strictly limited to <strong>rmudry@orangeusd.org</strong>.
+            </div>
+
+            <div class="text-[10px] text-slate-500 font-mono tracking-widest uppercase">
+                FERPA PROTECTED TELEMETRY
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MAIN AUTHENTICATED CONTENT ==================== -->
+    <div id="main-content" class="max-w-6xl w-full flex flex-col items-center opacity-0 pointer-events-none transition-opacity duration-700 relative z-10">
+
+        <!-- Top Navigation Bar -->
+        <nav class="w-full flex items-center justify-between mb-10">
+            <a href="../index.html" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold uppercase tracking-wider text-slate-300 hover:text-white transition-all">
+                <i data-lucide="arrow-left" class="w-4 h-4 text-sky-400"></i> Command Center
+            </a>
+            
+            <!-- Auth User Profile Badge & Logout -->
+            <div id="user-profile" class="hidden flex items-center gap-3">
+                <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs">
+                    <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+                    <span id="user-email-display" class="font-mono text-[11px] text-slate-300">rmudry@orangeusd.org</span>
+                </div>
+                <button id="btn-logout" title="Sign Out" class="p-2 rounded-xl bg-white/5 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-white/10 transition-colors">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Header Section -->
+        <header class="text-center mb-12 max-w-4xl">
+            <div class="inline-flex items-center gap-3 bg-sky-500/10 border border-sky-500/20 px-4 py-1.5 rounded-full mb-5">
+                <div class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></div>
+                <span class="text-[10px] font-black uppercase tracking-[0.35em] text-sky-300">Forensic Repository Active</span>
+            </div>
+            <h1 class="text-5xl md:text-7xl font-black uppercase tracking-tight italic leading-none mb-4">
+                DATA_<span class="text-sky-400">REPORTS</span> VAULT
+            </h1>
+            <p class="text-slate-400 text-sm md:text-base font-normal max-w-2xl mx-auto leading-relaxed">
+                Centralized archive of student telemetry audits, data integrity forensic reviews, and standardized 2-page in-class teacher intervention protocols.
+            </p>
+        </header>
+
+        <!-- Quick Telemetry Metrics Banner -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full mb-10">
+            <div class="glass p-5 rounded-2xl border border-white/5 text-center">
+                <div class="text-3xl font-black text-sky-400 mono">2</div>
+                <div class="text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-1">Published Master Audits</div>
+            </div>
+            <div class="glass p-5 rounded-2xl border border-white/5 text-center">
+                <div class="text-3xl font-black text-emerald-400 mono">250+</div>
+                <div class="text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-1">Student Datasets Analyzed</div>
+            </div>
+            <div class="glass p-5 rounded-2xl border border-white/5 text-center">
+                <div class="text-3xl font-black text-amber-400 mono">2-Page</div>
+                <div class="text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-1">Standard Letter Budget</div>
+            </div>
+            <div class="glass p-5 rounded-2xl border border-white/5 text-center">
+                <div class="text-3xl font-black text-indigo-400 mono">Live</div>
+                <div class="text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-1">Firestore Telemetry Sync</div>
             </div>
         </div>
 
-    </div>
+        <!-- Master Reports Directory -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
 
-    <!-- Footer -->
-    <footer class="mt-16 border-t border-white/5 pt-8 w-full max-w-6xl flex justify-between items-center text-slate-600 relative z-10 text-[9px] font-bold uppercase tracking-widest">
-        <div class="flex items-center gap-4">
-            <span class="flex items-center gap-1.5"><div class="w-1.5 h-1.5 rounded-full bg-sky-400"></div> THE_PROCTOR // INTELLIGENCE</span>
-            <span>ORANGE HIGH SCHOOL PHYSICS</span>
+            <!-- ==================== REPORT 1: PULL-BACK TOY LAB ==================== -->
+            <div class="report-card glass p-8 rounded-[2rem] border border-sky-500/20 flex flex-col justify-between relative overflow-hidden">
+                <div class="absolute -right-12 -top-12 w-36 h-36 bg-sky-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div>
+                    <!-- Top Badges -->
+                    <div class="flex items-center justify-between gap-2 mb-6">
+                        <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-sky-500/20 text-sky-300 border border-sky-500/30 flex items-center gap-1.5">
+                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-sky-400"></i> 2-Page Standard Protocol
+                        </span>
+                        <span class="text-xs font-mono text-slate-400">Unit 2 • Day 18</span>
+                    </div>
+
+                    <!-- Report Title & Activity -->
+                    <h2 class="text-2xl font-black uppercase tracking-tight italic mb-2 text-white">
+                        Pull-Back Toy Motion Lab: Data Audit
+                    </h2>
+                    <div class="text-xs font-mono text-sky-400 mb-4 flex items-center gap-1.5">
+                        <i data-lucide="link" class="w-3.5 h-3.5"></i> unit2_day18_pull_back_toy_lab
+                    </div>
+
+                    <!-- Summary Description -->
+                    <p class="text-slate-300 text-sm leading-relaxed mb-6 inter">
+                        Forensic audit of 125 active student submissions across 7 class periods. Analyzed 1.0 m metric split times, identified 86 authentic accelerating runs, 21 incomplete drafts, and 18 flagged bogus datasets (frame counts, synthetic integers, track distances copied to time, and stopwatch double-taps).
+                    </p>
+
+                    <!-- Two-Page Architecture Highlights -->
+                    <div class="space-y-2.5 mb-8 bg-slate-900/60 p-4 rounded-xl border border-white/5 text-xs text-slate-300 inter">
+                        <div class="flex items-start gap-2">
+                            <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-sky-500/20 text-sky-300 uppercase shrink-0">Page 1</span>
+                            <span><strong>Telemetry & Quality Forensics:</strong> KPIs, section pacing matrix, and anomaly directory sorted strictly by Period (P1 → P6).</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-300 uppercase shrink-0">Page 2</span>
+                            <span><strong>In-Class Teacher Intervention:</strong> 2-column period cards (Morning P1–P3 vs Afternoon P4–P6) with Problem Cited, Student IDs, coaching scripts, and draft checklists.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4 border-t border-white/10">
+                    <a href="Pull_Back_Toy_Lab_Data_Audit_Report.html" target="_blank" class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-colors shadow-lg shadow-sky-500/20">
+                        <i data-lucide="external-link" class="w-4 h-4"></i> View Web Report
+                    </a>
+                    <a href="Pull_Back_Toy_Lab_Data_Audit_Report.pdf" target="_blank" download="Pull_Back_Toy_Lab_Data_Audit_Report.pdf" class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white font-black text-xs uppercase tracking-wider transition-colors">
+                        <i data-lucide="file-down" class="w-4 h-4 text-sky-400"></i> Download PDF
+                    </a>
+                </div>
+            </div>
+
+            <!-- ==================== REPORT 2: BELL-RINGER AUDIT ==================== -->
+            <div class="report-card glass p-8 rounded-[2rem] border border-orange-500/20 flex flex-col justify-between relative overflow-hidden">
+                <div class="absolute -right-12 -top-12 w-36 h-36 bg-orange-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div>
+                    <!-- Top Badges -->
+                    <div class="flex items-center justify-between gap-2 mb-6">
+                        <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-orange-500/20 text-orange-300 border border-orange-500/30 flex items-center gap-1.5">
+                            <i data-lucide="bell" class="w-3.5 h-3.5 text-orange-400"></i> Bell-Ringer Telemetry
+                        </span>
+                        <span class="text-xs font-mono text-slate-400">Unit 2 • Days 1–19</span>
+                    </div>
+
+                    <!-- Report Title & Activity -->
+                    <h2 class="text-2xl font-black uppercase tracking-tight italic mb-2 text-white">
+                        Unit 2 Bell-Ringer Interaction Audit
+                    </h2>
+                    <div class="text-xs font-mono text-orange-400 mb-4 flex items-center gap-1.5">
+                        <i data-lucide="link" class="w-3.5 h-3.5"></i> unit2_bell_ringers_telemetry
+                    </div>
+
+                    <!-- Summary Description -->
+                    <p class="text-slate-300 text-sm leading-relaxed mb-6 inter">
+                        Comprehensive cross-sectional audit of student interactions across Unit 2 Bell-Ringers. Evaluates completion timelines, Gemini AI Concept Chat mentor turn counts, cognitive engagement in free responses, and period-by-period pacing dynamics.
+                    </p>
+
+                    <!-- Architecture Highlights -->
+                    <div class="space-y-2.5 mb-8 bg-slate-900/60 p-4 rounded-xl border border-white/5 text-xs text-slate-300 inter">
+                        <div class="flex items-start gap-2">
+                            <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-orange-500/20 text-orange-300 uppercase shrink-0">Analysis</span>
+                            <span><strong>AI Mentor Interactions:</strong> Socratic turn adherence, prompt depth, and student completion distributions.</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-purple-500/20 text-purple-300 uppercase shrink-0">Pacing</span>
+                            <span><strong>Cross-Sectional Timing:</strong> Comparison of Honors vs Conceptual vs Regular engagement curves and submission velocities.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4 border-t border-white/10">
+                    <a href="Unit_2_Bell_Ringer_Audit_Report.html" target="_blank" class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-orange-500 hover:bg-orange-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-colors shadow-lg shadow-orange-500/20">
+                        <i data-lucide="external-link" class="w-4 h-4"></i> View Web Report
+                    </a>
+                    <a href="Unit_2_Bell_Ringer_Audit_Report.pdf" target="_blank" download="Unit_2_Bell_Ringer_Audit_Report.pdf" class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white font-black text-xs uppercase tracking-wider transition-colors">
+                        <i data-lucide="file-down" class="w-4 h-4 text-orange-400"></i> Download PDF
+                    </a>
+                </div>
+            </div>
+
+            <!-- ==================== REPORT 3: LIVE ANALYTICS GENERATOR ==================== -->
+            <div class="report-card glass p-8 rounded-[2rem] border border-cyan-500/20 flex flex-col justify-between relative overflow-hidden">
+                <div class="absolute -right-12 -top-12 w-36 h-36 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div>
+                    <div class="flex items-center justify-between gap-2 mb-6">
+                        <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 flex items-center gap-1.5">
+                            <i data-lucide="bar-chart-3" class="w-3.5 h-3.5 text-cyan-400"></i> Dynamic Engine
+                        </span>
+                        <span class="text-xs font-mono text-slate-400">Ad-Hoc Query Engine</span>
+                    </div>
+
+                    <h2 class="text-2xl font-black uppercase tracking-tight italic mb-2 text-white">
+                        Live Report Generator
+                    </h2>
+                    <div class="text-xs font-mono text-cyan-400 mb-4 flex items-center gap-1.5">
+                        <i data-lucide="database" class="w-3.5 h-3.5"></i> admin/report_generator.html
+                    </div>
+
+                    <p class="text-slate-300 text-sm leading-relaxed mb-6 inter">
+                        Generate ad-hoc visual reports and statistical distributions for any assessment in the database. Filter by assignment, period, and date range to produce interactive Chart.js bar graphs and export gradebook CSVs.
+                    </p>
+                </div>
+
+                <div class="pt-4 border-t border-white/10">
+                    <a href="../report_generator.html" class="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 hover:text-white font-black text-xs uppercase tracking-wider transition-colors">
+                        <i data-lucide="play" class="w-4 h-4"></i> Launch Report Generator
+                    </a>
+                </div>
+            </div>
+
+            <!-- ==================== AUTOMATED AUDIT DISPATCHER (INFO CARD) ==================== -->
+            <div class="glass p-8 rounded-[2rem] border border-white/10 flex flex-col justify-between relative overflow-hidden bg-slate-900/40">
+                <div>
+                    <div class="flex items-center justify-between gap-2 mb-6">
+                        <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-1.5">
+                            <i data-lucide="terminal" class="w-3.5 h-3.5 text-indigo-400"></i> Automated Protocol
+                        </span>
+                        <span class="text-xs font-mono text-slate-400">Workflow Trigger</span>
+                    </div>
+
+                    <h2 class="text-2xl font-black uppercase tracking-tight italic mb-2 text-white">
+                        Generate Future Lab Audits
+                    </h2>
+                    <div class="text-xs font-mono text-indigo-400 mb-4 flex items-center gap-1.5">
+                        <i data-lucide="command" class="w-3.5 h-3.5"></i> /audit-student-data
+                    </div>
+
+                    <p class="text-slate-300 text-sm leading-relaxed mb-4 inter">
+                        Whenever students complete a new inquiry lab or simulation (e.g. Marble Ramp Lab, Reaction Time Lab, Free Fall Lab), simply type:
+                    </p>
+
+                    <div class="bg-black/40 border border-white/10 p-3 rounded-xl text-xs font-mono text-emerald-400 mb-4">
+                        /audit-student-data [Assignment URL]
+                    </div>
+
+                    <p class="text-slate-400 text-xs leading-relaxed inter">
+                        The agent automatically queries Firestore telemetry, flags unphysical numbers, compiles the standardized 2-page HTML & PDF reports, and archives them here in the vault.
+                    </p>
+                </div>
+
+                <div class="pt-4 border-t border-white/10 text-center">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                        Procedure Codified in Wiki & Skill Architecture
+                    </span>
+                </div>
+            </div>
+
         </div>
-        <div>
-            REPORT_VAULT_VERSION: 1.0.0
-        </div>
-    </footer>
+
+        <!-- Footer -->
+        <footer class="mt-16 border-t border-white/5 pt-8 w-full flex justify-between items-center text-slate-600 text-[9px] font-bold uppercase tracking-widest">
+            <div class="flex items-center gap-4">
+                <span class="flex items-center gap-1.5"><div class="w-1.5 h-1.5 rounded-full bg-sky-400"></div> THE_PROCTOR // INTELLIGENCE</span>
+                <span>ORANGE HIGH SCHOOL PHYSICS</span>
+            </div>
+            <div>
+                REPORT_VAULT_VERSION: 1.0.0
+            </div>
+        </footer>
+
+    </div>
 
     <script>
         lucide.createIcons();
+
+        // --- FIREBASE AUTH CONFIGURATION ---
+        const firebaseConfig = {
+            projectId: "site-6e500",
+            appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+            storageBucket: "site-6e500.firebasestorage.app",
+            apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+            authDomain: "site-6e500.firebaseapp.com",
+            messagingSenderId: "591530758858"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const REQUIRED_EMAIL = "rmudry@orangeusd.org";
+
+        // Prevent race condition on login button
+        const loginBtn = document.getElementById('btn-login');
+        if (loginBtn) {
+            loginBtn.dataset.originalHtml = loginBtn.innerHTML;
+        }
+
+        // Check for local file execution bypass
+        if (window.location.protocol === 'file:') {
+            const overlay = document.getElementById('auth-overlay');
+            const main = document.getElementById('main-content');
+            if (overlay) overlay.classList.add('hidden');
+            if (main) main.classList.remove('opacity-0', 'pointer-events-none');
+        } else {
+            // Auth State Observer
+            auth.onAuthStateChanged((user) => {
+                const overlay = document.getElementById('auth-overlay');
+                const main = document.getElementById('main-content');
+                const error = document.getElementById('auth-error');
+                const profile = document.getElementById('user-profile');
+                const emailDisplay = document.getElementById('user-email-display');
+
+                if (user) {
+                    const email = (user.email || "").toLowerCase().trim();
+                    if (email === REQUIRED_EMAIL.toLowerCase()) {
+                        overlay.classList.add('hidden');
+                        main.classList.remove('opacity-0', 'pointer-events-none');
+                        if (profile) profile.classList.remove('hidden');
+                        if (emailDisplay) emailDisplay.textContent = user.email;
+                    } else {
+                        error.innerHTML = `⚠️ Access Denied: <strong>${user.email}</strong> is not authorized. Access is strictly limited to <strong>${REQUIRED_EMAIL}</strong>.`;
+                        error.classList.remove('hidden');
+                        overlay.classList.remove('hidden');
+                        main.classList.add('opacity-0', 'pointer-events-none');
+                        if (profile) profile.classList.add('hidden');
+                        auth.signOut();
+                    }
+                } else {
+                    overlay.classList.remove('hidden');
+                    main.classList.add('opacity-0', 'pointer-events-none');
+                    if (profile) profile.classList.add('hidden');
+                }
+            });
+
+            // Login Button Handler
+            if (loginBtn) {
+                loginBtn.onclick = () => {
+                    const provider = new firebase.auth.GoogleAuthProvider();
+                    provider.setCustomParameters({ prompt: 'select_account' });
+                    auth.signInWithPopup(provider).catch((err) => {
+                        console.error("Auth popup error:", err);
+                        const error = document.getElementById('auth-error');
+                        error.textContent = "Google Sign-In Error: " + err.message;
+                        error.classList.remove('hidden');
+                    });
+                };
+            }
+
+            // Logout Button Handler
+            const logoutBtn = document.getElementById('btn-logout');
+            if (logoutBtn) {
+                logoutBtn.onclick = () => auth.signOut();
+            }
+        }
     </script>
 </body>
 </html>
