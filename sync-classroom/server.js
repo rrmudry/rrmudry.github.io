@@ -991,6 +991,20 @@ app.post('/api/sync-grade', checkAuth, async (req, res) => {
     try {
       const cw = await classroom.courses.courseWork.get({ courseId, id: courseworkId });
       const maxPts = cw.data.maxPoints;
+
+      // Differentiated scoring for Conceptual Physics (Periods 1-3):
+      // Reward foundational effort and data collection with a 60% Passing Base + 40% Scaled Mastery:
+      let isConceptualPhysics = false;
+      try {
+        const courseRes = await classroom.courses.get({ id: courseId });
+        const courseName = courseRes.data.name || '';
+        isConceptualPhysics = /Period\s*[1-3]\b/i.test(courseName) || /\bP[1-3]\b/i.test(courseName);
+      } catch (cErr) {}
+
+      if (isConceptualPhysics && finalScore > 0 && finalScore < 100) {
+        finalScore = Math.round((60 + 0.40 * finalScore) * 10) / 10;
+      }
+
       if (maxPts && maxPts > 0 && maxPts !== 100) {
         // If score is 0-100 percentage and maxPoints is different (e.g. 10 or 6)
         if (finalScore > maxPts && finalScore <= 100) {
