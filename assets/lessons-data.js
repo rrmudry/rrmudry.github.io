@@ -2818,10 +2818,10 @@ const lessonsData = [
     "assignments": [
       {
         "title": "P031 Reaction Time Lab (Period 0 Honors)",
-        "url": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQC56lu4HK0nRKxL2XhMmeZXAREUmHZaWstYUWZfSSPZ9N8?e=cQ1qok",
+        "url": "Unit_2/worksheets/P031_Reaction_Time_2026.pdf",
         "typeLabel": "Hands-On Lab Activity & Report",
         "submission": "Turn In Lab Handout (10 pts)",
-        "actionLabel": "Open Lab Handout (Word)",
+        "actionLabel": "Open Lab Handout (PDF)",
         "description": "Period 0 Honors: Metric ruler drop trials, reflex time calculations using t = √(2d/g), visual vs. auditory comparison, distraction analysis, and freeway reaction distance calculation."
       },
       {
@@ -2835,8 +2835,8 @@ const lessonsData = [
     ],
     "resources": [
       {
-        "title": "P031 Reaction Time Lab Handout (OneDrive Docx)",
-        "url": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQC56lu4HK0nRKxL2XhMmeZXAREUmHZaWstYUWZfSSPZ9N8?e=cQ1qok",
+        "title": "P031 Reaction Time Lab Handout (PDF)",
+        "url": "Unit_2/worksheets/P031_Reaction_Time_2026.pdf",
         "typeLabel": "Lab Handout",
         "description": "Period 0 Honors: Official P031 reaction time lab protocol and calculation sheets."
       },
@@ -2862,7 +2862,7 @@ const lessonsData = [
     "practice": [
       {
         "title": "P031 Reaction Time Lab Protocol",
-        "url": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQC56lu4HK0nRKxL2XhMmeZXAREUmHZaWstYUWZfSSPZ9N8?e=cQ1qok",
+        "url": "Unit_2/worksheets/P031_Reaction_Time_2026.pdf",
         "typeLabel": "Lab Handout (Period 0)",
         "description": "Ruler drop data tables, reaction time calculations, and distraction analysis."
       },
@@ -2874,7 +2874,7 @@ const lessonsData = [
       }
     ],
     "links": {
-      "P031 Reaction Time Lab": "https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQC56lu4HK0nRKxL2XhMmeZXAREUmHZaWstYUWZfSSPZ9N8?e=cQ1qok",
+      "P031 Reaction Time Lab (PDF)": "Unit_2/worksheets/P031_Reaction_Time_2026.pdf",
       "Pull-Back Toy Motion Lab": "Unit_2/pull_back_toy_lab/index.html",
       "Lab Setup Video": "https://drive.google.com/file/d/1AzjHUlsL2X34YtQUKrtjvGBCyjtupQ-k/view",
       "Dual-Graph Motion Studio": "Unit_2/dual_graph_studio/index.html"
@@ -2884,25 +2884,25 @@ const lessonsData = [
     "day": 20,
     "date": "2026-09-25",
     "unit": 2,
-    "title": "Kinematic Acceleration Synthesis: 2-Stage Stopping Distance Performance Challenge",
-    "topic": "Synthesizing Constant Velocity Reaction Time with Uniform Braking Deceleration",
-    "dok": 4,
-    "type": "Performance Task / Engineering Challenge",
+    "title": "Human Reaction Time & Free-Fall Kinematics Lab",
+    "topic": "Metric Ruler Free-Fall Kinematics (t = √(2d/g)), Sensory Cues & Distraction Analysis",
+    "dok": 3,
+    "type": "Hands-On Laboratory / Data Collection",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Synthesize constant velocity and uniform acceleration in an authentic vehicular engineering challenge: calculating total stopping distances. Students partition emergency stops into Stage 1 (driver perception & reaction at constant velocity: Δx<sub>react</sub> = v₀ · t<sub>react</sub>) and Stage 2 (uniform braking deceleration: Δx<sub>brake</sub> = ½ · v₀ · t<sub>brake</sub> = -v₀² / (2a)), construct aligned dual x-t and v-t graphs, and author a driving safety advisory.",
-    "activity": "Forensic Highway Safety Stopping Distance Challenge: Student engineering teams analyze collision avoiding scenarios across 3 vehicle speeds (25 mph, 45 mph, 65 mph) converted to m/s. Teams compute reaction distances, braking distances, construct coordinated piecewise x-t and v-t graphs, and author an evidence-based recommendation on safe highway following intervals.",
-    "essentialQuestion": "Why does doubling a vehicle's initial speed more than double its total stopping distance?",
+    "summary": "All physics class periods (Period 0 Honors and Periods 1–6) completed the hands-on Human Reaction Time & Free-Fall Kinematics Lab. Students dropped vertical metric rulers to measure neural reaction displacement (cm), testing three sensory conditions: visual stimulus (sight), auditory stimulus (sound cue), and smartphone distractions. (Pacing Note: Period 0 completed registration paperwork and required online forms prior to conducting trials; all sections successfully recorded raw drop distances).",
+    "activity": "Human Reaction Time Lab Data Collection: Student partner pairs run 5 randomized drop trials across three conditions: (1) Visual Cue (releasing ruler silently without telegraphing), (2) Auditory Cue (dropping while partner's eyes are closed, saying 'Drop!'), and (3) Smartphone Distraction (catching while sending a text message or browsing). Students record precise catch points in centimeters down to the millimeter.",
+    "essentialQuestion": "How can free-fall gravitational acceleration allow us to measure the speed of human neural signal processing?",
     "standards": [
       "HS-PS2-1",
-      "HS-ETS1-2"
+      "HS-PS2-2"
     ],
     "wicor": {
-      "Writing": "Authoring an evidence-based Highway Safety Advisory Report explaining the non-linear relationship between speed and stopping distance.",
-      "Inquiry": "Investigating how reaction time delays (distracted vs alert drivers) compound braking distances at high speeds.",
-      "Collaboration": "Engineering partner roles: telemetry data converter, kinematic equation solver, and dual-graph cartographer.",
-      "Organization": "Structuring multi-stage calculation tables separating Stage 1 (constant speed) from Stage 2 (braking deceleration).",
-      "Reading": "Interpreting municipal traffic engineering manuals and vehicular stopping distance specifications."
+      "Writing": "Documenting raw drop measurements in centimeters across 5 trials per condition, noting procedural anomalies or reflex delays.",
+      "Inquiry": "Testing the effect of auditory vs. visual sensory pathways and smartphone distraction on human neural reflex times.",
+      "Collaboration": "Lab partner pairs: tester drops the ruler at random intervals without telegraphing; subject catches and records catch distance down to the millimeter.",
+      "Organization": "Constructing multi-trial data tables, calculating statistical averages, and organizing split-condition data.",
+      "Reading": "Reading metric ruler scales down to the millimeter and interpreting laboratory protocol instructions."
     },
     "bellRinger": {
       "type": "cast_challenge",
@@ -3004,20 +3004,20 @@ const lessonsData = [
     },
     "assignments": [
       {
-        "title": "2-Stage Stopping Distance Performance Task Handout",
-        "typeLabel": "Performance Task",
-        "submission": "In-Class Handout (Subject to Pacing)",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Calculate multi-stage reaction and braking stopping distances across 3 vehicle speeds and construct coordinated dual x-t and v-t motion curves.",
-        "status": "planned"
+        "title": "P031 Reaction Time Lab Protocol & Data Tables",
+        "url": "Unit_2/worksheets/P031_Reaction_Time_2026.pdf",
+        "typeLabel": "Hands-On Lab Activity & Report",
+        "submission": "Turn In Lab Handout (10 pts)",
+        "actionLabel": "Open Lab Handout (PDF)",
+        "description": "All Periods: Metric ruler drop trials, reflex time calculations using t = √(2d/g), visual vs. auditory comparison, distraction analysis, and freeway reaction distance calculation."
       }
     ],
     "resources": [
       {
-        "title": "Two-Car Kinematic Intercept Simulator",
-        "url": "Unit_2/two_car_intercept/index.html",
-        "typeLabel": "Honors Physics Intercept Simulator",
-        "description": "Configure vehicle velocities and accelerations, watch live vector readouts, and simulate race collisions."
+        "title": "P031 Reaction Time Lab Handout (PDF)",
+        "url": "Unit_2/worksheets/P031_Reaction_Time_2026.pdf",
+        "typeLabel": "Lab Handout",
+        "description": "Official P031 reaction time lab protocol and calculation sheets for all periods."
       },
       {
         "title": "Dual-Graph Motion Studio",
@@ -3028,20 +3028,180 @@ const lessonsData = [
     ],
     "practice": [
       {
-        "title": "Two-Car Kinematic Intercept Challenge Sandbox",
-        "url": "Unit_2/two_car_intercept/index.html",
-        "typeLabel": "Interactive Sandbox",
-        "description": "Model multi-stage acceleration and stopping distance."
+        "title": "P031 Reaction Time Lab Protocol",
+        "url": "Unit_2/worksheets/P031_Reaction_Time_2026.pdf",
+        "typeLabel": "Lab Handout",
+        "description": "Ruler drop data tables, reaction time calculations, and distraction analysis."
       }
     ],
     "links": {
-      "Two-Car Intercept Simulator": "Unit_2/two_car_intercept/index.html",
+      "P031 Reaction Time Lab (PDF)": "Unit_2/worksheets/P031_Reaction_Time_2026.pdf",
       "Dual-Graph Motion Studio": "Unit_2/dual_graph_studio/index.html"
     }
   },
   {
     "day": 21,
     "date": "2026-09-28",
+    "unit": 2,
+    "title": "Reaction Time Lab: Kinematic Calculations & Graphing Workshop",
+    "topic": "Converting Catch Distance, Computing Reflex Times via t = √(2d/g), and Comparative Graphing",
+    "dok": 2,
+    "type": "Data Analysis / Guided Practice",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Comprehensive review and guided workshop on the mathematical calculations and graphical analysis for the Ruler Drop Reaction Time Lab. Students review converting catch distances from centimeters to meters, applying the free-fall kinematic equation (d = ½gt² -> t = √(2d/g)), computing mean reaction times across sensory conditions, calculating vehicle highway reaction distances (d_react = v₀ · t), and plotting comparative graphs.",
+    "activity": "Kinematic Calculation & Graphing Masterclass: Teacher-led walkthrough and partner practice: (1) Unit conversion: converting catch distance d in cm to meters (d / 100), (2) Kinematic formula derivation & calculation: applying t = √(2d/g) (with g = 9.8 m/s²) to find reflex times in seconds and milliseconds, (3) Statistical comparison: computing average reaction times for visual vs auditory vs phone distraction trials, (4) Coordinated graphing: constructing comparative bar charts / scatter distributions showing reflex delay penalties, and (5) Real-world vehicular connection: calculating freeway reaction distances at 65 mph (29 m/s).",
+    "essentialQuestion": "How do mathematical formulas and visual graphs transform raw drop measurements into actionable evidence about human neural processing and vehicle safety?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-PS2-2"
+    ],
+    "wicor": {
+      "Writing": "Composing analytical conclusions comparing visual vs. auditory reflexes and articulating the quantitative impact of cell phone distractions on driver safety.",
+      "Inquiry": "Analyzing calculated reaction times to deduce whether auditory or visual neural transmission pathways are faster.",
+      "Collaboration": "Peer-checking kinematics calculations and verifying correct order of operations in radical expressions.",
+      "Organization": "Constructing structured multi-tier calculation tables and formatting comparative bar graphs with titled axes and units.",
+      "Reading": "Interpreting mathematical formula reference sheets and graphical rubrics."
+    },
+    "bellRinger": {
+      "type": "cast_challenge",
+      "title": "Calculating Reaction Time from Free Fall",
+      "defaultDuration": 4,
+      "standards": {
+        "dci": "HS-PS2.A: Forces & Motion",
+        "sep": "SEP-5: Using Mathematics & Computational Thinking",
+        "ccc": "CCC-2: Cause and Effect"
+      },
+      "phenomenon": {
+        "title": "Free-Fall Ruler Drop Reaction Telemetry",
+        "type": "data_table",
+        "text": "During the ruler drop lab, a student catches a falling ruler at exactly d = 19.6 cm (0.196 m). Because the ruler falls freely under gravity with zero initial velocity (v₀ = 0, a = g = 9.8 m/s²), the vertical displacement is d = ½gt², which rearranges to t = √(2d / g).",
+        "stimulus": {
+          "type": "data_table",
+          "title": "Student Ruler Catch Data",
+          "headers": [
+            "Trial",
+            "Condition",
+            "Catch Distance (d)",
+            "Converted to Meters (m)"
+          ],
+          "rows": [
+            {
+              "col_0": "Trial 1",
+              "col_1": "Visual Cue (Sight)",
+              "col_2": "19.6 cm",
+              "col_3": "0.196 m"
+            },
+            {
+              "col_0": "Trial 2",
+              "col_1": "Auditory Cue (Sound)",
+              "col_2": "14.4 cm",
+              "col_3": "0.144 m"
+            },
+            {
+              "col_0": "Trial 3",
+              "col_1": "Phone Distraction (Texting)",
+              "col_2": "39.2 cm",
+              "col_3": "0.392 m"
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "stepId": "step_1",
+          "type": "cloze_dropdown",
+          "title": "Part 1: Rearranging the Free-Fall Kinematic Formula",
+          "prompt": "Inspect the kinematic relationship between falling distance d and reaction time t starting from rest:",
+          "text": "Starting from rest (v₀ = 0), free-fall distance is given by d = ½gt². Solving algebraically for time t yields [blank1]. To use g = 9.8 m/s², the catch distance MUST be measured in [blank2].",
+          "blanks": {
+            "blank1": {
+              "correct": "t = √(2d / g)",
+              "options": [
+                "t = √(2d / g)",
+                "t = 2d / g",
+                "t = √(d / 2g)"
+              ]
+            },
+            "blank2": {
+              "correct": "meters (m)",
+              "options": [
+                "meters (m)",
+                "centimeters (cm)",
+                "millimeters (mm)"
+              ]
+            }
+          }
+        },
+        {
+          "stepId": "step_2",
+          "type": "data_calculation",
+          "title": "Part 2: Computing Reaction Time",
+          "prompt": "Calculate the reaction time in seconds for Trial 1 (d = 0.196 m) using t = √(2 · d / 9.8). Round to two decimal places.",
+          "inputLabel": "Reaction Time (t)",
+          "unit": "s",
+          "targetValue": 0.20,
+          "tolerance": 0.02,
+          "hint": "t = √(2 · 0.196 / 9.8) = √(0.392 / 9.8) = √(0.04) = 0.20 seconds (200 ms)."
+        },
+        {
+          "stepId": "step_3",
+          "type": "ai_reasoning_chat",
+          "title": "Part 3: Defending Distraction & Highway Reaction Distance with AI Mentor",
+          "prompt": "Discuss your reasoning with the AI Physics Mentor: Look at Trial 3 where phone distraction doubled the catch distance to 39.2 cm (t = 0.283 s). If a car travels at highway speed (v₀ = 30 m/s ≈ 67 mph), calculate how many meters the car travels during reaction time alone (d_react = v₀ · t), and explain why distraction creates extreme highway hazards.",
+          "openingPrompt": "You calculated that a 19.6 cm drop corresponds to a 0.20 s reflex time! When distracted by a phone, the drop distance jumped to 39.2 cm (about 0.28 s). At 30 m/s on the freeway (about 67 mph), how many meters does the car travel before the driver even touches the brake pedal? Why does a fraction of a second matter so much?",
+          "minTurns": 1
+        }
+      ],
+      "teacherKey": "Step 1: t = √(2d / g), meters (m). Step 2: 0.20 s (√(2 · 0.196 / 9.8) = 0.20 s). Step 3: Claim: At 30 m/s, an alert driver travels 6.0 m during reaction time (30 · 0.20), but a distracted driver travels 8.5 m (30 · 0.283)—an extra 2.5 meters (over half a car length) before braking begins. Evidence: Reaction distance is linear with speed and reaction time: d_react = v₀ · t. In Trial 3, distraction delayed braking by 0.083 s. At 30 m/s, that extra delay covers Δd = 30 m/s · 0.083 s = 2.5 m. Reasoning: Braking distance only starts AFTER reaction time ends. That extra reaction distance often means the difference between a near-miss and a high-speed collision."
+    },
+    "assignments": [
+      {
+        "title": "Reaction Time Lab Calculations & Graphing Submission",
+        "typeLabel": "Lab Analysis & Report",
+        "submission": "Turn In Lab Handout (10 pts)",
+        "actionLabel": "Review Lab Handout",
+        "description": "Complete all calculations: d in meters, t = √(2d/g), mean reaction times, freeway stopping reaction distance, and comparative bar graph.",
+        "status": "planned"
+      }
+    ],
+    "resources": [
+      {
+        "title": "Reaction Time Calculations & Grouped Graphing Guide",
+        "url": "Unit_2/reaction_time_guide/index.html",
+        "typeLabel": "Interactive Guide & Grapher",
+        "description": "Step-by-step masterclass with large projector text: calculating average drop distance, cm to meters conversion, t = √(2d/g) kinematics, and interactive grouped column graph generator."
+      },
+      {
+        "title": "P031 Reaction Time Lab Handout (PDF)",
+        "url": "Unit_2/worksheets/P031_Reaction_Time_2026.pdf",
+        "typeLabel": "Lab Handout",
+        "description": "Official P031 reaction time lab protocol and calculation sheets."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Reaction Time Calculation Guide & Grapher",
+        "url": "Unit_2/reaction_time_guide/index.html",
+        "typeLabel": "Interactive Guide",
+        "description": "Step-by-step math solver and live grouped column graph generator."
+      },
+      {
+        "title": "Speed & Distance Studio",
+        "url": "Unit_2/speed_distance_time_app/index.html",
+        "typeLabel": "Practice Sandbox",
+        "description": "Review constant velocity kinematics for reaction distance calculations."
+      }
+    ],
+    "links": {
+      "Calculation & Grouped Graphing Guide": "Unit_2/reaction_time_guide/index.html",
+      "P031 Reaction Time Lab (PDF)": "Unit_2/worksheets/P031_Reaction_Time_2026.pdf",
+      "Speed & Distance Studio": "Unit_2/speed_distance_time_app/index.html"
+    }
+  },
+  {
+    "day": 22,
+    "date": "2026-09-29",
     "unit": 2,
     "title": "The Big Question: What Keeps Things Moving? (Inertia Demos)",
     "topic": "Inquiry Launch into Dynamics: Aristotle vs Galileo vs Newton & Balanced Forces",
@@ -3071,6 +3231,8 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Inertia Presentation Slides": "https://docs.google.com/presentation/d/1J_m4BCp6kcBnIVgHzsPEJcnaqF-Drhm-ITdufGx6cnc/edit?usp=sharing",
+      "Inertia Studio (3 Categories)": "Unit_2/inertia_studio/index.html",
       "PhET Forces and Motion: Basics": "https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_en.html"
     },
     "assignments": [
@@ -3085,6 +3247,12 @@ const lessonsData = [
     ],
     "resources": [
       {
+        "title": "Inertia Presentation Slides",
+        "url": "https://docs.google.com/presentation/d/1J_m4BCp6kcBnIVgHzsPEJcnaqF-Drhm-ITdufGx6cnc/edit?usp=sharing",
+        "typeLabel": "Lecture Slides",
+        "description": "Classroom lecture slides and guided notes introducing inertia and Newton's First Law."
+      },
+      {
         "title": "Galileo vs. Aristotle Thought Experiments",
         "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
         "typeLabel": "Lecture Slides",
@@ -3092,6 +3260,12 @@ const lessonsData = [
       }
     ],
     "practice": [
+      {
+        "title": "Inertia Studio (3 Categories)",
+        "url": "Unit_2/inertia_studio/index.html",
+        "typeLabel": "Interactive Physics Studio",
+        "description": "Explore tablecloth pulls, crash cart forensics, and centripetal string snaps with real-time vector HUD and Tiered Mastery Arena."
+      },
       {
         "title": "PhET Forces & Motion: Basics (Motion)",
         "url": "https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_en.html",
@@ -3101,8 +3275,8 @@ const lessonsData = [
     ]
   },
   {
-    "day": 22,
-    "date": "2026-09-29",
+    "day": 23,
+    "date": "2026-09-30",
     "unit": 2,
     "title": "Newton's First Law of Motion (The Law of Inertia)",
     "topic": "The First Law & Natural States of Motion",
@@ -3131,6 +3305,7 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Inertia Studio (3 Categories)": "Unit_2/inertia_studio/index.html",
       "Newton's 1st Law Presentation": "Unit_2/describing-motion-presentation/index.html"
     },
     "assignments": [
@@ -3150,11 +3325,19 @@ const lessonsData = [
         "typeLabel": "Classroom Slides",
         "description": "Direct instruction on balanced forces, inertia, and Galileo thought experiments."
       }
+    ],
+    "practice": [
+      {
+        "title": "Inertia Studio (3 Categories)",
+        "url": "Unit_2/inertia_studio/index.html",
+        "typeLabel": "Interactive Physics Studio",
+        "description": "Analyze vehicular inertia, crash forensics (zero forward force: F_fwd = 0 N), and seatbelt impulse in the Tiered Mastery Arena."
+      }
     ]
   },
   {
-    "day": 23,
-    "date": "2026-09-30",
+    "day": 24,
+    "date": "2026-10-01",
     "unit": 2,
     "title": "Mass as the Quantitative Measure of Inertia",
     "topic": "Mass (kg) vs. Weight (N) vs. Volume: Isolating Inertia",
@@ -3203,8 +3386,8 @@ const lessonsData = [
     ]
   },
   {
-    "day": 24,
-    "date": "2026-10-01",
+    "day": 25,
+    "date": "2026-10-02",
     "unit": 2,
     "title": "The Force Toolkit: Types of Forces & Free-Body Diagrams",
     "topic": "Contact vs. Field Forces & Systematic Free-Body Modeling (FBDs)",
@@ -3341,8 +3524,8 @@ const lessonsData = [
     }
   },
   {
-    "day": 25,
-    "date": "2026-10-02",
+    "day": 26,
+    "date": "2026-10-05",
     "unit": 2,
     "title": "Balanced Forces & Mechanical Equilibrium (F<sub>net</sub> = 0)",
     "topic": "Static and Dynamic Equilibrium: Zero Net Force implies Zero Acceleration",
@@ -3400,76 +3583,17 @@ const lessonsData = [
     ]
   },
   {
-    "day": 26,
-    "date": "2026-10-05",
-    "unit": 2,
-    "title": "Unbalanced Forces Produce Acceleration",
-    "topic": "Introducing Newton's Second Law: Cause and Effect & Vector Direction",
-    "dok": 2,
-    "type": "Direct Instruction / Inquiry",
-    "semester": 1,
-    "isFeatured": true,
-    "summary": "Establish that an unbalanced net force (F<sub>net</sub> ≠ 0) causes acceleration in the direction of the net force, introducing the proportionalities of Newton's 2nd Law.",
-    "activity": "Fan-Cart Demonstrations: Observing what happens when fan thrust exceeds friction; ranking tasks comparing accelerations under varied force and mass combinations.",
-    "essentialQuestion": "What determines whether a force makes an object speed up, slow down, or simply maintain its motion?",
-    "standards": [
-      "HS-PS2-1"
-    ],
-    "wicor": {
-      "Writing": "Formulating rules for vector direction alignment between net force and acceleration.",
-      "Inquiry": "Testing fan speeds on low-friction dynamics tracks.",
-      "Collaboration": "Ranking task pairs ordering 6 cart scenarios by acceleration magnitude.",
-      "Organization": "Calculating net force vectors: F<sub>net</sub> = ΣF.",
-      "Reading": "Reading conceptual physics ranking prompts."
-    },
-    "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "If a car is traveling east at 20 m/s and the driver hits the brakes, creating a net force pointing west: What is the direction of the car's acceleration, and what happens to the car's speed?",
-      "explanation": "The acceleration points WEST, in the exact same direction as the net force! Because the velocity (east) and acceleration (west) point in opposite directions, the car slows down.",
-      "defaultDuration": 3
-    },
-    "links": {
-      "PhET Forces and Motion: Basics": "https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_en.html"
-    },
-    "assignments": [
-      {
-        "title": "Newton's Second Law Problem Set (F<sub>net</sub> = m · a)",
-        "typeLabel": "Required Problem Set",
-        "submission": "In-Class Handout (Subject to Pacing)",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Solve quantitative acceleration and net force challenges applying F<sub>net</sub> = m · a.",
-        "status": "planned"
-      }
-    ],
-    "resources": [
-      {
-        "title": "Newton's Second Law Presentation",
-        "url": "Unit_2/constant-speed-presentation/index.html",
-        "typeLabel": "Classroom Slides",
-        "description": "Proportional relationships between force, mass, and acceleration."
-      }
-    ],
-    "practice": [
-      {
-        "title": "PhET Forces & Motion: Basics (Acceleration)",
-        "url": "https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_en.html",
-        "typeLabel": "Simulation Sandbox",
-        "description": "Systematically vary mass and force to observe real-time accelerations."
-      }
-    ]
-  },
-  {
     "day": 27,
     "date": "2026-10-06",
     "unit": 2,
-    "title": "Newton's Second Law Lab — Part 1: Force vs. Acceleration",
-    "topic": "Empirical Verification of a ∝ F<sub>net</sub> (Constant Mass System)",
+    "title": "Unbalanced Forces & Newton's Second Law Lab — Part 1: Force vs. Acceleration",
+    "topic": "Introducing Newton's Second Law (F<sub>net</sub> = m · a) & Empirical Verification of a ∝ F<sub>net</sub>",
     "dok": 3,
-    "type": "Lab",
+    "type": "Direct Instruction / Lab",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Empirically verify that acceleration is directly proportional to applied net force when system mass is held constant.",
-    "activity": "Modified Atwood Track Lab (Part 1): Pulling a constant-mass cart using hanging masses (0.1 N, 0.2 N, 0.3 N, 0.4 N) and measuring acceleration with photogates; plotting a vs F<sub>net</sub> to establish linearity.",
+    "summary": "Establish that an unbalanced net force (F<sub>net</sub> ≠ 0) causes acceleration in the direction of the net force, introducing Newton's 2nd Law (F<sub>net</sub> = m · a), and empirically verify that acceleration is directly proportional to applied net force when system mass is held constant.",
+    "activity": "Newton's 2nd Law Launch & Modified Atwood Track Lab (Part 1): Direct instruction and fan-cart demonstrations establishing that unbalanced forces produce acceleration (a = F<sub>net</sub> / m). Followed by pulling a constant-mass cart using hanging masses (0.1 N, 0.2 N, 0.3 N, 0.4 N) across photogate timers to plot a vs F<sub>net</sub> and verify direct linear proportionality.",
     "essentialQuestion": "How does experimental data verify the direct proportionality between applied net force and acceleration?",
     "standards": [
       "HS-PS2-1",
