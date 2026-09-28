@@ -3063,13 +3063,13 @@ const lessonsData = [
     "date": "2026-09-28",
     "unit": 2,
     "title": "Reaction Time Lab: Kinematic Calculations & Graphing Workshop",
-    "topic": "Converting Catch Distance, Computing Reflex Times via t = √(2d/g), and Comparative Graphing",
+    "topic": "Converting Catch Distance, Computing Reflex Times via t = √(x / 5), and Comparative Graphing",
     "dok": 2,
     "type": "Data Analysis / Guided Practice",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Comprehensive review and guided workshop on the mathematical calculations and graphical analysis for the Ruler Drop Reaction Time Lab. Students review converting catch distances from centimeters to meters, applying the free-fall kinematic equation (d = ½gt² -> t = √(2d/g)), computing mean reaction times across sensory conditions, calculating vehicle highway reaction distances (d_react = v₀ · t), and plotting comparative graphs.",
-    "activity": "Kinematic Calculation & Graphing Masterclass: Teacher-led walkthrough and partner practice: (1) Unit conversion: converting catch distance d in cm to meters (d / 100), (2) Kinematic formula derivation & calculation: applying t = √(2d/g) (with g = 9.8 m/s²) to find reflex times in seconds and milliseconds, (3) Statistical comparison: computing average reaction times for visual vs auditory vs phone distraction trials, (4) Coordinated graphing: constructing comparative bar charts / scatter distributions showing reflex delay penalties, and (5) Real-world vehicular connection: calculating freeway reaction distances at 65 mph (29 m/s).",
+    "summary": "Comprehensive review and guided workshop on the mathematical calculations and graphical analysis for the Ruler Drop Reaction Time Lab. Students review converting catch distances from centimeters to meters, applying the simplified free-fall kinematic equation (x = ½gt² = 5t² -> t = √(x / 5) using g = 10 m/s²), computing mean reaction times across sensory conditions, calculating vehicle highway reaction distances (d_react = v₀ · t), and plotting comparative graphs.",
+    "activity": "Kinematic Calculation & Graphing Masterclass: Teacher-led walkthrough and partner practice: (1) Unit conversion: converting catch distance x in cm to meters (x / 100), (2) Kinematic formula derivation & calculation: applying t = √(x / 5) (with g = 10 m/s²) to find reflex times in seconds and milliseconds, (3) Statistical comparison: computing average reaction times for visual vs auditory vs phone distraction trials, (4) Coordinated graphing: constructing comparative bar charts / scatter distributions showing reflex delay penalties, and (5) Real-world vehicular connection: calculating freeway reaction distances at 67 mph (30 m/s).",
     "essentialQuestion": "How do mathematical formulas and visual graphs transform raw drop measurements into actionable evidence about human neural processing and vehicle safety?",
     "standards": [
       "HS-PS2-1",
@@ -3094,34 +3094,34 @@ const lessonsData = [
       "phenomenon": {
         "title": "Free-Fall Ruler Drop Reaction Telemetry",
         "type": "data_table",
-        "text": "During the ruler drop lab, a student catches a falling ruler at exactly d = 19.6 cm (0.196 m). Because the ruler falls freely under gravity with zero initial velocity (v₀ = 0, a = g = 9.8 m/s²), the vertical displacement is d = ½gt², which rearranges to t = √(2d / g).",
+        "text": "During the ruler drop lab, a student catches a falling ruler at x = 20.0 cm (0.20 m). Because the ruler falls freely under gravity (g = 10 m/s²), displacement is x = ½gt² = ½(10)t² = 5t², which simplifies directly to t = √(x / 5).",
         "stimulus": {
           "type": "data_table",
           "title": "Student Ruler Catch Data",
           "headers": [
             "Trial",
             "Condition",
-            "Catch Distance (d)",
+            "Catch Distance (x)",
             "Converted to Meters (m)"
           ],
           "rows": [
             {
               "col_0": "Trial 1",
               "col_1": "Visual Cue (Sight)",
-              "col_2": "19.6 cm",
-              "col_3": "0.196 m"
+              "col_2": "20.0 cm",
+              "col_3": "0.20 m"
             },
             {
               "col_0": "Trial 2",
               "col_1": "Auditory Cue (Sound)",
-              "col_2": "14.4 cm",
-              "col_3": "0.144 m"
+              "col_2": "12.5 cm",
+              "col_3": "0.125 m"
             },
             {
               "col_0": "Trial 3",
               "col_1": "Phone Distraction (Texting)",
-              "col_2": "39.2 cm",
-              "col_3": "0.392 m"
+              "col_2": "45.0 cm",
+              "col_3": "0.45 m"
             }
           ]
         }
@@ -3130,16 +3130,16 @@ const lessonsData = [
         {
           "stepId": "step_1",
           "type": "cloze_dropdown",
-          "title": "Part 1: Rearranging the Free-Fall Kinematic Formula",
-          "prompt": "Inspect the kinematic relationship between falling distance d and reaction time t starting from rest:",
-          "text": "Starting from rest (v₀ = 0), free-fall distance is given by d = ½gt². Solving algebraically for time t yields [blank1]. To use g = 9.8 m/s², the catch distance MUST be measured in [blank2].",
+          "title": "Part 1: The Simplified Classroom Free-Fall Formula",
+          "prompt": "Inspect the kinematic relationship between falling distance x and reaction time t with g = 10 m/s²:",
+          "text": "Starting from rest (v₀ = 0) with g = 10 m/s², free-fall distance is x = ½gt² = 5t². Solving algebraically for time t yields [blank1]. To use this formula, catch distance MUST be measured in [blank2].",
           "blanks": {
             "blank1": {
-              "correct": "t = √(2d / g)",
+              "correct": "t = √(x / 5)",
               "options": [
-                "t = √(2d / g)",
-                "t = 2d / g",
-                "t = √(d / 2g)"
+                "t = √(x / 5)",
+                "t = x / 5",
+                "t = √(5 / x)"
               ]
             },
             "blank2": {
@@ -3156,23 +3156,23 @@ const lessonsData = [
           "stepId": "step_2",
           "type": "data_calculation",
           "title": "Part 2: Computing Reaction Time",
-          "prompt": "Calculate the reaction time in seconds for Trial 1 (d = 0.196 m) using t = √(2 · d / 9.8). Round to two decimal places.",
+          "prompt": "Calculate the reaction time in seconds for Trial 1 (x = 0.20 m) using t = √(x / 5). (Divide 0.20 by 5 to get 0.04, then take the square root).",
           "inputLabel": "Reaction Time (t)",
           "unit": "s",
           "targetValue": 0.20,
           "tolerance": 0.02,
-          "hint": "t = √(2 · 0.196 / 9.8) = √(0.392 / 9.8) = √(0.04) = 0.20 seconds (200 ms)."
+          "hint": "t = √(0.20 / 5) = √(0.04) = 0.20 seconds (200 ms)."
         },
         {
           "stepId": "step_3",
           "type": "ai_reasoning_chat",
           "title": "Part 3: Defending Distraction & Highway Reaction Distance with AI Mentor",
-          "prompt": "Discuss your reasoning with the AI Physics Mentor: Look at Trial 3 where phone distraction doubled the catch distance to 39.2 cm (t = 0.283 s). If a car travels at highway speed (v₀ = 30 m/s ≈ 67 mph), calculate how many meters the car travels during reaction time alone (d_react = v₀ · t), and explain why distraction creates extreme highway hazards.",
-          "openingPrompt": "You calculated that a 19.6 cm drop corresponds to a 0.20 s reflex time! When distracted by a phone, the drop distance jumped to 39.2 cm (about 0.28 s). At 30 m/s on the freeway (about 67 mph), how many meters does the car travel before the driver even touches the brake pedal? Why does a fraction of a second matter so much?",
+          "prompt": "Discuss your reasoning with the AI Physics Mentor: In Trial 1, catching the ruler at 20 cm (0.20 m) gives a reaction time of 0.20 s (t = √(0.20 / 5) = 0.20 s). In Trial 3 (Phone Distraction), catching at 45 cm (0.45 m) gives a reaction time of 0.30 s (t = √(0.45 / 5) = 0.30 s). If a car travels at highway speed (v₀ = 30 m/s ≈ 67 mph), calculate how many meters the car travels during reaction time (d_react = v₀ · t), and explain why distraction creates extreme highway hazards.",
+          "openingPrompt": "In Trial 1, a 20 cm drop means a 0.20 s reflex time (t = √(0.20 / 5) = 0.20 s). When distracted by a phone, catch distance jumped to 45 cm (t = √(0.45 / 5) = 0.30 s). At 30 m/s on the highway, how many extra meters does the car travel during that 0.10 s distraction delay before the driver even touches the brakes?",
           "minTurns": 1
         }
       ],
-      "teacherKey": "Step 1: t = √(2d / g), meters (m). Step 2: 0.20 s (√(2 · 0.196 / 9.8) = 0.20 s). Step 3: Claim: At 30 m/s, an alert driver travels 6.0 m during reaction time (30 · 0.20), but a distracted driver travels 8.5 m (30 · 0.283)—an extra 2.5 meters (over half a car length) before braking begins. Evidence: Reaction distance is linear with speed and reaction time: d_react = v₀ · t. In Trial 3, distraction delayed braking by 0.083 s. At 30 m/s, that extra delay covers Δd = 30 m/s · 0.083 s = 2.5 m. Reasoning: Braking distance only starts AFTER reaction time ends. That extra reaction distance often means the difference between a near-miss and a high-speed collision."
+      "teacherKey": "Step 1: t = √(x / 5), meters (m). Step 2: 0.20 s (t = √(0.20 / 5) = √(0.04) = 0.20 s). Step 3: Claim: At 30 m/s, an alert driver travels 6.0 m during reaction time (30 · 0.20 s), but a distracted driver travels 9.0 m (30 · 0.30 s)—an extra 3.0 meters (a full car length) before braking begins. Evidence: Reaction distance is linear with speed and reaction time: d_react = v₀ · t. In Trial 3, distraction delayed braking by 0.10 s. At 30 m/s, that extra delay covers Δd = 30 m/s · 0.10 s = 3.0 m. Reasoning: Braking distance only starts AFTER reaction time ends. That extra 3.0 meters of reaction distance often means the difference between a safe stop and a severe collision."
     },
     "assignments": [
       {

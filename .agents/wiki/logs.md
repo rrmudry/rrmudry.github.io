@@ -6,7 +6,11 @@ Append-only log tracking pattern changes across recent sessions.
 ## 2026-09-28 — Daily Lesson Update & Alignment Verification
 
 **Changes**:
-- **Daily Site Timestamp Updated**: Executed `scripts/update-timestamp.js` updating site deployment timestamp in `partials/footer.html` to `Sep 28, 2026, 8:36 AM PDT`.
+- **Day 21 Bell-Ringer Lower-Friction Formula & Number Alignment (`assets/lessons-data.js`, `Unit_2/outline.md`)**:
+  - Aligned the free-fall kinematic formula and gravitational acceleration directly with the [P031 Reaction Time Masterclass Guide](file:///c:/Users/rmudry/rrmudry.github.io/Unit_2/reaction_time_guide/index.html) ($g = 10\text{ m/s}^2$, $x = \frac{1}{2}gt^2 = 5t^2 \implies t = \sqrt{x / 5}$).
+  - Lowered student execution friction by switching to clean, round catch distances: $x = 20.0\text{ cm} \implies 0.20\text{ m} / 5 = 0.04 \implies t = \sqrt{0.04} = 0.20\text{ s}$ ($200\text{ ms}$) for visual reflex, and $x = 45.0\text{ cm} \implies 0.45\text{ m} / 5 = 0.09 \implies t = \sqrt{0.09} = 0.30\text{ s}$ ($300\text{ ms}$) for phone distraction.
+  - Simplified highway reaction distance math ($v_0 = 30\text{ m/s}$): alert distance $= 6.0\text{ m}$, distracted distance $= 9.0\text{ m}$ ($\Delta d = 3.0\text{ m}$, exactly 1 full car length).
+- **Daily Site Timestamp Updated**: Executed `scripts/update-timestamp.js` updating site deployment timestamp in `partials/footer.html` to `Sep 28, 2026, 9:15 AM PDT`.
 - **NGSS Standards Alignment Verification**: Checked and verified all 139 daily lesson objects in `assets/lessons-data.js` for explicit `standards` array tagging.
 
 ## 2026-09-27 — Inertia Studio: 3 Physical Categories of Newton's First Law
