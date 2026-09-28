@@ -3,6 +3,32 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-09-26 — Differentiated Scoring Architecture for Conceptual Physics (Periods 1–3)
+
+**Pattern Updated**: `classroom-gradebook-sync.md`.
+
+**Changes**:
+- **Implemented 60% Passing Base + 40% Scaled Mastery Model (`sync-classroom/sync-cli.js`, `sync-classroom/server.js`)**:
+  - Added dedicated differentiated scoring engine for Periods 1, 2, and 3 (Conceptual Physics) using $\text{effectivePct} = 60 + 0.40 \times \text{rawPct}$.
+  - Equitably rewards effort on lower levels and authentic lab data gathering (e.g. 15% raw Level 1 completion ➔ 66.0% [6.6/10 pts D+]; 50% raw data collection ➔ 80.0% [8.0/10 pts B solid passing/mastery grade]) while scaling smoothly to 100% (10/10 pts).
+  - Preserved standard linear scoring for Periods 0 (Honors) and Periods 4–6 (Regular Physics).
+  - Preserved Rule B protection for teacher manual grades.
+- **Retroactive & Live Sync**:
+  - Re-evaluated and updated 208 student scores across Periods 1–3 in Google Classroom, returning grades for immediate Aeries SIS gradebook sync.
+
+## 2026-09-26 — Google Classroom Grade Sync: Studio Score Normalization & Grade Recovery
+
+**Pattern Updated**: `classroom-gradebook-sync.md`.
+
+**Changes**:
+- **Fixed Studio Score Normalization Bug (`sync-classroom/sync-cli.js`)**:
+  - Identified and removed faulty fallback heuristic `else if (numScore <= 15 && numScore > 0) { rawPct = Math.round((numScore / 10) * 100); }`.
+  - In 100-point 6-mission studio apps (`Dual Graph Studio` and `Position Time Graph Studio`), completing Mission 1 awards 15 points (15%). The buggy heuristic assumed any score `<= 15` was a score out of 10, calculating 15/10 = 150% and posting an inflated grade of `15/10 pts` to Google Classroom.
+  - Refactored scoring logic to only divide by `max` when `max > 0 && numScore <= max`. When `max` is undefined, `score` in studio webapps is treated directly as a percentage (15 ➔ 15% ➔ 1.5/10 pts).
+- **Google Classroom Grade Recovery**:
+  - Live updated and returned all 13 student submissions in Google Classroom previously inflated to `15/10 pts` back to their authentic `1.5/10 pts` score.
+  - Preserved Rule B protection for all teacher manual adjustments and legitimate retakes.
+
 ## 2026-09-25 — Unit 2 Day 20: 2-Stage Stopping Distance Bell-Ringer Interactive Graph
 
 **Pattern Updated**: `bell-ringer-config.md`, `cast-aligned-webapp-design.md`.

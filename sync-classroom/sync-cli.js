@@ -369,10 +369,8 @@ async function fetchAssignmentScores(assignmentId, rosterMap) {
             } else if (data.score !== undefined && data.score !== null) {
               const numScore = Number(data.score);
               const max = Number(data.maxScore || data.maxPoints || 0);
-              if (max > 0 && max <= 15) {
+              if (max > 0 && numScore <= max) {
                 rawPct = Math.round((numScore / max) * 100);
-              } else if (numScore <= 15 && numScore > 0) {
-                rawPct = Math.round((numScore / 10) * 100);
               } else {
                 rawPct = numScore;
               }
@@ -420,10 +418,8 @@ async function fetchAssignmentScores(assignmentId, rosterMap) {
               } else if (g.score !== undefined && g.score !== null) {
                 const numScore = Number(g.score);
                 const max = Number(g.maxPoints || g.maxScore || data.maxPoints || data.maxScore || 0);
-                if (max > 0 && max <= 15) {
+                if (max > 0 && numScore <= max) {
                   rawPct = Math.round((numScore / max) * 100);
-                } else if (numScore <= 15 && numScore > 0) {
-                  rawPct = Math.round((numScore / 10) * 100);
                 } else {
                   rawPct = numScore;
                 }
@@ -710,10 +706,19 @@ async function syncAssignment({
     let isManualCoursework = false;
 
     for (const student of pStudents) {
+      // Differentiated scoring for Conceptual Physics (Periods 1-3):
+      // Reward foundational effort and data collection with a 60% Passing Base + 40% Scaled Mastery:
+      // effectivePct = 60 + 0.40 * rawPct
+      const isConceptualPhysics = (p === 1 || p === 2 || p === 3);
+      let effectivePct = student.rawPercentage;
+      if (isConceptualPhysics && effectivePct > 0 && effectivePct < 100) {
+        effectivePct = Math.round((60 + 0.40 * effectivePct) * 10) / 10;
+      }
+
       // Calculate scaled score
-      let scaledScore = student.rawPercentage;
+      let scaledScore = effectivePct;
       if (maxPts && maxPts > 0 && maxPts !== 100) {
-        scaledScore = Math.round((student.rawPercentage / 100) * maxPts * 10) / 10;
+        scaledScore = Math.round((effectivePct / 100) * maxPts * 10) / 10;
       }
       totalScore += scaledScore;
 
@@ -777,7 +782,8 @@ async function syncAssignment({
       if (isDryRun) {
         const prevText = existingGrade !== null ? `was ${existingGrade}/${maxPts}` : 'no score';
         const rescaleNote = isLegacyOversizedGrade ? ' [RESCALE FROM OLD SCALE]' : '';
-        console.log(`   [DRY-RUN] ${student.name.padEnd(24)} | ID: ${sId.padEnd(8)} | Score: ${student.rawPercentage}% -> ${scaledScore}/${maxPts} pts (${prevText}, state: ${sub.state})${rescaleNote}`);
+        const diffNote = (isConceptualPhysics && effectivePct !== student.rawPercentage) ? ` [P${p} CURVED: ${student.rawPercentage}% -> ${effectivePct}%]` : '';
+        console.log(`   [DRY-RUN] ${student.name.padEnd(24)} | ID: ${sId.padEnd(8)} | Score: ${effectivePct}% -> ${scaledScore}/${maxPts} pts (${prevText}, state: ${sub.state})${rescaleNote}${diffNote}`);
         pUpdated++;
         continue;
       }
@@ -815,7 +821,8 @@ async function syncAssignment({
         }
 
         const prevNote = sub.assignedGrade !== undefined ? `was: ${sub.assignedGrade}/${maxPts}` : 'new score';
-        console.log(`   🚀 Updated (${returnNote}): ${student.name.padEnd(20)} -> ${scaledScore}/${maxPts} pts (${prevNote})`);
+        const diffNote = (isConceptualPhysics && effectivePct !== student.rawPercentage) ? ` [P${p} CURVED: ${student.rawPercentage}% -> ${effectivePct}%]` : '';
+        console.log(`   🚀 Updated (${returnNote}): ${student.name.padEnd(20)} -> ${scaledScore}/${maxPts} pts (${prevNote})${diffNote}`);
         pUpdated++;
       } catch (err) {
         if (err.message && (err.message.includes('@ProjectPermissionDenied') || err.message.includes('not permitted'))) {

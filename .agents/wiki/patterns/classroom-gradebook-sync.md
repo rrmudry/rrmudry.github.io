@@ -97,7 +97,6 @@
 - **Unified Deployment Script (`deploy-assignment.js`)**:
   - Replaces per-assignment `post-*.js` scripts. Creates coursework across all 7 periods and writes the registry document atomically.
   - Usage: `npm run deploy -- --id "my_id" --title "My Title" --points 10 --topic "Unit 2: Motion" --url "https://..."`
-
 ## 12. Google Classroom Roster Pagination Gotcha (`pageSize: 100` Silently Caps at 30)
 - **The Pitfall**:
   - Calling `classroom.courses.students.list({ courseId, pageSize: 100 })` ignores `pageSize: 100` and silently caps results at **30 students per page**.
@@ -106,4 +105,35 @@
 - **The Solution**:
   - Always implement a `do ... while (pageToken)` loop requesting `pageToken: pageToken || undefined` and re-querying until `nextPageToken` is falsy.
   - Fixed across `sync-classroom/sync-cli.js` and `sync-classroom/sync-bellringers.js`.
+
+## 13. Studio Score Normalization: Erroneous `numScore <= 15` / 10 Heuristic
+- **The Pitfall**:
+  - Interactive studios (such as `Dual Graph Studio` and `Position Time Graph Studio`) have 6 sequential missions totaling 100 points, where Mission 1 awards 15 points (15%).
+  - If a script assumes `numScore <= 15` without an explicit `maxScore` means "a score out of 10", a student who completed only Mission 1 (`score: 15`) will be calculated as `(15 / 10) * 100 = 150%`, resulting in an inflated grade of **15/10 pts** in Google Classroom.
+- **The Solution**:
+  - Scores in `student_results` and `gradest_assignments` should only be divided by `max` if `max > 0 && numScore <= max`.
+  - When `max` is undefined, `score` in studio webapps is already on a 0–100 percentage scale and should be treated directly as `rawPct = numScore`.
+  - Legacy oversized grades (`existingGrade > maxPts`) are automatically detected in Rule B and scaled back down to authentic values (e.g. 15/10 ➔ 1.5/10).
+
+## 14. Differentiated Scoring Architecture for Conceptual Physics (Periods 1–3)
+- **Pedagogical Rationale**:
+  - Students in Conceptual Physics (Periods 1, 2, and 3) frequently complete the same inquiry labs and multi-level simulation studios as Regular (Periods 4–6) and Honors (Period 0) Physics.
+  - In studios (e.g. 6 missions) and labs (e.g. 6 steps), the early stages represent authentic, high-value data collection, instrument reading, and core conceptual models. Later stages demand complex algebraic formulas, multi-step velocity/acceleration transformations, or trigonometric vectors.
+  - To equitably reward foundational effort, lab data collection, and initial progression without punitive failure for struggling on advanced math, an active passing baseline model is applied exclusively to Periods 1–3.
+- **60% Passing Base + 40% Scaled Mastery Model**:
+  $$\text{effectivePct} = 60 + 0.40 \times \text{rawPct} \quad (\text{for } 0 < \text{rawPct} < 100)$$
+  - **Zero Effort Protected**: $0\% \rightarrow 0\%$ ($0.0/10$).
+  - **Authentic Effort & Data Gathering Rewarded (Passing Floor)**:
+    - Level 1 Completion / Initial Setup ($15\%$ raw) $\rightarrow 60 + 0.40(15) = \mathbf{66.0\%} \rightarrow \mathbf{6.6 / 10\text{ pts}}$ (solid passing D+).
+    - Level 1–2 / Basic Lab Setup ($25\%$ raw) $\rightarrow 60 + 0.40(25) = \mathbf{70.0\%} \rightarrow \mathbf{7.0 / 10\text{ pts}}$ (solid C-).
+    - Levels 1–2 Mastery ($30\%$ raw) $\rightarrow 60 + 0.40(30) = \mathbf{72.0\%} \rightarrow \mathbf{7.2 / 10\text{ pts}}$ (solid C).
+    - Complete Data Collection & Initial Analysis ($50\%$ raw) $\rightarrow 60 + 0.40(50) = \mathbf{80.0\%} \rightarrow \mathbf{8.0 / 10\text{ pts}}$ (solid B for full authentic lab data gathering).
+    - Intermediate Algebraic Analysis ($65\%$ raw) $\rightarrow 60 + 0.40(65) = \mathbf{86.0\%} \rightarrow \mathbf{8.6 / 10\text{ pts}}$ (solid B+).
+    - High Progression ($75\%$ raw) $\rightarrow 60 + 0.40(75) = \mathbf{90.0\%} \rightarrow \mathbf{9.0 / 10\text{ pts}}$ (solid A-).
+    - Advanced Calculations ($85\%$ raw) $\rightarrow 60 + 0.40(85) = \mathbf{94.0\%} \rightarrow \mathbf{9.4 / 10\text{ pts}}$ (solid A).
+    - Full Completion ($100\%$ raw) $\rightarrow \mathbf{100.0\%} \rightarrow \mathbf{10.0 / 10\text{ pts}}$ (100% full credit preserved).
+- **Scope & Safety**:
+  - Applied automatically in both CLI sync (`sync-classroom/sync-cli.js`) and UI single-grade sync (`sync-classroom/server.js`).
+  - Periods 0 (Honors) and 4–6 (Regular) remain strictly on standard linear scaling.
+  - Rule B protects all teacher manual adjustments and ensures grades are never lowered.
 
