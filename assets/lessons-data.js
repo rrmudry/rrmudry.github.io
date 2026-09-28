@@ -2675,6 +2675,18 @@ const lessonsData = [
         "url": "Unit_2/dual_graph_studio/index.html",
         "typeLabel": "Interactive Web Tool",
         "description": "Connect position-time slopes to velocity-time profiles."
+      },
+      {
+        "title": "Honors Kinematic Displacement Practice (PDF)",
+        "url": "Unit_2/honors_worksheets/Honors_Kinematic_Displacement_Practice_Worksheet.pdf",
+        "typeLabel": "Honors Practice Worksheet",
+        "description": "Period 0 Honors: Scaffolded 2-page worksheet mastering x_f = x₀ + v₀t + ½at² across 5 tiers (launch from rest, highway passing, emergency braking, multi-stage stopping distance, and geometric area proof)."
+      },
+      {
+        "title": "Teacher Master Key: Kinematic Displacement (PDF)",
+        "url": "Unit_2/honors_worksheets/Teacher_Master_Key_Kinematic_Displacement.pdf",
+        "typeLabel": "Teacher Solution Key",
+        "description": "Complete step-by-step GUESS solutions, intermediate arithmetic, and boxed answers for all 8 problems."
       }
     ],
     "practice": [
@@ -2683,9 +2695,16 @@ const lessonsData = [
         "url": "Unit_2/pull_back_toy_lab/index.html",
         "typeLabel": "Lab Companion",
         "description": "Interactive data table with real-time x vs. t plotting and diagnostic calculation verification."
+      },
+      {
+        "title": "Honors Kinematic Displacement Practice (PDF)",
+        "url": "Unit_2/honors_worksheets/Honors_Kinematic_Displacement_Practice_Worksheet.pdf",
+        "typeLabel": "Honors Practice Worksheet",
+        "description": "Quadratic kinematics equation problem set for Period 0 Honors."
       }
     ],
     "links": {
+      "Honors Kinematic Displacement Practice (PDF)": "Unit_2/honors_worksheets/Honors_Kinematic_Displacement_Practice_Worksheet.pdf",
       "Pull-Back Toy Motion Lab": "Unit_2/pull_back_toy_lab/index.html",
       "Lab Setup Video": "https://drive.google.com/file/d/1AzjHUlsL2X34YtQUKrtjvGBCyjtupQ-k/view",
       "Velocity vs. Time Visualizer": "Unit_2/velocity_time_graph_studio/index.html",

@@ -6,8 +6,14 @@ Append-only log tracking pattern changes across recent sessions.
 ## 2026-09-27 — Inertia Studio: 3 Physical Categories of Newton's First Law
 
 **Pattern Added**: `inertia-studio-three-categories.md`.
+**Pattern Updated**: `honors-kinematic-displacement-worksheet.md`.
 
 **Changes**:
+- **Honors Kinematic Displacement Practice Worksheet Subscripts & Vertical Page Space Upgrade (`scripts/generate_kinematic_displacement_worksheet.js`, `Unit_2/honors_worksheets/`, `Unit_2/worksheets/`)**:
+  - Replaced all raw underscore notation (e.g. `x_f`, `v_0`, `d_coast`, `d_accel`, `d_total`, `Area_rect`, `Area_tri`) with clean HTML subscripts (`x<sub>f</sub>`, `v₀`, `d<sub>coast</sub>`, `d<sub>accel</sub>`, `d<sub>total</sub>`, `Area<sub>rect</sub>`, `Area<sub>tri</sub>`) across all prompts, formulas, GUESS tables, and teacher solutions.
+  - Eliminated the top vertical clustering by implementing flexbox distribution (`.page-content { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: space-between; }` and `.problem-box { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: space-between; }`).
+  - Greatly expanded student workspace heights (`min-height: 52px` to `60px`), stage card heights, and $v\text{-}t$ SVG dimensions (`290x142`) to utilize the full $10.50\text{ in}$ vertical printable page height on both pages while strictly keeping a 2-page Letter budget (zero 3rd page spillover).
+  - Recompiled and verified PDF and HTML releases for both student worksheet and teacher master key.
 - **New Interactive Webapp (`Unit_2/inertia_studio/`)**:
   - Developed a standalone, dark-cosmic glassmorphic physics studio directly targeting common student misconceptions in Newton's First Law across 3 distinct physical categories:
     1. **Inertia of Rest**: Tablecloth pull and coin-beaker snap with Coulomb static/kinetic friction modeling, slip acceleration thresholds ($a > \mu_s g$), and tall object tipping torque.
@@ -66,8 +72,18 @@ Append-only log tracking pattern changes across recent sessions.
   - Added universal root font scaling controls (`Normal` [16px], `Large` [20px], `🖥️ Projector` [24px]) targeted on `document.documentElement` (`html.font-*`) with `localStorage('inertia_font_size')` persistence.
   - Added persistent light/dark theme toggle with `localStorage('inertia_theme')` that updates button icon/text spans and triggers canvas re-rendering.
   - Updated all 3 simulation modules (`sim-rest.js`, `sim-motion.js`, `sim-direction.js`) to dynamically re-render HUD status banners with pure white pill cards, deep saturated border/text accents, light-mode roadway/pavement markings, and clear orbit grid lines.
+- **Honors Kinematic Displacement Practice Worksheet & Master Key (`Unit_2/honors_worksheets/`)**:
+  - Developed a standalone, 2-page publication-quality worksheet targeting $x_f = x_0 + v_0 t + \frac{1}{2}at^2$ across 5 scaffolded tiers for Period 0 Honors Physics:
+    1. **Tier 1 (Launch From Rest)**: Top Fuel Dragster ($a = 28.0\text{ m/s}^2$) and Maglev bullet train ($a = 1.25\text{ m/s}^2$) with dragstrip boundary decision ($x_f = 143.4\text{ m} < 305\text{ m}$).
+    2. **Tier 2 (Moving + Acceleration)**: Highway passing maneuver ($v_0 = 18\text{ m/s}, a = 3.5\text{ m/s}^2$) and Boeing 737 runway takeoff roll ($1,142.4\text{ m}$) deconstructing inertial coasting ($v_0 t$) vs. acceleration bonus ($\frac{1}{2}at^2$).
+    3. **Tier 3 (Deceleration & Emergency Braking)**: Highway emergency stop ($a = -6.50\text{ m/s}^2$) and carrier cable arresting trap ($a = -24.5\text{ m/s}^2, x_f = 97.4\text{ m}$), enforcing strict sign discipline where negative acceleration subtracts distance.
+    4. **Tier 4 (Multi-Stage Autonomous Braking Challenge)**: Obstacle avoidance with $t_1 = 0.50\text{ s}$ perception delay ($d_1 = 12.0\text{ m}$) + emergency ABS braking to rest ($d_2 = 36.0\text{ m}$), deciding collision safety with $+14.0\text{ m}$ clearance.
+    5. **Tier 5 (Geometric Area Proof under $v\text{-}t$ Curve)**: Integrating rectangular coasting area ($72.0\text{ m}$) and triangular acceleration area ($28.0\text{ m}$) to prove exact equivalence with algebraic output ($100.0\text{ m}$).
+  - Accompanied by a 2-page Teacher Master Key PDF with full GUESS steps, intermediate arithmetic, and boxed solutions.
+  - Automated generation script (`scripts/generate_kinematic_displacement_worksheet.js`) compiles clean, high-contrast HTML and exact 2-page Letter PDFs via Puppeteer into both `Unit_2/honors_worksheets/` and `Unit_2/worksheets/`.
+  - Added new pattern `honors-kinematic-displacement-worksheet.md` to `.agents/wiki/patterns/` and indexed in `index.md`.
 - **Curriculum Integration**:
-  - Linked to `unit2-dashboard.html`, `resources.html`, `assets/lessons-data.js` (Days 21, 22, 23), and `Unit_2/outline.md`.
+  - Linked to `unit2-dashboard.html`, `resources.html`, `assets/lessons-data.js` (Days 18, 19, 21, 22, 23), and `Unit_2/outline.md`.
   - Refreshed footer deployment timestamp in `partials/footer.html`.
 
 ## 2026-09-26 — Differentiated Scoring Architecture for Conceptual Physics (Periods 1–3)
