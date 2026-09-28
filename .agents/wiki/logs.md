@@ -12,9 +12,13 @@ Append-only log tracking pattern changes across recent sessions.
   - Simplified highway reaction distance math ($v_0 = 30\text{ m/s}$): alert distance $= 6.0\text{ m}$, distracted distance $= 9.0\text{ m}$ ($\Delta d = 3.0\text{ m}$, exactly 1 full car length).
 - **Daily Site Timestamp Updated**: Executed `scripts/update-timestamp.js` updating site deployment timestamp in `partials/footer.html` to `Sep 28, 2026, 4:44 PM PDT`.
 - **NGSS Standards Alignment Verification**: Audited and confirmed all 139 daily lesson objects in `assets/lessons-data.js` have 100% explicit `standards` array tagging and zero LaTeX syntax errors.
-- **Google Classroom Master Grade Sync (`sync-classroom`)**:
-  - Ran master grade sync across 16 active activities and all 7 class sections.
-  - Successfully synced and returned 7 newly submitted student scores across Kinematic Velocity Calculator, Unit 2 Day 18 Pull-Back Toy Motion Lab, and Unit 2 Day 16 Acceleration Studio directly into Google Classroom for Aeries SIS integration.
+- **Security & Privacy Audit & Hardening**:
+  - **FERPA Student PII Protection**: Excluded `admin/reports/*_Report.*` and `*.pdf` from Git tracking via `.gitignore` and removed cached audit reports containing student names and 6-digit IDs.
+  - **Teacher Master Key Protection**: Added `*Teacher_Master_Key*` to `.gitignore` and untracked all worked solutions and keys across `Unit_2/honors_worksheets/` and `Unit_2/worksheets/` to prevent answers from being publicly accessible on GitHub Pages.
+  - **Firestore Security Rules Hardening (`firestore.rules`)**:
+    - Disallowed unauthenticated collection enumeration (`list: if isAdmin()`) across `student_results`, `practice_results`, `physics_labs`, and `roster`. Verified via REST curl testing that public attempts to scrape student rosters/results receive HTTP 403 Forbidden, while legitimate individual student lookups (`get`) and lab submissions (`create`/`update`) remain operational.
+    - Locked down `/questions` and `/assessments` collections so unauthenticated clients cannot read the test question bank.
+    - Deployed hardened rules to Firebase project `site-6e500` via Firebase CLI.
 
 ## 2026-09-27 — Inertia Studio: 3 Physical Categories of Newton's First Law
 
