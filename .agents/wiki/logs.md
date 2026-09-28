@@ -3,6 +3,73 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-09-27 — Inertia Studio: 3 Physical Categories of Newton's First Law
+
+**Pattern Added**: `inertia-studio-three-categories.md`.
+
+**Changes**:
+- **New Interactive Webapp (`Unit_2/inertia_studio/`)**:
+  - Developed a standalone, dark-cosmic glassmorphic physics studio directly targeting common student misconceptions in Newton's First Law across 3 distinct physical categories:
+    1. **Inertia of Rest**: Tablecloth pull and coin-beaker snap with Coulomb static/kinetic friction modeling, slip acceleration thresholds ($a > \mu_s g$), and tall object tipping torque.
+    2. **Inertia of Motion**: Crash cart and braking simulation with seatbelt restraint toggle and prominent real-time vector HUD proving unrestrained forward motion has zero forward force ($F_{\text{fwd}} = 0\text{ N}$).
+    3. **Inertia of Direction**: Whirling tether in uniform circular motion with instant tangent release trajectory, directly refuting the curved outward spiral misconception.
+- **Mastery Challenge Arena & Gamification**:
+  - Built a 3-tier progressive challenge satisfying the Student Task Engagement Law, awarding up to 100 points and issuing a downloadable/printable Certificate of Newton's First Law Mastery.
+- **Zero-Dependency Web Audio Synthesis**:
+  - Synthesized tablecloth whips, card snaps, glass clinks, crash screech/thuds, and success fanfare using the Web Audio API.
+- **Crash Barrier Impact & Continuous Ejection Kinematics (`sim-motion.js`, `audio.js`)**:
+  - Fixed rigid barrier collision detection so the vehicle's front bumper stops firmly against the front face of the barrier with front-hood crumple deformation, completely eliminating barrier penetration.
+  - Resolved animation freeze bug where setting `state = 'ejected'` prematurely halted the update loop; unrestrained dummy ejection now runs continuously in a single seamless pass (sliding across cabin $\to$ launching through windshield $\to$ arcing over barrier $\to$ sliding along pavement to a stop).
+  - Added synthesized `playCrash()` dual-layer thud & crunch noise effect to `audio.js`.
+- **Penny & Beaker Center Alignment & Vertical Free Fall (`sim-rest.js`, `app.js`)**:
+  - Fixed coordinate misalignment where the beaker was centered at $50\%$ width while the penny and card were placed at $33\%$ width, causing the penny to start off-target and fly past the beaker.
+  - Aligned beaker, index card, and penny along the canvas centerline ($x = w \times 0.50$), with the penny resting directly above the beaker opening.
+  - Refined rapid flick slip dynamics so horizontal velocity transfer is negligible ($\Delta x < 1\text{ px}$), ensuring the penny falls in pure vertical free fall straight into the beaker mouth with a satisfying glass clink.
+- **Realistic Cabin Containment vs. High-Speed Ejection Threshold (`sim-motion.js`, `index.html`)**:
+  - Eliminated cartoonish behavior where unrestrained dummies always ejected through the windshield regardless of stopping type or speed.
+  - Implemented 3 realistic automotive physical regimes:
+    1. **Emergency ABS Braking**: Dummy slides forward across the seat by inertia until contacting the steering wheel and dashboard inside the cabin ($x_{\text{rel}} = 2.15\text{ m}$), remaining pinned against the dashboard inside the vehicle for the remainder of the deceleration skid (zero ejection).
+    2. **Low/Moderate Speed Barrier Collision ($v_0 < 22\text{ m/s}$ / $< 50\text{ mph}$)**: Laminated shatter-resistant safety glass and steering column contain the dummy inside the vehicle cabin; head/chest impact causes windshield spiderweb fracture lines with interior contact force HUD warnings.
+    3. **High-Speed Severe Impact ($v_0 \ge 22\text{ m/s}$ / $\ge 50\text{ mph}$)**: Extreme kinetic energy ($E_k \ge 17\text{ kJ}$) breaches the windshield, launching the dummy in parabolic free fall over the barrier and sliding onto pavement.
+- **P031 Reaction Time Lab PDF Replacement (`assets/lessons-data.js`, `unit2-dashboard.html`, `Unit_2/outline.md`, `resources.html`)**:
+  - Replaced the external OneDrive Word doc (`.docx`) links across Days 19, 20, and 21 with the new local PDF `Unit_2/worksheets/P031_Reaction_Time_2026.pdf`.
+  - Added dedicated quick-launch button on the Unit 2 Dashboard hero banner and added link to the *Kinematics & Motion* section in `resources.html`.
+- **New Masterclass Webpage: Reaction Time Calculations & Grouped Graphing Guide (`Unit_2/reaction_time_guide/`)**:
+  - Developed a standalone, step-by-step masterclass tailored for classroom projection with large high-contrast typography and sticky font size controls (`font-normal` [18px], `font-large` [22px], and `font-huge` [26px Projector Mode]).
+  - Covers all 4 core instructional goals:
+    1. **Average Drop Distance ($\bar{d}$)**: 3-trial addition, division, order-of-operations trap warnings, and live interactive calculator.
+    2. **SI Unit Conversion ($\text{cm} \to \text{m}$)**: Explaining why $g = 10\text{ m/s}^2$ demands meters ($x = \text{cm} / 100$), avoiding $10\times$ calculation errors.
+    3. **Reaction Time Solver ($t = \sqrt{x / 5}$)**: Simplified free-fall kinematics using classroom standard $g = 10\text{ m/s}^2$ ($x = \frac{1}{2}(10)t^2 = 5t^2 \implies t = \sqrt{x / 5}$), 2-step keystroke guide, reflex benchmark tiers, and live millisecond outputs.
+    4. **Grouped Column Graphs**: Anatomy of clustered bar charts (Person 1–4, Undistracted vs. Distracted) with live HTML5 Canvas generator, distance vs. time mode toggles, sample class data loader, and PNG download.
+    5. **CER Analysis**: Sentence frames for fastest/slowest reflex claims, numerical evidence citations, and neural signal processing reasoning connected to highway vehicle stopping distances.
+- **Reaction Time Guide UX Enhancements (Tabs, Root Font Scaling, Light Mode, Vertical Math, Sticky Zero-Scroll Nav)**:
+  - Fixed font size controls by switching class targets from `document.body` to `document.documentElement` (`font-normal` [16px], `font-large` [20px], `font-huge` [25px]), ensuring universal scaling across all `rem` layout tokens for projector use.
+  - Converted the scrolling wall of text into a clean slide-style tabbed presentation (`#pane-1` to `#pane-5`) with top tabs and bottom Prev/Next Step buttons.
+  - Streamlined and reduced wordiness into punchy, high-contrast step cards, big formula banners, and live widgets.
+  - Implemented an ultra-high-contrast Light Mode theme (`html.theme-light`) with ink-slate text (`#0f172a`), solid borders, and theme-adaptive canvas graph rendering.
+  - Replaced horizontal equation wrapping with vertically stacked column addition (`.vertical-math-stack`), vertical fractions (`.math-fraction`), and CSS overline variables (`.var-overline`).
+  - Aligned free-fall equation to classroom standard $g = 10\text{ m/s}^2$: $t = \sqrt{x / 5}$ across UI, solvers, step cards, benchmark tables, and canvas grouped graph engine.
+  - **Eliminated Horizontal Scrollbar & Prevented Button Scroll Out of View**:
+    - Integrated `<nav class="tab-nav-bar">` directly into the sticky top `<header class="site-header">` (`position: sticky; top: 0; z-index: 100`) so the step buttons remain permanently anchored in view at all times.
+    - Converted `.tab-nav-inner` to a balanced 5-column CSS grid (`grid-template-columns: repeat(5, minmax(0, 1fr))`) and streamlined tab button labels (`1. Average (cm)`, `2. Convert (m)`, `3. Reaction Time`, `4. Graphs`, `5. Analysis & CER`), completely removing horizontal overflow and scrollbars.
+    - Updated `switchTab()` in `guide.js` to scroll smoothly to `top: 0`, guaranteeing step buttons and header stay in full view upon clicking any step.
+  - **Seamless Connected Square Root Radical (No-LaTeX Vinculum)**:
+    - Replaced the disconnected Unicode `√` font character and floating detached overbar with a vertically stretching SVG radical (`.math-radical .radical-symbol` with `preserveAspectRatio="none"`) meeting a flush overbar (`border-top: 0.1em solid var(--accent-cyan); margin-left: -1px;`).
+    - The radical hook dips down to the bottom of the fraction, ascends to the top corner, and connects seamlessly into the horizontal overbar across both tall fractions and short decimal values with zero gap across all font zoom levels.
+- **New Workspace Rule & Pattern Added**:
+  - `classroom-projection-and-high-contrast-theming.md` added to `.agents/wiki/patterns/` and indexed in `index.md`.
+  - Added mandatory rule in `.agents/AGENTS.md` requiring High-Contrast Light Mode (WCAG AAA > 14:1), universal root font scaling (`html.font-huge` 25px Projector Mode), dynamic HTML5 canvas theme re-rendering, and sticky zero-scroll navigation across all future webapps and teacher masterclasses.
+- **Inertia Studio High-Contrast Light Mode & Projector Mode Implementation (`Unit_2/inertia_studio/`)**:
+  - Upgraded Inertia Studio to full compliance with the new Classroom Readability Standard (`WCAG AAA >= 14:1` contrast).
+  - Replaced hardcoded dark background containers (`.telemetry-grid`, `.category-bar`, `.canvas-wrapper`) with theme-adaptive styling (`body.light-theme` with `#ffffff` cards, `#f1f5f9` canvas stage, `#cbd5e1` borders, and `#0f172a` ink-slate text).
+  - Re-engineered `.category-bar` into a responsive 4-column CSS grid (`repeat(4, minmax(0, 1fr))`) without horizontal scrollbars, featuring high-contrast active category pills in Light Mode.
+  - Added universal root font scaling controls (`Normal` [16px], `Large` [20px], `🖥️ Projector` [24px]) targeted on `document.documentElement` (`html.font-*`) with `localStorage('inertia_font_size')` persistence.
+  - Added persistent light/dark theme toggle with `localStorage('inertia_theme')` that updates button icon/text spans and triggers canvas re-rendering.
+  - Updated all 3 simulation modules (`sim-rest.js`, `sim-motion.js`, `sim-direction.js`) to dynamically re-render HUD status banners with pure white pill cards, deep saturated border/text accents, light-mode roadway/pavement markings, and clear orbit grid lines.
+- **Curriculum Integration**:
+  - Linked to `unit2-dashboard.html`, `resources.html`, `assets/lessons-data.js` (Days 21, 22, 23), and `Unit_2/outline.md`.
+  - Refreshed footer deployment timestamp in `partials/footer.html`.
+
 ## 2026-09-26 — Differentiated Scoring Architecture for Conceptual Physics (Periods 1–3)
 
 **Pattern Updated**: `classroom-gradebook-sync.md`.

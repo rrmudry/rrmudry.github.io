@@ -192,81 +192,81 @@ This unit follows the classical and cognitive progression:
         *   *Periods 1–6:* Graphing Pull-Back Toy Motion Lab — 1.0 m metric track calibration, dual-shot video recording, 5-interval position-time data collection, curve plotting, and calculation verification with the interactive lab companion.
     *   *Essential Question:* How does measuring an object in free fall (Period 0 ruler drops) or horizontal acceleration from rest (Periods 1–6 pull-back cars) allow us to calculate unknown kinematic quantities like time and acceleration?
     *   *Standards:* `HS-PS2-1`, `HS-PS2-2` | *DOK:* 3 | *Type:* Hands-On Laboratory / Differentiated Inquiry
-    *   *Links:* [P031 Reaction Time Lab](https://orangeusdorg-my.sharepoint.com/:w:/g/personal/rmudry_orangeusd_org/IQC56lu4HK0nRKxL2XhMmeZXAREUmHZaWstYUWZfSSPZ9N8?e=cQ1qok), [Pull-Back Toy Motion Lab](Unit_2/pull_back_toy_lab/index.html), [Lab Setup Video](https://drive.google.com/file/d/1AzjHUlsL2X34YtQUKrtjvGBCyjtupQ-k/view), [Dual-Graph Motion Studio](Unit_2/dual_graph_studio/index.html)
+    *   *Links:* [P031 Reaction Time Lab (PDF)](Unit_2/worksheets/P031_Reaction_Time_2026.pdf), [Pull-Back Toy Motion Lab](Unit_2/pull_back_toy_lab/index.html), [Lab Setup Video](https://drive.google.com/file/d/1AzjHUlsL2X34YtQUKrtjvGBCyjtupQ-k/view), [Dual-Graph Motion Studio](Unit_2/dual_graph_studio/index.html)
 
-*   **Day 20 (2026-09-25): Kinematic Acceleration Synthesis: 2-Stage Stopping Distance Performance Challenge**
+*   **Day 20 (2026-09-25): Human Reaction Time & Free-Fall Kinematics Lab**
     *   *Bell-Ringer:* Two-Stage Stopping Distance Telemetry (CAST Challenge): Interactive shaded velocity-time graph showing automated emergency braking telemetry. Car travels at +20.0 m/s with 0.50 s reaction time (rectangular area: `Δx₁ = 10.0 m`) and brakes at -5.0 m/s² until stopping at t = 4.5 s (triangular area: `Δx₂ = 40.0 m`). Students calculate total stopping distance (`50.0 m`) and analyze why doubling speed quadruples braking distance.
-    *   *Focus:* Synthesizing constant velocity and uniform acceleration in an authentic vehicular engineering challenge: calculating total stopping distances. Partitioning emergency stops into Stage 1 (driver reaction at constant velocity: Δx<sub>react</sub> = v₀ · t<sub>react</sub>) and Stage 2 (uniform braking deceleration: Δx<sub>brake</sub> = ½ · v₀ · t<sub>brake</sub> = -v₀² / (2a)), and constructing aligned dual `x-t` and `v-t` graphs.
-    *   *Activity:* Forensic Highway Safety Stopping Distance Challenge: Student engineering teams analyze collision avoiding scenarios across 3 vehicle speeds (25 mph, 45 mph, 65 mph) converted to m/s. Teams compute reaction distances, braking distances, construct coordinated piecewise `x-t` and `v-t` graphs, and author an evidence-based recommendation on safe highway following intervals.
-    *   *Essential Question:* Why does doubling a vehicle's initial speed more than double its total stopping distance?
-    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 4 | *Type:* Performance Task / Engineering Challenge
-    *   *Links:* [Two-Car Kinematic Intercept Challenge](Unit_2/two_car_intercept/index.html), [Dual-Graph Motion Studio](Unit_2/dual_graph_studio/index.html)
+    *   *Focus:* All physics class periods (Period 0 Honors and Periods 1–6) completed the hands-on Human Reaction Time & Free-Fall Kinematics Lab. Students dropped vertical metric rulers to measure neural reaction displacement (cm), testing three sensory conditions: visual stimulus (sight), auditory stimulus (sound cue), and smartphone distractions. *(Pacing Note: Period 0 completed registration paperwork and required online forms prior to conducting trials; all sections successfully recorded raw drop distances).*
+    *   *Activity:* Human Reaction Time Lab Data Collection: Student partner pairs run 5 randomized drop trials across three conditions: (1) Visual Cue (releasing ruler silently without telegraphing), (2) Auditory Cue (dropping while partner's eyes are closed, saying 'Drop!'), and (3) Smartphone Distraction (catching while sending a text message or browsing). Students record precise catch points in centimeters down to the millimeter.
+    *   *Essential Question:* How can free-fall gravitational acceleration allow us to measure the speed of human neural signal processing?
+    *   *Standards:* `HS-PS2-1`, `HS-PS2-2` | *DOK:* 3 | *Type:* Hands-On Laboratory / Data Collection
+    *   *Links:* [P031 Reaction Time Lab Protocol (PDF)](Unit_2/worksheets/P031_Reaction_Time_2026.pdf), [Dual-Graph Motion Studio](Unit_2/dual_graph_studio/index.html)
 
 
 ---
 
-### Week 5: Causes of Motion — Inertia, Forces & Equilibrium (Newton's 1st Law)
-**Goal:** Transition from describing motion (kinematics) to explaining why motion changes (dynamics). Explore Inertia (Newton's 1st Law), quantify mass as resistance to acceleration, differentiate mass from weight, catalog contact and field forces, construct Free-Body Diagrams (FBDs), and solve mechanical equilibrium problems (F<sub>net</sub> = 0).
+### Week 5: Reaction Time Analysis & Causes of Motion (Newton's 1st Law & FBDs)
+**Goal:** Finalize free-fall kinematics with quantitative reaction time analysis and comparative graphing, then transition from describing motion (kinematics) to explaining why motion changes (dynamics). Explore Inertia (Newton's 1st Law), quantify mass as resistance to acceleration, differentiate mass from weight, catalog contact and field forces, and construct Free-Body Diagrams (FBDs).
 
-*   **Day 21 (2026-09-28): What Keeps Things Moving? Newton's First Law & Inertia Demos**
+*   **Day 21 (2026-09-28): Reaction Time Lab: Kinematic Calculations & Graphing Workshop**
+    *   *Bell-Ringer:* Calculating Reaction Time from Free Fall (CAST Challenge): A student catches a falling ruler at d = 19.6 cm. Students rearrange the free-fall equation `d = ½gt²` to solve for `t = √(2d/g)`, convert centimeters to meters (`0.196 m`), calculate reflex time (`0.20 s` = 200 ms), and evaluate why smartphone distraction adds critical highway stopping distance.
+    *   *Focus:* Comprehensive review and guided workshop on the mathematical calculations and graphical analysis for the Ruler Drop Reaction Time Lab. Students review converting catch distances from centimeters to meters, applying the free-fall kinematic equation (`d = ½gt² -> t = √(2d/g)`), computing mean reaction times across sensory conditions, calculating vehicle highway reaction distances (`d_react = v₀ · t`), and plotting comparative graphs.
+    *   *Activity:* Kinematic Calculation & Graphing Masterclass: Guided walk-through and partner practice: (1) Unit conversion: converting catch distance d in cm to meters (`d / 100`), (2) Kinematic formula derivation & calculation: applying `t = √(2d/g)` (with `g = 9.8 m/s²`) to find reflex times in seconds and milliseconds, (3) Statistical comparison: computing average reaction times for visual vs auditory vs phone distraction trials, (4) Coordinated graphing: constructing comparative bar charts / scatter distributions showing reflex delay penalties, and (5) Real-world vehicular connection: calculating freeway reaction distances at 65 mph (29 m/s).
+    *   *Essential Question:* How do mathematical formulas and visual graphs transform raw drop measurements into actionable evidence about human neural processing and vehicle safety?
+    *   *Standards:* `HS-PS2-1`, `HS-PS2-2` | *DOK:* 2 | *Type:* Data Analysis / Guided Practice
+    *   *Links:* [Calculation & Grouped Graphing Guide](Unit_2/reaction_time_guide/index.html), [P031 Reaction Time Lab (PDF)](Unit_2/worksheets/P031_Reaction_Time_2026.pdf), [Speed & Distance Studio](Unit_2/speed_distance_time_app/index.html)
+
+*   **Day 22 (2026-09-29): The Big Question: What Keeps Things Moving? (Inertia Demos)**
     *   *Bell-Ringer:* Aristotelian Motion vs. Inertia (AI Chat): In ancient Greece, Aristotle claimed that an object requires a continuous applied force to keep moving forward. Why did this misconception feel intuitive, and how does Newton's First Law overturn it?
     *   *Focus:* Challenging the misconception that force causes velocity. Newton's First Law of Motion: an object at rest remains at rest, and an object in uniform motion continues at constant velocity unless acted on by an unbalanced net external force. Galileo's double-incline thought experiment.
     *   *Activity:* Inertia Station Circus: Tablecloth pull under weighted plates, coin-on-card index card flick into a beaker, rolling a bowling ball with mallet tap guidance, and battery hover puck gliding across the floor without slowing down.
     *   *Essential Question:* Does an object in motion require a continuous applied force to keep moving forward at constant velocity?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Inquiry / Demonstration
-    *   *Links:* [PhET Forces and Motion: Basics](https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_en.html), Inertia Stations Handout *(Planned In-Class)*
+    *   *Links:* [Inertia Presentation Slides](https://docs.google.com/presentation/d/1J_m4BCp6kcBnIVgHzsPEJcnaqF-Drhm-ITdufGx6cnc/edit?usp=sharing), [Inertia Studio (3 Categories)](Unit_2/inertia_studio/index.html), [PhET Forces and Motion: Basics](https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_en.html), Inertia Stations Handout *(Planned In-Class)*
 
-*   **Day 22 (2026-09-29): Mass as Inertia vs. Weight (`W = m · g`)**
-    *   *Bell-Ringer:* Astronaut Wrench on the Moon (CAST Challenge): An astronaut holds a 2.0 kg wrench on Earth and on the Moon (g<sub>moon</sub> = 1.6 m/s²). Compare its mass, weight, and the horizontal force needed to accelerate it at 3.0 m/s² in both environments.
-    *   *Focus:* Mass (kg) as the quantitative measure of inertia (resistance to changes in motion) vs. Weight (N) as the gravitational force acting on mass: W = F<sub>g</sub> = m · g. Gravitational variation across planets; invariance of inertial mass across the universe.
-    *   *Activity:* Mystery Inertia Shakers: Students horizontally oscillate identical sealed cans containing cotton, sand, lead shot, and wood without lifting them. Ranking cans purely by horizontal resistance to acceleration, then verifying weights on spring scales.
-    *   *Essential Question:* Why does an anvil have the exact same inertia in deep space as it does on Earth, even though its weight in space is zero Newtons?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Lab / Direct Instruction
-    *   *Links:* [Newton's 1st Law Presentation](Unit_2/describing-motion-presentation/index.html), Seatbelt Physics CER Handout *(Planned In-Class)*
+*   **Day 23 (2026-09-30): Newton's First Law of Motion (The Law of Inertia)**
+    *   *Bell-Ringer:* Forces Change Motion, Not Sustain It (AI Chat): A student pushes a heavy crate across the floor at a steady, constant speed. Explain why their claim ('My push is greater than friction') is physically incorrect.
+    *   *Focus:* Formalizing Newton's First Law: objects maintain constant velocity unless acted upon by a net external force. Analyzing Galileo's frictionless double-incline thought experiment and automotive inertia.
+    *   *Activity:* Galileo's Double Ramp Text Analysis & CER Writing: Students analyze Galileo's thought experiment (ball rises to equal height regardless of ramp angle; rolls forever on flat plane). Students write a CER explanation answering: Why does a seatbelt save a passenger's life when a car suddenly brakes?
+    *   *Essential Question:* How does Newton's First Law redefine our everyday definition of what forces actually do?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / CER Writing
+    *   *Links:* [Inertia Studio (3 Categories)](Unit_2/inertia_studio/index.html), [Newton's 1st Law Presentation](Unit_2/describing-motion-presentation/index.html), Seatbelt Physics CER Handout *(Planned In-Class)*
 
-*   **Day 23 (2026-09-30): The Force Toolkit & Free-Body Diagrams (FBDs)**
-    *   *Bell-Ringer:* Book at Rest on a Table (AI Chat): A book rests on a flat table. What forces are acting on it? Why doesn't the downward gravitational pull cause the book to accelerate downward through the table surface?
+*   **Day 24 (2026-10-01): Mass as the Quantitative Measure of Inertia**
+    *   *Bell-Ringer:* Mass vs. Weight across the Solar System (Free Response): Why is an object's mass in kilograms identical on Earth, the Moon, and in deep space, while its weight in Newtons changes drastically depending on location?
+    *   *Focus:* Mass (kg) as the quantitative measure of inertia (resistance to changes in motion) vs. Weight (N) as the gravitational force acting on mass: `W = F_g = m · g`. Invariance of inertial mass across the universe.
+    *   *Activity:* Mystery Inertia Shakers & Inertia Balance: Blindfolded students shake sealed cans filled with cotton, wood, and lead horizontally (isolated from vertical gravity) to rank inertia purely by resistance to acceleration, followed by measuring oscillation frequencies on an inertia balance.
+    *   *Essential Question:* Why would an anvil have the exact same inertia in deep space as it does on Earth, even though its weight in space is zero Newtons?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Lab / Activity
+    *   *Links:* Mystery Mass Shakers Lab Sheet *(Planned In-Class)*, Mass vs. Weight Reference Guide *(Planned In-Class)*
+
+*   **Day 25 (2026-10-02): The Force Toolkit: Types of Forces & Free-Body Diagrams (FBDs)**
+    *   *Bell-Ringer:* Free-Body Diagram Vector Modeling (CAST Challenge): Elevator passenger telemetry during upward acceleration (+2.0 m/s²). Students evaluate why upward Normal force exceeds downward gravitational pull (`840 N > 700 N`), calculate net acceleration, and explain apparent weightlessness during free fall.
     *   *Focus:* Cataloging forces: Gravity (F<sub>g</sub>), Normal force (F<sub>N</sub>), Tension (F<sub>T</sub>), Friction (F<sub>f</sub>), Applied force (F<sub>app</sub>), and Air resistance (F<sub>air</sub>). Standardized Free-Body Diagram (FBD) conventions: isolated dot representing object, tail-on-dot force vectors, proper relative lengths, and axis labeling.
     *   *Activity:* Whiteboard FBD Sprint: 8 real-world scenarios (skydiver with open chute, sled pushed across snow, elevator moving upward at constant speed, car coasting to a stop). Students construct FBDs and write net force expressions in x and y dimensions.
-    *   *Essential Question:* How does an isolated Free-Body Diagram allow physicists to identify all external interactions acting on an object?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Practice
-    *   *Links:* Mass vs Weight Lab Guide *(Planned In-Class)*
-
-*   **Day 24 (2026-10-01): Translational & Mechanical Equilibrium (F<sub>net</sub> = 0)**
-    *   *Bell-Ringer:* Elevator at Constant Velocity (CAST Challenge): A 70 kg person stands on a scale inside an elevator moving upward at a steady 2.5 m/s. Calculate the scale reading in Newtons and explain why the scale does not read greater than the person's resting weight.
-    *   *Focus:* Definition of equilibrium: `ΣF = 0` (ΣF<sub>x</sub> = 0 and ΣF<sub>y</sub> = 0). Static equilibrium (object at rest, `v = 0`, `a = 0`) vs. Dynamic equilibrium (object moving at constant velocity, `v = constant`, `a = 0`). Balanced forces produce zero acceleration.
-    *   *Activity:* Spring Scale Equilibrium Rig: Students suspend hanging masses from dual spring scales at varying symmetrical angles, measure tension readings, resolve vertical vector components, and verify that the sum of upward tensions equals the downward weight.
-    *   *Essential Question:* What is the fundamental physical equivalence between an object sitting completely motionless and an object coasting at 1,000 km/h?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Lab / Activity
-    *   *Links:* Free-Body Diagram Sprint Sheets *(Planned In-Class)*, [Force Toolkit Reference Guide](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing)
-
-*   **Day 25 (2026-10-02): Static Equilibrium Challenges & Vector Balancing**
-    *   *Bell-Ringer:* Traffic Light Suspended by Cables (CAST Challenge): A 150 N traffic light hangs in equilibrium from two cables making equal 45° angles with the horizontal ceiling. Calculate the tension force in each support cable.
-    *   *Focus:* Multi-directional equilibrium problem solving: resolving forces into horizontal (F<sub>x</sub> = F · cos(θ)) and vertical (F<sub>y</sub> = F · sin(θ)) components. Setting ΣF<sub>x</sub> = 0 and ΣF<sub>y</sub> = 0 to solve for unknown tensions and normal forces.
-    *   *Activity:* Cable Rigging Engineering Challenge: Teams configure ring-and-pulley force tables with 3 hanging mass cords at custom angles, calculate theoretical mass balances using vector components, and test whether the center ring floats centered on the pin.
-    *   *Essential Question:* How do structural engineers utilize vector equilibrium conditions to guarantee that bridges, cranes, and suspended signs remain completely stable?
-    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Practice / Performance Task
-    *   *Links:* [Vector Calculator App](Unit_2/Vector_displacement_calculator_app/index.html), Cable Rigging Challenge Sheet *(Planned In-Class)*
+    *   *Essential Question:* How do free-body diagrams allow us to translate messy real-world objects into isolated vector systems?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Activity / Direct Instruction
+    *   *Links:* [The Force Toolkit & FBD Presentation](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), Whiteboard FBD Sprint Handout *(Planned In-Class)*
 
 ---
 
-### Week 6: Newton's Second Law & Friction Dynamics (F<sub>net</sub> = m · a)
-**Goal:** Empirically establish and mathematically apply Newton's Second Law of Motion (F<sub>net</sub> = m · a). Use modified Atwood machines to prove proportional relationships, differentiate static from kinetic friction, measure friction coefficients (`μ`), and unite dynamics with kinematics to solve multi-force stopping distance challenges.
+### Week 6: Equilibrium, Newton's Second Law & Friction Dynamics
+**Goal:** Apply Free-Body Diagrams to solve mechanical equilibrium problems (`F_net = 0`), empirically establish and mathematically apply Newton's Second Law of Motion (`F_net = m · a`) using modified Atwood machines, and explore friction dynamics.
 
-*   **Day 26 (2026-10-05): Newton's Second Law: Unbalanced Force & Acceleration**
-    *   *Bell-Ringer:* Doubling Force and Doubling Mass (AI Chat): If you double the net force pushing a shopping cart, what happens to its acceleration? What if you double the cart's mass while keeping the force constant?
-    *   *Focus:* Unbalanced net external force causes acceleration in the direction of the net force: a = F<sub>net</sub> / m, leading to F<sub>net</sub> = m · a. Proportionality: a ∝ F<sub>net</sub> (direct linear) and `a ∝ 1/m` (inverse). Units of force: 1 Newton = 1 kg · m/s².
-    *   *Activity:* Interactive PhET "Forces and Motion: Basics" inquiry: Students systematically vary applied force while keeping cart mass constant, then vary mass under fixed force, recording acceleration readouts and generating linearizing data tables.
-    *   *Essential Question:* How does an unbalanced net force fundamentally alter the state of motion of an object?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Simulation
-    *   *Links:* [PhET Forces and Motion: Basics](https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_en.html), Newton's 2nd Law Problem Set *(Planned In-Class)*
+*   **Day 26 (2026-10-05): Balanced Forces & Mechanical Equilibrium (F<sub>net</sub> = 0)**
+    *   *Bell-Ringer:* Cruising Boeing 777 Net Force (Free Response): A commercial jet cruises at a steady altitude of 35,000 feet in a straight line at 550 mph. What is the net force acting on the 300,000 kg airplane?
+    *   *Focus:* Definition of equilibrium: `ΣF = 0` (ΣF<sub>x</sub> = 0 and ΣF<sub>y</sub> = 0). Static equilibrium (object at rest, `v = 0`, `a = 0`) vs. Dynamic equilibrium (object moving at constant velocity, `v = constant`, `a = 0`). Balanced forces produce zero acceleration.
+    *   *Activity:* Dual Spring Scale Tug-of-War: Students balance opposing forces on carts, verifying that equal and opposite pulling forces yield zero acceleration whether the cart is at rest or rolling steadily.
+    *   *Essential Question:* Why does an aircraft cruising at 500 mph at constant altitude experience exactly zero net force?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Practice / Lab
+    *   *Links:* [Vector Calculator App](Unit_2/Vector_displacement_calculator_app/index.html), Cable Rigging Equilibrium Challenge *(Planned In-Class)*
 
-*   **Day 27 (2026-10-06): Modified Atwood Machine Lab: Proving F<sub>net</sub> = m · a**
+*   **Day 27 (2026-10-06): Unbalanced Forces & Newton's Second Law Lab — Part 1: Force vs. Acceleration**
     *   *Bell-Ringer:* Atwood Accelerating Mass (CAST Challenge): A 0.80 kg cart on a frictionless track is pulled by a hanging 0.20 kg mass over a pulley. Calculate the net accelerating force, the total system mass, and the theoretical acceleration of the system.
-    *   *Focus:* Modified Atwood system dynamics: accelerating force is the weight of the hanging mass (F<sub>net</sub> = m<sub>hang</sub> · g), but the total accelerated mass is the entire system (m<sub>sys</sub> = m<sub>cart</sub> + m<sub>hang</sub>). System acceleration: a = (m<sub>hang</sub> · g) / (m<sub>cart</sub> + m<sub>hang</sub>).
-    *   *Activity:* Modified Atwood Track Lab: Students release dynamics carts connected over low-friction pulleys to hanging slotted masses, measure cart acceleration across photogate timing flags, plot `a` vs F<sub>net</sub> (confirming slope = `1/m`), and compare empirical vs theoretical acceleration.
-    *   *Essential Question:* In an Atwood system, why must the net pulling force accelerate the mass of the cart AND the hanging mass together?
-    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Lab
+    *   *Focus:* Unbalanced net external force causes acceleration in the direction of the net force: `a = F_net / m`, leading to `F_net = m · a`. Modified Atwood system dynamics: accelerating force is the weight of the hanging mass (`F_net = m_hang · g`), but the total accelerated mass is the entire system (`m_sys = m_cart + m_hang`).
+    *   *Activity:* Newton's 2nd Law Launch & Modified Atwood Track Lab (Part 1): Direct instruction and fan-cart demonstrations establishing that unbalanced forces produce acceleration (`a = F_net / m`). Followed by pulling a constant-mass cart using hanging masses (0.1 N, 0.2 N, 0.3 N, 0.4 N) across photogate timers to plot `a` vs F<sub>net</sub> and verify direct linear proportionality.
+    *   *Essential Question:* How does experimental data verify the direct proportionality between applied net force and acceleration?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Direct Instruction / Lab
     *   *Links:* Modified Atwood Track Lab Sheet *(Planned In-Class)*
 
 *   **Day 28 (2026-10-07): The Science of Friction: Static vs. Kinetic (F<sub>f</sub> = μ · F<sub>N</sub>)**

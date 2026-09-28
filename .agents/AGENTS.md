@@ -70,3 +70,18 @@ Every student activity must satisfy at least one of these two criteria:
    - A concrete deliverable (e.g., guided worksheet, minimum score threshold, or required submission badge).
 2. **Genuinely Fun & Competitive Game Dynamics**:
    - Head-to-head showdowns, live prediction challenges, race simulations with real-time stakes (win/loss/near-miss), or streak/leaderboard mechanics where students are actively competing against a clock, prediction, or partner.
+
+## ☀️ Classroom Readability: High-Contrast Light Mode & Whole-Classroom Projection
+Whenever creating or modifying teacher lecture guides, student inquiry workbenches, interactive simulations, or dashboards across `rrmudry.github.io`:
+1. **Mandatory High-Contrast Light Mode (WCAG AAA)**:
+   - Provide a persistent Light/Dark Mode toggle (`#btn-theme-toggle`).
+   - Light Mode MUST have extreme contrast: ink-slate/near-black (`#0f172a`) text on pure white or crisp light-slate cards/backgrounds (contrast ratio $\ge 14:1$).
+   - Never use washed-out light grays for text or labels. Use deep, saturated accents in Light Mode (e.g. `--accent-cyan: #0284c7` instead of `#38bdf8`) so formulas and labels remain razor-sharp under washed-out overhead classroom projectors.
+2. **HTML5 Canvas Dynamic Palette Re-Rendering**:
+   - Any graphs or canvas simulations must listen for theme toggle events and immediately re-render with light/dark adaptive palettes (e.g., pure white background, dark-slate axes `#1e293b`).
+3. **Universal Root Font Scaling (Projector Mode)**:
+   - Provide Text Size controls (Normal, Large, 🖥️ Projector) that scale `<html>` root font size (`16px`, `20px`, `25px`). All components, formulas, and cards must use `rem` units to scale proportionally.
+4. **Sticky Zero-Scroll Navigation**:
+   - Step navigation buttons must remain docked/sticky at the top (`position: sticky; top: 0; z-index: 100`) and use responsive CSS Grid (`repeat(N, minmax(0, 1fr))`) without horizontal scrollbars, ensuring navigation buttons never scroll out of view when switching steps.
+- **Consult Wiki Pattern**: Reference `.agents/wiki/patterns/classroom-projection-and-high-contrast-theming.md`.
+

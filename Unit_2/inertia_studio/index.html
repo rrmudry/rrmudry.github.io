@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inertia Studio: The 3 Categories of Newton's First Law</title>
+  <link rel="icon" type="image/svg+xml" href="../../assets/unit2-favicon.svg">
+
+  <!-- Google Fonts: Outfit & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- App Header & Navigation -->
+  <header class="app-header">
+    <div class="header-left">
+      <span class="app-icon">🪐</span>
+      <div>
+        <h1 class="app-title">Inertia Studio: Newton's First Law in Action</h1>
+        <p class="app-subtitle">Mastering the 3 Categories: Inertia of Rest, Motion, &amp; Direction</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <!-- Universal Text Size Controls (Projector Mode) -->
+      <div class="font-toggle-group" title="Adjust text size for whole-classroom projection">
+        <span class="font-label">Text:</span>
+        <button class="font-btn active" data-size="normal">Normal</button>
+        <button class="font-btn" data-size="large">Large</button>
+        <button class="font-btn" data-size="huge">🖥️ Projector</button>
+      </div>
+
+      <button id="btnSound" class="btn-tool" title="Toggle Sound Synthesis">🔊 Sound: ON</button>
+      <button id="btnTheme" class="btn-tool btn-theme" title="Toggle Light / Dark Contrast Theme">
+        <span id="themeIcon">☀️</span> <span id="themeText">Light Mode</span>
+      </button>
+      <a href="../unit2-dashboard.html" class="btn-tool" title="Back to Unit 2 Dashboard">🏠 Unit 2</a>
+    </div>
+  </header>
+
+  <!-- Category Selection Bar (The 3 Buckets) -->
+  <nav class="category-bar" aria-label="Inertia Categories">
+    <button class="tab-btn active" data-tab="rest" title="Category 1: Inertia of Rest (Tablecloth & Coin)">
+      <span class="tab-icon">🍽️</span> <span class="tab-text">1. Inertia of Rest</span>
+    </button>
+    <button class="tab-btn" data-tab="motion" title="Category 2: Inertia of Motion (Vehicle Crash & Seatbelts)">
+      <span class="tab-icon">🚗</span> <span class="tab-text">2. Inertia of Motion</span>
+    </button>
+    <button class="tab-btn" data-tab="direction" title="Category 3: Inertia of Direction (Whirling Tether & Mud)">
+      <span class="tab-icon">🔄</span> <span class="tab-text">3. Inertia of Direction</span>
+    </button>
+    <button class="tab-btn" data-tab="arena" title="Category 4: Mastery Challenge Arena">
+      <span class="tab-icon">🎯</span> <span class="tab-text">4. Mastery Arena</span>
+    </button>
+  </nav>
+
+  <!-- Main Studio Stage -->
+  <main class="studio-main">
+
+    <!-- Active Category Focus Card -->
+    <section class="concept-header-card">
+      <span id="categoryBadge" class="category-badge badge-rest">CATEGORY 1: INERTIA OF REST</span>
+      <p id="categoryDescription" class="category-desc">
+        <strong>Newton's First Law:</strong> An object at rest stubbornly stays at rest unless an external net force accelerates it. If the base moves too quickly for friction to grab it, the object stays put!
+      </p>
+    </section>
+
+    <!-- Simulation Viewport & Controls Grid -->
+    <div class="stage-grid">
+
+      <!-- Viewport & Telemetry HUD -->
+      <section class="viewport-card">
+        <div class="canvas-wrapper">
+          <canvas id="mainCanvas"></canvas>
+        </div>
+
+        <!-- Playback Actions -->
+        <div class="playback-bar">
+          <div class="playback-actions">
+            <button id="btnPlayPause" class="btn-primary">⏸ Pause</button>
+            <button id="btnReset" class="btn-secondary">⏮ Reset</button>
+          </div>
+
+          <div class="speed-group">
+            <span class="speed-label">Simulation Speed:</span>
+            <button class="speed-pill" data-speed="0.25">0.25x</button>
+            <button class="speed-pill" data-speed="0.5">0.5x</button>
+            <button class="speed-pill active" data-speed="1.0">1.0x</button>
+          </div>
+        </div>
+
+        <!-- Live Telemetry HUD Bar -->
+        <div class="telemetry-grid">
+          <div class="tel-cell">
+            <span id="tel1Label" class="tel-label">Pull Acceleration</span>
+            <span id="tel1Val" class="tel-val">25.0 m/s²</span>
+          </div>
+          <div class="tel-cell">
+            <span id="tel2Label" class="tel-label">Slip Threshold (μ_s · g)</span>
+            <span id="tel2Val" class="tel-val">1.47 m/s²</span>
+          </div>
+          <div class="tel-cell">
+            <span id="tel3Label" class="tel-label">Dish Net Force</span>
+            <span id="tel3Val" class="tel-val">0.0 N</span>
+          </div>
+          <div class="tel-cell">
+            <span id="tel4Label" class="tel-label">Dish Shift (Δx)</span>
+            <span id="tel4Val" class="tel-val">0.0 cm</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sidebar Interactive Controls -->
+      <aside class="control-card">
+
+        <!-- ================= PANEL 1: INERTIA OF REST ================= -->
+        <div id="panelRest" class="panel-section active">
+          <h2 class="panel-title">🍽️ Inertia of Rest Controls</h2>
+
+          <div class="form-group">
+            <label class="form-label">Demonstration Mode:</label>
+            <div class="pill-grid">
+              <button class="mode-pill-btn rest-mode-btn active" data-mode="tablecloth">Tablecloth Pull</button>
+              <button class="mode-pill-btn rest-mode-btn" data-mode="coin_beaker">Penny &amp; Beaker</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span>Pull Acceleration (a_pull):</span>
+              <span id="restAccelVal" class="val-badge">25.0 m/s²</span>
+            </label>
+            <input type="range" id="restAccelSlider" min="1" max="60" step="0.5" value="25.0">
+            <small style="color: var(--text-muted); font-size: 0.75rem;">Slow tug (&lt; 1.5 m/s²) drags plate; Whip pull (&gt; 10 m/s²) slips!</small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tablecloth Material (Friction μ):</label>
+            <select id="restMaterialSelect" class="select-input">
+              <option value="silk">Smooth Silk (μ_s = 0.15, μ_k = 0.10)</option>
+              <option value="linen">Cotton Linen (μ_s = 0.35, μ_k = 0.25)</option>
+              <option value="sandpaper">Rough Rubber (μ_s = 0.85, μ_k = 0.70)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Object on Tablecloth:</label>
+            <select id="restDishSelect" class="select-input">
+              <option value="plate">Porcelain Plate (0.60 kg, Low CG)</option>
+              <option value="glass">Crystal Wine Glass (0.18 kg, Tall &amp; Fragile!)</option>
+              <option value="pan">Cast Iron Skillet (2.40 kg, High Mass Inertia!)</option>
+              <option value="mug">Ceramic Mug (0.45 kg)</option>
+            </select>
+          </div>
+
+          <button id="btnPullWhip" class="btn-action-whip">⚡ WHIP TABLECLOTH!</button>
+        </div>
+
+        <!-- ================= PANEL 2: INERTIA OF MOTION ================= -->
+        <div id="panelMotion" class="panel-section">
+          <h2 class="panel-title">🚗 Inertia of Motion Controls</h2>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span>Initial Velocity (v₀):</span>
+              <span id="motionSpeedVal" class="val-badge">18 m/s (~40 mph)</span>
+            </label>
+            <input type="range" id="motionSpeedSlider" min="5" max="30" step="1" value="18">
+            <small style="color: var(--text-muted); font-size: 0.75rem; display: block; margin-top: 0.35rem;">
+              Ejection threshold: &ge; 22 m/s (~50 mph) in rigid barrier crashes. Under 22 m/s or during braking, laminated safety glass &amp; dashboard contain the occupant inside the cabin.
+            </small>
+          </div>
+
+          <div class="toggle-wrapper">
+            <span class="form-label" style="margin: 0;">Seatbelt Restraint:</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="seatbeltToggle">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Stopping Scenario:</label>
+            <select id="stopTypeSelect" class="select-input">
+              <option value="barrier" selected>Rigid Barrier Crash Impact (Instant Stop)</option>
+              <option value="brake">Emergency ABS Braking (-10.5 m/s² Skid)</option>
+            </select>
+          </div>
+
+          <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-sm); padding: 0.75rem; font-size: 0.8rem; color: #fca5a5;">
+            <strong>Misconception Alert:</strong> When the car stops, what pushes the dummy forward? <em>ABSOLUTELY NOTHING (0 N)!</em> The dummy continues forward solely because of inertia!
+          </div>
+
+          <button id="btnMotionRun" class="btn-action-crash">💥 LAUNCH CRASH TEST!</button>
+        </div>
+
+        <!-- ================= PANEL 3: INERTIA OF DIRECTION ================= -->
+        <div id="panelDirection" class="panel-section">
+          <h2 class="panel-title">🔄 Inertia of Direction Controls</h2>
+
+          <div class="form-group">
+            <label class="form-label">Mode:</label>
+            <div class="pill-grid">
+              <button class="mode-pill-btn dir-mode-btn active" data-mode="tether">Whirling Tether</button>
+              <button class="mode-pill-btn dir-mode-btn" data-mode="mud_spray">Tire Mud Spray</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span>Angular Velocity (ω):</span>
+              <span id="dirSpeedVal" class="val-badge">4.0 rad/s (~38 RPM)</span>
+            </label>
+            <input type="range" id="dirSpeedSlider" min="1.0" max="8.0" step="0.5" value="4.0">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span>Radius (r):</span>
+              <span id="dirRadiusVal" class="val-badge">1.20 m</span>
+            </label>
+            <input type="range" id="dirRadiusSlider" min="0.6" max="1.6" step="0.1" value="1.2">
+          </div>
+
+          <div class="toggle-wrapper">
+            <span class="form-label" style="margin: 0;">Show False Spiral Myth:</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="checkShowMisconception" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <button id="btnCutString" class="btn-action-cut">✂️ CUT STRING / RELEASE!</button>
+        </div>
+
+        <!-- ================= PANEL 4: MASTERY ARENA ================= -->
+        <div id="panelArena" class="panel-section">
+          <h2 class="panel-title">🎯 Mastery Challenge Arena</h2>
+
+          <div class="arena-score-bar">
+            <span>Score:</span>
+            <span id="arenaTotalScore" class="arena-score-val">0 / 100</span>
+          </div>
+
+          <div class="arena-card-box">
+            <!-- Tier 1 -->
+            <div class="tier-card">
+              <div class="tier-header">
+                <span class="tier-title">Tier 1: Tablecloth Slip Calculation</span>
+                <span class="tier-pts">30 pts</span>
+              </div>
+              <p class="tier-prompt">For a plate on silk (μ_s = 0.15, g = 9.8 m/s²), what is the minimum pull acceleration in m/s² required so the cloth slips underneath?</p>
+              <div class="tier-controls">
+                <input type="number" id="tier1Input" class="text-input" placeholder="Enter m/s² (e.g. 1.8)" step="0.1">
+                <button id="btnSubmitTier1" class="btn-primary" style="padding: 0.45rem 0.8rem;">Test</button>
+              </div>
+              <div id="tier1Feedback" class="feedback-box"></div>
+            </div>
+
+            <!-- Tier 2 -->
+            <div class="tier-card">
+              <div class="tier-header">
+                <span class="tier-title">Tier 2: The Crash Forensics Trap</span>
+                <span class="tier-pts">35 pts</span>
+              </div>
+              <p class="tier-prompt">When a car suddenly brakes, what forward force pushes an unbelted passenger toward the dashboard?</p>
+              <div class="form-group">
+                <select id="tier2ForceSelect" class="select-input">
+                  <option value="none">-- Select Forward Force --</option>
+                  <option value="0">0 N (Zero forward force exists!)</option>
+                  <option value="200">200 N (Car's forward momentum)</option>
+                  <option value="700">700 N (Inertia force)</option>
+                </select>
+                <select id="tier2SpeedSelect" class="select-input">
+                  <option value="none">-- Passenger vs Car Speed During Braking --</option>
+                  <option value="faster">Passenger travels FASTER than the braking car</option>
+                  <option value="equal">Passenger travels at the exact same speed as the car</option>
+                </select>
+                <button id="btnSubmitTier2" class="btn-primary" style="margin-top: 0.4rem;">Submit Claims</button>
+              </div>
+              <div id="tier2Feedback" class="feedback-box"></div>
+            </div>
+
+            <!-- Tier 3 -->
+            <div class="tier-card">
+              <div class="tier-header">
+                <span class="tier-title">Tier 3: The Tangent Escape Vector</span>
+                <span class="tier-pts">35 pts</span>
+              </div>
+              <p class="tier-prompt">When a rock whirled in a circle has its string snapped, which path does it follow?</p>
+              <div class="form-group">
+                <select id="tier3PathSelect" class="select-input">
+                  <option value="none">-- Select Escape Path --</option>
+                  <option value="tangent">A straight line tangent to the circle at the snap point</option>
+                  <option value="spiral">A curved outward spiral</option>
+                  <option value="radial">A straight line directly away from the center (radius)</option>
+                </select>
+                <button id="btnSubmitTier3" class="btn-primary" style="margin-top: 0.4rem;">Verify Path</button>
+              </div>
+              <div id="tier3Feedback" class="feedback-box"></div>
+            </div>
+          </div>
+
+          <div id="arenaBadgeStatus" style="text-align: center; font-size: 0.85rem; color: var(--text-muted);">
+            Complete all 3 tiers with 100% accuracy to unlock your official credential.
+          </div>
+
+          <button id="btnOpenCert" class="btn-cert">🎓 VIEW MASTER CREDENTIAL</button>
+        </div>
+
+      </aside>
+    </div>
+
+    <!-- Educational Scaffolding & 3 Buckets Concept Table -->
+    <section class="guide-card">
+      <h2 class="guide-title">📚 The 3 Categories of Inertia: Framework &amp; Real-World Anchors</h2>
+      <div style="overflow-x: auto;">
+        <table class="guide-table">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Fundamental Physics Meaning</th>
+              <th>The Everyday Physical Sensation</th>
+              <th>Classic Real-World Demonstrations</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong style="color: var(--color-rest);">1. Inertia of Rest</strong></td>
+              <td>An object at rest maintains zero velocity unless acted on by an external net force (F_net ≠ 0).</td>
+              <td>The object feels "left behind" because the base or surface moved out from underneath it before friction could grab it.</td>
+              <td>
+                • Rapidly whipping a silk tablecloth from under a stack of dishes.<br>
+                • Snapping an index card out from over a beaker so a penny drops straight in.<br>
+                • Jerking backward in your seat when a subway train or bus suddenly accelerates forward.
+              </td>
+            </tr>
+            <tr>
+              <td><strong style="color: var(--color-motion);">2. Inertia of Motion</strong></td>
+              <td>An object traveling at constant velocity maintains that speed indefinitely. <strong>No forward force exists</strong> to sustain it.</td>
+              <td>The vehicle or ground stops, but your body continues traveling forward at the initial speed until a stopping force acts on it.</td>
+              <td>
+                • A passenger without a seatbelt colliding with the dashboard during a sudden stop.<br>
+                • Stumbling forward when your skateboard or feet trip over a sidewalk crack.<br>
+                • Shaking water droplets off wet hands (hands stop, water droplets keep flying).
+              </td>
+            </tr>
+            <tr>
+              <td><strong style="color: var(--color-direction);">3. Inertia of Direction</strong></td>
+              <td>Moving objects travel in a <strong>straight line</strong>. Curving or turning requires a continuous perpendicular inward force.</td>
+              <td>The vehicle turns, but your body wants to travel in a straight line, making you feel "pressed" against the outside car door.</td>
+              <td>
+                • Releasing a whirled tetherball: it flies along a straight tangent line, NOT a spiral.<br>
+                • Water droplets spraying off a spinning bicycle wheel in straight tangent arcs.<br>
+                • A car sliding off an icy mountain curve in a straight line tangent to the turn.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Certificate Modal -->
+  <div id="modalCert" class="modal-overlay">
+    <div class="cert-card">
+      <h2 class="cert-title">NEWTONIAN MECHANICS CREDENTIAL</h2>
+      <p class="cert-subtitle">Certificate of Mastery in Newton's First Law of Motion</p>
+      
+      <div style="margin-bottom: 1.5rem;">
+        <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">Recipient Student Name:</label>
+        <input type="text" id="inputStudentName" class="text-input" placeholder="Type your name here..." style="max-width: 280px; text-align: center; font-size: 1.1rem; padding: 0.5rem;">
+      </div>
+
+      <div id="certStudentName" class="cert-name">Physics Scholar</div>
+
+      <p class="cert-desc">
+        Has successfully demonstrated rigorous scientific understanding of <strong>Newton's First Law (The Law of Inertia)</strong> across all three physical dimensions: <em>Inertia of Rest</em> (static slip thresholds), <em>Inertia of Motion</em> (zero forward force in decelerating frames), and <em>Inertia of Direction</em> (tangential velocity release in circular systems).
+      </p>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+        <div style="text-align: left;">
+          <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">DATE ISSUED</span>
+          <span id="certDate" style="font-family: var(--font-mono); font-weight: 700; color: #38bdf8;">Sep 27, 2026</span>
+        </div>
+        <div class="cert-stamp">✓ VERIFIED SCIENTIFIC MASTERY</div>
+        <button id="btnCloseCert" class="btn-primary" style="padding: 0.45rem 1rem;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/sim-rest.js"></script>
+  <script src="js/sim-motion.js"></script>
+  <script src="js/sim-direction.js"></script>
+  <script src="js/challenges.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
