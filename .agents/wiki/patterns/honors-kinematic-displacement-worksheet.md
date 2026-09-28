@@ -67,7 +67,7 @@ The quadratic kinematics equation $x_f = x_0 + v_0 t + \frac{1}{2}at^2$ (or $\De
 
 ---
 
-## 4. Teacher Master Key Architecture
+## 4. Teacher Master Key Architecture & Security Exclusion
 
 - Every worksheet is accompanied by a companion **Teacher Master Key** (`Teacher_Master_Key_*.html` and `.pdf`):
   - Retains identical geometry, question prompts, and layout.
@@ -75,13 +75,20 @@ The quadratic kinematics equation $x_f = x_0 + v_0 t + \frac{1}{2}at^2$ (or $\De
   - Includes explicit intermediate calculation steps (e.g. $x_f = 280.0\text{ m} + 862.4\text{ m} = 1,142.4\text{ m}$).
   - Features shaded SVG velocity-time areas (cyan rectangle for $v_0 t$, amber triangle for $\frac{1}{2}at^2$).
   - Shows clear follow-up answers and collision safety decisions.
+- **Security Exclusion (Strict Policy)**:
+  - Teacher Master Keys and worked solutions MUST NEVER be tracked in public Git repositories.
+  - They are excluded via `.gitignore` (`*Teacher_Master_Key*`, `**/Teacher_Master_Key*`).
+  - The generation script compiles them to local storage for teacher printing and projection, but Git ignores them to ensure solutions are never exposed on GitHub Pages.
 
 ---
 
 ## 5. Artifact Directory Alignment
 
-Worksheets and teacher keys must be available under both paths for compatibility:
+Student worksheets are publicly accessible and tracked in Git under both paths for compatibility:
 - `Unit_2/honors_worksheets/Honors_Kinematic_Displacement_Practice_Worksheet.pdf`
 - `Unit_2/worksheets/Honors_Kinematic_Displacement_Practice_Worksheet.pdf`
+
+Teacher Master Keys remain available on local disk only (ignored by Git):
 - `Unit_2/honors_worksheets/Teacher_Master_Key_Kinematic_Displacement.pdf`
 - `Unit_2/worksheets/Teacher_Master_Key_Kinematic_Displacement.pdf`
+
