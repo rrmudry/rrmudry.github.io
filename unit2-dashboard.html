@@ -1152,6 +1152,35 @@
 
             const categorizedLinksHtml = renderCategorizedLinksHtml(day);
 
+            let embedUrl = day.embed || '';
+            if (!embedUrl && day.links) {
+                const docUrl = Object.values(day.links).find(u => typeof u === 'string' && (u.includes('docs.google.com/document') || u.includes('docs.google.com/presentation')));
+                if (docUrl) {
+                    if (docUrl.includes('docs.google.com/document')) {
+                        embedUrl = docUrl.replace(/\/edit.*$/, '/preview');
+                    } else if (docUrl.includes('docs.google.com/presentation')) {
+                        embedUrl = docUrl.replace(/\/edit.*$/, '/embed');
+                    }
+                }
+            }
+
+            const embedHtml = embedUrl ? `
+                <div class="rounded-2xl bg-slate-900/90 border border-lime-500/30 overflow-hidden shadow-2xl space-y-0">
+                    <div class="bg-lime-950/70 px-4 py-2.5 text-[11px] font-mono font-bold text-lime-300 border-b border-lime-500/20 flex justify-between items-center">
+                        <span class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-lime-400 animate-pulse"></span>
+                            <span>📄 Interactive Document Preview</span>
+                        </span>
+                        <a href="${embedUrl.replace('/preview', '/edit?usp=sharing')}" target="_blank" class="text-lime-300 hover:text-white hover:underline flex items-center gap-1 text-[10px]">
+                            <span>Open Full Document</span> ↗
+                        </a>
+                    </div>
+                    <div class="relative w-full h-[540px] bg-white">
+                        <iframe src="${embedUrl}" class="w-full h-full border-none" allow="autoplay"></iframe>
+                    </div>
+                </div>
+            ` : '';
+
             modalContent.innerHTML = `
                 <div>
                     <h4 class="text-xs font-mono text-lime-300 uppercase tracking-wider mb-1">Lesson Summary</h4>
@@ -1188,6 +1217,7 @@
                         </a>
                     </div>
                 ` : ''}
+                ${embedHtml}
                 ${categorizedLinksHtml}
             `;
 
