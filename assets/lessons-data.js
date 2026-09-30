@@ -3295,24 +3295,25 @@ const lessonsData = [
     "day": 23,
     "date": "2026-09-30",
     "unit": 2,
-    "title": "Newton's First Law of Motion (The Law of Inertia)",
-    "topic": "The First Law & Natural States of Motion",
+    "title": "Newton's First Law of Motion: Annotated Close Reading",
+    "topic": "AVID Close Reading: Force, Mass, and the Behavior of Objects in Motion",
     "dok": 2,
-    "type": "Direct Instruction",
+    "type": "Reading / AVID Literacy",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Formalize Newton's First Law: objects maintain constant velocity (rest or steady straight-line motion) unless acted upon by a net external force, analyzing Galileo's frictionless double-incline thought experiment.",
-    "activity": "Galileo's Double Ramp Analysis & Inertia Studio Mastery: Students analyze Galileo's thought experiment (a ball rolling down one ramp will rise to the exact same height on an opposite ramp regardless of angle; if the opposite ramp is flat, it rolls forever in the absence of friction) and complete the 3-Tier Mastery Arena in the Inertia Studio.",
-    "essentialQuestion": "How does Newton's First Law redefine our everyday definition of what forces actually do?",
+    "summary": "Students perform an AVID annotated close reading on Newton's First Law of Motion, examining the relationship between force, mass, and inertia across everyday terrestrial and zero-friction deep-space environments in English and Spanish.",
+    "activity": "AVID 5-Step Text Annotation: (1) Number paragraphs 1-4, (2) Circle core academic vocabulary (Inertia, Newton's First Law, Mass, Friction, Unbalanced Force), (3) Underline definition of inertia and governing factors, (4) Write 3-word left-margin gist statements, (5) Formulate right-margin Costa's Level 2/3 questions on friction, concluding with the Phase 4 FNT reflection on vehicular safety.",
+    "essentialQuestion": "How does the concept of inertia explain why objects move, stop, or keep moving in our daily lives?",
     "standards": [
       "HS-PS2-1"
     ],
+    "embed": "https://docs.google.com/document/d/1jeSp--y8ym7OrOLS0Z1azTf-OsDZcm5f0ndAh041A4c/preview",
     "wicor": {
-      "Writing": "Synthesizing Galileo's thought experiment and formalizing Newton's First Law in physics notebook.",
-      "Inquiry": "Analyzing Galileo's double-ramp geometry and extrapolating to zero-angle horizontal motion.",
-      "Collaboration": "Partner debate contrasting Aristotle's 'natural place' theory with Newton's inertia.",
-      "Organization": "Mapping cause-and-effect relationships between external forces and velocity changes.",
-      "Reading": "Reading primary source translations of Galileo's Dialogues Concerning Two New Sciences."
+      "Writing": "Composing 3-word gist statements and synthesizing the Phase 4 FNT reflection explaining automotive seatbelts.",
+      "Inquiry": "Formulating Costa's Level 2/3 analytical questions comparing motion on Earth with deep space.",
+      "Collaboration": "Partner text analysis, comparing margin gist statements, and debating vocabulary definitions.",
+      "Organization": "Executing the 5-step AVID reading checklist and annotating the bilingual text.",
+      "Reading": "Bilingual close reading of informational science text on the Law of Inertia (English and Spanish)."
     },
     "bellRinger": {
       "type": "concept_chat",
@@ -3322,33 +3323,27 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
-      "Inertia Studio (3 Categories)": "Unit_2/inertia_studio/index.html",
-      "Prof. Julius Sumner Miller: Newton's 1st Law (Inertia)": "https://www.youtube.com/watch?v=Kx2yqEB20k8&list=PLOoPEMh8proU",
-      "Newton's 1st Law Presentation": "Unit_2/describing-motion-presentation/index.html"
+      "Newton's First Law & Inertia Reading (Google Doc)": "https://docs.google.com/document/d/1jeSp--y8ym7OrOLS0Z1azTf-OsDZcm5f0ndAh041A4c/edit?usp=sharing"
     },
-    "assignments": [],
-    "resources": [
+    "assignments": [
       {
-        "title": "Newton's First Law Slide Deck",
-        "url": "Unit_2/describing-motion-presentation/index.html",
-        "typeLabel": "Classroom Slides",
-        "description": "Direct instruction on balanced forces, inertia, and Galileo thought experiments."
-      },
-      {
-        "title": "Prof. Julius Sumner Miller: Newton's First Law (Inertia)",
-        "url": "https://www.youtube.com/watch?v=Kx2yqEB20k8&list=PLOoPEMh8proU",
-        "typeLabel": "Video Demonstration",
-        "description": "Classic demonstration lecture on inertia, table cloth pulls, and resistance to change in motion."
+        "title": "Newton's First Law & Inertia AVID Close Reading",
+        "url": "https://docs.google.com/document/d/1jeSp--y8ym7OrOLS0Z1azTf-OsDZcm5f0ndAh041A4c/edit?usp=sharing",
+        "typeLabel": "AVID Annotated Reading",
+        "submission": "In-Class Handout / Google Classroom",
+        "actionLabel": "Open Google Doc ↗",
+        "description": "5-step text annotation checklist with margin gist statements, Costa's Level 2/3 questions, and Phase 4 FNT reflection."
       }
     ],
-    "practice": [
+    "resources": [
       {
-        "title": "Inertia Studio (3 Categories)",
-        "url": "Unit_2/inertia_studio/index.html",
-        "typeLabel": "Interactive Physics Studio",
-        "description": "Analyze vehicular inertia, crash forensics (zero forward force: F_fwd = 0 N), and seatbelt impulse in the Tiered Mastery Arena."
+        "title": "Newton's First Law & Inertia Reading Handout (Bilingual)",
+        "url": "https://docs.google.com/document/d/1jeSp--y8ym7OrOLS0Z1azTf-OsDZcm5f0ndAh041A4c/edit?usp=sharing",
+        "typeLabel": "Reading Handout",
+        "description": "Bilingual (English & Spanish) 4-paragraph article on force, mass, and inertia with AVID reading checklist."
       }
-    ]
+    ],
+    "practice": []
   },
   {
     "day": 24,

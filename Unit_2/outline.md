@@ -224,13 +224,13 @@ This unit follows the classical and cognitive progression:
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Inquiry / Demonstration
     *   *Links:* [Inertia Presentation Slides](https://docs.google.com/presentation/d/1J_m4BCp6kcBnIVgHzsPEJcnaqF-Drhm-ITdufGx6cnc/edit?usp=sharing), [Prof. Julius Sumner Miller: Inertia](https://www.youtube.com/watch?v=Kx2yqEB20k8&list=PLOoPEMh8proU), [Inertia Studio (3 Categories)](Unit_2/inertia_studio/index.html), [PhET Forces and Motion: Basics](https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_en.html)
 
-*   **Day 23 (2026-09-30): Newton's First Law of Motion (The Law of Inertia)**
+*   **Day 23 (2026-09-30): Newton's First Law of Motion: Annotated Close Reading**
     *   *Bell-Ringer:* Forces Change Motion, Not Sustain It (AI Chat): A student pushes a heavy crate across the floor at a steady, constant speed. Explain why their claim ('My push is greater than friction') is physically incorrect.
-    *   *Focus:* Formalizing Newton's First Law: objects maintain constant velocity unless acted upon by a net external force. Analyzing Galileo's frictionless double-incline thought experiment and automotive inertia.
-    *   *Activity:* Galileo's Double Ramp Analysis & Inertia Studio Mastery: Students analyze Galileo's thought experiment (ball rises to equal height regardless of ramp angle; rolls forever on flat plane in the absence of friction) and complete the 3-Tier Mastery Arena in the Inertia Studio.
-    *   *Essential Question:* How does Newton's First Law redefine our everyday definition of what forces actually do?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Conceptual Mastery
-    *   *Links:* [Inertia Studio (3 Categories)](Unit_2/inertia_studio/index.html), [Prof. Julius Sumner Miller: Inertia](https://www.youtube.com/watch?v=Kx2yqEB20k8&list=PLOoPEMh8proU), [Newton's 1st Law Presentation](Unit_2/describing-motion-presentation/index.html)
+    *   *Focus:* Close reading of informational scientific text on Newton's First Law of Motion, analyzing the physical nature of inertia (as a property of matter rather than a force), the direct relationship with mass, and the role of friction/air resistance on Earth versus zero-friction vacuum in deep space.
+    *   *Activity:* AVID 5-Step Text Annotation & FNT Reflection: Students perform an AVID close reading in English or Spanish: (1) Number paragraphs 1-4, (2) Circle academic vocabulary (Inertia, Newton's First Law, Mass, Friction, Unbalanced Force), (3) Underline definition of inertia and governing factors, (4) Write 3-word left-margin gist statements, (5) Formulate right-margin Costa's Level 2/3 questions on friction, concluding with the Phase 4 FNT reflection explaining automotive seatbelts using inertia, mass, and unbalanced forces.
+    *   *Essential Question:* How does the concept of inertia explain why objects move, stop, or keep moving in our daily lives?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Reading / AVID Literacy
+    *   *Links:* [Newton's First Law & Inertia Reading (Google Doc)](https://docs.google.com/document/d/1jeSp--y8ym7OrOLS0Z1azTf-OsDZcm5f0ndAh041A4c/edit?usp=sharing)
 
 *   **Day 24 (2026-10-01): Mass as the Quantitative Measure of Inertia**
     *   *Bell-Ringer:* Mass vs. Weight across the Solar System (Free Response): Why is an object's mass in kilograms identical on Earth, the Moon, and in deep space, while its weight in Newtons changes drastically depending on location?
