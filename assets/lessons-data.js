@@ -3251,25 +3251,23 @@ const lessonsData = [
     },
     "links": {
       "Inertia Presentation Slides": "https://docs.google.com/presentation/d/1J_m4BCp6kcBnIVgHzsPEJcnaqF-Drhm-ITdufGx6cnc/edit?usp=sharing",
+      "Prof. Julius Sumner Miller: Newton's 1st Law (Inertia)": "https://www.youtube.com/watch?v=Kx2yqEB20k8&list=PLOoPEMh8proU",
       "Inertia Studio (3 Categories)": "Unit_2/inertia_studio/index.html",
       "PhET Forces and Motion: Basics": "https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_en.html"
     },
-    "assignments": [
-      {
-        "title": "Inertia Phenomenon Stations Handout",
-        "typeLabel": "Lab Handout",
-        "submission": "In-Class Handout (Subject to Pacing)",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Four-station inquiry recording cause, observation, and inference for inertia demos.",
-        "status": "planned"
-      }
-    ],
+    "assignments": [],
     "resources": [
       {
         "title": "Inertia Presentation Slides",
         "url": "https://docs.google.com/presentation/d/1J_m4BCp6kcBnIVgHzsPEJcnaqF-Drhm-ITdufGx6cnc/edit?usp=sharing",
         "typeLabel": "Lecture Slides",
         "description": "Classroom lecture slides and guided notes introducing inertia and Newton's First Law."
+      },
+      {
+        "title": "Prof. Julius Sumner Miller: Newton's First Law (Inertia)",
+        "url": "https://www.youtube.com/watch?v=Kx2yqEB20k8&list=PLOoPEMh8proU",
+        "typeLabel": "Video Demonstration",
+        "description": "Classic demonstration lecture on inertia, table cloth pulls, and resistance to change in motion."
       },
       {
         "title": "Galileo vs. Aristotle Thought Experiments",
@@ -3304,13 +3302,13 @@ const lessonsData = [
     "semester": 1,
     "isFeatured": true,
     "summary": "Formalize Newton's First Law: objects maintain constant velocity (rest or steady straight-line motion) unless acted upon by a net external force, analyzing Galileo's frictionless double-incline thought experiment.",
-    "activity": "Galileo's Double Ramp Text Analysis & CER Writing: Students analyze Galileo's thought experiment (a ball rolling down one ramp will rise to the exact same height on an opposite ramp regardless of angle; if the opposite ramp is flat, it rolls forever). Students write a CER explanation answering: Why does a seatbelt save a passenger's life when a car suddenly brakes?",
+    "activity": "Galileo's Double Ramp Analysis & Inertia Studio Mastery: Students analyze Galileo's thought experiment (a ball rolling down one ramp will rise to the exact same height on an opposite ramp regardless of angle; if the opposite ramp is flat, it rolls forever in the absence of friction) and complete the 3-Tier Mastery Arena in the Inertia Studio.",
     "essentialQuestion": "How does Newton's First Law redefine our everyday definition of what forces actually do?",
     "standards": [
       "HS-PS2-1"
     ],
     "wicor": {
-      "Writing": "Composing a Claim-Evidence-Reasoning (CER) argument analyzing vehicular inertia and seatbelt physics.",
+      "Writing": "Synthesizing Galileo's thought experiment and formalizing Newton's First Law in physics notebook.",
       "Inquiry": "Analyzing Galileo's double-ramp geometry and extrapolating to zero-angle horizontal motion.",
       "Collaboration": "Partner debate contrasting Aristotle's 'natural place' theory with Newton's inertia.",
       "Organization": "Mapping cause-and-effect relationships between external forces and velocity changes.",
@@ -3325,24 +3323,22 @@ const lessonsData = [
     },
     "links": {
       "Inertia Studio (3 Categories)": "Unit_2/inertia_studio/index.html",
+      "Prof. Julius Sumner Miller: Newton's 1st Law (Inertia)": "https://www.youtube.com/watch?v=Kx2yqEB20k8&list=PLOoPEMh8proU",
       "Newton's 1st Law Presentation": "Unit_2/describing-motion-presentation/index.html"
     },
-    "assignments": [
-      {
-        "title": "Seatbelt Physics & Inertia CER Argument",
-        "typeLabel": "Required CER Writing",
-        "submission": "In-Class Handout (Subject to Pacing)",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Construct a Claim-Evidence-Reasoning response explaining how seatbelts protect against vehicular inertia.",
-        "status": "planned"
-      }
-    ],
+    "assignments": [],
     "resources": [
       {
         "title": "Newton's First Law Slide Deck",
         "url": "Unit_2/describing-motion-presentation/index.html",
         "typeLabel": "Classroom Slides",
         "description": "Direct instruction on balanced forces, inertia, and Galileo thought experiments."
+      },
+      {
+        "title": "Prof. Julius Sumner Miller: Newton's First Law (Inertia)",
+        "url": "https://www.youtube.com/watch?v=Kx2yqEB20k8&list=PLOoPEMh8proU",
+        "typeLabel": "Video Demonstration",
+        "description": "Classic demonstration lecture on inertia, table cloth pulls, and resistance to change in motion."
       }
     ],
     "practice": [

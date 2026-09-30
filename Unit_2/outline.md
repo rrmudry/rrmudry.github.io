@@ -219,18 +219,18 @@ This unit follows the classical and cognitive progression:
 *   **Day 22 (2026-09-29): The Big Question: What Keeps Things Moving? (Inertia Demos)**
     *   *Bell-Ringer:* Aristotelian Motion vs. Inertia (AI Chat): In ancient Greece, Aristotle claimed that an object requires a continuous applied force to keep moving forward. Why did this misconception feel intuitive, and how does Newton's First Law overturn it?
     *   *Focus:* Challenging the misconception that force causes velocity. Newton's First Law of Motion: an object at rest remains at rest, and an object in uniform motion continues at constant velocity unless acted on by an unbalanced net external force. Galileo's double-incline thought experiment.
-    *   *Activity:* Inertia Station Circus: Tablecloth pull under weighted plates, coin-on-card index card flick into a beaker, rolling a bowling ball with mallet tap guidance, and battery hover puck gliding across the floor without slowing down.
+    *   *Activity:* Inertia Demonstrations & Slideshow: Live demonstration of inertia phenomena (tablecloth pull under weighted plates, coin-on-card index card flick into a beaker, bowling ball mallet taps, and hover puck gliding indefinitely across the floor).
     *   *Essential Question:* Does an object in motion require a continuous applied force to keep moving forward at constant velocity?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Inquiry / Demonstration
-    *   *Links:* [Inertia Presentation Slides](https://docs.google.com/presentation/d/1J_m4BCp6kcBnIVgHzsPEJcnaqF-Drhm-ITdufGx6cnc/edit?usp=sharing), [Inertia Studio (3 Categories)](Unit_2/inertia_studio/index.html), [PhET Forces and Motion: Basics](https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_en.html), Inertia Stations Handout *(Planned In-Class)*
+    *   *Links:* [Inertia Presentation Slides](https://docs.google.com/presentation/d/1J_m4BCp6kcBnIVgHzsPEJcnaqF-Drhm-ITdufGx6cnc/edit?usp=sharing), [Prof. Julius Sumner Miller: Inertia](https://www.youtube.com/watch?v=Kx2yqEB20k8&list=PLOoPEMh8proU), [Inertia Studio (3 Categories)](Unit_2/inertia_studio/index.html), [PhET Forces and Motion: Basics](https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_en.html)
 
 *   **Day 23 (2026-09-30): Newton's First Law of Motion (The Law of Inertia)**
     *   *Bell-Ringer:* Forces Change Motion, Not Sustain It (AI Chat): A student pushes a heavy crate across the floor at a steady, constant speed. Explain why their claim ('My push is greater than friction') is physically incorrect.
     *   *Focus:* Formalizing Newton's First Law: objects maintain constant velocity unless acted upon by a net external force. Analyzing Galileo's frictionless double-incline thought experiment and automotive inertia.
-    *   *Activity:* Galileo's Double Ramp Text Analysis & CER Writing: Students analyze Galileo's thought experiment (ball rises to equal height regardless of ramp angle; rolls forever on flat plane). Students write a CER explanation answering: Why does a seatbelt save a passenger's life when a car suddenly brakes?
+    *   *Activity:* Galileo's Double Ramp Analysis & Inertia Studio Mastery: Students analyze Galileo's thought experiment (ball rises to equal height regardless of ramp angle; rolls forever on flat plane in the absence of friction) and complete the 3-Tier Mastery Arena in the Inertia Studio.
     *   *Essential Question:* How does Newton's First Law redefine our everyday definition of what forces actually do?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / CER Writing
-    *   *Links:* [Inertia Studio (3 Categories)](Unit_2/inertia_studio/index.html), [Newton's 1st Law Presentation](Unit_2/describing-motion-presentation/index.html), Seatbelt Physics CER Handout *(Planned In-Class)*
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Conceptual Mastery
+    *   *Links:* [Inertia Studio (3 Categories)](Unit_2/inertia_studio/index.html), [Prof. Julius Sumner Miller: Inertia](https://www.youtube.com/watch?v=Kx2yqEB20k8&list=PLOoPEMh8proU), [Newton's 1st Law Presentation](Unit_2/describing-motion-presentation/index.html)
 
 *   **Day 24 (2026-10-01): Mass as the Quantitative Measure of Inertia**
     *   *Bell-Ringer:* Mass vs. Weight across the Solar System (Free Response): Why is an object's mass in kilograms identical on Earth, the Moon, and in deep space, while its weight in Newtons changes drastically depending on location?
