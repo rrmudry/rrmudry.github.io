@@ -1,0 +1,2271 @@
+<!DOCTYPE html>
+<html lang="en" class="theme-dark font-normal">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sound Wave Studio: Tuning Fork Sinusoidal Modeling Lab</title>
+  <meta name="description" content="Capture tuning fork sound waves with your Chromebook or phone microphone, measure period and amplitude with calipers, and copy clean sinusoidal data tables into Desmos.">
+  <link rel="icon" type="image/svg+xml" href="../assets/unit6-favicon.svg">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* -------------------------------------------------------------
+       High-Contrast Theming & WCAG AAA Compliance Pattern
+       Ink-slate on pure white for Light Mode (>14:1 contrast for classroom projectors)
+       Neon cyber-oscilloscope for Dark Mode
+    ------------------------------------------------------------- */
+    :root {
+      --bg-page: #030712;
+      --bg-card: #0f172a;
+      --bg-subcard: rgba(30, 41, 59, 0.7);
+      --bg-input: #1e293b;
+      --border-color: rgba(56, 189, 248, 0.25);
+      --border-strong: rgba(56, 189, 248, 0.6);
+      --border-subtle: rgba(255, 255, 255, 0.1);
+
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --accent-cyan: #38bdf8;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #a855f7;
+
+      --canvas-bg: #030712;
+      --canvas-grid-major: rgba(56, 189, 248, 0.25);
+      --canvas-grid-minor: rgba(56, 189, 248, 0.08);
+      --canvas-axis: #38bdf8;
+      --canvas-wave: #06b6d4;
+      --canvas-wave-glow: rgba(6, 182, 212, 0.4);
+      --canvas-text: #94a3b8;
+      --canvas-caliper-1: #38bdf8;
+      --canvas-caliper-2: #f59e0b;
+      --canvas-model: #ec4899;
+      --canvas-fit: #10b981;
+
+      /* Button / Badge Styles in Dark Mode */
+      --btn-guide-bg: rgba(168, 85, 247, 0.15);
+      --btn-guide-text: #d8b4fe;
+      --btn-guide-border: rgba(168, 85, 247, 0.4);
+
+      --btn-desmos-nav-bg: rgba(16, 185, 129, 0.15);
+      --btn-desmos-nav-text: #6ee7b7;
+      --btn-desmos-nav-border: rgba(16, 185, 129, 0.4);
+
+      --btn-trigger-off-bg: rgba(147, 51, 234, 0.2);
+      --btn-trigger-off-text: #e9d5ff;
+      --btn-trigger-off-border: rgba(147, 51, 234, 0.4);
+    }
+
+    html.theme-light {
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-subcard: #f1f5f9;
+      --bg-input: #ffffff;
+      --border-color: #cbd5e1;
+      --border-strong: #0284c7;
+      --border-subtle: #e2e8f0;
+
+      /* Ink-slate text with >14:1 contrast ratio against white */
+      --text-main: #0f172a;
+      --text-muted: #334155;
+      --text-dim: #475569;
+
+      /* Darkened, high-saturation accents for white backgrounds */
+      --accent-cyan: #0284c7;
+      --accent-emerald: #059669;
+      --accent-amber: #d97706;
+      --accent-rose: #e11d48;
+      --accent-purple: #7c3aed;
+
+      --canvas-bg: #ffffff;
+      --canvas-grid-major: #cbd5e1;
+      --canvas-grid-minor: #f1f5f9;
+      --canvas-axis: #475569;
+      --canvas-wave: #0284c7;
+      --canvas-wave-glow: rgba(2, 132, 199, 0.15);
+      --canvas-text: #0f172a;
+      --canvas-caliper-1: #0369a1;
+      --canvas-caliper-2: #b45309;
+      --canvas-model: #be185d;
+      --canvas-fit: #047857;
+
+      /* Button / Badge Styles in Light Mode (High Contrast WCAG AAA) */
+      --btn-guide-bg: #f3e8ff;
+      --btn-guide-text: #581c87;
+      --btn-guide-border: #c084fc;
+
+      --btn-desmos-nav-bg: #ecfdf5;
+      --btn-desmos-nav-text: #065f46;
+      --btn-desmos-nav-border: #6ee7b7;
+
+      --btn-trigger-off-bg: #f5f3ff;
+      --btn-trigger-off-text: #581c87;
+      --btn-trigger-off-border: #c084fc;
+    }
+
+    /* Universal Root Font Scaling (Projector Mode) */
+    html.font-normal { font-size: 16px; }
+    html.font-large { font-size: 19px; }
+    html.font-huge { font-size: 23px; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      min-height: 100vh;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .font-mono {
+      font-family: 'Fira Code', monospace;
+    }
+
+    /* Sticky navigation */
+    .sticky-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      backdrop-filter: blur(12px);
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+
+    .subcard {
+      background: var(--bg-subcard);
+      border: 1px solid var(--border-subtle);
+      border-radius: 0.5rem;
+    }
+
+    .input-field {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      border-radius: 0.375rem;
+      padding: 0.4rem 0.6rem;
+      font-family: 'Fira Code', monospace;
+    }
+    .input-field:focus {
+      outline: 2px solid var(--accent-cyan);
+      border-color: transparent;
+    }
+
+    /* Caliper cursor */
+    .caliper-cursor {
+      cursor: ew-resize;
+      touch-action: none;
+    }
+
+    /* Custom Table Scrollbar */
+    .table-container::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .table-container::-webkit-scrollbar-track {
+      background: var(--bg-subcard);
+    }
+    .table-container::-webkit-scrollbar-thumb {
+      background: var(--border-strong);
+      border-radius: 3px;
+    }
+
+    /* Pulse animation for active mic */
+    @keyframes mic-recording-pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.08); opacity: 0.75; }
+    }
+    .animate-recording {
+      animation: mic-recording-pulse 1.4s infinite ease-in-out;
+    }
+
+    /* Toast Notification */
+    #toast-notification {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 9999;
+      transform: translateY(120%);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #toast-notification.show {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body class="p-0 m-0 flex flex-col">
+
+  <!-- ============================================================== -->
+  <!-- Top Navigation Bar (Sticky, Zero-Scroll)                       -->
+  <!-- ============================================================== -->
+  <header class="sticky-header px-4 py-2.5 shadow-sm">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <!-- Title & Branding -->
+      <div class="flex items-center gap-3">
+        <a href="../index.html" class="flex items-center gap-2 text-decoration-none group" title="Return to Physics Home">
+          <div class="w-8 h-8 rounded-lg bg-cyan-600/20 border border-cyan-500/40 flex items-center justify-center text-lg shadow group-hover:scale-105 transition-transform">
+            🌊
+          </div>
+        </a>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-bold tracking-tight text-main">Sound Wave Studio</h1>
+            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+              Desmos & Vernier Ready
+            </span>
+          </div>
+          <p class="text-xs text-muted hidden sm:block">Chromebook Tuning Fork Oscilloscope & Sinusoidal Model Fitter</p>
+        </div>
+      </div>
+
+      <!-- Quick Action Toolbar -->
+      <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+        <!-- Teacher / Student Lab Guide Modal Button -->
+        <button id="btn-open-guide" style="background-color: var(--btn-guide-bg); color: var(--btn-guide-text); border: 1px solid var(--btn-guide-border);" class="px-3 py-1.5 text-xs font-bold rounded-lg flex items-center gap-1.5 transition hover:opacity-90 shadow-sm">
+          <span>📖</span>
+          <span>Lab & Desmos Guide</span>
+        </button>
+
+        <!-- Desmos Direct Launcher -->
+        <a href="https://www.desmos.com/calculator" target="_blank" rel="noopener noreferrer" style="background-color: var(--btn-desmos-nav-bg); color: var(--btn-desmos-nav-text); border: 1px solid var(--btn-desmos-nav-border);" class="px-3 py-1.5 text-xs font-bold rounded-lg flex items-center gap-1.5 transition hover:opacity-90 shadow-sm" title="Open Desmos Graphing Calculator in a new tab">
+          <span>🚀</span>
+          <span>Open Desmos</span>
+        </a>
+
+        <!-- Font Size Scaling (Normal, Large, Projector) -->
+        <div class="flex items-center bg-subcard rounded-lg border border-subtle p-0.5" role="group" aria-label="Text Size">
+          <button id="btn-font-normal" class="px-2 py-1 text-xs rounded font-medium text-muted hover:text-main" title="Normal font size (16px)">A</button>
+          <button id="btn-font-large" class="px-2 py-1 text-xs rounded font-medium text-muted hover:text-main" title="Large font size (19px)">A+</button>
+          <button id="btn-font-huge" class="px-2.5 py-1 text-xs rounded font-medium text-muted hover:text-main flex items-center gap-1" title="Projector mode (23px)">
+            <span>🖥️</span>
+          </button>
+        </div>
+
+        <!-- Light / Dark Theme Toggle -->
+        <button id="btn-theme-toggle" class="p-1.5 rounded-lg border border-subtle bg-subcard text-muted hover:text-main transition" title="Toggle High-Contrast Light Mode (WCAG AAA) / Dark Mode">
+          <span id="theme-toggle-icon">☀️</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================== -->
+  <!-- Main Application Body                                          -->
+  <!-- ============================================================== -->
+  <main class="max-w-7xl mx-auto w-full p-3 sm:p-4 flex-1 flex flex-col gap-4">
+
+    <!-- Step Progress / Teacher Instructions Bar -->
+    <div class="card p-3 flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm">
+      <div class="flex items-center gap-2 flex-wrap font-medium">
+        <span class="text-muted font-bold uppercase tracking-wider text-xs">Lab Workflow:</span>
+        <span class="px-2.5 py-1 rounded bg-subcard border border-subtle text-main flex items-center gap-1.5">
+          <span class="w-4 h-4 rounded-full bg-cyan-500 text-slate-950 font-bold text-xs flex items-center justify-center">1</span>
+          Capture Tuning Fork Sound
+        </span>
+        <span class="text-dim">➔</span>
+        <span class="px-2.5 py-1 rounded bg-subcard border border-subtle text-main flex items-center gap-1.5">
+          <span class="w-4 h-4 rounded-full bg-amber-500 text-slate-950 font-bold text-xs flex items-center justify-center">2</span>
+          Align Calipers (Find T & A)
+        </span>
+        <span class="text-dim">➔</span>
+        <span class="px-2.5 py-1 rounded bg-subcard border border-subtle text-main flex items-center gap-1.5">
+          <span class="w-4 h-4 rounded-full bg-pink-500 text-slate-950 font-bold text-xs flex items-center justify-center">3</span>
+          Write Sinusoidal Function
+        </span>
+        <span class="text-dim">➔</span>
+        <span class="px-2.5 py-1 rounded bg-subcard border border-subtle text-main flex items-center gap-1.5">
+          <span class="w-4 h-4 rounded-full bg-emerald-500 text-slate-950 font-bold text-xs flex items-center justify-center">4</span>
+          Copy Table to Desmos
+        </span>
+      </div>
+
+      <!-- Quick Audio Status Indicator -->
+      <div id="audio-status-pill" class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700 font-mono text-xs">
+        <span class="w-2.5 h-2.5 rounded-full bg-slate-500" id="mic-status-dot"></span>
+        <span id="audio-status-text">Microphone Ready</span>
+      </div>
+    </div>
+
+    <!-- Grid Layout: Left Column (Controls + Canvas + Calipers) & Right Column (Table + Export) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1">
+
+      <!-- ============================================================ -->
+      <!-- LEFT COLUMN: Sound Capture & Waveform Oscilloscope (7 cols)   -->
+      <!-- ============================================================ -->
+      <div class="lg:col-span-7 flex flex-col gap-4">
+
+        <!-- Panel 1: Sound Source & Capture Controls -->
+        <div class="card p-3.5 sm:p-4 flex flex-col gap-3">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-muted flex items-center gap-2">
+              <span>🎙️</span>
+              <span>Sound Capture & Audio Engine</span>
+            </h2>
+            <div class="flex items-center gap-2 text-xs">
+              <span class="text-dim">Chromebook Hardware Sampling:</span>
+              <span id="label-sample-rate" class="font-mono text-cyan-400 font-semibold">44,100 Hz</span>
+            </div>
+          </div>
+
+          <!-- Primary Mic Capture Buttons -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <!-- Start / Stop Mic Button -->
+            <button id="btn-toggle-mic" class="px-4 py-2.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold text-sm flex items-center justify-center gap-2 transition shadow-md">
+              <span id="icon-mic">🎙️</span>
+              <span id="text-toggle-mic">Start Live Mic</span>
+            </button>
+
+            <!-- Freeze / Capture Snapshot Button -->
+            <button id="btn-freeze-wave" disabled class="px-4 py-2.5 rounded-lg bg-amber-600 hover:bg-amber-500 disabled:opacity-40 disabled:hover:bg-amber-600 text-slate-950 font-bold text-sm flex items-center justify-center gap-2 transition shadow-md">
+              <span>❄️</span>
+              <span id="text-freeze-wave">Freeze Wave</span>
+            </button>
+
+            <!-- Auto-Trigger Sound Button -->
+            <button id="btn-auto-trigger" style="background-color: var(--btn-trigger-off-bg); color: var(--btn-trigger-off-text); border: 1px solid var(--btn-trigger-off-border);" class="px-4 py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 transition">
+              <span id="icon-trigger">⚡</span>
+              <span id="text-auto-trigger">Auto-Trigger: OFF</span>
+            </button>
+          </div>
+
+          <!-- Secondary Audio Helpers: Sensitivity, Virtual Tuning Fork Generator -->
+          <div class="subcard p-2.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <!-- Input Gain / Sensitivity -->
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              <label for="slider-gain" class="text-muted font-medium whitespace-nowrap">Input Gain:</label>
+              <input type="range" id="slider-gain" min="0.5" max="5.0" step="0.1" value="1.5" class="w-24 sm:w-28 accent-cyan-400">
+              <span id="val-gain" class="font-mono text-cyan-400 w-8">1.5x</span>
+            </div>
+
+            <!-- Virtual Tuning Fork Generator (No Mic needed!) -->
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-end flex-wrap">
+              <span class="text-muted font-medium whitespace-nowrap">Virtual Fork:</span>
+              <select id="select-virtual-fork" class="input-field text-xs py-1 px-1.5 font-mono">
+                <option value="256">256 Hz (Middle C)</option>
+                <option value="288">288 Hz (D)</option>
+                <option value="320">320 Hz (E)</option>
+                <option value="341.3">341.3 Hz (F)</option>
+                <option value="384">384 Hz (G)</option>
+                <option value="426.7">426.7 Hz (A)</option>
+                <option value="440" selected>440 Hz (Concert A)</option>
+                <option value="512">512 Hz (High C)</option>
+              </select>
+              <button id="btn-play-fork" class="px-2.5 py-1 rounded bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/40 text-cyan-400 font-semibold transition" title="Play pure acoustic sine wave through speakers">
+                🔊 Play
+              </button>
+              <button id="btn-sample-fork" class="px-2.5 py-1 rounded bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-400 font-semibold transition" title="Inject pure tone directly into wave buffer without needing a microphone">
+                📥 Direct Sample
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 2: Interactive Oscilloscope Display & Dual Calipers -->
+        <div class="card p-3 sm:p-4 flex flex-col gap-2 relative">
+          <!-- Canvas Header & Zoom / Window Presets -->
+          <div class="flex items-center justify-between flex-wrap gap-2 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="font-bold uppercase tracking-wider text-muted">Oscilloscope Screen</span>
+              <span id="wave-mode-badge" class="px-2 py-0.5 rounded text-[11px] font-mono bg-slate-800 text-slate-300 border border-slate-700">
+                Ready / Awaiting Sound
+              </span>
+            </div>
+
+            <!-- Cycle Zoom Controls -->
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="text-dim">Zoom:</span>
+              <button id="btn-zoom-2cyc" class="px-2 py-0.5 rounded bg-subcard border border-subtle text-muted hover:text-main transition">2 Cycles</button>
+              <button id="btn-zoom-4cyc" class="px-2 py-0.5 rounded bg-subcard border border-subtle text-muted hover:text-main transition font-semibold text-cyan-400">4 Cycles</button>
+              <button id="btn-zoom-10cyc" class="px-2 py-0.5 rounded bg-subcard border border-subtle text-muted hover:text-main transition">10 ms</button>
+              <button id="btn-zoom-full" class="px-2 py-0.5 rounded bg-subcard border border-subtle text-muted hover:text-main transition">Reset</button>
+            </div>
+          </div>
+
+          <!-- Axis Coordinate Subheader (Clean, outside the canvas to prevent text collision) -->
+          <div class="flex items-center justify-between text-[11px] font-mono text-dim px-1">
+            <span>Y: Amplitude (-1.0 to +1.0)</span>
+            <span>X: Time t (seconds)</span>
+          </div>
+
+          <!-- HTML5 Waveform Canvas -->
+          <div class="relative w-full rounded-lg overflow-hidden border border-subtle bg-slate-950 flex flex-col items-center justify-center">
+            <canvas id="wave-canvas" width="800" height="320" class="w-full h-[280px] sm:h-[320px] block caliper-cursor"></canvas>
+
+            <!-- Caliper Snap Actions Overlay (Top Right) -->
+            <div class="absolute top-2 right-2 flex items-center gap-1.5 bg-slate-900/85 backdrop-blur p-1 rounded-lg border border-slate-700 text-xs shadow-md">
+              <button id="btn-snap-peaks" class="px-2 py-1 rounded bg-cyan-900/50 hover:bg-cyan-800/80 text-cyan-300 border border-cyan-700 text-[11px] font-semibold transition" title="Snap calipers to two consecutive wave crests (peaks)">
+                🧲 Snap to Peaks
+              </button>
+              <button id="btn-snap-troughs" class="px-2 py-1 rounded bg-amber-900/50 hover:bg-amber-800/80 text-amber-300 border border-amber-700 text-[11px] font-semibold transition" title="Snap calipers to two consecutive wave troughs">
+                🧲 Snap to Troughs
+              </button>
+            </div>
+          </div>
+
+          <!-- Caliper Interactive Sliders & Time Zeroing -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+            <div class="subcard p-2 flex items-center justify-between gap-2 border-l-4 border-l-cyan-400">
+              <span class="font-bold text-cyan-400 whitespace-nowrap">Caliper 1:</span>
+              <span id="caliper1-readout" class="font-mono text-muted text-[11px]">t₁ = 0.00057 s</span>
+              <input type="range" id="slider-caliper1" min="0" max="1000" value="250" class="w-24 accent-cyan-400">
+            </div>
+
+            <div class="subcard p-2 flex items-center justify-between gap-2 border-l-4 border-l-amber-400">
+              <span class="font-bold text-amber-400 whitespace-nowrap">Caliper 2:</span>
+              <span id="caliper2-readout" class="font-mono text-muted text-[11px]">t₂ = 0.00284 s</span>
+              <input type="range" id="slider-caliper2" min="0" max="1000" value="500" class="w-24 accent-amber-400">
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 3: Sinusoidal Mathematical Modeling Workbench -->
+        <div class="card p-3.5 sm:p-4 flex flex-col gap-3">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-base">📐</span>
+              <h2 class="text-sm font-bold uppercase tracking-wider text-muted">
+                Sinusoidal Model Workbench
+              </h2>
+            </div>
+            
+            <!-- Model Type Selector (Sine vs Cosine) & Best-Fit Button -->
+            <div class="flex items-center gap-2 flex-wrap">
+              <div class="flex items-center bg-subcard rounded-lg border border-subtle p-0.5 text-xs font-mono">
+                <button id="btn-model-sin" class="px-2.5 py-1 rounded bg-cyan-600 text-slate-950 font-bold transition">y = sin(x)</button>
+                <button id="btn-model-cos" class="px-2.5 py-1 rounded text-muted hover:text-main font-bold transition">y = cos(x)</button>
+              </div>
+
+              <button id="btn-auto-fit" class="px-2.5 py-1 text-xs font-bold rounded bg-emerald-600 hover:bg-emerald-500 text-slate-950 transition flex items-center gap-1 shadow">
+                <span>✨</span>
+                <span>Best-Fit Regression</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Caliper Measurements Summary HUD -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+            <div class="subcard p-2 flex flex-col">
+              <span class="text-dim">Period T (Δt):</span>
+              <span id="val-period" class="font-mono text-sm font-bold text-cyan-400">0.00227 s</span>
+              <span id="val-period-ms" class="text-[10px] text-muted">2.27 ms</span>
+            </div>
+            <div class="subcard p-2 flex flex-col">
+              <span class="text-dim">Frequency f (1/T):</span>
+              <span id="val-frequency" class="font-mono text-sm font-bold text-emerald-400">440.0 Hz</span>
+              <span class="text-[10px] text-muted">Acoustic Pitch</span>
+            </div>
+            <div class="subcard p-2 flex flex-col">
+              <span class="text-dim">Wave Amplitude A:</span>
+              <span id="val-amplitude" class="font-mono text-sm font-bold text-amber-400">0.850</span>
+              <span id="val-pk-pk" class="text-[10px] text-muted">Peak-to-Peak: 1.70</span>
+            </div>
+            <div class="subcard p-2 flex flex-col">
+              <span class="text-dim">Angular Freq B (2π/T):</span>
+              <span id="val-b-ang" class="font-mono text-sm font-bold text-purple-400">2764.6 rad/s</span>
+              <span class="text-[10px] text-muted">2π × f</span>
+            </div>
+          </div>
+
+          <!-- Interactive Equation Inputs -->
+          <div class="subcard p-3 flex flex-col gap-2.5">
+            <div class="flex items-center justify-between flex-wrap gap-2 text-xs">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-main">Your Student Model:</span>
+                <span class="font-mono text-xs px-2 py-0.5 rounded bg-pink-500/20 text-pink-400 border border-pink-500/40 font-semibold" id="preview-student-equation">
+                  y = 0.850 · sin(2765.0 · (t - 0.0000)) + 0.000
+                </span>
+              </div>
+              
+              <div class="flex items-center gap-2">
+                <button id="btn-sync-calipers-to-model" class="px-2 py-0.5 rounded bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/40 text-cyan-400 text-[11px] font-bold transition" title="Transfer measurements from calipers directly into your equation coefficients">
+                  ⚡ Auto-Set from Calipers
+                </button>
+                <label class="flex items-center gap-1.5 cursor-pointer text-muted hover:text-main">
+                  <input type="checkbox" id="check-overlay-model" checked class="accent-pink-500">
+                  <span>Overlay Curve (Pink)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Parameters Grid A, B, C, D -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+              <!-- Parameter A (Amplitude) -->
+              <div class="flex flex-col gap-1">
+                <div class="flex items-center justify-between">
+                  <label for="input-param-a" class="font-semibold text-muted">Amplitude (A):</label>
+                  <span class="text-[10px] text-dim">Height</span>
+                </div>
+                <input type="number" id="input-param-a" step="0.01" value="0.85" class="input-field text-xs">
+              </div>
+
+              <!-- Parameter B (Angular Frequency) -->
+              <div class="flex flex-col gap-1">
+                <div class="flex items-center justify-between">
+                  <label for="input-param-b" class="font-semibold text-muted">B (2π / T):</label>
+                  <span class="text-[10px] text-dim">rad/s</span>
+                </div>
+                <input type="number" id="input-param-b" step="1" value="2765" class="input-field text-xs">
+              </div>
+
+              <!-- Parameter C (Horizontal / Phase Shift) -->
+              <div class="flex flex-col gap-1">
+                <div class="flex items-center justify-between">
+                  <label for="input-param-c" class="font-semibold text-muted">Phase Shift (C):</label>
+                  <span class="text-[10px] text-dim">time shift (s)</span>
+                </div>
+                <input type="number" id="input-param-c" step="0.0001" value="0.0000" class="input-field text-xs">
+              </div>
+
+              <!-- Parameter D (Vertical Shift / Midline) -->
+              <div class="flex flex-col gap-1">
+                <div class="flex items-center justify-between">
+                  <label for="input-param-d" class="font-semibold text-muted">Midline (D):</label>
+                  <span class="text-[10px] text-dim">baseline</span>
+                </div>
+                <input type="number" id="input-param-d" step="0.01" value="0.00" class="input-field text-xs">
+              </div>
+            </div>
+
+            <!-- Model Fit Accuracy Score & Best-Fit Comparison -->
+            <div class="flex items-center justify-between flex-wrap gap-2 pt-1 text-xs border-t border-subtle">
+              <div class="flex items-center gap-3">
+                <span class="text-muted">Model Accuracy:</span>
+                <span id="badge-fit-score" class="font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                  R² = 0.999 (Excellent Fit)
+                </span>
+              </div>
+              <div id="regression-formula-display" class="font-mono text-xs text-emerald-400 font-semibold hidden">
+                Best-Fit: y = 0.850 · sin(2764.6 · (t - 0.00000)) + 0.000
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- RIGHT COLUMN: Data Table, Desmos & Sheets 1-Click Export    -->
+      <!-- ============================================================ -->
+      <div class="lg:col-span-5 flex flex-col gap-4">
+
+        <!-- Export & Desmos Command Hub -->
+        <div class="card p-3.5 sm:p-4 flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-muted flex items-center gap-2">
+              <span>📋</span>
+              <span>Desmos & Spreadsheet Export</span>
+            </h2>
+            <span id="label-table-count" class="font-mono text-xs text-cyan-400 font-semibold">101 Data Points</span>
+          </div>
+
+          <!-- Highlighted Desmos Copy CTA Button -->
+          <button id="btn-copy-desmos" class="w-full py-3 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 transition shadow-lg transform active:scale-[0.99]">
+            <span class="text-lg">📋</span>
+            <span>Copy Table for Desmos (1-Click)</span>
+          </button>
+
+          <!-- Direct Desmos Instruction & Regression Formula Box -->
+          <div class="subcard p-3 flex flex-col gap-2 text-xs border-l-4 border-l-emerald-500">
+            <div class="font-bold text-main flex items-center justify-between">
+              <span>How to paste into Desmos:</span>
+              <button id="btn-copy-formula" class="text-emerald-400 hover:underline font-mono text-[11px] font-semibold" title="Copy Desmos regression formula">
+                📋 Copy Regression Code
+              </button>
+            </div>
+            <ol class="list-decimal pl-4 space-y-1 text-muted">
+              <li>Click <strong>Copy Table for Desmos</strong> above.</li>
+              <li>Click <a href="https://www.desmos.com/calculator" target="_blank" rel="noopener noreferrer" class="text-emerald-400 font-semibold underline">Open Desmos</a> and press <kbd class="px-1.5 py-0.5 rounded bg-input border border-subtle font-mono text-[11px] text-main">Ctrl + V</kbd> (it pastes as a table with columns <code class="font-mono text-emerald-400">x₁</code> and <code class="font-mono text-emerald-400">y₁</code>).</li>
+              <li>In the next expression line, type or paste:</li>
+            </ol>
+            <div class="p-2 rounded bg-input font-mono text-xs text-emerald-400 border border-subtle select-all flex items-center justify-between">
+              <span id="desmos-regression-code">y_1 ~ a * sin(b * (x_1 - c)) + d</span>
+            </div>
+          </div>
+
+          <!-- Additional Export Actions -->
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <button id="btn-download-csv" class="py-2 px-3 rounded-lg bg-subcard hover:bg-input border border-subtle text-main font-semibold flex items-center justify-center gap-1.5 transition">
+              <span>📥</span>
+              <span>Download CSV</span>
+            </button>
+            <button id="btn-copy-tsv" class="py-2 px-3 rounded-lg bg-subcard hover:bg-input border border-subtle text-main font-semibold flex items-center justify-center gap-1.5 transition">
+              <span>📋</span>
+              <span>Copy for Excel / Sheets</span>
+            </button>
+          </div>
+
+          <!-- Table Filtering / Trimming Settings -->
+          <div class="subcard p-2.5 flex flex-col gap-2 text-xs">
+            <span class="font-semibold text-muted">Data Range & Downsampling:</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div>
+                <label for="select-export-range" class="text-dim block mb-1">Export Range:</label>
+                <select id="select-export-range" class="input-field text-xs w-full py-1">
+                  <option value="calipers" selected>Between Calipers 1 & 2 (Recommended)</option>
+                  <option value="window">Full Visible Oscilloscope Window</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="select-point-density" class="text-dim block mb-1">Point Density:</label>
+                <select id="select-point-density" class="input-field text-xs w-full py-1">
+                  <option value="sweet" selected>Desmos Sweet Spot (~100 pts)</option>
+                  <option value="dense">High Density (~250 pts)</option>
+                  <option value="all">Full Audio Rate (All points)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Zero Time Checkbox -->
+            <label class="flex items-center gap-2 cursor-pointer pt-1 text-muted hover:text-main">
+              <input type="checkbox" id="check-zero-time" checked class="accent-cyan-400">
+              <span>Align time to start at t = 0.0000 s (Simplifies phase shift C!)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Scrollable Data Table Preview -->
+        <div class="card p-3 sm:p-4 flex-1 flex flex-col min-h-[300px]">
+          <div class="flex items-center justify-between pb-2 border-b border-subtle text-xs">
+            <span class="font-bold uppercase tracking-wider text-muted">Data Table Preview</span>
+            <span class="text-dim font-mono text-[11px]">(t in seconds, y in normalized amplitude)</span>
+          </div>
+
+          <div class="table-container overflow-y-auto max-h-[350px] sm:max-h-[420px] flex-1 mt-2">
+            <table class="w-full text-left font-mono text-xs border-collapse">
+              <thead class="sticky top-0 bg-card border-b border-subtle text-muted text-[11px]">
+                <tr>
+                  <th class="py-1.5 px-2">#</th>
+                  <th class="py-1.5 px-2">Time t (s)</th>
+                  <th class="py-1.5 px-2">Time (ms)</th>
+                  <th class="py-1.5 px-2">Amplitude y</th>
+                </tr>
+              </thead>
+              <tbody id="table-body" class="divide-y divide-subtle text-main">
+                <!-- Dynamically generated rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ============================================================== -->
+  <!-- Educational & Teacher / Student Lab Protocol Modal             -->
+  <!-- ============================================================== -->
+  <div id="modal-guide" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="card max-w-3xl w-full p-5 sm:p-6 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-subtle pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">📖</span>
+          <div>
+            <h2 class="text-lg font-bold text-main">Teacher & Student Lab Guide: Sinusoidal Sound Modeling</h2>
+            <p class="text-xs text-muted">Vernier Logger Pro Alternative for Chromebooks & Desmos</p>
+          </div>
+        </div>
+        <button id="btn-close-guide" class="text-muted hover:text-main text-xl font-bold p-1">&times;</button>
+      </div>
+
+      <div class="flex flex-col gap-4 text-xs sm:text-sm text-muted leading-relaxed">
+
+        <!-- Section 1: Answering the Hardware & Chromebook Question -->
+        <div class="subcard p-3.5 border-l-4 border-l-cyan-400">
+          <h3 class="font-bold text-main text-sm mb-1">Is a Chromebook / Phone Microphone Sufficient?</h3>
+          <p>
+            <strong>YES!</strong> Built-in microphones on Chromebooks and smartphones sample physical audio at <strong>44,100 to 48,000 measurements per second (44.1–48 kHz)</strong>.
+            For a standard 440 Hz tuning fork, a single sound wave cycle lasts only 0.00227 seconds (2.27 milliseconds) and contains over <strong>100 distinct data points</strong>!
+          </p>
+          <p class="mt-2 text-cyan-400 font-medium">
+            <strong>Why existing apps often failed:</strong> By default, Chrome enables voice noise cancellation, echo suppression, and automatic gain control.
+            These algorithms mistake the pure tone of a tuning fork for "steady background noise" and filter it out.
+            <strong>Sound Wave Studio explicitly bypasses these filters</strong> to capture the raw acoustic wave directly from the physical microphone capsule!
+          </p>
+        </div>
+
+        <!-- Section 2: Step-by-Step Lab Protocol -->
+        <div>
+          <h3 class="font-bold text-main text-sm mb-2">Step-by-Step Classroom Lab Protocol</h3>
+          <ol class="list-decimal pl-5 space-y-2">
+            <li>
+              <strong>Strike the Tuning Fork:</strong> Strike the fork firmly against a rubber strike pad, rubber sole of a shoe, or knee. <em>Never strike a tuning fork against hard desks or metal</em>, as this produces non-sinusoidal high-frequency clangs that distort the fundamental wave.
+            </li>
+            <li>
+              <strong>Position near Microphone:</strong> Hold the vibrating tines about 2 to 4 inches (5–10 cm) away from your Chromebook or laptop's microphone pinhole.
+            </li>
+            <li>
+              <strong>Capture the Wave:</strong>
+              Click <strong>Start Live Mic</strong>. Once you see the wave oscillating on screen, click <strong>Freeze Wave</strong> (or enable <strong>Auto-Trigger</strong>, which will automatically freeze the wave as soon as you strike the fork!).
+            </li>
+            <li>
+              <strong>Use Calipers to Measure Wave Dimensions:</strong>
+              <ul class="list-disc pl-5 mt-1 space-y-1">
+                <li>Drag <strong>Caliper 1</strong> to a wave crest (peak), and <strong>Caliper 2</strong> to the very next crest.</li>
+                <li>The difference in time is the <strong>Period T</strong>: <code class="font-mono text-cyan-400 font-semibold">T = t₂ - t₁</code>.</li>
+                <li>Calculate Frequency: <code class="font-mono text-emerald-400 font-semibold">f = 1 / T</code> (should closely match the number stamped on your tuning fork, e.g. 256 Hz, 440 Hz, 512 Hz!).</li>
+                <li>Calculate Angular Frequency: <code class="font-mono text-purple-400 font-semibold">B = 2π / T = 2π × f</code>.</li>
+                <li>Measure Peak-to-Peak height to find <strong>Amplitude A</strong>: <code class="font-mono text-amber-400 font-semibold">A = (y_max - y_min) / 2</code>.</li>
+                <li>Find Midline <strong>D</strong>: <code class="font-mono text-main font-semibold">D = (y_max + y_min) / 2</code>.</li>
+              </ul>
+            </li>
+            <li>
+              <strong>Write Your Mathematical Model:</strong>
+              Formulate your equation: <code class="font-mono text-pink-400 font-semibold">y = A · sin(B(t - C)) + D</code> (or use Cosine form!).
+              Type your parameters into the Modeling Workbench or click <strong>⚡ Auto-Set from Calipers</strong> to see if your theoretical mathematical curve aligns with your physical sound wave!
+            </li>
+            <li>
+              <strong>Transfer to Desmos:</strong>
+              Click <strong>📋 Copy Table for Desmos</strong>, open Desmos, and press <kbd class="px-1.5 py-0.5 rounded bg-input border border-subtle font-mono text-main">Ctrl + V</kbd>.
+              Type <code class="font-mono text-emerald-400 font-semibold">y_1 ~ a*sin(b*(x_1 - c)) + d</code> to see Desmos calculate the statistical regression curve!
+            </li>
+          </ol>
+        </div>
+
+        <!-- Section 3: Standard Tuning Fork Reference Table -->
+        <div>
+          <h3 class="font-bold text-main text-sm mb-2">Standard Scientific Tuning Fork Reference Values</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left font-mono text-xs border border-subtle rounded-lg">
+              <thead class="bg-subcard text-main border-b border-subtle">
+                <tr>
+                  <th class="p-2">Note</th>
+                  <th class="p-2">Frequency (f)</th>
+                  <th class="p-2">Theoretical Period (T)</th>
+                  <th class="p-2">Angular Freq (B = 2πf)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-subtle">
+                <tr>
+                  <td class="p-2 text-cyan-400 font-bold">C4 (Middle C)</td>
+                  <td class="p-2">256.0 Hz</td>
+                  <td class="p-2">0.00391 s (3.91 ms)</td>
+                  <td class="p-2">1,608.5 rad/s</td>
+                </tr>
+                <tr>
+                  <td class="p-2 text-cyan-400 font-bold">D4</td>
+                  <td class="p-2">288.0 Hz</td>
+                  <td class="p-2">0.00347 s (3.47 ms)</td>
+                  <td class="p-2">1,809.6 rad/s</td>
+                </tr>
+                <tr>
+                  <td class="p-2 text-cyan-400 font-bold">E4</td>
+                  <td class="p-2">320.0 Hz</td>
+                  <td class="p-2">0.00313 s (3.13 ms)</td>
+                  <td class="p-2">2,010.6 rad/s</td>
+                </tr>
+                <tr>
+                  <td class="p-2 text-cyan-400 font-bold">G4</td>
+                  <td class="p-2">384.0 Hz</td>
+                  <td class="p-2">0.00260 s (2.60 ms)</td>
+                  <td class="p-2">2,412.7 rad/s</td>
+                </tr>
+                <tr>
+                  <td class="p-2 text-cyan-400 font-bold">A4 (Concert A)</td>
+                  <td class="p-2">440.0 Hz</td>
+                  <td class="p-2">0.00227 s (2.27 ms)</td>
+                  <td class="p-2">2,764.6 rad/s</td>
+                </tr>
+                <tr>
+                  <td class="p-2 text-cyan-400 font-bold">C5 (High C)</td>
+                  <td class="p-2">512.0 Hz</td>
+                  <td class="p-2">0.00195 s (1.95 ms)</td>
+                  <td class="p-2">3,217.0 rad/s</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section 4: Standards Alignment -->
+        <div class="pt-2 border-t border-subtle flex items-center justify-between flex-wrap gap-2 text-xs">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="font-bold text-main">Standards Alignment:</span>
+            <span class="px-2 py-0.5 rounded bg-cyan-900/40 text-cyan-300 border border-cyan-700">NGSS HS-PS4-1</span>
+            <span class="px-2 py-0.5 rounded bg-purple-900/40 text-purple-300 border border-purple-700">CCSS.MATH.F-TF.5</span>
+            <span class="px-2 py-0.5 rounded bg-amber-900/40 text-amber-300 border border-amber-700">SEP 5: Computational Thinking</span>
+          </div>
+          <button id="btn-close-guide-footer" class="px-3 py-1.5 rounded bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold transition">
+            Got it, Let's Analyze!
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-notification" class="card py-2.5 px-4 flex items-center gap-2 text-xs font-semibold shadow-xl border border-cyan-400">
+    <span id="toast-icon">📋</span>
+    <span id="toast-message">Table copied to clipboard!</span>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- JavaScript Application Engine                                  -->
+  <!-- ============================================================== -->
+  <script>
+    (function() {
+      'use strict';
+
+      // -------------------------------------------------------------
+      // Application State
+      // -------------------------------------------------------------
+      const state = {
+        audioCtx: null,
+        micStream: null,
+        analyser: null,
+        gainNode: null,
+        isMicRunning: false,
+        isFrozen: false,
+        autoTrigger: false,
+        autoTriggerThreshold: 0.12,
+        gainValue: 1.5,
+        sampleRate: 44100,
+
+        // Rolling audio buffer (Float32Array)
+        bufferSize: 8192,
+        timeData: new Float32Array(8192),
+        frozenData: new Float32Array(8192),
+        hasData: false,
+
+        // Zoom & display window
+        displayStartIndex: 0,
+        displayLength: 400, // Default 4 cycles at 440 Hz (~9 ms)
+
+        // Calipers (normalized 0.0 to 1.0 within the visible window)
+        caliper1Pos: 0.25,
+        caliper2Pos: 0.50,
+        activeDraggingCaliper: null,
+
+        // Caliper Measurements
+        period: 0.00227,
+        frequency: 440.0,
+        amplitude: 0.85,
+        midline: 0.0,
+        bAngular: 2764.6,
+
+        // Student Model Parameters: y = A * sin(B * (t - C)) + D or cos
+        modelType: 'sin', // 'sin' or 'cos'
+        paramA: 0.85,
+        paramB: 2765,
+        paramC: 0.0000,
+        paramD: 0.0,
+        overlayModel: true,
+
+        // Best fit regression model
+        regressionModel: null,
+
+        // Virtual Tone Generator
+        virtualOsc: null,
+        virtualGain: null,
+        isPlayingVirtualFork: false
+      };
+
+      // -------------------------------------------------------------
+      // DOM Elements Cache
+      // -------------------------------------------------------------
+      const elements = {
+        html: document.documentElement,
+        btnThemeToggle: document.getElementById('btn-theme-toggle'),
+        themeToggleIcon: document.getElementById('theme-toggle-icon'),
+        btnFontNormal: document.getElementById('btn-font-normal'),
+        btnFontLarge: document.getElementById('btn-font-large'),
+        btnFontHuge: document.getElementById('btn-font-huge'),
+
+        btnToggleMic: document.getElementById('btn-toggle-mic'),
+        iconMic: document.getElementById('icon-mic'),
+        textToggleMic: document.getElementById('text-toggle-mic'),
+        btnFreezeWave: document.getElementById('btn-freeze-wave'),
+        textFreezeWave: document.getElementById('text-freeze-wave'),
+        btnAutoTrigger: document.getElementById('btn-auto-trigger'),
+        textAutoTrigger: document.getElementById('text-auto-trigger'),
+        audioStatusPill: document.getElementById('audio-status-pill'),
+        micStatusDot: document.getElementById('mic-status-dot'),
+        audioStatusText: document.getElementById('audio-status-text'),
+        labelSampleRate: document.getElementById('label-sample-rate'),
+
+        sliderGain: document.getElementById('slider-gain'),
+        valGain: document.getElementById('val-gain'),
+        selectVirtualFork: document.getElementById('select-virtual-fork'),
+        btnPlayFork: document.getElementById('btn-play-fork'),
+        btnSampleFork: document.getElementById('btn-sample-fork'),
+
+        waveCanvas: document.getElementById('wave-canvas'),
+        waveModeBadge: document.getElementById('wave-mode-badge'),
+        btnZoom2Cyc: document.getElementById('btn-zoom-2cyc'),
+        btnZoom4Cyc: document.getElementById('btn-zoom-4cyc'),
+        btnZoom10Cyc: document.getElementById('btn-zoom-10cyc'),
+        btnZoomFull: document.getElementById('btn-zoom-full'),
+        btnSnapPeaks: document.getElementById('btn-snap-peaks'),
+        btnSnapTroughs: document.getElementById('btn-snap-troughs'),
+
+        sliderCaliper1: document.getElementById('slider-caliper1'),
+        sliderCaliper2: document.getElementById('slider-caliper2'),
+        caliper1Readout: document.getElementById('caliper1-readout'),
+        caliper2Readout: document.getElementById('caliper2-readout'),
+
+        valPeriod: document.getElementById('val-period'),
+        valPeriodMs: document.getElementById('val-period-ms'),
+        valFrequency: document.getElementById('val-frequency'),
+        valAmplitude: document.getElementById('val-amplitude'),
+        valPkPk: document.getElementById('val-pk-pk'),
+        valBAng: document.getElementById('val-b-ang'),
+
+        btnModelSin: document.getElementById('btn-model-sin'),
+        btnModelCos: document.getElementById('btn-model-cos'),
+        previewStudentEquation: document.getElementById('preview-student-equation'),
+        btnSyncCalipersToModel: document.getElementById('btn-sync-calipers-to-model'),
+        checkOverlayModel: document.getElementById('check-overlay-model'),
+        inputParamA: document.getElementById('input-param-a'),
+        inputParamB: document.getElementById('input-param-b'),
+        inputParamC: document.getElementById('input-param-c'),
+        inputParamD: document.getElementById('input-param-d'),
+        btnAutoFit: document.getElementById('btn-auto-fit'),
+        badgeFitScore: document.getElementById('badge-fit-score'),
+        regressionFormulaDisplay: document.getElementById('regression-formula-display'),
+
+        btnCopyDesmos: document.getElementById('btn-copy-desmos'),
+        btnCopyFormula: document.getElementById('btn-copy-formula'),
+        desmosRegressionCode: document.getElementById('desmos-regression-code'),
+        btnDownloadCsv: document.getElementById('btn-download-csv'),
+        btnCopyTsv: document.getElementById('btn-copy-tsv'),
+        selectExportRange: document.getElementById('select-export-range'),
+        selectPointDensity: document.getElementById('select-point-density'),
+        checkZeroTime: document.getElementById('check-zero-time'),
+        labelTableCount: document.getElementById('label-table-count'),
+        tableBody: document.getElementById('table-body'),
+
+        modalGuide: document.getElementById('modal-guide'),
+        btnOpenGuide: document.getElementById('btn-open-guide'),
+        btnCloseGuide: document.getElementById('btn-close-guide'),
+        btnCloseGuideFooter: document.getElementById('btn-close-guide-footer'),
+
+        toastNotification: document.getElementById('toast-notification'),
+        toastMessage: document.getElementById('toast-message'),
+        toastIcon: document.getElementById('toast-icon')
+      };
+
+      const ctx = elements.waveCanvas.getContext('2d');
+
+      // -------------------------------------------------------------
+      // High-Contrast Theming & Projection Modes
+      // -------------------------------------------------------------
+      function initTheme() {
+        const savedTheme = localStorage.getItem('sound_wave_theme') || 'dark';
+        applyTheme(savedTheme);
+
+        elements.btnThemeToggle.addEventListener('click', () => {
+          const isLight = elements.html.classList.contains('theme-light');
+          const newTheme = isLight ? 'dark' : 'light';
+          applyTheme(newTheme);
+          localStorage.setItem('sound_wave_theme', newTheme);
+        });
+
+        // Font scaling
+        const setFont = (fontClass) => {
+          elements.html.classList.remove('font-normal', 'font-large', 'font-huge');
+          elements.html.classList.add(fontClass);
+          localStorage.setItem('sound_wave_font', fontClass);
+          renderWaveform();
+        };
+
+        elements.btnFontNormal.addEventListener('click', () => setFont('font-normal'));
+        elements.btnFontLarge.addEventListener('click', () => setFont('font-large'));
+        elements.btnFontHuge.addEventListener('click', () => setFont('font-huge'));
+
+        const savedFont = localStorage.getItem('sound_wave_font') || 'font-normal';
+        setFont(savedFont);
+      }
+
+      function applyTheme(theme) {
+        if (theme === 'light') {
+          elements.html.classList.remove('theme-dark');
+          elements.html.classList.add('theme-light');
+          elements.themeToggleIcon.textContent = '🌙';
+          elements.btnThemeToggle.title = 'Switch to Dark Mode';
+        } else {
+          elements.html.classList.remove('theme-light');
+          elements.html.classList.add('theme-dark');
+          elements.themeToggleIcon.textContent = '☀️';
+          elements.btnThemeToggle.title = 'Switch to High-Contrast Light Mode (WCAG AAA)';
+        }
+        renderWaveform();
+      }
+
+      // -------------------------------------------------------------
+      // Web Audio Pipeline (Bypassing Voice Compression Filters)
+      // -------------------------------------------------------------
+      async function initAudioContext() {
+        if (!state.audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          state.audioCtx = new AudioContextClass();
+          state.sampleRate = state.audioCtx.sampleRate || 44100;
+          elements.labelSampleRate.textContent = `${state.sampleRate.toLocaleString()} Hz`;
+        }
+        if (state.audioCtx.state === 'suspended') {
+          await state.audioCtx.resume();
+        }
+      }
+
+      async function toggleMicrophone() {
+        if (state.isMicRunning) {
+          stopMicrophone();
+        } else {
+          await startMicrophone();
+        }
+      }
+
+      async function startMicrophone() {
+        try {
+          await initAudioContext();
+
+          // CRITICAL REQUIREMENT FOR CHROMEBOOKS & MOBILE PHONES:
+          // Disable echoCancellation, noiseSuppression, and autoGainControl so that pure tuning fork sine waves
+          // are not classified as "background fan/hum noise" and squelched or distorted!
+          const constraints = {
+            audio: {
+              echoCancellation: false,
+              noiseSuppression: false,
+              autoGainControl: false,
+              channelCount: 1,
+              sampleRate: { ideal: 44100 }
+            }
+          };
+
+          const stream = await navigator.mediaDevices.getUserMedia(constraints);
+          state.micStream = stream;
+
+          const source = state.audioCtx.createMediaStreamSource(stream);
+
+          // Digital Gain Node for adjustable sensitivity
+          state.gainNode = state.audioCtx.createGain();
+          state.gainNode.gain.value = state.gainValue;
+
+          // High-resolution Analyser Node
+          state.analyser = state.audioCtx.createAnalyser();
+          state.analyser.fftSize = state.bufferSize; // 8192 samples
+          state.analyser.smoothingTimeConstant = 0.0; // Raw real-time capture
+
+          source.connect(state.gainNode);
+          state.gainNode.connect(state.analyser);
+
+          state.isMicRunning = true;
+          state.isFrozen = false;
+          elements.btnFreezeWave.disabled = false;
+          elements.textFreezeWave.textContent = 'Freeze Wave';
+          elements.iconMic.classList.add('animate-recording');
+          elements.textToggleMic.textContent = 'Stop Mic';
+          elements.btnToggleMic.classList.replace('bg-cyan-600', 'bg-rose-600');
+          elements.btnToggleMic.classList.replace('hover:bg-cyan-500', 'hover:bg-rose-500');
+
+          elements.micStatusDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse';
+          elements.audioStatusText.textContent = 'Live Audio Streaming';
+          elements.waveModeBadge.textContent = 'Live Oscilloscope Sweep';
+          elements.waveModeBadge.className = 'px-2 py-0.5 rounded text-[11px] font-mono bg-emerald-950/80 text-emerald-300 border border-emerald-500/40';
+
+          showToast('🎙️ Live microphone active! Strike tuning fork.', 'info');
+          requestAnimationFrame(audioRenderLoop);
+
+        } catch (err) {
+          console.error('Audio capture error:', err);
+          showToast('⚠️ Microphone permission needed. Please allow microphone access in Chrome.', 'error');
+          elements.audioStatusText.textContent = 'Mic Blocked / Denied';
+          elements.micStatusDot.className = 'w-2.5 h-2.5 rounded-full bg-rose-500';
+        }
+      }
+
+      function stopMicrophone() {
+        if (state.micStream) {
+          state.micStream.getTracks().forEach(track => track.stop());
+          state.micStream = null;
+        }
+        state.isMicRunning = false;
+        elements.iconMic.classList.remove('animate-recording');
+        elements.textToggleMic.textContent = 'Start Live Mic';
+        elements.btnToggleMic.classList.replace('bg-rose-600', 'bg-cyan-600');
+        elements.btnToggleMic.classList.replace('hover:bg-rose-500', 'hover:bg-cyan-500');
+
+        elements.micStatusDot.className = 'w-2.5 h-2.5 rounded-full bg-slate-500';
+        elements.audioStatusText.textContent = 'Mic Paused';
+        if (state.hasData) {
+          elements.waveModeBadge.textContent = 'Waveform Frozen';
+        }
+      }
+
+      function toggleFreeze() {
+        if (!state.isMicRunning && !state.hasData) return;
+
+        state.isFrozen = !state.isFrozen;
+        if (state.isFrozen) {
+          state.frozenData.set(state.timeData);
+          elements.textFreezeWave.textContent = 'Unfreeze';
+          elements.btnFreezeWave.classList.replace('bg-amber-600', 'bg-emerald-600');
+          elements.btnFreezeWave.classList.replace('hover:bg-amber-500', 'hover:bg-emerald-500');
+          elements.waveModeBadge.textContent = 'Frozen Snapshot';
+          elements.waveModeBadge.className = 'px-2 py-0.5 rounded text-[11px] font-mono bg-amber-950/80 text-amber-300 border border-amber-500/40';
+
+          centerOnRisingEdge();
+          updateCaliperMeasurements();
+          updateDataTable();
+          showToast('❄️ Wave frozen! Align calipers to measure.', 'success');
+        } else {
+          elements.textFreezeWave.textContent = 'Freeze Wave';
+          elements.btnFreezeWave.classList.replace('bg-emerald-600', 'bg-amber-600');
+          elements.btnFreezeWave.classList.replace('hover:bg-emerald-500', 'hover:bg-amber-500');
+          elements.waveModeBadge.textContent = 'Live Oscilloscope Sweep';
+          elements.waveModeBadge.className = 'px-2 py-0.5 rounded text-[11px] font-mono bg-emerald-950/80 text-emerald-300 border border-emerald-500/40';
+        }
+      }
+
+      // -------------------------------------------------------------
+      // Audio Render Loop & Oscilloscope Trigger
+      // -------------------------------------------------------------
+      function audioRenderLoop() {
+        if (!state.isMicRunning) return;
+
+        if (!state.isFrozen) {
+          state.analyser.getFloatTimeDomainData(state.timeData);
+          state.hasData = true;
+
+          // Auto-trigger peak detection logic
+          if (state.autoTrigger) {
+            let maxAmp = 0;
+            for (let i = 0; i < state.timeData.length; i++) {
+              const absVal = Math.abs(state.timeData[i]);
+              if (absVal > maxAmp) maxAmp = absVal;
+            }
+
+            // If sound level crossed threshold, automatically freeze and center!
+            if (maxAmp >= state.autoTriggerThreshold) {
+              toggleFreeze();
+              return;
+            }
+          }
+
+          renderWaveform();
+        }
+
+        requestAnimationFrame(audioRenderLoop);
+      }
+
+      // Center waveform on first clean zero-crossing rising edge
+      function centerOnRisingEdge() {
+        const data = state.isFrozen ? state.frozenData : state.timeData;
+        let edgeIndex = -1;
+
+        for (let i = 1; i < data.length - 200; i++) {
+          if (data[i - 1] <= 0 && data[i] > 0 && (data[i + 1] - data[i - 1] > 0.05)) {
+            edgeIndex = i;
+            break;
+          }
+        }
+
+        if (edgeIndex !== -1 && edgeIndex < data.length - state.displayLength) {
+          state.displayStartIndex = edgeIndex;
+        } else {
+          state.displayStartIndex = 0;
+        }
+        renderWaveform();
+      }
+
+      // -------------------------------------------------------------
+      // Virtual Tuning Fork Generator
+      // -------------------------------------------------------------
+      async function playVirtualFork() {
+        await initAudioContext();
+
+        if (state.isPlayingVirtualFork) {
+          stopVirtualFork();
+          return;
+        }
+
+        const freq = parseFloat(elements.selectVirtualFork.value);
+        state.virtualOsc = state.audioCtx.createOscillator();
+        state.virtualGain = state.audioCtx.createGain();
+
+        state.virtualOsc.type = 'sine';
+        state.virtualOsc.frequency.setValueAtTime(freq, state.audioCtx.currentTime);
+
+        state.virtualGain.gain.setValueAtTime(0.01, state.audioCtx.currentTime);
+        state.virtualGain.gain.exponentialRampToValueAtTime(0.2, state.audioCtx.currentTime + 0.1);
+
+        state.virtualOsc.connect(state.virtualGain);
+        state.virtualGain.connect(state.audioCtx.destination);
+
+        state.virtualOsc.start();
+        state.isPlayingVirtualFork = true;
+        elements.btnPlayFork.textContent = '⏹️ Stop';
+        elements.btnPlayFork.classList.replace('text-cyan-400', 'text-rose-400');
+      }
+
+      function stopVirtualFork() {
+        if (state.virtualOsc) {
+          try {
+            state.virtualGain.gain.exponentialRampToValueAtTime(0.0001, state.audioCtx.currentTime + 0.05);
+            setTimeout(() => {
+              if (state.virtualOsc) {
+                state.virtualOsc.stop();
+                state.virtualOsc.disconnect();
+                state.virtualOsc = null;
+              }
+            }, 60);
+          } catch(e) {}
+        }
+        state.isPlayingVirtualFork = false;
+        elements.btnPlayFork.textContent = '🔊 Play';
+        elements.btnPlayFork.classList.replace('text-rose-400', 'text-cyan-400');
+      }
+
+      // Direct Virtual Fork Sampler (Injects pure mathematical sine wave with realistic slight decay)
+      function sampleVirtualForkDirectly() {
+        const freq = parseFloat(elements.selectVirtualFork.value);
+        const sampleRate = state.sampleRate || 44100;
+        const totalSamples = state.bufferSize;
+
+        for (let i = 0; i < totalSamples; i++) {
+          const t = i / sampleRate;
+          const amplitude = 0.85 * Math.exp(-t * 0.3);
+          state.frozenData[i] = amplitude * Math.sin(2 * Math.PI * freq * t);
+          state.timeData[i] = state.frozenData[i];
+        }
+
+        state.hasData = true;
+        state.isFrozen = true;
+        elements.btnFreezeWave.disabled = false;
+        elements.textFreezeWave.textContent = 'Unfreeze';
+        elements.waveModeBadge.textContent = `Virtual ${freq} Hz Tone Sampled`;
+        elements.waveModeBadge.className = 'px-2 py-0.5 rounded text-[11px] font-mono bg-cyan-950/80 text-cyan-300 border border-cyan-500/40';
+
+        // Auto zoom to ~4 cycles
+        const samplesPerCycle = Math.round(sampleRate / freq);
+        state.displayStartIndex = 0;
+        state.displayLength = Math.min(samplesPerCycle * 4, totalSamples);
+
+        // Position calipers on two consecutive peaks
+        state.caliper1Pos = 0.25;
+        state.caliper2Pos = 0.25 + (samplesPerCycle / state.displayLength);
+        if (state.caliper2Pos > 0.95) {
+          state.caliper1Pos = 0.125;
+          state.caliper2Pos = 0.125 + (samplesPerCycle / state.displayLength);
+        }
+
+        elements.sliderCaliper1.value = Math.round(state.caliper1Pos * 1000);
+        elements.sliderCaliper2.value = Math.round(state.caliper2Pos * 1000);
+
+        // Initialize model parameters to match the sampled tone
+        state.paramA = 0.85;
+        state.paramB = Math.round(2 * Math.PI * freq);
+        state.paramC = 0.0000;
+        state.paramD = 0.000;
+        elements.inputParamA.value = '0.85';
+        elements.inputParamB.value = state.paramB.toString();
+        elements.inputParamC.value = '0.0000';
+        elements.inputParamD.value = '0.00';
+
+        updateCaliperMeasurements();
+        updateDataTable();
+        updateStudentEquationPreview();
+        renderWaveform();
+        showToast(`✅ Virtual ${freq} Hz tone sampled! Calipers aligned.`, 'success');
+      }
+
+      // -------------------------------------------------------------
+      // Oscilloscope Canvas Rendering & Interactive Calipers
+      // -------------------------------------------------------------
+      function renderWaveform() {
+        const canvas = elements.waveCanvas;
+        const width = canvas.width;
+        const height = canvas.height;
+        const computedStyle = getComputedStyle(document.documentElement);
+
+        const bgColor = computedStyle.getPropertyValue('--canvas-bg').trim() || '#030712';
+        const gridMajor = computedStyle.getPropertyValue('--canvas-grid-major').trim() || 'rgba(56, 189, 248, 0.25)';
+        const gridMinor = computedStyle.getPropertyValue('--canvas-grid-minor').trim() || 'rgba(56, 189, 248, 0.08)';
+        const axisColor = computedStyle.getPropertyValue('--canvas-axis').trim() || '#38bdf8';
+        const waveColor = computedStyle.getPropertyValue('--canvas-wave').trim() || '#06b6d4';
+        const waveGlow = computedStyle.getPropertyValue('--canvas-wave-glow').trim() || 'rgba(6, 182, 212, 0.4)';
+        const caliper1Color = computedStyle.getPropertyValue('--canvas-caliper-1').trim() || '#38bdf8';
+        const caliper2Color = computedStyle.getPropertyValue('--canvas-caliper-2').trim() || '#f59e0b';
+        const modelColor = computedStyle.getPropertyValue('--canvas-model').trim() || '#ec4899';
+        const fitColor = computedStyle.getPropertyValue('--canvas-fit').trim() || '#10b981';
+        const textColor = computedStyle.getPropertyValue('--canvas-text').trim() || '#94a3b8';
+
+        // Clear canvas
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, width, height);
+
+        // Grid lines (8 horizontal divisions, 10 vertical divisions)
+        const vDivs = 10;
+        const hDivs = 8;
+
+        ctx.lineWidth = 1;
+        // Minor grid
+        ctx.strokeStyle = gridMinor;
+        for (let i = 1; i < vDivs * 2; i++) {
+          const x = (width / (vDivs * 2)) * i;
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, height);
+          ctx.stroke();
+        }
+        for (let j = 1; j < hDivs * 2; j++) {
+          const y = (height / (hDivs * 2)) * j;
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(width, y);
+          ctx.stroke();
+        }
+
+        // Major grid
+        ctx.strokeStyle = gridMajor;
+        for (let i = 1; i < vDivs; i++) {
+          const x = (width / vDivs) * i;
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, height);
+          ctx.stroke();
+        }
+        for (let j = 1; j < hDivs; j++) {
+          const y = (height / hDivs) * j;
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(width, y);
+          ctx.stroke();
+        }
+
+        // Center Axis Line (y = 0)
+        const centerY = height / 2;
+        ctx.strokeStyle = axisColor;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(0, centerY);
+        ctx.lineTo(width, centerY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Get active waveform data
+        const data = state.isFrozen ? state.frozenData : state.timeData;
+        const start = state.displayStartIndex;
+        const len = Math.min(state.displayLength, data.length - start);
+
+        if (!state.hasData || len <= 0) {
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          for (let x = 0; x < width; x++) {
+            const y = centerY + Math.sin(x * 0.04) * 35;
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+
+          ctx.fillStyle = textColor;
+          ctx.font = '13px Fira Code, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText('Awaiting Audio: Click "Start Live Mic" or "Direct Sample" to Begin', width / 2, centerY - 25);
+          return;
+        }
+
+        // Draw physical audio waveform
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = waveColor;
+        ctx.shadowColor = waveGlow;
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+
+        for (let i = 0; i < len; i++) {
+          const sampleIndex = start + i;
+          const sampleVal = data[sampleIndex];
+          const x = (i / (len - 1)) * width;
+          const y = centerY - (sampleVal * (height * 0.42));
+
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.shadowBlur = 0; // Reset shadow
+
+        // Time domain scale readouts (Clean, bottom left and right)
+        const timeSpanSeconds = len / state.sampleRate;
+        ctx.fillStyle = textColor;
+        ctx.font = '11px Fira Code, monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText(`Window: ${(timeSpanSeconds * 1000).toFixed(2)} ms (${len} pts)`, 10, height - 10);
+        ctx.textAlign = 'right';
+        ctx.fillText(`+1.0`, width - 8, 16);
+        ctx.fillText(` 0.0`, width - 8, centerY - 3);
+        ctx.fillText(`-1.0`, width - 8, height - 12);
+
+        // -----------------------------------------------------------
+        // Caliper 1 (Cyan) and Caliper 2 (Amber)
+        // -----------------------------------------------------------
+        const cal1X = state.caliper1Pos * width;
+        const cal2X = state.caliper2Pos * width;
+
+        drawCaliperLine(cal1X, caliper1Color, 'Caliper 1', state.caliper1Pos);
+        drawCaliperLine(cal2X, caliper2Color, 'Caliper 2', state.caliper2Pos);
+
+        // Caliper measurement span bracket (Period Δt)
+        const leftX = Math.min(cal1X, cal2X);
+        const rightX = Math.max(cal1X, cal2X);
+        const bracketY = 28;
+
+        ctx.strokeStyle = caliper1Color;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(leftX, bracketY + 8);
+        ctx.lineTo(leftX, bracketY);
+        ctx.lineTo(rightX, bracketY);
+        ctx.lineTo(rightX, bracketY + 8);
+        ctx.stroke();
+
+        ctx.fillStyle = textColor;
+        ctx.font = 'bold 11px Fira Code, monospace';
+        ctx.textAlign = 'center';
+        const periodMs = (state.period * 1000).toFixed(2);
+        ctx.fillText(`Period T = ${periodMs} ms (f ≈ ${state.frequency.toFixed(1)} Hz)`, (leftX + rightX) / 2, bracketY - 6);
+
+        // -----------------------------------------------------------
+        // Student Mathematical Model Curve Overlay
+        // y = A * sin(B * (t - C)) + D or cos
+        // -----------------------------------------------------------
+        if (state.overlayModel && elements.checkOverlayModel.checked) {
+          ctx.lineWidth = 2.2;
+          ctx.strokeStyle = modelColor;
+          ctx.setLineDash([5, 3]);
+          ctx.beginPath();
+
+          for (let i = 0; i < len; i++) {
+            const t = i / state.sampleRate;
+            let modelYVal;
+            if (state.modelType === 'cos') {
+              modelYVal = state.paramA * Math.cos(state.paramB * (t - state.paramC)) + state.paramD;
+            } else {
+              modelYVal = state.paramA * Math.sin(state.paramB * (t - state.paramC)) + state.paramD;
+            }
+            const x = (i / (len - 1)) * width;
+            const y = centerY - (modelYVal * (height * 0.42));
+
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        // -----------------------------------------------------------
+        // Best-Fit Regression Curve Overlay (If computed)
+        // -----------------------------------------------------------
+        if (state.regressionModel) {
+          const reg = state.regressionModel;
+          ctx.lineWidth = 2.0;
+          ctx.strokeStyle = fitColor;
+          ctx.setLineDash([2, 2]);
+          ctx.beginPath();
+
+          for (let i = 0; i < len; i++) {
+            const t = i / state.sampleRate;
+            let fitYVal;
+            if (state.modelType === 'cos') {
+              fitYVal = reg.A * Math.cos(reg.B * (t - reg.C)) + reg.D;
+            } else {
+              fitYVal = reg.A * Math.sin(reg.B * (t - reg.C)) + reg.D;
+            }
+            const x = (i / (len - 1)) * width;
+            const y = centerY - (fitYVal * (height * 0.42));
+
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+      }
+
+      function drawCaliperLine(x, color, label, posNormalized) {
+        const height = elements.waveCanvas.height;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 3]);
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Handle indicator triangle top & bottom
+        ctx.fillStyle = color;
+        // Top handle
+        ctx.beginPath();
+        ctx.moveTo(x - 7, 0);
+        ctx.lineTo(x + 7, 0);
+        ctx.lineTo(x, 10);
+        ctx.closePath();
+        ctx.fill();
+
+        // Bottom handle
+        ctx.beginPath();
+        ctx.moveTo(x - 7, height);
+        ctx.lineTo(x + 7, height);
+        ctx.lineTo(x, height - 10);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // -------------------------------------------------------------
+      // Interactive Caliper Dragging (Mouse & Touch)
+      // -------------------------------------------------------------
+      function initCaliperInteraction() {
+        const canvas = elements.waveCanvas;
+
+        function getNormalizedX(event) {
+          const rect = canvas.getBoundingClientRect();
+          const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+          const x = (clientX - rect.left) / rect.width;
+          return Math.max(0.01, Math.min(0.99, x));
+        }
+
+        function onPointerDown(e) {
+          const x = getNormalizedX(e);
+          const dist1 = Math.abs(x - state.caliper1Pos);
+          const dist2 = Math.abs(x - state.caliper2Pos);
+
+          if (dist1 < dist2 && dist1 < 0.15) {
+            state.activeDraggingCaliper = '1';
+          } else if (dist2 <= dist1 && dist2 < 0.15) {
+            state.activeDraggingCaliper = '2';
+          } else {
+            state.activeDraggingCaliper = dist1 < dist2 ? '1' : '2';
+          }
+
+          updateCaliperPosition(x);
+          window.addEventListener('pointermove', onPointerMove);
+          window.addEventListener('pointerup', onPointerUp);
+        }
+
+        function onPointerMove(e) {
+          if (!state.activeDraggingCaliper) return;
+          const x = getNormalizedX(e);
+          updateCaliperPosition(x);
+        }
+
+        function onPointerUp() {
+          state.activeDraggingCaliper = null;
+          window.removeEventListener('pointermove', onPointerMove);
+          window.removeEventListener('pointerup', onPointerUp);
+          updateDataTable();
+        }
+
+        canvas.addEventListener('pointerdown', onPointerDown);
+
+        // Sliders sync
+        elements.sliderCaliper1.addEventListener('input', (e) => {
+          state.caliper1Pos = parseInt(e.target.value) / 1000;
+          updateCaliperMeasurements();
+          renderWaveform();
+        });
+        elements.sliderCaliper1.addEventListener('change', updateDataTable);
+
+        elements.sliderCaliper2.addEventListener('input', (e) => {
+          state.caliper2Pos = parseInt(e.target.value) / 1000;
+          updateCaliperMeasurements();
+          renderWaveform();
+        });
+        elements.sliderCaliper2.addEventListener('change', updateDataTable);
+      }
+
+      function updateCaliperPosition(x) {
+        if (state.activeDraggingCaliper === '1') {
+          state.caliper1Pos = x;
+          elements.sliderCaliper1.value = Math.round(x * 1000);
+        } else if (state.activeDraggingCaliper === '2') {
+          state.caliper2Pos = x;
+          elements.sliderCaliper2.value = Math.round(x * 1000);
+        }
+        updateCaliperMeasurements();
+        renderWaveform();
+      }
+
+      // -------------------------------------------------------------
+      // Caliper Measurements Calculations (T, f, A, B, Midline)
+      // -------------------------------------------------------------
+      function updateCaliperMeasurements() {
+        const data = state.isFrozen ? state.frozenData : state.timeData;
+        const start = state.displayStartIndex;
+        const len = Math.min(state.displayLength, data.length - start);
+
+        if (len <= 0) return;
+
+        // Sample indices corresponding to calipers
+        const idx1 = Math.round(start + state.caliper1Pos * (len - 1));
+        const idx2 = Math.round(start + state.caliper2Pos * (len - 1));
+
+        const t1 = (idx1 - start) / state.sampleRate;
+        const t2 = (idx2 - start) / state.sampleRate;
+
+        elements.caliper1Readout.textContent = `t₁ = ${t1.toFixed(5)} s (${(t1 * 1000).toFixed(2)} ms)`;
+        elements.caliper2Readout.textContent = `t₂ = ${t2.toFixed(5)} s (${(t2 * 1000).toFixed(2)} ms)`;
+
+        const dt = Math.abs(t2 - t1);
+        state.period = dt > 0 ? dt : 0.0001;
+        state.frequency = 1 / state.period;
+        state.bAngular = 2 * Math.PI * state.frequency;
+
+        // Measure amplitude between the caliper range
+        const minIdx = Math.min(idx1, idx2);
+        const maxIdx = Math.max(idx1, idx2);
+
+        let yMin = 1.0;
+        let yMax = -1.0;
+        for (let i = minIdx; i <= maxIdx && i < data.length; i++) {
+          if (data[i] < yMin) yMin = data[i];
+          if (data[i] > yMax) yMax = data[i];
+        }
+
+        if (yMax < yMin) { yMax = 0.5; yMin = -0.5; }
+
+        const pkPk = yMax - yMin;
+        state.amplitude = pkPk / 2;
+        state.midline = (yMax + yMin) / 2;
+
+        // Update HUD
+        elements.valPeriod.textContent = `${state.period.toFixed(5)} s`;
+        elements.valPeriodMs.textContent = `${(state.period * 1000).toFixed(2)} ms`;
+        elements.valFrequency.textContent = `${state.frequency.toFixed(1)} Hz`;
+        elements.valAmplitude.textContent = state.amplitude.toFixed(3);
+        elements.valPkPk.textContent = `Pk-to-Pk: ${pkPk.toFixed(3)}`;
+        elements.valBAng.textContent = `${state.bAngular.toFixed(1)} rad/s`;
+
+        updateStudentEquationPreview();
+      }
+
+      // Transfer Caliper values directly into student model coefficients
+      function syncCalipersToModel() {
+        state.paramA = parseFloat(state.amplitude.toFixed(3));
+        state.paramB = Math.round(state.bAngular);
+        state.paramD = parseFloat(state.midline.toFixed(3));
+
+        // Determine phase shift C from Caliper 1
+        const start = state.displayStartIndex;
+        const len = Math.min(state.displayLength, (state.isFrozen ? state.frozenData : state.timeData).length - start);
+        const idx1 = Math.round(start + state.caliper1Pos * (len - 1));
+        const t1 = (idx1 - start) / state.sampleRate;
+
+        if (state.modelType === 'cos') {
+          // In cosine mode, peak is at t = C
+          state.paramC = parseFloat(t1.toFixed(5));
+        } else {
+          // In sine mode, rising zero crossing is at t = C - T/4 from peak
+          let cVal = t1 - (state.period / 4);
+          cVal = ((cVal % state.period) + state.period) % state.period;
+          state.paramC = parseFloat(cVal.toFixed(5));
+        }
+
+        elements.inputParamA.value = state.paramA.toString();
+        elements.inputParamB.value = state.paramB.toString();
+        elements.inputParamC.value = state.paramC.toString();
+        elements.inputParamD.value = state.paramD.toString();
+
+        updateStudentEquationPreview();
+        renderWaveform();
+        showToast('⚡ Model parameters synced with caliper measurements!', 'success');
+      }
+
+      // Auto Snap Calipers to consecutive peaks / troughs
+      function snapCalipers(targetType) {
+        const data = state.isFrozen ? state.frozenData : state.timeData;
+        const start = state.displayStartIndex;
+        const len = Math.min(state.displayLength, data.length - start);
+
+        if (len < 50) return;
+
+        // Find local extrema (peaks or troughs)
+        const extrema = [];
+        for (let i = 2; i < len - 2; i++) {
+          const sample = data[start + i];
+          if (targetType === 'peak') {
+            if (sample > 0.05 &&
+                sample > data[start + i - 1] && sample >= data[start + i + 1] &&
+                sample > data[start + i - 2] && sample >= data[start + i + 2]) {
+              extrema.push(i);
+            }
+          } else {
+            if (sample < -0.05 &&
+                sample < data[start + i - 1] && sample <= data[start + i + 1] &&
+                sample < data[start + i - 2] && sample <= data[start + i + 2]) {
+              extrema.push(i);
+            }
+          }
+        }
+
+        if (extrema.length >= 2) {
+          const midIdx = Math.floor(extrema.length / 2);
+          const idx1 = extrema[Math.max(0, midIdx - 1)];
+          const idx2 = extrema[Math.min(extrema.length - 1, midIdx)];
+
+          state.caliper1Pos = idx1 / (len - 1);
+          state.caliper2Pos = idx2 / (len - 1);
+          elements.sliderCaliper1.value = Math.round(state.caliper1Pos * 1000);
+          elements.sliderCaliper2.value = Math.round(state.caliper2Pos * 1000);
+
+          updateCaliperMeasurements();
+          updateDataTable();
+          renderWaveform();
+          showToast(`🧲 Calipers snapped to consecutive ${targetType}s!`, 'info');
+        } else {
+          showToast(`⚠️ Could not detect distinct ${targetType}s. Adjust zoom or input gain.`, 'warning');
+        }
+      }
+
+      // -------------------------------------------------------------
+      // Student Model Workbench & Regression Calculation
+      // -------------------------------------------------------------
+      function initModelWorkbench() {
+        const updateParams = () => {
+          state.paramA = parseFloat(elements.inputParamA.value) || 0;
+          state.paramB = parseFloat(elements.inputParamB.value) || 0;
+          state.paramC = parseFloat(elements.inputParamC.value) || 0;
+          state.paramD = parseFloat(elements.inputParamD.value) || 0;
+          updateStudentEquationPreview();
+          renderWaveform();
+        };
+
+        elements.inputParamA.addEventListener('input', updateParams);
+        elements.inputParamB.addEventListener('input', updateParams);
+        elements.inputParamC.addEventListener('input', updateParams);
+        elements.inputParamD.addEventListener('input', updateParams);
+
+        elements.checkOverlayModel.addEventListener('change', renderWaveform);
+        elements.btnAutoFit.addEventListener('click', calculateOptimalRegression);
+        elements.btnSyncCalipersToModel.addEventListener('click', syncCalipersToModel);
+
+        // Sine vs Cosine toggling
+        elements.btnModelSin.addEventListener('click', () => {
+          state.modelType = 'sin';
+          elements.btnModelSin.className = 'px-2.5 py-1 rounded bg-cyan-600 text-slate-950 font-bold transition';
+          elements.btnModelCos.className = 'px-2.5 py-1 rounded text-muted hover:text-main font-bold transition';
+          elements.desmosRegressionCode.textContent = 'y_1 ~ a * sin(b * (x_1 - c)) + d';
+          updateStudentEquationPreview();
+          renderWaveform();
+        });
+
+        elements.btnModelCos.addEventListener('click', () => {
+          state.modelType = 'cos';
+          elements.btnModelCos.className = 'px-2.5 py-1 rounded bg-cyan-600 text-slate-950 font-bold transition';
+          elements.btnModelSin.className = 'px-2.5 py-1 rounded text-muted hover:text-main font-bold transition';
+          elements.desmosRegressionCode.textContent = 'y_1 ~ a * cos(b * (x_1 - c)) + d';
+          updateStudentEquationPreview();
+          renderWaveform();
+        });
+      }
+
+      function updateStudentEquationPreview() {
+        const A = state.paramA.toFixed(3);
+        const B = state.paramB.toFixed(1);
+        const C = state.paramC.toFixed(4);
+        const D = state.paramD >= 0 ? `+ ${state.paramD.toFixed(3)}` : `- ${Math.abs(state.paramD).toFixed(3)}`;
+        const fnName = state.modelType === 'cos' ? 'cos' : 'sin';
+
+        elements.previewStudentEquation.textContent = `y = ${A} · ${fnName}(${B} · (t - ${C})) ${D}`;
+
+        calculateFitMetric();
+      }
+
+      function calculateFitMetric() {
+        const data = state.isFrozen ? state.frozenData : state.timeData;
+        const start = state.displayStartIndex;
+        const len = Math.min(state.displayLength, data.length - start);
+
+        if (!state.hasData || len < 10) return;
+
+        let ssTot = 0;
+        let ssRes = 0;
+        let yMean = 0;
+
+        for (let i = 0; i < len; i++) {
+          yMean += data[start + i];
+        }
+        yMean /= len;
+
+        for (let i = 0; i < len; i++) {
+          const t = i / state.sampleRate;
+          const yActual = data[start + i];
+          let yPred;
+          if (state.modelType === 'cos') {
+            yPred = state.paramA * Math.cos(state.paramB * (t - state.paramC)) + state.paramD;
+          } else {
+            yPred = state.paramA * Math.sin(state.paramB * (t - state.paramC)) + state.paramD;
+          }
+
+          ssTot += Math.pow(yActual - yMean, 2);
+          ssRes += Math.pow(yActual - yPred, 2);
+        }
+
+        const r2 = ssTot > 1e-7 ? Math.max(0, 1 - (ssRes / ssTot)) : 0;
+        elements.badgeFitScore.textContent = `R² = ${r2.toFixed(3)} (${r2 > 0.9 ? 'Excellent' : r2 > 0.75 ? 'Good' : 'Needs Adjustment'})`;
+      }
+
+      // Linearized Non-linear Least-Squares Regression
+      function calculateOptimalRegression() {
+        const data = state.isFrozen ? state.frozenData : state.timeData;
+        const start = state.displayStartIndex;
+        const len = Math.min(state.displayLength, data.length - start);
+
+        if (!state.hasData || len < 20) {
+          showToast('⚠️ No waveform data available for regression.', 'warning');
+          return;
+        }
+
+        const nominalB = state.bAngular > 0 ? state.bAngular : 2 * Math.PI * 440;
+        let bestB = nominalB;
+        let bestRss = Infinity;
+        let bestAlpha = 0;
+        let bestBeta = 0;
+        let bestD = 0;
+
+        const bMin = nominalB * 0.75;
+        const bMax = nominalB * 1.25;
+        const steps = 150;
+
+        for (let s = 0; s <= steps; s++) {
+          const trialB = bMin + (s / steps) * (bMax - bMin);
+
+          let suu = 0, svv = 0, suv = 0, su = 0, sv = 0, n = len;
+          let syu = 0, syv = 0, sy = 0;
+
+          for (let i = 0; i < len; i++) {
+            const t = i / state.sampleRate;
+            const y = data[start + i];
+            const u = Math.sin(trialB * t);
+            const v = Math.cos(trialB * t);
+
+            suu += u * u;
+            svv += v * v;
+            suv += u * v;
+            su += u;
+            sv += v;
+            syu += y * u;
+            syv += y * v;
+            sy += y;
+          }
+
+          const det = suu * (svv * n - sv * sv) - suv * (suv * n - sv * su) + su * (suv * sv - svv * su);
+          if (Math.abs(det) < 1e-12) continue;
+
+          const alpha = (syu * (svv * n - sv * sv) - suv * (syv * n - sv * sy) + su * (syv * sv - svv * sy)) / det;
+          const beta = (suu * (syv * n - sv * sy) - syu * (suv * n - sv * su) + su * (suv * sy - syv * su)) / det;
+          const D = (suu * (svv * sy - syv * sv) - suv * (suv * sy - syu * sv) + syu * (suv * sv - svv * su)) / det;
+
+          let rss = 0;
+          for (let i = 0; i < len; i++) {
+            const t = i / state.sampleRate;
+            const y = data[start + i];
+            const pred = alpha * Math.sin(trialB * t) + beta * Math.cos(trialB * t) + D;
+            rss += Math.pow(y - pred, 2);
+          }
+
+          if (rss < bestRss) {
+            bestRss = rss;
+            bestB = trialB;
+            bestAlpha = alpha;
+            bestBeta = beta;
+            bestD = D;
+          }
+        }
+
+        const optA = Math.sqrt(bestAlpha * bestAlpha + bestBeta * bestBeta);
+        const period = (2 * Math.PI) / bestB;
+        let optC;
+
+        if (state.modelType === 'cos') {
+          // beta cos(Bt) + alpha sin(Bt) = A cos(Bt - phi) where phi = atan2(alpha, beta)
+          const phi = Math.atan2(bestAlpha, bestBeta);
+          optC = phi / bestB;
+          optC = ((optC % period) + period) % period;
+        } else {
+          // alpha sin(Bt) + beta cos(Bt) = A sin(Bt + phi) where phi = atan2(beta, alpha) = -B C
+          const phi = Math.atan2(bestBeta, bestAlpha);
+          optC = -phi / bestB;
+          optC = ((optC % period) + period) % period;
+        }
+
+        state.regressionModel = {
+          A: optA,
+          B: bestB,
+          C: optC,
+          D: bestD
+        };
+
+        const fnName = state.modelType === 'cos' ? 'cos' : 'sin';
+        elements.regressionFormulaDisplay.textContent = `Best-Fit: y = ${optA.toFixed(3)} · ${fnName}(${bestB.toFixed(1)} · (t - ${optC.toFixed(4)})) ${bestD >= 0 ? '+' : '-'} ${Math.abs(bestD).toFixed(3)}`;
+        elements.regressionFormulaDisplay.classList.remove('hidden');
+
+        // Apply best-fit to student inputs
+        elements.inputParamA.value = optA.toFixed(3);
+        elements.inputParamB.value = bestB.toFixed(1);
+        elements.inputParamC.value = optC.toFixed(4);
+        elements.inputParamD.value = bestD.toFixed(3);
+        state.paramA = optA;
+        state.paramB = bestB;
+        state.paramC = optC;
+        state.paramD = bestD;
+
+        updateStudentEquationPreview();
+        renderWaveform();
+        showToast('✨ Calculated least-squares regression model!', 'success');
+      }
+
+      // -------------------------------------------------------------
+      // Data Table Generation & Downsampling
+      // -------------------------------------------------------------
+      function getFilteredDataPoints() {
+        const data = state.isFrozen ? state.frozenData : state.timeData;
+        const start = state.displayStartIndex;
+        const len = Math.min(state.displayLength, data.length - start);
+
+        if (!state.hasData || len <= 0) return [];
+
+        let sampleStart = start;
+        let sampleEnd = start + len - 1;
+
+        if (elements.selectExportRange.value === 'calipers') {
+          const idx1 = Math.round(start + state.caliper1Pos * (len - 1));
+          const idx2 = Math.round(start + state.caliper2Pos * (len - 1));
+          sampleStart = Math.min(idx1, idx2);
+          sampleEnd = Math.max(idx1, idx2);
+        }
+
+        const totalPointsInRange = sampleEnd - sampleStart + 1;
+        let step = 1;
+
+        const densityMode = elements.selectPointDensity.value;
+        if (densityMode === 'sweet') {
+          step = Math.max(1, Math.round(totalPointsInRange / 100));
+        } else if (densityMode === 'dense') {
+          step = Math.max(1, Math.round(totalPointsInRange / 250));
+        } else {
+          step = 1;
+        }
+
+        const zeroTime = elements.checkZeroTime.checked;
+        const points = [];
+        let count = 0;
+
+        for (let i = sampleStart; i <= sampleEnd; i += step) {
+          const rawTimeSeconds = (i - start) / state.sampleRate;
+          const tSeconds = zeroTime ? (i - sampleStart) / state.sampleRate : rawTimeSeconds;
+          const tMilliseconds = tSeconds * 1000;
+          const amplitude = data[i];
+
+          points.push({
+            row: ++count,
+            t: tSeconds,
+            tMs: tMilliseconds,
+            y: amplitude
+          });
+        }
+
+        return points;
+      }
+
+      function updateDataTable() {
+        const points = getFilteredDataPoints();
+        elements.labelTableCount.textContent = `${points.length} Data Points`;
+
+        if (points.length === 0) {
+          elements.tableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-muted">No wave data. Capture sound or sample virtual tone.</td></tr>`;
+          return;
+        }
+
+        const displayLimit = Math.min(points.length, 150);
+        let rowsHtml = '';
+
+        for (let i = 0; i < displayLimit; i++) {
+          const p = points[i];
+          rowsHtml += `
+            <tr class="hover:bg-subcard transition-colors">
+              <td class="py-1 px-2 text-dim">${p.row}</td>
+              <td class="py-1 px-2 text-cyan-400 font-semibold">${p.t.toFixed(6)}</td>
+              <td class="py-1 px-2 text-muted">${p.tMs.toFixed(3)}</td>
+              <td class="py-1 px-2 ${p.y >= 0 ? 'text-emerald-400' : 'text-amber-400'}">${p.y.toFixed(4)}</td>
+            </tr>
+          `;
+        }
+
+        if (points.length > displayLimit) {
+          rowsHtml += `
+            <tr>
+              <td colspan="4" class="py-2 px-2 text-center text-dim italic">
+                ... and ${points.length - displayLimit} more data points included in clipboard export!
+              </td>
+            </tr>
+          `;
+        }
+
+        elements.tableBody.innerHTML = rowsHtml;
+      }
+
+      // -------------------------------------------------------------
+      // 1-Click Desmos & Spreadsheet Export Functions
+      // -------------------------------------------------------------
+      function copyForDesmos() {
+        const points = getFilteredDataPoints();
+        if (points.length === 0) {
+          showToast('⚠️ No data to copy! Capture a sound wave first.', 'warning');
+          return;
+        }
+
+        let text = '';
+        points.forEach(p => {
+          text += `${p.t.toFixed(6)}\t${p.y.toFixed(5)}\n`;
+        });
+
+        navigator.clipboard.writeText(text).then(() => {
+          showToast('📋 Copied for Desmos! Press Ctrl+V in Desmos now.', 'success');
+        }).catch(err => {
+          fallbackCopyText(text);
+        });
+      }
+
+      function copyDesmosFormula() {
+        const fnName = state.modelType === 'cos' ? 'cos' : 'sin';
+        const code = `y_1 ~ a * ${fnName}(b * (x_1 - c)) + d`;
+        navigator.clipboard.writeText(code).then(() => {
+          showToast(`📋 Copied Desmos formula: ${code}`, 'success');
+        }).catch(() => {
+          fallbackCopyText(code);
+        });
+      }
+
+      function copyAsTsv() {
+        const points = getFilteredDataPoints();
+        if (points.length === 0) {
+          showToast('⚠️ No data to copy.', 'warning');
+          return;
+        }
+
+        let text = 'Time_s\tTime_ms\tAmplitude\n';
+        points.forEach(p => {
+          text += `${p.t.toFixed(6)}\t${p.tMs.toFixed(3)}\t${p.y.toFixed(5)}\n`;
+        });
+
+        navigator.clipboard.writeText(text).then(() => {
+          showToast('📋 Copied spreadsheet data to clipboard!', 'success');
+        }).catch(() => {
+          fallbackCopyText(text);
+        });
+      }
+
+      function downloadCsv() {
+        const points = getFilteredDataPoints();
+        if (points.length === 0) {
+          showToast('⚠️ No data to download.', 'warning');
+          return;
+        }
+
+        let csv = 'row,time_seconds,time_milliseconds,amplitude\n';
+        points.forEach(p => {
+          csv += `${p.row},${p.t.toFixed(6)},${p.tMs.toFixed(3)},${p.y.toFixed(5)}\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `sound_wave_${Math.round(state.frequency)}Hz_data.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showToast('📥 CSV file downloaded!', 'success');
+      }
+
+      function fallbackCopyText(text) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          showToast('📋 Copied to clipboard!', 'success');
+        } catch (err) {
+          showToast('❌ Copy failed. Please copy manually.', 'error');
+        }
+        document.body.removeChild(textArea);
+      }
+
+      // -------------------------------------------------------------
+      // Zoom & Time Window Controls
+      // -------------------------------------------------------------
+      function initZoomControls() {
+        elements.btnZoom2Cyc.addEventListener('click', () => {
+          const samplesPerCycle = Math.round(state.sampleRate / state.frequency);
+          state.displayLength = Math.max(100, Math.min(state.bufferSize, samplesPerCycle * 2.5));
+          state.caliper1Pos = 0.2;
+          state.caliper2Pos = 0.6;
+          elements.sliderCaliper1.value = 200;
+          elements.sliderCaliper2.value = 600;
+          updateCaliperMeasurements();
+          updateDataTable();
+          renderWaveform();
+        });
+
+        elements.btnZoom4Cyc.addEventListener('click', () => {
+          const samplesPerCycle = Math.round(state.sampleRate / state.frequency);
+          state.displayLength = Math.max(200, Math.min(state.bufferSize, samplesPerCycle * 4.5));
+          state.caliper1Pos = 0.25;
+          state.caliper2Pos = 0.50;
+          elements.sliderCaliper1.value = 250;
+          elements.sliderCaliper2.value = 500;
+          updateCaliperMeasurements();
+          updateDataTable();
+          renderWaveform();
+        });
+
+        elements.btnZoom10Cyc.addEventListener('click', () => {
+          state.displayLength = Math.round(state.sampleRate * 0.010);
+          updateCaliperMeasurements();
+          updateDataTable();
+          renderWaveform();
+        });
+
+        elements.btnZoomFull.addEventListener('click', () => {
+          state.displayStartIndex = 0;
+          state.displayLength = 2048;
+          state.caliper1Pos = 0.25;
+          state.caliper2Pos = 0.75;
+          elements.sliderCaliper1.value = 250;
+          elements.sliderCaliper2.value = 750;
+          updateCaliperMeasurements();
+          updateDataTable();
+          renderWaveform();
+        });
+
+        elements.btnSnapPeaks.addEventListener('click', () => snapCalipers('peak'));
+        elements.btnSnapTroughs.addEventListener('click', () => snapCalipers('trough'));
+      }
+
+      // -------------------------------------------------------------
+      // Toast & Modals
+      // -------------------------------------------------------------
+      let toastTimer = null;
+      function showToast(message, type = 'info') {
+        clearTimeout(toastTimer);
+        elements.toastMessage.textContent = message;
+
+        if (type === 'success') elements.toastIcon.textContent = '✅';
+        else if (type === 'warning') elements.toastIcon.textContent = '⚠️';
+        else if (type === 'error') elements.toastIcon.textContent = '❌';
+        else elements.toastIcon.textContent = 'ℹ️';
+
+        elements.toastNotification.classList.add('show');
+        toastTimer = setTimeout(() => {
+          elements.toastNotification.classList.remove('show');
+        }, 3400);
+      }
+
+      function initModals() {
+        const openGuide = () => {
+          elements.modalGuide.classList.remove('hidden');
+          elements.modalGuide.classList.add('flex');
+        };
+        const closeGuide = () => {
+          elements.modalGuide.classList.add('hidden');
+          elements.modalGuide.classList.remove('flex');
+        };
+
+        elements.btnOpenGuide.addEventListener('click', openGuide);
+        elements.btnCloseGuide.addEventListener('click', closeGuide);
+        elements.btnCloseGuideFooter.addEventListener('click', closeGuide);
+        elements.modalGuide.addEventListener('click', (e) => {
+          if (e.target === elements.modalGuide) closeGuide();
+        });
+      }
+
+      // -------------------------------------------------------------
+      // Event Listeners Binding
+      // -------------------------------------------------------------
+      function initEventListeners() {
+        elements.btnToggleMic.addEventListener('click', toggleMicrophone);
+        elements.btnFreezeWave.addEventListener('click', toggleFreeze);
+
+        elements.btnAutoTrigger.addEventListener('click', () => {
+          state.autoTrigger = !state.autoTrigger;
+          if (state.autoTrigger) {
+            elements.btnAutoTrigger.classList.replace('bg-purple-600/30', 'bg-purple-600');
+            elements.btnAutoTrigger.style.backgroundColor = '#9333ea';
+            elements.btnAutoTrigger.style.color = '#ffffff';
+            elements.textAutoTrigger.textContent = 'Auto-Trigger: ON';
+            showToast('⚡ Auto-Trigger armed! Strike tuning fork.', 'info');
+          } else {
+            elements.btnAutoTrigger.style.backgroundColor = 'var(--btn-trigger-off-bg)';
+            elements.btnAutoTrigger.style.color = 'var(--btn-trigger-off-text)';
+            elements.textAutoTrigger.textContent = 'Auto-Trigger: OFF';
+          }
+        });
+
+        elements.sliderGain.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          state.gainValue = val;
+          elements.valGain.textContent = `${val.toFixed(1)}x`;
+          if (state.gainNode) {
+            state.gainNode.gain.value = val;
+          }
+        });
+
+        elements.btnPlayFork.addEventListener('click', playVirtualFork);
+        elements.btnSampleFork.addEventListener('click', sampleVirtualForkDirectly);
+
+        elements.btnCopyDesmos.addEventListener('click', copyForDesmos);
+        elements.btnCopyFormula.addEventListener('click', copyDesmosFormula);
+        elements.btnCopyTsv.addEventListener('click', copyAsTsv);
+        elements.btnDownloadCsv.addEventListener('click', downloadCsv);
+
+        elements.selectExportRange.addEventListener('change', updateDataTable);
+        elements.selectPointDensity.addEventListener('change', updateDataTable);
+        elements.checkZeroTime.addEventListener('change', updateDataTable);
+
+        window.addEventListener('resize', renderWaveform);
+      }
+
+      // -------------------------------------------------------------
+      // Initialization
+      // -------------------------------------------------------------
+      function init() {
+        initTheme();
+        initCaliperInteraction();
+        initModelWorkbench();
+        initZoomControls();
+        initModals();
+        initEventListeners();
+
+        // Sample 440 Hz Concert A by default
+        sampleVirtualForkDirectly();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+
+    })();
+  </script>
+</body>
+</html>

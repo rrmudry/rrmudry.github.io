@@ -3,6 +3,24 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-09-29 — Sound Wave Studio: Chromebook Tuning Fork Oscilloscope & Desmos Fitter
+
+**Pattern Added**: `tuning-fork-oscilloscope-sinusoidal-modeling.md`.
+
+**Changes**:
+- **New Standalone Web Application (`sound-wave-lab/index.html`)**:
+  - Developed a Chromebook- and mobile-ready sound wave laboratory solving the deprecated Vernier Logger Pro / missing microphone dilemma for math and physics teachers.
+  - **Chromebook Audio Processing Bypass**: Configured WebRTC `getUserMedia` to explicitly disable `echoCancellation`, `noiseSuppression`, and `autoGainControl`, preventing Chrome from squelching pure tuning fork sine waves as background fan/hum noise.
+  - **Zero-Hardware Virtual Tone Generator**: Built-in Web Audio synthesizer with standard scientific tuning forks (256 Hz C4, 288 Hz D4, 320 Hz E4, 341.3 Hz F4, 384 Hz G4, 426.7 Hz A4, 440 Hz Concert A, 512 Hz C5) with 1-click Direct Sampling into the oscilloscope buffer for students without physical tuning forks or mic access.
+  - **Auto-Trigger & Vernier Calipers**: Rising-edge zero-crossing auto-trigger locks waves in place; draggable Calipers 1 & 2 measure Period $T = \Delta t$, Frequency $f = 1/T$, Peak-to-Peak $\Delta y$, Amplitude $A$, and Midline $D$.
+  - **Sinusoidal Modeling Workbench**: Interactive parameter builder for both $y = A \sin(B(t - C)) + D$ and $y = A \cos(B(t - C)) + D$, live curve overlay on real audio data, "Auto-Set from Calipers" synchronization, and real-time $R^2$ accuracy scoring.
+  - **In-App Non-Linear Least-Squares Regression**: Grid-search and linearized least-squares engine solves for optimal regression curve in $<5\text{ ms}$, rendering a benchmark curve to compare with student work.
+  - **1-Click Desmos Integration**: Copies TSV table to clipboard optimized for Desmos (~100 points, zero-time alignment) with 1-click regression formula copying (`y_1 ~ a*sin(b*(x_1-c))+d`).
+  - **Classroom Accessibility & Projection**: High-contrast Light Mode (WCAG AAA $\ge 14:1$), dark oscilloscope mode, universal root font scaling (Normal, Large, Projector), dynamic canvas re-rendering, and zero-scroll sticky top bar.
+- **Site Integration (`index.html`, `unit6-dashboard.html`)**:
+  - Added launch cards on the homepage simulator grid and Unit 6 Waves & Radiation dashboard.
+- **Timestamp Refreshed**: Executed `scripts/update-timestamp.js` updating site deployment timestamp in `partials/footer.html`.
+
 ## 2026-09-28 — Daily Lesson Update & Alignment Verification
 
 **Changes**:
