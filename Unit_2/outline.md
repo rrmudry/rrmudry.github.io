@@ -235,10 +235,10 @@ This unit follows the classical and cognitive progression:
 *   **Day 24 (2026-10-01): Mass as the Quantitative Measure of Inertia**
     *   *Bell-Ringer:* Mass vs. Weight across the Solar System (Free Response): Why is an object's mass in kilograms identical on Earth, the Moon, and in deep space, while its weight in Newtons changes drastically depending on location?
     *   *Focus:* Mass (kg) as the quantitative measure of inertia (resistance to changes in motion) vs. Weight (N) as the gravitational force acting on mass: `W = F_g = m · g`. Invariance of inertial mass across the universe.
-    *   *Activity:* Mystery Inertia Shakers & Inertia Balance: Blindfolded students shake sealed cans filled with cotton, wood, and lead horizontally (isolated from vertical gravity) to rank inertia purely by resistance to acceleration, followed by measuring oscillation frequencies on an inertia balance.
+    *   *Activity:* Zero-G Mass, Weight & Inertia Studio: Students isolate mass as the intrinsic measure of inertia using 3 interactive stations (Volume Chamber, Planetary Scale (Earth, Moon, Mars, Deep Space), and Zero-G Nudge/Catch Chamber), concluding with the 5-question Deep Space Mythbusters Arena (4 / 5 required for certificate).
     *   *Essential Question:* Why would an anvil have the exact same inertia in deep space as it does on Earth, even though its weight in space is zero Newtons?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Lab / Activity
-    *   *Links:* Mystery Mass Shakers Lab Sheet *(Planned In-Class)*, Mass vs. Weight Reference Guide *(Planned In-Class)*
+    *   *Links:* [Zero-G Inertia Studio](Unit_2/mass_weight_studio/index.html), Mass vs. Weight Reference Guide *(Planned In-Class)*
 
 *   **Day 25 (2026-10-02): The Force Toolkit: Types of Forces & Free-Body Diagrams (FBDs)**
     *   *Bell-Ringer:* Free-Body Diagram Vector Modeling (CAST Challenge): Elevator passenger telemetry during upward acceleration (+2.0 m/s²). Students evaluate why upward Normal force exceeds downward gravitational pull (`840 N > 700 N`), calculate net acceleration, and explain apparent weightlessness during free fall.

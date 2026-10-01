@@ -3,6 +3,21 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-09-30 — Mass, Weight & Zero-G Inertia Studio (Unit 2 Day 24)
+
+**Changes**:
+- **New Interactive Webapp (`Unit_2/mass_weight_studio/`)**: Built from `Unit_2/mass_weight_studio_plan.md`. Vanilla HTML/CSS/JS, no dependencies.
+  - Station 1 Volume Chamber: isometric laser calipers (L × W × H) and a displacement tank (60 × 60 cm footprint, 3.6 L per cm). Mass is never shown here.
+  - Station 2 Planetary Gravity Platform: damped analog needle + LED readout for Earth, Moon, Mars, Jupiter, and Deep Space, with a locked-mass vs. changing-weight banner (W = m · g).
+  - Station 3 Zero-G Inertia Chamber: Nudge Test (identical push, drift speed depends only on mass) and Airlock Catch (0 N forward force, barrier dent grows with mass, cargo is lost through the airlock if not caught). Stays qualitative, with no F = m · a.
+  - Mastery Arena (Mythbusters: Deep Space Edition): 5 questions with randomized numbers and option order, one locked-in answer each. Q4 ranks 3 randomized sealed crates (the biggest crate is never the most massive). Passing is 4 / 5, which awards a certificate with a SHA-256 verification code (FNV fallback) and a Copy Submission Summary button for Google Classroom.
+  - An evidence log fills in automatically. State persists in `localStorage` so a refresh can't re-roll the crates. Retake generates new crates and scenarios and increments the attempt counter.
+  - Includes high-contrast light mode, 16/20/24 px root font scaling, and a sticky dock.
+- **Google Sign-In & Firestore Grading (`js/auth.js`)**: A full-screen sign-in gate requires an `@orangeusd.org` account (or a teacher email). Progress (`studioState`) saves with a 1.5 s debounce to `student_results/unit2_day24_mass_weight_studio/students/{studentId}`, with a per-student `localStorage` copy as an offline fallback (whichever has the newer `savedAt` wins on load). Grade is 10 pts: 5 pts × (filled Evidence Log cells / 42), where the cells are 7 objects × volume, Earth/Mars/Deep-Space weight, nudge speed, and barrier dent ('lost' doesn't count), plus 1 pt per correct question. Both halves are kept as best-ever values, so retakes never lower the grade. Writes `score` (0–10), `maxScore`/`maxPoints: 10`, and `percentage` for `sync-cli.js` and `data_export.html`. The parent doc and registry come from `deploy-assignment.js --id unit2_day24_mass_weight_studio`.
+- **Guest Mode**: "Continue as Guest" on the sign-in gate saves only to `localStorage` (`mws_state_guest`) and never writes to Firestore or the gradebook. "Sign in for credit" reloads the page into the student's account, and their guest progress carries over if the account has no saved progress yet.
+- **Task Clarity Scaffolding (for students who stall at the start)**: A "Read this first" mission briefing appears on the first visit. A mission bar (always at the top) shows the task, per-station progress tiles (Volume 7, Weight 21, Inertia 14, Arena 5), and a 👉 NEXT STEP line with a Go → button that switches tab/object/planet/mode and pulses the button to press. Each station panel opens with a "✅ DO THIS" box, object chips show ✓ or n/3 progress for the current station, and a toast confirms each new Evidence Log cell. Verified: pressing only Go → (plus the pulsed button) fills all 42 cells.
+- **Site Integration**: Day 24 in `assets/lessons-data.js` (activity, link, active assignment), `Unit_2/outline.md`, `unit2-dashboard.html`, and `resources.html`. Timestamp refreshed.
+
 ## 2026-09-30 — Daily Lesson Update & Concept Chat Persona Compliance
 
 **Changes**:

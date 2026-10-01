@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mass, Weight &amp; Zero-G Inertia Studio</title>
+  <meta name="description" content="Unit 2 Day 24: Isolate mass as the measure of inertia. Compare volume, weight across the solar system, and zero-g inertia, then pass the Deep Space Mythbusters arena.">
+  <link rel="icon" type="image/svg+xml" href="../../assets/unit2-favicon.svg">
+
+  <!-- Google Fonts: Outfit & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Apply saved theme & font size before first paint (no flash) -->
+  <script>
+    try {
+      if (localStorage.getItem('mws_theme') === 'light') document.documentElement.classList.add('theme-light');
+      var f = { normal: 16, large: 20, huge: 24 }[localStorage.getItem('mws_font')];
+      if (f) document.documentElement.style.fontSize = f + 'px';
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase (compat SDK, same as the rest of the site) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
+</head>
+<body>
+
+  <!-- Sign-in gate: nothing is usable until a school Google account is signed in -->
+  <div id="loginGate" class="login-gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+    <div class="gate-card">
+      <div class="gate-icon" aria-hidden="true">🛰️</div>
+      <h1 id="gateTitle" class="gate-title">Mass, Weight &amp; Zero-G Inertia Studio</h1>
+      <p class="gate-sub">Unit 2 · Day 24</p>
+      <p class="gate-text">Sign in with your <strong>@orangeusd.org</strong> Google account. Your measurements and answers save to your account automatically, so you can pick up where you left off on any Chromebook.</p>
+      <div class="gate-grading">
+        <div><span class="gate-pts">5 pts</span> Fill in the Evidence Log by testing every object at every station</div>
+        <div><span class="gate-pts">5 pts</span> Answer the 5 Mythbusters questions correctly</div>
+      </div>
+      <button type="button" id="btnGateSignIn" class="btn-google">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" width="20" height="20">
+        Sign in with Google
+      </button>
+      <div class="gate-guest">
+        <button type="button" id="btnGateGuest" class="btn-guest">Continue as Guest</button>
+        <p class="gate-guest-note">Guest progress stays on this device only and is <strong>not graded</strong>.</p>
+      </div>
+      <p id="gateStatus" class="gate-status" aria-live="polite"></p>
+      <p id="gateError" class="gate-error" role="alert" hidden></p>
+    </div>
+  </div>
+
+  <!-- Sticky dock: header + station navigation -->
+  <div class="sticky-dock">
+    <header class="app-header">
+      <div class="header-left">
+        <span class="app-icon" aria-hidden="true">🛰️</span>
+        <div>
+          <h1 class="app-title">Mass, Weight &amp; Zero-G Inertia Studio</h1>
+          <p class="app-subtitle">Unit 2 · Day 24: Mass is the measure of inertia. Not weight. Not size.</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="font-toggle-group" role="group" aria-label="Text size for classroom projection">
+          <span class="font-label">Text:</span>
+          <button type="button" class="font-btn active" data-size="normal">Normal</button>
+          <button type="button" class="font-btn" data-size="large">Large</button>
+          <button type="button" class="font-btn" data-size="huge">🖥️ Projector</button>
+        </div>
+        <button type="button" id="btnSound" class="btn-tool" title="Toggle sound effects">🔊 Sound: ON</button>
+        <button type="button" id="btnTheme" class="btn-tool" title="Toggle high-contrast light / dark theme">☀️ Light Mode</button>
+        <a href="../../unit2-dashboard.html" class="btn-tool" title="Back to the Unit 2 Dashboard">🏠 Unit 2</a>
+        <div id="userChip" class="user-chip" hidden>
+          <span id="saveIndicator" class="save-indicator save-busy" aria-live="polite">⏳ Saving…</span>
+          <span id="userName" class="user-name"></span>
+          <button type="button" id="btnSignOut" class="btn-signout" title="Sign out">Sign out</button>
+          <button type="button" id="btnChipSignIn" class="btn-signout btn-chip-signin" title="Sign in to get credit" hidden>Sign in for credit</button>
+        </div>
+      </div>
+    </header>
+
+    <nav class="station-bar" role="tablist" aria-label="Diagnostic stations">
+      <button type="button" class="tab-btn active" role="tab" data-tab="volume" aria-selected="true">
+        <span class="tab-icon" aria-hidden="true">📐</span><span class="tab-text"><span class="tab-num">1.</span> Volume Chamber</span>
+      </button>
+      <button type="button" class="tab-btn" role="tab" data-tab="weight" aria-selected="false">
+        <span class="tab-icon" aria-hidden="true">⚖️</span><span class="tab-text"><span class="tab-num">2.</span> Gravity Platform</span>
+      </button>
+      <button type="button" class="tab-btn" role="tab" data-tab="inertia" aria-selected="false">
+        <span class="tab-icon" aria-hidden="true">🚀</span><span class="tab-text"><span class="tab-num">3.</span> Zero-G Inertia</span>
+      </button>
+      <button type="button" class="tab-btn" role="tab" data-tab="arena" aria-selected="false">
+        <span class="tab-icon" aria-hidden="true">🎯</span><span class="tab-text"><span class="tab-num">4.</span> Mastery Arena</span>
+      </button>
+    </nav>
+  </div>
+
+  <main class="studio-main">
+
+    <!-- Mission bar: what to do, what's next, and progress (always visible at the top) -->
+    <section class="mission-card" aria-label="Your mission">
+      <div class="mission-main">
+        <div class="mission-head">
+          <span class="mission-kicker">🧭 YOUR MISSION</span>
+          <button type="button" id="btnShowBriefing" class="btn-mini">❓ How does this work?</button>
+        </div>
+        <p class="mission-text">Fill in <strong>every cell</strong> of the <a href="#evidenceLog">🗂️ Evidence Log</a> by testing all 7 objects at
+          <strong>📐 Station 1</strong>, <strong>⚖️ Station 2</strong>, and <strong>🚀 Station 3</strong>.
+          Then answer the 5 questions in the <strong>🎯 Mastery Arena</strong>.</p>
+        <div class="next-step">
+          <span class="next-label">👉 NEXT STEP</span>
+          <span id="nextStepText" class="next-text">…</span>
+          <button type="button" id="btnNextStep" class="btn-next">Go →</button>
+        </div>
+      </div>
+      <div class="mission-tiles">
+        <button type="button" class="m-tile" data-goto="volume">
+          <span class="m-tile-name">📐 1 · Volume</span>
+          <span class="m-tile-count" data-prog="volume">0 / 7</span>
+          <span class="m-bar"><span data-prog-bar="volume"></span></span>
+        </button>
+        <button type="button" class="m-tile" data-goto="weight">
+          <span class="m-tile-name">⚖️ 2 · Weight</span>
+          <span class="m-tile-count" data-prog="weight">0 / 21</span>
+          <span class="m-bar"><span data-prog-bar="weight"></span></span>
+        </button>
+        <button type="button" class="m-tile" data-goto="inertia">
+          <span class="m-tile-name">🚀 3 · Inertia</span>
+          <span class="m-tile-count" data-prog="inertia">0 / 14</span>
+          <span class="m-bar"><span data-prog-bar="inertia"></span></span>
+        </button>
+        <button type="button" class="m-tile" data-goto="arena">
+          <span class="m-tile-name">🎯 4 · Arena</span>
+          <span class="m-tile-count" data-prog="arena">0 / 5</span>
+          <span class="m-bar"><span data-prog-bar="arena"></span></span>
+        </button>
+        <div class="m-score">
+          <span class="m-score-val"><span data-score="total">0</span><small> / 10</small></span>
+          <span id="scoreNote" class="m-score-note">Log <span data-score="data">0</span>/5 · Questions <span data-score="questions">0</span>/5</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Station focus card -->
+    <section class="concept-card" aria-live="polite">
+      <span id="stationBadge" class="station-badge badge-volume">STATION 1 · SPATIAL VOLUME CHAMBER</span>
+      <p id="stationDesc" class="station-desc"></p>
+      <p id="stationMyth" class="station-myth"></p>
+    </section>
+
+    <!-- Shared test-object picker -->
+    <section id="objectSection" class="object-section" aria-label="Choose a test object">
+      <span class="object-label">Pick an object to test:</span>
+      <div id="objectPicker" class="object-picker"></div>
+    </section>
+
+    <!-- Simulation stage -->
+    <div id="stageGrid" class="stage-grid">
+      <section class="viewport-card">
+
+        <!-- Station 2 golden rule banner -->
+        <div id="massBanner" class="mass-banner" hidden>
+          <div class="banner-row banner-mass">
+            <span class="banner-key">MASS <small>(quantity of matter · inertia)</small></span>
+            <span id="bannerMass" class="banner-val">50.0 kg</span>
+            <span class="banner-note">🔒 LOCKED: the same everywhere in the universe</span>
+          </div>
+          <div class="banner-row banner-weight">
+            <span class="banner-key">WEIGHT <small>(gravitational pull)</small></span>
+            <span id="bannerWeight" class="banner-val">490.0 N</span>
+            <span class="banner-note">🌍→🌕 CHANGES with local gravity</span>
+          </div>
+          <div id="bannerCalc" class="banner-calc">W = m · g</div>
+        </div>
+
+        <div class="canvas-wrapper">
+          <canvas id="mainCanvas" role="img" aria-label="Interactive simulation of the selected station"></canvas>
+        </div>
+
+        <div class="telemetry-grid">
+          <div class="tel-cell"><span id="tel1Label" class="tel-label">—</span><span id="tel1Val" class="tel-val">—</span></div>
+          <div class="tel-cell"><span id="tel2Label" class="tel-label">—</span><span id="tel2Val" class="tel-val">—</span></div>
+          <div class="tel-cell"><span id="tel3Label" class="tel-label">—</span><span id="tel3Val" class="tel-val">—</span></div>
+          <div class="tel-cell"><span id="tel4Label" class="tel-label">—</span><span id="tel4Val" class="tel-val">—</span></div>
+        </div>
+      </section>
+
+      <aside class="control-card">
+
+        <!-- ============ STATION 1: VOLUME ============ -->
+        <div id="panelVolume" class="panel-section active">
+          <h2 class="panel-title">📐 Spatial Volume Chamber</h2>
+          <div class="do-this">
+            <span class="do-title">✅ DO THIS</span>
+            <ol>
+              <li>Click an <strong>object button</strong> above the picture.</li>
+              <li>Wait for the scan to finish. Its <strong>volume</strong> is recorded in the Evidence Log.</li>
+              <li>Repeat until <strong>all 7 objects</strong> show ✓.</li>
+            </ol>
+          </div>
+          <div class="form-group">
+            <span class="form-label">Scanner mode:</span>
+            <div class="pill-grid">
+              <button type="button" class="mode-pill-btn vol-mode-btn active" data-mode="calipers">🔦 Bounding Calipers</button>
+              <button type="button" class="mode-pill-btn vol-mode-btn" data-mode="tank">💧 Displacement Tank</button>
+            </div>
+          </div>
+          <button type="button" id="btnVolumeRun" class="btn-action action-volume">🔦 Re-Run Laser Scan</button>
+          <div class="callout callout-volume">
+            <strong>Two ways to measure volume:</strong> multiply L × W × H, or sink it and see how much water it pushes aside. Both give the same answer. Neither one tells you the mass.
+          </div>
+          <div class="try-this">
+            <span class="try-title">🔬 Try this</span>
+            <ol>
+              <li>Scan the <strong>Space-Foam</strong>, then the <strong>Tungsten Anvil</strong>.</li>
+              <li>Which takes up more space? By how much?</li>
+              <li>Predict: which would be harder to shove in space? Then test it in Station 3.</li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- ============ STATION 2: WEIGHT ============ -->
+        <div id="panelWeight" class="panel-section">
+          <h2 class="panel-title">⚖️ Planetary Gravity Platform</h2>
+          <div class="do-this">
+            <span class="do-title">✅ DO THIS for each object</span>
+            <ol>
+              <li>Weigh it on <strong>🌍 Earth</strong>, then <strong>🔴 Mars</strong>, then <strong>🛰️ Deep Space</strong>.</li>
+              <li>Wait for the needle to <strong>stop moving</strong>. The weight is recorded.</li>
+              <li>Each object needs all 3 (it shows ✓ when done).</li>
+            </ol>
+          </div>
+          <div class="form-group">
+            <span class="form-label">Move the scale to:</span>
+            <div class="planet-grid">
+              <button type="button" class="planet-btn active" data-planet="earth" aria-pressed="true"><span>🌍</span> Earth <small>10 m/s²</small></button>
+              <button type="button" class="planet-btn" data-planet="moon" aria-pressed="false"><span>🌕</span> Moon <small>1.6 m/s²</small></button>
+              <button type="button" class="planet-btn" data-planet="mars" aria-pressed="false"><span>🔴</span> Mars <small>3.7 m/s²</small></button>
+              <button type="button" class="planet-btn" data-planet="jupiter" aria-pressed="false"><span>🪐</span> Jupiter <small>24.8 m/s²</small></button>
+              <button type="button" class="planet-btn planet-space" data-planet="space" aria-pressed="false"><span>🛰️</span> Deep Space <small>≈ 0 m/s² · weightless</small></button>
+            </div>
+          </div>
+          <button type="button" id="btnWeightDrop" class="btn-action action-weight">⬇️ Re-Drop Object on Scale</button>
+          <div class="callout callout-weight">
+            <strong>Watch the banner above the scale.</strong> Pick Deep Space: the weight drops to 0 N. Does the mass change?
+          </div>
+          <p class="fine-print">Inside the orbiting ISS a scale also reads 0 N, because the scale and the object fall around Earth together (see Arena Q2).</p>
+        </div>
+
+        <!-- ============ STATION 3: INERTIA ============ -->
+        <div id="panelInertia" class="panel-section">
+          <h2 class="panel-title">🚀 Zero-G Inertia Chamber</h2>
+          <div class="do-this">
+            <span class="do-title">✅ DO THIS for each object</span>
+            <ol>
+              <li><strong>Mode A:</strong> press <strong>✋ Push</strong>. Its speed is recorded.</li>
+              <li><strong>Mode B:</strong> press <strong>🚀 Release</strong>, then <strong>🛡️ Deploy Barrier</strong> to catch it. The dent is recorded.</li>
+              <li>Each object needs both (it shows ✓ when done).</li>
+            </ol>
+          </div>
+          <div class="form-group">
+            <span class="form-label">Test mode:</span>
+            <div class="pill-grid">
+              <button type="button" class="mode-pill-btn inertia-mode-btn active" data-mode="nudge">A · Nudge Test<br><small>inertia of rest</small></button>
+              <button type="button" class="mode-pill-btn inertia-mode-btn" data-mode="catch">B · Airlock Catch<br><small>inertia of motion</small></button>
+            </div>
+          </div>
+
+          <div id="nudgeControls">
+            <button type="button" id="btnPush" class="btn-action action-inertia">✋ Apply Standard Hand Push</button>
+            <p class="fine-print">Every push is identical: same robotic glove, same shove. Only the object changes.</p>
+          </div>
+          <div id="catchControls" hidden>
+            <button type="button" id="btnRelease" class="btn-action action-inertia">🚀 Release Cargo (1.0 m/s)</button>
+            <button type="button" id="btnBarrier" class="btn-action action-barrier">🛡️ Deploy Safety Catch Barrier</button>
+            <p class="fine-print">Release the cargo, then deploy the barrier before it reaches the open airlock. Or don't, and see what happens.</p>
+          </div>
+          <button type="button" id="btnInertiaReset" class="btn-secondary btn-block">⏮ Reset Chamber</button>
+
+          <div id="inertiaCallout" class="callout callout-inertia">
+            <strong>INERTIA OF REST:</strong> High mass stubbornly resists <em>starting</em> to move, even when weight is exactly 0 newtons!
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ============ MASTERY ARENA ============ -->
+    <section id="arenaSection" class="arena-section" hidden>
+      <div class="arena-intro">
+        <div class="arena-intro-text">
+          <h2 class="arena-title">🎯 Mythbusters: Deep Space Edition</h2>
+          <p>Each answer locks in when you submit. Read each scenario carefully: weight and mass are <em>not</em> the same thing.</p>
+        </div>
+        <div class="arena-name">
+          <span class="form-label">Grading</span>
+          <p>Each correct answer = <strong>1 point</strong> (5 of your 10). Your best score is kept, and retakes can only raise it. Score 4 / 5 to unlock the certificate.</p>
+        </div>
+        <div class="arena-meta">
+          <span id="arenaAttempt" class="attempt-chip">Attempt #1</span>
+          <div id="arenaProgress" class="arena-progress" aria-label="Question progress"></div>
+        </div>
+      </div>
+      <div id="arenaQuestions" class="arena-questions"></div>
+      <div id="arenaResults" class="arena-results"></div>
+    </section>
+
+    <!-- ============ EVIDENCE LOG ============ -->
+    <section id="evidenceLog" class="log-card">
+      <div class="log-head">
+        <h2 class="guide-title">🗂️ Evidence Log <small>fills in automatically as you test objects · worth 5 pts</small></h2>
+        <span class="log-count"><strong data-score="cells">0 / 42</strong> cells → <strong data-score="data">0</strong> / 5 pts</span>
+      </div>
+      <div class="table-scroll">
+        <table class="log-table">
+          <thead>
+            <tr>
+              <th scope="col">Object</th>
+              <th scope="col">📐 Volume</th>
+              <th scope="col">🌍 Weight on Earth</th>
+              <th scope="col">🔴 Weight on Mars</th>
+              <th scope="col">🛰️ Weight in Deep Space</th>
+              <th scope="col">Mass</th>
+              <th scope="col">✋ Zero-G Nudge Speed</th>
+              <th scope="col">🛡️ Barrier Dent</th>
+            </tr>
+          </thead>
+          <tbody id="logBody"></tbody>
+        </table>
+      </div>
+      <p class="fine-print">Slower nudge speed and a deeper barrier dent both mean <strong>more inertia</strong>, which means more mass.
+        To fill a <strong>Barrier Dent</strong> cell you must catch the object (letting it drift out the airlock doesn't count).
+        Retaking the arena gives you new crates; your best Evidence Log score is kept.</p>
+    </section>
+
+    <!-- ============ REFERENCE GUIDE ============ -->
+    <section class="guide-card">
+      <h2 class="guide-title">📚 Mass vs. Weight vs. Volume: Three Different Things</h2>
+      <div class="table-scroll">
+        <table class="guide-table">
+          <thead>
+            <tr>
+              <th scope="col">Quantity</th>
+              <th scope="col">What it is</th>
+              <th scope="col">Unit</th>
+              <th scope="col">Changes on the Moon or in space?</th>
+              <th scope="col">Measured with</th>
+              <th scope="col">Tells you about inertia?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row" class="g-mass">Mass (m)</th>
+              <td>The amount of matter in an object, and the measure of its <strong>inertia</strong></td>
+              <td>kg</td>
+              <td><strong>Never.</strong> 50 kg on Earth = 50 kg on the Moon = 50 kg in deep space</td>
+              <td>Pan balance (on Earth), inertia balance (anywhere)</td>
+              <td><strong>YES.</strong> Mass IS the measure of inertia</td>
+            </tr>
+            <tr>
+              <th scope="row" class="g-weight">Weight (W)</th>
+              <td>The gravitational pull on an object: W = m · g</td>
+              <td>N</td>
+              <td><strong>Yes.</strong> Earth 10, Moon 1.6, Mars 3.7, Jupiter 24.8, deep space ≈ 0 m/s²</td>
+              <td>Spring scale or bathroom scale</td>
+              <td>Only indirectly. On one planet more mass means more weight, but at 0 N the inertia is still all there</td>
+            </tr>
+            <tr>
+              <th scope="row" class="g-volume">Volume (V)</th>
+              <td>The 3D space an object takes up</td>
+              <td>cm³ or L</td>
+              <td><strong>Never.</strong> (Gravity doesn't change an object's size)</td>
+              <td>Ruler (L × W × H) or water displacement</td>
+              <td><strong>NO.</strong> A giant foam block has far less inertia than a small gold bar</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ MISSION BRIEFING (first visit + "How does this work?") ============ -->
+  <div id="modalBriefing" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="briefTitle">
+    <div class="brief-card">
+      <p class="brief-kicker">🧭 READ THIS FIRST</p>
+      <h2 id="briefTitle" class="brief-title">Your Mission: Fill in the Evidence Log</h2>
+      <p class="brief-lead">You will test <strong>7 objects</strong> at <strong>3 stations</strong>. Every test fills in a box of the
+        <strong>Evidence Log</strong> automatically. Fill in all 42 boxes, then use your evidence to answer 5 questions.</p>
+      <ol class="brief-steps">
+        <li><span class="brief-num b-volume">1</span><div><strong>📐 Volume Chamber</strong><span>Scan each object to measure how much space it takes up.</span></div></li>
+        <li><span class="brief-num b-weight">2</span><div><strong>⚖️ Gravity Platform</strong><span>Weigh each object on Earth, on Mars, and in Deep Space.</span></div></li>
+        <li><span class="brief-num b-inertia">3</span><div><strong>🚀 Zero-G Inertia</strong><span>Push each object (Mode A), then catch it with the barrier (Mode B).</span></div></li>
+        <li><span class="brief-num b-arena">4</span><div><strong>🎯 Mastery Arena</strong><span>Use your Evidence Log to answer 5 questions.</span></div></li>
+      </ol>
+      <div class="brief-grading">
+        <span><strong>5 pts</strong> Evidence Log filled in</span>
+        <span><strong>5 pts</strong> Questions answered correctly</span>
+      </div>
+      <p class="brief-tip">Stuck? Look at <strong>👉 NEXT STEP</strong> at the top of the page and press <strong>Go →</strong>.</p>
+      <button type="button" id="btnStartMission" class="btn-action action-volume">🚀 Start with Station 1</button>
+    </div>
+  </div>
+
+  <!-- Toast: confirms each Evidence Log entry -->
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <!-- ============ CERTIFICATE MODAL ============ -->
+  <div id="modalCert" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="certTitle">
+    <div class="cert-card">
+      <div class="cert-seal" aria-hidden="true">🛰️</div>
+      <p class="cert-kicker">Mass, Weight &amp; Zero-G Inertia Studio · Unit 2 · Day 24</p>
+      <h2 id="certTitle" class="cert-title">Deep Space Dynamics Specialist</h2>
+      <p class="cert-sub">This certifies that</p>
+      <div id="certName" class="cert-name">Student</div>
+      <p class="cert-desc">
+        busted the Deep Space myths by showing that <strong>mass (kg) is the measure of inertia</strong>, which is
+        unchanged in weightlessness, while <strong>weight (N)</strong> depends on local gravity and
+        <strong>volume</strong> says nothing about inertia.
+      </p>
+      <dl class="cert-grid">
+        <div><dt>Score</dt><dd id="certScore">5 / 5</dd></div>
+        <div><dt>Completed</dt><dd id="certDate">—</dd></div>
+        <div><dt>Attempt</dt><dd id="certAttempt">#1</dd></div>
+        <div><dt>Verification</dt><dd id="certCode" class="cert-code">—</dd></div>
+      </dl>
+      <div class="cert-actions">
+        <button type="button" id="btnCopySummary" class="btn-cert">📋 Copy Submission Summary</button>
+        <button type="button" id="btnPrintCert" class="btn-secondary">🖨️ Print</button>
+        <button type="button" id="btnCloseCert" class="btn-secondary">Close</button>
+      </div>
+      <p id="copyStatus" class="copy-status" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <script src="js/audio.js"></script>
+  <script src="js/objects.js"></script>
+  <script src="js/sim-volume.js"></script>
+  <script src="js/sim-weight.js"></script>
+  <script src="js/sim-inertia.js"></script>
+  <script src="js/challenges.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

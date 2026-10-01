@@ -3359,7 +3359,7 @@ const lessonsData = [
     "semester": 1,
     "isFeatured": true,
     "summary": "Establish mass as the measure of an object's inertia, fundamentally distinguishing it from gravitational weight (N) and geometric volume.",
-    "activity": "Mystery Mass Shakers & Inertia Balance: Blindfolded students shake sealed cans filled with cotton, wood, and lead horizontally (isolated from vertical gravity) to rank inertia purely by resistance to acceleration, followed by measuring oscillation frequencies on an inertia balance.",
+    "activity": "Zero-G Mass, Weight & Inertia Studio: Students isolate mass as the intrinsic measure of inertia using 3 interactive stations (Volume Chamber, Planetary Scale (Earth, Moon, Mars, Deep Space), and Zero-G Nudge/Catch Chamber), concluding with the 5-question Deep Space Mythbusters Arena.",
     "essentialQuestion": "Why would an anvil have the exact same inertia in deep space as it does on Earth, even though it weighs zero Newtons?",
     "standards": [
       "HS-PS2-1"
@@ -3377,15 +3377,18 @@ const lessonsData = [
       "explanation": "Mass is the fundamental quantity of matter and measure of inertia (resistance to acceleration), which never changes. Weight is the gravitational pull exerted on that mass by a planet (W = m · g), which depends on local gravitational field strength.",
       "defaultDuration": 3
     },
-    "links": {},
+    "links": {
+      "Zero-G Inertia Studio": "Unit_2/mass_weight_studio/index.html"
+    },
     "assignments": [
       {
-        "title": "Mystery Mass Shakers & Inertia Lab Sheet",
-        "typeLabel": "Lab Activity",
-        "submission": "In-Class Handout (Subject to Pacing)",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Rank unknown masses by horizontal resistance to acceleration without gravitational weight assistance.",
-        "status": "planned"
+        "title": "Zero-G Inertia Studio",
+        "url": "Unit_2/mass_weight_studio/index.html",
+        "typeLabel": "Interactive Physics Studio",
+        "submission": "Auto-graded on Google sign-in (10 pts: 5 Evidence Log + 5 questions)",
+        "actionLabel": "Launch Studio",
+        "description": "Investigate volume, weight across the solar system, and zero-g inertia, then earn the Deep Space Dynamics Specialist certificate in the 5-question Mythbusters Arena.",
+        "status": "active"
       }
     ],
     "resources": [
