@@ -64,10 +64,26 @@
     document.head.appendChild(script);
   }
 
+  function ensureHalloweenLoaded() {
+    if (window.HalloweenPhysics) return;
+    if (window.self !== window.top) return;
+    if (!document.querySelector('link[href*="halloween.css"]')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = `${rootPath}assets/halloween.css`;
+      document.head.appendChild(link);
+    }
+    const script = document.createElement('script');
+    script.src = `${rootPath}assets/halloween.js`;
+    script.defer = true;
+    document.body.appendChild(script);
+  }
+
   async function processPartials() {
     const nodes = document.querySelectorAll(includeSelector);
     await Promise.all(Array.from(nodes, injectPartial));
     ensureNGSSHelperLoaded();
+    ensureHalloweenLoaded();
   }
 
   if (document.readyState === 'loading') {
