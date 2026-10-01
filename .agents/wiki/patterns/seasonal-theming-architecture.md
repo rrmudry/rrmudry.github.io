@@ -18,11 +18,21 @@ High school students and teachers frequently appreciate seasonal celebrations (s
 
 ### 1. Style Module (`assets/halloween.css`)
 - **Theme Activation**: Controlled by the `.halloween-active` class on `<body>`.
+- **Spooky Typography & Text Effects**:
+  - Imported Google Font `Creepster` (`font-family: 'Creepster', cursive, sans-serif`).
+  - Flaming ember text gradient (`linear-gradient(180deg, #ffffff, #fed7aa, #ff781f, #c2410c)`).
+  - Layered spectral glows (`drop-shadow(0 0 15px rgba(249, 115, 22, 0.9)) drop-shadow(0 0 35px rgba(168, 85, 247, 0.75))`).
+  - Animated dripping spectral slime banner (`@keyframes hw-slime-flow`).
+  - Section headers adorned with crawling spiders.
+- **Giant Viewport & Card Spider Webs**:
+  - Giant top-corner catenary webs (`.hw-viewport-corner-web`) rendered with SVG tension arcs, silk radials, and dewdrop reflections.
+  - Dangling orb weaver spiders (`.hw-hanging-spider`) on suspended silk threads with 8 jointed legs and red hourglass marks.
+  - Interactive web plucking: clicking or hovering webs/spiders triggers elastic vibrations (`hw-web-shiver`), web strum sounds, and candy drops.
+  - Corner cobwebs draped on featured classroom cards (`.hw-card-web`).
 - **Eerie Atmosphere**:
   - Deep midnight radial gradients (`#030712`, `#ff781f`, `#9333ea`).
   - Atmospheric Harvest Moon with animated glow, lunar crater topography, and orbiting silhouette bats.
   - Graveyard mist drifting along the viewport bottom using CSS keyframe transforms (`hw-mist-drift`).
-  - Corner cobwebs with dangling spiders attached to the header bar.
   - Candlelight flicker animations (`@keyframes hw-flicker`) for carved pumpkin eyes and sinister grins.
   - Harmonic pendulum skeleton with anchor-point top rotation (`@keyframes hw-pendulum-swing`).
 
