@@ -3,8 +3,10 @@ service cloud.firestore {
   match /databases/{database}/documents {
     
     // Check if the user is an admin
+    // Requires a verified email so an unverified email/password account can't claim an admin or student address
     function isAdmin() {
-      return request.auth != null && request.auth.token.email != null && (
+      return request.auth != null && request.auth.token.email != null &&
+             request.auth.token.email_verified == true && (
         request.auth.token.email.lower() == "rmudry@orangeusd.org" ||
         request.auth.token.email.lower() == "ryan.mudry@gmail.com" ||
         request.auth.token.email.lower() == "ryanmudry@gmail.com"
@@ -13,9 +15,10 @@ service cloud.firestore {
 
     // Check if the user has an OUSD or approved test email domain
     function isAuthorizedEmail(email) {
-      return email.lower().matches('.*@orangeusd\\.org$') ||
+      return request.auth.token.email_verified == true && (
+             email.lower().matches('.*@orangeusd\\.org$') ||
              email.lower() == "ryan.mudry@gmail.com" ||
-             email.lower() == "ryanmudry@gmail.com";
+             email.lower() == "ryanmudry@gmail.com");
     }
 
     // Check if the user matches the student record and is authorized
@@ -26,24 +29,31 @@ service cloud.firestore {
              request.auth.token.email.lower().split('@')[0] == studentId.lower();
     }
 
+    // Check if a "<studentId>_<suffix>" doc ID belongs to the signed-in student
+    function ownsPrefixedDoc(docId) {
+      return request.auth != null &&
+             request.auth.token.email != null &&
+             isAuthorizedEmail(request.auth.token.email) &&
+             docId.lower().matches('^' + request.auth.token.email.lower().split('@')[0] + '_.*');
+    }
+
     // Global Admin Access
     match /{document=**} {
       allow read, write: if isAdmin();
     }
 
     // 1. Roster Identity Verification
-    // The labs (React/Babel) do not use Firebase Auth. They just ask for an ID.
-    // We allow ANYONE to `get` a specific student document to verify identity.
+    // Signed-in students can read only their own roster entry (labs look it up by email prefix).
     // We DO NOT allow `list` (so students or outsiders cannot scrape the roster).
     match /roster/{studentId} {
-      allow get: if true;
+      allow get: if isStudentOwner(studentId);
       allow list: if isAdmin();
       allow write: if isAdmin();
     }
 
     // 2. Student Accommodations
     match /student_accommodations/{studentId} {
-      allow get: if true;
+      allow get: if isStudentOwner(studentId);
       allow list: if isAdmin();
       allow write: if isAdmin();
     }
@@ -71,20 +81,20 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     // Individual student submissions:
-    // Students can GET their own draft/score and CREATE/UPDATE their submission.
+    // Signed-in students can GET and CREATE/UPDATE only their own submission.
     // Listing the entire collection is restricted to admin (prevents class scraping).
     match /student_results/{assignmentId}/students/{studentId} {
-      allow get: if true;
+      allow get: if isStudentOwner(studentId);
       allow list: if isAdmin();
-      allow create, update: if true;
+      allow create, update: if isStudentOwner(studentId);
       allow delete: if isAdmin();
     }
 
-    // 5. Archived Flat Results
+    // 5. Archived Flat Results (doc ID is "<studentId>_<assignment>")
     match /student_results_archive/{docId} {
-      allow get: if true;
+      allow get, create, update: if ownsPrefixedDoc(docId);
       allow list: if isAdmin();
-      allow write: if isAdmin();
+      allow delete: if isAdmin();
     }
 
     // 6. Practice Results
@@ -94,15 +104,15 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     match /practice_results/{assignmentId}/students/{studentId} {
-      allow get: if true;
+      allow get: if isStudentOwner(studentId);
       allow list: if isAdmin();
-      allow create, update: if true;
+      allow create, update: if isStudentOwner(studentId);
       allow delete: if isAdmin();
     }
 
     // 7. Archived Practice Results
     match /practice_results_archive/{docId} {
-      allow get: if true;
+      allow get: if ownsPrefixedDoc(docId);
       allow list: if isAdmin();
       allow write: if isAdmin();
     }
@@ -114,9 +124,9 @@ service cloud.firestore {
 
     // 9. Physics Labs Progress (Speed Calculator, etc.)
     match /physics_labs/{studentId} {
-      allow get: if true;
+      allow get: if isStudentOwner(studentId);
       allow list: if isAdmin();
-      allow create, update: if true;
+      allow create, update: if isStudentOwner(studentId);
       allow delete: if isAdmin();
     }
 
