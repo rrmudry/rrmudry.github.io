@@ -163,12 +163,15 @@ class SimInertia {
         else if (m >= 3) window.soundFx.playThud(0.5);
         else window.soundFx.playSoftBump();
       }
-      if (this.x - len / 2 > BAY.length + 0.5) {
+      // Fully through the airlock: announce it, but keep it coasting off-screen (Newton's 1st Law)
+      if (this.x - len / 2 > BAY.length) {
         this.phase = 'lost';
         this.message = { text: 'CARGO LOST through the airlock! With nothing to stop it, it will coast at 1.0 m/s forever.', tone: 'warn' };
         window.soundFx.playBuzzer();
         this.onMeasure(this.obj.id, 'dent', 'lost');
       }
+    } else if (this.phase === 'lost') {
+      this.x += this.v * dt;
     } else if (this.phase === 'contact') {
       // Barrier acts like a stiff spring: dent grows until the cargo is stopped
       const omega = Math.sqrt(BAY.k / this.obj.mass);
@@ -439,7 +442,9 @@ class SimInertia {
         size: 11.5 * fs, weight: 700, bg: pal.labelBg, fg: pal.accentCyan, border: pal.accentCyan, align: 'center'
       });
     }
-    if (this.v > 0.001 && this.phase !== 'contact') {
+    // Once lost cargo has coasted off the canvas, its labels go with it (pills would otherwise clamp to the edge)
+    const onScreen = ox - ow / 2 < w;
+    if (this.v > 0.001 && this.phase !== 'contact' && onScreen) {
       const arrowLen = 16 + 34 * Math.log10(1 + this.v * 10);
       const ay = midY + oh / 2 + 18;
       ctx.strokeStyle = pal.accentEmerald;
