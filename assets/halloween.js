@@ -2,7 +2,7 @@
  * HALLOWEEN THEME • OCTOBER SPECIAL EDITION
  * Mr. Mudry's High School Physics
  * Features: Jack-O'-Lanterns, Animated Skeletons, Creeping Zombies,
- * Harvest Moon, Flying Bats, Mist, and Kinematic Physics Candy!
+ * Spider Webs, Dangling Spiders, Spooky Typography, and Kinematic Physics Candy!
  */
 
 (function () {
@@ -11,10 +11,6 @@
   // Config & State
   const STORAGE_KEY_THEME = 'physics_halloween_theme_v1';
   const STORAGE_KEY_AUDIO = 'physics_halloween_sound_v1';
-  
-  // Default to active during October or if explicitly set
-  const currentMonth = new Date().getMonth(); // 9 = October (0-indexed)
-  const isOctober = currentMonth === 9 || true; // Set active for October theme request
   
   let isThemeActive = localStorage.getItem(STORAGE_KEY_THEME) !== 'disabled';
   let isAudioEnabled = localStorage.getItem(STORAGE_KEY_AUDIO) === 'enabled';
@@ -32,7 +28,7 @@
     return audioCtx;
   }
 
-  // Spooky Sound FX Synthesizers
+  // Spooky Sound FX Synthesizers (100% native Web Audio API - zero external audio assets)
   const SpookyAudio = {
     // Skeletal xylophone bone clatter
     boneRattle() {
@@ -84,7 +80,6 @@
       osc.type = 'sawtooth';
       osc2.type = 'sawtooth';
 
-      // Pitch glide down
       osc.frequency.setValueAtTime(95, now);
       osc.frequency.exponentialRampToValueAtTime(65, now + dur);
 
@@ -138,6 +133,31 @@
       });
     },
 
+    // Spider web pluck / vibration strum
+    webStrum() {
+      if (!isAudioEnabled) return;
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440, now);
+      osc.frequency.exponentialRampToValueAtTime(880, now + 0.04);
+      osc.frequency.exponentialRampToValueAtTime(220, now + 0.12);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.15, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.16);
+    },
+
     // Bat high-pitched chirp
     batChirp() {
       if (!isAudioEnabled) return;
@@ -189,8 +209,130 @@
     }
   };
 
-  // SVGs for Halloween characters
+  // High-Resolution Vector Assets (SVGs)
   const SVG_ASSETS = {
+    // Giant Viewport Corner Spider Web with Catenary Silk Rings
+    giantCornerWeb: `
+      <svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="hwWebGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="0" stdDeviation="2" flood-color="#a855f7" flood-opacity="0.8"/>
+            <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#f97316" flood-opacity="0.4"/>
+          </filter>
+        </defs>
+        <!-- Radial Spokes -->
+        <g stroke="rgba(255, 255, 255, 0.85)" stroke-linecap="round" filter="url(#hwWebGlow)">
+          <line x1="0" y1="0" x2="240" y2="0" stroke-width="2.5"/>
+          <line x1="0" y1="0" x2="235" y2="55" stroke-width="2"/>
+          <line x1="0" y1="0" x2="210" y2="115" stroke-width="2"/>
+          <line x1="0" y1="0" x2="170" y2="170" stroke-width="2.2"/>
+          <line x1="0" y1="0" x2="115" y2="210" stroke-width="2"/>
+          <line x1="0" y1="0" x2="55" y2="235" stroke-width="2"/>
+          <line x1="0" y1="0" x2="0" y2="240" stroke-width="2.5"/>
+          
+          <!-- Secondary anchor spokes -->
+          <line x1="0" y1="0" x2="238" y2="28" stroke-width="1.2" stroke-opacity="0.6"/>
+          <line x1="0" y1="0" x2="195" y2="85" stroke-width="1.2" stroke-opacity="0.6"/>
+          <line x1="0" y1="0" x2="145" y2="145" stroke-width="1.4" stroke-opacity="0.6"/>
+          <line x1="0" y1="0" x2="85" y2="195" stroke-width="1.2" stroke-opacity="0.6"/>
+          <line x1="0" y1="0" x2="28" y2="238" stroke-width="1.2" stroke-opacity="0.6"/>
+        </g>
+        
+        <!-- Catenary Web Rings (Realistic draped silk tension curves) -->
+        <g fill="none" stroke="rgba(255, 255, 255, 0.88)" stroke-linecap="round" filter="url(#hwWebGlow)">
+          <!-- Ring 1 (Inner) -->
+          <path d="M40 0 Q38 12 39 9 Q35 22 35 22 Q28 32 28 32 Q20 37 20 37 Q10 40 10 40 Q0 42 0 42" stroke-width="1.6"/>
+          <!-- Ring 2 -->
+          <path d="M85 0 Q80 22 83 19 Q72 44 72 44 Q60 62 60 62 Q42 75 42 75 Q20 83 20 83 Q0 86 0 86" stroke-width="1.8"/>
+          <!-- Ring 3 -->
+          <path d="M135 0 Q128 35 131 30 Q115 70 115 70 Q95 98 95 98 Q67 118 67 118 Q33 133 33 133 Q0 137 0 137" stroke-width="2"/>
+          <!-- Ring 4 -->
+          <path d="M185 0 Q176 48 180 42 Q158 98 158 98 Q130 135 130 135 Q92 162 92 162 Q45 182 45 182 Q0 188 0 188" stroke-width="2.2"/>
+          <!-- Ring 5 (Outer) -->
+          <path d="M235 0 Q225 60 230 54 Q202 125 202 125 Q165 172 165 172 Q118 206 118 206 Q58 232 58 232 Q0 238 0 238" stroke-width="2.4"/>
+        </g>
+
+        <!-- Dewdrop sparkles on silk intersections -->
+        <g fill="#fef08a" opacity="0.85">
+          <circle cx="85" cy="0" r="2"/>
+          <circle cx="72" cy="44" r="2.2"/>
+          <circle cx="60" cy="62" r="2.5"/>
+          <circle cx="42" cy="75" r="2.2"/>
+          <circle cx="115" cy="70" r="2.5"/>
+          <circle cx="95" cy="98" r="3"/>
+          <circle cx="130" cy="135" r="3"/>
+        </g>
+      </svg>
+    `,
+
+    // Hanging Spider with 8 jointed legs, red hourglass, glowing eyes
+    hangingSpider: `
+      <svg class="hw-spider-svg" viewBox="0 0 60 120" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="spiderGlow" cx="40%" cy="40%" r="60%">
+            <stop offset="0%" stop-color="#334155"/>
+            <stop offset="60%" stop-color="#0f172a"/>
+            <stop offset="100%" stop-color="#020617"/>
+          </radialGradient>
+        </defs>
+        <!-- Silk Thread -->
+        <line x1="30" y1="0" x2="30" y2="60" stroke="rgba(255, 255, 255, 0.9)" stroke-width="1.8" stroke-dasharray="3,1"/>
+        
+        <!-- Spider Body: Abdomen -->
+        <ellipse cx="30" cy="80" rx="10" ry="14" fill="url(#spiderGlow)" stroke="#f97316" stroke-width="1.5"/>
+        <!-- Red Hourglass marking -->
+        <polygon points="27,74 33,74 28,82 32,82" fill="#ef4444"/>
+        <polygon points="28,82 32,82 27,90 33,90" fill="#ef4444"/>
+        
+        <!-- Cephalothorax (Head) -->
+        <circle cx="30" cy="67" r="6.5" fill="#020617" stroke="#cbd5e1" stroke-width="1"/>
+        
+        <!-- Glowing Spider Eyes -->
+        <circle cx="27.5" cy="65.5" r="1.4" fill="#22c55e"/>
+        <circle cx="32.5" cy="65.5" r="1.4" fill="#22c55e"/>
+        <circle cx="25.5" cy="67.5" r="1" fill="#f97316"/>
+        <circle cx="34.5" cy="67.5" r="1" fill="#f97316"/>
+        
+        <!-- 8 Articulated Jointed Legs -->
+        <!-- Left Legs -->
+        <path d="M25 66 Q10 55 4 64" fill="none" stroke="#f8fafc" stroke-width="2" stroke-linecap="round"/>
+        <path d="M25 68 Q8 68 2 80" fill="none" stroke="#f8fafc" stroke-width="2" stroke-linecap="round"/>
+        <path d="M25 71 Q9 82 5 95" fill="none" stroke="#f8fafc" stroke-width="2" stroke-linecap="round"/>
+        <path d="M26 74 Q14 96 11 108" fill="none" stroke="#f8fafc" stroke-width="2" stroke-linecap="round"/>
+        
+        <!-- Right Legs -->
+        <path d="M35 66 Q50 55 56 64" fill="none" stroke="#f8fafc" stroke-width="2" stroke-linecap="round"/>
+        <path d="M35 68 Q52 68 58 80" fill="none" stroke="#f8fafc" stroke-width="2" stroke-linecap="round"/>
+        <path d="M35 71 Q51 82 55 95" fill="none" stroke="#f8fafc" stroke-width="2" stroke-linecap="round"/>
+        <path d="M34 74 Q46 96 49 108" fill="none" stroke="#f8fafc" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    `,
+
+    // Card Corner Spider Web
+    cardWeb: `
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="rgba(255, 255, 255, 0.85)" stroke-linecap="round" fill="none">
+          <line x1="0" y1="0" x2="100" y2="0" stroke-width="2"/>
+          <line x1="0" y1="0" x2="95" y2="35" stroke-width="1.6"/>
+          <line x1="0" y1="0" x2="72" y2="72" stroke-width="1.8"/>
+          <line x1="0" y1="0" x2="35" y2="95" stroke-width="1.6"/>
+          <line x1="0" y1="0" x2="0" y2="100" stroke-width="2"/>
+          
+          <!-- Web Arc Strands -->
+          <path d="M25 0 Q22 12 0 25" stroke-width="1.5"/>
+          <path d="M50 0 Q45 25 0 50" stroke-width="1.6"/>
+          <path d="M75 0 Q68 38 0 75" stroke-width="1.7"/>
+          <path d="M100 0 Q90 50 0 100" stroke-width="1.8"/>
+        </g>
+        <!-- Little perched card spider -->
+        <circle cx="56" cy="24" r="3.5" fill="#0f172a" stroke="#f97316" stroke-width="1"/>
+        <circle cx="58" cy="21" r="2.2" fill="#020617"/>
+        <circle cx="59" cy="20.5" r="0.7" fill="#22c55e"/>
+        <path d="M53 23 L47 18 M53 25 L46 25 M53 27 L48 31" stroke="#f8fafc" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M59 23 L65 18 M59 25 L66 25 M59 27 L64 31" stroke="#f8fafc" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+    `,
+
     // Detailed Jack-o'-Lantern with glowing interior and stem
     jackOLantern: `
       <svg viewBox="0 0 100 90" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -223,48 +365,30 @@
       </svg>
     `,
 
-    // Vector Skeleton (Pendulum / Dancer)
+    // Vector Skeleton (Harmonic Pendulum Oscillator)
     skeleton: `
       <svg viewBox="0 0 100 160" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-        <!-- Hanging String -->
         <line x1="50" y1="0" x2="50" y2="22" stroke="#e2e8f0" stroke-width="1.8" stroke-dasharray="2,2"/>
-        <!-- Skull -->
         <circle cx="50" cy="32" r="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
         <path d="M44 41 L56 41 L54 47 L46 47 Z" fill="#f8fafc" stroke="#cbd5e1"/>
-        <!-- Eye Sockets with Eerie Glow -->
         <circle cx="45" cy="31" r="3.2" fill="#020617"/>
         <circle cx="55" cy="31" r="3.2" fill="#020617"/>
         <circle cx="45" cy="31" r="1.3" fill="#22c55e"/>
         <circle cx="55" cy="31" r="1.3" fill="#22c55e"/>
-        <!-- Triangular Nose -->
         <polygon points="50,35 48,39 52,39" fill="#020617"/>
-        <!-- Teeth lines -->
         <line x1="47" y1="44" x2="47" y2="47" stroke="#020617" stroke-width="0.8"/>
         <line x1="50" y1="44" x2="50" y2="47" stroke="#020617" stroke-width="0.8"/>
         <line x1="53" y1="44" x2="53" y2="47" stroke="#020617" stroke-width="0.8"/>
-        
-        <!-- Spine -->
         <line x1="50" y1="48" x2="50" y2="92" stroke="#f8fafc" stroke-width="3" stroke-linecap="round"/>
-        
-        <!-- Ribcage -->
         <path d="M38 56 Q50 50 62 56" fill="none" stroke="#f8fafc" stroke-width="2.2" stroke-linecap="round"/>
         <path d="M36 63 Q50 57 64 63" fill="none" stroke="#f8fafc" stroke-width="2.2" stroke-linecap="round"/>
         <path d="M37 70 Q50 64 63 70" fill="none" stroke="#f8fafc" stroke-width="2.2" stroke-linecap="round"/>
         <path d="M39 77 Q50 72 61 77" fill="none" stroke="#f8fafc" stroke-width="2.2" stroke-linecap="round"/>
-        
-        <!-- Pelvis -->
         <path d="M40 88 C40 83 60 83 60 88 C55 94 45 94 40 88 Z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
-
-        <!-- Left Arm -->
         <path d="M38 56 L24 72 L18 64" fill="none" stroke="#f8fafc" stroke-width="2.2" stroke-linecap="round"/>
-        <!-- Right Arm (Waving) -->
         <path d="M62 56 L76 68 L86 54" fill="none" stroke="#f8fafc" stroke-width="2.2" stroke-linecap="round"/>
-
-        <!-- Left Leg -->
         <path d="M44 94 L42 120 L38 148" fill="none" stroke="#f8fafc" stroke-width="2.4" stroke-linecap="round"/>
         <path d="M38 148 L31 150" stroke="#f8fafc" stroke-width="2.4" stroke-linecap="round"/>
-        
-        <!-- Right Leg -->
         <path d="M56 94 L58 120 L62 148" fill="none" stroke="#f8fafc" stroke-width="2.4" stroke-linecap="round"/>
         <path d="M62 148 L69 150" stroke="#f8fafc" stroke-width="2.4" stroke-linecap="round"/>
       </svg>
@@ -283,39 +407,24 @@
             <stop offset="100%" stop-color="#581c87"/>
           </linearGradient>
         </defs>
-        <!-- Legs / Ragged Pants -->
         <rect x="32" y="76" width="10" height="34" rx="3" fill="#1e293b"/>
         <rect x="48" y="76" width="10" height="34" rx="3" fill="#0f172a"/>
         <polygon points="30,105 44,105 40,114 28,114" fill="#475569"/>
         <polygon points="48,105 62,105 60,114 48,114" fill="#334155"/>
-        
-        <!-- Torso / Tattered Shirt -->
         <path d="M28 44 L62 44 L66 78 L58 74 L52 80 L44 74 L36 79 L24 76 Z" fill="url(#zombieShirt)"/>
-        
-        <!-- Exposed Rib / Bone patch -->
         <circle cx="36" cy="58" r="3" fill="#f8fafc"/>
         <line x1="33" y1="62" x2="40" y2="62" stroke="#f8fafc" stroke-width="1.5"/>
-
-        <!-- Head -->
         <rect x="32" y="14" width="28" height="30" rx="8" fill="url(#zombieSkin)"/>
-        <!-- Brain sliver / exposed skull -->
         <path d="M38 14 Q44 6 52 14" fill="#fb7185" stroke="#f43f5e" stroke-width="1.5"/>
-        <!-- Stitches -->
         <line x1="42" y1="18" x2="48" y2="24" stroke="#1c1917" stroke-width="1.2"/>
         <line x1="41" y1="21" x2="45" y2="19" stroke="#1c1917" stroke-width="1.2"/>
         <line x1="45" y1="23" x2="49" y2="21" stroke="#1c1917" stroke-width="1.2"/>
-
-        <!-- Glowing Mismatched Eyes -->
         <circle cx="39" cy="28" r="4.5" fill="#fef08a"/>
         <circle cx="39" cy="28" r="1.8" fill="#15803d"/>
         <circle cx="51" cy="27" r="3.2" fill="#fef08a"/>
         <circle cx="51" cy="27" r="1.2" fill="#15803d"/>
-        
-        <!-- Zombie Mouth & One Tooth -->
         <path d="M38 38 Q45 42 54 37" fill="none" stroke="#1c1917" stroke-width="2" stroke-linecap="round"/>
         <rect x="42" y="37" width="2.5" height="4" fill="#fef08a"/>
-
-        <!-- Outstretched Zombie Arms -->
         <g class="hw-zombie-arm-lunge">
           <path d="M58 48 L78 44 L86 42" stroke="url(#zombieShirt)" stroke-width="7" stroke-linecap="round" fill="none"/>
           <circle cx="87" cy="42" r="4" fill="url(#zombieSkin)"/>
@@ -336,24 +445,17 @@
             <stop offset="100%" stop-color="#84cc16"/>
           </linearGradient>
         </defs>
-        <!-- Grave Dirt Mound -->
         <ellipse cx="40" cy="85" rx="36" ry="12" fill="#451a03"/>
         <polygon points="12,82 18,74 24,84" fill="#78350f"/>
         <polygon points="34,80 40,71 46,82" fill="#92400e"/>
         <polygon points="56,83 62,75 68,85" fill="#78350f"/>
-        
-        <!-- Forearm with torn sleeve -->
         <path d="M30 85 L32 50 L48 50 L50 85 Z" fill="#6b21a8"/>
         <path d="M33 50 L35 32 L47 32 L47 50 Z" fill="url(#rottingArm)"/>
-        
-        <!-- Palm and grasping fingers -->
         <ellipse cx="40" cy="30" rx="9" ry="7" fill="url(#rottingArm)"/>
-        <!-- Fingers with claws -->
         <path d="M33 26 L29 12 L26 13" stroke="url(#rottingArm)" stroke-width="3.2" stroke-linecap="round" fill="none"/>
         <path d="M38 25 L37 8 L35 9" stroke="url(#rottingArm)" stroke-width="3.2" stroke-linecap="round" fill="none"/>
         <path d="M43 25 L45 9 L48 10" stroke="url(#rottingArm)" stroke-width="3.2" stroke-linecap="round" fill="none"/>
         <path d="M47 27 L53 14 L55 16" stroke="url(#rottingArm)" stroke-width="3" stroke-linecap="round" fill="none"/>
-        <!-- Thumb -->
         <path d="M31 31 L24 28 L23 30" stroke="url(#rottingArm)" stroke-width="3" stroke-linecap="round" fill="none"/>
       </svg>
     `,
@@ -361,28 +463,13 @@
     // Flying Silhouette Bat
     bat: `
       <svg viewBox="0 0 60 30" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-        <!-- Left Wing -->
         <path class="bat-wing-left" d="M30 15 C26 7, 16 4, 3 10 C8 15, 14 15, 17 21 C21 16, 26 17, 30 18 Z" fill="#0f172a"/>
-        <!-- Right Wing -->
         <path class="bat-wing-right" d="M30 15 C34 7, 44 4, 57 10 C52 15, 46 15, 43 21 C39 16, 34 17, 30 18 Z" fill="#0f172a"/>
-        <!-- Bat Body & Ears -->
         <ellipse cx="30" cy="15" rx="4.5" ry="7" fill="#020617"/>
         <polygon points="27,10 26,4 29,9" fill="#020617"/>
         <polygon points="33,10 34,4 31,9" fill="#020617"/>
-        <!-- Tiny Glowing Eyes -->
         <circle cx="28.5" cy="12" r="0.75" fill="#f97316"/>
         <circle cx="31.5" cy="12" r="0.75" fill="#f97316"/>
-      </svg>
-    `,
-
-    // Corner Cobweb
-    cobweb: `
-      <svg viewBox="0 0 100 100" width="85" height="85" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0 0 L100 0 M0 0 L92 38 M0 0 L71 71 M0 0 L38 92 M0 0 L0 100" stroke="rgba(255,255,255,0.4)" stroke-width="1.2"/>
-        <path d="M25 0 Q23 10 0 25" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
-        <path d="M50 0 Q46 20 0 50" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
-        <path d="M75 0 Q68 30 0 75" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
-        <path d="M100 0 Q90 40 0 100" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
       </svg>
     `,
 
@@ -391,9 +478,7 @@
       <svg viewBox="0 0 80 80" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
         <ellipse cx="40" cy="65" rx="36" ry="9" fill="#1e1b4b" stroke="#0f172a" stroke-width="1.5"/>
         <path d="M18 64 C26 45, 34 26, 42 8 C44 26, 52 46, 62 64 Z" fill="#1e1b4b"/>
-        <!-- Orange Ribbon Band -->
         <path d="M22 57 C32 54, 48 54, 58 57 L59 62 C49 59, 31 59, 21 62 Z" fill="#f97316"/>
-        <!-- Buckle -->
         <rect x="36" y="55" width="8" height="7" rx="1.5" fill="none" stroke="#fef08a" stroke-width="2"/>
       </svg>
     `
@@ -413,7 +498,6 @@
 
   // Spawn Speech Bubble above an element
   function showGhoulSpeech(element, text) {
-    // Remove existing bubble if any
     const existing = element.querySelector('.hw-speech-bubble');
     if (existing) existing.remove();
 
@@ -433,7 +517,7 @@
   // Interactive Kinematics Physics Candy Drop
   function dropPhysicsCandy(originX, originY, count = 8) {
     SpookyAudio.candyPop();
-    const treats = ['🎃', '🍬', '🍭', '🍫', '💀', '👻', '🧪', '🦇'];
+    const treats = ['🎃', '🍬', '🍭', '🍫', '💀', '👻', '🧪', '🦇', '🕷️'];
     const gravity = 980; // pixels / s^2
 
     for (let i = 0; i < count; i++) {
@@ -449,8 +533,8 @@
 
       let x = startX;
       let y = startY;
-      let vx = (Math.random() - 0.5) * 450; // px/s
-      let vy = -220 - Math.random() * 320; // upward pop px/s
+      let vx = (Math.random() - 0.5) * 450;
+      let vy = -220 - Math.random() * 320;
       let rotation = Math.random() * 360;
       let rotSpeed = (Math.random() - 0.5) * 500;
       let bounceCount = 0;
@@ -465,12 +549,11 @@
         y += vy * dt;
         rotation += rotSpeed * dt;
 
-        // Bottom bounce floor
         const floor = window.innerHeight - 40;
         if (y >= floor) {
           y = floor;
-          vy = -vy * 0.62; // restitution
-          vx = vx * 0.8;  // friction
+          vy = -vy * 0.62;
+          vx = vx * 0.8;
           bounceCount++;
           if (bounceCount < 3 && Math.abs(vy) > 80) {
             SpookyAudio.candyPop();
@@ -479,11 +562,9 @@
 
         candy.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rotation}deg)`;
 
-        // Keep animating while active
         if (bounceCount < 5 && Math.abs(vy) > 15) {
           requestAnimationFrame(updatePhysics);
         } else {
-          // Fade out and remove
           candy.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
           candy.style.opacity = '0';
           candy.style.transform += ' scale(0.6)';
@@ -520,31 +601,19 @@
       document.body.appendChild(mistContainer);
     }
 
-    // 3. Add Corner Cobwebs on Header & Top corners
-    const header = document.querySelector('.site-header');
-    if (header && !header.querySelector('.hw-cobweb-tl')) {
-      const webL = document.createElement('div');
-      webL.className = 'hw-cobweb hw-cobweb-tl';
-      webL.innerHTML = SVG_ASSETS.cobweb;
-      header.appendChild(webL);
+    // 3. Add Giant Viewport Corner Spider Webs (Top-Left & Top-Right)
+    mountViewportSpiderWebs();
 
-      const webR = document.createElement('div');
-      webR.className = 'hw-cobweb hw-cobweb-tr';
-      webR.innerHTML = SVG_ASSETS.cobweb;
-      header.appendChild(webR);
+    // 4. Add Hanging Spiders on silk threads
+    mountHangingSpiders();
 
-      // Add Witch Hat to Mr. Mudry's avatar
-      const brand = header.querySelector('.brand');
-      if (brand && !brand.querySelector('.hw-witch-hat')) {
-        brand.style.position = 'relative';
-        const hat = document.createElement('div');
-        hat.className = 'hw-witch-hat';
-        hat.innerHTML = SVG_ASSETS.witchHat;
-        brand.appendChild(hat);
-      }
-    }
+    // 5. Add Corner Cobwebs on Featured Cards
+    decorateCardsWithSpiderWebs();
 
-    // 4. Harmonic Pendulum Skeleton (Left side)
+    // 6. Interactive Main Hero Title Click
+    setupHeroTitleInteraction();
+
+    // 7. Harmonic Pendulum Skeleton (Left side)
     if (!document.querySelector('.hw-pendulum-skeleton')) {
       const skel = document.createElement('div');
       skel.className = 'hw-pendulum-skeleton';
@@ -560,7 +629,7 @@
       document.body.appendChild(skel);
     }
 
-    // 5. Zombie Hand rising from earth (Bottom Right)
+    // 8. Zombie Hand rising from earth (Bottom Right)
     if (!document.querySelector('.hw-zombie-hand-ground')) {
       const hand = document.createElement('div');
       hand.className = 'hw-zombie-hand-ground';
@@ -575,14 +644,135 @@
       document.body.appendChild(hand);
     }
 
-    // 6. Interactive Jack-O'-Lanterns on Featured Cards
+    // 9. Interactive Jack-O'-Lanterns on Featured Cards
     decorateCardsWithPumpkins();
 
-    // 7. Ambient Flying Bat Swarm (1-2 bats in sky)
+    // 10. Ambient Flying Bat Swarm
     createFlyingBat();
 
-    // 8. Mount Spooky Season Control HUD
+    // 11. Mount Spooky Season Control HUD
     mountHalloweenHUD();
+  }
+
+  // Mount Giant Viewport Corner Spider Webs
+  function mountViewportSpiderWebs() {
+    if (document.querySelector('.hw-viewport-corner-web-tl')) return;
+
+    // Top-Left Giant Web
+    const webTL = document.createElement('div');
+    webTL.className = 'hw-viewport-corner-web hw-viewport-corner-web-tl';
+    webTL.innerHTML = SVG_ASSETS.giantCornerWeb;
+    webTL.title = 'Spider Silk: Tensile strength = 1.3 GPa!';
+    document.body.appendChild(webTL);
+
+    // Top-Right Giant Web
+    const webTR = document.createElement('div');
+    webTR.className = 'hw-viewport-corner-web hw-viewport-corner-web-tr';
+    webTR.innerHTML = SVG_ASSETS.giantCornerWeb;
+    webTR.title = 'Spider Silk: Tensile strength = 1.3 GPa!';
+    document.body.appendChild(webTR);
+
+    // Add click to shake web
+    [webTL, webTR].forEach(web => {
+      web.style.pointerEvents = 'auto';
+      web.style.cursor = 'pointer';
+      web.addEventListener('click', (e) => {
+        e.stopPropagation();
+        web.classList.add('hw-web-vibrate');
+        SpookyAudio.webStrum();
+        setTimeout(() => web.classList.remove('hw-web-vibrate'), 500);
+      });
+    });
+
+    // Add Witch Hat to Mr. Mudry's avatar in header if present
+    const brand = document.querySelector('.site-header .brand');
+    if (brand && !brand.querySelector('.hw-witch-hat')) {
+      brand.style.position = 'relative';
+      const hat = document.createElement('div');
+      hat.className = 'hw-witch-hat';
+      hat.innerHTML = SVG_ASSETS.witchHat;
+      brand.appendChild(hat);
+    }
+  }
+
+  // Mount Hanging Spiders on Silk Threads
+  function mountHangingSpiders() {
+    if (document.querySelector('.hw-hanging-spider-left')) return;
+
+    // Left Spider
+    const spiderL = document.createElement('div');
+    spiderL.className = 'hw-hanging-spider hw-hanging-spider-left';
+    spiderL.title = 'Orb Weaver Spider • Tap to scurry!';
+    spiderL.innerHTML = SVG_ASSETS.hangingSpider;
+    spiderL.addEventListener('click', (e) => {
+      e.stopPropagation();
+      SpookyAudio.webStrum();
+      spiderL.style.transform = 'translateY(-45px) scale(1.2)';
+      dropPhysicsCandy(e.clientX, e.clientY, 3);
+      setTimeout(() => {
+        spiderL.style.transform = '';
+      }, 700);
+    });
+    document.body.appendChild(spiderL);
+
+    // Right Spider
+    const spiderR = document.createElement('div');
+    spiderR.className = 'hw-hanging-spider hw-hanging-spider-right';
+    spiderR.title = 'Orb Weaver Spider • Tap to scurry!';
+    spiderR.innerHTML = SVG_ASSETS.hangingSpider;
+    spiderR.addEventListener('click', (e) => {
+      e.stopPropagation();
+      SpookyAudio.webStrum();
+      spiderR.style.transform = 'translateY(-45px) scale(1.2)';
+      dropPhysicsCandy(e.clientX, e.clientY, 3);
+      setTimeout(() => {
+        spiderR.style.transform = '';
+      }, 700);
+    });
+    document.body.appendChild(spiderR);
+  }
+
+  // Decorate Featured Cards with Corner Spider Webs
+  function decorateCardsWithSpiderWebs() {
+    const targets = [
+      document.querySelector('.bellringer-hero-banner'),
+      document.querySelector('.card[style*="max-width: 820px"]'),
+      document.querySelector('.today-card'),
+      document.querySelector('.live-card')
+    ].filter(Boolean);
+
+    targets.forEach((card) => {
+      if (card.querySelector('.hw-card-web-tl')) return;
+      card.style.position = 'relative';
+
+      const webTL = document.createElement('div');
+      webTL.className = 'hw-card-web hw-card-web-tl';
+      webTL.innerHTML = SVG_ASSETS.cardWeb;
+      card.appendChild(webTL);
+
+      const webTR = document.createElement('div');
+      webTR.className = 'hw-card-web hw-card-web-tr';
+      webTR.innerHTML = SVG_ASSETS.cardWeb;
+      card.appendChild(webTR);
+    });
+  }
+
+  // Setup Spooky Hero Title Interaction
+  function setupHeroTitleInteraction() {
+    const heroTitle = document.querySelector('.hero h1');
+    if (!heroTitle || heroTitle.dataset.hwBound) return;
+    heroTitle.dataset.hwBound = 'true';
+    heroTitle.title = 'Click for Haunted Physics Power!';
+
+    heroTitle.addEventListener('click', (e) => {
+      SpookyAudio.pumpkinCackle();
+      SpookyAudio.boneRattle();
+      heroTitle.classList.add('hw-web-vibrate');
+      setTimeout(() => heroTitle.classList.remove('hw-web-vibrate'), 500);
+
+      const rect = heroTitle.getBoundingClientRect();
+      dropPhysicsCandy(rect.left + rect.width / 2, rect.bottom + 10, 10);
+    });
   }
 
   // Decorate today card / hero banner with pumpkins
@@ -593,7 +783,7 @@
       document.querySelector('.live-card')
     ].filter(Boolean);
 
-    targets.forEach((card, idx) => {
+    targets.forEach((card) => {
       if (card.querySelector('.hw-pumpkin-perch')) return;
       card.classList.add('hw-pumpkin-card');
 
@@ -611,7 +801,6 @@
       card.appendChild(pumpkin);
     });
 
-    // Add Spooky Season Hero Banner Tag
     const heroTitle = document.querySelector('.hero h1');
     if (heroTitle && !document.querySelector('.hw-october-banner')) {
       const banner = document.createElement('div');
@@ -631,7 +820,7 @@
     bat.innerHTML = SVG_ASSETS.bat;
 
     let posX = -60;
-    let posY = 90 + Math.random() * 80;
+    let posY = 85 + Math.random() * 80;
     let speedX = 2.2 + Math.random() * 1.5;
     let angle = 0;
 
@@ -655,7 +844,7 @@
 
       if (posX > window.innerWidth + 60) {
         posX = -70;
-        posY = 80 + Math.random() * 120;
+        posY = 75 + Math.random() * 100;
         speedX = 2.0 + Math.random() * 1.8;
       }
       requestAnimationFrame(animateBat);
@@ -678,7 +867,7 @@
     showGhoulSpeech(zombie, 'BRAAAINS... and Δx / Δt!');
 
     let x = -90;
-    const speed = 1.1; // m/s style creeping pace
+    const speed = 1.1;
 
     zombie.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -754,14 +943,13 @@
 
     toggleBtn.addEventListener('click', () => {
       panel.classList.toggle('open');
-      getAudioContext(); // user gesture unlocks audio
+      getAudioContext();
     });
 
     closeBtn.addEventListener('click', () => {
       panel.classList.remove('open');
     });
 
-    // Theme Toggle
     themeBtn.addEventListener('click', () => {
       isThemeActive = !isThemeActive;
       localStorage.setItem(STORAGE_KEY_THEME, isThemeActive ? 'enabled' : 'disabled');
@@ -775,7 +963,6 @@
       }
     });
 
-    // Audio Toggle
     audioBtn.addEventListener('click', () => {
       isAudioEnabled = !isAudioEnabled;
       localStorage.setItem(STORAGE_KEY_AUDIO, isAudioEnabled ? 'enabled' : 'disabled');
@@ -787,17 +974,14 @@
       }
     });
 
-    // Drop Candy Action
     candyBtn.addEventListener('click', () => {
       dropPhysicsCandy(window.innerWidth / 2, 120, 12);
     });
 
-    // Summon Zombie Action
     zombieBtn.addEventListener('click', () => {
       summonZombieWalker();
     });
 
-    // Skeleton Dance Action
     skelBtn.addEventListener('click', () => {
       const skel = document.querySelector('.hw-pendulum-skeleton');
       if (skel) {
@@ -815,7 +999,9 @@
     const toRemove = [
       '.hw-harvest-moon',
       '.hw-mist-container',
-      '.hw-cobweb',
+      '.hw-viewport-corner-web',
+      '.hw-card-web',
+      '.hw-hanging-spider',
       '.hw-pendulum-skeleton',
       '.hw-zombie-hand-ground',
       '.hw-zombie-walker',
