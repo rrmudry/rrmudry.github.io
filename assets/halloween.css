@@ -1,0 +1,615 @@
+/* ==========================================================================
+   HALLOWEEN THEME • OCTOBER SPECIAL EDITION
+   Mr. Mudry's Physics • Jack-O'-Lanterns, Skeletons, Zombies & Spooky Physics
+   ========================================================================== */
+
+/* Spooky Color Palette Tokens */
+:root {
+  --hw-orange-glow: rgba(249, 115, 22, 0.7);
+  --hw-pumpkin: #ff781f;
+  --hw-pumpkin-dark: #c2410c;
+  --hw-ectoplasm: #22c55e;
+  --hw-ecto-glow: rgba(34, 197, 94, 0.6);
+  --hw-witch-purple: #9333ea;
+  --hw-purple-glow: rgba(147, 51, 234, 0.5);
+  --hw-ghost-white: #f8fafc;
+  --hw-fog: rgba(15, 23, 42, 0.6);
+}
+
+/* Atmospheric Halloween Background Atmosphere */
+body.halloween-active {
+  background-color: #030712 !important;
+  background-image: 
+    radial-gradient(circle at 85% 15%, rgba(249, 115, 22, 0.18), transparent 45%),
+    radial-gradient(circle at 15% 75%, rgba(147, 51, 234, 0.16), transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(34, 197, 94, 0.08), transparent 60%) !important;
+}
+
+body.halloween-active::before {
+  opacity: 0.22 !important;
+  filter: brightness(0.6) contrast(1.3) hue-rotate(-20deg) !important;
+}
+
+/* Eerie Harvest Blood Moon */
+.hw-harvest-moon {
+  position: fixed;
+  top: 75px;
+  right: clamp(15px, 6vw, 80px);
+  width: clamp(80px, 12vw, 130px);
+  height: clamp(80px, 12vw, 130px);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff7ed 0%, #fed7aa 25%, #f97316 65%, #c2410c 95%, #7c2d12 100%);
+  box-shadow: 
+    0 0 45px rgba(249, 115, 22, 0.65),
+    0 0 90px rgba(234, 88, 12, 0.35),
+    inset -10px -10px 25px rgba(0, 0, 0, 0.45);
+  z-index: 1;
+  pointer-events: none;
+  animation: hw-moon-pulse 6s ease-in-out infinite alternate;
+}
+
+.hw-harvest-moon::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: 
+    radial-gradient(circle at 28% 42%, rgba(124, 45, 18, 0.35) 0%, rgba(124, 45, 18, 0.35) 12%, transparent 13%),
+    radial-gradient(circle at 58% 30%, rgba(124, 45, 18, 0.28) 0%, rgba(124, 45, 18, 0.28) 18%, transparent 19%),
+    radial-gradient(circle at 65% 68%, rgba(124, 45, 18, 0.3) 0%, rgba(124, 45, 18, 0.3) 14%, transparent 15%);
+  filter: blur(1.5px);
+}
+
+@keyframes hw-moon-pulse {
+  0% { transform: scale(1); filter: brightness(1) drop-shadow(0 0 35px rgba(249, 115, 22, 0.5)); }
+  100% { transform: scale(1.04); filter: brightness(1.15) drop-shadow(0 0 55px rgba(249, 115, 22, 0.8)); }
+}
+
+/* Flying Bats */
+.hw-bat {
+  position: fixed;
+  z-index: 2;
+  pointer-events: auto;
+  cursor: pointer;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.8));
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform;
+}
+
+.hw-bat:hover {
+  filter: drop-shadow(0 0 12px rgba(249, 115, 22, 0.9));
+}
+
+.hw-bat svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.hw-bat .bat-wing-left {
+  transform-origin: 50% 50%;
+  animation: hw-wing-flap 0.28s ease-in-out infinite alternate;
+}
+
+.hw-bat .bat-wing-right {
+  transform-origin: 50% 50%;
+  animation: hw-wing-flap 0.28s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes hw-wing-flap {
+  0% { transform: scaleY(1) rotate(0deg); }
+  100% { transform: scaleY(-0.7) rotate(8deg); }
+}
+
+/* Graveyard Fog / Mist along page bottom */
+.hw-mist-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 160px;
+  pointer-events: none;
+  z-index: 10;
+  overflow: hidden;
+  opacity: 0.65;
+}
+
+.hw-mist-wave {
+  position: absolute;
+  bottom: 0;
+  left: -50%;
+  width: 200%;
+  height: 140px;
+  background: radial-gradient(ellipse at 50% 100%, rgba(147, 51, 234, 0.15) 0%, rgba(34, 197, 94, 0.08) 35%, transparent 70%);
+  animation: hw-mist-drift 22s linear infinite alternate;
+}
+
+.hw-mist-wave-2 {
+  bottom: -20px;
+  height: 120px;
+  background: radial-gradient(ellipse at 50% 100%, rgba(249, 115, 22, 0.12) 0%, rgba(15, 23, 42, 0.8) 55%, transparent 75%);
+  animation: hw-mist-drift 15s linear infinite alternate-reverse;
+}
+
+@keyframes hw-mist-drift {
+  0% { transform: translateX(0) scaleY(1); }
+  50% { transform: translateX(4%) scaleY(1.15); }
+  100% { transform: translateX(-4%) scaleY(0.9); }
+}
+
+/* Corner Cobwebs on Header & Containers */
+.hw-cobweb {
+  position: absolute;
+  pointer-events: none;
+  z-index: 25;
+  opacity: 0.75;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+  transition: opacity 0.3s;
+}
+
+.hw-cobweb-tl { top: 0; left: 0; }
+.hw-cobweb-tr { top: 0; right: 0; transform: scaleX(-1); }
+
+/* Spider dangling on silk thread */
+.hw-hanging-spider {
+  position: absolute;
+  top: 0;
+  left: 70px;
+  z-index: 26;
+  pointer-events: auto;
+  cursor: pointer;
+  animation: hw-spider-dangle 4s ease-in-out infinite alternate;
+}
+
+.hw-spider-thread {
+  width: 1px;
+  height: 50px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.85));
+  margin: 0 auto;
+  transform-origin: top center;
+}
+
+.hw-spider-body {
+  width: 24px;
+  height: 24px;
+  transition: transform 0.2s ease;
+}
+
+.hw-spider-body:hover {
+  transform: scale(1.3) rotate(15deg);
+  filter: drop-shadow(0 0 8px #ff781f);
+}
+
+@keyframes hw-spider-dangle {
+  0% { transform: translateY(0) rotate(-4deg); }
+  50% { transform: translateY(18px) rotate(6deg); }
+  100% { transform: translateY(6px) rotate(-3deg); }
+}
+
+/* Jack-O'-Lantern Glow & Animations */
+.hw-pumpkin-card {
+  position: relative;
+  overflow: visible !important;
+}
+
+.hw-pumpkin-perch {
+  position: absolute;
+  top: -24px;
+  right: 20px;
+  width: 58px;
+  height: 52px;
+  z-index: 15;
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.7));
+}
+
+.hw-pumpkin-perch:hover {
+  transform: translateY(-8px) scale(1.15) rotate(-6deg);
+}
+
+.hw-candle-glow {
+  animation: hw-flicker 2.5s infinite alternate;
+}
+
+@keyframes hw-flicker {
+  0%, 100% {
+    fill: #fef08a;
+    filter: drop-shadow(0 0 6px #f59e0b) drop-shadow(0 0 12px #f97316);
+    opacity: 1;
+  }
+  20% {
+    fill: #fef9c3;
+    filter: drop-shadow(0 0 10px #f59e0b) drop-shadow(0 0 18px #ea580c);
+    opacity: 0.95;
+  }
+  40% {
+    fill: #fde047;
+    filter: drop-shadow(0 0 4px #d97706) drop-shadow(0 0 8px #f97316);
+    opacity: 0.8;
+  }
+  65% {
+    fill: #fef08a;
+    filter: drop-shadow(0 0 8px #f59e0b) drop-shadow(0 0 16px #f97316);
+    opacity: 0.98;
+  }
+  85% {
+    fill: #fbbf24;
+    filter: drop-shadow(0 0 5px #b45309);
+    opacity: 0.75;
+  }
+}
+
+/* Pendulum Skeleton Hanging by Harmonic Motion */
+.hw-pendulum-skeleton {
+  position: fixed;
+  top: 0;
+  left: clamp(10px, 3vw, 40px);
+  z-index: 18;
+  width: 65px;
+  pointer-events: auto;
+  cursor: pointer;
+  transform-origin: top center;
+  animation: hw-pendulum-swing 4.2s ease-in-out infinite alternate;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.75));
+  transition: filter 0.2s ease;
+}
+
+.hw-pendulum-skeleton:hover {
+  filter: drop-shadow(0 0 20px rgba(34, 197, 94, 0.9));
+}
+
+@keyframes hw-pendulum-swing {
+  0% { transform: rotate(-14deg); }
+  50% { transform: rotate(1deg); }
+  100% { transform: rotate(14deg); }
+}
+
+/* Dancing Skeleton Dock */
+.hw-skeleton-dancer {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.hw-skeleton-dancer:hover {
+  transform: scale(1.1);
+}
+
+.hw-bone-rattle {
+  animation: hw-rattle 0.35s ease-in-out infinite alternate;
+}
+
+@keyframes hw-rattle {
+  0% { transform: rotate(-3deg) translateY(0); }
+  100% { transform: rotate(3deg) translateY(-2px); }
+}
+
+/* Creeping Zombie Character */
+.hw-zombie-walker {
+  position: fixed;
+  bottom: 12px;
+  left: -120px;
+  width: 80px;
+  height: 105px;
+  z-index: 22;
+  cursor: pointer;
+  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.85));
+  transition: filter 0.3s;
+  will-change: transform;
+}
+
+.hw-zombie-walker:hover {
+  filter: drop-shadow(0 0 18px rgba(34, 197, 94, 0.95)) drop-shadow(0 10px 14px rgba(0, 0, 0, 0.85));
+}
+
+.hw-zombie-arm-lunge {
+  transform-origin: top left;
+  animation: hw-zombie-reach 1.6s ease-in-out infinite alternate;
+}
+
+@keyframes hw-zombie-reach {
+  0% { transform: rotate(-5deg) translateY(0); }
+  100% { transform: rotate(18deg) translateY(-4px); }
+}
+
+/* Zombie Hand rising from bottom */
+.hw-zombie-hand-ground {
+  position: fixed;
+  bottom: 0;
+  right: clamp(100px, 18vw, 240px);
+  width: 75px;
+  height: 85px;
+  z-index: 21;
+  cursor: pointer;
+  transform-origin: bottom center;
+  animation: hw-hand-burst 5s ease-in-out infinite alternate;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.9));
+  transition: transform 0.25s ease;
+}
+
+.hw-zombie-hand-ground:hover {
+  transform: translateY(-15px) scale(1.15) rotate(-5deg);
+  filter: drop-shadow(0 0 15px rgba(34, 197, 94, 0.85));
+}
+
+@keyframes hw-hand-burst {
+  0% { transform: translateY(32px) rotate(-6deg); }
+  40% { transform: translateY(0) rotate(4deg); }
+  75% { transform: translateY(6px) rotate(-2deg); }
+  100% { transform: translateY(0) rotate(2deg); }
+}
+
+/* Spooky Season Floating Control HUD */
+.hw-hud {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9995;
+  font-family: var(--font-tech, 'Courier New', monospace);
+}
+
+.hw-hud-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(249, 115, 22, 0.25));
+  border: 2px solid #f97316;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-weight: 800;
+  font-size: 0.82rem;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(249, 115, 22, 0.4), 0 0 12px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.hw-hud-toggle-btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 6px 28px rgba(249, 115, 22, 0.65), 0 0 20px rgba(249, 115, 22, 0.5);
+  border-color: #fdba74;
+}
+
+.hw-hud-panel {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  right: 0;
+  width: 290px;
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(88, 28, 135, 0.45));
+  border: 2px solid #a855f7;
+  border-radius: 18px;
+  padding: 1.25rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(168, 85, 247, 0.35);
+  backdrop-filter: blur(16px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px) scale(0.95);
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  color: #f8fafc;
+}
+
+.hw-hud-panel.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.hw-hud-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(168, 85, 247, 0.3);
+  padding-bottom: 8px;
+}
+
+.hw-hud-title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #f59e0b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 0.5px;
+}
+
+.hw-hud-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #cbd5e1;
+}
+
+.hw-hud-btn {
+  background: rgba(249, 115, 22, 0.15);
+  border: 1px solid #f97316;
+  color: #fdba74;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.hw-hud-btn:hover {
+  background: #f97316;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(249, 115, 22, 0.6);
+}
+
+.hw-hud-btn.active {
+  background: #22c55e;
+  border-color: #86efac;
+  color: #052e16;
+  font-weight: 900;
+}
+
+.hw-hud-action-btn {
+  width: 100%;
+  padding: 8px;
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.3), rgba(249, 115, 22, 0.3));
+  border: 1px solid #c084fc;
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: inherit;
+}
+
+.hw-hud-action-btn:hover {
+  background: linear-gradient(135deg, #9333ea, #f97316);
+  border-color: #fef08a;
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+}
+
+/* Floating Physics Treats / Candy particles */
+.hw-physics-candy {
+  position: fixed;
+  z-index: 9990;
+  pointer-events: none;
+  user-select: none;
+  will-change: transform;
+}
+
+/* Speech bubbles for ghouls */
+.hw-speech-bubble {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.95);
+  border: 2px solid #22c55e;
+  color: #86efac;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+  animation: hw-pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 50;
+}
+
+.hw-speech-bubble::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: #22c55e transparent transparent transparent;
+}
+
+@keyframes hw-pop-in {
+  0% { transform: translateX(-50%) scale(0.6); opacity: 0; }
+  100% { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+
+/* October Spooky Banner Header */
+.hw-october-banner {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.25), rgba(147, 51, 234, 0.25));
+  border: 1px dashed rgba(249, 115, 22, 0.6);
+  border-radius: 12px;
+  padding: 6px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #fdba74;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  box-shadow: 0 0 15px rgba(249, 115, 22, 0.2);
+  animation: hw-pulse-orange 3s infinite alternate;
+}
+
+@keyframes hw-pulse-orange {
+  0% { box-shadow: 0 0 10px rgba(249, 115, 22, 0.2); border-color: rgba(249, 115, 22, 0.5); }
+  100% { box-shadow: 0 0 22px rgba(249, 115, 22, 0.5); border-color: #fdba74; }
+}
+
+/* Witch Hat on Avatar */
+.hw-witch-hat {
+  position: absolute;
+  top: -16px;
+  left: -8px;
+  width: 38px;
+  height: 38px;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+  transform: rotate(-12deg);
+}
+
+/* Ghost Wisps floating up from sides */
+.hw-wisp {
+  position: fixed;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.5;
+  animation: hw-wisp-drift 8s ease-in-out infinite;
+}
+
+@keyframes hw-wisp-drift {
+  0% { transform: translateY(100vh) translateX(0) scale(0.6); opacity: 0; }
+  20% { opacity: 0.6; }
+  80% { opacity: 0.5; }
+  100% { transform: translateY(-50px) translateX(40px) scale(1.1); opacity: 0; }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .hw-harvest-moon,
+  .hw-mist-wave,
+  .hw-mist-wave-2,
+  .hw-pendulum-skeleton,
+  .hw-zombie-hand-ground,
+  .hw-bat,
+  .hw-wisp {
+    animation: none !important;
+  }
+}
+
+/* Mobile responsiveness adjustments */
+@media (max-width: 768px) {
+  .hw-pendulum-skeleton {
+    width: 45px;
+    left: 8px;
+  }
+  .hw-harvest-moon {
+    width: 75px;
+    height: 75px;
+    top: 65px;
+  }
+  .hw-zombie-hand-ground {
+    right: 30px;
+    width: 55px;
+    height: 65px;
+  }
+  .hw-hud {
+    bottom: 12px;
+    right: 12px;
+  }
+  .hw-hud-panel {
+    width: calc(100vw - 32px);
+    right: -4px;
+  }
+}

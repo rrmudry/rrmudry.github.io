@@ -3,6 +3,25 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-01 — Spooky Season: Halloween Physics Architecture & Interactive Ghouls
+
+**Pattern Added**: `seasonal-theming-architecture.md`.
+
+**Changes**:
+- **Halloween Theming System (`assets/halloween.css`, `assets/halloween.js`)**:
+  - Implemented an October special edition theme delivering Jack-O'-Lanterns, skeletons, zombies, and spooky physics effects with zero performance regression and full preservation of core academic functionality.
+  - **Flickering Jack-O'-Lanterns**: Detailed vector SVG carved pumpkins with `@keyframes hw-flicker` candle illumination perched on cards; clicking a pumpkin triggers synthesized audio and a kinematic candy drop.
+  - **Harmonic Pendulum Skeleton**: Animated vector skeleton suspended from the top viewport rocking in simple harmonic motion ($\theta(t) = \theta_0 \cos(\omega t)$); clicking rattles bones with a synthesized Web Audio xylophone arpeggio and displays physics torque quips ($\tau = I \alpha$).
+  - **Creeping Zombie & Undead Ground Hand**: Animated undead hand bursting from the soil at the footer; on-demand roaming zombie with outstretched arms who recites kinematics definitions ($v = \Delta x / \Delta t$) when clicked.
+  - **Atmospheric Visuals**: Glowing Harvest Blood Moon in the midnight sky, flapping silhouette bats on bezier flight arcs, drifting graveyard fog ribbons, corner cobwebs, and dangling spiders.
+  - **Zero-Dependency Web Audio API Synthesizer**: Custom oscillator sound effects (skeletal xylophone rattle, low zombie moan, witch chuckle, bat chirp, and bubbly candy bounce) generated on-the-fly without external audio file requests.
+  - **Kinematic Physics Candy Drop**: Interactive particle burst applying gravitational acceleration ($g = 980\text{ px/s}^2$), floor collision detection, restitution bounces ($e \approx 0.62$), and rotation.
+  - **Spooky HUD Controller**: Floating badge with toggles for Spooky Theme (ON/OFF), Audio (🔊 ON/🔇 OFF), Candy Drop, and Ghoul Summoning, persisting user preferences via `localStorage`.
+- **Site-Wide Header & Footer Integration (`partials/header.html`, `partials/footer.html`, `assets/partials.js`, `index.html`)**:
+  - Added pumpkin brand badge in the navigation bar and October edition copyright tag in the footer.
+  - Dynamically injected theme through `assets/partials.js` while maintaining instant direct load on `index.html`.
+- **Site Deployment Timestamp Updated**: Executed `scripts/update-timestamp.js` updating deployment timestamp in `partials/footer.html`.
+
 ## 2026-09-30 — Mass, Weight & Zero-G Inertia Studio (Unit 2 Day 24)
 
 **Changes**:
