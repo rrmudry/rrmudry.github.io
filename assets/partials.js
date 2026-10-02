@@ -64,9 +64,13 @@
     document.head.appendChild(script);
   }
 
+  // Seasonal theme: only loaded in October (preview any time with ?halloween=on)
   function ensureHalloweenLoaded() {
     if (window.HalloweenPhysics) return;
     if (window.self !== window.top) return;
+    const preview = new URLSearchParams(window.location.search).get('halloween');
+    const inSeason = preview === 'on' || (preview !== 'off' && new Date().getMonth() === 9);
+    if (!inSeason) return;
     if (!document.querySelector('link[href*="halloween.css"]')) {
       const link = document.createElement('link');
       link.rel = 'stylesheet';

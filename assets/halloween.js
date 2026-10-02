@@ -1,1032 +1,1081 @@
-/**
- * HALLOWEEN THEME • OCTOBER SPECIAL EDITION
- * Mr. Mudry's High School Physics
- * Features: Jack-O'-Lanterns, Animated Skeletons, Creeping Zombies,
- * Spider Webs, Dangling Spiders, Spooky Typography, and Kinematic Physics Candy!
- */
+/* ==========================================================================
+   HALLOWEEN THEME — "Night at Orange High: The Graveyard of Dead Theories"
 
+   Runs only in October (or with ?halloween=on to preview; ?halloween=off to hide).
+   Every page with a .hero gets a moonlit scene drawn on one canvas:
+     • a harvest moon, stars, drifting clouds and fog
+     • bat flocks crossing the sky
+     • will-o'-wisps that act like charged particles (inverse-square repulsion from the cursor)
+     • a spider on a silk thread that behaves like a damped mass-on-a-spring (grab & fling it)
+     • jack-o'-lanterns that launch candy along projectile arcs with g = 10 m/s²
+   …above a graveyard of debunked physics theories; click a tombstone for its epitaph.
+
+   Chromebook-friendly: one canvas per hero, DPR capped at 1.5, animation pauses when the
+   hero is off-screen or the tab is hidden, and "Calm" mode / prefers-reduced-motion draws a
+   still scene. Sound is OFF by default and only plays after a click.
+   ========================================================================== */
 (function () {
   'use strict';
+  if (window.HalloweenPhysics) return;
 
-  // Config & State
-  const STORAGE_KEY_THEME = 'physics_halloween_theme_v1';
-  const STORAGE_KEY_AUDIO = 'physics_halloween_sound_v1';
-  
-  let isThemeActive = localStorage.getItem(STORAGE_KEY_THEME) !== 'disabled';
-  let isAudioEnabled = localStorage.getItem(STORAGE_KEY_AUDIO) === 'enabled';
-  let audioCtx = null;
-
-  // Initialize Web Audio Context on first user interaction
-  function getAudioContext() {
-    if (!audioCtx && (window.AudioContext || window.webkitAudioContext)) {
-      const AudioClass = window.AudioContext || window.webkitAudioContext;
-      audioCtx = new AudioClass();
-    }
-    if (audioCtx && audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
-    return audioCtx;
+  const params = new URLSearchParams(window.location.search);
+  const preview = params.get('halloween');
+  const inSeason = preview === 'on' || (preview !== 'off' && new Date().getMonth() === 9);
+  const noop = () => {};
+  if (!inSeason || window.self !== window.top) {
+    window.HalloweenPhysics = { active: false, dropCandy: noop, summonZombie: noop };
+    return;
   }
 
-  // Spooky Sound FX Synthesizers (100% native Web Audio API - zero external audio assets)
-  const SpookyAudio = {
-    // Skeletal xylophone bone clatter
-    boneRattle() {
-      if (!isAudioEnabled) return;
-      const ctx = getAudioContext();
-      if (!ctx) return;
-      const now = ctx.currentTime;
-      const pitches = [587.33, 659.25, 783.99, 880.00, 1046.50, 1174.66]; // D5, E5, G5, A5, C6, D6
-      
-      for (let i = 0; i < 7; i++) {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        const filter = ctx.createBiquadFilter();
+  // ------------------------------------------------------------------------
+  // Preferences
+  // ------------------------------------------------------------------------
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* storage blocked */ } }
+  };
+  const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const prefs = {
+    theme: store.get('hw_theme') !== 'off',
+    sound: store.get('hw_sound') === 'on',
+    calm: store.get('hw_motion') ? store.get('hw_motion') === 'calm' : reducedMotion
+  };
 
-        const freq = pitches[Math.floor(Math.random() * pitches.length)] * (1 + (Math.random() * 0.04 - 0.02));
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(freq, now + i * 0.045);
+  // Physics scale for the scene: 100 px = 1 m, and the class convention g = 10 m/s²
+  const PX_PER_M = 100;
+  const G = 10 * PX_PER_M;
 
-        filter.type = 'bandpass';
-        filter.frequency.setValueAtTime(freq * 1.5, now + i * 0.045);
-        filter.Q.setValueAtTime(6, now + i * 0.045);
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-        gain.gain.setValueAtTime(0.001, now + i * 0.045);
-        gain.gain.exponentialRampToValueAtTime(0.18, now + i * 0.045 + 0.005);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.045 + 0.07);
-
-        osc.connect(filter);
-        filter.connect(gain);
-        gain.connect(ctx.destination);
-
-        osc.start(now + i * 0.045);
-        osc.stop(now + i * 0.045 + 0.08);
+  // ------------------------------------------------------------------------
+  // Sound (synthesized, click-triggered only, off by default)
+  // ------------------------------------------------------------------------
+  const Sound = {
+    ctx: null,
+    ready() {
+      if (!prefs.sound) return false;
+      if (!this.ctx) {
+        const A = window.AudioContext || window.webkitAudioContext;
+        if (!A) return false;
+        this.ctx = new A();
       }
+      if (this.ctx.state === 'suspended') this.ctx.resume();
+      return true;
     },
-
-    // Zombie groaning rumble
-    zombieGroan() {
-      if (!isAudioEnabled) return;
-      const ctx = getAudioContext();
-      if (!ctx) return;
-      const now = ctx.currentTime;
-      const dur = 1.1;
-
-      const osc = ctx.createOscillator();
-      const osc2 = ctx.createOscillator();
-      const gain = ctx.createGain();
-      const filter = ctx.createBiquadFilter();
-
-      osc.type = 'sawtooth';
-      osc2.type = 'sawtooth';
-
-      osc.frequency.setValueAtTime(95, now);
-      osc.frequency.exponentialRampToValueAtTime(65, now + dur);
-
-      osc2.frequency.setValueAtTime(98, now);
-      osc2.frequency.exponentialRampToValueAtTime(63, now + dur);
-
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(320, now);
-      filter.frequency.linearRampToValueAtTime(180, now + dur);
-
-      gain.gain.setValueAtTime(0.001, now);
-      gain.gain.linearRampToValueAtTime(0.2, now + 0.15);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
-
-      osc.connect(filter);
-      osc2.connect(filter);
-      filter.connect(gain);
-      gain.connect(ctx.destination);
-
-      osc.start(now);
-      osc2.start(now);
-      osc.stop(now + dur);
-      osc2.stop(now + dur);
+    tone(type, f0, f1, dur, gain, delay = 0, attack = 0.01) {
+      const t = this.ctx.currentTime + delay;
+      const o = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(f0, t);
+      if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(gain, t + attack);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g);
+      g.connect(this.ctx.destination);
+      o.start(t);
+      o.stop(t + dur + 0.05);
     },
-
-    // Jack-o'-lantern witchy laugh / flare
-    pumpkinCackle() {
-      if (!isAudioEnabled) return;
-      const ctx = getAudioContext();
-      if (!ctx) return;
-      const now = ctx.currentTime;
-      const notes = [650, 520, 420, 680, 500, 390];
-      
-      notes.forEach((freq, idx) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        const start = now + idx * 0.11;
-        osc.frequency.setValueAtTime(freq, start);
-        osc.frequency.exponentialRampToValueAtTime(freq * 0.75, start + 0.09);
-
-        gain.gain.setValueAtTime(0.001, start);
-        gain.gain.linearRampToValueAtTime(0.12, start + 0.015);
-        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.095);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-
-        osc.start(start);
-        osc.stop(start + 0.1);
+    // A plucked silk thread; pitch rises with how hard the spider was flung
+    pluck(speed) {
+      if (!this.ready()) return;
+      const f = 180 + Math.min(500, speed * 0.4);
+      this.tone('triangle', f, f * 0.97, 0.7, 0.12);
+      this.tone('sine', f * 2, f * 1.94, 0.4, 0.04);
+    },
+    // Low pipe-organ minor chord when a tombstone opens
+    organ() {
+      if (!this.ready()) return;
+      [146.83, 174.61, 220, 293.66].forEach((f, i) => {
+        this.tone('sine', f, f, 1.8, 0.045, i * 0.04, 0.15);
+        this.tone('triangle', f * 2, f * 2, 1.4, 0.012, i * 0.04, 0.2);
       });
     },
-
-    // Spider web pluck / vibration strum
-    webStrum() {
-      if (!isAudioEnabled) return;
-      const ctx = getAudioContext();
-      if (!ctx) return;
-      const now = ctx.currentTime;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(440, now);
-      osc.frequency.exponentialRampToValueAtTime(880, now + 0.04);
-      osc.frequency.exponentialRampToValueAtTime(220, now + 0.12);
-
-      gain.gain.setValueAtTime(0.001, now);
-      gain.gain.linearRampToValueAtTime(0.15, now + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      osc.start(now);
-      osc.stop(now + 0.16);
+    pop() {
+      if (!this.ready()) return;
+      this.tone('sine', 520, 1400, 0.12, 0.09);
+      this.tone('triangle', 1200, 1900, 0.08, 0.04, 0.05);
     },
-
-    // Bat high-pitched chirp
-    batChirp() {
-      if (!isAudioEnabled) return;
-      const ctx = getAudioContext();
-      if (!ctx) return;
-      const now = ctx.currentTime;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(2200, now);
-      osc.frequency.exponentialRampToValueAtTime(3400, now + 0.04);
-      osc.frequency.exponentialRampToValueAtTime(1800, now + 0.09);
-
-      gain.gain.setValueAtTime(0.001, now);
-      gain.gain.linearRampToValueAtTime(0.1, now + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      osc.start(now);
-      osc.stop(now + 0.1);
-    },
-
-    // Bouncy candy pop
-    candyPop() {
-      if (!isAudioEnabled) return;
-      const ctx = getAudioContext();
-      if (!ctx) return;
-      const now = ctx.currentTime;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      const base = 350 + Math.random() * 200;
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(base, now);
-      osc.frequency.exponentialRampToValueAtTime(base * 1.8, now + 0.06);
-
-      gain.gain.setValueAtTime(0.001, now);
-      gain.gain.linearRampToValueAtTime(0.14, now + 0.008);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      osc.start(now);
-      osc.stop(now + 0.08);
+    flutter() {
+      if (!this.ready()) return;
+      for (let i = 0; i < 5; i++) this.tone('square', 2400, 1800, 0.03, 0.015, i * 0.05);
     }
   };
 
-  // High-Resolution Vector Assets (SVGs)
-  const SVG_ASSETS = {
-    // Giant Viewport Corner Spider Web with Catenary Silk Rings
-    giantCornerWeb: `
-      <svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <filter id="hwWebGlow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="0" stdDeviation="2" flood-color="#a855f7" flood-opacity="0.8"/>
-            <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#f97316" flood-opacity="0.4"/>
-          </filter>
-        </defs>
-        <!-- Radial Spokes -->
-        <g stroke="rgba(255, 255, 255, 0.85)" stroke-linecap="round" filter="url(#hwWebGlow)">
-          <line x1="0" y1="0" x2="240" y2="0" stroke-width="2.5"/>
-          <line x1="0" y1="0" x2="235" y2="55" stroke-width="2"/>
-          <line x1="0" y1="0" x2="210" y2="115" stroke-width="2"/>
-          <line x1="0" y1="0" x2="170" y2="170" stroke-width="2.2"/>
-          <line x1="0" y1="0" x2="115" y2="210" stroke-width="2"/>
-          <line x1="0" y1="0" x2="55" y2="235" stroke-width="2"/>
-          <line x1="0" y1="0" x2="0" y2="240" stroke-width="2.5"/>
-          
-          <!-- Secondary anchor spokes -->
-          <line x1="0" y1="0" x2="238" y2="28" stroke-width="1.2" stroke-opacity="0.6"/>
-          <line x1="0" y1="0" x2="195" y2="85" stroke-width="1.2" stroke-opacity="0.6"/>
-          <line x1="0" y1="0" x2="145" y2="145" stroke-width="1.4" stroke-opacity="0.6"/>
-          <line x1="0" y1="0" x2="85" y2="195" stroke-width="1.2" stroke-opacity="0.6"/>
-          <line x1="0" y1="0" x2="28" y2="238" stroke-width="1.2" stroke-opacity="0.6"/>
-        </g>
-        
-        <!-- Catenary Web Rings (Realistic draped silk tension curves) -->
-        <g fill="none" stroke="rgba(255, 255, 255, 0.88)" stroke-linecap="round" filter="url(#hwWebGlow)">
-          <!-- Ring 1 (Inner) -->
-          <path d="M40 0 Q38 12 39 9 Q35 22 35 22 Q28 32 28 32 Q20 37 20 37 Q10 40 10 40 Q0 42 0 42" stroke-width="1.6"/>
-          <!-- Ring 2 -->
-          <path d="M85 0 Q80 22 83 19 Q72 44 72 44 Q60 62 60 62 Q42 75 42 75 Q20 83 20 83 Q0 86 0 86" stroke-width="1.8"/>
-          <!-- Ring 3 -->
-          <path d="M135 0 Q128 35 131 30 Q115 70 115 70 Q95 98 95 98 Q67 118 67 118 Q33 133 33 133 Q0 137 0 137" stroke-width="2"/>
-          <!-- Ring 4 -->
-          <path d="M185 0 Q176 48 180 42 Q158 98 158 98 Q130 135 130 135 Q92 162 92 162 Q45 182 45 182 Q0 188 0 188" stroke-width="2.2"/>
-          <!-- Ring 5 (Outer) -->
-          <path d="M235 0 Q225 60 230 54 Q202 125 202 125 Q165 172 165 172 Q118 206 118 206 Q58 232 58 232 Q0 238 0 238" stroke-width="2.4"/>
-        </g>
-
-        <!-- Dewdrop sparkles on silk intersections -->
-        <g fill="#fef08a" opacity="0.85">
-          <circle cx="85" cy="0" r="2"/>
-          <circle cx="72" cy="44" r="2.2"/>
-          <circle cx="60" cy="62" r="2.5"/>
-          <circle cx="42" cy="75" r="2.2"/>
-          <circle cx="115" cy="70" r="2.5"/>
-          <circle cx="95" cy="98" r="3"/>
-          <circle cx="130" cy="135" r="3"/>
-        </g>
-      </svg>
-    `,
-
-    // Hanging Spider with 8 jointed legs, red hourglass, glowing eyes
-    hangingSpider: `
-      <svg class="hw-spider-svg" viewBox="0 0 60 120" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <radialGradient id="spiderGlow" cx="40%" cy="40%" r="60%">
-            <stop offset="0%" stop-color="#334155"/>
-            <stop offset="60%" stop-color="#0f172a"/>
-            <stop offset="100%" stop-color="#020617"/>
-          </radialGradient>
-        </defs>
-        <!-- Silk Thread -->
-        <line x1="30" y1="0" x2="30" y2="60" stroke="rgba(255, 255, 255, 0.9)" stroke-width="1.8" stroke-dasharray="3,1"/>
-        
-        <!-- Spider Body: Abdomen -->
-        <ellipse cx="30" cy="80" rx="10" ry="14" fill="url(#spiderGlow)" stroke="#f97316" stroke-width="1.5"/>
-        <!-- Red Hourglass marking -->
-        <polygon points="27,74 33,74 28,82 32,82" fill="#ef4444"/>
-        <polygon points="28,82 32,82 27,90 33,90" fill="#ef4444"/>
-        
-        <!-- Cephalothorax (Head) -->
-        <circle cx="30" cy="67" r="6.5" fill="#020617" stroke="#cbd5e1" stroke-width="1"/>
-        
-        <!-- Glowing Spider Eyes -->
-        <circle cx="27.5" cy="65.5" r="1.4" fill="#22c55e"/>
-        <circle cx="32.5" cy="65.5" r="1.4" fill="#22c55e"/>
-        <circle cx="25.5" cy="67.5" r="1" fill="#f97316"/>
-        <circle cx="34.5" cy="67.5" r="1" fill="#f97316"/>
-        
-        <!-- 8 Articulated Jointed Legs -->
-        <!-- Left Legs -->
-        <path d="M25 66 Q10 55 4 64" fill="none" stroke="#f8fafc" stroke-width="2" stroke-linecap="round"/>
-        <path d="M25 68 Q8 68 2 80" fill="none" stroke="#f8fafc" stroke-width="2" stroke-linecap="round"/>
-        <path d="M25 71 Q9 82 5 95" fill="none" stroke="#f8fafc" stroke-width="2" stroke-linecap="round"/>
-        <path d="M26 74 Q14 96 11 108" fill="none" stroke="#f8fafc" stroke-width="2" stroke-linecap="round"/>
-        
-        <!-- Right Legs -->
-        <path d="M35 66 Q50 55 56 64" fill="none" stroke="#f8fafc" stroke-width="2" stroke-linecap="round"/>
-        <path d="M35 68 Q52 68 58 80" fill="none" stroke="#f8fafc" stroke-width="2" stroke-linecap="round"/>
-        <path d="M35 71 Q51 82 55 95" fill="none" stroke="#f8fafc" stroke-width="2" stroke-linecap="round"/>
-        <path d="M34 74 Q46 96 49 108" fill="none" stroke="#f8fafc" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-    `,
-
-    // Card Corner Spider Web
-    cardWeb: `
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="rgba(255, 255, 255, 0.85)" stroke-linecap="round" fill="none">
-          <line x1="0" y1="0" x2="100" y2="0" stroke-width="2"/>
-          <line x1="0" y1="0" x2="95" y2="35" stroke-width="1.6"/>
-          <line x1="0" y1="0" x2="72" y2="72" stroke-width="1.8"/>
-          <line x1="0" y1="0" x2="35" y2="95" stroke-width="1.6"/>
-          <line x1="0" y1="0" x2="0" y2="100" stroke-width="2"/>
-          
-          <!-- Web Arc Strands -->
-          <path d="M25 0 Q22 12 0 25" stroke-width="1.5"/>
-          <path d="M50 0 Q45 25 0 50" stroke-width="1.6"/>
-          <path d="M75 0 Q68 38 0 75" stroke-width="1.7"/>
-          <path d="M100 0 Q90 50 0 100" stroke-width="1.8"/>
-        </g>
-        <!-- Little perched card spider -->
-        <circle cx="56" cy="24" r="3.5" fill="#0f172a" stroke="#f97316" stroke-width="1"/>
-        <circle cx="58" cy="21" r="2.2" fill="#020617"/>
-        <circle cx="59" cy="20.5" r="0.7" fill="#22c55e"/>
-        <path d="M53 23 L47 18 M53 25 L46 25 M53 27 L48 31" stroke="#f8fafc" stroke-width="1.2" stroke-linecap="round"/>
-        <path d="M59 23 L65 18 M59 25 L66 25 M59 27 L64 31" stroke="#f8fafc" stroke-width="1.2" stroke-linecap="round"/>
-      </svg>
-    `,
-
-    // Detailed Jack-o'-Lantern with glowing interior and stem
-    jackOLantern: `
-      <svg viewBox="0 0 100 90" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <radialGradient id="pumpkinShade" cx="45%" cy="40%" r="60%">
-            <stop offset="0%" stop-color="#ff9a3c"/>
-            <stop offset="65%" stop-color="#f97316"/>
-            <stop offset="100%" stop-color="#9a3412"/>
-          </radialGradient>
-          <linearGradient id="stemGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#4d7c0f"/>
-            <stop offset="100%" stop-color="#14532d"/>
-          </linearGradient>
-        </defs>
-        <!-- Stem -->
-        <path d="M46 16 C48 6, 56 4, 62 2 C58 9, 53 14, 52 18 Z" fill="url(#stemGrad)"/>
-        <!-- Pumpkin Ribs Background -->
-        <ellipse cx="28" cy="52" rx="22" ry="30" fill="url(#pumpkinShade)"/>
-        <ellipse cx="72" cy="52" rx="22" ry="30" fill="url(#pumpkinShade)"/>
-        <ellipse cx="38" cy="53" rx="22" ry="33" fill="url(#pumpkinShade)"/>
-        <ellipse cx="62" cy="53" rx="22" ry="33" fill="url(#pumpkinShade)"/>
-        <ellipse cx="50" cy="54" rx="24" ry="34" fill="url(#pumpkinShade)"/>
-        <!-- Carved Triangular Eyes (Flickering Candle Glow) -->
-        <polygon points="32,38 42,46 30,48" class="hw-candle-glow"/>
-        <polygon points="68,38 58,46 70,48" class="hw-candle-glow"/>
-        <!-- Nose -->
-        <polygon points="50,47 45,55 55,55" class="hw-candle-glow"/>
-        <!-- Sinister Toothy Grin -->
-        <path d="M26 62 Q50 78 74 62 Q68 70 60 70 L60 65 L54 65 L54 71 Q50 71 46 71 L46 65 L40 65 L40 70 Q32 70 26 62 Z" class="hw-candle-glow"/>
-      </svg>
-    `,
-
-    // Vector Skeleton (Harmonic Pendulum Oscillator)
-    skeleton: `
-      <svg viewBox="0 0 100 160" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-        <line x1="50" y1="0" x2="50" y2="22" stroke="#e2e8f0" stroke-width="1.8" stroke-dasharray="2,2"/>
-        <circle cx="50" cy="32" r="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
-        <path d="M44 41 L56 41 L54 47 L46 47 Z" fill="#f8fafc" stroke="#cbd5e1"/>
-        <circle cx="45" cy="31" r="3.2" fill="#020617"/>
-        <circle cx="55" cy="31" r="3.2" fill="#020617"/>
-        <circle cx="45" cy="31" r="1.3" fill="#22c55e"/>
-        <circle cx="55" cy="31" r="1.3" fill="#22c55e"/>
-        <polygon points="50,35 48,39 52,39" fill="#020617"/>
-        <line x1="47" y1="44" x2="47" y2="47" stroke="#020617" stroke-width="0.8"/>
-        <line x1="50" y1="44" x2="50" y2="47" stroke="#020617" stroke-width="0.8"/>
-        <line x1="53" y1="44" x2="53" y2="47" stroke="#020617" stroke-width="0.8"/>
-        <line x1="50" y1="48" x2="50" y2="92" stroke="#f8fafc" stroke-width="3" stroke-linecap="round"/>
-        <path d="M38 56 Q50 50 62 56" fill="none" stroke="#f8fafc" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M36 63 Q50 57 64 63" fill="none" stroke="#f8fafc" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M37 70 Q50 64 63 70" fill="none" stroke="#f8fafc" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M39 77 Q50 72 61 77" fill="none" stroke="#f8fafc" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M40 88 C40 83 60 83 60 88 C55 94 45 94 40 88 Z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
-        <path d="M38 56 L24 72 L18 64" fill="none" stroke="#f8fafc" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M62 56 L76 68 L86 54" fill="none" stroke="#f8fafc" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M44 94 L42 120 L38 148" fill="none" stroke="#f8fafc" stroke-width="2.4" stroke-linecap="round"/>
-        <path d="M38 148 L31 150" stroke="#f8fafc" stroke-width="2.4" stroke-linecap="round"/>
-        <path d="M56 94 L58 120 L62 148" fill="none" stroke="#f8fafc" stroke-width="2.4" stroke-linecap="round"/>
-        <path d="M62 148 L69 150" stroke="#f8fafc" stroke-width="2.4" stroke-linecap="round"/>
-      </svg>
-    `,
-
-    // Creeping Zombie Character
-    zombie: `
-      <svg viewBox="0 0 90 120" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="zombieSkin" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#84cc16"/>
-            <stop offset="100%" stop-color="#4d7c0f"/>
-          </linearGradient>
-          <linearGradient id="zombieShirt" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#7e22ce"/>
-            <stop offset="100%" stop-color="#581c87"/>
-          </linearGradient>
-        </defs>
-        <rect x="32" y="76" width="10" height="34" rx="3" fill="#1e293b"/>
-        <rect x="48" y="76" width="10" height="34" rx="3" fill="#0f172a"/>
-        <polygon points="30,105 44,105 40,114 28,114" fill="#475569"/>
-        <polygon points="48,105 62,105 60,114 48,114" fill="#334155"/>
-        <path d="M28 44 L62 44 L66 78 L58 74 L52 80 L44 74 L36 79 L24 76 Z" fill="url(#zombieShirt)"/>
-        <circle cx="36" cy="58" r="3" fill="#f8fafc"/>
-        <line x1="33" y1="62" x2="40" y2="62" stroke="#f8fafc" stroke-width="1.5"/>
-        <rect x="32" y="14" width="28" height="30" rx="8" fill="url(#zombieSkin)"/>
-        <path d="M38 14 Q44 6 52 14" fill="#fb7185" stroke="#f43f5e" stroke-width="1.5"/>
-        <line x1="42" y1="18" x2="48" y2="24" stroke="#1c1917" stroke-width="1.2"/>
-        <line x1="41" y1="21" x2="45" y2="19" stroke="#1c1917" stroke-width="1.2"/>
-        <line x1="45" y1="23" x2="49" y2="21" stroke="#1c1917" stroke-width="1.2"/>
-        <circle cx="39" cy="28" r="4.5" fill="#fef08a"/>
-        <circle cx="39" cy="28" r="1.8" fill="#15803d"/>
-        <circle cx="51" cy="27" r="3.2" fill="#fef08a"/>
-        <circle cx="51" cy="27" r="1.2" fill="#15803d"/>
-        <path d="M38 38 Q45 42 54 37" fill="none" stroke="#1c1917" stroke-width="2" stroke-linecap="round"/>
-        <rect x="42" y="37" width="2.5" height="4" fill="#fef08a"/>
-        <g class="hw-zombie-arm-lunge">
-          <path d="M58 48 L78 44 L86 42" stroke="url(#zombieShirt)" stroke-width="7" stroke-linecap="round" fill="none"/>
-          <circle cx="87" cy="42" r="4" fill="url(#zombieSkin)"/>
-          <line x1="88" y1="40" x2="94" y2="39" stroke="url(#zombieSkin)" stroke-width="2" stroke-linecap="round"/>
-          <line x1="88" y1="43" x2="95" y2="43" stroke="url(#zombieSkin)" stroke-width="2" stroke-linecap="round"/>
-          <line x1="87" y1="45" x2="93" y2="46" stroke="url(#zombieSkin)" stroke-width="2" stroke-linecap="round"/>
-        </g>
-      </svg>
-    `,
-
-    // Zombie Hand bursting from the earth
-    zombieHand: `
-      <svg viewBox="0 0 80 90" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="rottingArm" x1="0" y1="1" x2="0" y2="0">
-            <stop offset="0%" stop-color="#365314"/>
-            <stop offset="50%" stop-color="#4d7c0f"/>
-            <stop offset="100%" stop-color="#84cc16"/>
-          </linearGradient>
-        </defs>
-        <ellipse cx="40" cy="85" rx="36" ry="12" fill="#451a03"/>
-        <polygon points="12,82 18,74 24,84" fill="#78350f"/>
-        <polygon points="34,80 40,71 46,82" fill="#92400e"/>
-        <polygon points="56,83 62,75 68,85" fill="#78350f"/>
-        <path d="M30 85 L32 50 L48 50 L50 85 Z" fill="#6b21a8"/>
-        <path d="M33 50 L35 32 L47 32 L47 50 Z" fill="url(#rottingArm)"/>
-        <ellipse cx="40" cy="30" rx="9" ry="7" fill="url(#rottingArm)"/>
-        <path d="M33 26 L29 12 L26 13" stroke="url(#rottingArm)" stroke-width="3.2" stroke-linecap="round" fill="none"/>
-        <path d="M38 25 L37 8 L35 9" stroke="url(#rottingArm)" stroke-width="3.2" stroke-linecap="round" fill="none"/>
-        <path d="M43 25 L45 9 L48 10" stroke="url(#rottingArm)" stroke-width="3.2" stroke-linecap="round" fill="none"/>
-        <path d="M47 27 L53 14 L55 16" stroke="url(#rottingArm)" stroke-width="3" stroke-linecap="round" fill="none"/>
-        <path d="M31 31 L24 28 L23 30" stroke="url(#rottingArm)" stroke-width="3" stroke-linecap="round" fill="none"/>
-      </svg>
-    `,
-
-    // Flying Silhouette Bat
-    bat: `
-      <svg viewBox="0 0 60 30" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-        <path class="bat-wing-left" d="M30 15 C26 7, 16 4, 3 10 C8 15, 14 15, 17 21 C21 16, 26 17, 30 18 Z" fill="#0f172a"/>
-        <path class="bat-wing-right" d="M30 15 C34 7, 44 4, 57 10 C52 15, 46 15, 43 21 C39 16, 34 17, 30 18 Z" fill="#0f172a"/>
-        <ellipse cx="30" cy="15" rx="4.5" ry="7" fill="#020617"/>
-        <polygon points="27,10 26,4 29,9" fill="#020617"/>
-        <polygon points="33,10 34,4 31,9" fill="#020617"/>
-        <circle cx="28.5" cy="12" r="0.75" fill="#f97316"/>
-        <circle cx="31.5" cy="12" r="0.75" fill="#f97316"/>
-      </svg>
-    `,
-
-    // Witch Hat for Avatar
-    witchHat: `
-      <svg viewBox="0 0 80 80" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="40" cy="65" rx="36" ry="9" fill="#1e1b4b" stroke="#0f172a" stroke-width="1.5"/>
-        <path d="M18 64 C26 45, 34 26, 42 8 C44 26, 52 46, 62 64 Z" fill="#1e1b4b"/>
-        <path d="M22 57 C32 54, 48 54, 58 57 L59 62 C49 59, 31 59, 21 62 Z" fill="#f97316"/>
-        <rect x="36" y="55" width="8" height="7" rx="1.5" fill="none" stroke="#fef08a" stroke-width="2"/>
-      </svg>
-    `
-  };
-
-  // Fun physics quotes for Halloween ghouls
-  const GHOUL_QUOTES = [
-    "Braaaains... and Kinematics! v = Δx / Δt!",
-    "Skeleton torque: τ = I α!",
-    "Zero muscle friction, 100% structural integrity!",
-    "Gravitational acceleration: g = 9.8 m/s² down to the grave!",
-    "Momentum is conserved: p_before = p_after!",
-    "Energy cannot be destroyed... only resurrected!",
-    "Watch out for terminal velocity!",
-    "Spooky action at a distance? Einstein called it!"
+  // ------------------------------------------------------------------------
+  // The Graveyard of Dead Theories (historically accurate epitaphs)
+  // ------------------------------------------------------------------------
+  const THEORIES = [
+    {
+      id: 'aristotle', stone: 'ARISTOTLE', dates: '350 BC–1638', shape: 'round',
+      name: "Aristotle's Falling Bodies",
+      claim: 'Heavier objects fall faster than lighter ones.',
+      born: 'c. 350 BC (Aristotle)',
+      died: '1638 (Galileo, Two New Sciences)',
+      cause: 'Galileo timed balls rolling down ramps and showed that, without air resistance, every object falls with the same acceleration. Apollo 15 finished the job in 1971: a hammer and a feather dropped on the Moon landed together.',
+      quip: 'It fell no faster than anyone else.'
+    },
+    {
+      id: 'impetus', stone: 'IMPETUS', dates: '500–1687', shape: 'cross',
+      name: 'Impetus Theory',
+      claim: 'A moving object carries an "impetus" that keeps it going until it runs out.',
+      born: '6th century (John Philoponus), revived c. 1350 (Jean Buridan)',
+      died: "1687 (Newton's First Law, Principia)",
+      cause: 'Newton showed that nothing is needed to keep an object moving. Objects slow down only because a force like friction acts on them. With no net force, motion just continues.',
+      quip: 'Survived by its successor: inertia.'
+    },
+    {
+      id: 'caloric', stone: 'CALORIC', dates: '1783–1840s', shape: 'gothic',
+      name: 'The Caloric Theory of Heat',
+      claim: 'Heat is an invisible, weightless fluid called "caloric" that flows from hot to cold.',
+      born: '1780s (Antoine Lavoisier)',
+      died: '1840s (James Joule)',
+      cause: 'In 1798 Count Rumford noticed that boring out cannon barrels produced endless heat, far more than any stored fluid could explain. In the 1840s James Joule showed that doing work, like stirring water, produces heat. Heat is energy, not a substance.',
+      quip: 'Gone, but its warmth lingers.'
+    },
+    {
+      id: 'aether', stone: 'AETHER', dates: '1678–1887', shape: 'slab',
+      name: 'The Luminiferous Aether',
+      claim: 'Light is a wave, so it must travel through an invisible "aether" filling all of space.',
+      born: '1678 (wave theory of light, Christiaan Huygens)',
+      died: '1887 (Michelson–Morley experiment)',
+      cause: 'Michelson and Morley compared the speed of light in different directions to detect Earth moving through the aether. They found no difference at all. In 1905 Einstein showed light needs no medium.',
+      quip: 'Nobody could find it, even at the funeral.'
+    },
+    {
+      id: 'phlogiston', stone: 'PHLOGISTON', dates: '1667–1780s', shape: 'round',
+      name: 'Phlogiston',
+      claim: 'Things burn by releasing a hidden substance called phlogiston.',
+      born: '1667 (Johann Becher), named c. 1703 (Georg Stahl)',
+      died: '1780s (Antoine Lavoisier)',
+      cause: 'Lavoisier carefully weighed metals before and after burning and found they got heavier, not lighter. Burning combines a substance with oxygen from the air instead of releasing something.',
+      quip: 'Went out in a blaze of oxygen.'
+    },
+    {
+      id: 'geocentric', stone: 'GEOCENTRISM', dates: '150–1610', shape: 'gothic',
+      name: 'The Earth-Centered Universe',
+      claim: 'Earth sits still at the center, and the Sun, Moon, planets and stars all orbit us.',
+      born: "c. 150 AD (Ptolemy's Almagest)",
+      died: '1543–1610 (Copernicus, then Galileo)',
+      cause: "Copernicus put the Sun at the center in 1543. In 1610 Galileo's telescope revealed moons orbiting Jupiter and the full phases of Venus, which an Earth-centered model could not explain.",
+      quip: 'The universe stopped revolving around it.'
+    }
   ];
 
-  // Spawn Speech Bubble above an element
-  function showGhoulSpeech(element, text) {
-    const existing = element.querySelector('.hw-speech-bubble');
-    if (existing) existing.remove();
+  // Layout of the graveyard (x = desktop %, xm = phone %; wideOnly hides on phones)
+  const STONE_LAYOUT = [
+    { x: 11, xm: 12, w: 86, r: -4, b: 50 },
+    { x: 22, xm: 0, w: 74, r: 3, b: 44, wideOnly: true },
+    { x: 33, xm: 32, w: 80, r: -2, b: 52 },
+    { x: 67, xm: 0, w: 92, r: 2, b: 50, wideOnly: true },
+    { x: 78, xm: 68, w: 78, r: -5, b: 46 },
+    { x: 89, xm: 89, w: 84, r: 4, b: 52 }
+  ];
+  const PUMPKINS = [{ x: 44, xm: 0, b: 38, wideOnly: true }, { x: 56, xm: 50, b: 40 }];
 
-    const bubble = document.createElement('div');
-    bubble.className = 'hw-speech-bubble';
-    bubble.textContent = text || GHOUL_QUOTES[Math.floor(Math.random() * GHOUL_QUOTES.length)];
-    element.appendChild(bubble);
+  const STONE_PATHS = {
+    round: 'M10 140V52A40 40 0 0 1 90 52V140Z',
+    gothic: 'M12 140V62Q12 30 50 6Q88 30 88 62V140Z',
+    slab: 'M8 140V44Q8 32 20 32H80Q92 32 92 44V140Z',
+    cross: 'M40 140V42H16V24H40V2H60V24H84V42H60V108H86V140H14V108H40Z'
+  };
 
-    setTimeout(() => {
-      bubble.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-      bubble.style.opacity = '0';
-      bubble.style.transform = 'translateX(-50%) translateY(-10px)';
-      setTimeout(() => bubble.remove(), 400);
-    }, 2800);
+  function stoneSVG(t) {
+    const id = `hwg-${t.id}`;
+    const long = t.stone.length > 8;
+    const isCross = t.shape === 'cross';
+    const nameY = isCross ? 125 : 86;
+    const ripY = isCross ? 36 : 64;
+    const engrave = (txt, x, y, size, extra = '') =>
+      `<text x="${x + 0.7}" y="${y + 0.9}" font-size="${size}" fill="rgba(255,255,255,0.14)" text-anchor="middle" ${extra}>${txt}</text>` +
+      `<text x="${x}" y="${y}" font-size="${size}" fill="rgba(16,13,26,0.88)" text-anchor="middle" ${extra}>${txt}</text>`;
+    const fit = long ? `textLength="${isCross ? 64 : 66}" lengthAdjust="spacingAndGlyphs"` : '';
+    return `
+      <svg viewBox="0 0 100 140" aria-hidden="true" font-family="Georgia, 'Times New Roman', serif" font-weight="700">
+        <defs>
+          <linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#9a97b4"/><stop offset="0.45" stop-color="#5d5a76"/><stop offset="1" stop-color="#2c2a3b"/>
+          </linearGradient>
+        </defs>
+        <path d="${STONE_PATHS[t.shape]}" fill="url(#${id})" stroke="#1a1826" stroke-width="2"/>
+        <path d="${STONE_PATHS[t.shape]}" fill="none" stroke="rgba(221,214,254,0.25)" stroke-width="1" transform="translate(1.2 1.2)"/>
+        ${isCross ? '' : '<path d="M66 70l-6 9 4 6-5 10" fill="none" stroke="rgba(10,8,18,0.45)" stroke-width="1.4"/>'}
+        <ellipse cx="22" cy="136" rx="14" ry="5" fill="rgba(74,94,64,0.55)"/>
+        <ellipse cx="76" cy="137" rx="10" ry="4" fill="rgba(74,94,64,0.45)"/>
+        ${isCross ? engrave('R.I.P.', 50, ripY, 10) : engrave('R.I.P.', 50, ripY, 13)}
+        ${engrave(t.stone, 50, nameY, long ? 11 : 13, fit)}
+        ${isCross ? '' : engrave(t.dates, 50, 104, 8.5, 'font-weight="400"')}
+      </svg>`;
   }
 
-  // Interactive Kinematics Physics Candy Drop
-  function dropPhysicsCandy(originX, originY, count = 8) {
-    SpookyAudio.candyPop();
-    const treats = ['🎃', '🍬', '🍭', '🍫', '💀', '👻', '🧪', '🦇', '🕷️'];
-    const gravity = 980; // pixels / s^2
+  const PUMPKIN_SVG = `
+    <svg viewBox="0 0 100 92" aria-hidden="true">
+      <defs>
+        <radialGradient id="hwg-pk" cx="0.45" cy="0.35" r="0.75">
+          <stop offset="0" stop-color="#ffb347"/><stop offset="0.6" stop-color="#f06d0c"/><stop offset="1" stop-color="#8a3204"/>
+        </radialGradient>
+      </defs>
+      <path d="M48 16q-2-10 6-14l4 3q-6 4-4 12z" fill="#4d6b2a"/>
+      <ellipse cx="30" cy="54" rx="22" ry="32" fill="url(#hwg-pk)"/>
+      <ellipse cx="70" cy="54" rx="22" ry="32" fill="url(#hwg-pk)"/>
+      <ellipse cx="50" cy="54" rx="24" ry="35" fill="url(#hwg-pk)"/>
+      <path d="M50 20v68M30 24q-8 30 0 60M70 24q8 30 0 60" stroke="rgba(110,40,4,0.45)" stroke-width="2" fill="none"/>
+      <g class="hw-pk-face" fill="#ffd36b">
+        <path d="M28 44l10-10 8 12z"/><path d="M72 44l-10-10-8 12z"/><path d="M47 52l3-7 3 7z"/>
+        <path d="M24 62q26 18 52 0l-4 10-6-4-6 6-6-6-6 6-6-6-6 4z"/>
+      </g>
+    </svg>`;
 
-    for (let i = 0; i < count; i++) {
-      const candy = document.createElement('div');
-      candy.className = 'hw-physics-candy';
-      candy.textContent = treats[Math.floor(Math.random() * treats.length)];
-      candy.style.fontSize = `${1.2 + Math.random() * 0.8}rem`;
+  const TREE_SVG = `
+    <svg viewBox="0 0 230 250" aria-hidden="true" fill="none" stroke="#07040e" stroke-linecap="round">
+      <path d="M70 250C76 200 64 168 80 128C92 96 84 70 100 40" stroke-width="16"/>
+      <path d="M80 140C110 120 140 118 168 92C182 80 196 78 214 70" stroke-width="8"/>
+      <path d="M168 92C172 74 166 60 176 44" stroke-width="5"/>
+      <path d="M190 80C200 92 214 96 226 96" stroke-width="4"/>
+      <path d="M100 40C96 26 104 14 98 2" stroke-width="5"/>
+      <path d="M92 70C70 56 48 58 30 42C20 34 10 34 2 30" stroke-width="7"/>
+      <path d="M48 56C42 44 46 32 38 20" stroke-width="4"/>
+      <path d="M74 196C52 186 36 190 18 176" stroke-width="6"/>
+      <path d="M100 40C116 30 128 32 140 20" stroke-width="4"/>
+      <path d="M140 108C150 124 168 128 180 142" stroke-width="4"/>
+    </svg>`;
 
-      const startX = originX !== undefined ? originX : (window.innerWidth * (0.2 + Math.random() * 0.6));
-      const startY = originY !== undefined ? originY : (100 + Math.random() * 80);
+  const HILL_SVG = `
+    <svg class="hw-hill" viewBox="0 0 1440 140" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 64C170 34 360 86 560 60S930 30 1120 62S1350 46 1440 56V140H0Z" fill="#06040d"/>
+      <path d="M0 64C170 34 360 86 560 60S930 30 1120 62S1350 46 1440 56" fill="none" stroke="rgba(167,139,250,0.35)" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
+    </svg>`;
 
-      document.body.appendChild(candy);
+  const HUD_PUMPKIN = PUMPKIN_SVG.replace('id="hwg-pk"', 'id="hwg-pk-hud"').replace(/url\(#hwg-pk\)/g, 'url(#hwg-pk-hud)');
 
-      let x = startX;
-      let y = startY;
-      let vx = (Math.random() - 0.5) * 450;
-      let vy = -220 - Math.random() * 320;
-      let rotation = Math.random() * 360;
-      let rotSpeed = (Math.random() - 0.5) * 500;
-      let bounceCount = 0;
-      let lastTime = performance.now();
+  // ------------------------------------------------------------------------
+  // Pre-rendered sprites (drawn once, stamped every frame — cheap on Chromebooks)
+  // ------------------------------------------------------------------------
+  function makeCanvas(w, h) {
+    const c = document.createElement('canvas');
+    c.width = Math.ceil(w);
+    c.height = Math.ceil(h);
+    return c;
+  }
 
-      function updatePhysics(now) {
-        const dt = Math.min((now - lastTime) / 1000, 0.05);
-        lastTime = now;
+  function moonSprite(r) {
+    const c = makeCanvas(r * 2 + 4, r * 2 + 4);
+    const x = c.getContext('2d');
+    const cx = r + 2;
+    const g = x.createRadialGradient(cx - r * 0.3, cx - r * 0.35, r * 0.1, cx, cx, r);
+    g.addColorStop(0, '#fffaf0');
+    g.addColorStop(0.55, '#ffe9c2');
+    g.addColorStop(1, '#e8c98f');
+    x.fillStyle = g;
+    x.beginPath();
+    x.arc(cx, cx, r, 0, Math.PI * 2);
+    x.fill();
+    x.save();
+    x.clip();
+    // Maria (dark "seas") and a few craters
+    x.filter = `blur(${Math.max(1, r * 0.04)}px)`;
+    x.fillStyle = 'rgba(160, 128, 90, 0.32)';
+    [[-0.25, -0.2, 0.32, 0.24], [0.18, -0.05, 0.22, 0.3], [0.05, 0.32, 0.28, 0.16], [-0.42, 0.22, 0.14, 0.12]].forEach(([dx, dy, rx, ry]) => {
+      x.beginPath();
+      x.ellipse(cx + dx * r, cx + dy * r, rx * r, ry * r, 0.4, 0, Math.PI * 2);
+      x.fill();
+    });
+    x.filter = 'none';
+    x.fillStyle = 'rgba(150, 120, 85, 0.35)';
+    [[0.35, 0.35, 0.07], [-0.1, -0.55, 0.05], [0.55, -0.3, 0.06], [-0.55, -0.05, 0.04]].forEach(([dx, dy, rr]) => {
+      x.beginPath();
+      x.arc(cx + dx * r, cx + dy * r, rr * r, 0, Math.PI * 2);
+      x.fill();
+    });
+    // Limb darkening
+    const edge = x.createRadialGradient(cx, cx, r * 0.7, cx, cx, r);
+    edge.addColorStop(0, 'rgba(0,0,0,0)');
+    edge.addColorStop(1, 'rgba(120, 70, 30, 0.35)');
+    x.fillStyle = edge;
+    x.fillRect(0, 0, c.width, c.height);
+    x.restore();
+    return c;
+  }
 
-        vy += gravity * dt;
-        x += vx * dt;
-        y += vy * dt;
-        rotation += rotSpeed * dt;
+  function glowSprite(radius, color) {
+    const c = makeCanvas(radius * 2, radius * 2);
+    const x = c.getContext('2d');
+    const g = x.createRadialGradient(radius, radius, 0, radius, radius, radius);
+    g.addColorStop(0, color);
+    g.addColorStop(0.25, color.replace(/[\d.]+\)$/, '0.35)'));
+    g.addColorStop(1, color.replace(/[\d.]+\)$/, '0)'));
+    x.fillStyle = g;
+    x.fillRect(0, 0, c.width, c.height);
+    return c;
+  }
 
-        const floor = window.innerHeight - 40;
-        if (y >= floor) {
-          y = floor;
-          vy = -vy * 0.62;
-          vx = vx * 0.8;
-          bounceCount++;
-          if (bounceCount < 3 && Math.abs(vy) > 80) {
-            SpookyAudio.candyPop();
-          }
-        }
+  function fogSprite(w, h, tint) {
+    const c = makeCanvas(w, h);
+    const x = c.getContext('2d');
+    for (let i = 0; i < 46; i++) {
+      const bx = Math.random() * w;
+      const by = h * rand(0.35, 0.9);
+      const br = rand(h * 0.25, h * 0.6);
+      [bx, bx - w, bx + w].forEach(px => {
+        const g = x.createRadialGradient(px, by, 0, px, by, br);
+        g.addColorStop(0, tint);
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        x.fillStyle = g;
+        x.beginPath();
+        x.arc(px, by, br, 0, Math.PI * 2);
+        x.fill();
+      });
+    }
+    return c;
+  }
 
-        candy.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rotation}deg)`;
+  function cloudSprite(w, h) {
+    const c = makeCanvas(w, h);
+    const x = c.getContext('2d');
+    x.filter = `blur(${h * 0.18}px)`;
+    x.fillStyle = 'rgba(28, 20, 54, 0.85)';
+    for (let i = 0; i < 7; i++) {
+      x.beginPath();
+      x.ellipse(w * rand(0.2, 0.8), h * rand(0.4, 0.6), w * rand(0.12, 0.22), h * rand(0.16, 0.26), 0, 0, Math.PI * 2);
+      x.fill();
+    }
+    return c;
+  }
 
-        if (bounceCount < 5 && Math.abs(vy) > 15) {
-          requestAnimationFrame(updatePhysics);
+  // ------------------------------------------------------------------------
+  // One haunted scene per .hero
+  // ------------------------------------------------------------------------
+  class HauntedHero {
+    constructor(hero) {
+      this.hero = hero;
+      this.running = false;
+      this.visible = true;
+      this.time = 0;
+      this.pointer = { x: -1e4, y: -1e4 };
+      this.bats = [];
+      this.candies = [];
+      this.labels = [];
+      this.nextBats = 2.5;
+
+      hero.classList.add('hw-hero');
+      this.scene = document.createElement('div');
+      this.scene.className = 'hw-scene';
+      this.scene.setAttribute('aria-hidden', 'true');
+      this.canvas = document.createElement('canvas');
+      this.scene.appendChild(this.canvas);
+      hero.prepend(this.scene);
+      this.ctx = this.canvas.getContext('2d');
+
+      this.buildGraveyard();
+      this.buildSpiderHandle();
+
+      this.onMove = (e) => {
+        const r = this.hero.getBoundingClientRect();
+        this.pointer.x = e.clientX - r.left;
+        this.pointer.y = e.clientY - r.top;
+      };
+      this.onLeave = () => { this.pointer.x = this.pointer.y = -1e4; };
+      hero.addEventListener('pointermove', this.onMove, { passive: true });
+      hero.addEventListener('pointerleave', this.onLeave, { passive: true });
+
+      this.ro = new ResizeObserver(() => this.resize());
+      this.ro.observe(hero);
+      this.io = new IntersectionObserver(([entry]) => {
+        this.visible = entry.isIntersecting;
+        this.syncLoop();
+      });
+      this.io.observe(hero);
+      this.resize();
+    }
+
+    // ---------------- DOM: graveyard, pumpkins, epitaph ----------------
+    buildGraveyard() {
+      const gy = document.createElement('div');
+      gy.className = 'hw-graveyard';
+      gy.innerHTML = HILL_SVG + `<div class="hw-tree">${TREE_SVG}</div>`;
+
+      THEORIES.forEach((t, i) => {
+        const L = STONE_LAYOUT[i];
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'hw-stone' + (L.wideOnly ? ' hw-wide-only' : '');
+        b.style.cssText = `--x:${L.x}%;--w:${L.w}px;--r:${L.r}deg;--b:${L.b}px;` + (L.xm ? `--xm:${L.xm}%;` : '');
+        b.setAttribute('aria-label', `Tombstone: ${t.name}. Read its epitaph`);
+        b.setAttribute('aria-haspopup', 'dialog');
+        b.setAttribute('aria-expanded', 'false');
+        b.innerHTML = stoneSVG(t);
+        b.addEventListener('click', () => this.openEpitaph(t, b));
+        gy.appendChild(b);
+      });
+
+      PUMPKINS.forEach(p => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'hw-pumpkin' + (p.wideOnly ? ' hw-wide-only' : '');
+        b.style.cssText = `--x:${p.x}%;--b:${p.b}px;` + (p.xm ? `--xm:${p.xm}%;` : '');
+        b.setAttribute('aria-label', "Jack-o'-lantern: launch candy (projectile motion)");
+        b.title = 'Click me: projectile motion with g = 10 m/s²';
+        b.innerHTML = PUMPKIN_SVG.replace('id="hwg-pk"', `id="hwg-pk-${p.x}"`).replace(/url\(#hwg-pk\)/g, `url(#hwg-pk-${p.x})`);
+        b.addEventListener('click', () => {
+          const r = b.getBoundingClientRect();
+          const h = this.hero.getBoundingClientRect();
+          this.launchCandy(r.left + r.width / 2 - h.left, r.top + r.height * 0.3 - h.top, 9);
+        });
+        gy.appendChild(b);
+      });
+
+      gy.insertAdjacentHTML('beforeend', '<div class="hw-fog-front"></div><p class="hw-grave-hint">The Graveyard of Dead Theories · click a tombstone</p>');
+      this.hero.appendChild(gy);
+      this.graveyard = gy;
+
+      this.epitaph = document.createElement('div');
+      this.epitaph.className = 'hw-epitaph';
+      this.epitaph.hidden = true;
+      this.epitaph.setAttribute('role', 'dialog');
+      this.epitaph.setAttribute('aria-modal', 'false');
+      this.hero.appendChild(this.epitaph);
+
+      this.onDocKey = (e) => { if (e.key === 'Escape' && !this.epitaph.hidden) this.closeEpitaph(true); };
+      this.onDocClick = (e) => {
+        if (this.epitaph.hidden) return;
+        if (this.epitaph.contains(e.target) || (this.openStone && this.openStone.contains(e.target))) return;
+        this.closeEpitaph(false);
+      };
+      document.addEventListener('keydown', this.onDocKey);
+      document.addEventListener('click', this.onDocClick);
+    }
+
+    openEpitaph(t, stone) {
+      if (this.openStone === stone && !this.epitaph.hidden) {
+        this.closeEpitaph(true);
+        return;
+      }
+      if (this.openStone) this.openStone.setAttribute('aria-expanded', 'false');
+      this.openStone = stone;
+      stone.setAttribute('aria-expanded', 'true');
+      const titleId = `hw-ep-${t.id}`;
+      this.epitaph.setAttribute('aria-labelledby', titleId);
+      this.epitaph.innerHTML = `
+        <div class="hw-ep-top">
+          <span class="hw-ep-kicker">✝ Rest in peace ✝</span>
+          <button type="button" class="hw-ep-close" aria-label="Close epitaph">×</button>
+        </div>
+        <h3 class="hw-ep-title" id="${titleId}"><small>Here lies</small>${t.name}</h3>
+        <p class="hw-ep-claim">“${t.claim}”</p>
+        <dl class="hw-ep-dates"><dt>Born</dt><dd>${t.born}</dd><dt>Died</dt><dd>${t.died}</dd></dl>
+        <p class="hw-ep-cause"><strong>Cause of death:</strong> ${t.cause}</p>
+        <p class="hw-ep-quip">${t.quip}</p>`;
+      this.epitaph.hidden = false;
+      // Position above the tombstone, kept inside the hero
+      const hr = this.hero.getBoundingClientRect();
+      const sr = stone.getBoundingClientRect();
+      const width = this.epitaph.offsetWidth;
+      const center = sr.left + sr.width / 2 - hr.left;
+      this.epitaph.style.left = `${Math.max(12, Math.min(hr.width - width - 12, center - width / 2))}px`;
+      this.epitaph.querySelector('.hw-ep-close').addEventListener('click', () => this.closeEpitaph(true));
+      this.epitaph.querySelector('.hw-ep-close').focus({ preventScroll: true });
+      Sound.organ();
+      // A wisp rises from the grave
+      this.wisps.push(this.makeWisp(center, this.h - 120, true));
+      this.syncLoop();
+    }
+
+    closeEpitaph(returnFocus) {
+      this.epitaph.hidden = true;
+      if (this.openStone) {
+        this.openStone.setAttribute('aria-expanded', 'false');
+        if (returnFocus) this.openStone.focus({ preventScroll: true });
+      }
+      this.openStone = null;
+    }
+
+    // ---------------- Spider on a silk spring ----------------
+    buildSpiderHandle() {
+      this.grab = document.createElement('div');
+      this.grab.className = 'hw-spider-grab';
+      this.grab.title = 'Grab me! A mass on a spring: pull down and let go';
+      this.grab.setAttribute('aria-hidden', 'true');
+      this.hero.appendChild(this.grab);
+      this.spider = null;
+      let last = null;
+      const toLocal = (e) => {
+        const r = this.hero.getBoundingClientRect();
+        return { x: e.clientX - r.left, y: e.clientY - r.top, t: performance.now() };
+      };
+      this.grab.addEventListener('pointerdown', (e) => {
+        if (!this.spider) return;
+        e.preventDefault();
+        this.grab.setPointerCapture(e.pointerId);
+        this.spider.dragging = true;
+        last = toLocal(e);
+        this.syncLoop();
+      });
+      this.grab.addEventListener('pointermove', (e) => {
+        if (!this.spider || !this.spider.dragging) return;
+        const p = toLocal(e);
+        const dt = Math.max(0.008, (p.t - last.t) / 1000);
+        const s = this.spider;
+        s.vx = (p.x - s.x) / dt;
+        s.vy = (p.y - s.y) / dt;
+        s.x = p.x;
+        s.y = Math.max(s.ay + 10, p.y);
+        last = p;
+      });
+      const release = () => {
+        if (!this.spider || !this.spider.dragging) return;
+        this.spider.dragging = false;
+        const cap = 2400;
+        this.spider.vx = Math.max(-cap, Math.min(cap, this.spider.vx));
+        this.spider.vy = Math.max(-cap, Math.min(cap, this.spider.vy));
+        Sound.pluck(Math.hypot(this.spider.vx, this.spider.vy));
+      };
+      this.grab.addEventListener('pointerup', release);
+      this.grab.addEventListener('pointercancel', release);
+    }
+
+    // ---------------- Layout & sprites ----------------
+    resize() {
+      const w = this.hero.clientWidth;
+      const h = this.hero.clientHeight;
+      if (!w || !h) return;
+      const dpr = Math.min(1.5, window.devicePixelRatio || 1);
+      this.canvas.width = Math.round(w * dpr);
+      this.canvas.height = Math.round(h * dpr);
+      this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const firstLayout = !this.w;
+      const narrow = w < 760;
+      this.w = w;
+      this.h = h;
+      this.narrow = narrow;
+      this.floorY = h - (narrow ? 50 : 60);
+
+      // Moon: upper-left on desktop (clear of the panther logo), upper-right on phones
+      this.moonR = narrow ? 34 : Math.max(52, Math.min(84, w * 0.055));
+      this.moonX = narrow ? w * 0.82 : w * 0.13;
+      this.moonY = narrow ? 64 : this.moonR + 64;
+      this.moon = moonSprite(this.moonR);
+      this.moonGlow = glowSprite(this.moonR * 4, 'rgba(255, 196, 120, 0.42)');
+      this.fog = [fogSprite(1200, 220, 'rgba(186, 170, 240, 0.07)'), fogSprite(1000, 200, 'rgba(150, 130, 220, 0.06)')];
+      this.cloud = cloudSprite(this.moonR * 5, this.moonR * 1.2);
+      if (!this.clouds) this.clouds = [0, 1].map(i => ({ x: rand(-0.4, 1) * w, y: 0, speed: rand(9, 15), off: i }));
+      if (!this.wispSprites) {
+        this.wispSprites = {
+          green: glowSprite(22, 'rgba(141, 255, 196, 0.9)'),
+          orange: glowSprite(22, 'rgba(255, 170, 80, 0.9)'),
+          violet: glowSprite(22, 'rgba(196, 160, 255, 0.9)')
+        };
+      }
+      // Stars only in the upper sky
+      this.stars = Array.from({ length: Math.round(w / 14) }, () => ({
+        x: Math.random() * w, y: Math.random() * h * 0.55, r: rand(0.4, 1.3), tw: rand(0, Math.PI * 2), a: rand(0.3, 0.9)
+      }));
+      if (firstLayout || !this.wisps) {
+        this.wisps = Array.from({ length: narrow ? 7 : 14 }, () => this.makeWisp());
+      }
+      // Spider hangs in front of the moon (desktop only, so it never covers text on phones)
+      if (!narrow) {
+        const ax = this.moonX + this.moonR * 0.35;
+        const L0 = this.moonY + this.moonR * 0.3;
+        if (!this.spider) {
+          this.spider = { ax, ay: 0, x: ax, y: 6, vx: 0, vy: 0, L: 6, L0, dragging: false, legPhase: 0 };
         } else {
-          candy.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
-          candy.style.opacity = '0';
-          candy.style.transform += ' scale(0.6)';
-          setTimeout(() => candy.remove(), 800);
+          Object.assign(this.spider, { ax, L0 });
+        }
+        this.grab.style.display = '';
+      } else {
+        this.spider = null;
+        this.grab.style.display = 'none';
+      }
+      this.syncLoop();
+      if (!this.running) this.draw(0);
+    }
+
+    makeWisp(x, y, rising) {
+      return {
+        x: x != null ? x : rand(0, this.w || 1000),
+        y: y != null ? y : rand(80, (this.h || 700) - 160),
+        vx: rand(-15, 15),
+        vy: rising ? -60 : rand(-15, 15),
+        heading: rand(0, Math.PI * 2),
+        kind: rising ? 'violet' : pick(['green', 'green', 'orange', 'violet']),
+        size: rand(16, 28),
+        phase: rand(0, Math.PI * 2),
+        life: rising ? 6 : Infinity
+      };
+    }
+
+    // ---------------- Physics toys ----------------
+    launchCandy(x, y, count) {
+      for (let i = 0; i < count; i++) {
+        const speed = rand(4.5, 7.5) * PX_PER_M;                // 4.5–7.5 m/s
+        const angle = (rand(55, 125) * Math.PI) / 180;           // up and outward
+        this.candies.push({
+          x, y,
+          vx: Math.cos(angle) * speed,
+          vy: -Math.sin(angle) * speed,
+          rot: rand(0, Math.PI * 2),
+          spin: rand(-8, 8),
+          kind: pick(['wrap', 'wrap', 'corn']),
+          color: pick(['#ff8a1f', '#a855f7', '#22c55e', '#f43f5e']),
+          rest: 0,
+          bounces: 0
+        });
+      }
+      if (this.candies.length > 70) this.candies.splice(0, this.candies.length - 70);
+      this.labels.push({ x, y: y - 20, text: 'projectile motion · g = 10 m/s²', life: 2.2 });
+      Sound.pop();
+      this.syncLoop();
+    }
+
+    spawnBats() {
+      const dir = Math.random() < 0.5 ? 1 : -1;
+      const nearMoon = !this.narrow && Math.random() < 0.6;
+      const baseY = nearMoon ? this.moonY + rand(-this.moonR, this.moonR * 0.6) : rand(this.h * 0.06, this.h * 0.32);
+      const n = Math.round(rand(3, 7));
+      const speed = rand(120, 190);
+      for (let i = 0; i < n; i++) {
+        this.bats.push({
+          x: dir > 0 ? -40 - i * rand(25, 60) : this.w + 40 + i * rand(25, 60),
+          y0: baseY + rand(-40, 40),
+          dir,
+          speed: speed * rand(0.85, 1.15),
+          size: rand(9, 18),
+          flap: rand(7, 10),
+          phase: rand(0, Math.PI * 2),
+          bob: rand(8, 22),
+          t: 0
+        });
+      }
+      Sound.flutter();
+    }
+
+    update(dt) {
+      this.time += dt;
+      const calm = prefs.calm;
+      const W = this.w, H = this.h;
+
+      if (!calm) {
+        this.clouds.forEach(c => { c.x += c.speed * dt; if (c.x > W + 200) c.x = -this.cloud.width - 100; });
+
+        // Bats
+        this.nextBats -= dt;
+        if (this.nextBats <= 0) {
+          this.spawnBats();
+          this.nextBats = rand(9, 18);
+        }
+        this.bats.forEach(b => { b.t += dt; b.x += b.dir * b.speed * dt; });
+        this.bats = this.bats.filter(b => b.x > -400 && b.x < W + 400);
+
+        // Wisps: wandering charged particles, pushed away by the cursor (F ∝ 1/r²)
+        const px = this.pointer.x, py = this.pointer.y;
+        this.wisps.forEach(p => {
+          p.heading += rand(-2.2, 2.2) * dt;
+          p.vx += Math.cos(p.heading) * 22 * dt;
+          p.vy += Math.sin(p.heading) * 22 * dt;
+          const dx = p.x - px, dy = p.y - py;
+          const r2 = Math.max(dx * dx + dy * dy, 400);
+          if (r2 < 220 * 220) {
+            const r = Math.sqrt(r2);
+            const a = 9e5 / r2;
+            p.vx += (dx / r) * a * dt;
+            p.vy += (dy / r) * a * dt;
+          }
+          if (p.life !== Infinity) { p.life -= dt; p.vy -= 10 * dt; }
+          const drag = Math.exp(-1.1 * dt);
+          p.vx *= drag;
+          p.vy *= drag;
+          const sp = Math.hypot(p.vx, p.vy);
+          if (sp > 280) { p.vx *= 280 / sp; p.vy *= 280 / sp; }
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          if (p.life === Infinity) {
+            if (p.x < 10) p.vx += 60 * dt * 10;
+            if (p.x > W - 10) p.vx -= 60 * dt * 10;
+            if (p.y < 60) p.vy += 60 * dt * 10;
+            if (p.y > H - 140) p.vy -= 60 * dt * 10;
+          }
+        });
+        this.wisps = this.wisps.filter(p => p.life > 0);
+      }
+
+      // Spider: damped mass on a silk spring (silk only pulls), with gravity
+      const s = this.spider;
+      if (s) {
+        if (s.L < s.L0) s.L = Math.min(s.L0, s.L + 90 * dt);         // descends on its thread
+        if (!s.dragging) {
+          const steps = Math.ceil(dt / 0.004);
+          const h = dt / steps;
+          for (let i = 0; i < steps; i++) {
+            const dx = s.x - s.ax, dy = s.y - s.ay;
+            const d = Math.hypot(dx, dy) || 1;
+            const stretch = d - s.L;
+            let ax = 0, ay = G * 0.35;                               // a light spider drifts more gently
+            if (stretch > 0) {
+              const k = 26;                                          // spring constant per unit mass (1/s²)
+              ax -= k * stretch * (dx / d);
+              ay -= k * stretch * (dy / d);
+            }
+            const damp = Math.exp(-0.9 * h);
+            s.vx = (s.vx + ax * h) * damp;
+            s.vy = (s.vy + ay * h) * damp;
+            s.x += s.vx * h;
+            s.y += s.vy * h;
+          }
+          if (s.y < s.ay + 8) { s.y = s.ay + 8; s.vy = Math.abs(s.vy) * 0.3; }
+        }
+        s.legPhase += dt * (2 + Math.min(14, Math.hypot(s.vx, s.vy) / 60));
+        this.grab.style.left = `${s.x}px`;
+        this.grab.style.top = `${s.y}px`;
+      }
+
+      // Candy: projectile motion, bounces on the graveyard ground
+      this.candies.forEach(c => {
+        if (c.rest > 0) { c.rest += dt; return; }
+        c.vy += G * dt;
+        c.x += c.vx * dt;
+        c.y += c.vy * dt;
+        c.rot += c.spin * dt;
+        if (c.y > this.floorY) {
+          c.y = this.floorY;
+          c.vy = -c.vy * 0.45;
+          c.vx *= 0.7;
+          c.spin *= 0.6;
+          c.bounces++;
+          if (Math.abs(c.vy) < 70 || c.bounces > 4) { c.vy = 0; c.rest = 0.0001; }
+        }
+        if (c.x < 6 || c.x > W - 6) c.vx = -c.vx * 0.6;
+      });
+      this.candies = this.candies.filter(c => c.rest < 5);
+      this.labels.forEach(l => { l.life -= dt; l.y -= 18 * dt; });
+      this.labels = this.labels.filter(l => l.life > 0);
+    }
+
+    // ---------------- Drawing ----------------
+    draw() {
+      const ctx = this.ctx;
+      const W = this.w, H = this.h, t = this.time;
+      if (!W) return;
+      ctx.clearRect(0, 0, W, H);
+
+      // Stars
+      this.stars.forEach(s => {
+        ctx.globalAlpha = s.a * (prefs.calm ? 1 : 0.7 + 0.3 * Math.sin(t * 1.7 + s.tw));
+        ctx.fillStyle = '#f3efff';
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+
+      // Moon, glow and passing clouds
+      const mg = this.moonGlow;
+      ctx.drawImage(mg, this.moonX - mg.width / 2, this.moonY - mg.height / 2);
+      ctx.drawImage(this.moon, this.moonX - this.moon.width / 2, this.moonY - this.moon.height / 2);
+      this.clouds.forEach((c, i) => {
+        const cy = this.moonY - this.cloud.height / 2 + (i ? this.moonR * 0.55 : -this.moonR * 0.35);
+        ctx.globalAlpha = 0.75;
+        ctx.drawImage(this.cloud, c.x, cy);
+      });
+      ctx.globalAlpha = 1;
+
+      // Bats (silhouettes)
+      ctx.fillStyle = '#07040e';
+      this.bats.forEach(b => this.drawBat(ctx, b));
+
+      // Spider and its silk
+      if (this.spider) this.drawSpider(ctx, this.spider);
+
+      // Back fog drifting behind the graveyard
+      const fogY = H - 250;
+      this.fog.forEach((f, i) => {
+        const off = prefs.calm ? 0 : ((t * (10 + i * 7)) % f.width);
+        ctx.globalAlpha = 0.9;
+        for (let x = -off; x < W; x += f.width) ctx.drawImage(f, x, fogY + i * 30, f.width, 220);
+      });
+      ctx.globalAlpha = 1;
+
+      // Will-o'-wisps (additive glow)
+      ctx.globalCompositeOperation = 'lighter';
+      this.wisps.forEach(p => {
+        const spr = this.wispSprites[p.kind];
+        const flick = prefs.calm ? 0.8 : 0.65 + 0.35 * Math.sin(t * 5 + p.phase);
+        const fade = p.life === Infinity ? 1 : Math.min(1, p.life / 2);
+        ctx.globalAlpha = flick * fade;
+        ctx.drawImage(spr, p.x - p.size, p.y - p.size, p.size * 2, p.size * 2);
+      });
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = 1;
+
+      // Candy
+      this.candies.forEach(c => {
+        ctx.globalAlpha = c.rest > 3.5 ? Math.max(0, (5 - c.rest) / 1.5) : 1;
+        this.drawCandy(ctx, c);
+      });
+      ctx.globalAlpha = 1;
+
+      // Floating physics labels
+      ctx.font = "700 13px system-ui, -apple-system, 'Segoe UI', sans-serif";
+      ctx.textAlign = 'center';
+      this.labels.forEach(l => {
+        ctx.globalAlpha = Math.min(1, l.life);
+        ctx.fillStyle = 'rgba(14, 10, 29, 0.8)';
+        const tw = ctx.measureText(l.text).width + 16;
+        ctx.fillRect(l.x - tw / 2, l.y - 14, tw, 22);
+        ctx.fillStyle = '#ffd36b';
+        ctx.fillText(l.text, l.x, l.y + 2);
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    drawBat(ctx, b) {
+      const y = b.y0 + Math.sin(b.t * 2 + b.phase) * b.bob;
+      const f = Math.sin(b.t * b.flap * Math.PI * 2 / 3 + b.phase); // wing beat
+      const s = b.size;
+      ctx.save();
+      ctx.translate(b.x, y);
+      ctx.scale(b.dir, 1);
+      ctx.beginPath();
+      // left wing
+      ctx.moveTo(0, 0);
+      ctx.quadraticCurveTo(-s * 0.6, -s * 0.9 * f - s * 0.2, -s * 1.5, -s * 0.5 * f);
+      ctx.quadraticCurveTo(-s * 1.1, s * 0.05, -s * 0.85, s * 0.25);
+      ctx.quadraticCurveTo(-s * 0.55, s * 0.05, -s * 0.3, s * 0.3);
+      // right wing
+      ctx.lineTo(s * 0.3, s * 0.3);
+      ctx.quadraticCurveTo(s * 0.55, s * 0.05, s * 0.85, s * 0.25);
+      ctx.quadraticCurveTo(s * 1.1, s * 0.05, s * 1.5, -s * 0.5 * f);
+      ctx.quadraticCurveTo(s * 0.6, -s * 0.9 * f - s * 0.2, 0, 0);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(0, s * 0.12, s * 0.22, s * 0.34, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(-s * 0.15, -s * 0.15);
+      ctx.lineTo(-s * 0.08, -s * 0.38);
+      ctx.lineTo(0, -s * 0.18);
+      ctx.lineTo(s * 0.08, -s * 0.38);
+      ctx.lineTo(s * 0.15, -s * 0.15);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    drawSpider(ctx, s) {
+      // Silk thread
+      ctx.strokeStyle = 'rgba(236, 232, 255, 0.55)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(s.ax, s.ay);
+      ctx.lineTo(s.x, s.y - 8);
+      ctx.stroke();
+      const ang = Math.atan2(s.x - s.ax, s.y - s.ay);
+      ctx.save();
+      ctx.translate(s.x, s.y);
+      ctx.rotate(-ang);
+      ctx.fillStyle = '#05030a';
+      ctx.strokeStyle = '#05030a';
+      ctx.lineCap = 'round';
+      // 8 jointed legs
+      for (let side = -1; side <= 1; side += 2) {
+        for (let i = 0; i < 4; i++) {
+          const base = (-0.9 + i * 0.55);
+          const wig = Math.sin(s.legPhase + i * 1.3 + (side > 0 ? 0.6 : 0)) * 0.18;
+          const a1 = base + wig;
+          const kx = side * Math.cos(a1) * 13;
+          const ky = Math.sin(a1) * 9 - 6;
+          const fx = kx + side * 9;
+          const fy = ky + 9 + i * 1.5;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(side * 3, i * 2 - 2);
+          ctx.lineTo(kx, ky);
+          ctx.lineTo(fx, fy);
+          ctx.stroke();
         }
       }
+      ctx.beginPath();
+      ctx.ellipse(0, 9, 8.5, 10.5, 0, 0, Math.PI * 2);   // abdomen
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(0, -3, 5.5, 0, Math.PI * 2);               // head
+      ctx.fill();
+      ctx.fillStyle = '#ff7a1a';                         // hourglass marking
+      ctx.beginPath();
+      ctx.moveTo(-2.4, 6); ctx.lineTo(2.4, 6); ctx.lineTo(0, 9.5); ctx.lineTo(2.4, 13); ctx.lineTo(-2.4, 13); ctx.lineTo(0, 9.5);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#ffd36b';                         // eyes catching the moonlight
+      ctx.fillRect(-2.6, -5, 1.4, 1.4);
+      ctx.fillRect(1.2, -5, 1.4, 1.4);
+      ctx.restore();
+    }
 
-      requestAnimationFrame(updatePhysics);
+    drawCandy(ctx, c) {
+      ctx.save();
+      ctx.translate(c.x, c.y - 5);
+      ctx.rotate(c.rot);
+      if (c.kind === 'corn') {
+        ctx.beginPath(); ctx.moveTo(0, -8); ctx.lineTo(6, 6); ctx.lineTo(-6, 6); ctx.closePath();
+        ctx.fillStyle = '#fef3c7'; ctx.fill();
+        ctx.beginPath(); ctx.moveTo(-3.6, 1.4); ctx.lineTo(3.6, 1.4); ctx.lineTo(6, 6); ctx.lineTo(-6, 6); ctx.closePath();
+        ctx.fillStyle = '#f97316'; ctx.fill();
+        ctx.beginPath(); ctx.moveTo(-5, 4.2); ctx.lineTo(5, 4.2); ctx.lineTo(6, 6); ctx.lineTo(-6, 6); ctx.closePath();
+        ctx.fillStyle = '#facc15'; ctx.fill();
+      } else {
+        ctx.fillStyle = c.color;
+        ctx.beginPath(); ctx.moveTo(-6, 0); ctx.lineTo(-11, -5); ctx.lineTo(-11, 5); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(6, 0); ctx.lineTo(11, -5); ctx.lineTo(11, 5); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(0, 0, 7, 5, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.45)';
+        ctx.beginPath(); ctx.ellipse(-2, -1.8, 2.6, 1.3, -0.3, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    // ---------------- Animation loop management ----------------
+    needsMotion() {
+      if (!prefs.calm) return true;
+      // Calm mode still animates things the student triggered on purpose
+      return this.candies.length > 0 || this.labels.length > 0 || (this.spider && (this.spider.dragging || this.spider.L < this.spider.L0 ||
+        Math.hypot(this.spider.vx, this.spider.vy) > 5));
+    }
+
+    syncLoop() {
+      const should = this.visible && !document.hidden && this.needsMotion();
+      if (should && !this.running) {
+        this.running = true;
+        this.last = performance.now();
+        const frame = (now) => {
+          if (!this.running) return;
+          const dt = Math.min(0.05, (now - this.last) / 1000);
+          this.last = now;
+          this.update(dt);
+          this.draw();
+          if (!this.visible || document.hidden || !this.needsMotion()) {
+            this.running = false;
+            return;
+          }
+          this.raf = requestAnimationFrame(frame);
+        };
+        this.raf = requestAnimationFrame(frame);
+      } else if (!should && !this.running) {
+        this.draw();
+      }
+    }
+
+    destroy() {
+      this.running = false;
+      cancelAnimationFrame(this.raf);
+      this.ro.disconnect();
+      this.io.disconnect();
+      this.hero.removeEventListener('pointermove', this.onMove);
+      this.hero.removeEventListener('pointerleave', this.onLeave);
+      document.removeEventListener('keydown', this.onDocKey);
+      document.removeEventListener('click', this.onDocClick);
+      [this.scene, this.graveyard, this.epitaph, this.grab].forEach(el => el && el.remove());
+      this.hero.classList.remove('hw-hero');
     }
   }
 
-  // Create & mount the entire Halloween ecosystem
-  function initHalloween() {
-    if (!isThemeActive) return;
+  // ------------------------------------------------------------------------
+  // Theme on/off, footer greeting, and the Spooky Season menu
+  // ------------------------------------------------------------------------
+  let scenes = [];
 
+  function mountTheme() {
     document.body.classList.add('halloween-active');
-
-    // 1. Add Blood Moon to sky
-    if (!document.querySelector('.hw-harvest-moon')) {
-      const moon = document.createElement('div');
-      moon.className = 'hw-harvest-moon';
-      moon.title = 'Harvest Blood Moon: Angular diameter θ = 0.5°';
-      document.body.appendChild(moon);
-    }
-
-    // 2. Add Graveyard Mist along the bottom
-    if (!document.querySelector('.hw-mist-container')) {
-      const mistContainer = document.createElement('div');
-      mistContainer.className = 'hw-mist-container';
-      mistContainer.innerHTML = `
-        <div class="hw-mist-wave"></div>
-        <div class="hw-mist-wave-2"></div>
-      `;
-      document.body.appendChild(mistContainer);
-    }
-
-    // 3. Add Giant Viewport Corner Spider Webs (Top-Left & Top-Right)
-    mountViewportSpiderWebs();
-
-    // 4. Add Hanging Spiders on silk threads
-    mountHangingSpiders();
-
-    // 5. Add Corner Cobwebs on Featured Cards
-    decorateCardsWithSpiderWebs();
-
-    // 6. Interactive Main Hero Title Click
-    setupHeroTitleInteraction();
-
-    // 7. Harmonic Pendulum Skeleton (Left side)
-    if (!document.querySelector('.hw-pendulum-skeleton')) {
-      const skel = document.createElement('div');
-      skel.className = 'hw-pendulum-skeleton';
-      skel.title = 'Harmonic Skeleton Oscillator • Click to rattle bones!';
-      skel.innerHTML = SVG_ASSETS.skeleton;
-      skel.addEventListener('click', (e) => {
-        e.stopPropagation();
-        skel.classList.add('hw-bone-rattle');
-        SpookyAudio.boneRattle();
-        showGhoulSpeech(skel, 'Skeleton Torque: τ = I α! Zero friction!');
-        setTimeout(() => skel.classList.remove('hw-bone-rattle'), 1200);
-      });
-      document.body.appendChild(skel);
-    }
-
-    // 8. Zombie Hand rising from earth (Bottom Right)
-    if (!document.querySelector('.hw-zombie-hand-ground')) {
-      const hand = document.createElement('div');
-      hand.className = 'hw-zombie-hand-ground';
-      hand.title = 'Undead Hand • Click to awaken!';
-      hand.innerHTML = SVG_ASSETS.zombieHand;
-      hand.addEventListener('click', (e) => {
-        e.stopPropagation();
-        SpookyAudio.zombieGroan();
-        showGhoulSpeech(hand, 'Mmm... braaaains & physics!');
-        dropPhysicsCandy(e.clientX - 20, e.clientY - 60, 4);
-      });
-      document.body.appendChild(hand);
-    }
-
-    // 9. Interactive Jack-O'-Lanterns on Featured Cards
-    decorateCardsWithPumpkins();
-
-    // 10. Ambient Flying Bat Swarm
-    createFlyingBat();
-
-    // 11. Mount Spooky Season Control HUD
-    mountHalloweenHUD();
-  }
-
-  // Mount Giant Viewport Corner Spider Webs
-  function mountViewportSpiderWebs() {
-    if (document.querySelector('.hw-viewport-corner-web-tl')) return;
-
-    // Top-Left Giant Web
-    const webTL = document.createElement('div');
-    webTL.className = 'hw-viewport-corner-web hw-viewport-corner-web-tl';
-    webTL.innerHTML = SVG_ASSETS.giantCornerWeb;
-    webTL.title = 'Spider Silk: Tensile strength = 1.3 GPa!';
-    document.body.appendChild(webTL);
-
-    // Top-Right Giant Web
-    const webTR = document.createElement('div');
-    webTR.className = 'hw-viewport-corner-web hw-viewport-corner-web-tr';
-    webTR.innerHTML = SVG_ASSETS.giantCornerWeb;
-    webTR.title = 'Spider Silk: Tensile strength = 1.3 GPa!';
-    document.body.appendChild(webTR);
-
-    // Add click to shake web
-    [webTL, webTR].forEach(web => {
-      web.style.pointerEvents = 'auto';
-      web.style.cursor = 'pointer';
-      web.addEventListener('click', (e) => {
-        e.stopPropagation();
-        web.classList.add('hw-web-vibrate');
-        SpookyAudio.webStrum();
-        setTimeout(() => web.classList.remove('hw-web-vibrate'), 500);
-      });
-    });
-
-    // Add Witch Hat to Mr. Mudry's avatar in header if present
-    const brand = document.querySelector('.site-header .brand');
-    if (brand && !brand.querySelector('.hw-witch-hat')) {
-      brand.style.position = 'relative';
-      const hat = document.createElement('div');
-      hat.className = 'hw-witch-hat';
-      hat.innerHTML = SVG_ASSETS.witchHat;
-      brand.appendChild(hat);
+    document.body.classList.toggle('hw-calm', prefs.calm);
+    scenes = Array.from(document.querySelectorAll('.hero')).map(h => new HauntedHero(h));
+    const foot = document.querySelector('.site-footer .foot p');
+    if (foot && !foot.querySelector('.hw-foot')) {
+      foot.insertAdjacentHTML('beforeend', '<span class="hw-foot"> · 🎃 Happy haunting!</span>');
     }
   }
 
-  // Mount Hanging Spiders on Silk Threads
-  function mountHangingSpiders() {
-    if (document.querySelector('.hw-hanging-spider-left')) return;
-
-    // Left Spider
-    const spiderL = document.createElement('div');
-    spiderL.className = 'hw-hanging-spider hw-hanging-spider-left';
-    spiderL.title = 'Orb Weaver Spider • Tap to scurry!';
-    spiderL.innerHTML = SVG_ASSETS.hangingSpider;
-    spiderL.addEventListener('click', (e) => {
-      e.stopPropagation();
-      SpookyAudio.webStrum();
-      spiderL.style.transform = 'translateY(-45px) scale(1.2)';
-      dropPhysicsCandy(e.clientX, e.clientY, 3);
-      setTimeout(() => {
-        spiderL.style.transform = '';
-      }, 700);
-    });
-    document.body.appendChild(spiderL);
-
-    // Right Spider
-    const spiderR = document.createElement('div');
-    spiderR.className = 'hw-hanging-spider hw-hanging-spider-right';
-    spiderR.title = 'Orb Weaver Spider • Tap to scurry!';
-    spiderR.innerHTML = SVG_ASSETS.hangingSpider;
-    spiderR.addEventListener('click', (e) => {
-      e.stopPropagation();
-      SpookyAudio.webStrum();
-      spiderR.style.transform = 'translateY(-45px) scale(1.2)';
-      dropPhysicsCandy(e.clientX, e.clientY, 3);
-      setTimeout(() => {
-        spiderR.style.transform = '';
-      }, 700);
-    });
-    document.body.appendChild(spiderR);
+  function unmountTheme() {
+    scenes.forEach(s => s.destroy());
+    scenes = [];
+    document.body.classList.remove('halloween-active', 'hw-calm');
+    document.querySelectorAll('.hw-foot').forEach(el => el.remove());
   }
 
-  // Decorate Featured Cards with Corner Spider Webs
-  function decorateCardsWithSpiderWebs() {
-    const targets = [
-      document.querySelector('.bellringer-hero-banner'),
-      document.querySelector('.card[style*="max-width: 820px"]'),
-      document.querySelector('.today-card'),
-      document.querySelector('.live-card')
-    ].filter(Boolean);
-
-    targets.forEach((card) => {
-      if (card.querySelector('.hw-card-web-tl')) return;
-      card.style.position = 'relative';
-
-      const webTL = document.createElement('div');
-      webTL.className = 'hw-card-web hw-card-web-tl';
-      webTL.innerHTML = SVG_ASSETS.cardWeb;
-      card.appendChild(webTL);
-
-      const webTR = document.createElement('div');
-      webTR.className = 'hw-card-web hw-card-web-tr';
-      webTR.innerHTML = SVG_ASSETS.cardWeb;
-      card.appendChild(webTR);
-    });
-  }
-
-  // Setup Spooky Hero Title Interaction
-  function setupHeroTitleInteraction() {
-    const heroTitle = document.querySelector('.hero h1');
-    if (!heroTitle || heroTitle.dataset.hwBound) return;
-    heroTitle.dataset.hwBound = 'true';
-    heroTitle.title = 'Click for Haunted Physics Power!';
-
-    heroTitle.addEventListener('click', (e) => {
-      SpookyAudio.pumpkinCackle();
-      SpookyAudio.boneRattle();
-      heroTitle.classList.add('hw-web-vibrate');
-      setTimeout(() => heroTitle.classList.remove('hw-web-vibrate'), 500);
-
-      const rect = heroTitle.getBoundingClientRect();
-      dropPhysicsCandy(rect.left + rect.width / 2, rect.bottom + 10, 10);
-    });
-  }
-
-  // Decorate today card / hero banner with pumpkins
-  function decorateCardsWithPumpkins() {
-    const targets = [
-      document.querySelector('.bellringer-hero-banner'),
-      document.querySelector('.today-card'),
-      document.querySelector('.live-card')
-    ].filter(Boolean);
-
-    targets.forEach((card) => {
-      if (card.querySelector('.hw-pumpkin-perch')) return;
-      card.classList.add('hw-pumpkin-card');
-
-      const pumpkin = document.createElement('div');
-      pumpkin.className = 'hw-pumpkin-perch';
-      pumpkin.title = 'Interactive Jack-O-Lantern • Click for Physics Treats!';
-      pumpkin.innerHTML = SVG_ASSETS.jackOLantern;
-      pumpkin.addEventListener('click', (e) => {
-        e.stopPropagation();
-        SpookyAudio.pumpkinCackle();
-        const rect = pumpkin.getBoundingClientRect();
-        dropPhysicsCandy(rect.left + rect.width / 2, rect.top, 7);
-      });
-
-      card.appendChild(pumpkin);
-    });
-
-    const heroTitle = document.querySelector('.hero h1');
-    if (heroTitle && !document.querySelector('.hw-october-banner')) {
-      const banner = document.createElement('div');
-      banner.className = 'hw-october-banner';
-      banner.innerHTML = '<span>🎃</span> OCTOBER SPECIAL: GRAVITY, GHOULS &amp; SPOOKY PHYSICS <span>👻</span>';
-      heroTitle.parentNode.insertBefore(banner, heroTitle);
-    }
-  }
-
-  // Flying bat generator
-  function createFlyingBat() {
-    if (document.querySelector('.hw-bat')) return;
-    const bat = document.createElement('div');
-    bat.className = 'hw-bat';
-    bat.style.width = '42px';
-    bat.style.height = '24px';
-    bat.innerHTML = SVG_ASSETS.bat;
-
-    let posX = -60;
-    let posY = 85 + Math.random() * 80;
-    let speedX = 2.2 + Math.random() * 1.5;
-    let angle = 0;
-
-    bat.addEventListener('click', () => {
-      SpookyAudio.batChirp();
-      bat.style.transform = 'scale(1.4) rotate(360deg)';
-      setTimeout(() => {
-        bat.style.transform = '';
-      }, 400);
-    });
-
-    document.body.appendChild(bat);
-
-    function animateBat() {
-      if (!isThemeActive || !bat.parentNode) return;
-      posX += speedX;
-      angle += 0.05;
-      const currentY = posY + Math.sin(angle) * 28;
-
-      bat.style.transform = `translate3d(${posX}px, ${currentY}px, 0)`;
-
-      if (posX > window.innerWidth + 60) {
-        posX = -70;
-        posY = 75 + Math.random() * 100;
-        speedX = 2.0 + Math.random() * 1.8;
-      }
-      requestAnimationFrame(animateBat);
-    }
-
-    requestAnimationFrame(animateBat);
-  }
-
-  // Summon Zombie Walking Across Viewport
-  function summonZombieWalker() {
-    let zombie = document.querySelector('.hw-zombie-walker');
-    if (zombie) zombie.remove();
-
-    zombie = document.createElement('div');
-    zombie.className = 'hw-zombie-walker';
-    zombie.innerHTML = SVG_ASSETS.zombie;
-    document.body.appendChild(zombie);
-
-    SpookyAudio.zombieGroan();
-    showGhoulSpeech(zombie, 'BRAAAINS... and Δx / Δt!');
-
-    let x = -90;
-    const speed = 1.1;
-
-    zombie.addEventListener('click', (e) => {
-      e.stopPropagation();
-      SpookyAudio.zombieGroan();
-      showGhoulSpeech(zombie, GHOUL_QUOTES[Math.floor(Math.random() * GHOUL_QUOTES.length)]);
-      dropPhysicsCandy(x + 40, window.innerHeight - 100, 5);
-    });
-
-    function step() {
-      if (!isThemeActive || !zombie.parentNode) return;
-      x += speed;
-      zombie.style.transform = `translateX(${x}px)`;
-
-      if (x < window.innerWidth + 100) {
-        requestAnimationFrame(step);
-      } else {
-        zombie.remove();
-      }
-    }
-
-    requestAnimationFrame(step);
-  }
-
-  // Spooky Control HUD
-  function mountHalloweenHUD() {
-    if (document.querySelector('.hw-hud')) return;
-
+  function mountHUD() {
     const hud = document.createElement('div');
-    hud.className = 'hw-hud';
+    hud.className = 'hw-hud' + (prefs.theme ? '' : ' is-off');
     hud.innerHTML = `
-      <div class="hw-hud-toggle-btn" id="hw-hud-btn" title="Toggle Halloween Season Settings">
-        <span>🎃</span> Spooky Season
-      </div>
-      <div class="hw-hud-panel" id="hw-hud-panel">
-        <div class="hw-hud-header">
-          <div class="hw-hud-title"><span>🎃</span> October Physics</div>
-          <button class="hw-hud-btn" id="hw-close-panel-btn">✕</button>
-        </div>
-        <div class="hw-hud-row">
-          <span>Halloween Atmosphere</span>
-          <button class="hw-hud-btn ${isThemeActive ? 'active' : ''}" id="hw-toggle-theme">
-            ${isThemeActive ? 'ON' : 'OFF'}
-          </button>
-        </div>
-        <div class="hw-hud-row">
-          <span>Spooky Sound FX</span>
-          <button class="hw-hud-btn ${isAudioEnabled ? 'active' : ''}" id="hw-toggle-audio">
-            ${isAudioEnabled ? '🔊 ON' : '🔇 OFF'}
-          </button>
-        </div>
-        <button class="hw-hud-action-btn" id="hw-drop-candy">
-          🍬 Drop Physics Candy
-        </button>
-        <button class="hw-hud-action-btn" id="hw-summon-zombie">
-          🧟 Summon Zombie
-        </button>
-        <button class="hw-hud-action-btn" id="hw-skeleton-dance">
-          💀 Skeleton Rattle
-        </button>
-      </div>
-    `;
-
+      <button type="button" class="hw-hud-btn" aria-expanded="false" aria-controls="hw-hud-panel" title="Spooky Season settings">${HUD_PUMPKIN}<span class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Spooky Season settings</span></button>
+      <div class="hw-hud-panel" id="hw-hud-panel" hidden>
+        <p class="hw-hud-title">Spooky Season</p>
+        <div class="hw-hud-row"><span>Halloween theme</span><button type="button" class="hw-hud-toggle" data-pref="theme"></button></div>
+        <div class="hw-hud-row"><span>Sound effects</span><button type="button" class="hw-hud-toggle" data-pref="sound"></button></div>
+        <div class="hw-hud-row"><span>Motion</span><button type="button" class="hw-hud-toggle" data-pref="calm"></button></div>
+        <p class="hw-hud-note">Grab the spider, chase the wisps with your cursor, click a pumpkin for projectile candy, and read the tombstones.</p>
+      </div>`;
     document.body.appendChild(hud);
-
-    const toggleBtn = hud.querySelector('#hw-hud-btn');
-    const panel = hud.querySelector('#hw-hud-panel');
-    const closeBtn = hud.querySelector('#hw-close-panel-btn');
-    const themeBtn = hud.querySelector('#hw-toggle-theme');
-    const audioBtn = hud.querySelector('#hw-toggle-audio');
-    const candyBtn = hud.querySelector('#hw-drop-candy');
-    const zombieBtn = hud.querySelector('#hw-summon-zombie');
-    const skelBtn = hud.querySelector('#hw-skeleton-dance');
-
-    toggleBtn.addEventListener('click', () => {
-      panel.classList.toggle('open');
-      getAudioContext();
+    const btn = hud.querySelector('.hw-hud-btn');
+    const panel = hud.querySelector('.hw-hud-panel');
+    const toggles = hud.querySelectorAll('.hw-hud-toggle');
+    const label = {
+      theme: v => (v ? 'On' : 'Off'),
+      sound: v => (v ? 'On' : 'Off'),
+      calm: v => (v ? 'Calm' : 'Full')
+    };
+    const render = () => toggles.forEach(t => {
+      const k = t.dataset.pref;
+      t.textContent = label[k](prefs[k]);
+      t.setAttribute('aria-pressed', String(k === 'calm' ? !prefs.calm : prefs[k]));
+      t.setAttribute('aria-label', `${t.previousElementSibling.textContent}: ${label[k](prefs[k])}`);
     });
-
-    closeBtn.addEventListener('click', () => {
-      panel.classList.remove('open');
-    });
-
-    themeBtn.addEventListener('click', () => {
-      isThemeActive = !isThemeActive;
-      localStorage.setItem(STORAGE_KEY_THEME, isThemeActive ? 'enabled' : 'disabled');
-      themeBtn.textContent = isThemeActive ? 'ON' : 'OFF';
-      themeBtn.classList.toggle('active', isThemeActive);
-
-      if (isThemeActive) {
-        initHalloween();
+    render();
+    const setOpen = (open) => {
+      panel.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+    };
+    btn.addEventListener('click', (e) => { e.stopPropagation(); setOpen(panel.hidden); });
+    document.addEventListener('click', (e) => { if (!hud.contains(e.target)) setOpen(false); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !panel.hidden) { setOpen(false); btn.focus(); } });
+    toggles.forEach(t => t.addEventListener('click', () => {
+      const k = t.dataset.pref;
+      prefs[k] = !prefs[k];
+      if (k === 'theme') {
+        store.set('hw_theme', prefs.theme ? 'on' : 'off');
+        hud.classList.toggle('is-off', !prefs.theme);
+        if (prefs.theme) mountTheme(); else unmountTheme();
+      } else if (k === 'sound') {
+        store.set('hw_sound', prefs.sound ? 'on' : 'off');
+        if (prefs.sound) Sound.pop();
       } else {
-        removeHalloweenElements();
+        store.set('hw_motion', prefs.calm ? 'calm' : 'full');
+        document.body.classList.toggle('hw-calm', prefs.calm);
+        scenes.forEach(s => s.syncLoop());
       }
-    });
-
-    audioBtn.addEventListener('click', () => {
-      isAudioEnabled = !isAudioEnabled;
-      localStorage.setItem(STORAGE_KEY_AUDIO, isAudioEnabled ? 'enabled' : 'disabled');
-      audioBtn.textContent = isAudioEnabled ? '🔊 ON' : '🔇 OFF';
-      audioBtn.classList.toggle('active', isAudioEnabled);
-      if (isAudioEnabled) {
-        getAudioContext();
-        SpookyAudio.boneRattle();
-      }
-    });
-
-    candyBtn.addEventListener('click', () => {
-      dropPhysicsCandy(window.innerWidth / 2, 120, 12);
-    });
-
-    zombieBtn.addEventListener('click', () => {
-      summonZombieWalker();
-    });
-
-    skelBtn.addEventListener('click', () => {
-      const skel = document.querySelector('.hw-pendulum-skeleton');
-      if (skel) {
-        skel.classList.add('hw-bone-rattle');
-        SpookyAudio.boneRattle();
-        showGhoulSpeech(skel, '206 Bones in Harmonic Motion!');
-        setTimeout(() => skel.classList.remove('hw-bone-rattle'), 1500);
-      }
-    });
+      render();
+    }));
   }
 
-  // Remove Halloween elements if toggled off
-  function removeHalloweenElements() {
-    document.body.classList.remove('halloween-active');
-    const toRemove = [
-      '.hw-harvest-moon',
-      '.hw-mist-container',
-      '.hw-viewport-corner-web',
-      '.hw-card-web',
-      '.hw-hanging-spider',
-      '.hw-pendulum-skeleton',
-      '.hw-zombie-hand-ground',
-      '.hw-zombie-walker',
-      '.hw-bat',
-      '.hw-pumpkin-perch',
-      '.hw-october-banner',
-      '.hw-witch-hat'
-    ];
-    toRemove.forEach((sel) => {
-      document.querySelectorAll(sel).forEach((el) => el.remove());
-    });
+  document.addEventListener('visibilitychange', () => scenes.forEach(s => s.syncLoop()));
+
+  function init() {
+    if (prefs.theme) mountTheme();
+    mountHUD();
   }
 
-  // Hook into lifecycle
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initHalloween);
-  } else {
-    initHalloween();
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 
-  // Expose global controller
+  // Public API (kept for any page that calls the previous theme's functions)
   window.HalloweenPhysics = {
-    dropCandy: dropPhysicsCandy,
-    summonZombie: summonZombieWalker,
-    audio: SpookyAudio,
-    refreshCards: decorateCardsWithPumpkins
+    active: true,
+    dropCandy(x, y, count = 9) {
+      const s = scenes[0];
+      if (!s) return;
+      s.launchCandy(x != null ? x : s.w / 2, y != null ? y : s.h - 120, count);
+    },
+    summonZombie() {
+      const s = scenes[0];
+      if (s) { s.spawnBats(); s.syncLoop(); }
+    },
+    summonBats() { this.summonZombie(); }
   };
 })();

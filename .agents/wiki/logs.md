@@ -3,6 +3,20 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+
+## 2026-10-01 — Halloween Theme Redesign: "Night at Orange High: The Graveyard of Dead Theories"
+
+**Pattern Rewritten**: `seasonal-theming-architecture.md`.
+
+**Changes**:
+- Replaced `assets/halloween.css` and `assets/halloween.js`. The old theme's neon geometric webs, nav spiders, zombie hand, skeleton, and Creepster card titles are gone. It also no longer dims the Bell-Ringer card.
+- **New moonlit scene on every `.hero`** (one canvas): harvest moon, stars, clouds, fog, bat flocks, and will-o'-wisps that act like charged particles (1/r² repulsion from the cursor).
+- **Physics toys at class conventions (g = 10 m/s², 100 px = 1 m)**: a spider on a silk spring (damped mass-on-a-spring you can grab and fling), and jack-o'-lanterns that launch projectile-motion candy.
+- **Signature idea**: a graveyard of six debunked theories (Aristotle's falling bodies, impetus, caloric, luminiferous aether, phlogiston, geocentrism). Each tombstone is an accessible button that opens a historically accurate epitaph.
+- The spooky font (`Jolly Lodger`) is used only for the hero title and section headings; all card text and buttons keep normal fonts.
+- **Self-expiring**: `partials.js` and `halloween.js` load the theme only in October (`?halloween=on` previews it, `?halloween=off` hides it). Removed the hard-coded 🎃 and "Spooky Season" text from `partials/header.html` and `partials/footer.html`, plus the direct theme includes and Halloween card from `index.html`.
+- Calm mode and `prefers-reduced-motion` give a still scene. Sound is off by default. The loop pauses off-screen. Verified 60 fps, no console errors, and no horizontal scroll on phones.
+
 ## 2026-10-01 — Spooky Season: Halloween Physics Architecture & Interactive Ghouls
 
 **Pattern Added**: `seasonal-theming-architecture.md`.
