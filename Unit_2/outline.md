@@ -246,7 +246,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Whiteboard FBD Sprint: 8 real-world scenarios (skydiver with open chute, sled pushed across snow, elevator moving upward at constant speed, car coasting to a stop). Students construct FBDs and write net force expressions in x and y dimensions.
     *   *Essential Question:* How do free-body diagrams allow us to translate messy real-world objects into isolated vector systems?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Activity / Direct Instruction
-    *   *Links:* [The Force Toolkit & FBD Presentation](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), Whiteboard FBD Sprint Handout *(Planned In-Class)*
+    *   *Links:* [Inertia Demonstration Planner (Student PDF)](Unit_2/worksheets/Inertia_Demonstration_Planner.pdf), [Teacher Master Key](Unit_2/worksheets/Teacher_Master_Key_Inertia_Demonstration.pdf), [The Force Toolkit & FBD Presentation](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), Whiteboard FBD Sprint Handout *(Planned In-Class)*
 
 ---
 

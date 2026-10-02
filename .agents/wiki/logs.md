@@ -4,6 +4,21 @@ Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
 
+## 2026-10-02 — The Inertia Showcase: Demonstration & Physics Defense Planner (Unit 2 Day 25)
+
+**Pattern Applied**: `printable-graphing-worksheets.md` (Strict 2-page letter print budget, Puppeteer rendering, zero-LaTeX).
+
+**Changes**:
+- **New 2-Page Performance Task Worksheet (`Unit_2/worksheets/Inertia_Demonstration_Planner.html` & `.pdf`)**:
+  - High-school student planner for engineering and defending a live physical proof of Newton's First Law.
+  - Page 1: Mission briefing, 3-category selection (Rest, Motion, Direction), 4-column Bill of Materials & safety checklist, 14 mm dot-grid setup blueprint sketch, and 4-step execution protocol.
+  - Page 2: Free-Body Diagram vector proof (Equilibrium vs. Split-Second Action), scaffolded CER scientific defense (Claim, Evidence, Reasoning), authentic everyday life & engineering synthesis (automotive seatbelts, hammerheads, tangent throw), and a 16-point demonstration scoring rubric.
+- **New 2-Page Teacher Master Key & Guide (`Unit_2/worksheets/Teacher_Master_Key_Inertia_Demonstration.html` & `.pdf`)**:
+  - Zero-prep physics closet supplies guide (beakers, 3x5 cards, steel washers, carts, pie pans).
+  - 3 fully worked exemplars (The Coin-Drop Beaker Snap, The Ejection Seat Crash Cart, and The Cut-Tether Tangent Slingshot).
+  - Common student pitfalls, FBD grading criteria (penalizing unphysical "forward inertia force" arrows), and quick 30-second teacher defense check-in interview questions.
+- **Site Integration**: Added to Day 25 in `assets/lessons-data.js` and `Unit_2/outline.md`. Regenerated with Puppeteer, validated exact 2-page letter budgets, and updated site footer timestamp.
+
 ## 2026-10-01 — Halloween Theme Redesign: "Night at Orange High: The Graveyard of Dead Theories"
 
 **Pattern Rewritten**: `seasonal-theming-architecture.md`.

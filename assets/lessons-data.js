@@ -3511,6 +3511,15 @@ const lessonsData = [
     },
     "assignments": [
       {
+        "title": "Inertia Demonstration & Physics Defense Planner",
+        "url": "Unit_2/worksheets/Inertia_Demonstration_Planner.pdf",
+        "typeLabel": "Performance Task Planner",
+        "submission": "In-Class Handout (2-Page Printable Planner)",
+        "actionLabel": "Open PDF Worksheet",
+        "description": "Plan, engineer, and defend a physical demonstration of Newton's First Law (Rest, Motion, or Direction) with Bill of Materials, procedure, FBDs, and everyday engineering connections.",
+        "status": "active"
+      },
+      {
         "title": "Whiteboard FBD Sprint & Force Identification Sheet",
         "typeLabel": "Practice Handout",
         "submission": "In-Class Handout (Subject to Pacing)",
@@ -3520,6 +3529,18 @@ const lessonsData = [
       }
     ],
     "resources": [
+      {
+        "title": "Inertia Demonstration Planner (Student PDF)",
+        "url": "Unit_2/worksheets/Inertia_Demonstration_Planner.pdf",
+        "typeLabel": "Printable Worksheet",
+        "description": "2-page printable student planner: Materials list, setup diagram, execution protocol, Free-Body Diagram defense, CER, and 16-point rubric."
+      },
+      {
+        "title": "Inertia Demonstration Planner (Teacher Master Key)",
+        "url": "Unit_2/worksheets/Teacher_Master_Key_Inertia_Demonstration.pdf",
+        "typeLabel": "Teacher Key & Guide",
+        "description": "Full teacher facilitation guide with zero-prep physics closet supplies, 3 category exemplars, FBD keys, and quick 30-second interview check-ins."
+      },
       {
         "title": "The Force Toolkit & FBD Presentation",
         "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
@@ -3536,6 +3557,8 @@ const lessonsData = [
       }
     ],
     "links": {
+      "Inertia Demonstration Planner (PDF)": "Unit_2/worksheets/Inertia_Demonstration_Planner.pdf",
+      "Teacher Master Key (PDF)": "Unit_2/worksheets/Teacher_Master_Key_Inertia_Demonstration.pdf",
       "Force Toolkit Reference Guide": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing"
     }
   },
