@@ -113,6 +113,7 @@ Future unit activities, handouts, and laboratory exercises frequently evolve bas
 Clicking a lesson card opens a detail drawer/modal containing expanded details, categorized links, and a `data-ngss` container for the full NGSS banner.
 
 ## Known Pitfalls
+- **Exposing Teacher Master Keys**: Never include `Teacher Master Key`, `Teacher Key`, or `Answer Key` entries in `assignments`, `resources`, or `links` in `assets/lessons-data.js` or on unit dashboards. Dashboards are public student interfaces; answer keys belong strictly in teacher-facing offline directories and must never be linked in student lesson data.
 - **Placeholder URL Copy-Paste**: Never use an existing document's Google Doc link as a generic filler for future uncreated days. Use `status: "planned"` with no URL instead.
 - **TailwindCSS CDN + custom CSS**: Dashboards use BOTH `cdn.tailwindcss.com` AND a `<style>` block. Tailwind utility classes and custom CSS coexist — don't use `@apply` since there's no build step.
 - **Partials load order**: `partials.js` must be loaded AFTER the main content DOM. Place it at the bottom of `<body>`. It auto-loads `ngss-helper.js` which runs `autoInit()`.

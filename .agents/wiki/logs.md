@@ -3,6 +3,22 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-04 — Dashboard Cleanup: Unit 2 Day 25 Inertia Demonstration Planner & Master Key Prohibition
+
+**Patterns Updated**: `dashboard-layout.md`, `printable-graphing-worksheets.md`.
+**Workspace Rules Updated**: `.agents/AGENTS.md`.
+
+**Changes**:
+- **Unit 2 Day 25 Dashboard Lesson Cleanup (`assets/lessons-data.js`, `Unit_2/outline.md`, `unit2-dashboard.html`)**:
+  - Cleaned up Day 25 to focus strictly on the **Inertia Demonstration & Physics Defense Planner** (`Inertia_Demonstration_Planner.pdf`).
+  - Removed discordant elements: Whiteboard FBD Sprint planned handout, Force Toolkit presentation slides, and Speed & Distance Studio practice sandbox.
+  - Set custom exemplar metadata (`exemplarTitle` and `exemplarDescription`) with preview thumbnail image (`preview_Inertia_Planner-1.png`).
+  - Aligned bell-ringer to concept chat: "Inertia Defense & The 'Forward Force' Trap" using the standardized AI Physics Mentor master persona.
+- **Strict Master Key Prohibition Standard**:
+  - Established a strict workspace rule prohibiting `Teacher Master Key`, `Teacher Key`, or `Answer Key` entries in student-facing lesson information, curriculum stores (`assets/lessons-data.js`), unit dashboards, or course outlines.
+  - Purged all Teacher Master Key entries from `assets/lessons-data.js` (Day 19 and Day 25) and `Unit_2/outline.md` (Day 25).
+  - Codified policy in `.agents/AGENTS.md`, `dashboard-layout.md`, and `printable-graphing-worksheets.md`.
+
 
 ## 2026-10-02 — The Inertia Showcase: Demonstration & Physics Defense Planner (Unit 2 Day 25)
 

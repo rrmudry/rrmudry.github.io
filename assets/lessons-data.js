@@ -2683,12 +2683,6 @@ const lessonsData = [
         "url": "Unit_2/honors_worksheets/Honors_Kinematic_Displacement_Practice_Worksheet.pdf",
         "typeLabel": "Honors Practice Worksheet",
         "description": "Period 0 Honors: Scaffolded 2-page worksheet mastering x_f = x₀ + v₀t + ½at² across 5 tiers (launch from rest, highway passing, emergency braking, multi-stage stopping distance, and geometric area proof)."
-      },
-      {
-        "title": "Teacher Master Key: Kinematic Displacement (PDF)",
-        "url": "Unit_2/honors_worksheets/Teacher_Master_Key_Kinematic_Displacement.pdf",
-        "typeLabel": "Teacher Solution Key",
-        "description": "Complete step-by-step GUESS solutions, intermediate arithmetic, and boxed answers for all 8 problems."
       }
     ],
     "practice": [
@@ -3405,109 +3399,35 @@ const lessonsData = [
     "day": 25,
     "date": "2026-10-02",
     "unit": 2,
-    "title": "The Force Toolkit: Types of Forces & Free-Body Diagrams",
-    "topic": "Contact vs. Field Forces & Systematic Free-Body Modeling (FBDs)",
-    "dok": 2,
-    "type": "Activity / Direct Instruction",
+    "title": "Inertia Demonstration & Physics Defense Planner",
+    "topic": "Newton's First Law: Inertia Demonstration & Physics Defense Planner",
+    "dok": 3,
+    "type": "Performance Task",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Catalog standard physical forces (Gravity, Normal, Tension, Friction, Applied) and master drawing standardized Free-Body Diagrams (FBDs).",
-    "activity": "Whiteboard FBD Drafting Sprint: Students translate 6 physical scenarios (book at rest on a table, cart pulled at constant speed, elevator accelerating upward, skydiver in terminal velocity, box on an incline) into isolated dot force diagrams with labeled vector arrows and congruence tick marks.",
-    "essentialQuestion": "How do free-body diagrams allow us to translate messy real-world objects into isolated vector systems?",
+    "summary": "Plan, engineer, and defend an original physical demonstration of Newton's First Law (Rest, Motion, or Direction) with an itemized Bill of Materials, step-by-step protocol, Free-Body Diagrams, and everyday engineering connections.",
+    "activity": "The Inertia Showcase Planner: Students select one of the three physical categories of Newton's First Law (Inertia of Rest, Inertia of Motion, or Inertia of Direction), engineer a demonstration using classroom or household supplies, construct initial and dynamic Free-Body Diagrams (FBDs), write a formal Claim-Evidence-Reasoning (CER) defense, and analyze automotive inertia-reel seatbelts.",
+    "essentialQuestion": "How can we design, execute, and scientifically defend a physical demonstration that isolates inertia from confounding forces?",
     "standards": [
       "HS-PS2-1"
     ],
+    "image": "Unit_2/worksheets/preview_Inertia_Planner-1.png",
+    "exemplarTitle": "Inertia Demonstration & Physics Defense Planner Preview",
+    "exemplarDescription": "2-page printable student planner: Bill of Materials, step-by-step procedure, Free-Body Diagram defense, Claim-Evidence-Reasoning (CER), and automotive inertia-reel seatbelt analysis.",
     "wicor": {
-      "Writing": "Standardizing force vector notation (F<sub>g</sub>, F<sub>N</sub>, F<sub>T</sub>, F<sub>f</sub>, F<sub>app</sub>) with coordinate subscripts.",
-      "Inquiry": "Evaluating whether arrow lengths in FBDs accurately represent balanced vs unbalanced states.",
-      "Collaboration": "Whiteboard sprint pairs critiquing and correcting peer diagrams.",
-      "Organization": "Using a Force Identification Flowchart (Is it touching? Contact force! Is it in gravity? Field force!).",
-      "Reading": "Decoding written descriptions of physical systems into isolated dot representations."
+      "Writing": "Composing a formal Claim-Evidence-Reasoning (CER) scientific argument defending why the mass resisted acceleration.",
+      "Inquiry": "Testing boundary conditions for friction slip thresholds and verifying zero forward force on moving bodies.",
+      "Collaboration": "Partner engineering of demonstration blueprints and peer critique of Free-Body Diagram vector arrows.",
+      "Organization": "Compiling a complete Bill of Materials, step-by-step execution protocol, and labeled experimental diagram.",
+      "Reading": "Analyzing real-world automotive safety engineering and inertia-reel seatbelt mechanisms."
     },
     "bellRinger": {
-      "type": "cast_challenge",
-      "title": "Free-Body Diagram Vector Modeling",
-      "defaultDuration": 4,
-      "standards": {
-        "dci": "HS-PS2.A: Forces & Motion",
-        "sep": "SEP-2: Developing & Using Models",
-        "ccc": "CCC-4: Systems & System Models"
-      },
-      "phenomenon": {
-        "title": "Elevator Cable & Passenger Telemetry",
-        "description": "An elevator with a 70 kg passenger accelerates upward at 2.0 m/s². Sensors in the floor scale and cable winch record the forces acting on the passenger and elevator car.",
-        "stimulus": {
-          "type": "data_table",
-          "title": "Passenger Force Balance",
-          "headers": [
-            "Force",
-            "Agent / Cause",
-            "Direction",
-            "Magnitude"
-          ],
-          "rows": [
-            {
-              "col_0": "Gravitational Force (F<sub>g</sub>)",
-              "col_1": "Earth's Gravity (m · g)",
-              "col_2": "Downward (-y)",
-              "col_3": "70 kg · 10 m/s² = 700 N"
-            },
-            {
-              "col_0": "Normal Force (F<sub>N</sub>)",
-              "col_1": "Elevator Floor Scale",
-              "col_2": "Upward (+y)",
-              "col_3": "840 N"
-            }
-          ]
-        }
-      },
-      "steps": [
-        {
-          "stepId": "step_1",
-          "type": "cloze_dropdown",
-          "title": "Part 1: Comparing Force Magnitudes",
-          "prompt": "Evaluate the passenger's Free-Body Diagram vectors while accelerating upward:",
-          "text": "Because the passenger accelerates upward (+y), the upward Normal force (F<sub>N</sub>) must be [blank1] the downward gravitational force (F<sub>g</sub>). The net force acting on the passenger is [blank2].",
-          "blanks": {
-            "blank1": {
-              "correct": "strictly greater than",
-              "options": [
-                "strictly greater than",
-                "equal to",
-                "less than"
-              ]
-            },
-            "blank2": {
-              "correct": "+140 N upward (840 N - 700 N)",
-              "options": [
-                "+140 N upward (840 N - 700 N)",
-                "0 N (balanced)",
-                "-140 N downward"
-              ]
-            }
-          }
-        },
-        {
-          "stepId": "step_2",
-          "type": "data_calculation",
-          "title": "Part 2: Verifying Acceleration from Net Force",
-          "prompt": "Using a = F<sub>net</sub> / m, calculate the passenger's acceleration in m/s² given F<sub>net</sub> = 140 N and mass m = 70 kg.",
-          "inputLabel": "Upward Acceleration",
-          "unit": "m/s²",
-          "targetValue": 2,
-          "tolerance": 0.1,
-          "hint": "a = F<sub>net</sub> / m = 140 N / 70 kg = 2.0 m/s²."
-        },
-        {
-          "stepId": "step_3",
-          "type": "ai_reasoning_chat",
-          "title": "Part 3: Defending Apparent Weight with AI Mentor",
-          "prompt": "Discuss your reasoning with the AI Physics Mentor: Explain why the floor scale reads 840 N (heavier than 700 N) when accelerating upward, and what the scale would read if the elevator cable snapped.",
-          "openingPrompt": "You verified that a 140 N upward net force produces a 2.0 m/s² upward acceleration! Why does the passenger feel 'heavier' during this upward acceleration, and what would the bathroom scale read if the elevator cable snapped into complete free fall?",
-          "minTurns": 1
-        }
-      ],
-      "teacherKey": "Step 1: strictly greater than, +140 N upward. Step 2: 2.0 m/s² (140 / 70). Step 3: Claim: An upward acceleration increases apparent weight (Normal force), whereas complete free fall drops apparent weight to zero. Evidence: Normal force F<sub>N</sub> = m(g + a) = 70(10 + 2.0) = 840 N. If the cable snaps, the elevator and passenger both accelerate downward at g = 10 m/s², so the floor cannot push up against the passenger: F<sub>N</sub> = m(g - g) = 0 N. Reasoning: Scales do not measure gravitational pull directly; they measure the Normal support force pushing back. When accelerating upward, the floor must push with extra force to both counter gravity and supply net upward acceleration. In free fall, the floor falls out from beneath the feet at the exact same rate, producing apparent weightlessness."
+      "type": "concept_chat",
+      "title": "Inertia Defense & The 'Forward Force' Trap",
+      "promptQuestion": "A student planning an inertia demonstration claims: 'When the moving cart stops, a forward force of inertia pushes the passenger forward.' Why is calling inertia a 'force' a major physics error, and what does Newton's First Law actually state happens?",
+      "explanation": "Inertia is a property of matter (mass)—its resistance to changes in motion—NOT an active force! When the cart stops, no force pushes the passenger forward; their body simply continues moving at constant velocity by Newton's First Law until an external force (like a seatbelt) acts on them.",
+      "chatSystemInstruction": "You are a warm, adaptive, and relatable physics mentor chatting with a student over SMS/text. Your goal is to explore a physics concept together without being overly formal or using forced slang.\n\nCRITICAL RULES:\n1. NO FISHING / PIVOT TO TEACHING: Never try to \"force\" or repeatedly nudge a student toward a specific technical answer or physics term. If you ask a conceptual question and the student guesses wrong, focuses on a different variable (like friction/roughness), or says \"I don't know,\" DO NOT ask a follow-up question trying to correct their guess. Instead, pivot immediately to teaching: validate their logic, briefly explain the physics concept directly using a relatable analogy, and move on.\n2. NO SOCRATIC TRAPS: Do not get stuck in a loop asking the student to explain the same thing over and over. If they answer correctly, understand a concept, or say \"yes\"/\"obvious\", validate it briefly and immediately MOVE FORWARD to a new dimension or a real-world application.\n3. MOVE DYNAMICALLY: Keep the conversation fluid. Once a basic idea is established, introduce a fun twist, a new scenario, or a practical question (e.g., \"What happens if we try this in space?\" or \"How does that affect a rollercoaster?\"). \n4. CHAT TONE & LENGTH: Keep replies highly conversational and natural—like a text message from a knowledgeable peer. Limit replies to 1–3 short sentences max. Never send multiple distinct thoughts, lists, or bullet points in one message.\n5. CONTINUING THE CONVERSATION: Never end the conversation abruptly or push the student to stop chatting. Even after the student demonstrates understanding or has engaged in multiple turns, keep the conversation flowing naturally by offering intriguing follow-up thoughts, fun scenario twists, or real-world applications. You may let them know they can click the Finish Session button whenever they are ready to submit, but always leave the door open for them to continue chatting.",
+      "defaultDuration": 3
     },
     "assignments": [
       {
@@ -3518,14 +3438,6 @@ const lessonsData = [
         "actionLabel": "Open PDF Worksheet",
         "description": "Plan, engineer, and defend a physical demonstration of Newton's First Law (Rest, Motion, or Direction) with Bill of Materials, procedure, FBDs, and everyday engineering connections.",
         "status": "active"
-      },
-      {
-        "title": "Whiteboard FBD Sprint & Force Identification Sheet",
-        "typeLabel": "Practice Handout",
-        "submission": "In-Class Handout (Subject to Pacing)",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Construct isolated Free-Body Diagrams with tail-on-dot force vectors for 8 real-world physical scenarios.",
-        "status": "planned"
       }
     ],
     "resources": [
@@ -3534,32 +3446,11 @@ const lessonsData = [
         "url": "Unit_2/worksheets/Inertia_Demonstration_Planner.pdf",
         "typeLabel": "Printable Worksheet",
         "description": "2-page printable student planner: Materials list, setup diagram, execution protocol, Free-Body Diagram defense, CER, and 16-point rubric."
-      },
-      {
-        "title": "Inertia Demonstration Planner (Teacher Master Key)",
-        "url": "Unit_2/worksheets/Teacher_Master_Key_Inertia_Demonstration.pdf",
-        "typeLabel": "Teacher Key & Guide",
-        "description": "Full teacher facilitation guide with zero-prep physics closet supplies, 3 category exemplars, FBD keys, and quick 30-second interview check-ins."
-      },
-      {
-        "title": "The Force Toolkit & FBD Presentation",
-        "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
-        "typeLabel": "Classroom Slides",
-        "description": "Guide to normal forces, tension, friction, gravity, and applied forces."
       }
     ],
-    "practice": [
-      {
-        "title": "Speed & Distance Studio",
-        "url": "Unit_2/speed_distance_time_app/index.html",
-        "typeLabel": "Practice Sandbox",
-        "description": "Review kinematics foundations."
-      }
-    ],
+    "practice": [],
     "links": {
-      "Inertia Demonstration Planner (PDF)": "Unit_2/worksheets/Inertia_Demonstration_Planner.pdf",
-      "Teacher Master Key (PDF)": "Unit_2/worksheets/Teacher_Master_Key_Inertia_Demonstration.pdf",
-      "Force Toolkit Reference Guide": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing"
+      "Inertia Demonstration Planner (PDF)": "Unit_2/worksheets/Inertia_Demonstration_Planner.pdf"
     }
   },
   {

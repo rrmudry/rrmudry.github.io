@@ -240,13 +240,13 @@ This unit follows the classical and cognitive progression:
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Lab / Activity
     *   *Links:* [Zero-G Inertia Studio](Unit_2/mass_weight_studio/index.html), Mass vs. Weight Reference Guide *(Planned In-Class)*
 
-*   **Day 25 (2026-10-02): The Force Toolkit: Types of Forces & Free-Body Diagrams (FBDs)**
-    *   *Bell-Ringer:* Free-Body Diagram Vector Modeling (CAST Challenge): Elevator passenger telemetry during upward acceleration (+2.0 m/s²). Students evaluate why upward Normal force exceeds downward gravitational pull (`840 N > 700 N`), calculate net acceleration, and explain apparent weightlessness during free fall.
-    *   *Focus:* Cataloging forces: Gravity (F<sub>g</sub>), Normal force (F<sub>N</sub>), Tension (F<sub>T</sub>), Friction (F<sub>f</sub>), Applied force (F<sub>app</sub>), and Air resistance (F<sub>air</sub>). Standardized Free-Body Diagram (FBD) conventions: isolated dot representing object, tail-on-dot force vectors, proper relative lengths, and axis labeling.
-    *   *Activity:* Whiteboard FBD Sprint: 8 real-world scenarios (skydiver with open chute, sled pushed across snow, elevator moving upward at constant speed, car coasting to a stop). Students construct FBDs and write net force expressions in x and y dimensions.
-    *   *Essential Question:* How do free-body diagrams allow us to translate messy real-world objects into isolated vector systems?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Activity / Direct Instruction
-    *   *Links:* [Inertia Demonstration Planner (Student PDF)](Unit_2/worksheets/Inertia_Demonstration_Planner.pdf), [Teacher Master Key](Unit_2/worksheets/Teacher_Master_Key_Inertia_Demonstration.pdf), [The Force Toolkit & FBD Presentation](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), Whiteboard FBD Sprint Handout *(Planned In-Class)*
+*   **Day 25 (2026-10-02): Inertia Demonstration & Physics Defense Planner**
+    *   *Bell-Ringer:* Inertia Defense & The "Forward Force" Trap (AI Chat): A student planning an inertia demonstration claims a forward force of inertia pushes an occupant into the dashboard during a crash. Explain why calling inertia a "force" is incorrect and how Newton's First Law describes what actually happens.
+    *   *Focus:* Newton's First Law across 3 physical categories: Inertia of Rest (tablecloth/index card breakaway), Inertia of Motion (zero-force collision forensics), and Inertia of Direction (tangent escape vectors). Free-Body Diagram vector modeling, Claim-Evidence-Reasoning (CER), and automotive inertia-reel seatbelt safety engineering.
+    *   *Activity:* The Inertia Showcase Planner: Students select one of the three physical categories of Newton's First Law, formulate an itemized Bill of Materials and step-by-step execution protocol, construct initial and dynamic Free-Body Diagrams (FBDs), compose a formal Claim-Evidence-Reasoning (CER) defense, and analyze automotive inertia-reel seatbelts.
+    *   *Essential Question:* How can we design, execute, and scientifically defend a physical demonstration that isolates inertia from confounding forces?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Performance Task
+    *   *Links:* [Inertia Demonstration Planner (Student PDF)](Unit_2/worksheets/Inertia_Demonstration_Planner.pdf)
 
 ---
 

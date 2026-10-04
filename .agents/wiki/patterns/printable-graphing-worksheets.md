@@ -91,3 +91,7 @@ Every student worksheet should be paired with a concise 1-page Teacher Master Ke
    - 2 pts: Velocity vs. Time Graph (aligned time axis, flat horizontal line, shaded area proof matching $d$).
    - 1 pt: Synthesis & Unit Cancellation Analysis.
 2. **Complete Annotated Exemplar**: A fully worked reference scenario (e.g. Mars Rover traversing $120\text{ m}$ at $6\text{ m/s}$ in $20\text{ s}$) demonstrating student calculations and expected graph appearance.
+
+> [!CAUTION]
+> **Strict Publishing Rule (Teacher Master Keys)**:
+> While teacher master keys are generated locally for instructor reference and grading, **NEVER** link or expose `Teacher Master Key` or `Teacher Key` files on student dashboards, in `assets/lessons-data.js`, or in course outlines (`outline.md`). Teacher keys must remain strictly in instructor tools and `.gitignore`d.

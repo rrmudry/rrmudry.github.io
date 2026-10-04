@@ -85,3 +85,10 @@ Whenever creating or modifying teacher lecture guides, student inquiry workbench
    - Step navigation buttons must remain docked/sticky at the top (`position: sticky; top: 0; z-index: 100`) and use responsive CSS Grid (`repeat(N, minmax(0, 1fr))`) without horizontal scrollbars, ensuring navigation buttons never scroll out of view when switching steps.
 - **Consult Wiki Pattern**: Reference `.agents/wiki/patterns/classroom-projection-and-high-contrast-theming.md`.
 
+## 🔒 Strict Prohibition: Never Expose Teacher Master Keys or Solutions in Student Materials
+Never include Teacher Master Keys, Teacher Keys, Answer Keys, or solution files in student-facing lesson information, curriculum stores (`assets/lessons-data.js`), unit dashboards, course outlines (`outline.md`), or navigation links.
+- **Why**: Student dashboards, daily lesson cards, and lesson data are publicly accessible to students. Exposing teacher master keys compromises assessment and assignment integrity.
+- **Enforcement**:
+  - `Teacher_Master_Key*`, `Teacher_Key*`, `Answer_Key*` are strictly for instructor print/generation workflows and must remain `.gitignore`d.
+  - In `assets/lessons-data.js`, only student worksheets, slide decks, interactive simulators, and student exemplars may be linked.
+  - When generating worksheets with companion teacher master keys, output the teacher PDF locally or in teacher tools, but NEVER link the teacher key in `assignments`, `resources`, or `links` within `assets/lessons-data.js` or `outline.md`.
