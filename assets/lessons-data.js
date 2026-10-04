@@ -3413,7 +3413,7 @@ const lessonsData = [
     ],
     "image": "Unit_2/worksheets/preview_Inertia_Planner-1.png",
     "exemplarTitle": "Inertia Demonstration & Physics Defense Planner Preview",
-    "exemplarDescription": "2-page printable student planner: Bill of Materials, step-by-step procedure, Free-Body Diagram defense, Claim-Evidence-Reasoning (CER), and automotive inertia-reel seatbelt analysis.",
+    "exemplarDescription": "Single-page printable student planner: Bill of Materials, step-by-step procedure, Free-Body Diagram defense, Claim-Evidence-Reasoning (CER), and automotive inertia-reel seatbelt analysis.",
     "wicor": {
       "Writing": "Composing a formal Claim-Evidence-Reasoning (CER) scientific argument defending why the mass resisted acceleration.",
       "Inquiry": "Testing boundary conditions for friction slip thresholds and verifying zero forward force on moving bodies.",
@@ -3434,7 +3434,7 @@ const lessonsData = [
         "title": "Inertia Demonstration & Physics Defense Planner",
         "url": "Unit_2/worksheets/Inertia_Demonstration_Planner.pdf",
         "typeLabel": "Performance Task Planner",
-        "submission": "In-Class Handout (2-Page Printable Planner)",
+        "submission": "In-Class Handout (Single-Page Printable Planner)",
         "actionLabel": "Open PDF Worksheet",
         "description": "Plan, engineer, and defend a physical demonstration of Newton's First Law (Rest, Motion, or Direction) with Bill of Materials, procedure, FBDs, and everyday engineering connections.",
         "status": "active"
@@ -3445,7 +3445,7 @@ const lessonsData = [
         "title": "Inertia Demonstration Planner (Student PDF)",
         "url": "Unit_2/worksheets/Inertia_Demonstration_Planner.pdf",
         "typeLabel": "Printable Worksheet",
-        "description": "2-page printable student planner: Materials list, setup diagram, execution protocol, Free-Body Diagram defense, CER, and 16-point rubric."
+        "description": "Single-page printable student planner: Materials list, setup diagram, execution protocol, Free-Body Diagram defense, CER, and 10-point scoring rubric."
       }
     ],
     "practice": [],
