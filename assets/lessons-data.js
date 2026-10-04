@@ -3445,7 +3445,7 @@ const lessonsData = [
         "title": "Inertia Demonstration Planner (Student PDF)",
         "url": "Unit_2/worksheets/Inertia_Demonstration_Planner.pdf",
         "typeLabel": "Printable Worksheet",
-        "description": "Single-page printable student planner: Materials list, setup diagram, execution protocol, Free-Body Diagram defense, CER, and 10-point scoring rubric."
+        "description": "Single-page printable student planner: Materials list, setup diagram, execution protocol, Free-Body Diagram defense, CER, and 16-point scoring rubric."
       }
     ]
   },
