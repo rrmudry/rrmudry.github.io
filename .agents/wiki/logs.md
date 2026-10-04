@@ -3,6 +3,20 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-04 — Single-Page Performance Task: Inertia Demonstration Planner
+
+**Patterns Updated**: `printable-graphing-worksheets.md`.
+
+**Changes**:
+- **Single-Page Worksheet Re-architecture (`Unit_2/worksheets/Inertia_Demonstration_Planner.html` & `.pdf`)**:
+  - Re-engineered the Inertia Demonstration Planner from 2 pages into a compact, high-density, strictly 1-page letter portrait format (`height: 10.56in` budget, `0.22in` top/bottom margins, `0.28in` left/right margins).
+  - Adopted a clean 2-column balanced layout:
+    - **Left Column (Build & Protocol)**: Phase 1 (Category Selection & Codename), Phase 2 (Bill of Materials & Apparatus Inventory), Phase 3 (Setup Blueprint & Vector Diagram with 13mm dot grid), Phase 4 (4-step Execution Protocol).
+    - **Right Column (Defense & Synthesis)**: Phase 5 (Free-Body Diagram defense proving equilibrium vs. dynamic split-second action with explicit misconception warning on forward forces), Phase 6 (Scaffolded CER Claim-Evidence-Reasoning), Phase 7 (Automotive 3-Point Inertia-Reel Seatbelt engineering synthesis), Phase 8 (Demonstration scoring checklist with 10-point rubric and teacher score box).
+  - Removed obsolete `preview_Inertia_Planner-2.png` and regenerated `preview_Inertia_Planner-1.png` via `pdftoppm` for 100% vector-faithful thumbnail preview.
+  - Updated `assets/lessons-data.js` Day 25 descriptions and submission metadata to reflect "Single-Page Printable Planner".
+  - Updated `scripts/generate_inertia_demonstration_worksheet.js` to compile the single-page student planner and exemplar key with automated PDF generation.
+
 ## 2026-10-04 — Dashboard Cleanup: Unit 2 Day 25 Inertia Demonstration Planner & Master Key Prohibition
 
 **Patterns Updated**: `dashboard-layout.md`, `printable-graphing-worksheets.md`.
