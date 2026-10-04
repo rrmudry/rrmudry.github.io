@@ -3411,9 +3411,6 @@ const lessonsData = [
     "standards": [
       "HS-PS2-1"
     ],
-    "image": "Unit_2/worksheets/preview_Inertia_Planner-1.png",
-    "exemplarTitle": "Inertia Demonstration & Physics Defense Planner Preview",
-    "exemplarDescription": "Single-page printable student planner: Bill of Materials, step-by-step procedure, Free-Body Diagram defense, Claim-Evidence-Reasoning (CER), and automotive inertia-reel seatbelt analysis.",
     "wicor": {
       "Writing": "Composing a formal Claim-Evidence-Reasoning (CER) scientific argument defending why the mass resisted acceleration.",
       "Inquiry": "Testing boundary conditions for friction slip thresholds and verifying zero forward force on moving bodies.",
@@ -3428,6 +3425,9 @@ const lessonsData = [
       "explanation": "Inertia is a property of matter (mass)—its resistance to changes in motion—NOT an active force! When the cart stops, no force pushes the passenger forward; their body simply continues moving at constant velocity by Newton's First Law until an external force (like a seatbelt) acts on them.",
       "chatSystemInstruction": "You are a warm, adaptive, and relatable physics mentor chatting with a student over SMS/text. Your goal is to explore a physics concept together without being overly formal or using forced slang.\n\nCRITICAL RULES:\n1. NO FISHING / PIVOT TO TEACHING: Never try to \"force\" or repeatedly nudge a student toward a specific technical answer or physics term. If you ask a conceptual question and the student guesses wrong, focuses on a different variable (like friction/roughness), or says \"I don't know,\" DO NOT ask a follow-up question trying to correct their guess. Instead, pivot immediately to teaching: validate their logic, briefly explain the physics concept directly using a relatable analogy, and move on.\n2. NO SOCRATIC TRAPS: Do not get stuck in a loop asking the student to explain the same thing over and over. If they answer correctly, understand a concept, or say \"yes\"/\"obvious\", validate it briefly and immediately MOVE FORWARD to a new dimension or a real-world application.\n3. MOVE DYNAMICALLY: Keep the conversation fluid. Once a basic idea is established, introduce a fun twist, a new scenario, or a practical question (e.g., \"What happens if we try this in space?\" or \"How does that affect a rollercoaster?\"). \n4. CHAT TONE & LENGTH: Keep replies highly conversational and natural—like a text message from a knowledgeable peer. Limit replies to 1–3 short sentences max. Never send multiple distinct thoughts, lists, or bullet points in one message.\n5. CONTINUING THE CONVERSATION: Never end the conversation abruptly or push the student to stop chatting. Even after the student demonstrates understanding or has engaged in multiple turns, keep the conversation flowing naturally by offering intriguing follow-up thoughts, fun scenario twists, or real-world applications. You may let them know they can click the Finish Session button whenever they are ready to submit, but always leave the door open for them to continue chatting.",
       "defaultDuration": 3
+    },
+    "links": {
+      "Inertia Demonstration Planner (PDF)": "Unit_2/worksheets/Inertia_Demonstration_Planner.pdf"
     },
     "assignments": [
       {
@@ -3447,11 +3447,7 @@ const lessonsData = [
         "typeLabel": "Printable Worksheet",
         "description": "Single-page printable student planner: Materials list, setup diagram, execution protocol, Free-Body Diagram defense, CER, and 10-point scoring rubric."
       }
-    ],
-    "practice": [],
-    "links": {
-      "Inertia Demonstration Planner (PDF)": "Unit_2/worksheets/Inertia_Demonstration_Planner.pdf"
-    }
+    ]
   },
   {
     "day": 26,
