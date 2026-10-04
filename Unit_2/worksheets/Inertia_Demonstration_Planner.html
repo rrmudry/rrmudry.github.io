@@ -6,7 +6,7 @@
   <style>
     @page {
       size: letter portrait;
-      margin: 0.22in 0.28in 0.20in 0.28in;
+      margin: 0.24in 0.32in 0.24in 0.32in;
     }
     * {
       box-sizing: border-box;
@@ -19,31 +19,38 @@
       background: #ffffff;
       margin: 0;
       padding: 0;
-      line-height: 1.25;
-      font-size: 7.2pt;
+      line-height: 1.2;
+      font-size: 8pt;
     }
     .worksheet-page {
       width: 100%;
-      height: 10.56in;
-      max-height: 10.56in;
+      height: 10.52in;
+      max-height: 10.52in;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       overflow: hidden;
       page-break-after: avoid;
     }
+    .page-content {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex: 1 1 auto;
+      gap: 5px;
+    }
 
     /* Header */
     .worksheet-header {
       border-bottom: 2px solid #0f172a;
-      padding-bottom: 3px;
-      margin-bottom: 3px;
+      padding-bottom: 4px;
+      margin-bottom: 2px;
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
     }
     .header-titles h1 {
-      font-size: 11pt;
+      font-size: 11.5pt;
       font-weight: 900;
       color: #0f172a;
       margin: 0 0 1px 0;
@@ -56,43 +63,37 @@
       color: #0284c7;
       margin: 0;
       text-transform: uppercase;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.2px;
     }
     .header-meta {
       font-size: 7.2pt;
       text-align: right;
-      color: #334155;
+      color: #475569;
     }
 
-    /* Meta Bar */
+    /* Single Person Student Fields */
     .student-fields {
       display: flex;
-      justify-content: space-between;
+      gap: 16px;
+      font-size: 8pt;
+      margin-bottom: 2px;
       align-items: center;
-      font-size: 7.6pt;
-      margin-bottom: 4px;
     }
     .field-line {
-      border-bottom: 1.2px solid #475569;
+      border-bottom: 1.2px solid #334155;
       display: inline-block;
     }
     .field-label {
       font-weight: 700;
       color: #1e293b;
     }
-    .defense-badge {
-      color: #0284c7;
-      font-weight: 800;
-      font-size: 7.6pt;
-    }
 
-    /* Sections */
+    /* Section Cards */
     .section-card {
       border: 1.2px solid #cbd5e1;
-      border-radius: 3px;
-      padding: 4px 6px;
+      border-radius: 4px;
+      padding: 5px 7px;
       background: #ffffff;
-      margin-bottom: 3.5px;
     }
     .section-title {
       font-size: 7.8pt;
@@ -101,218 +102,199 @@
       display: flex;
       align-items: center;
       gap: 5px;
-      margin-bottom: 3px;
+      margin-bottom: 4px;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 2px;
       text-transform: uppercase;
-      letter-spacing: 0.2px;
     }
     .badge {
       background: #0284c7;
       color: #ffffff;
-      font-size: 6.2pt;
+      font-size: 6.5pt;
       font-weight: 800;
-      padding: 1px 5px;
+      padding: 1px 4px;
       border-radius: 2px;
       text-transform: uppercase;
     }
     .badge-amber { background: #d97706; }
     .badge-emerald { background: #059669; }
 
-    /* Phase 1: Regimes */
-    .regime-grid {
+    /* Category Grid */
+    .category-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 5px;
+      gap: 4px;
       margin-bottom: 4px;
     }
-    .regime-box {
-      border: 1px solid #94a3b8;
-      border-radius: 2px;
+    .cat-box {
+      border: 1px solid #cbd5e1;
+      border-radius: 3px;
       padding: 3px 5px;
       background: #f8fafc;
-      font-size: 6.8pt;
-      line-height: 1.18;
+      font-size: 7.2pt;
     }
-    .regime-title {
+    .cat-title {
       font-weight: 800;
       color: #0f172a;
       display: flex;
       align-items: center;
-      gap: 4px;
-      margin-bottom: 2px;
-      font-size: 7.1pt;
+      gap: 3px;
+      font-size: 7.4pt;
+      margin-bottom: 1px;
     }
-    .regime-desc {
+    .cat-desc {
       color: #475569;
+      line-height: 1.15;
     }
 
-    /* Phase 2: Inventory */
-    .inventory-grid {
+    /* Materials Grid */
+    .materials-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      column-gap: 16px;
-      row-gap: 3px;
-      font-size: 7.2pt;
+      gap: 5px;
+      font-size: 7.3pt;
     }
-    .inv-item {
+    .mat-item {
       display: flex;
       align-items: center;
       gap: 4px;
     }
-    .inv-label {
+    .mat-label {
       font-weight: 700;
       color: #1e293b;
       white-space: nowrap;
     }
 
-    /* Phase 3: Blueprint */
-    .blueprint-checklist {
-      display: flex;
-      justify-content: space-between;
-      font-size: 6.6pt;
-      color: #334155;
-      font-weight: 600;
-      margin-bottom: 2px;
-    }
-    .blueprint-canvas {
+    /* Sketch Box */
+    .sketch-box {
       border: 1.2px dashed #94a3b8;
-      border-radius: 2px;
-      height: 110px;
-      background-image: radial-gradient(#cbd5e1 0.75px, transparent 0.75px);
-      background-size: 12px 12px;
+      background: #ffffff;
+      border-radius: 3px;
+      height: 150px;
       position: relative;
+      background-image: radial-gradient(#cbd5e1 0.75px, transparent 0.75px);
+      background-size: 14px 14px;
+      padding: 5px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
-    .blueprint-watermark {
+    .sketch-guidelines {
+      display: flex;
+      gap: 12px;
+      font-size: 6.8pt;
+      color: #64748b;
+      background: rgba(255, 255, 255, 0.92);
+      padding: 2px 6px;
+      border-radius: 2px;
+      width: fit-content;
+      font-weight: 600;
+    }
+    .sketch-watermark {
       position: absolute;
-      bottom: 2px;
-      right: 4px;
-      font-size: 6.2pt;
+      bottom: 4px;
+      right: 6px;
+      font-size: 6.8pt;
       color: #94a3b8;
       font-style: italic;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 1px 4px;
     }
 
-    /* Phase 4: Protocol */
-    .protocol-grid {
+    /* Step Grid */
+    .procedure-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 5px;
     }
-    .protocol-box {
+    .step-box {
       border: 1px solid #cbd5e1;
-      border-radius: 2px;
-      padding: 3px 5px;
+      border-radius: 3px;
+      padding: 4px 6px;
       background: #ffffff;
+      font-size: 7.2pt;
     }
-    .proto-title {
+    .step-label {
       font-weight: 800;
       color: #0284c7;
-      font-size: 7.1pt;
+      margin-bottom: 2px;
+      font-size: 7.4pt;
     }
-    .proto-sub {
-      color: #64748b;
-      font-size: 6.4pt;
-      margin-bottom: 3px;
-    }
-    .dotted-line {
+    .writing-line {
       border-bottom: 1px dotted #94a3b8;
-      height: 12px;
+      height: 17px;
+      margin-top: 1px;
     }
 
-    /* Phase 5: FBD Defense */
-    .fbd-grid {
+    /* FBD Section */
+    .fbd-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 6px;
     }
     .fbd-card {
       border: 1px solid #cbd5e1;
-      border-radius: 2px;
-      padding: 3px 5px;
+      border-radius: 3px;
+      padding: 4px 6px;
       background: #f8fafc;
+      font-size: 7.2pt;
     }
-    .fbd-header {
+    .fbd-head {
+      font-weight: 800;
+      color: #1e293b;
       display: flex;
       justify-content: space-between;
-      font-weight: 800;
-      font-size: 6.9pt;
       border-bottom: 1px solid #e2e8f0;
-      padding-bottom: 1px;
-      margin-bottom: 2px;
+      padding-bottom: 2px;
+      margin-bottom: 3px;
     }
-    .fbd-space {
-      height: 60px;
+    .fbd-canvas {
+      height: 110px;
       border: 1px dashed #cbd5e1;
       background: #ffffff;
-      border-radius: 2px;
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 2px;
+      border-radius: 2px;
+      margin-bottom: 3px;
+      background-image: radial-gradient(#e2e8f0 0.75px, transparent 0.75px);
+      background-size: 10px 10px;
     }
     .fbd-dot {
-      width: 7px;
-      height: 7px;
+      width: 10px;
+      height: 10px;
       background: #0f172a;
       border-radius: 50%;
     }
-    .fbd-caption {
-      font-size: 6.4pt;
-      color: #475569;
-    }
 
-    /* Phase 6: CER & Connection */
-    .cer-grid {
+    /* CER & Real-World Grid */
+    .synthesis-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-    }
-    .cer-col {
-      display: flex;
-      flex-direction: column;
-    }
-    .cer-head {
-      font-weight: 800;
-      color: #0f172a;
-      font-size: 7.1pt;
-    }
-    .cer-sub {
-      font-size: 6.4pt;
-      color: #64748b;
-      margin-bottom: 2px;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 8px;
     }
 
-    /* Rubric Bar */
-    .rubric-bar {
-      border: 1.2px solid #0f172a;
-      border-radius: 2px;
-      padding: 3px 6px;
-      background: #f8fafc;
+    /* Footer / Rubric */
+    .worksheet-footer {
+      border-top: 1.5px solid #0f172a;
+      padding-top: 2px;
+      font-size: 6.8pt;
+      color: #475569;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 6.8pt;
-      font-weight: 700;
-      margin-top: 2px;
-      margin-bottom: 2px;
     }
-    .rubric-criteria {
+    .rubric-strip {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 3px;
+      padding: 2px 6px;
       display: flex;
       gap: 12px;
+      font-size: 6.8pt;
+      font-weight: 700;
       color: #1e293b;
-    }
-    .rubric-score {
-      font-size: 7.2pt;
-      color: #0f172a;
-    }
-
-    /* Footer */
-    .worksheet-footer {
-      border-top: 1.5px solid #cbd5e1;
-      padding-top: 2px;
-      font-size: 6.5pt;
-      color: #64748b;
-      display: flex;
-      justify-content: space-between;
       align-items: center;
     }
   </style>
@@ -320,204 +302,203 @@
 <body>
 
   <div class="worksheet-page">
+    <div class="page-content">
 
-    <!-- Header -->
-    <header class="worksheet-header">
-      <div class="header-titles">
-        <h1>THE INERTIA SHOWCASE: DEMONSTRATION &amp; PHYSICS DEFENSE PLANNER</h1>
-        <div class="sub">UNIT 2: DYNAMICS &amp; NEWTON'S FIRST LAW · NGSS HS-PS2-1 · INDIVIDUAL PERFORMANCE TASK</div>
-      </div>
-      <div class="header-meta">
-        <div><strong>Mr. Mudry · Physics</strong></div>
-        <div>DOK Level 3 Inquiry</div>
-      </div>
-    </header>
+      <!-- Header -->
+      <header class="worksheet-header">
+        <div class="header-titles">
+          <h1>The Inertia Showcase: Demonstration &amp; Physics Defense Planner</h1>
+          <div class="sub">Unit 2: Dynamics &amp; Newton's First Law · NGSS HS-PS2-1 · Individual Performance Task</div>
+        </div>
+        <div class="header-meta">
+          <div><strong>Mr. Mudry · Physics</strong></div>
+          <div>DOK Level 3 Inquiry</div>
+        </div>
+      </header>
 
-    <!-- Student Metadata -->
-    <div class="student-fields">
-      <div><span class="field-label">Student Name:</span> <span class="field-line" style="width: 200px;">&nbsp;</span></div>
-      <div><span class="field-label">Period:</span> <span class="field-line" style="width: 45px;">&nbsp;</span></div>
-      <div><span class="field-label">Date:</span> <span class="field-line" style="width: 80px;">&nbsp;</span></div>
-      <div class="defense-badge">★ 1-Page Individual Defense</div>
-    </div>
+      <!-- Student Fields (Single Person, No Partners) -->
+      <div class="student-fields">
+        <div><span class="field-label">Student Name:</span> <span class="field-line" style="width: 240px;">&nbsp;</span></div>
+        <div><span class="field-label">Period:</span> <span class="field-line" style="width: 45px;">&nbsp;</span></div>
+        <div><span class="field-label">Date:</span> <span class="field-line" style="width: 85px;">&nbsp;</span></div>
+        <div style="margin-left: auto; font-size: 7.2pt; color: #0284c7; font-weight: 700;">★ 1-Page Individual Defense</div>
+      </div>
 
-    <!-- Phase 1: Select Inertia Regime -->
-    <div class="section-card">
-      <div class="section-title">
-        <span class="badge">PHASE 1</span> SELECT YOUR INERTIA REGIME &amp; CODENAME
-      </div>
-      <div class="regime-grid">
-        <div class="regime-box">
-          <div class="regime-title"><input type="checkbox"> 1. Inertia of Rest</div>
-          <div class="regime-desc">Stationary mass stubbornly stays at rest when support is pulled fast (e.g. Tablecloth slip, coin-card flick, embroidery hoop drop).</div>
+      <!-- Phase 1: Category Selection -->
+      <div class="section-card">
+        <div class="section-title">
+          <span class="badge">Phase 1</span> Select Your Inertia Regime &amp; Codename
         </div>
-        <div class="regime-box">
-          <div class="regime-title"><input type="checkbox"> 2. Inertia of Motion</div>
-          <div class="regime-desc">Moving mass stubbornly continues at constant velocity when carrier halts (e.g. Cart barrier crash, curb stop, rolling launch).</div>
+        <div class="category-grid">
+          <div class="cat-box">
+            <div class="cat-title"><input type="checkbox"> 1. Inertia of Rest</div>
+            <div class="cat-desc">Stationary mass stubbornly stays at rest when support is pulled fast (e.g. Tablecloth slip, coin-card flick, embroidery hoop drop).</div>
+          </div>
+          <div class="cat-box">
+            <div class="cat-title"><input type="checkbox"> 2. Inertia of Motion</div>
+            <div class="cat-desc">Moving mass stubbornly continues at constant velocity when carrier halts (e.g. Cart barrier crash, curb stop, rolling launch).</div>
+          </div>
+          <div class="cat-box">
+            <div class="cat-title"><input type="checkbox"> 3. Inertia of Direction</div>
+            <div class="cat-desc">Rotating mass flies off along straight tangent line when force is cut (e.g. Whirling string cut, pie-pan exit gap, wheel throw).</div>
+          </div>
         </div>
-        <div class="regime-box">
-          <div class="regime-title"><input type="checkbox"> 3. Inertia of Direction</div>
-          <div class="regime-desc">Rotating mass flies off along straight tangent line when force is cut (e.g. Whirling string cut, pie-pan exit gap, wheel throw).</div>
-        </div>
-      </div>
-      <div style="display: flex; gap: 6px; align-items: center; font-size: 7.2pt;">
-        <strong>Demonstration Title / Codename:</strong>
-        <span class="field-line" style="flex: 1;">&nbsp;</span>
-      </div>
-    </div>
-
-    <!-- Phase 2: Inventory -->
-    <div class="section-card">
-      <div class="section-title">
-        <span class="badge">PHASE 2</span> APPARATUS &amp; MATERIALS INVENTORY
-      </div>
-      <div class="inventory-grid">
-        <div class="inv-item">
-          <span class="inv-label">1. Inertial Mass (m):</span>
-          <span class="field-line" style="flex: 1;">&nbsp;</span>
-        </div>
-        <div class="inv-item">
-          <span class="inv-label">2. Support / Carrier Surface:</span>
-          <span class="field-line" style="flex: 1;">&nbsp;</span>
-        </div>
-        <div class="inv-item">
-          <span class="inv-label">3. Applied Force Trigger:</span>
-          <span class="field-line" style="flex: 1;">&nbsp;</span>
-        </div>
-        <div class="inv-item">
-          <span class="inv-label">4. Safety Catch Zone / Basin:</span>
+        <div style="font-size: 7.4pt; display: flex; gap: 6px; align-items: center; margin-top: 2px;">
+          <strong>Demonstration Title / Codename:</strong>
           <span class="field-line" style="flex: 1;">&nbsp;</span>
         </div>
       </div>
+
+      <!-- Phase 2: Materials Checklist -->
+      <div class="section-card">
+        <div class="section-title">
+          <span class="badge">Phase 2</span> Apparatus &amp; Materials Inventory
+        </div>
+        <div class="materials-grid">
+          <div class="mat-item">
+            <span class="mat-label">1. Inertial Mass (m):</span>
+            <span class="field-line" style="flex: 1;">&nbsp;</span>
+          </div>
+          <div class="mat-item">
+            <span class="mat-label">2. Support / Carrier Surface:</span>
+            <span class="field-line" style="flex: 1;">&nbsp;</span>
+          </div>
+          <div class="mat-item">
+            <span class="mat-label">3. Applied Force Trigger:</span>
+            <span class="field-line" style="flex: 1;">&nbsp;</span>
+          </div>
+          <div class="mat-item">
+            <span class="mat-label">4. Safety Catch Zone / Basin:</span>
+            <span class="field-line" style="flex: 1;">&nbsp;</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 3: Setup Blueprint Diagram -->
+      <div class="section-card">
+        <div class="section-title">
+          <span class="badge">Phase 3</span> Annotated Setup &amp; Action Blueprint Diagram
+        </div>
+        <div class="sketch-box">
+          <div class="sketch-guidelines">
+            <span>✓ Draw apparatus BEFORE action</span>
+            <span>✓ Label Inertial Mass (m) &amp; Surface</span>
+            <span>✓ Arrow for Applied Force Trigger</span>
+            <span>✓ Dashed arrow for Mass Path</span>
+          </div>
+          <div class="sketch-watermark">Draw neat, labeled vectors with a ruler · Grid: 12 mm</div>
+        </div>
+      </div>
+
+      <!-- Phase 4: Step-by-Step Procedure -->
+      <div class="section-card">
+        <div class="section-title">
+          <span class="badge">Phase 4</span> Execution Protocol (Step-by-Step Procedure)
+        </div>
+        <div class="procedure-grid">
+          <div class="step-box">
+            <div class="step-label">1. Setup &amp; Alignment</div>
+            <div style="color: #64748b; font-size: 6.8pt; margin-bottom: 2px;">How is apparatus positioned before action?</div>
+            <div class="writing-line"></div>
+            <div class="writing-line"></div>
+            <div class="writing-line"></div>
+          </div>
+          <div class="step-box">
+            <div class="step-label">2. The Trigger (Quick Action)</div>
+            <div style="color: #64748b; font-size: 6.8pt; margin-bottom: 2px;">What exact fast action do you execute?</div>
+            <div class="writing-line"></div>
+            <div class="writing-line"></div>
+            <div class="writing-line"></div>
+          </div>
+          <div class="step-box">
+            <div class="step-label">3. The Result (Mass vs Support)</div>
+            <div style="color: #64748b; font-size: 6.8pt; margin-bottom: 2px;">What does support do vs. inertial mass?</div>
+            <div class="writing-line"></div>
+            <div class="writing-line"></div>
+            <div class="writing-line"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 5: Free-Body Diagram Defense -->
+      <div class="section-card">
+        <div class="section-title">
+          <span class="badge badge-amber">Phase 5</span> Free-Body Diagram (FBD) Defense: Net Force Analysis
+        </div>
+        <div class="fbd-container">
+          <div class="fbd-card">
+            <div class="fbd-head">
+              <span>Diagram A: Before Action (Static / Constant v)</span>
+              <span><strong>F_net = 0 N (Equilibrium)</strong></span>
+            </div>
+            <div class="fbd-canvas">
+              <div class="fbd-dot"></div>
+              <span style="position: absolute; bottom: 3px; font-size: 6.5pt; color: #64748b; background: rgba(255,255,255,0.9); padding: 0 4px; border-radius: 2px;">Draw balanced vertical forces (FN, Fg)</span>
+            </div>
+            <div style="font-size: 6.8pt; color: #334155;">Vertical: FN = Fg · Horizontal: F_net = 0 N → v remains constant (v = 0 or v₀).</div>
+          </div>
+
+          <div class="fbd-card">
+            <div class="fbd-head">
+              <span>Diagram B: During Split-Second Action</span>
+              <span><strong>Horizontal Force ≈ 0 N</strong></span>
+            </div>
+            <div class="fbd-canvas">
+              <div class="fbd-dot"></div>
+              <span style="position: absolute; bottom: 3px; font-size: 6.5pt; color: #64748b; background: rgba(255,255,255,0.9); padding: 0 4px; border-radius: 2px;">Draw horizontal forces acting ON THE MASS</span>
+            </div>
+            <div style="font-size: 6.8pt; color: #334155;"><strong>Misconception Buster:</strong> Inertia is NOT a force! There is ZERO forward force pushing the mass.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 6: CER & Real-World Connection -->
+      <div class="section-card">
+        <div class="section-title">
+          <span class="badge badge-emerald">Phase 6</span> Scientific Defense (CER) &amp; Real-World Connection
+        </div>
+        <div class="synthesis-grid">
+          <div>
+            <div style="font-weight: 700; color: #0f172a; font-size: 7.2pt;">Scientific Explanation (Claim &amp; Reasoning):</div>
+            <div style="font-size: 6.8pt; color: #64748b; margin-bottom: 2px;">Explain using: <em>Mass, Inertia, Friction, and Net External Force (F_net = 0)</em>.</div>
+            <div class="writing-line"></div>
+            <div class="writing-line"></div>
+            <div class="writing-line"></div>
+            <div class="writing-line"></div>
+            <div class="writing-line"></div>
+          </div>
+
+          <div>
+            <div style="font-weight: 700; color: #0f172a; font-size: 7.2pt;">Real-World System (e.g. Seatbelt, Airbag, Cargo):</div>
+            <div style="font-size: 6.8pt; color: #64748b; margin-bottom: 2px;">How does Newton's 1st Law protect humans or explain everyday motion?</div>
+            <div class="writing-line"></div>
+            <div class="writing-line"></div>
+            <div class="writing-line"></div>
+            <div class="writing-line"></div>
+            <div class="writing-line"></div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Phase 3: Blueprint -->
-    <div class="section-card">
-      <div class="section-title">
-        <span class="badge">PHASE 3</span> ANNOTATED SETUP &amp; ACTION BLUEPRINT DIAGRAM
-      </div>
-      <div class="blueprint-checklist">
-        <span>✓ Draw apparatus BEFORE action</span>
-        <span>✓ Label Inertial Mass (m) &amp; Surface</span>
-        <span>✓ Arrow for Applied Force Trigger</span>
-        <span>✓ Dashed arrow for Mass Path</span>
-      </div>
-      <div class="blueprint-canvas">
-        <div class="blueprint-watermark">Draw neat, labeled vectors with a ruler · Grid: 12 mm</div>
-      </div>
-    </div>
-
-    <!-- Phase 4: Protocol -->
-    <div class="section-card">
-      <div class="section-title">
-        <span class="badge">PHASE 4</span> EXECUTION PROTOCOL (STEP-BY-STEP PROCEDURE)
-      </div>
-      <div class="protocol-grid">
-        <div class="protocol-box">
-          <div class="proto-title">1. Setup &amp; Alignment</div>
-          <div class="proto-sub">How is apparatus positioned before action?</div>
-          <div class="dotted-line"></div>
-          <div class="dotted-line"></div>
-          <div class="dotted-line"></div>
-        </div>
-        <div class="protocol-box">
-          <div class="proto-title">2. The Trigger (Quick Action)</div>
-          <div class="proto-sub">What exact fast action do you execute?</div>
-          <div class="dotted-line"></div>
-          <div class="dotted-line"></div>
-          <div class="dotted-line"></div>
-        </div>
-        <div class="protocol-box">
-          <div class="proto-title">3. The Result (Mass vs Support)</div>
-          <div class="proto-sub">What does support do vs. inertial mass?</div>
-          <div class="dotted-line"></div>
-          <div class="dotted-line"></div>
-          <div class="dotted-line"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Phase 5: FBD Defense -->
-    <div class="section-card">
-      <div class="section-title">
-        <span class="badge badge-amber">PHASE 5</span> FREE-BODY DIAGRAM (FBD) DEFENSE: NET FORCE ANALYSIS
-      </div>
-      <div class="fbd-grid">
-        <div class="fbd-card">
-          <div class="fbd-header">
-            <span>Diagram A: Before Action (Static / Constant v)</span>
-            <span style="color: #059669;">F_net = 0 N (Equilibrium)</span>
-          </div>
-          <div class="fbd-space">
-            <div class="fbd-dot"></div>
-            <span style="position: absolute; bottom: 2px; font-size: 6.2pt; color: #94a3b8;">Draw balanced vertical forces (FN, Fg)</span>
-          </div>
-          <div class="fbd-caption">
-            Vertical: FN = Fg · Horizontal: F_net = 0 N → v remains constant (v = 0 or v₀).
-          </div>
-        </div>
-        <div class="fbd-card">
-          <div class="fbd-header">
-            <span>Diagram B: During Split-Second Action</span>
-            <span style="color: #b91c1c;">Horizontal Force ≈ 0 N</span>
-          </div>
-          <div class="fbd-space">
-            <div class="fbd-dot"></div>
-            <span style="position: absolute; bottom: 2px; font-size: 6.2pt; color: #94a3b8;">Draw horizontal forces acting ON THE MASS</span>
-          </div>
-          <div class="fbd-caption" style="color: #b91c1c; font-weight: 700;">
-            Misconception Buster: Inertia is NOT a force! There is ZERO forward force pushing the mass.
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Phase 6: CER & Connection -->
-    <div class="section-card">
-      <div class="section-title">
-        <span class="badge badge-emerald">PHASE 6</span> SCIENTIFIC DEFENSE (CER) &amp; REAL-WORLD CONNECTION
-      </div>
-      <div class="cer-grid">
-        <div class="cer-col">
-          <div class="cer-head">Scientific Explanation (Claim &amp; Reasoning):</div>
-          <div class="cer-sub">Explain using: Mass, Inertia, Friction, and Net External Force (F_net = 0).</div>
-          <div class="dotted-line"></div>
-          <div class="dotted-line"></div>
-          <div class="dotted-line"></div>
-          <div class="dotted-line"></div>
-        </div>
-        <div class="cer-col">
-          <div class="cer-head">Real-World System (e.g. Seatbelt, Airbag, Cargo):</div>
-          <div class="cer-sub">How does Newton's 1st Law protect humans or explain everyday motion?</div>
-          <div class="dotted-line"></div>
-          <div class="dotted-line"></div>
-          <div class="dotted-line"></div>
-          <div class="dotted-line"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Rubric Bar -->
-    <div class="rubric-bar">
-      <div class="rubric-criteria">
+    <!-- Footer & Quick Scoring Rubric -->
+    <div>
+      <div class="rubric-strip" style="margin-bottom: 2px;">
         <span>DEFENSE RUBRIC:</span>
         <span>[ &nbsp; ] Apparatus &amp; Safety (4)</span>
         <span>[ &nbsp; ] Blueprint Diagram (4)</span>
         <span>[ &nbsp; ] FBD Accuracy (4)</span>
         <span>[ &nbsp; ] CER Defense (4)</span>
+        <span style="margin-left: auto; color: #0284c7;">SCORE: _____ / 16 pts</span>
+        <span>Teacher: _________</span>
       </div>
-      <div class="rubric-score">
-        SCORE: _____ / 16 pts &nbsp;&nbsp;&nbsp;&nbsp; Teacher: _________
-      </div>
+      <footer class="worksheet-footer">
+        <span>Unit 2: Dynamics · Newton's First Law Demonstration Planner (Individual)</span>
+        <span>Standard: NGSS HS-PS2-1</span>
+        <span>rrmudry.github.io/physics</span>
+      </footer>
     </div>
-
-    <!-- Footer -->
-    <footer class="worksheet-footer">
-      <span>Unit 2: Dynamics · Newton's First Law Demonstration Planner (Individual)</span>
-      <span>Standard: NGSS HS-PS2-1</span>
-      <span>rrmudry.github.io/physics</span>
-    </footer>
-
   </div>
 
 </body>

@@ -637,7 +637,7 @@ async function run() {
     format: 'Letter',
     printBackground: true,
     displayHeaderFooter: false,
-    margin: { top: '0.22in', bottom: '0.20in', left: '0.28in', right: '0.28in' }
+    margin: { top: '0.24in', bottom: '0.24in', left: '0.32in', right: '0.32in' }
   });
   await page1.close();
   console.log(`✅ Generated Single-Page Student Worksheet PDF: ${wsPdfPath}`);
