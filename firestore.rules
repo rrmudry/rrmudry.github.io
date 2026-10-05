@@ -3,10 +3,8 @@ service cloud.firestore {
   match /databases/{database}/documents {
     
     // Check if the user is an admin
-    // Requires a verified email so an unverified email/password account can't claim an admin or student address
     function isAdmin() {
-      return request.auth != null && request.auth.token.email != null &&
-             request.auth.token.email_verified == true && (
+      return request.auth != null && request.auth.token.email != null && (
         request.auth.token.email.lower() == "rmudry@orangeusd.org" ||
         request.auth.token.email.lower() == "ryan.mudry@gmail.com" ||
         request.auth.token.email.lower() == "ryanmudry@gmail.com"
