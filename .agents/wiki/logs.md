@@ -3,6 +3,17 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-05 — The Gradest: Zero-Latency Master Roster Fallback & Manual Grading Prioritization
+
+**Patterns Updated**: `cloud-sync-architecture.md`, `cast-aligned-webapp-design.md`.
+
+**Changes**:
+- **Manual Grade Entry Roster Resolution & Prioritization**:
+  - Re-architected roster resolution across 4 robust tiers: assignment roster (`state.roster`), cloud roster (`state.globalRoster`), hardcoded bundled master roster (`DEFAULT_GLOBAL_ROSTER`), and graded records (`state.grades`).
+  - Dropdown options in `#manual-student-select` are grouped into `<optgroup label="⏳ Ungraded Students (N)">` at the top and `<optgroup label="✓ Already Graded (M)">` at the bottom.
+  - Added a one-click toggle button (`#btn-toggle-roster-filter`) allowing teachers to show Ungraded Students only or toggle back to All Students.
+  - Fixed assignment load roster normalization in `loadAssignment(name)` and `createNewAssignment()` to eliminate Map conversion bugs on serialized object arrays.
+
 ## 2026-10-04 — Newton's 2nd Law Studio: Accounts, Grading & Honors Differentiation
 
 **Pattern Updated**: `newtons-second-law-atwood-studio.md`.
