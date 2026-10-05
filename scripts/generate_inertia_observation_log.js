@@ -1,13 +1,15 @@
 /**
- * Generates the 2-Page Inertia Demonstration Peer Observation & Synthesis Log for Period 0 Honors Physics
+ * Generates the 2-Page Inertia Demonstration Peer Observation Log for Period 0 Honors Physics
  * Unit 2: Dynamics & Newton's First Law (NGSS HS-PS2-1)
  * 
  * - Exactly 2 pages in PDF for Letter portrait print budget
- * - Replaces repeating box panels with a clean, spacious Observation Table
- * - Clear instructions and rubric at top of Page 1
- * - Generous writing lines inside table cells for 10 presentations (5 on Page 1, 5 on Page 2)
- * - Post-demo synthesis and bridge to Net Force (ΣF = 0) and Balanced vs Unbalanced Forces
- * - Zero LaTeX notation (plain text, Unicode symbols: ΣF = 0, F_net, m/s²)
+ * - 15 total demonstrations (8 on Page 1, 7 on Page 2)
+ * - 100% Black-and-White Laser Printer Friendly (pure black text, crisp borders, no heavy dark ink fills)
+ * - Widened Demo & Presenter column with generous writing space for Presenter and Demo Title
+ * - Expansive dedicated column: "How the Demonstration Utilizes Inertia to be Successful"
+ * - Removed score column per instructor requirement
+ * - Clean Section B Synthesis on Page 2 bridging inertia to mechanical equilibrium (ΣF = 0)
+ * - Zero LaTeX notation (plain text, Unicode symbols: ΣF = 0, F_net)
  */
 
 const fs = require('fs');
@@ -18,57 +20,32 @@ const puppeteer = require('puppeteer');
 function renderTableRow(demoNum, rowHeight) {
   return `
     <tr style="height: ${rowHeight}px;">
-      <!-- Demo # & Presenter -->
+      <!-- Column 1: Demo # & Presenter Info (34% width) -->
       <td class="col-demo">
-        <div class="demo-badge">Demo ${demoNum}</div>
-        <div class="cell-field">
-          <span class="field-lbl">Presenter:</span>
+        <div class="demo-top-bar">
+          <span class="demo-badge">DEMO ${demoNum}</span>
+          <div class="cat-checks">
+            <label class="cat-label"><span class="box-sq">[ &nbsp; ]</span> Rest</label>
+            <label class="cat-label"><span class="box-sq">[ &nbsp; ]</span> Motion</label>
+            <label class="cat-label"><span class="box-sq">[ &nbsp; ]</span> Direction</label>
+          </div>
+        </div>
+        <div class="field-row">
+          <span class="field-tag">Presenter(s):</span>
           <span class="field-blank">&nbsp;</span>
         </div>
-        <div class="cell-field">
-          <span class="field-lbl">Codename:</span>
+        <div class="field-row">
+          <span class="field-tag">Demo Title:</span>
           <span class="field-blank">&nbsp;</span>
         </div>
       </td>
 
-      <!-- Category -->
-      <td class="col-cat">
-        <div class="cat-options">
-          <label class="cat-opt"><span class="box-sq">[ &nbsp; ]</span> Rest</label>
-          <label class="cat-opt"><span class="box-sq">[ &nbsp; ]</span> Motion</label>
-          <label class="cat-opt"><span class="box-sq">[ &nbsp; ]</span> Direction</label>
-        </div>
-      </td>
-
-      <!-- Apparatus & Applied Impulse -->
-      <td class="col-apparatus">
-        <div class="cell-writing-area">
+      <!-- Column 2: How the Demo Utilizes Inertia to be Successful (66% width) -->
+      <td class="col-inertia-desc">
+        <div class="write-lines-wrap">
           <div class="write-line"></div>
           <div class="write-line"></div>
           <div class="write-line"></div>
-        </div>
-      </td>
-
-      <!-- Observed Motion & Physics Defense -->
-      <td class="col-defense">
-        <div class="cell-writing-area">
-          <div class="write-line"></div>
-          <div class="write-line"></div>
-          <div class="write-line"></div>
-        </div>
-        <div class="fwd-check">
-          <span class="fwd-lbl">Forward Force Claimed?</span>
-          <span class="fwd-box">[ &nbsp; ] Yes <span class="err-tag">(Error)</span></span>
-          <span class="fwd-box">[ &nbsp; ] No <span class="acc-tag">(Accurate)</span></span>
-        </div>
-      </td>
-
-      <!-- Score -->
-      <td class="col-score">
-        <div class="score-val">____ / 4</div>
-        <div class="score-pills">
-          <span>[ 4 ]</span> <span>[ 3 ]</span><br>
-          <span>[ 2 ]</span> <span>[ 1 ]</span>
         </div>
       </td>
     </tr>
@@ -80,7 +57,7 @@ function renderObservationLogHtml() {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>The Inertia Showcase: Peer Observation &amp; Defense Log (Period 0 Honors)</title>
+  <title>The Inertia Showcase: Peer Observation Log (Period 0 Honors)</title>
   <style>
     @page {
       size: letter portrait;
@@ -93,7 +70,7 @@ function renderObservationLogHtml() {
     }
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      color: #0f172a;
+      color: #000000;
       background: #ffffff;
       margin: 0;
       padding: 0;
@@ -109,24 +86,25 @@ function renderObservationLogHtml() {
       justify-content: space-between;
       overflow: hidden;
       page-break-after: always;
+      background: #ffffff;
     }
     .worksheet-page:last-child {
       page-break-after: avoid;
     }
 
-    /* Header */
+    /* Header (100% Laser Printer Friendly) */
     .worksheet-header {
-      border-bottom: 2px solid #0f172a;
+      border-bottom: 2px solid #000000;
       padding-bottom: 3px;
       margin-bottom: 4px;
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
+      align-items: flex-end;
     }
     .header-titles h1 {
-      font-size: 11.5pt;
+      font-size: 11pt;
       font-weight: 900;
-      color: #0f172a;
+      color: #000000;
       margin: 0 0 1px 0;
       text-transform: uppercase;
       letter-spacing: -0.2px;
@@ -134,7 +112,7 @@ function renderObservationLogHtml() {
     .header-titles .sub {
       font-size: 7.2pt;
       font-weight: 700;
-      color: #0284c7;
+      color: #000000;
       margin: 0;
       text-transform: uppercase;
       letter-spacing: 0.3px;
@@ -142,7 +120,8 @@ function renderObservationLogHtml() {
     .header-meta {
       font-size: 7.2pt;
       text-align: right;
-      color: #334155;
+      color: #000000;
+      font-weight: 600;
     }
 
     /* Student Meta Bar */
@@ -151,60 +130,52 @@ function renderObservationLogHtml() {
       justify-content: space-between;
       align-items: center;
       font-size: 7.6pt;
-      margin-bottom: 5px;
+      margin-bottom: 4px;
+      padding-bottom: 3px;
+      border-bottom: 1px solid #000000;
     }
     .field-line {
-      border-bottom: 1.2px solid #334155;
+      border-bottom: 1.2px solid #000000;
       display: inline-block;
     }
     .field-label {
       font-weight: 700;
-      color: #1e293b;
+      color: #000000;
     }
     .honors-badge {
-      background: #0f172a;
-      color: #38bdf8;
-      font-size: 6.8pt;
+      border: 1.5px solid #000000;
+      background: #ffffff;
+      color: #000000;
+      font-size: 7pt;
       font-weight: 800;
-      padding: 1.5px 6px;
+      padding: 1px 6px;
       border-radius: 2px;
       text-transform: uppercase;
       letter-spacing: 0.3px;
     }
 
-    /* Instructions & Rubric Banner */
+    /* Instructions Box (High Contrast B&W) */
     .instruction-card {
-      background: #f8fafc;
-      border: 1.2px solid #cbd5e1;
-      border-left: 3.5px solid #0284c7;
-      border-radius: 3px;
-      padding: 4px 8px;
-      margin-bottom: 6px;
+      background: #ffffff;
+      border: 1.5px solid #000000;
+      border-radius: 2px;
+      padding: 4px 6px;
+      margin-bottom: 5px;
     }
     .instruction-card-title {
       font-size: 7.3pt;
       font-weight: 800;
-      color: #0f172a;
+      color: #000000;
       text-transform: uppercase;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
     }
-    .instruction-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      column-gap: 10px;
-      font-size: 6.7pt;
-      color: #334155;
+    .instruction-text {
+      font-size: 6.8pt;
+      color: #000000;
       line-height: 1.28;
-    }
-    .instruction-col strong {
-      color: #0f172a;
-    }
-    .alert-tag {
-      color: #b91c1c;
-      font-weight: 700;
     }
 
     /* Observation Table */
@@ -217,29 +188,25 @@ function renderObservationLogHtml() {
       width: 100%;
       border-collapse: collapse;
       table-layout: fixed;
-      border: 1.5px solid #0f172a;
+      border: 1.5px solid #000000;
     }
     table.obs-table thead th {
-      background: #0f172a;
-      color: #ffffff;
+      background: #f4f4f5;
+      color: #000000;
       padding: 4px 6px;
       font-size: 7.2pt;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.2px;
-      border-right: 1px solid #334155;
+      border: 1.5px solid #000000;
       text-align: left;
-      vertical-align: top;
-    }
-    table.obs-table thead th:last-child {
-      border-right: none;
-      text-align: center;
+      vertical-align: middle;
     }
     .th-sub {
       display: block;
       font-size: 6pt;
       font-weight: 500;
-      color: #94a3b8;
+      color: #333333;
       text-transform: none;
       margin-top: 1px;
       line-height: 1.15;
@@ -247,197 +214,145 @@ function renderObservationLogHtml() {
 
     /* Table Rows & Cells */
     table.obs-table tbody tr {
-      border-bottom: 1.5px solid #94a3b8;
-    }
-    table.obs-table tbody tr:last-child {
-      border-bottom: none;
+      border-bottom: 1.5px solid #000000;
     }
     table.obs-table tbody td {
-      border-right: 1px solid #cbd5e1;
-      padding: 4px 6px;
+      border: 1px solid #000000;
+      padding: 3px 6px;
       vertical-align: top;
       background: #ffffff;
     }
-    table.obs-table tbody td:last-child {
-      border-right: none;
-    }
 
-    /* Col 1: Demo & Presenter */
+    /* Column 1: Demo & Presenter */
     .col-demo {
-      width: 17%;
+      width: 34%;
+    }
+    .demo-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 3px;
+      padding-bottom: 2px;
+      border-bottom: 1px dashed #666666;
     }
     .demo-badge {
       display: inline-block;
-      background: #0284c7;
+      border: 1.5px solid #000000;
+      background: #000000;
       color: #ffffff;
       font-size: 6.8pt;
-      font-weight: 800;
-      padding: 1.5px 5px;
+      font-weight: 900;
+      padding: 1px 5px;
       border-radius: 2px;
       text-transform: uppercase;
-      margin-bottom: 4px;
+      letter-spacing: 0.3px;
     }
-    .cell-field {
-      font-size: 6.8pt;
-      margin-bottom: 3px;
+    .cat-checks {
       display: flex;
-      align-items: flex-end;
-    }
-    .field-lbl {
+      gap: 6px;
+      font-size: 6.7pt;
       font-weight: 700;
-      color: #1e293b;
-      margin-right: 3px;
+      color: #000000;
     }
-    .field-blank {
-      flex: 1;
-      border-bottom: 1px solid #64748b;
-      height: 10px;
-    }
-
-    /* Col 2: Category */
-    .col-cat {
-      width: 11%;
-    }
-    .cat-options {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      font-size: 6.8pt;
-      font-weight: 600;
-      color: #1e293b;
-      padding-top: 2px;
-    }
-    .cat-opt {
+    .cat-label {
       display: flex;
       align-items: center;
-      gap: 3px;
+      gap: 2px;
     }
     .box-sq {
       font-family: monospace;
       font-weight: 700;
+      font-size: 7pt;
+    }
+    .field-row {
+      font-size: 6.9pt;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: flex-end;
+    }
+    .field-tag {
+      font-weight: 700;
+      color: #000000;
+      margin-right: 4px;
+      white-space: nowrap;
+    }
+    .field-blank {
+      flex: 1;
+      border-bottom: 1.2px solid #000000;
+      height: 10px;
     }
 
-    /* Col 3 & 4: Writing Areas */
-    .col-apparatus {
-      width: 27%;
+    /* Column 2: Inertia Explanation */
+    .col-inertia-desc {
+      width: 66%;
     }
-    .col-defense {
-      width: 36%;
-    }
-    .cell-writing-area {
+    .write-lines-wrap {
       display: flex;
       flex-direction: column;
       gap: 4px;
+      padding-top: 1px;
     }
     .write-line {
-      border-bottom: 1px dotted #94a3b8;
-      height: 18px;
-    }
-    .fwd-check {
-      margin-top: 4px;
-      padding-top: 2px;
-      border-top: 1px solid #f1f5f9;
-      font-size: 6.4pt;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: #334155;
-    }
-    .fwd-lbl {
-      font-weight: 700;
-      color: #0f172a;
-    }
-    .fwd-box {
-      font-family: monospace;
-      font-weight: 600;
-    }
-    .err-tag {
-      color: #b91c1c;
-      font-weight: 700;
-      font-family: sans-serif;
-    }
-    .acc-tag {
-      color: #166534;
-      font-weight: 700;
-      font-family: sans-serif;
-    }
-
-    /* Col 5: Score */
-    .col-score {
-      width: 9%;
-      text-align: center;
-    }
-    .score-val {
-      font-size: 7.2pt;
-      font-weight: 800;
-      color: #0f172a;
-      border-bottom: 1px solid #cbd5e1;
-      padding-bottom: 2px;
-      margin-bottom: 4px;
-    }
-    .score-pills {
-      font-size: 6.2pt;
-      color: #475569;
-      line-height: 1.35;
-      font-weight: 700;
+      border-bottom: 1px dotted #444444;
+      height: 17px;
     }
 
     /* Page 2 Synthesis Section */
     .synthesis-section {
-      border: 1.5px solid #0f172a;
-      border-radius: 3px;
-      padding: 5px 8px;
-      background: #f8fafc;
-      margin-top: 6px;
+      border: 1.5px solid #000000;
+      border-radius: 2px;
+      padding: 4px 6px;
+      background: #ffffff;
+      margin-top: 5px;
     }
     .synthesis-title {
-      font-size: 7.6pt;
+      font-size: 7.4pt;
       font-weight: 800;
-      color: #0f172a;
+      color: #000000;
       display: flex;
       align-items: center;
-      gap: 5px;
-      margin-bottom: 4px;
-      border-bottom: 1px solid #cbd5e1;
+      gap: 4px;
+      margin-bottom: 3px;
+      border-bottom: 1px solid #000000;
       padding-bottom: 2px;
       text-transform: uppercase;
     }
     .synthesis-grid {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
     }
     .synth-item {
-      font-size: 7pt;
-      color: #1e293b;
-      line-height: 1.25;
+      font-size: 6.9pt;
+      color: #000000;
+      line-height: 1.22;
     }
     .synth-prompt {
       font-weight: 700;
-      color: #0f172a;
+      color: #000000;
     }
 
-    /* Score Bar */
-    .score-bar {
-      border: 1.5px solid #0f172a;
+    /* Verification Bar */
+    .verify-bar {
+      border: 1.5px solid #000000;
       border-radius: 2px;
-      padding: 3px 8px;
+      padding: 3px 6px;
       background: #ffffff;
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-size: 7.2pt;
       font-weight: 700;
-      margin-top: 5px;
+      margin-top: 4px;
       margin-bottom: 2px;
     }
 
     /* Footer */
     .worksheet-footer {
-      border-top: 1.5px solid #cbd5e1;
+      border-top: 1.5px solid #000000;
       padding-top: 2px;
       font-size: 6.5pt;
-      color: #64748b;
+      color: #000000;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -447,7 +362,7 @@ function renderObservationLogHtml() {
 <body>
 
   <!-- ========================================================
-       PAGE 1: INSTRUCTIONS & TABLE ROWS 1 TO 5
+       PAGE 1: INSTRUCTIONS & TABLE ROWS 1 TO 8 (8 DEMOS)
        ======================================================== -->
   <div class="worksheet-page">
     <div style="display: flex; flex-direction: column; flex: 1 1 auto;">
@@ -455,12 +370,12 @@ function renderObservationLogHtml() {
       <!-- Header -->
       <header class="worksheet-header">
         <div class="header-titles">
-          <h1>The Inertia Showcase: Live Demonstration &amp; Peer Defense Log</h1>
-          <div class="sub">Unit 2: Dynamics &amp; Newton's First Law · NGSS HS-PS2-1 · Period 0 Honors Physics</div>
+          <h1>The Inertia Showcase: Live Demonstration Observation Log</h1>
+          <div class="sub">Unit 2: Dynamics &amp; Newton's First Law · Period 0 Honors Physics</div>
         </div>
         <div class="header-meta">
           <div><strong>Orange High School · Physics H</strong></div>
-          <div>Peer Forensic Evaluation Ledger</div>
+          <div>Inertia Peer Observation Ledger</div>
         </div>
       </header>
 
@@ -468,7 +383,7 @@ function renderObservationLogHtml() {
       <div class="student-fields">
         <div>
           <span class="field-label">Student Observer:</span>
-          <span class="field-line" style="width: 220px;">&nbsp;</span>
+          <span class="field-line" style="width: 230px;">&nbsp;</span>
         </div>
         <div>
           <span class="field-label">Period:</span>
@@ -476,49 +391,44 @@ function renderObservationLogHtml() {
         </div>
         <div>
           <span class="field-label">Date:</span>
-          <span class="field-line" style="width: 100px;">&nbsp;</span>
+          <span class="field-line" style="width: 110px;">&nbsp;</span>
         </div>
       </div>
 
-      <!-- Top Instructions & Rubric Card -->
+      <!-- Top Instructions Card -->
       <div class="instruction-card">
         <div class="instruction-card-title">
-          <span>🎯 Observer Protocol &amp; Scientific Defense Criteria</span>
+          <span>Observer Instructions:</span>
         </div>
-        <div class="instruction-grid">
-          <div class="instruction-col">
-            <strong>1. Apparatus &amp; Applied Impulse:</strong> Record the object/mass used, surface interface, and how the sudden force was applied to minimize impulse time (Δt) and friction.
-          </div>
-          <div class="instruction-col">
-            <strong>2. Newton's 1st Law Defense:</strong> Explain why the mass behaved as observed using <strong>ΣF = 0</strong>. <span class="alert-tag">CRITICAL CHECK:</span> Verify presenter does <strong>NOT</strong> claim an unphysical "forward force of inertia" pushed the mass!
-          </div>
-          <div class="instruction-col">
-            <strong>3. Defense Score (1–4 pts):</strong><br>
-            <strong>4:</strong> Flawless 1st Law defense, zero forward force.<br>
-            <strong>3:</strong> Minor clarity gap. <strong>2:</strong> Claimed inertia force.<br>
-            <strong>1:</strong> Incomplete or unphysical defense.
-          </div>
+        <div class="instruction-text">
+          As each classmate performs their live demonstration, record the presenter(s), demo title, and physical category (Rest, Motion, or Direction). In the right column, <strong>explain how you believe the demonstration utilizes inertia to be successful</strong> (explain why the object maintains its state of rest or motion, how the quick action prevents unwanted force transfer, and verify that <em>no forward force</em> acts on the mass).
         </div>
       </div>
 
-      <!-- Observation Table: Demos 1 to 5 -->
+      <!-- Observation Table: Demos 1 to 8 -->
       <div class="table-container">
         <table class="obs-table">
           <thead>
             <tr>
-              <th style="width: 17%;">Demo &amp; Presenter<span class="th-sub">Name &amp; Demo Title</span></th>
-              <th style="width: 11%;">Category<span class="th-sub">Regime (Check 1)</span></th>
-              <th style="width: 27%;">Apparatus &amp; Applied Impulse<span class="th-sub">Mass, support surface &amp; how quick impulse was applied (Δt)</span></th>
-              <th style="width: 36%;">Observed Motion &amp; Physics Defense (ΣF = 0)<span class="th-sub">What mass did, Newton's 1st Law defense &amp; check for forward force</span></th>
-              <th style="width: 9%;">Score<span class="th-sub">1–4 pts</span></th>
+              <th style="width: 34%;">
+                Demo &amp; Presenter
+                <span class="th-sub">Presenter Name(s), Demo Title &amp; Category</span>
+              </th>
+              <th style="width: 66%;">
+                How the Demonstration Utilizes Inertia to be Successful
+                <span class="th-sub">Explain why the mass behaves as observed using Newton's 1st Law (resistance to acceleration, ΣF = 0, zero forward force)</span>
+              </th>
             </tr>
           </thead>
           <tbody>
-            ${renderTableRow(1, 138)}
-            ${renderTableRow(2, 138)}
-            ${renderTableRow(3, 138)}
-            ${renderTableRow(4, 138)}
-            ${renderTableRow(5, 138)}
+            ${renderTableRow(1, 95)}
+            ${renderTableRow(2, 95)}
+            ${renderTableRow(3, 95)}
+            ${renderTableRow(4, 95)}
+            ${renderTableRow(5, 95)}
+            ${renderTableRow(6, 95)}
+            ${renderTableRow(7, 95)}
+            ${renderTableRow(8, 95)}
           </tbody>
         </table>
       </div>
@@ -534,7 +444,7 @@ function renderObservationLogHtml() {
   </div>
 
   <!-- ========================================================
-       PAGE 2: TABLE ROWS 6 TO 10 + HONORS SYNTHESIS
+       PAGE 2: TABLE ROWS 9 TO 15 (7 DEMOS) + SYNTHESIS
        ======================================================== -->
   <div class="worksheet-page">
     <div style="display: flex; flex-direction: column; flex: 1 1 auto; justify-content: space-between;">
@@ -542,8 +452,8 @@ function renderObservationLogHtml() {
       <!-- Top Header Page 2 -->
       <header class="worksheet-header">
         <div class="header-titles">
-          <h1>The Inertia Showcase: Peer Observation &amp; Synthesis Log</h1>
-          <div class="sub">Unit 2: Dynamics · Demonstrations 6–10 &amp; Mechanical Equilibrium Synthesis</div>
+          <h1>The Inertia Showcase: Live Demonstration Observation Log</h1>
+          <div class="sub">Unit 2: Dynamics · Demonstrations 9–15 &amp; Equilibrium Synthesis</div>
         </div>
         <div class="header-meta">
           <div><strong>Period 0 Honors Physics</strong></div>
@@ -551,24 +461,29 @@ function renderObservationLogHtml() {
         </div>
       </header>
 
-      <!-- Observation Table: Demos 6 to 10 -->
+      <!-- Observation Table: Demos 9 to 15 -->
       <div class="table-container">
         <table class="obs-table">
           <thead>
             <tr>
-              <th style="width: 17%;">Demo &amp; Presenter<span class="th-sub">Name &amp; Demo Title</span></th>
-              <th style="width: 11%;">Category<span class="th-sub">Regime (Check 1)</span></th>
-              <th style="width: 27%;">Apparatus &amp; Applied Impulse<span class="th-sub">Mass, support surface &amp; how quick impulse was applied (Δt)</span></th>
-              <th style="width: 36%;">Observed Motion &amp; Physics Defense (ΣF = 0)<span class="th-sub">What mass did, Newton's 1st Law defense &amp; check for forward force</span></th>
-              <th style="width: 9%;">Score<span class="th-sub">1–4 pts</span></th>
+              <th style="width: 34%;">
+                Demo &amp; Presenter
+                <span class="th-sub">Presenter Name(s), Demo Title &amp; Category</span>
+              </th>
+              <th style="width: 66%;">
+                How the Demonstration Utilizes Inertia to be Successful
+                <span class="th-sub">Explain why the mass behaves as observed using Newton's 1st Law (resistance to acceleration, ΣF = 0, zero forward force)</span>
+              </th>
             </tr>
           </thead>
           <tbody>
-            ${renderTableRow(6, 94)}
-            ${renderTableRow(7, 94)}
-            ${renderTableRow(8, 94)}
-            ${renderTableRow(9, 94)}
-            ${renderTableRow(10, 94)}
+            ${renderTableRow(9, 93)}
+            ${renderTableRow(10, 93)}
+            ${renderTableRow(11, 93)}
+            ${renderTableRow(12, 93)}
+            ${renderTableRow(13, 93)}
+            ${renderTableRow(14, 93)}
+            ${renderTableRow(15, 93)}
           </tbody>
         </table>
       </div>
@@ -576,36 +491,33 @@ function renderObservationLogHtml() {
       <!-- Synthesis & Post-Demo Bridge to Net Force -->
       <div class="synthesis-section">
         <div class="synthesis-title">
-          <span>🧠 HONORS SYNTHESIS: BRIDGING INERTIA TO BALANCED FORCES (ΣF = 0)</span>
+          <span>Honors Synthesis: Bridging Inertia to Mechanical Equilibrium (ΣF = 0)</span>
         </div>
         <div class="synthesis-grid">
           <div class="synth-item">
-            <span class="synth-prompt">1. Forensic Analysis of Confounding Forces:</span> Which demonstration in class achieved the cleanest isolation of inertia? Explain how the presenter minimized contact time (Δt) and friction to prevent unwanted force transfer:
+            <span class="synth-prompt">1. Minimizing Unwanted Force Transfer:</span> Which demonstration observed today achieved the cleanest isolation of inertia? Explain how the presenter minimized contact time (Δt) and friction to prevent unwanted force from disturbing the mass:
             <div class="write-line" style="margin-top: 2px;"></div>
             <div class="write-line"></div>
           </div>
           <div class="synth-item">
-            <span class="synth-prompt">2. The Equilibrium Condition:</span> In every demonstration observed today, whenever the mass stayed at rest or moved at constant velocity, what was the horizontal net force acting on that mass? Write the equation: <strong>ΣF<sub>x</sub> = ____________ N</strong>. What would occur if an unbalanced net force acted?
+            <span class="synth-prompt">2. The Equilibrium Condition:</span> In every demonstration observed today, whenever the mass stayed at rest or moved at constant velocity, what was the horizontal net force acting on that mass? Write the equation: <strong>ΣF<sub>x</sub> = ____________ N</strong>. What happens the instant an unbalanced net force acts?
             <div class="write-line" style="margin-top: 2px;"></div>
-            <div class="write-line"></div>
           </div>
         </div>
       </div>
 
-      <!-- Final Score Summary -->
-      <div class="score-bar">
-        <span>HONORS LOG DEFENSE SCORE:</span>
-        <span>• Observation Table (16 pts)</span>
-        <span>• Synthesis &amp; Equilibrium Bridge (4 pts)</span>
-        <span style="color: #0284c7; font-size: 8.5pt;">TOTAL: _____ / 20 pts</span>
-        <span>Teacher Signature: _________________________</span>
+      <!-- Verification Bar -->
+      <div class="verify-bar">
+        <span>Demonstrations Logged: _____ / 15</span>
+        <span>Honors Synthesis Check: [ &nbsp; ] Complete</span>
+        <span>Teacher Verification: _________________________</span>
       </div>
 
     </div>
 
     <!-- Page 2 Footer -->
     <footer class="worksheet-footer">
-      <span>Unit 2: Dynamics · Inertia Peer Observation &amp; Synthesis Log</span>
+      <span>Unit 2: Dynamics · Inertia Peer Observation Log</span>
       <span>Page 2 of 2 · Period 0 Honors Physics · NGSS HS-PS2-1</span>
       <span>rrmudry.github.io/physics</span>
     </footer>

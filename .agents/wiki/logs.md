@@ -9,10 +9,12 @@ Append-only log tracking pattern changes across recent sessions.
 
 **Changes**:
 - **New 2-Page Honors Observation Table Handout (`Unit_2/worksheets/Inertia_Demonstration_Observation_Log.html` & `.pdf`)**:
-  - Re-architected from repetitive box panels into a clean, spacious **table ledger**:
-    - Top instruction card on Page 1 defines observer protocol, impulse timing, Newton's 1st Law defense rules, the "forward force" error check, and the 1–4 score criteria once at the top.
-    - Observation Table with dark slate headers: Demo & Presenter, Category (Rest, Motion, Direction), Apparatus & Applied Impulse (mass/surfaces/Δt), Observed Motion & Physics Defense (ΣF = 0 + forward force check), and Score (1–4).
-    - Page 1 hosts Demos 1–5 with tall, generous writing rows; Page 2 hosts Demos 6–10, followed by Section B Honors Synthesis Bridging (forensic friction analysis + equilibrium condition ΣF = 0) and the 20-point rubric score box.
+  - Re-architected into a 100% black-and-white laser printer friendly **15-demonstration observation ledger**:
+    - Top instruction card on Page 1 defines observer protocol once at the top, directing students to record how each demonstration utilizes inertia to be successful (resistance to acceleration, Newton's 1st Law, zero forward force).
+    - Removed score column and condensed widgets to eliminate visual clutter.
+    - Widened Column 1 (34% width) with long underline blanks for Presenter(s), Demo Title, and category checkboxes (Rest, Motion, Direction).
+    - Expanded Column 2 (66% width) dedicated entirely to "How the Demonstration Utilizes Inertia to be Successful" with 3 wide dotted writing lines per demo.
+    - Page 1 hosts Demos 1–8; Page 2 hosts Demos 9–15 (15 demos total across 2 pages), followed by Section B Honors Synthesis (minimizing unwanted force transfer + mechanical equilibrium condition ΣF = 0) and teacher verification bar.
   - Built with Puppeteer generator script (`scripts/generate_inertia_observation_log.js`) adhering strictly to 2-page letter portrait print budget with zero overflow.
 - **Unit 2 Day 26 Curriculum Differentiation (`assets/lessons-data.js`, `Unit_2/outline.md`, `unit2-dashboard.html`)**:
   - Differentiated Period 0 Honors (live student inertia demonstrations with 2-page Observation Log, transitioning into net force and mechanical equilibrium) vs. Periods 1–6 CP Physics (forces, contact vs. field, net force summation F_net = ΣF, balanced vs. unbalanced forces).

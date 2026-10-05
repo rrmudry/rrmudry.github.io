@@ -3490,7 +3490,7 @@ const lessonsData = [
         "typeLabel": "Performance Task Handout",
         "submission": "In-Class Handout (2-Page Printable Observation Log)",
         "actionLabel": "Open PDF Worksheet",
-        "description": "Period 0 Honors: Live demonstration peer evaluation log (Demos 1–8), forensic analysis of confounding forces, and synthesis bridge to mechanical equilibrium (ΣF = 0).",
+        "description": "Period 0 Honors: Live demonstration peer evaluation log (15 demonstrations), forensic analysis of confounding forces, and synthesis bridge to mechanical equilibrium (ΣF = 0).",
         "status": "active"
       },
       {
@@ -3507,7 +3507,7 @@ const lessonsData = [
         "title": "Inertia Demonstration Observation Log (Period 0 Honors)",
         "url": "Unit_2/worksheets/Inertia_Demonstration_Observation_Log.pdf",
         "typeLabel": "Printable Worksheet",
-        "description": "2-page printable student observation handout with 8 demo evaluation panels, forensic friction critique, and equilibrium synthesis rubric."
+        "description": "2-page printable B&W student observation handout with 15 demonstration observation rows, forensic friction critique, and equilibrium synthesis rubric."
       },
       {
         "title": "Inertia Demonstration Planner (Student PDF)",
