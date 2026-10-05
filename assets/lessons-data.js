@@ -3481,7 +3481,8 @@ const lessonsData = [
     "links": {
       "Inertia Demonstration Peer Observation Log (Period 0 Honors)": "Unit_2/worksheets/Inertia_Demonstration_Observation_Log.pdf",
       "Inertia Demonstration Planner (Student PDF)": "Unit_2/worksheets/Inertia_Demonstration_Planner.pdf",
-      "Vector Calculator App": "Unit_2/Vector_displacement_calculator_app/index.html"
+      "Vector Calculator App": "Unit_2/Vector_displacement_calculator_app/index.html",
+      "Newton's 2nd Law Studio": "Unit_2/newtons_second_law_studio/index.html"
     },
     "assignments": [
       {
@@ -3528,6 +3529,12 @@ const lessonsData = [
         "url": "Unit_2/Vector_displacement_calculator_app/index.html",
         "typeLabel": "Interactive Tool",
         "description": "Compute vector components and resultant net forces."
+      },
+      {
+        "title": "Newton's 2nd Law Studio — Step 1: Inertia, Forces & Balance",
+        "url": "Unit_2/newtons_second_law_studio/index.html",
+        "typeLabel": "Interactive Simulation",
+        "description": "A cart with nothing attached keeps rolling at a constant speed (inertia). A hanging weight makes it speed up (weight = mass × g). Then balance the cart and calculate net forces."
       }
     ]
   },
@@ -3561,8 +3568,19 @@ const lessonsData = [
       "explanation": "The acceleration doubles (from 0.2 m/s² to 0.4 m/s²)! Newton's 2nd Law states that acceleration is directly proportional to net force when mass is held constant.",
       "defaultDuration": 3
     },
-    "links": {},
+    "links": {
+      "Newton's 2nd Law Studio": "Unit_2/newtons_second_law_studio/index.html"
+    },
     "assignments": [
+      {
+        "title": "Newton's 2nd Law Studio — Mastery Arena",
+        "url": "Unit_2/newtons_second_law_studio/index.html",
+        "typeLabel": "Interactive Simulation",
+        "submission": "Sign in with your school Google account; progress and score save automatically (10 pts)",
+        "actionLabel": "Open Studio",
+        "description": "Finish Steps 1–3 (2 pts each) and the 5-tier Mastery Arena (4 pts). Each step ends with a ⭐ Honors section (signed net force; negative acceleration; finding a hidden mass), required for Period 0 and optional for other periods.",
+        "status": "active"
+      },
       {
         "title": "Modified Atwood Track Lab Report",
         "typeLabel": "Graded Lab Report",
@@ -3578,6 +3596,14 @@ const lessonsData = [
         "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
         "typeLabel": "Lab Reference",
         "description": "System boundary derivation: accelerating force (m<sub>hang</sub> · g) over total mass (m<sub>cart</sub> + m<sub>hang</sub>)."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Newton's 2nd Law Studio",
+        "url": "Unit_2/newtons_second_law_studio/index.html",
+        "typeLabel": "Interactive Simulation",
+        "description": "Virtual dual-pulley Atwood track with photogate timers: isolate force (M<sub>total</sub> locked) and isolate mass (F<sub>net</sub> locked), graph a vs F<sub>net</sub> and a vs 1/M<sub>total</sub>."
       }
     ]
   },
