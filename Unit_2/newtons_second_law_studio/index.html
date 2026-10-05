@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en" class="font-normal">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Newton's 2nd Law Studio</title>
+  <meta name="description" content="Dual-pulley horizontal Atwood machine: equilibrium, acceleration vs. net force, acceleration vs. total mass, and a 5-tier mastery arena.">
+  <link rel="icon" type="image/svg+xml" href="../../assets/unit2-favicon.svg">
+  <script>
+    // Apply saved theme + text size before first paint to avoid a flash
+    try {
+      if (localStorage.getItem('nsl_theme') === 'light') document.documentElement.classList.add('theme-light');
+      const f = localStorage.getItem('nsl_font');
+      if (f) { document.documentElement.classList.remove('font-normal'); document.documentElement.classList.add('font-' + f); }
+    } catch (e) { /* storage blocked */ }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase (compat SDK, same as the rest of the site) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
+  <!-- Desmos Scientific Calculator API (same key as the other Unit 2 labs) -->
+  <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+</head>
+<body>
+
+  <!-- Sign-in gate: sign in with a school Google account, or continue as an ungraded guest -->
+  <div id="loginGate" class="login-gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+    <div class="gate-card">
+      <div class="gate-icon" aria-hidden="true">⚙️</div>
+      <h1 id="gateTitle" class="gate-title">Newton's 2nd Law Studio</h1>
+      <p class="gate-sub">Unit 2 · Days 26–27</p>
+      <p class="gate-text">Sign in with your <strong>@orangeusd.org</strong> Google account. Your answers save to your account automatically, so you can pick up where you left off on any Chromebook.</p>
+      <div class="gate-grading">
+        <div><span class="gate-pts">2 pts</span> Finish Step 1: Forces &amp; Balance</div>
+        <div><span class="gate-pts">2 pts</span> Finish Step 2: Isolate Force</div>
+        <div><span class="gate-pts">2 pts</span> Finish Step 3: Isolate Mass</div>
+        <div><span class="gate-pts">4 pts</span> Mastery Arena (0.8 pts for each tier you get right)</div>
+      </div>
+      <button type="button" id="btnGateSignIn" class="btn-google">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" width="20" height="20">
+        Sign in with Google
+      </button>
+      <div class="gate-guest">
+        <button type="button" id="btnGateGuest" class="btn-guest">Continue as Guest</button>
+        <p class="gate-guest-note">Guest progress stays on this device only and is <strong>not graded</strong>.</p>
+      </div>
+      <p id="gateStatus" class="gate-status" aria-live="polite"></p>
+      <p id="gateError" class="gate-error" role="alert" hidden></p>
+    </div>
+  </div>
+
+  <!-- Sticky header + step navigation dock -->
+  <header class="app-header">
+    <div class="header-row">
+      <div class="header-left">
+        <span class="app-icon" aria-hidden="true">⚙️</span>
+        <div>
+          <h1 class="app-title">Newton's 2nd Law Studio</h1>
+          <p class="app-subtitle">Dual-Pulley Horizontal Atwood Machine · a = F<sub>net</sub> / M<sub>total</sub> · g = 10 m/s²</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="font-toggle-group" role="group" aria-label="Text size">
+          <span class="font-label">Text:</span>
+          <button class="font-btn" data-size="normal">Normal</button>
+          <button class="font-btn" data-size="large">Large</button>
+          <button class="font-btn" data-size="huge">🖥️ Projector</button>
+        </div>
+        <button id="btnAudio" class="btn-tool" title="Toggle sound effects">🔊 Sound: ON</button>
+        <button id="btnTheme" class="btn-tool" title="Toggle light / dark theme">☀️ Light Mode</button>
+        <a href="../../unit2-dashboard.html" class="btn-tool" title="Back to Unit 2 Dashboard">🏠 Unit 2</a>
+        <div id="userChip" class="user-chip" hidden>
+          <span id="saveIndicator" class="save-indicator save-busy" aria-live="polite">⏳ Saving…</span>
+          <span id="userName" class="user-name"></span>
+          <span id="userTrack" class="user-track"></span>
+          <button type="button" id="btnSignOut" class="btn-signout" title="Sign out">Sign out</button>
+          <button type="button" id="btnChipSignIn" class="btn-signout btn-chip-signin" title="Sign in to get credit" hidden>Sign in for credit</button>
+        </div>
+      </div>
+    </div>
+
+    <nav class="step-tabs" aria-label="Investigation steps">
+      <button class="tab-btn active" data-tab="step1"><span class="tab-num">1</span><span class="tab-text">Forces &amp; Balance</span><span class="tab-check" id="tabCheck1"></span></button>
+      <button class="tab-btn" data-tab="step2"><span class="tab-num">2</span><span class="tab-text">Isolate Force</span><span class="tab-check" id="tabCheck2"></span></button>
+      <button class="tab-btn" data-tab="step3"><span class="tab-num">3</span><span class="tab-text">Isolate Mass</span><span class="tab-check" id="tabCheck3"></span></button>
+      <button class="tab-btn" data-tab="arena"><span class="tab-num">🏆</span><span class="tab-text">Mastery Arena</span><span class="tab-check" id="tabCheck4"></span></button>
+    </nav>
+  </header>
+
+  <main class="workbench">
+
+    <!-- LEFT: apparatus, measurements, force diagrams, controls, data -->
+    <div class="col-left">
+      <section class="card sim-card">
+        <div class="canvas-wrap"><canvas id="simCanvas" aria-label="Atwood machine simulation"></canvas></div>
+        <div class="measure-strip" aria-label="Photogate readings">
+          <div class="ms-item"><span class="ms-label">Gate A</span><span class="ms-val" id="msA">--</span></div>
+          <div class="ms-item"><span class="ms-label">Gate B</span><span class="ms-val" id="msB">--</span></div>
+          <div class="ms-item"><span class="ms-label">Time from A to B</span><span class="ms-val" id="msDT">--</span></div>
+        </div>
+        <div class="sim-toolbar">
+          <div class="run-bar" id="runBar"></div>
+          <p id="simStatus" class="sim-status" role="status" aria-live="polite">Cart held at the start line.</p>
+          <div class="toolbar-right">
+            <label class="toggle-inline"><input type="checkbox" id="chkVectors" checked> Arrows on track</label>
+            <div class="speed-group" role="group" aria-label="Playback speed">
+              <button class="speed-pill active" data-speed="1">1×</button>
+              <button class="speed-pill" data-speed="0.5">½×</button>
+              <button class="speed-pill" data-speed="0.25">¼×</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card fbd-card" aria-label="Force diagrams">
+        <div class="fbd-grid">
+          <figure class="fbd-fig">
+            <figcaption><strong>Forces on the cart</strong><span>Where each force acts</span></figcaption>
+            <div class="fbd-wrap"><canvas id="fbdPicture" aria-label="Picture of the cart showing the forces acting on it"></canvas></div>
+          </figure>
+          <figure class="fbd-fig">
+            <figcaption><strong>Free-body diagram</strong><span>Cart as a dot · arrows to scale</span></figcaption>
+            <div class="fbd-wrap"><canvas id="fbdFree" aria-label="Free-body diagram of the cart"></canvas></div>
+          </figure>
+        </div>
+        <ul class="fbd-legend" id="fbdLegend" aria-label="What exerts each force"></ul>
+      </section>
+
+
+
+      <section class="card trials-card" id="trialsCard" hidden>
+        <div class="card-head">
+          <h2 id="trialsTitle">Trial Data</h2>
+        </div>
+        <div class="table-scroll">
+          <table class="trials-table">
+            <thead>
+              <tr>
+                <th>#</th><th>m<sub>L</sub> (g)</th><th>m<sub>cart</sub> (g)</th><th>m<sub>R</sub> (g)</th>
+                <th>M<sub>total</sub> (kg)</th><th>F<sub>net</sub> (N)</th><th>v<sub>A</sub> (m/s)</th><th>v<sub>B</sub> (m/s)</th><th>a (m/s²)</th>
+              </tr>
+            </thead>
+            <tbody id="trialsBody"></tbody>
+          </table>
+        </div>
+        <p class="table-note">a is measured by the photogates: a = (v<sub>B</sub> − v<sub>A</sub>) ÷ (time from Gate A to Gate B).</p>
+      </section>
+
+    </div>
+
+    <!-- RIGHT: one guided task at a time, then the graph when it is needed -->
+    <div class="col-right">
+      <section class="card task-card" id="taskCard" aria-live="polite"></section>
+
+      <section class="card controls-card" id="stepControls" aria-label="Apparatus controls" hidden></section>
+
+      <section class="card arena-card" id="arenaCard" hidden>
+        <div class="task-top"><span class="step-badge">MASTERY ARENA</span><span class="part-label">Put it together</span></div>
+        <p class="arena-rule"><strong class="formula">Acceleration = net force ÷ mass</strong>: more force → more acceleration, more mass → less.</p>
+        <p class="arena-rule">Get <strong>4 of 5</strong> right to earn your certificate. ✅ Your score saves automatically. Nothing to turn in.</p>
+        <div id="arenaRoot" class="arena-root"></div>
+      </section>
+
+      <section class="card graph-card" id="graphCard" hidden>
+        <div class="card-head">
+          <h2 id="graphTitle">Graph</h2>
+          <div class="seg" role="group" aria-label="Graph type" id="graphSeg"></div>
+        </div>
+        <div class="graph-wrap"><canvas id="graph"></canvas></div>
+        <p class="graph-note" id="graphNote"></p>
+      </section>
+
+
+    </div>
+  </main>
+
+  <!-- Certificate modal (prints as an ink-friendly page / PDF) -->
+  <div class="modal" id="certModal" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="certTitle">
+      <div class="certificate" id="certificate">
+        <p class="cert-kicker">Newton's 2nd Law Studio · Unit 2</p>
+        <h2 id="certTitle">Newtonian Dynamics Specialist</h2>
+        <p class="cert-line">This certifies that</p>
+        <p class="cert-name" id="certName"></p>
+        <p class="cert-line">used Newton's 2nd Law, <span class="formula">acceleration = net force ÷ mass</span>, to predict and explain the motion of a cart.</p>
+        <p class="cert-score"><span id="certPoints"></span><small id="certPct"></small></p>
+        <dl class="cert-grid">
+          <dt>Steps</dt><dd id="certSteps"></dd>
+          <dt>Mastery Arena</dt><dd id="certArena"></dd>
+          <dt>Honors</dt><dd id="certHonors"></dd>
+          <dt>Class</dt><dd id="certClass"></dd>
+          <dt>Date</dt><dd id="certDate"></dd>
+          <dt>Verification</dt><dd id="certCode" class="mono"></dd>
+        </dl>
+      </div>
+      <p class="cert-saved" id="certSaved"></p>
+      <div class="modal-actions">
+        <button class="btn-primary" id="btnPrintCert">🖨️ Print or Save as PDF</button>
+        <button class="btn-secondary" id="btnCloseCert">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/text.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/physics.js"></script>
+  <script src="js/atwood-canvas.js"></script>
+  <script src="js/graphing.js"></script>
+  <script src="js/fbd.js"></script>
+  <script src="js/lessons.js"></script>
+  <script src="js/challenges.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

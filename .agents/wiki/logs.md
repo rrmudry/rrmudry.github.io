@@ -3,6 +3,34 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-04 — Newton's 2nd Law Studio: Accounts, Grading & Honors Differentiation
+
+**Pattern Updated**: `newtons-second-law-atwood-studio.md`.
+
+**Changes**:
+- Added `js/auth.js`: Google sign-in / guest gate, roster period lookup, Firestore progress + score at `student_results/unit2_day27_newtons_second_law_studio/students/{id}` (10 pts: 2 per step + 0.8 per Arena tier, best kept). Not yet registered in `assignment_registry` / Classroom.
+- Step 1 rebuilt to the teacher's sequence (no-mass inertia → right weight, mass × g → balance with a 5 s test → net force teaching → 3 examples), plus the ⭐ Honors "Direction matters" signed net force section (required for Period 0, opt-in for Periods 1–6).
+- Desmos calculator + one-at-a-time hints on every calculation; read-aloud; formulas never wrap; force diagrams always on screen at Chromebook size.
+
+## 2026-10-04 — Newton's 2nd Law Studio: Guided One-Task Engine & Force Diagrams
+
+**Pattern Updated**: `newtons-second-law-atwood-studio.md`.
+
+**Changes** (teacher feedback: too much on one screen, students click through, need FBDs):
+- Replaced the all-at-once checklist with a one-task-at-a-time card (`js/lessons.js`). Wrong answers load a new scenario with different values and restart that part. The Arena follows the same rule.
+- Added `js/fbd.js`: "Forces on the cart" picture + technically correct free-body diagram (F_N, F_g, tensions, hand/bumper force, to scale), with a legend of what exerts each force.
+- Track overlay now shows ΣF on the cart (T_R − T_L), not the system's net force.
+- Physics symbols use real subscripts everywhere (`js/text.js`); kept the term "photogate" with an explainer.
+
+## 2026-10-04 — Newton's 2nd Law Studio: Dual-Pulley Horizontal Atwood Machine
+
+**Pattern Added**: `newtons-second-law-atwood-studio.md`.
+
+**Changes**:
+- Built `Unit_2/newtons_second_law_studio/` from `Unit_2/newtons_second_law_studio_plan.md`: Step 1 Equilibrium (release + nudge), Step 2 Isolate Force (token transfers, M_total locked at 500 g), Step 3 Isolate Mass (cargo/equal pairs, F_net locked at 0.50 N), and a 5-tier randomized Mastery Arena with certificate + Classroom summary.
+- Used g = 10 m/s² (class convention) instead of the plan's 9.8.
+- Linked in `assets/lessons-data.js` (Day 26 links + practice; Day 27 links, assignment, practice), `Unit_2/outline.md` (Days 26–27), and `unit2-dashboard.html`. Refreshed footer timestamp.
+
 ## 2026-10-04 — Day 26 Curriculum Differentiation & Honors Inertia Observation Log
 
 **Patterns Updated**: `printable-graphing-worksheets.md`, `dashboard-layout.md`.

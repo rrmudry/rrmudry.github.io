@@ -261,7 +261,7 @@ This unit follows the classical and cognitive progression:
         *   *Periods 1–6 CP Physics:* Forces & Net Force Exploration — direct instruction and interactive demos classifying contact forces (normal, friction, tension, applied) vs. field forces (gravity), constructing 1D force vectors, calculating net force (`F_net = ΣF`), and distinguishing balanced forces (`F_net = 0`, dynamic equilibrium at constant velocity) from unbalanced forces (`F_net ≠ 0`, acceleration).
     *   *Essential Question:* Period 0: How do live physical demonstrations isolate inertia and prove zero forward force acts on a moving body? Periods 1–6: How does the balance or imbalance of opposing forces determine whether an object maintains constant velocity or accelerates?
     *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Performance Task / Guided Inquiry
-    *   *Links:* [Inertia Demonstration Peer Observation Log (Period 0 Honors)](Unit_2/worksheets/Inertia_Demonstration_Observation_Log.pdf), [Inertia Demonstration Planner (Student PDF)](Unit_2/worksheets/Inertia_Demonstration_Planner.pdf), [Translational Equilibrium Notes](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), [Vector Calculator App](Unit_2/Vector_displacement_calculator_app/index.html)
+    *   *Links:* [Inertia Demonstration Peer Observation Log (Period 0 Honors)](Unit_2/worksheets/Inertia_Demonstration_Observation_Log.pdf), [Inertia Demonstration Planner (Student PDF)](Unit_2/worksheets/Inertia_Demonstration_Planner.pdf), [Translational Equilibrium Notes](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), [Vector Calculator App](Unit_2/Vector_displacement_calculator_app/index.html), [Newton's 2nd Law Studio](Unit_2/newtons_second_law_studio/index.html)
 
 *   **Day 27 (2026-10-06): Unbalanced Forces & Newton's Second Law Lab — Part 1: Force vs. Acceleration**
     *   *Bell-Ringer:* Atwood Accelerating Mass (CAST Challenge): A 0.80 kg cart on a frictionless track is pulled by a hanging 0.20 kg mass over a pulley. Calculate the net accelerating force, the total system mass, and the theoretical acceleration of the system.
@@ -269,7 +269,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Newton's 2nd Law Launch & Modified Atwood Track Lab (Part 1): Direct instruction and fan-cart demonstrations establishing that unbalanced forces produce acceleration (`a = F_net / m`). Followed by pulling a constant-mass cart using hanging masses (0.1 N, 0.2 N, 0.3 N, 0.4 N) across photogate timers to plot `a` vs F<sub>net</sub> and verify direct linear proportionality.
     *   *Essential Question:* How does experimental data verify the direct proportionality between applied net force and acceleration?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Direct Instruction / Lab
-    *   *Links:* Modified Atwood Track Lab Sheet *(Planned In-Class)*
+    *   *Links:* [Newton's 2nd Law Studio (Mastery Arena)](Unit_2/newtons_second_law_studio/index.html), Modified Atwood Track Lab Sheet *(Planned In-Class)*
 
 *   **Day 28 (2026-10-07): The Science of Friction: Static vs. Kinetic (F<sub>f</sub> = μ · F<sub>N</sub>)**
     *   *Bell-Ringer:* Pushing a Heavy Couch (AI Chat): Why is it always much harder to get a heavy couch to start sliding across a wooden floor than it is to keep it moving once it's already sliding?
