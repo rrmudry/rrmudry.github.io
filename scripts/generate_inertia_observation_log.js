@@ -124,19 +124,14 @@ function renderObservationLogHtml() {
       font-weight: 600;
     }
 
-    /* Student Meta Bar */
+    /* Student Meta Bar (Spacious open band, no cramped underline) */
     .student-fields {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 7.6pt;
-      margin-bottom: 4px;
-      padding-bottom: 3px;
-      border-bottom: 1px solid #000000;
-    }
-    .field-line {
-      border-bottom: 1.2px solid #000000;
-      display: inline-block;
+      font-size: 8.5pt;
+      padding: 8px 0 6px 0;
+      margin-bottom: 5px;
     }
     .field-label {
       font-weight: 700;
@@ -386,19 +381,17 @@ function renderObservationLogHtml() {
         </div>
       </header>
 
-      <!-- Student Meta Fields -->
+      <!-- Student Meta Fields (Open space, no cramped lines) -->
       <div class="student-fields">
-        <div>
+        <div style="flex: 1;">
           <span class="field-label">Student Observer:</span>
-          <span class="field-line" style="width: 230px;">&nbsp;</span>
         </div>
-        <div>
+        <div style="padding: 0 15px;">
           <span class="field-label">Period:</span>
           <span class="honors-badge">Period 0 Honors</span>
         </div>
-        <div>
+        <div style="width: 140px; text-align: right;">
           <span class="field-label">Date:</span>
-          <span class="field-line" style="width: 110px;">&nbsp;</span>
         </div>
       </div>
 
