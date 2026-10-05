@@ -3,6 +3,21 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-04 — Day 26 Curriculum Differentiation & Honors Inertia Observation Log
+
+**Patterns Updated**: `printable-graphing-worksheets.md`, `dashboard-layout.md`.
+
+**Changes**:
+- **New 2-Page Honors Observation Handout (`Unit_2/worksheets/Inertia_Demonstration_Observation_Log.html` & `.pdf`)**:
+  - Engineered for Period 0 Honors Physics live demonstration showcase.
+  - Page 1: Student observer metadata, Mission Briefing with Observer Protocol banner, 4 demo evaluation panels (Demonstrator, Codename, Regime checkboxes, Apparatus/Impulse description, Newton's 1st Law defense notes, misconception check on forward force, and 4-point peer defense rating).
+  - Page 2: Panels 5–8 (accommodating small class cohorts), Section B Honors Synthesis Bridging (forensic friction critique and mechanical equilibrium condition ΣF = 0), and 20-point rubric score box (16 pts observation + 4 pts synthesis).
+  - Built with Puppeteer generator script (`scripts/generate_inertia_observation_log.js`) adhering strictly to letter portrait print budget with zero overflow.
+- **Unit 2 Day 26 Curriculum Differentiation (`assets/lessons-data.js`, `Unit_2/outline.md`, `unit2-dashboard.html`)**:
+  - Differentiated Period 0 Honors (live student inertia demonstrations with 2-page Observation Log, transitioning into net force and mechanical equilibrium) vs. Periods 1–6 CP Physics (forces, contact vs. field, net force summation F_net = ΣF, balanced vs. unbalanced forces).
+  - Added `Inertia Demonstration Peer Observation Log (Period 0 Honors)` to Day 26 assignments, resources, and links.
+  - Updated dashboard script cache buster in `unit2-dashboard.html` (`v=20261005`).
+
 ## 2026-10-04 — Single-Page Performance Task: Inertia Demonstration Planner
 
 **Patterns Updated**: `printable-graphing-worksheets.md`.

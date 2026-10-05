@@ -3453,24 +3453,24 @@ const lessonsData = [
     "day": 26,
     "date": "2026-10-05",
     "unit": 2,
-    "title": "Balanced Forces & Mechanical Equilibrium (F<sub>net</sub> = 0)",
-    "topic": "Static and Dynamic Equilibrium: Zero Net Force implies Zero Acceleration",
+    "title": "Inertia Demonstrations (Period 0 Honors) & Balanced Forces (Periods 1–6)",
+    "topic": "Period 0 Honors: Inertia Demonstration Showcase & Peer Defense | Periods 1–6: Forces, Net Force & Balanced vs. Unbalanced Forces",
     "dok": 3,
-    "type": "Practice / Lab",
+    "type": "Performance Task / Guided Inquiry",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Compute net force in 1D systems and prove that zero net force produces zero acceleration in both static (rest) and dynamic (constant speed) states.",
-    "activity": "Dual Spring Scale Tug-of-War: Students balance opposing forces on carts, verifying that equal and opposite pulling forces yield zero acceleration whether the cart is at rest or rolling steadily.",
-    "essentialQuestion": "Why does an aircraft cruising at 500 mph at constant altitude experience exactly zero net force?",
+    "summary": "Differentiated instruction day across physics sections: Period 0 (Honors Physics) executes live student-engineered inertia demonstrations with classmates evaluating mechanisms and debunking 'forward force' claims using the 2-page Peer Observation Log, transitioning to net force and mechanical equilibrium (ΣF = 0). Periods 1–6 (CP Physics) explore contact vs. field forces, net force summation (F_net = ΣF), and the physical distinction between balanced forces (equilibrium, constant velocity) and unbalanced forces (acceleration).",
+    "activity": "Differentiated Dynamics Block:\n• Period 0 Honors: Live Inertia Demonstration Showcase — student pairs execute their engineered physical demonstrations of Newton's First Law (Rest, Motion, or Direction). Classmates act as peer forensic observers, documenting the setup, impulse duration, mass response, and Newton's 1st Law defense on the 2-page Observation Log, verifying that zero forward force acts on the mass. Following demonstrations, students transition into mechanical equilibrium (ΣF = 0) and net force calculations.\n• Periods 1–6 CP Physics: Forces & Net Force Exploration — direct instruction and interactive demos classifying contact forces (normal, friction, tension, applied) vs. field forces (gravity), constructing 1D force vectors, calculating net force (F_net = ΣF), and distinguishing balanced forces (F_net = 0, dynamic equilibrium at constant velocity) from unbalanced forces (F_net ≠ 0, acceleration).",
+    "essentialQuestion": "Period 0: How do live physical demonstrations isolate inertia and prove zero forward force acts on a moving body? Periods 1–6: How does the balance or imbalance of opposing forces determine whether an object maintains constant velocity or accelerates?",
     "standards": [
       "HS-PS2-1"
     ],
     "wicor": {
-      "Writing": "Explaining the difference between static equilibrium (v = 0, a = 0) and dynamic equilibrium (v = const ≠ 0, a = 0).",
-      "Inquiry": "Verifying with spring scales that pulling an object at constant speed produces identical opposing friction force.",
-      "Collaboration": "Partner trials balancing opposing spring scales on frictionless tracks.",
-      "Organization": "Setting up net force summation equations: ΣF = F₁ + F₂ = 0.",
-      "Reading": "Reading flight telemetry data to analyze balanced thrust vs drag and lift vs weight."
+      "Writing": "Period 0: Composing peer forensic critiques on the Observation Log defending why masses maintain state without forward force. Periods 1–6: Writing definitions distinguishing balanced forces (equilibrium) from unbalanced forces (acceleration).",
+      "Inquiry": "Period 0: Live evaluation of inertia boundary conditions and contact impulse times (Δt). Periods 1–6: Testing opposing force scenarios on carts and spring balances to discover when net force equals zero.",
+      "Collaboration": "Period 0: Live peer presentation and observation rubric scoring. Periods 1–6: Partner practice determining net force vectors and predicting motion changes.",
+      "Organization": "Period 0: Systematic 8-station observation logging and synthesis equation formulation. Periods 1–6: Tabulating contact vs. field forces and writing net force summation equations (F_net = ΣF).",
+      "Reading": "Period 0: Reviewing peer demonstration protocols and defense arguments. Periods 1–6: Reading force diagrams and vector sum notations."
     },
     "bellRinger": {
       "type": "free_response",
@@ -3479,24 +3479,47 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Inertia Demonstration Peer Observation Log (Period 0 Honors)": "Unit_2/worksheets/Inertia_Demonstration_Observation_Log.pdf",
+      "Inertia Demonstration Planner (Student PDF)": "Unit_2/worksheets/Inertia_Demonstration_Planner.pdf",
       "Vector Calculator App": "Unit_2/Vector_displacement_calculator_app/index.html"
     },
     "assignments": [
       {
-        "title": "Cable Rigging Equilibrium Engineering Challenge",
-        "typeLabel": "Engineering Task",
+        "title": "Inertia Demonstration Peer Observation Log (Period 0 Honors)",
+        "url": "Unit_2/worksheets/Inertia_Demonstration_Observation_Log.pdf",
+        "typeLabel": "Performance Task Handout",
+        "submission": "In-Class Handout (2-Page Printable Observation Log)",
+        "actionLabel": "Open PDF Worksheet",
+        "description": "Period 0 Honors: Live demonstration peer evaluation log (Demos 1–8), forensic analysis of confounding forces, and synthesis bridge to mechanical equilibrium (ΣF = 0).",
+        "status": "active"
+      },
+      {
+        "title": "Balanced & Unbalanced Forces Challenge (Periods 1–6)",
+        "typeLabel": "Inquiry Practice",
         "submission": "In-Class Handout (Subject to Pacing)",
         "actionLabel": "In-Class Activity Notice",
-        "description": "Calculate theoretical cable tensions to achieve static equilibrium (ΣF = 0) on a 3-string force table.",
+        "description": "Periods 1–6: Classify contact vs. field forces, calculate 1D net forces (F_net = ΣF), and identify balanced vs. unbalanced force states.",
         "status": "planned"
       }
     ],
     "resources": [
       {
-        "title": "Translational Equilibrium Notes",
+        "title": "Inertia Demonstration Observation Log (Period 0 Honors)",
+        "url": "Unit_2/worksheets/Inertia_Demonstration_Observation_Log.pdf",
+        "typeLabel": "Printable Worksheet",
+        "description": "2-page printable student observation handout with 8 demo evaluation panels, forensic friction critique, and equilibrium synthesis rubric."
+      },
+      {
+        "title": "Inertia Demonstration Planner (Student PDF)",
+        "url": "Unit_2/worksheets/Inertia_Demonstration_Planner.pdf",
+        "typeLabel": "Printable Worksheet",
+        "description": "Single-page student planner: Materials list, setup diagram, protocol, Free-Body Diagram defense, CER, and 16-point rubric."
+      },
+      {
+        "title": "Translational Equilibrium & Balanced Forces Notes",
         "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
         "typeLabel": "Lecture Notes",
-        "description": "Resolving forces into perpendicular components: ΣFx = 0 and ΣFy = 0."
+        "description": "Resolving balanced forces into perpendicular components: ΣFx = 0 and ΣFy = 0."
       }
     ],
     "practice": [
