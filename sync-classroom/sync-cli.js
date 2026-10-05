@@ -156,7 +156,7 @@ async function getAvailableAssignments() {
         const data = doc.data();
         list.push({
           id: doc.id,
-          name: data.title || doc.id,
+          name: data.title || data.assignmentName || decodeURIComponent(doc.id),
           source: 'gradest_assignments',
           studentCount: (data.grades && Array.isArray(data.grades)) ? data.grades.length : 0
         });
@@ -347,7 +347,14 @@ async function fetchAssignmentScores(assignmentId, rosterMap) {
   }
 
   // 2. Check student_results subcollection
-  const possibleIds = [assignmentId, assignmentId.replace(/ /g, '_'), assignmentId.replace(/_/g, ' ')];
+  const possibleIds = [
+    assignmentId,
+    assignmentId.replace(/ /g, '_'),
+    assignmentId.replace(/_/g, ' '),
+    assignmentId.replace(/\//g, '%2F'),
+    assignmentId.replace(/%2F/gi, '/'),
+    assignmentId.replace(/[\/%]/g, '_')
+  ];
   for (const pid of possibleIds) {
     try {
       const snap = await db.collection('student_results').doc(pid).collection('students').get();
