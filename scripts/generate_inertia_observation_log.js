@@ -30,11 +30,11 @@ function renderTableRow(demoNum, rowHeight) {
             <label class="cat-label"><span class="box-sq">[ &nbsp; ]</span> Direction</label>
           </div>
         </div>
-        <div class="field-row">
+        <div class="field-row presenter-row">
           <span class="field-tag">Presenter(s):</span>
           <span class="field-blank">&nbsp;</span>
         </div>
-        <div class="field-row">
+        <div class="field-row title-row">
           <span class="field-tag">Demo Title:</span>
           <span class="field-blank">&nbsp;</span>
         </div>
@@ -266,9 +266,16 @@ function renderObservationLogHtml() {
     }
     .field-row {
       font-size: 6.9pt;
-      margin-bottom: 3px;
       display: flex;
       align-items: flex-end;
+    }
+    .field-row.presenter-row {
+      margin-top: 14px;
+      margin-bottom: 0;
+    }
+    .field-row.title-row {
+      margin-top: 18px;
+      margin-bottom: 0;
     }
     .field-tag {
       font-weight: 700;
