@@ -253,13 +253,15 @@ This unit follows the classical and cognitive progression:
 ### Week 6: Equilibrium, Newton's Second Law & Friction Dynamics
 **Goal:** Apply Free-Body Diagrams to solve mechanical equilibrium problems (`F_net = 0`), empirically establish and mathematically apply Newton's Second Law of Motion (`F_net = m · a`) using modified Atwood machines, and explore friction dynamics.
 
-*   **Day 26 (2026-10-05): Balanced Forces & Mechanical Equilibrium (F<sub>net</sub> = 0)**
+*   **Day 26 (2026-10-05): Inertia Demonstrations (Period 0 Honors) & Balanced Forces (Periods 1–6)**
     *   *Bell-Ringer:* Cruising Boeing 777 Net Force (Free Response): A commercial jet cruises at a steady altitude of 35,000 feet in a straight line at 550 mph. What is the net force acting on the 300,000 kg airplane?
-    *   *Focus:* Definition of equilibrium: `ΣF = 0` (ΣF<sub>x</sub> = 0 and ΣF<sub>y</sub> = 0). Static equilibrium (object at rest, `v = 0`, `a = 0`) vs. Dynamic equilibrium (object moving at constant velocity, `v = constant`, `a = 0`). Balanced forces produce zero acceleration.
-    *   *Activity:* Dual Spring Scale Tug-of-War: Students balance opposing forces on carts, verifying that equal and opposite pulling forces yield zero acceleration whether the cart is at rest or rolling steadily.
-    *   *Essential Question:* Why does an aircraft cruising at 500 mph at constant altitude experience exactly zero net force?
-    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Practice / Lab
-    *   *Links:* [Vector Calculator App](Unit_2/Vector_displacement_calculator_app/index.html), Cable Rigging Equilibrium Challenge *(Planned In-Class)*
+    *   *Focus:* Differentiated instructional focus: Period 0 (Honors Physics) executes live student-engineered inertia demonstrations with classmates evaluating mechanisms and debunking 'forward force' claims using the 2-page Peer Observation Log, transitioning to net force and mechanical equilibrium (`ΣF = 0`). Periods 1–6 (CP Physics) explore contact vs. field forces, net force summation (`F_net = ΣF`), and the physical distinction between balanced forces (equilibrium, constant velocity) and unbalanced forces (acceleration).
+    *   *Activity:* Differentiated Dynamics Block:
+        *   *Period 0 Honors:* Live Inertia Demonstration Showcase — student pairs execute their engineered physical demonstrations of Newton's First Law (Rest, Motion, or Direction). Classmates act as peer forensic observers, documenting the setup, impulse duration, mass response, and Newton's 1st Law defense on the 2-page Observation Log, verifying that zero forward force acts on the mass. Following demonstrations, students transition into mechanical equilibrium (`ΣF = 0`) and net force calculations.
+        *   *Periods 1–6 CP Physics:* Forces & Net Force Exploration — direct instruction and interactive demos classifying contact forces (normal, friction, tension, applied) vs. field forces (gravity), constructing 1D force vectors, calculating net force (`F_net = ΣF`), and distinguishing balanced forces (`F_net = 0`, dynamic equilibrium at constant velocity) from unbalanced forces (`F_net ≠ 0`, acceleration).
+    *   *Essential Question:* Period 0: How do live physical demonstrations isolate inertia and prove zero forward force acts on a moving body? Periods 1–6: How does the balance or imbalance of opposing forces determine whether an object maintains constant velocity or accelerates?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Performance Task / Guided Inquiry
+    *   *Links:* [Inertia Demonstration Peer Observation Log (Period 0 Honors)](Unit_2/worksheets/Inertia_Demonstration_Observation_Log.pdf), [Inertia Demonstration Planner (Student PDF)](Unit_2/worksheets/Inertia_Demonstration_Planner.pdf), [Translational Equilibrium Notes](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), [Vector Calculator App](Unit_2/Vector_displacement_calculator_app/index.html)
 
 *   **Day 27 (2026-10-06): Unbalanced Forces & Newton's Second Law Lab — Part 1: Force vs. Acceleration**
     *   *Bell-Ringer:* Atwood Accelerating Mass (CAST Challenge): A 0.80 kg cart on a frictionless track is pulled by a hanging 0.20 kg mass over a pulley. Calculate the net accelerating force, the total system mass, and the theoretical acceleration of the system.
