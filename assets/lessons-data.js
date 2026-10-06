@@ -3569,7 +3569,8 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
-      "Newton's 2nd Law Studio": "Unit_2/newtons_second_law_studio/index.html"
+      "Newton's 2nd Law Studio": "Unit_2/newtons_second_law_studio/index.html",
+      "Newton's 2nd Law Calculator": "newtons_second_law_calculator/dist/index.html"
     },
     "assignments": [
       {
@@ -3579,6 +3580,15 @@ const lessonsData = [
         "submission": "Sign in with your school Google account; progress and score save automatically (10 pts)",
         "actionLabel": "Open Studio",
         "description": "Finish Steps 1–3 (2 pts each) and the 5-tier Mastery Arena (4 pts). Each step ends with a ⭐ Honors section (signed net force; negative acceleration; finding a hidden mass), required for Period 0 and optional for other periods.",
+        "status": "active"
+      },
+      {
+        "title": "Newton's 2nd Law Calculator (F<sub>net</sub> = m · a)",
+        "url": "newtons_second_law_calculator/dist/index.html",
+        "typeLabel": "Interactive Practice",
+        "submission": "Sign in with your school Google account; auto-saves score to Google Classroom (10 pts)",
+        "actionLabel": "Open Calculator",
+        "description": "Scaffolded word problem practice with integrated Desmos Scientific Calculator. Complete Tier 1 (identification), Tier 2 (Desmos computation), and Tier 3 (Mastery Quiz).",
         "status": "active"
       },
       {
