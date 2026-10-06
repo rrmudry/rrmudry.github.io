@@ -755,7 +755,7 @@
     // Preview views (?view=cp or ?view=honors): see the app the way a student does.
     // Student views start with only Level 1 unlocked; nothing is saved in any preview.
     const PREVIEW_VIEWS = {
-      teacher: { displayName: 'Teacher Preview', unlockedLevels: [1, 2, 3], period: 'T' },
+      teacher: { displayName: 'Preview Mode', unlockedLevels: [1, 2, 3], period: 'T' },
       cp: { displayName: 'Preview: Regular / CP student', unlockedLevels: [1], period: 3 },
       honors: { displayName: 'Preview: Honors student (P0)', unlockedLevels: [1], period: 0 }
     };
@@ -1815,11 +1815,11 @@
       document.getElementById('cert-score').innerText = `${state.bestQuizScore} / ${MIN_QUESTIONS}`;
       document.getElementById('cert-honors-note').innerText = state.honorsOn ? ', including ⭐ Honors problems with signed net force and total system mass' : '';
       document.getElementById('cert-save-title').innerText = state.studentId === 'teacher_preview'
-        ? 'Teacher Preview (not saved)'
+        ? 'Preview Mode (not saved)'
         : 'Score Automatically Saved to Teacher Gradebook';
       document.getElementById('cert-save-badge').classList.toggle('hidden', state.studentId === 'teacher_preview');
       document.getElementById('cert-save-text').innerText = state.studentId === 'teacher_preview'
-        ? 'Teacher Preview: nothing is saved in preview mode.'
+        ? 'Preview Mode: nothing is saved in preview mode.'
         : 'Your results have been automatically recorded. No screenshot or manual turn-in is required!';
 
       const dateStr = state.completedAt
