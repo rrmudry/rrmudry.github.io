@@ -3,6 +3,18 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-06 — Day 26 Promotion: Newton's 2nd Law Studio & Planned Placeholder Pruning
+**Patterns Updated**: `dashboard-layout.md`.
+
+**Changes**:
+- **Elevated Newton's 2nd Law Studio on Day 26**:
+  - Promoted `Newton's 2nd Law Studio — Mastery Arena` to the #1 primary active graded assignment in `assets/lessons-data.js` and `Unit_2/outline.md` on Day 26.
+  - Made the studio prominently visible under Graded Coursework in the lesson modal and on dashboard lesson cards, instead of being tucked away as a side note under practice tools.
+- **Pruned Day 26 Planned Placeholders**:
+  - Removed obsolete placeholder `Balanced & Unbalanced Forces Challenge (Periods 1–6)` (`status: planned`) from Day 26 deliverables.
+- **Refreshed Deployment Timestamp**:
+  - Ran `scripts/update-timestamp.js` to update `partials/footer.html`.
+
 ## 2026-10-05 — Dashboard Subscript Formatting Fix & Day 27 Stand-In Link Pruning
 **Patterns Updated**: `dashboard-layout.md`.
 

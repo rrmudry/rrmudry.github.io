@@ -3453,14 +3453,14 @@ const lessonsData = [
     "day": 26,
     "date": "2026-10-05",
     "unit": 2,
-    "title": "Inertia Demonstrations (Period 0 Honors) & Balanced Forces (Periods 1–6)",
-    "topic": "Period 0 Honors: Inertia Demonstration Showcase & Peer Defense | Periods 1–6: Forces, Net Force & Balanced vs. Unbalanced Forces",
+    "title": "Newton's 2nd Law Studio, Balanced Forces & Inertia Showcase",
+    "topic": "Newton's 2nd Law Studio Launch (Steps 1–3 & Mastery Arena) | Period 0 Honors Inertia Showcase",
     "dok": 3,
     "type": "Performance Task / Guided Inquiry",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Differentiated instruction day across physics sections: Period 0 (Honors Physics) executes live student-engineered inertia demonstrations with classmates evaluating mechanisms and debunking 'forward force' claims using the 2-page Peer Observation Log, transitioning to net force and mechanical equilibrium (ΣF = 0). Periods 1–6 (CP Physics) explore contact vs. field forces, net force summation (F_net = ΣF), and the physical distinction between balanced forces (equilibrium, constant velocity) and unbalanced forces (acceleration).",
-    "activity": "Differentiated Dynamics Block:\n• Period 0 Honors: Live Inertia Demonstration Showcase — student pairs execute their engineered physical demonstrations of Newton's First Law (Rest, Motion, or Direction). Classmates act as peer forensic observers, documenting the setup, impulse duration, mass response, and Newton's 1st Law defense on the 2-page Observation Log, verifying that zero forward force acts on the mass. Following demonstrations, students transition into mechanical equilibrium (ΣF = 0) and net force calculations.\n• Periods 1–6 CP Physics: Forces & Net Force Exploration — direct instruction and interactive demos classifying contact forces (normal, friction, tension, applied) vs. field forces (gravity), constructing 1D force vectors, calculating net force (F_net = ΣF), and distinguishing balanced forces (F_net = 0, dynamic equilibrium at constant velocity) from unbalanced forces (F_net ≠ 0, acceleration).",
+    "summary": "Differentiated dynamics instruction and interactive lab launch: All periods investigate inertia, balanced vs. unbalanced forces, and net force summation (F<sub>net</sub> = ΣF) via Newton's 2nd Law Studio (interactive Atwood track, photogate timers, and 5-tier Mastery Arena). Period 0 Honors executes live student-engineered inertia demonstration proofs using the 2-page Peer Observation Log, verifying that zero forward force acts on a moving body and bridging to translational equilibrium (ΣF = 0).",
+    "activity": "• All Periods: Newton's 2nd Law Studio (Interactive Simulation & Mastery Arena) — virtual dual-pulley Atwood track with photogate timers. Students explore inertia (unattached cart at constant velocity), hanging force acceleration (weight = mass · g), and net force balancing. Completing Steps 1–3 (2 pts each) and the 5-tier Mastery Arena (4 pts) with automated Google Sign-In grade recording (10 pts total). Includes Period 0 Honors extensions (signed net force and negative acceleration).\n• Period 0 Honors: Live Inertia Demonstration Showcase — student pairs execute their physical demonstrations of Newton's First Law (Rest, Motion, or Direction). Classmates act as forensic observers on the 2-page Observation Log, verifying that zero forward force acts on the mass before transitioning to mechanical equilibrium (ΣF = 0).",
     "essentialQuestion": "Period 0: How do live physical demonstrations isolate inertia and prove zero forward force acts on a moving body? Periods 1–6: How does the balance or imbalance of opposing forces determine whether an object maintains constant velocity or accelerates?",
     "standards": [
       "HS-PS2-1"
@@ -3479,12 +3479,22 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Newton's 2nd Law Studio": "Unit_2/newtons_second_law_studio/index.html",
       "Inertia Demonstration Peer Observation Log (Period 0 Honors)": "Unit_2/worksheets/Inertia_Demonstration_Observation_Log.pdf",
       "Inertia Demonstration Planner (Student PDF)": "Unit_2/worksheets/Inertia_Demonstration_Planner.pdf",
-      "Vector Calculator App": "Unit_2/Vector_displacement_calculator_app/index.html",
-      "Newton's 2nd Law Studio": "Unit_2/newtons_second_law_studio/index.html"
+      "Translational Equilibrium Notes": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
+      "Vector Calculator App": "Unit_2/Vector_displacement_calculator_app/index.html"
     },
     "assignments": [
+      {
+        "title": "Newton's 2nd Law Studio — Mastery Arena",
+        "url": "Unit_2/newtons_second_law_studio/index.html",
+        "typeLabel": "Interactive Simulation / Lab",
+        "submission": "Sign in with your school Google account; progress and score save automatically (10 pts)",
+        "actionLabel": "Launch Newton's 2nd Law Studio",
+        "description": "Virtual dual-pulley Atwood track with photogate timers: investigate inertia, balanced vs. unbalanced forces (F<sub>net</sub> = ΣF), and complete Steps 1–3 (2 pts each) + 5-tier Mastery Arena (4 pts). Honors differentiation included for Period 0.",
+        "status": "active"
+      },
       {
         "title": "Inertia Demonstration Peer Observation Log (Period 0 Honors)",
         "url": "Unit_2/worksheets/Inertia_Demonstration_Observation_Log.pdf",
@@ -3493,14 +3503,6 @@ const lessonsData = [
         "actionLabel": "Open PDF Worksheet",
         "description": "Period 0 Honors: Live demonstration peer evaluation log (15 demonstrations), forensic analysis of confounding forces, and synthesis bridge to mechanical equilibrium (ΣF = 0).",
         "status": "active"
-      },
-      {
-        "title": "Balanced & Unbalanced Forces Challenge (Periods 1–6)",
-        "typeLabel": "Inquiry Practice",
-        "submission": "In-Class Handout (Subject to Pacing)",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Periods 1–6: Classify contact vs. field forces, calculate 1D net forces (F_net = ΣF), and identify balanced vs. unbalanced force states.",
-        "status": "planned"
       }
     ],
     "resources": [
@@ -3525,16 +3527,16 @@ const lessonsData = [
     ],
     "practice": [
       {
+        "title": "Newton's 2nd Law Studio",
+        "url": "Unit_2/newtons_second_law_studio/index.html",
+        "typeLabel": "Interactive Simulation",
+        "description": "Virtual dual-pulley Atwood track with photogate timers: isolate force (M<sub>total</sub> locked) and isolate mass (F<sub>net</sub> locked), graph a vs F<sub>net</sub> and a vs 1/M<sub>total</sub>."
+      },
+      {
         "title": "Vector Displacement & Force Calculator",
         "url": "Unit_2/Vector_displacement_calculator_app/index.html",
         "typeLabel": "Interactive Tool",
         "description": "Compute vector components and resultant net forces."
-      },
-      {
-        "title": "Newton's 2nd Law Studio — Step 1: Inertia, Forces & Balance",
-        "url": "Unit_2/newtons_second_law_studio/index.html",
-        "typeLabel": "Interactive Simulation",
-        "description": "A cart with nothing attached keeps rolling at a constant speed (inertia). A hanging weight makes it speed up (weight = mass × g). Then balance the cart and calculate net forces."
       }
     ]
   },
