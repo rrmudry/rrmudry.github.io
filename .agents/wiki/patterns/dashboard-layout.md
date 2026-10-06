@@ -114,7 +114,14 @@ Clicking a lesson card opens a detail drawer/modal containing expanded details, 
 
 ## Known Pitfalls
 - **Exposing Teacher Master Keys**: Never include `Teacher Master Key`, `Teacher Key`, or `Answer Key` entries in `assignments`, `resources`, or `links` in `assets/lessons-data.js` or on unit dashboards. Dashboards are public student interfaces; answer keys belong strictly in teacher-facing offline directories and must never be linked in student lesson data.
-- **Placeholder URL Copy-Paste**: Never use an existing document's Google Doc link as a generic filler for future uncreated days. Use `status: "planned"` with no URL instead.
+- **Placeholder URL Copy-Paste**: Never use an existing document's Google Doc link as a generic filler for future uncreated days. Use `status: "planned"` with no URL instead, and prune stale stand-ins once interactive webapps are live.
+- **Modal Header Subscript Formatting & Gradient Text Clipping (`bg-clip-text`)**:
+  - Setting `modalTitle.innerText` or `textContent` escapes HTML tags, displaying literal `(F<sub>net</sub> = m · a)` to users.
+  - When modal headings use gradient text (`bg-clip-text text-transparent`), inline `<sub>` or `<sup>` tags inherit `color: transparent` but do NOT inherit `background-image`, rendering the subscript text invisible.
+  - **Resolution**:
+    1. Use Unicode subscripts (e.g. `Fₙₑₜ`, `v₀`, `x₀`, `Δx`) in `assets/lessons-data.js` topic and title fields so characters clip seamlessly within the block text gradient and display cleanly in plaintext contexts (tooltips, Chart.js labels).
+    2. Set `modalTitle.innerHTML = ...` instead of `innerText`.
+    3. Include explicit CSS rules: `#modal-title sub, .bg-clip-text sub { color: var(--accent); -webkit-text-fill-color: var(--accent); font-size: 0.72em; vertical-align: baseline; position: relative; bottom: -0.22em; }`.
 - **TailwindCSS CDN + custom CSS**: Dashboards use BOTH `cdn.tailwindcss.com` AND a `<style>` block. Tailwind utility classes and custom CSS coexist — don't use `@apply` since there's no build step.
 - **Partials load order**: `partials.js` must be loaded AFTER the main content DOM. Place it at the bottom of `<body>`. It auto-loads `ngss-helper.js` which runs `autoInit()`.
 - **Scroll margin**: Content sections need `scroll-margin-top: 100px` to account for the sticky header when using anchor navigation.

@@ -105,6 +105,17 @@
             stroke-dashoffset: 251;
             transition: stroke-dashoffset 0.5s ease-out;
         }
+
+        /* Ensure sub and sup in gradient headings inherit proper contrast */
+        #modal-title sub, #modal-title sup,
+        .bg-clip-text sub, .bg-clip-text sup {
+            color: #ccff00;
+            -webkit-text-fill-color: #ccff00;
+            font-size: 0.72em;
+            vertical-align: baseline;
+            position: relative;
+            bottom: -0.22em;
+        }
     </style>
 </head>
 
@@ -1155,7 +1166,7 @@
             const modalSubtitle = document.getElementById('modal-subtitle');
             const modalContent = document.getElementById('modal-content');
 
-            modalTitle.innerText = `DAY ${String(day.day).padStart(2, '0')}: ${day.topic}`;
+            modalTitle.innerHTML = `DAY ${String(day.day).padStart(2, '0')}: ${day.topic || day.title}`;
             modalSubtitle.innerText = `${day.date || ''} • Type: ${day.type} • DOK Level: ${day.dok || 1}`;
 
             const categorizedLinksHtml = renderCategorizedLinksHtml(day);
