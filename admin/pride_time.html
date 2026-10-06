@@ -9,7 +9,16 @@
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="../pride-time/favicon.svg">
 
-  <!-- Tailwind CSS CDN -->
+  <!-- Tailwind CSS CDN & Warning Filter -->
+  <script>
+    (function() {
+      const origWarn = console.warn;
+      console.warn = function(...args) {
+        if (typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com should not be used in production')) return;
+        origWarn.apply(console, args);
+      };
+    })();
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Firebase SDKs (Compat Mode) -->
@@ -22,14 +31,31 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Lucide Icons (Local with CDN fallback & safety shim) -->
+  <script src="../pride-time/vendor/lucide.min.js"></script>
+  <script src="../assets/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
+    window.lucide = window.lucide || { createIcons: function() {} };
+  </script>
 
-  <!-- HTML5-QRCode Scanner Library (Continuous 1D/2D Barcode & QR Code Engine) -->
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <!-- HTML5-QRCode Scanner Library (Local with CDN fallback) -->
+  <script src="../pride-time/vendor/html5-qrcode.min.js"></script>
+  <script src="../assets/vendor/html5-qrcode.min.js"></script>
+  <script>
+    if (typeof Html5Qrcode === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"><\\/script>');
+    }
+  </script>
 
-  <!-- JsBarcode for ID Pass & Barcode Generation -->
-  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <!-- JsBarcode for ID Pass & Barcode Generation (Local with CDN fallback) -->
+  <script src="../pride-time/vendor/JsBarcode.all.min.js"></script>
+  <script src="../assets/vendor/JsBarcode.all.min.js"></script>
+  <script>
+    if (typeof JsBarcode === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\\/script>');
+    }
+  </script>
 
   <!-- Custom Stylesheet -->
   <link rel="stylesheet" href="../pride-time/pride-style.css">
@@ -1047,13 +1073,27 @@
         }
       });
 
+      // Check redirect result for devices/browsers that fallback to signInWithRedirect
+      auth.getRedirectResult().catch((err) => {
+        console.warn('Redirect sign-in notice:', err);
+      });
+
       // Login Button Action
       if (btnLogin) {
         btnLogin.addEventListener('click', () => {
           const provider = new firebase.auth.GoogleAuthProvider();
-          provider.setCustomParameters({ prompt: 'select_account' });
+          provider.setCustomParameters({ hd: 'orangeusd.org', prompt: 'select_account' });
           auth.signInWithPopup(provider).catch((err) => {
-            console.error("Auth popup error:", err);
+            console.warn("Auth popup notice:", err);
+            if (err.code === 'auth/popup-blocked' || (err.message && err.message.includes('Cross-Origin-Opener-Policy'))) {
+              auth.signInWithRedirect(provider).catch(rErr => {
+                if (authError) {
+                  authError.classList.remove('hidden');
+                  authError.textContent = `Sign in error: ${rErr.message}`;
+                }
+              });
+              return;
+            }
             if (authError) {
               authError.classList.remove('hidden');
               authError.textContent = `Sign in error: ${err.message}`;

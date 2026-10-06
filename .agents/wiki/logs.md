@@ -3,6 +3,20 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-06 — PRIDE Time Console: Local HTML5-QRCode Vendor & Scanner Resilience
+**Patterns Updated**: `dashboard-layout.md`.
+
+**Changes**:
+- **Local HTML5-QRCode & Barcode Engine Bundling**:
+  - Downloaded and vendored `html5-qrcode.min.js`, `lucide.min.js`, and `JsBarcode.all.min.js` locally in `pride-time/vendor/` and `assets/vendor/`.
+  - Replaced unpkg CDN tags in `admin/pride_time.html` with local paths and jsdelivr fallback, eliminating `Html5Qrcode is not defined` crashes caused by district web filters blocking unpkg.
+- **ScannerEngine State Guarding (`pride-time/pride-app.js`)**:
+  - Added existence guards for `typeof Html5Qrcode === 'undefined'` in `ScannerEngine.start()` and `populateCameraList()` to display a clean warning rather than throwing unhandled `ReferenceError`.
+- **Google Auth Redirect Fallback**:
+  - Added automatic fallback to `signInWithRedirect` if popup authentication is blocked or rejected, plus domain hinting via `hd: 'orangeusd.org'`.
+- **Tailwind Notice Filter**:
+  - Suppressed harmless Play CDN console warning banner in `admin/pride_time.html`.
+
 ## 2026-10-06 — Calculator Resilience: Local Lucide Bundling, NGSS Root Path Fix & Auth Fallback
 **Patterns Updated**: `dashboard-layout.md`, `cast-aligned-webapp-design.md`.
 
