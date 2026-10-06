@@ -18,8 +18,46 @@
       document.documentElement.setAttribute('data-theme', saved || (prefersLight ? 'light' : 'dark'));
     })();
   </script>
+  <script>
+    // Suppress Tailwind Play CDN notice in student console
+    (function() {
+      const origWarn = console.warn;
+      console.warn = function(...args) {
+        if (typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com should not be used in production')) return;
+        origWarn.apply(console, args);
+      };
+    })();
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="../../assets/lucide.min.js"></script>
+  <script src="lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
+    // Bulletproof Lucide shim fallback so missing or blocked CDN never halts app execution
+    window.lucide = window.lucide || {
+      createIcons: function() {
+        try {
+          const map = {
+            'arrow-left': '←', 'arrow-right': '→', 'move-right': '→',
+            'sun': '☀️', 'moon': '🌙', 'log-out': '🚪', 'eye': '👁️',
+            'cloud-check': '☁️✓', 'volume-2': '🔊', 'clipboard-paste': '📋',
+            'lightbulb': '💡', 'help-circle': '❓', 'calculator': '🧮',
+            'x': '✕', 'unlock': '🔓', 'printer': '🖨️', 'square': '⏹'
+          };
+          document.querySelectorAll('i[data-lucide]').forEach(el => {
+            const icon = el.getAttribute('data-lucide');
+            if (map[icon]) {
+              el.textContent = map[icon];
+              el.style.fontStyle = 'normal';
+              el.style.display = 'inline-flex';
+              el.style.alignItems = 'center';
+              el.style.justifyContent = 'center';
+            }
+          });
+        } catch (e) {}
+      }
+    };
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <!-- Official Desmos Scientific Calculator API -->
