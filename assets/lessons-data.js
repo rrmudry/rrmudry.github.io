@@ -3543,7 +3543,7 @@ const lessonsData = [
     "date": "2026-10-06",
     "unit": 2,
     "title": "Unbalanced Forces & Newton's Second Law Lab — Part 1: Force vs. Acceleration",
-    "topic": "Introducing Newton's Second Law (F<sub>net</sub> = m · a) & Empirical Verification of a ∝ F<sub>net</sub>",
+    "topic": "Introducing Newton's Second Law (Fₙₑₜ = m · a) & Empirical Verification of a ∝ Fₙₑₜ",
     "dok": 3,
     "type": "Direct Instruction / Lab",
     "semester": 1,
@@ -3590,24 +3590,9 @@ const lessonsData = [
         "actionLabel": "Open Calculator",
         "description": "Scaffolded word problem practice with integrated Desmos Scientific Calculator. Complete Tier 1 (identification), Tier 2 (Desmos computation), and Tier 3 (Mastery Quiz).",
         "status": "active"
-      },
-      {
-        "title": "Modified Atwood Track Lab Report",
-        "typeLabel": "Graded Lab Report",
-        "submission": "In-Class Handout (Subject to Pacing)",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Measure dynamics cart photogate acceleration as hanging mass pulls system, graphing a vs F<sub>net</sub> and a vs 1/m.",
-        "status": "planned"
       }
     ],
-    "resources": [
-      {
-        "title": "Atwood Machine System Analysis Guide",
-        "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
-        "typeLabel": "Lab Reference",
-        "description": "System boundary derivation: accelerating force (m<sub>hang</sub> · g) over total mass (m<sub>cart</sub> + m<sub>hang</sub>)."
-      }
-    ],
+    "resources": [],
     "practice": [
       {
         "title": "Newton's 2nd Law Studio",
@@ -3622,7 +3607,7 @@ const lessonsData = [
     "date": "2026-10-07",
     "unit": 2,
     "title": "Newton's Second Law Lab — Part 2: Mass vs. Acceleration",
-    "topic": "Empirical Verification of a ∝ 1/m & Derivation of F<sub>net</sub> = m · a",
+    "topic": "Empirical Verification of a ∝ 1/m & Derivation of Fₙₑₜ = m · a",
     "dok": 3,
     "type": "Lab",
     "semester": 1,

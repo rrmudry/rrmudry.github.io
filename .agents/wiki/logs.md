@@ -3,6 +3,20 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-05 — Dashboard Subscript Formatting Fix & Day 27 Stand-In Link Pruning
+**Patterns Updated**: `dashboard-layout.md`.
+
+**Changes**:
+- **Modal Header Subscript Formatting**:
+  - Replaced `modalTitle.innerText` with `modalTitle.innerHTML` in `unit2-dashboard.html` to prevent raw `<sub>` tags from leaking as literal strings.
+  - Added CSS rule for `#modal-title sub, .bg-clip-text sub` ensuring subscripts inside gradient-clipped text remain visible with high-contrast accent coloring (`#ccff00`).
+  - Switched `assets/lessons-data.js` Day 27 and Day 28 topic strings to standard Unicode subscripts (`Fₙₑₜ = m · a`), guaranteeing seamless rendering across gradient headings, cards, and plaintext tooltips/labels.
+- **Day 27 Stand-In Link & Planned Handout Cleanup**:
+  - Removed obsolete `Modified Atwood Track Lab Report` (planned placeholder) from Day 27 `assignments` in `assets/lessons-data.js` and `Unit_2/outline.md`.
+  - Removed placeholder `Atwood Machine System Analysis Guide` (which pointed to a stand-in slides link) from Day 27 `resources`.
+  - Cleaned deliverables to showcase the two verified live student webapps: `Newton's 2nd Law Studio — Mastery Arena` and `Newton's 2nd Law Calculator (Fₙₑₜ = m · a)`.
+  - Updated site deployment timestamp in `partials/footer.html`.
+
 ## 2026-10-05 — Newton's 2nd Law Studio: Roster Resolution & Firestore Payload Sanitization
 **Patterns Updated**: `newtons-second-law-atwood-studio.md`.
 
