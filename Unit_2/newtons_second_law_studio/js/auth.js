@@ -137,9 +137,14 @@ class StudioAuth {
     try {
       const snap = await this.db.collection('roster').doc(this.studentId).get();
       if (snap.exists) {
-        const p = snap.data().period;
-        const num = parseInt(p, 10);
-        return { period: Number.isNaN(num) ? p : num };
+        const d = snap.data();
+        const p = (d.class_period !== undefined && d.class_period !== null)
+          ? d.class_period
+          : (d.period !== undefined && d.period !== null ? d.period : null);
+        if (p !== null) {
+          const num = parseInt(p, 10);
+          return { period: Number.isNaN(num) ? p : num };
+        }
       }
     } catch (e) {
       console.warn('Roster lookup failed; treating as a standard class with opt-in Honors:', e);
@@ -255,20 +260,23 @@ class StudioAuth {
     }
     this.saving = true;
     const s = NSLApp.scoreState(this.state);
+    const periodVal = (this.profile && this.profile.period !== undefined && this.profile.period !== null)
+      ? this.profile.period
+      : null;
     const payload = {
       student_id: this.studentId,
-      student_name: this.profile.name,
-      email: this.user.email,
+      student_name: (this.profile && this.profile.name) || this.studentId || 'Student',
+      email: (this.user && this.user.email) || `${this.studentId}@orangeusd.org`,
       score: s.points,
       maxScore: MAX_POINTS,
       maxPoints: MAX_POINTS,
       percentage: s.percentage,
       steps_done: s.stepsDone,
       arena_best_tiers: s.arenaBest,
-      class_period: this.profile.period,
-      honors_required: this.profile.honorsRequired,
+      class_period: periodVal,
+      honors_required: !!(this.profile && this.profile.honorsRequired),
       honors_opt_in: this.state.optIn || {},   // { step1: true/false, ... } for standard-class students
-      honors_done_steps: s.honorsDone,         // e.g. ['step1', 'step2']
+      honors_done_steps: s.honorsDone || [],   // e.g. ['step1', 'step2']
       certificate_code: this.state.certCode || null,
       isCompleted: s.points >= MAX_POINTS,
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
