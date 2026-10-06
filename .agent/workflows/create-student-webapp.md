@@ -130,7 +130,17 @@ npm run deploy:dry -- --id "my_assignment" --title "My Assignment"
 npm run deploy -- --config assignments/my-assignment.json
 ```
 
-### Step 2: Grade Sync (Automatic)
+### Step 2: Pre-Flight Student Auth & Sync Verification (Mandatory)
+
+**NEVER skip this step or rely on teacher-only testing.** Teacher accounts bypass roster lookups and cannot receive grades in Classroom. Run the pre-flight validator to test real student schema and synthetic Firestore write:
+
+```bash
+cd sync-classroom
+npm run verify -- --id "my_assignment_id"
+```
+Do not post the assignment URL to students until this check outputs `🎉 ALL PRE-FLIGHT CHECKS PASSED`.
+
+### Step 3: Grade Sync (Automatic)
 
 Once the `assignment_registry` document exists, `npm run sync` automatically resolves the correct Google Classroom coursework ID for each period — **no string matching, no aliases, no manual configuration needed**.
 
