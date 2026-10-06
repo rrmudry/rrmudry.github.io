@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Newton's 2nd Law Calculator | Fnet = m · a</title>
+  
+  <!-- CDNs for styling, icons, and libraries -->
+  <!-- Theme: saved choice on this device, otherwise the device's light/dark setting. Runs before paint. -->
+  <script>
+    (function () {
+      let saved = null;
+      try { saved = localStorage.getItem('nsl_calc_theme'); } catch (e) {}
+      const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+      document.documentElement.setAttribute('data-theme', saved || (prefersLight ? 'light' : 'dark'));
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Official Desmos Scientific Calculator API -->
+  <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const fbAuth = firebase.auth();
+    const fbDb = firebase.firestore();
+  </script>
+  
+  <!-- Premium Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #070b1a;
+      --bg-alt: #0e1328;
+      --surface: rgba(13, 19, 40, 0.65);
+      --border: rgba(120, 141, 255, 0.15);
+      --accent: #0284c7;
+      --accent-soft: #38bdf8;
+      --accent-neon: #00f3ff;
+      --accent-purple: #d946ef;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+    }
+    
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.08), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(217, 70, 239, 0.06), transparent 50%);
+      color: #f8fafc;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .glass {
+      background: var(--surface);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+    }
+    
+    .glass-highlight {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .bg-grid {
+      background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.015) 1px, transparent 0);
+      background-size: 30px 30px;
+    }
+
+    /* custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Drag & Drop Visuals */
+    .drag-target {
+      transition: all 0.2s ease;
+    }
+    .drag-target.drag-over {
+      border-color: var(--accent-neon);
+      background: rgba(0, 243, 255, 0.1);
+      box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+    }
+
+    /* Fixed slot dimensions preventing wrapping under all viewport conditions */
+    .equation-slot {
+      width: 78px;
+      height: 78px;
+      flex-shrink: 0;
+    }
+    @media (min-width: 640px) {
+      .equation-slot {
+        width: 104px;
+        height: 94px;
+      }
+    }
+    @media (min-width: 768px) {
+      .equation-slot {
+        width: 120px;
+        height: 100px;
+      }
+    }
+
+    .glow-neon {
+      box-shadow: 0 0 20px rgba(0, 243, 255, 0.25);
+      border-color: var(--accent-neon);
+    }
+
+    /* Drag and drop item cursor states */
+    .drag-item {
+      cursor: grab;
+      user-select: none;
+    }
+    .drag-item:active {
+      cursor: grabbing;
+    }
+
+    .animate-shake {
+      animation: shake 0.4s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    @keyframes levelPulse {
+      0%, 100% {
+        box-shadow: 0 0 5px rgba(245, 158, 11, 0.2);
+        border-color: rgba(245, 158, 11, 0.3);
+      }
+      50% {
+        box-shadow: 0 0 20px rgba(245, 158, 11, 0.7);
+        border-color: rgba(245, 158, 11, 0.8);
+      }
+    }
+    .pulse-amber {
+      animation: levelPulse 1.5s infinite ease-in-out;
+    }
+
+    /* -------------------------------------------------------------
+       LIGHT MODE: remaps the dark palette's utility classes
+       ------------------------------------------------------------- */
+    html[data-theme="light"] {
+      --bg: #f1f5f9;
+      --surface: rgba(255, 255, 255, 0.85);
+      --border: rgba(15, 23, 42, 0.1);
+      color-scheme: light;
+    }
+    html[data-theme="light"] body {
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(217, 70, 239, 0.06), transparent 50%);
+      color: #0f172a;
+    }
+    html[data-theme="light"] .bg-grid {
+      background-image: radial-gradient(circle at 1px 1px, rgba(15, 23, 42, 0.06) 1px, transparent 0);
+    }
+    html[data-theme="light"] .glass {
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+    html[data-theme="light"] .glass-highlight {
+      background: rgba(15, 23, 42, 0.03);
+      border-color: rgba(15, 23, 42, 0.08);
+    }
+    html[data-theme="light"] ::-webkit-scrollbar-thumb {
+      background: rgba(15, 23, 42, 0.18);
+    }
+    html[data-theme="light"] [class~="text-white"] { color: #0f172a; }
+    html[data-theme="light"] [class~="text-slate-100"] { color: #0f172a; }
+    html[data-theme="light"] [class~="text-slate-200"] { color: #1e293b; }
+    html[data-theme="light"] [class~="text-slate-300"] { color: #334155; }
+    html[data-theme="light"] [class~="text-slate-400"] { color: #475569; }
+    html[data-theme="light"] [class~="text-slate-500"] { color: #64748b; }
+    html[data-theme="light"] [class~="text-slate-600"] { color: #94a3b8; }
+    html[data-theme="light"] [class~="text-sky-300"] { color: #0369a1; }
+    html[data-theme="light"] [class~="text-sky-400"] { color: #0369a1; }
+    html[data-theme="light"] [class~="text-emerald-200"] { color: #065f46; }
+    html[data-theme="light"] [class~="text-emerald-300"] { color: #047857; }
+    html[data-theme="light"] [class~="text-emerald-300/85"] { color: #047857; }
+    html[data-theme="light"] [class~="text-emerald-400"] { color: #047857; }
+    html[data-theme="light"] [class~="text-amber-300"] { color: #b45309; }
+    html[data-theme="light"] [class~="text-amber-300/80"] { color: #b45309; }
+    html[data-theme="light"] [class~="text-amber-400"] { color: #b45309; }
+    html[data-theme="light"] [class~="text-rose-300"] { color: #be123c; }
+    html[data-theme="light"] [class~="text-rose-400"] { color: #be123c; }
+    html[data-theme="light"] [class~="text-rose-500"] { color: #be123c; }
+    html[data-theme="light"] [class~="text-indigo-300"] { color: #4338ca; }
+    html[data-theme="light"] [class~="bg-slate-950"] { background-color: #ffffff; }
+    html[data-theme="light"] [class~="bg-slate-950/90"] { background-color: #ffffff; }
+    html[data-theme="light"] [class~="bg-slate-950/85"] { background-color: #ffffff; }
+    html[data-theme="light"] [class~="bg-slate-950/80"] { background-color: #f8fafc; }
+    html[data-theme="light"] [class~="bg-slate-900"] { background-color: #ffffff; }
+    html[data-theme="light"] [class~="bg-slate-900/80"] { background-color: #ffffff; }
+    html[data-theme="light"] [class~="bg-slate-900/60"] { background-color: #f8fafc; }
+    html[data-theme="light"] [class~="bg-slate-800"] { background-color: #e2e8f0; }
+    html[data-theme="light"] [class~="bg-slate-800/90"] { background-color: #f1f5f9; }
+    html[data-theme="light"] [class~="bg-slate-800/80"] { background-color: #f1f5f9; }
+    html[data-theme="light"] [class~="bg-slate-700"] { background-color: #cbd5e1; }
+    html[data-theme="light"] [class~="bg-white/5"] { background-color: rgba(15, 23, 42, 0.04); }
+    html[data-theme="light"] [class~="bg-white/10"] { background-color: rgba(15, 23, 42, 0.07); }
+    html[data-theme="light"] [class~="bg-[#050917]/70"] { background-color: rgba(255, 255, 255, 0.85); }
+    html[data-theme="light"] [class~="bg-sky-950/70"] { background-color: #e0f2fe; }
+    html[data-theme="light"] [class~="bg-sky-950/80"] { background-color: #e0f2fe; }
+    html[data-theme="light"] [class~="bg-sky-950/90"] { background-color: #e0f2fe; }
+    html[data-theme="light"] [class~="bg-emerald-950/20"] { background-color: #ecfdf5; }
+    html[data-theme="light"] [class~="bg-emerald-950/70"] { background-color: #d1fae5; }
+    html[data-theme="light"] [class~="bg-emerald-950/80"] { background-color: #d1fae5; }
+    html[data-theme="light"] [class~="bg-emerald-950/90"] { background-color: #d1fae5; }
+    html[data-theme="light"] [class~="bg-amber-950/70"] { background-color: #fef3c7; }
+    html[data-theme="light"] [class~="bg-amber-950/80"] { background-color: #fef3c7; }
+    html[data-theme="light"] [class~="bg-amber-950/90"] { background-color: #fef3c7; }
+    html[data-theme="light"] [class~="bg-indigo-950/80"] { background-color: #e0e7ff; }
+    html[data-theme="light"] [class~="bg-rose-950/70"] { background-color: #ffe4e6; }
+    html[data-theme="light"] [class~="border-white/5"] { border-color: rgba(15, 23, 42, 0.08); }
+    html[data-theme="light"] [class~="border-white/10"] { border-color: rgba(15, 23, 42, 0.14); }
+    html[data-theme="light"] [class~="border-slate-700"] { border-color: #cbd5e1; }
+    html[data-theme="light"] [class~="border-slate-500/40"] { border-color: #94a3b8; }
+    html[data-theme="light"] [class~="hover:bg-slate-800"]:hover { background-color: #e2e8f0; }
+    html[data-theme="light"] [class~="hover:bg-slate-700"]:hover { background-color: #cbd5e1; }
+    html[data-theme="light"] [class~="hover:bg-white/5"]:hover { background-color: rgba(15, 23, 42, 0.05); }
+    html[data-theme="light"] [class~="hover:bg-white/10"]:hover { background-color: rgba(15, 23, 42, 0.08); }
+    html[data-theme="light"] [class~="hover:text-white"]:hover { color: #0f172a; }
+    html[data-theme="light"] [class~="hover:text-rose-400"]:hover { color: #be123c; }
+    html[data-theme="light"] [class~="placeholder:text-slate-600"]::placeholder { color: #94a3b8; }
+    /* NGSS helper banner (inline-styled by assets/ngss-helper.js) */
+    html[data-theme="light"] .ngss-banner-card {
+      background: #ffffff !important;
+      border-color: rgba(2, 132, 199, 0.3) !important;
+    }
+    html[data-theme="light"] .ngss-banner-card h4,
+    html[data-theme="light"] .ngss-pill-btn span:first-child {
+      color: #0369a1 !important;
+    }
+    html[data-theme="light"] .ngss-banner-card a {
+      color: #475569 !important;
+    }
+    html[data-theme="light"] .ngss-pill-btn {
+      background: #f1f5f9 !important;
+      border-color: rgba(15, 23, 42, 0.14) !important;
+    }
+    html[data-theme="light"] .ngss-pill-btn span:last-child {
+      color: #334155 !important;
+    }
+    html[data-theme="light"] #preview-view option { color: #0f172a; }
+    #preview-view option { color: #0f172a; }
+    /* Locked level buttons look locked */
+    html[data-theme="light"] button:disabled[class~="cursor-not-allowed"] {
+      background-color: #e2e8f0;
+      color: #94a3b8;
+      border-style: dashed;
+    }
+    /* Certificate card gradient */
+    html[data-theme="light"] .cert-card {
+      background-image: linear-gradient(to bottom, #ffffff, #fffbeb);
+    }
+    /* Solid colored buttons keep white text */
+    html[data-theme="light"] [class~="bg-sky-600"], html[data-theme="light"] [class~="bg-sky-600"] *,
+    html[data-theme="light"] [class~="bg-emerald-600"], html[data-theme="light"] [class~="bg-emerald-600"] *,
+    html[data-theme="light"] [class~="from-sky-600"], html[data-theme="light"] [class~="from-sky-600"] * {
+      color: #ffffff;
+    }
+    /* White buttons on white cards become dark buttons */
+    html[data-theme="light"] [class~="bg-white"][class~="text-black"] {
+      background-color: #0f172a;
+      color: #ffffff;
+    }
+    html[data-theme="light"] [class~="bg-white"][class~="text-black"]:hover {
+      background-color: #334155;
+    }
+    /* Solid amber buttons keep dark text */
+    html[data-theme="light"] [class~="bg-amber-500"], html[data-theme="light"] [class~="from-amber-500"] {
+      color: #0f172a;
+    }
+
+    /* Print Certificate Styles */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+      }
+      body * {
+        visibility: hidden !important;
+      }
+      #modal-completion, #modal-completion * {
+        visibility: visible !important;
+      }
+      #modal-completion {
+        position: fixed !important;
+        inset: 0 !important;
+        background: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        backdrop-filter: none !important;
+        z-index: 999999 !important;
+      }
+      .cert-card {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        border: 4px double #b45309 !important;
+        box-shadow: none !important;
+        width: 100% !important;
+        max-width: 680px !important;
+        padding: 24px !important;
+      }
+      /* Toner friendly: no fills or shadows anywhere on the printed certificate */
+      .cert-card * {
+        color: #0f172a !important;
+        text-shadow: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+      }
+      .cert-card #cert-student-name {
+        color: #b45309 !important;
+      }
+      .cert-card .cert-badge {
+        border: 1px solid #94a3b8 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-grid min-h-screen flex flex-col relative overflow-hidden">
+
+  <!-- Header -->
+  <header class="w-full py-2 px-4 border-b border-white/5 bg-[#050917]/70 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="../../index.html" class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors mr-2" title="Return to Dashboard">
+        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+      </a>
+      <div class="bg-sky-600/20 p-1.5 rounded-lg border border-sky-500/30">
+        <i data-lucide="move-right" class="text-sky-400 w-5 h-5 animate-pulse"></i>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold tracking-tight">Newton's 2nd Law <span class="text-sky-400">Calculator</span></h1>
+        <p class="text-[10px] text-slate-400 font-medium">Net Force, Mass &amp; Acceleration &bull; F<sub>net</sub> = m &middot; a</p>
+      </div>
+    </div>
+    
+    <div class="flex items-center gap-3">
+    <!-- Light / Dark toggle -->
+    <button id="btn-theme" type="button" onclick="toggleTheme()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 border border-white/10 transition-colors cursor-pointer" title="Switch to light mode" aria-label="Switch to light mode">
+      <i data-lucide="sun" class="w-4 h-4"></i>
+    </button>
+
+    <!-- Student Badge -->
+    <div id="student-badge" class="hidden flex items-center gap-4">
+      <div class="glass px-2.5 py-1 rounded-lg border border-white/5 flex items-center gap-1.5">
+        <img id="badge-avatar" src="" class="w-5 h-5 rounded-full hidden" alt="">
+        <span class="text-[10px] text-slate-400">Signed in:</span>
+        <span id="badge-id" class="text-xs font-bold mono text-sky-400">student</span>
+      </div>
+      <button onclick="logout()" class="text-slate-400 hover:text-rose-400 transition-colors p-1 rounded-md hover:bg-white/5" title="Exit Laboratory">
+        <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+      </button>
+    </div>
+    </div>
+  </header>
+
+  <!-- Main View Container -->
+  <main class="flex-grow flex items-center justify-center p-2 md:p-3 z-10">
+    
+    <!-- SECTION 1: GOOGLE SIGN-IN -->
+    <section id="view-register" class="max-w-md w-full glass p-8 md:p-10 rounded-[2.5rem] border border-white/10 relative z-10 shadow-2xl transition-all duration-500">
+      <div class="text-center space-y-6">
+        <div class="bg-sky-600 w-20 h-20 rounded-[2rem] flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(2,132,199,0.3)]">
+          <i data-lucide="move-right" class="text-white w-10 h-10"></i>
+        </div>
+        <div>
+          <h2 class="text-3xl font-black uppercase tracking-tight italic">Initialize <span class="text-sky-400">Lab Log</span></h2>
+          <p class="text-slate-400 font-medium text-sm mt-2 leading-relaxed">Sign in with your school Google account to practice Newton's 2nd Law: F<sub>net</sub> = m &middot; a.</p>
+        </div>
+        
+        <div class="space-y-4 pt-2">
+          <button id="btn-google-signin" type="button" onclick="handleGoogleSignIn()" class="w-full bg-white text-slate-900 py-4 rounded-2xl font-black uppercase tracking-widest hover:scale-[1.02] hover:bg-slate-100 transition-all flex items-center justify-center gap-3 shadow-2xl cursor-pointer">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google">
+            Sign In with Google
+          </button>
+          <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] leading-relaxed">
+            Use your school-issued <span class="text-sky-400">@orangeusd.org</span> account
+          </p>
+
+          <div class="relative flex py-1 items-center">
+            <div class="flex-grow border-t border-white/10"></div>
+            <span class="flex-shrink mx-3 text-[10px] uppercase tracking-widest text-slate-500 font-bold">Or Instant Preview</span>
+            <div class="flex-grow border-t border-white/10"></div>
+          </div>
+
+          <button id="btn-guest-preview" type="button" onclick="startGuestMode()" class="w-full bg-slate-800/90 hover:bg-slate-700 text-sky-300 border border-sky-500/30 hover:border-sky-400/50 py-3.5 rounded-2xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2.5 hover:scale-[1.02] shadow-lg cursor-pointer">
+            <i data-lucide="eye" class="w-4 h-4 text-sky-400"></i>
+            <span>Teacher Preview / Test Mode (No Login)</span>
+          </button>
+        </div>
+        <div data-ngss="HS-PS2-1" class="text-left"></div>
+        <p id="register-error" class="text-rose-400 text-xs font-bold uppercase tracking-wider hidden">Access denied &mdash; use your @orangeusd.org school account</p>
+        <p id="register-status" class="text-sky-400 text-[10px] font-bold uppercase tracking-widest animate-pulse hidden">Connecting&hellip;</p>
+      </div>
+    </section>
+
+    <!-- SECTION 2: WORKSPACE -->
+    <section id="view-workspace" class="max-w-4xl w-full hidden flex flex-col gap-3.5 transition-all duration-500">
+      
+      <!-- Top Stats Bar -->
+      <div class="flex flex-col md:flex-row justify-between items-center gap-3 glass p-2.5 rounded-xl border border-white/5">
+        
+        <!-- Level Select Buttons -->
+        <div class="flex flex-wrap md:flex-nowrap md:shrink-0 justify-center gap-2 [&>button]:whitespace-nowrap">
+          <button id="btn-level-1" onclick="changeLevel(1)" class="px-3 py-1.5 text-xs rounded-lg font-bold transition-all bg-slate-800 text-slate-400 border border-white/5">Level 1</button>
+          <button id="btn-level-2" onclick="changeLevel(2)" class="px-3 py-1.5 text-xs rounded-lg font-bold transition-all bg-slate-800 text-slate-400 border border-white/5 cursor-not-allowed" disabled>Level 2</button>
+          <button id="btn-level-3" onclick="changeLevel(3)" class="px-3 py-1.5 text-xs rounded-lg font-bold transition-all bg-slate-800 text-slate-400 border border-white/5 cursor-not-allowed" disabled>Level 3</button>
+          <button id="btn-honors" onclick="toggleHonors()" type="button" class="hidden px-3 py-1.5 text-xs rounded-lg font-bold transition-all bg-slate-800 text-slate-400 border border-white/5" title="Honors problems: two forces with signs (right +, left −) and total system mass">⭐ Honors: Off</button>
+        </div>
+ 
+        <!-- Telemetry HUD -->
+        <div class="flex items-center gap-3 sm:gap-5 text-xs text-slate-400 flex-wrap justify-center">
+          <div>
+            <span class="font-semibold block md:inline">Student:</span> 
+            <span id="hud-student-id" class="text-white font-bold mono ml-1">—</span>
+          </div>
+          <div>
+            <span class="font-semibold block md:inline">Progress:</span> 
+            <span id="hud-answered" class="text-white font-bold mono ml-1">0 / 6 Completed</span>
+          </div>
+          <div id="hud-streak-container">
+            <span class="font-semibold block md:inline">Streak:</span> 
+            <span id="hud-streak" class="text-white font-bold mono ml-1">0 / 4</span>
+          </div>
+          <!-- Preview only: see the app as a Conceptual Physics or Honors student would -->
+          <label id="preview-view-wrap" class="hidden items-center gap-1.5 text-[10px] font-semibold text-sky-300 bg-sky-950/70 border border-sky-500/30 px-2 py-0.5 rounded-lg">
+            <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+            <span>View as</span>
+            <select id="preview-view" onchange="switchPreviewView(this.value)" class="bg-transparent font-bold text-[11px] focus:outline-none cursor-pointer">
+              <option value="teacher">Teacher (all unlocked)</option>
+              <option value="cp">Regular / CP student (P1–6)</option>
+              <option value="honors">Honors student (Period 0)</option>
+            </select>
+          </label>
+          <div id="hud-cloud-status" class="flex items-center gap-1.5 text-[10px] text-emerald-400 bg-emerald-950/70 border border-emerald-500/30 px-2.5 py-1 rounded-lg transition-all font-mono">
+            <i data-lucide="cloud-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span id="hud-cloud-text">Auto-Saved</span>
+          </div>
+          <button id="btn-view-cert" onclick="openCompletionCertificateModal()" type="button" class="hidden px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer" title="View your earned Certificate of Mastery">
+            <span>🏆</span> View Certificate
+          </button>
+        </div>
+      </div>
+ 
+      <!-- Question Progress Bar -->
+      <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden border border-white/5">
+        <div id="progress-bar-fill" class="h-full bg-sky-500 transition-all duration-500 ease-out" style="width: 0%;"></div>
+      </div>
+ 
+      <!-- Workspace Layout Container (collapsible sidebar) -->
+      <div class="flex flex-col lg:flex-row gap-4 items-start w-full">
+         
+         <!-- Main Interaction Area (Full Width Column) -->
+         <div class="flex-grow w-full min-w-0 flex flex-col gap-3.5">
+
+            <!-- Card 1: Word Problem Card & TTS Button -->
+            <div class="glass rounded-xl p-4 sm:p-5 border border-white/5 flex flex-col justify-center relative min-h-[95px]">
+              <button onclick="readQuestionAloud()" id="btn-tts" class="absolute top-3 right-3 p-1.5 rounded-full transition-all duration-200 bg-slate-800/80 text-slate-400 hover:text-white border border-white/5" title="Read Aloud">
+                <i data-lucide="volume-2" class="w-4 h-4"></i>
+              </button>
+              
+              <p id="question-text" class="text-base sm:text-lg font-semibold leading-relaxed text-slate-100 pr-8 text-center">
+                <!-- Inline values and unknown will be rendered here dynamically -->
+              </p>
+            </div>
+
+            <!-- Card 2: Full-Width Equation Arranging Board (NEVER WRAPS) -->
+            <div class="glass rounded-xl p-3 sm:p-4 border border-white/5 flex flex-col items-center justify-center w-full shadow-lg">
+              
+              <!-- Equation Scroll Container: Strictly horizontal with flex-nowrap -->
+              <div class="w-full flex items-center justify-center overflow-x-auto py-2 px-1">
+                <div class="flex items-center justify-center gap-1.5 sm:gap-2.5 md:gap-3.5 font-mono flex-nowrap shrink-0 select-none">
+                  
+                  <!-- F Slot (Net Force) -->
+                  <div 
+                    data-slot="F" 
+                    class="drag-target equation-slot bg-slate-950/80 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-sm font-semibold select-none cursor-pointer transition-all"
+                    onclick="handleSlotClick(this)"
+                  >
+                    <span class="text-slate-500 text-lg sm:text-2xl md:text-3xl font-mono select-none">F<sub>net</sub></span>
+                    <span class="text-[7.5px] sm:text-[9px] text-slate-600 font-sans tracking-wider uppercase font-semibold select-none mt-0.5">net force</span>
+                  </div>
+
+                  <span class="font-sans text-slate-400 font-bold select-none text-lg sm:text-2xl md:text-3xl px-0.5 shrink-0">=</span>
+
+                  <!-- m Slot (Mass) -->
+                  <div 
+                    data-slot="m" 
+                    class="drag-target equation-slot bg-slate-950/80 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-sm font-semibold select-none cursor-pointer transition-all"
+                    onclick="handleSlotClick(this)"
+                  >
+                    <span class="text-slate-500 text-lg sm:text-2xl md:text-3xl font-mono select-none">m</span>
+                    <span class="text-[7.5px] sm:text-[9px] text-slate-600 font-sans tracking-wider uppercase font-semibold select-none mt-0.5">mass</span>
+                  </div>
+
+                  <span class="font-sans text-slate-400 font-bold select-none text-lg sm:text-2xl md:text-3xl px-0.5 shrink-0">&middot;</span>
+
+                  <!-- a Slot (Acceleration) -->
+                  <div 
+                    data-slot="a" 
+                    class="drag-target equation-slot bg-slate-950/80 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-sm font-semibold select-none cursor-pointer transition-all"
+                    onclick="handleSlotClick(this)"
+                  >
+                    <span class="text-slate-500 text-lg sm:text-2xl md:text-3xl font-mono select-none">a</span>
+                    <span class="text-[7.5px] sm:text-[9px] text-slate-600 font-sans tracking-wider uppercase font-semibold select-none mt-0.5">accel</span>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Selection helper text -->
+              <div id="selection-helper" class="text-center text-[10px] sm:text-[11px] text-slate-400 font-semibold h-4 select-none mt-1">
+                <!-- Selected item details -->
+              </div>
+            </div>
+
+            <!-- Card 3: Action Controls & Feedback Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-stretch">
+              
+              <!-- LEFT: Feedback Message Box & Desmos Telemetry (md:col-span-7) -->
+              <div class="md:col-span-7 flex flex-col gap-3">
+                
+                <!-- Feedback Message box -->
+                <div id="feedback-box" class="glass rounded-xl p-3 text-center font-bold text-xs min-h-[48px] flex items-center justify-center border border-white/5">
+                  Place the given values and the unknown into the equation, then check your work.
+                </div>
+
+                <!-- Calculation input helper (For Level 2 & 3) -->
+                <div id="calc-input-helper" class="glass rounded-xl p-3.5 border border-white/5 flex flex-col hidden">
+                  <div class="flex items-center justify-between gap-2">
+                    <div>
+                      <span class="text-[9px] text-sky-400 uppercase tracking-widest block font-bold">Calculation Telemetry</span>
+                      <p class="text-[11px] text-slate-400 mt-0.5 leading-relaxed">Calculate in Desmos, then paste or enter your result below.</p>
+                    </div>
+                    <span id="telemetry-req-badge" class="text-[8px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300 uppercase tracking-wider">
+                      Desmos Required
+                    </span>
+                  </div>
+                  
+                  <div class="my-2.5 flex flex-col sm:flex-row gap-2">
+                    <input 
+                      type="number" 
+                      step="0.01" 
+                      id="manual-user-answer" 
+                      placeholder="Enter result..." 
+                      oninput="syncManualInput(this.value)"
+                      class="flex-1 bg-slate-950/85 text-white py-2.5 px-3 rounded-xl border border-white/10 text-center font-bold tracking-wide text-lg focus:border-sky-500 focus:outline-none transition-all mono placeholder:font-normal placeholder:text-slate-600"
+                    >
+                    <button 
+                      id="btn-paste-desmos-input"
+                      type="button" 
+                      onclick="pasteDesmosResult()" 
+                      class="sm:w-auto px-4 py-2.5 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-500 hover:to-cyan-500 text-white rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md hover:scale-[1.01] active:scale-95 border border-sky-400/30 cursor-pointer shrink-0"
+                      title="Paste latest calculated value from Desmos"
+                    >
+                      <i data-lucide="clipboard-paste" class="w-4 h-4 text-cyan-200"></i>
+                      <span>Paste Desmos</span>
+                    </button>
+                  </div>
+
+                  <div id="calc-telemetry-status" class="text-[10px] text-slate-400 font-mono text-center min-h-[16px]">
+                    Use the Desmos calculator on the right to compute your answer.
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- RIGHT: Action Buttons & Utilities (md:col-span-5) -->
+              <div class="md:col-span-5 flex flex-col gap-2 justify-between">
+                <div class="flex flex-col gap-2">
+                  <button id="btn-check-answer" onclick="checkCurrentAnswer()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-black py-2.5 px-4 rounded-xl transition-all shadow-lg text-xs uppercase tracking-wider cursor-pointer">
+                    Check Answer
+                  </button>
+                  <button onclick="resetWorkspace()" class="w-full bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold py-2.5 px-4 rounded-xl transition-all border border-white/5 text-xs uppercase tracking-wider cursor-pointer">
+                    Reset Workspace
+                  </button>
+                  <button id="btn-next-question" onclick="nextQuestion()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 px-4 rounded-xl transition-all shadow-lg text-xs uppercase tracking-wider hidden cursor-pointer">
+                    Next Question
+                  </button>
+                  <button id="btn-new-problem" onclick="nextQuestion()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-2.5 px-4 rounded-xl transition-all shadow-lg text-xs uppercase tracking-wider hidden cursor-pointer">
+                    Try a New Problem
+                  </button>
+                </div>
+                
+                <!-- Step-by-step hints (opened one at a time, no penalty) -->
+                <div id="hint-panel" class="glass rounded-xl p-3 border border-amber-500/20 hidden">
+                  <div class="flex items-center justify-between gap-2 mb-1.5">
+                    <span class="text-[9px] text-amber-300 uppercase tracking-widest font-bold flex items-center gap-1.5"><i data-lucide="lightbulb" class="w-3.5 h-3.5"></i> Hints</span>
+                    <span id="hint-count" class="text-[9px] text-slate-500 font-mono">0 / 0</span>
+                  </div>
+                  <ol id="hint-list" class="text-xs text-slate-200 leading-relaxed space-y-1.5 list-decimal list-inside"></ol>
+                </div>
+
+                <!-- Utility Bar: Hint, Help & Calculator buttons -->
+                <div class="grid grid-cols-3 gap-2 mt-1">
+                  <button id="btn-hint" onclick="showNextHint()" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 py-2.5 rounded-xl border border-amber-500/30 font-semibold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i data-lucide="lightbulb" class="w-4 h-4"></i> Hint
+                  </button>
+                  <button onclick="toggleHelpModal(true)" class="bg-slate-900 hover:bg-slate-800 text-slate-300 py-2.5 rounded-xl border border-white/5 font-semibold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i data-lucide="help-circle" class="w-4 h-4"></i> Help
+                  </button>
+                  <button onclick="toggleCalculatorModal(true)" class="bg-slate-900 hover:bg-slate-800 text-slate-300 py-2.5 rounded-xl border border-white/5 font-semibold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i data-lucide="calculator" class="w-4 h-4"></i> Calculator
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+         </div>
+
+         <!-- Calculator Sidebar Panel -->
+         <div id="modal-calculator" class="w-full lg:w-[410px] flex-shrink-0 hidden transition-all duration-300">
+           <div id="desmos-card-wrapper" class="bg-slate-900 border border-white/10 shadow-2xl rounded-2xl overflow-hidden lg:sticky lg:top-24">
+             
+             <!-- Titlebar -->
+             <div class="flex items-center justify-between px-3.5 py-2.5 bg-slate-800 text-white rounded-t-2xl select-none">
+               <div class="flex items-center gap-2 text-slate-300">
+                 <i data-lucide="calculator" class="w-4 h-4 text-sky-400"></i>
+                 <span class="text-xs font-bold uppercase tracking-wider font-sans">Desmos Scientific</span>
+                 <span id="desmos-status-badge" class="text-[8px] font-bold text-sky-300 bg-sky-950/80 px-2 py-0.5 rounded border border-sky-500/30 uppercase tracking-wider font-mono">STANDBY</span>
+               </div>
+               <div class="flex items-center gap-2">
+                 <button id="btn-desmos-paste-header" onclick="pasteDesmosResult()" type="button" class="hidden px-2 py-1 rounded-md bg-sky-600 hover:bg-sky-500 text-white text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1" title="Paste result into answer box">
+                   <i data-lucide="clipboard-paste" class="w-3 h-3"></i> Paste
+                 </button>
+                 <button onclick="toggleCalculatorModal(false)" class="text-slate-400 hover:text-white p-1 rounded hover:bg-white/10 transition-colors" title="Collapse Calculator">
+                   <i data-lucide="x" class="w-4 h-4"></i>
+                 </button>
+               </div>
+             </div>
+
+             <!-- Calculator Body -->
+             <div class="p-0.5 bg-slate-900 overflow-hidden">
+               <div id="desmos-calculator-container" class="w-full h-[400px] bg-white rounded-b-xl overflow-hidden"></div>
+             </div>
+
+             <!-- Calculator Footer Action Bar -->
+             <div id="desmos-footer-action" class="px-3.5 py-2.5 bg-slate-800/90 border-t border-white/10 flex items-center justify-between gap-2">
+               <span id="desmos-live-feedback" class="text-[11px] text-slate-300 font-mono truncate">Ready for calculation...</span>
+               <button onclick="pasteDesmosResult()" type="button" class="px-3 py-1.5 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-500 hover:to-cyan-500 text-white text-xs font-bold uppercase tracking-wider rounded-lg flex items-center gap-1.5 transition-all shadow-md hover:scale-[1.02] active:scale-95 flex-shrink-0 border border-sky-400/30">
+                 <i data-lucide="clipboard-paste" class="w-3.5 h-3.5"></i> Paste Result
+               </button>
+             </div>
+
+           </div>
+         </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- HELP GUIDE MODAL (Rearranging Fnet = m · a) -->
+  <div id="modal-help" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 hidden">
+    <div class="bg-slate-900 border border-white/10 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative">
+      <div class="flex items-center justify-between border-b border-white/5 pb-3">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <i data-lucide="help-circle" class="w-5 h-5 text-sky-400"></i>
+          Formula Rearrangement Guide
+        </h3>
+        <button onclick="toggleHelpModal(false)" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+
+      <p class="text-slate-400 text-sm leading-relaxed">
+        Tap a variable to see how <strong>F<sub>net</sub> = m &middot; a</strong> is rearranged to solve for it.
+      </p>
+
+      <!-- Formula Variable Selector -->
+      <div class="grid grid-cols-3 gap-2 py-2">
+        <button onclick="selectHelpVariable('F')" id="btn-help-F" class="py-3 rounded-xl font-bold text-center border transition-all text-base mono">F<sub>net</sub><span class="block text-[9px] font-sans font-normal text-slate-500 not-italic tracking-wider mt-0.5">net force (N)</span></button>
+        <button onclick="selectHelpVariable('m')" id="btn-help-m" class="py-3 rounded-xl font-bold text-center border transition-all text-base mono">m<span class="block text-[9px] font-sans font-normal text-slate-500 not-italic tracking-wider mt-0.5">mass (kg)</span></button>
+        <button onclick="selectHelpVariable('a')" id="btn-help-a" class="py-3 rounded-xl font-bold text-center border transition-all text-base mono">a<span class="block text-[9px] font-sans font-normal text-slate-500 not-italic tracking-wider mt-0.5">accel (m/s²)</span></button>
+      </div>
+
+      <!-- Dynamic Formula Display Panel -->
+      <div class="bg-slate-950 border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[140px]">
+        <div id="help-equation-render" class="text-2xl sm:text-3xl font-mono text-white flex items-center gap-3">
+          <!-- Dynamic equation goes here -->
+        </div>
+        <p id="help-equation-desc" class="text-slate-400 text-xs text-center mt-3 max-w-sm">
+          <!-- Dynamic description goes here -->
+        </p>
+      </div>
+
+      <div id="help-honors" class="hidden bg-amber-500/5 border border-amber-500/20 rounded-xl p-3 text-xs text-slate-300 leading-relaxed space-y-1">
+        <div class="text-amber-300 font-bold uppercase tracking-wider text-[10px]">⭐ Honors problems</div>
+        <div><strong>Two forces?</strong> Right is <span class="text-emerald-400 font-bold">+</span>, left is <span class="text-rose-400 font-bold">&minus;</span>. Add them to get the net force: 50 N right and 20 N left &rarr; <span class="whitespace-nowrap">F<sub>net</sub> = 50 + (&minus;20) = 30 N</span>.</div>
+        <div><strong>Two masses?</strong> Things that move together share one acceleration. Add their masses to get the total mass.</div>
+        <div><strong>Negative answer?</strong> A negative net force or acceleration points left.</div>
+      </div>
+
+      <div class="text-center pt-2">
+        <button onclick="toggleHelpModal(false)" class="bg-white text-black py-3 px-8 rounded-xl font-black uppercase tracking-wider hover:bg-slate-200 transition-all text-xs">
+          Close Help
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEVEL UNLOCKED MODAL -->
+  <div id="modal-level-unlocked" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md px-4 hidden transition-opacity duration-300">
+    <div class="w-full max-w-sm bg-slate-900 border border-white/10 shadow-2xl rounded-3xl p-6 space-y-6 text-center transform scale-95 transition-all duration-300">
+      
+      <div class="bg-amber-500/10 text-amber-400 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto border border-amber-500/20 shadow-[0_0_30px_rgba(245,158,11,0.15)] animate-bounce">
+        <i data-lucide="unlock" class="w-8 h-8"></i>
+      </div>
+      
+      <div>
+        <h2 class="text-2xl font-black tracking-tight text-white uppercase italic">Level Unlocked!</h2>
+        <p id="unlock-level-title" class="text-amber-400 font-bold text-sm mt-1">LEVEL 2 IS NOW ACCESSIBLE</p>
+      </div>
+
+      <div class="w-full h-px bg-white/10"></div>
+
+      <p id="unlock-level-description" class="text-slate-400 text-xs leading-relaxed">
+        Place the values, then calculate the answer with the Desmos calculator.
+      </p>
+
+      <div class="flex flex-col gap-2 pt-2">
+        <button id="btn-start-unlocked-level" onclick="startUnlockedLevel()" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl font-extrabold transition-all text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-1.5 hover:scale-[1.02]">
+          Go to Level <span id="unlock-level-num">2</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+        <button onclick="closeUnlockModal()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold transition-all text-xs uppercase tracking-wider border border-white/5">
+          Keep Practicing
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- COMPLETION CERTIFICATE MODAL -->
+  <div id="modal-completion" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md px-3 sm:px-4 hidden transition-opacity duration-300 overflow-y-auto py-6">
+    <div class="cert-card w-full max-w-2xl bg-gradient-to-b from-slate-900 via-[#0a1026] to-slate-950 border-2 border-amber-500/40 shadow-2xl rounded-3xl p-6 sm:p-8 space-y-5 text-center relative overflow-hidden my-auto">
+      
+      <!-- Top Decorative Gradient Ribbon -->
+      <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-500 via-sky-400 to-amber-500"></div>
+
+      <!-- Close Button -->
+      <button onclick="closeCompletionModal(false)" class="no-print absolute top-4 right-4 text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer" title="Close Certificate">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <!-- Certificate Header -->
+      <div class="space-y-1.5 pt-1">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-3xl shadow-lg shadow-amber-500/10 mb-1">
+          🏆
+        </div>
+        <div class="text-[10px] sm:text-[11px] font-mono uppercase tracking-[0.25em] text-amber-400 font-bold">
+          Orange High School Physics Laboratory
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-white uppercase italic">
+          Certificate of Newton's 2nd Law Mastery
+        </h2>
+        <p class="text-slate-400 text-xs sm:text-sm font-medium">
+          Net Force, Mass &amp; Acceleration Problem-Solving Core &bull; F<sub>net</sub> = m &middot; a
+        </p>
+      </div>
+
+      <!-- Golden Divider -->
+      <div class="w-full h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent"></div>
+
+      <!-- Recipient -->
+      <div class="space-y-1 py-0.5">
+        <p class="text-slate-400 text-[11px] uppercase tracking-widest font-semibold">This certifies that</p>
+        <div id="cert-student-name" class="text-2xl sm:text-3xl font-black text-amber-300 tracking-wide font-sans py-0.5">
+          Student Name
+        </div>
+        <p class="text-slate-400 text-xs mono">
+          Student Account: <span id="cert-student-id" class="text-white font-bold">000000</span>
+        </p>
+      </div>
+
+      <!-- Citation -->
+      <p class="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-lg mx-auto">
+        has successfully used Newton's 2nd Law to solve for
+        <strong class="text-emerald-400 whitespace-nowrap">Net Force (F<sub>net</sub> = m &middot; a)</strong>,
+        <strong class="text-sky-400 whitespace-nowrap">Mass (m = F<sub>net</sub> &divide; a)</strong>, and
+        <strong class="text-amber-400 whitespace-nowrap">Acceleration (a = F<sub>net</sub> &divide; m)</strong>
+        across all three scaffolded levels<span id="cert-honors-note"></span>.
+      </p>
+
+      <!-- Performance Badges Grid -->
+      <div class="grid grid-cols-3 gap-2 sm:gap-3 max-w-md mx-auto">
+        <div class="cert-badge p-2.5 rounded-xl bg-slate-900/80 border border-white/10 text-center">
+          <span class="text-[9px] uppercase tracking-wider text-slate-400 block font-bold">Tier 1: Formula</span>
+          <span class="text-xs font-bold text-emerald-400 mt-1 block">Mastered ✓</span>
+        </div>
+        <div class="cert-badge p-2.5 rounded-xl bg-slate-900/80 border border-white/10 text-center">
+          <span class="text-[9px] uppercase tracking-wider text-slate-400 block font-bold">Tier 2: Desmos</span>
+          <span class="text-xs font-bold text-emerald-400 mt-1 block">Mastered ✓</span>
+        </div>
+        <div class="cert-badge p-2.5 rounded-xl bg-slate-900/80 border border-white/10 text-center">
+          <span class="text-[9px] uppercase tracking-wider text-slate-400 block font-bold">Tier 3: Final Score</span>
+          <span id="cert-score" class="text-xs font-bold text-amber-300 mono mt-1 block">6 / 6</span>
+        </div>
+      </div>
+
+      <!-- Automatic Cloud Save Indication Box -->
+      <div class="p-3 bg-emerald-950/70 border border-emerald-500/40 rounded-2xl flex items-center justify-center gap-3 text-emerald-300 text-left max-w-lg mx-auto shadow-lg shadow-emerald-950/40">
+        <div class="w-9 h-9 rounded-xl bg-emerald-500/20 flex items-center justify-center flex-shrink-0 text-emerald-400">
+          <i data-lucide="cloud-check" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="text-xs font-bold text-emerald-200 flex items-center gap-1.5">
+            <span id="cert-save-title">Score Automatically Saved to Teacher Gradebook</span>
+            <span id="cert-save-badge" class="text-[9px] font-mono bg-emerald-500/20 px-1.5 py-0.5 rounded text-emerald-300 border border-emerald-500/30">CONFIRMED ✓</span>
+          </div>
+          <div class="text-[11px] text-emerald-300/85 leading-snug mt-0.5">
+            <span id="cert-save-text">Your results have been automatically recorded. No screenshot or manual turn-in is required!</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Certificate Metadata & Verification Code -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-1.5 text-[10px] text-slate-400 mono border-t border-white/10 pt-3">
+        <div>Date: <span id="cert-date" class="text-slate-200 font-bold">—</span></div>
+        <div>Standard: <span class="text-slate-200 font-bold">NGSS HS-PS2-1</span></div>
+        <div>Token: <span id="cert-token" class="text-slate-200 select-all font-bold">—</span></div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="no-print flex flex-col sm:flex-row gap-2.5 justify-center pt-1">
+        <button onclick="window.print()" class="flex-1 py-3 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 rounded-xl font-bold transition-all text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 cursor-pointer">
+          <i data-lucide="printer" class="w-4 h-4"></i> Print / Save PDF
+        </button>
+        <button onclick="closeCompletionModal(true)" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl font-bold transition-all text-xs uppercase tracking-wider border border-white/10 cursor-pointer">
+          Practice Again
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="w-full py-2 text-center border-t border-white/5 bg-[#050917]/70 backdrop-blur-md text-[10px] text-slate-500 select-none z-10">
+    &copy; 2026 Mr. Mudry's Physics Science Laboratory &bull; Newton's 2nd Law Problem-Solving Core &bull; F<sub>net</sub> = m &middot; a
+  </footer>
+  <script src="../../assets/ngss-helper.js"></script>
+
+  <!-- Web Audio Synthesizer & Game Control Logic -->

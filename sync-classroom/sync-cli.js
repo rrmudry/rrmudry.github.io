@@ -1202,8 +1202,17 @@ async function main() {
       if (matchedByCw) {
         targets = [matchedByCw];
       } else {
-        console.error(`ERROR: No assignment found matching "${targetQuery}". Run with --list to view available assignments.`);
-        process.exit(1);
+        // Fallback: Check assignment registry directly
+        const regMatch = Array.from(registry.entries()).find(([k, v]) => 
+          k.toLowerCase().includes(targetQuery.toLowerCase()) || 
+          (v.title && v.title.toLowerCase().includes(targetQuery.toLowerCase()))
+        );
+        if (regMatch) {
+          targets = [{ id: regMatch[0], name: regMatch[1].title || regMatch[0], studentCount: 0 }];
+        } else {
+          console.error(`ERROR: No assignment found matching "${targetQuery}". Run with --list to view available assignments.`);
+          process.exit(1);
+        }
       }
     }
   }
