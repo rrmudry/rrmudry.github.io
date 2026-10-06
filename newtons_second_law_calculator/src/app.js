@@ -1207,6 +1207,10 @@
       return SLOT_ORDER.some(s => placed[s].some(item => item !== 'unknown' && item.id === id));
     }
 
+    function findSlotForValue(id) {
+      return SLOT_ORDER.find(s => placed[s].some(item => item !== 'unknown' && item.id === id)) || null;
+    }
+
     function findUnknownSlotName() {
       return SLOT_ORDER.find(s => placed[s].includes('unknown')) || null;
     }
@@ -1220,24 +1224,40 @@
       const container = document.getElementById('question-text');
       container.innerHTML = '';
 
-      const crossedOut = (text) => {
-        const span = document.createElement('span');
-        span.className = "inline-block mx-1 font-bold text-slate-500 line-through select-none";
-        span.innerText = text;
-        return span;
-      };
-
-      const makeBadge = (text, colorClass, payload) => {
-        const badge = document.createElement('div');
-        badge.className = `${colorClass} font-bold p-1.5 px-3 rounded-lg inline-block mx-1.5 hover:scale-102 transition-all text-sm drag-item ring-1 ring-white/5 whitespace-nowrap`;
+      const makeBadge = (text, activeClass, placedClass, payload, isPlaced, slotName) => {
+        const badge = document.createElement('span');
         badge.innerText = text;
-        badge.draggable = true;
-        badge.addEventListener('dragstart', (e) => {
-          e.dataTransfer.setData('application/json', JSON.stringify(payload));
-          badge.classList.add('opacity-40');
-        });
-        badge.addEventListener('dragend', () => badge.classList.remove('opacity-40'));
-        badge.addEventListener('click', () => selectBadgeClick(badge, payload, text));
+
+        if (isPlaced) {
+          badge.className = `badge-token ${placedClass}`;
+          badge.title = "Placed in equation. Click to remove from slot.";
+          badge.addEventListener('click', () => {
+            if (isCurrentQuestionSolved) return;
+            sound.playBeep();
+            selectedDragItem = null;
+            document.getElementById('selection-helper').innerText = '';
+            if (slotName) {
+              if (payload.type === 'unknown') {
+                clearSlot(slotName);
+              } else if (payload.type === 'value') {
+                placed[slotName] = (placed[slotName] || []).filter(item => item !== 'unknown' && item.id !== payload.value.id);
+                updateEquationSlotsUI();
+                renderQuestionBadges();
+                validateLevel2InputHelperVisibility();
+              }
+            }
+          });
+        } else {
+          badge.className = `badge-token ${activeClass} drag-item`;
+          badge.draggable = true;
+          badge.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('application/json', JSON.stringify(payload));
+            badge.classList.add('opacity-40');
+          });
+          badge.addEventListener('dragend', () => badge.classList.remove('opacity-40'));
+          badge.addEventListener('click', () => selectBadgeClick(badge, payload, text));
+        }
+
         return badge;
       };
 
@@ -1247,16 +1267,28 @@
           span.innerText = part;
           container.appendChild(span);
         } else if (part.isUnknown) {
-          container.appendChild(findUnknownSlotName()
-            ? crossedOut(q.unknownText)
-            : makeBadge(q.unknownText, "bg-indigo-950/80 text-indigo-300 border border-indigo-500/40", { type: 'unknown' }));
+          const unknownSlot = findUnknownSlotName();
+          container.appendChild(makeBadge(
+            q.unknownText,
+            "badge-token-active-unknown",
+            "badge-token-placed-unknown",
+            { type: 'unknown' },
+            Boolean(unknownSlot),
+            unknownSlot
+          ));
         } else if (part.valueId) {
           const v = q.values.find(x => x.id === part.valueId);
           if (!v) return;
+          const placedSlot = findSlotForValue(v.id);
           // Badge color is neutral so students identify the variable from the unit, not the color
-          container.appendChild(isValuePlaced(v.id)
-            ? crossedOut(valueText(v))
-            : makeBadge(valueText(v), "bg-slate-800/90 text-white border border-slate-500/40", { type: 'value', value: v }));
+          container.appendChild(makeBadge(
+            valueText(v),
+            "badge-token-active-value",
+            "badge-token-placed-value",
+            { type: 'value', value: v },
+            Boolean(placedSlot),
+            placedSlot
+          ));
         }
       });
     }
