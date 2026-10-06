@@ -3,6 +3,13 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-05 — Newton's 2nd Law Studio: Roster Resolution & Firestore Payload Sanitization
+**Patterns Updated**: `newtons-second-law-atwood-studio.md`.
+
+**Changes**:
+- **Roster Period Resolution**: Fixed `lookupPeriod(email)` in `Unit_2/newtons_second_law_studio/js/auth.js` to look for `d.class_period` (matching Firestore schema) instead of `d.period`, ensuring Period 0 Honors students get `honorsRequired: true`.
+- **Firestore Payload Sanitization**: Guarded `class_period` and profile fields against `undefined` values (defaulting to `null`), eliminating `Cannot use "undefined" as a Firestore value` errors that would crash student save requests.
+
 ## 2026-10-05 — Google Classroom Sync & Daily Update
 **Patterns Updated**: `classroom-gradebook-sync.md`.
 

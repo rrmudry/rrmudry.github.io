@@ -73,5 +73,11 @@ js/app.js             controller: tabs, constraint-mode controls, trials, HUD, l
 - A step is done when every task in every round has been answered correctly; its tab gets ✓ and the takeaway appears.
 - Arena: 4 of 5 tiers unlock the certificate (name required). "Copy Submission Summary" puts the text on the clipboard for Google Classroom.
 
+## Auth, Roster Resolution & Gradebook Sync (`js/auth.js`)
+- **Firestore Subcollection Path**: `student_results/unit2_day27_newtons_second_law_studio/students/{studentId}`.
+- **Roster Period Resolution**: Roster documents in `roster/{studentId}` store the field as `class_period` (integer 0–6), not `period`. `lookupPeriod()` checks both `class_period` and `period`, ensuring Period 0 Honors students get `honorsRequired: true`.
+- **Payload Undefined-Field Guard**: Firestore client SDK strictly rejects documents containing `undefined` values (`Unsupported field value: undefined`). All fields in `auth.js` (`class_period`, `email`, `student_name`, etc.) must fall back to `null` or default values.
+- **Teacher Account Exclusion from Student Courses**: Teacher accounts (`rmudry@orangeusd.org`) receive `class_period: 'T'`. Because Google Classroom only permits grading enrolled students in courses P0–P6, teacher accounts do not map to student submissions during `sync-cli.js`.
+
 ## Testing
 Puppeteer is in `node_modules`. Drive the tabs, click `[data-action=...]` buttons, and screenshot at 1440 px and 390 px (check `scrollWidth - innerWidth === 0`).
