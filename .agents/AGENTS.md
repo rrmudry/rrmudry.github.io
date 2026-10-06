@@ -92,3 +92,12 @@ Never include Teacher Master Keys, Teacher Keys, Answer Keys, or solution files 
   - `Teacher_Master_Key*`, `Teacher_Key*`, `Answer_Key*` are strictly for instructor print/generation workflows and must remain `.gitignore`d.
   - In `assets/lessons-data.js`, only student worksheets, slide decks, interactive simulators, and student exemplars may be linked.
   - When generating worksheets with companion teacher master keys, output the teacher PDF locally or in teacher tools, but NEVER link the teacher key in `assignments`, `resources`, or `links` within `assets/lessons-data.js` or `outline.md`.
+
+## 🛡️ Mandatory Pre-Flight Verification: Never Declare Ready via Teacher-Only Testing
+Never declare an interactive student assignment, lab, or webapp "ready" or deploy it based solely on testing with a teacher account (`rmudry@orangeusd.org`).
+- **Why**: Teacher accounts bypass student roster lookup (`period: 'T'`) and cannot receive student grades in Google Classroom. Testing only as a teacher conceals schema bugs (such as `period` vs `class_period`) and `undefined` payload values that crash real student writes.
+- **Enforcement**:
+  1. Every interactive student webapp must be validated using `npm run verify -- --id <assignment_id>` in `sync-classroom/`.
+  2. The validator executes an automated synthetic student write into `student_results/{id}/students/` using real roster schema, tests Period 0 Honors and standard periods, and confirms zero `undefined` values.
+  3. All Firestore payloads must sanitize variables (`value !== undefined && value !== null ? value : null`) so writes never throw `Unsupported field value: undefined`.
+  4. If `npm run verify` does not pass with 100% green checks, the assignment MUST NOT be deployed, posted, or marked ready.
