@@ -137,3 +137,11 @@
   - Periods 0 (Honors) and 4–6 (Regular) remain strictly on standard linear scaling.
   - Rule B protects all teacher manual adjustments and ensures grades are never lowered.
 
+## 15. Slash Document IDs in Firestore & Past Due Date API Constraints
+- **Encoded Slash Document IDs in Firestore**:
+  - When assignment titles contain forward slashes (e.g. date-named assignments like `9/28` in The Gradest), Firestore encodes document IDs containing `/` as URI encoded strings (e.g. `9%2F28`).
+  - In `sync-cli.js`, always include both raw and decoded/encoded variants in `possibleIds`: `assignmentId`, `encodeURIComponent(assignmentId)`, `decodeURIComponent(assignmentId)`, and `assignmentId.replace(/\//g, '%2F')` to resolve the assignment record cleanly.
+- **Google Classroom API Past Due Date Constraint**:
+  - The Google Classroom API strictly rejects `courses.courseWork.create` requests where `dueDate` is in the past:
+    `@InvalidArgument: dueDate: Due date must be in the future`.
+  - When creating retrospective, makeup, or catch-up coursework via the API, omit the `dueDate` object entirely from the request body so coursework publishes without rejection.
