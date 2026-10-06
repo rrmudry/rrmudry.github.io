@@ -3,6 +3,21 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-06 — Newton's 2nd Law Calculator: Chromebook Viewport & Vertical Scroll Restoration
+**Patterns Updated**: `mobile-responsive.md`.
+
+**Changes**:
+- **Resolved Viewport Height Clipping & Missing Scrollbar**:
+  - Removed Tailwind's `overflow-hidden` class from `<body>` in `newtons_second_law_calculator/src/template.html` (which was compiling to `overflow: hidden;` and completely disabling the browser window scrollbar).
+  - Explicitly declared `overflow-x: hidden; overflow-y: auto;` on `body` and `overflow-x: hidden; scroll-behavior: smooth;` on `html`.
+  - Added `my-auto` to top-level sections (`#view-register`, `#view-workspace`) within the flex container so content centers when ample vertical space is available, but smoothly collapses to top alignment when content exceeds the viewport height on 1366×768 Chromebooks (550–650px usable browser height).
+  - Rebuilt both standalone `newtons_second_law_calculator/index.html` and `dist/index.html` via `build-html.js`.
+- **High-Contrast Visible Custom Scrollbars**:
+  - Upgraded scrollbar track and thumb styling to 8px width with high-contrast semi-transparent thumbs (`rgba(255, 255, 255, 0.25)` in dark mode, `rgba(15, 23, 42, 0.28)` in light mode, with accent glow on hover).
+  - Added standard `scrollbar-width: thin; scrollbar-color: ...` CSS declarations for non-WebKit browsers.
+- **Automated Viewport Validation**:
+  - Verified scrolling across standard Chromebook (1366×650), Level 2 + Desmos Open (1366×650), Split-Screen (1000×580), and low-height viewports (1280×500) with 100% test pass.
+
 ## 2026-10-06 — PRIDE Time Console: Local HTML5-QRCode Vendor & Scanner Resilience
 **Patterns Updated**: `dashboard-layout.md`.
 
