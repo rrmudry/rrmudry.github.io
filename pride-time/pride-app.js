@@ -663,6 +663,13 @@
       }
 
       try {
+        if (typeof Html5Qrcode === 'undefined') {
+          const msg = 'Scanner engine is loading. If this persists, refresh the page or check connection.';
+          console.warn(msg);
+          UI.updateScannerHUDState(false, msg);
+          return;
+        }
+
         if (!State.html5QrCode) {
           State.html5QrCode = new Html5Qrcode('reader', {
             verbose: false,
@@ -771,6 +778,7 @@
 
     async populateCameraList() {
       try {
+        if (typeof Html5Qrcode === 'undefined' || !Html5Qrcode.getCameras) return;
         const devices = await Html5Qrcode.getCameras();
         const select = document.getElementById('camera-select');
         if (select && devices && devices.length > 0) {
