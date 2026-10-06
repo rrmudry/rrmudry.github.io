@@ -181,7 +181,9 @@
           btn.classList.remove("ring-2", "ring-rose-500/50");
           btn.title = "Read aloud";
         }
-        lucide.createIcons();
+        if (typeof lucide !== 'undefined' && lucide && lucide.createIcons) {
+          lucide.createIcons();
+        }
       }
     }
 
@@ -789,8 +791,17 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      lucide.createIcons();
+      if (typeof lucide !== 'undefined' && lucide && lucide.createIcons) {
+        lucide.createIcons();
+      }
       updateThemeButton();
+
+      // Check redirect result for devices that fallback to signInWithRedirect
+      if (fbAuth && fbAuth.getRedirectResult) {
+        fbAuth.getRedirectResult().catch(err => {
+          console.warn('Redirect sign-in notice:', err);
+        });
+      }
 
       // Auto-detect preview mode: local file, localhost, or query parameters (?preview, ?test, ?guest)
       const urlParams = new URLSearchParams(window.location.search);
@@ -851,14 +862,28 @@
       statusEl.classList.remove('hidden');
       statusEl.innerText = 'Connecting to Google...';
       const provider = new firebase.auth.GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
+      provider.setCustomParameters({ hd: 'orangeusd.org', prompt: 'select_account' });
       try {
         await fbAuth.signInWithPopup(provider);
       } catch (e) {
-        console.error(e);
-        statusEl.classList.add('hidden');
-        errEl.classList.remove('hidden');
-        errEl.innerText = 'Sign-in failed — please try again';
+        console.warn('Popup sign-in encounter:', e);
+        if (e.code === 'auth/popup-blocked' || e.code === 'auth/cancelled-popup-request' || (e.message && e.message.includes('Cross-Origin-Opener-Policy'))) {
+          statusEl.innerText = 'Redirecting to Google sign-in...';
+          try {
+            await fbAuth.signInWithRedirect(provider);
+            return;
+          } catch (rErr) {
+            console.error('Redirect sign-in error:', rErr);
+          }
+        }
+        if (e.code !== 'auth/popup-closed-by-user') {
+          console.error(e);
+          statusEl.classList.add('hidden');
+          errEl.classList.remove('hidden');
+          errEl.innerText = 'Sign-in failed — please try again or use Preview Mode';
+        } else {
+          statusEl.classList.add('hidden');
+        }
       }
     }
 
@@ -1728,7 +1753,9 @@
         modal.querySelector('.transform').classList.add('scale-100');
       }, 50);
 
-      lucide.createIcons();
+      if (typeof lucide !== 'undefined' && lucide && lucide.createIcons) {
+        lucide.createIcons();
+      }
     }
 
     function startUnlockedLevel() {

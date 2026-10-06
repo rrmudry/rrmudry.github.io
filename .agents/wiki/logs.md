@@ -3,6 +3,23 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-06 — Calculator Resilience: Local Lucide Bundling, NGSS Root Path Fix & Auth Fallback
+**Patterns Updated**: `dashboard-layout.md`, `cast-aligned-webapp-design.md`.
+
+**Changes**:
+- **Local Lucide Vendor & Resilience Shim**:
+  - Saved local `assets/lucide.min.js` and `newtons_second_law_calculator/lucide.min.js` to eliminate failures caused by district web filters blocking unpkg CDN.
+  - Added safe fallback shim for `window.lucide.createIcons()` so missing CDN scripts never throw `ReferenceError: lucide is not defined` or abort page initialization.
+  - Guarded all `lucide.createIcons()` invocations throughout `src/app.js`.
+- **Directory Root Path Resolution Fix (`assets/ngss-helper.js` & `assets/partials.js`)**:
+  - Fixed `rootPath` calculation when web apps are accessed via trailing-slash directory paths (e.g. `/newtons_second_law_calculator/`) rather than explicit `/index.html`.
+  - Dynamically detects script tag location via `document.currentScript` or segment extension checks, completely eliminating 404s when loading `ngss-explorer/standards-data.js`.
+- **Google Auth Popup Resilience & Redirect Fallback**:
+  - Configured `hd: 'orangeusd.org'` in Google Auth provider to streamline student domain sign-in.
+  - Added automatic fallback to `fbAuth.signInWithRedirect` when popups are blocked by school Chromebook security policies or Cross-Origin-Opener-Policy restrictions, with `getRedirectResult()` handling on boot.
+- **Console Warning Cleanup**:
+  - Suppressed harmless Tailwind Play CDN development warning banner in student consoles.
+
 ## 2026-10-06 — Day 26 Promotion: Newton's 2nd Law Studio & Planned Placeholder Pruning
 **Patterns Updated**: `dashboard-layout.md`.
 

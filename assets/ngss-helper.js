@@ -6,8 +6,22 @@
 
 (function () {
     // Determine relative root path for loading standards-data.js if needed
-    const depth = window.location.pathname.split('/').filter(Boolean).length - 1;
-    const rootPath = depth > 0 ? '../'.repeat(depth) : '';
+    function calculateRootPath() {
+        if (document.currentScript && document.currentScript.src) {
+            try {
+                const scriptUrl = new URL(document.currentScript.src);
+                const assetsIdx = scriptUrl.pathname.indexOf('/assets/');
+                if (assetsIdx !== -1) {
+                    return scriptUrl.origin + scriptUrl.pathname.substring(0, assetsIdx + 1);
+                }
+            } catch (e) {}
+        }
+        const segments = window.location.pathname.split('/').filter(Boolean);
+        const last = segments[segments.length - 1] || '';
+        const depth = last.includes('.') ? Math.max(0, segments.length - 1) : segments.length;
+        return depth > 0 ? '../'.repeat(depth) : '';
+    }
+    const rootPath = calculateRootPath();
 
     const NGSSHelper = {
         /**

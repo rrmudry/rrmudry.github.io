@@ -18,8 +18,46 @@
       document.documentElement.setAttribute('data-theme', saved || (prefersLight ? 'light' : 'dark'));
     })();
   </script>
+  <script>
+    // Suppress Tailwind Play CDN notice in student console
+    (function() {
+      const origWarn = console.warn;
+      console.warn = function(...args) {
+        if (typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com should not be used in production')) return;
+        origWarn.apply(console, args);
+      };
+    })();
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="../../assets/lucide.min.js"></script>
+  <script src="lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
+    // Bulletproof Lucide shim fallback so missing or blocked CDN never halts app execution
+    window.lucide = window.lucide || {
+      createIcons: function() {
+        try {
+          const map = {
+            'arrow-left': '←', 'arrow-right': '→', 'move-right': '→',
+            'sun': '☀️', 'moon': '🌙', 'log-out': '🚪', 'eye': '👁️',
+            'cloud-check': '☁️✓', 'volume-2': '🔊', 'clipboard-paste': '📋',
+            'lightbulb': '💡', 'help-circle': '❓', 'calculator': '🧮',
+            'x': '✕', 'unlock': '🔓', 'printer': '🖨️', 'square': '⏹'
+          };
+          document.querySelectorAll('i[data-lucide]').forEach(el => {
+            const icon = el.getAttribute('data-lucide');
+            if (map[icon]) {
+              el.textContent = map[icon];
+              el.style.fontStyle = 'normal';
+              el.style.display = 'inline-flex';
+              el.style.alignItems = 'center';
+              el.style.justifyContent = 'center';
+            }
+          });
+        } catch (e) {}
+      }
+    };
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <!-- Official Desmos Scientific Calculator API -->
@@ -1172,7 +1210,9 @@
           btn.classList.remove("ring-2", "ring-rose-500/50");
           btn.title = "Read aloud";
         }
-        lucide.createIcons();
+        if (typeof lucide !== 'undefined' && lucide && lucide.createIcons) {
+          lucide.createIcons();
+        }
       }
     }
 
@@ -1780,8 +1820,17 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      lucide.createIcons();
+      if (typeof lucide !== 'undefined' && lucide && lucide.createIcons) {
+        lucide.createIcons();
+      }
       updateThemeButton();
+
+      // Check redirect result for devices that fallback to signInWithRedirect
+      if (fbAuth && fbAuth.getRedirectResult) {
+        fbAuth.getRedirectResult().catch(err => {
+          console.warn('Redirect sign-in notice:', err);
+        });
+      }
 
       // Auto-detect preview mode: local file, localhost, or query parameters (?preview, ?test, ?guest)
       const urlParams = new URLSearchParams(window.location.search);
@@ -1842,14 +1891,28 @@
       statusEl.classList.remove('hidden');
       statusEl.innerText = 'Connecting to Google...';
       const provider = new firebase.auth.GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
+      provider.setCustomParameters({ hd: 'orangeusd.org', prompt: 'select_account' });
       try {
         await fbAuth.signInWithPopup(provider);
       } catch (e) {
-        console.error(e);
-        statusEl.classList.add('hidden');
-        errEl.classList.remove('hidden');
-        errEl.innerText = 'Sign-in failed — please try again';
+        console.warn('Popup sign-in encounter:', e);
+        if (e.code === 'auth/popup-blocked' || e.code === 'auth/cancelled-popup-request' || (e.message && e.message.includes('Cross-Origin-Opener-Policy'))) {
+          statusEl.innerText = 'Redirecting to Google sign-in...';
+          try {
+            await fbAuth.signInWithRedirect(provider);
+            return;
+          } catch (rErr) {
+            console.error('Redirect sign-in error:', rErr);
+          }
+        }
+        if (e.code !== 'auth/popup-closed-by-user') {
+          console.error(e);
+          statusEl.classList.add('hidden');
+          errEl.classList.remove('hidden');
+          errEl.innerText = 'Sign-in failed — please try again or use Preview Mode';
+        } else {
+          statusEl.classList.add('hidden');
+        }
       }
     }
 
@@ -2719,7 +2782,9 @@
         modal.querySelector('.transform').classList.add('scale-100');
       }, 50);
 
-      lucide.createIcons();
+      if (typeof lucide !== 'undefined' && lucide && lucide.createIcons) {
+        lucide.createIcons();
+      }
     }
 
     function startUnlockedLevel() {

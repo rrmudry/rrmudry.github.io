@@ -3,7 +3,9 @@
   const includeSelector = `[data-${includeAttr}]`;
   
   // Calculate relative path to root
-  const depth = window.location.pathname.split('/').filter(Boolean).length - 1;
+  const segments = window.location.pathname.split('/').filter(Boolean);
+  const lastSeg = segments[segments.length - 1] || '';
+  const depth = lastSeg.includes('.') ? Math.max(0, segments.length - 1) : segments.length;
   const rootPath = depth > 0 ? '../'.repeat(depth) : '';
   const partialsDir = `${rootPath}partials/`;
 
