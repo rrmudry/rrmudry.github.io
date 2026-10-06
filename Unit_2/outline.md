@@ -269,7 +269,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Newton's 2nd Law Launch & Modified Atwood Track Lab (Part 1): Direct instruction and fan-cart demonstrations establishing that unbalanced forces produce acceleration (`a = F_net / m`). Followed by pulling a constant-mass cart using hanging masses (0.1 N, 0.2 N, 0.3 N, 0.4 N) across photogate timers to plot `a` vs F<sub>net</sub> and verify direct linear proportionality.
     *   *Essential Question:* How does experimental data verify the direct proportionality between applied net force and acceleration?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Direct Instruction / Lab
-    *   *Links:* [Newton's 2nd Law Studio (Mastery Arena)](Unit_2/newtons_second_law_studio/index.html), [Newton's 2nd Law Calculator (F<sub>net</sub> = m · a)](newtons_second_law_calculator/dist/index.html), Modified Atwood Track Lab Sheet *(Planned In-Class)*
+    *   *Links:* [Newton's 2nd Law Studio (Mastery Arena)](Unit_2/newtons_second_law_studio/index.html), [Newton's 2nd Law Calculator (F<sub>net</sub> = m · a)](newtons_second_law_calculator/index.html), Modified Atwood Track Lab Sheet *(Planned In-Class)*
 
 *   **Day 28 (2026-10-07): The Science of Friction: Static vs. Kinetic (F<sub>f</sub> = μ · F<sub>N</sub>)**
     *   *Bell-Ringer:* Pushing a Heavy Couch (AI Chat): Why is it always much harder to get a heavy couch to start sliding across a wooden floor than it is to keep it moving once it's already sliding?

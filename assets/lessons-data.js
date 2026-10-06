@@ -3570,7 +3570,7 @@ const lessonsData = [
     },
     "links": {
       "Newton's 2nd Law Studio": "Unit_2/newtons_second_law_studio/index.html",
-      "Newton's 2nd Law Calculator": "newtons_second_law_calculator/dist/index.html"
+      "Newton's 2nd Law Calculator": "newtons_second_law_calculator/index.html"
     },
     "assignments": [
       {
@@ -3584,7 +3584,7 @@ const lessonsData = [
       },
       {
         "title": "Newton's 2nd Law Calculator (F<sub>net</sub> = m · a)",
-        "url": "newtons_second_law_calculator/dist/index.html",
+        "url": "newtons_second_law_calculator/index.html",
         "typeLabel": "Interactive Practice",
         "submission": "Sign in with your school Google account; auto-saves score to Google Classroom (10 pts)",
         "actionLabel": "Open Calculator",

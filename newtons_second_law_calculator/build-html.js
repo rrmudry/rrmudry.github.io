@@ -34,22 +34,11 @@ fs.mkdirSync(path.dirname(distPath), { recursive: true });
 fs.writeFileSync(distPath, htmlContent);
 console.log('Successfully generated:', distPath);
 
-// Also generate newtons_second_law_calculator/index.html (convenience redirect)
+// Also generate newtons_second_law_calculator/index.html as a full standalone page
+// Path adjustments: replace '../../' with '../' for links and script paths
 const rootIndexPath = path.join(__dirname, 'index.html');
-const redirectHtml = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Redirecting to Newton's 2nd Law Calculator...</title>
-</head>
-<body>
-  <script>
-    const search = window.location.search || '';
-    const hash = window.location.hash || '';
-    window.location.replace("dist/index.html" + search + hash);
-  </script>
-  <p>Redirecting to <a href="dist/index.html">Newton's 2nd Law Calculator</a>...</p>
-</body>
-</html>`;
-fs.writeFileSync(rootIndexPath, redirectHtml);
+const rootHtmlContent = htmlContent
+  .split('../../index.html').join('../index.html')
+  .split('../../assets/').join('../assets/');
+fs.writeFileSync(rootIndexPath, rootHtmlContent);
 console.log('Successfully generated:', rootIndexPath);
