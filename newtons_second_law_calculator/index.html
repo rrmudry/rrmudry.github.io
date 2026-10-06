@@ -2,14 +2,2723 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Redirecting to Newton's 2nd Law Calculator...</title>
-</head>
-<body>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Newton's 2nd Law Calculator | Fnet = m · a</title>
+  <meta name="description" content="Master Fnet = m · a with real-time feedback, free-body diagrams, and interactive Desmos calculations.">
+  <meta property="og:title" content="Newton's 2nd Law Calculator | Fnet = m · a">
+  <meta property="og:description" content="Master Fnet = m · a with real-time feedback, free-body diagrams, and interactive Desmos calculations.">
+  
+  <!-- CDNs for styling, icons, and libraries -->
+  <!-- Theme: saved choice on this device, otherwise the device's light/dark setting. Runs before paint. -->
   <script>
-    const search = window.location.search || '';
-    const hash = window.location.hash || '';
-    window.location.replace("dist/index.html" + search + hash);
+    (function () {
+      let saved = null;
+      try { saved = localStorage.getItem('nsl_calc_theme'); } catch (e) {}
+      const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+      document.documentElement.setAttribute('data-theme', saved || (prefersLight ? 'light' : 'dark'));
+    })();
   </script>
-  <p>Redirecting to <a href="dist/index.html">Newton's 2nd Law Calculator</a>...</p>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Official Desmos Scientific Calculator API -->
+  <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const fbAuth = firebase.auth();
+    const fbDb = firebase.firestore();
+  </script>
+  
+  <!-- Premium Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #070b1a;
+      --bg-alt: #0e1328;
+      --surface: rgba(13, 19, 40, 0.65);
+      --border: rgba(120, 141, 255, 0.15);
+      --accent: #0284c7;
+      --accent-soft: #38bdf8;
+      --accent-neon: #00f3ff;
+      --accent-purple: #d946ef;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+    }
+    
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.08), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(217, 70, 239, 0.06), transparent 50%);
+      color: #f8fafc;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .glass {
+      background: var(--surface);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+    }
+    
+    .glass-highlight {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .bg-grid {
+      background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.015) 1px, transparent 0);
+      background-size: 30px 30px;
+    }
+
+    /* custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Drag & Drop Visuals */
+    .drag-target {
+      transition: all 0.2s ease;
+    }
+    .drag-target.drag-over {
+      border-color: var(--accent-neon);
+      background: rgba(0, 243, 255, 0.1);
+      box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+    }
+
+    /* Fixed slot dimensions preventing wrapping under all viewport conditions */
+    .equation-slot {
+      width: 78px;
+      height: 78px;
+      flex-shrink: 0;
+    }
+    @media (min-width: 640px) {
+      .equation-slot {
+        width: 104px;
+        height: 94px;
+      }
+    }
+    @media (min-width: 768px) {
+      .equation-slot {
+        width: 120px;
+        height: 100px;
+      }
+    }
+
+    .glow-neon {
+      box-shadow: 0 0 20px rgba(0, 243, 255, 0.25);
+      border-color: var(--accent-neon);
+    }
+
+    /* Drag and drop item cursor states */
+    .drag-item {
+      cursor: grab;
+      user-select: none;
+    }
+    .drag-item:active {
+      cursor: grabbing;
+    }
+
+    .animate-shake {
+      animation: shake 0.4s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    @keyframes levelPulse {
+      0%, 100% {
+        box-shadow: 0 0 5px rgba(245, 158, 11, 0.2);
+        border-color: rgba(245, 158, 11, 0.3);
+      }
+      50% {
+        box-shadow: 0 0 20px rgba(245, 158, 11, 0.7);
+        border-color: rgba(245, 158, 11, 0.8);
+      }
+    }
+    .pulse-amber {
+      animation: levelPulse 1.5s infinite ease-in-out;
+    }
+
+    /* -------------------------------------------------------------
+       LIGHT MODE: remaps the dark palette's utility classes
+       ------------------------------------------------------------- */
+    html[data-theme="light"] {
+      --bg: #f1f5f9;
+      --surface: rgba(255, 255, 255, 0.85);
+      --border: rgba(15, 23, 42, 0.1);
+      color-scheme: light;
+    }
+    html[data-theme="light"] body {
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(217, 70, 239, 0.06), transparent 50%);
+      color: #0f172a;
+    }
+    html[data-theme="light"] .bg-grid {
+      background-image: radial-gradient(circle at 1px 1px, rgba(15, 23, 42, 0.06) 1px, transparent 0);
+    }
+    html[data-theme="light"] .glass {
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+    html[data-theme="light"] .glass-highlight {
+      background: rgba(15, 23, 42, 0.03);
+      border-color: rgba(15, 23, 42, 0.08);
+    }
+    html[data-theme="light"] ::-webkit-scrollbar-thumb {
+      background: rgba(15, 23, 42, 0.18);
+    }
+    html[data-theme="light"] [class~="text-white"] { color: #0f172a; }
+    html[data-theme="light"] [class~="text-slate-100"] { color: #0f172a; }
+    html[data-theme="light"] [class~="text-slate-200"] { color: #1e293b; }
+    html[data-theme="light"] [class~="text-slate-300"] { color: #334155; }
+    html[data-theme="light"] [class~="text-slate-400"] { color: #475569; }
+    html[data-theme="light"] [class~="text-slate-500"] { color: #64748b; }
+    html[data-theme="light"] [class~="text-slate-600"] { color: #94a3b8; }
+    html[data-theme="light"] [class~="text-sky-300"] { color: #0369a1; }
+    html[data-theme="light"] [class~="text-sky-400"] { color: #0369a1; }
+    html[data-theme="light"] [class~="text-emerald-200"] { color: #065f46; }
+    html[data-theme="light"] [class~="text-emerald-300"] { color: #047857; }
+    html[data-theme="light"] [class~="text-emerald-300/85"] { color: #047857; }
+    html[data-theme="light"] [class~="text-emerald-400"] { color: #047857; }
+    html[data-theme="light"] [class~="text-amber-300"] { color: #b45309; }
+    html[data-theme="light"] [class~="text-amber-300/80"] { color: #b45309; }
+    html[data-theme="light"] [class~="text-amber-400"] { color: #b45309; }
+    html[data-theme="light"] [class~="text-rose-300"] { color: #be123c; }
+    html[data-theme="light"] [class~="text-rose-400"] { color: #be123c; }
+    html[data-theme="light"] [class~="text-rose-500"] { color: #be123c; }
+    html[data-theme="light"] [class~="text-indigo-300"] { color: #4338ca; }
+    html[data-theme="light"] [class~="bg-slate-950"] { background-color: #ffffff; }
+    html[data-theme="light"] [class~="bg-slate-950/90"] { background-color: #ffffff; }
+    html[data-theme="light"] [class~="bg-slate-950/85"] { background-color: #ffffff; }
+    html[data-theme="light"] [class~="bg-slate-950/80"] { background-color: #f8fafc; }
+    html[data-theme="light"] [class~="bg-slate-900"] { background-color: #ffffff; }
+    html[data-theme="light"] [class~="bg-slate-900/80"] { background-color: #ffffff; }
+    html[data-theme="light"] [class~="bg-slate-900/60"] { background-color: #f8fafc; }
+    html[data-theme="light"] [class~="bg-slate-800"] { background-color: #e2e8f0; }
+    html[data-theme="light"] [class~="bg-slate-800/90"] { background-color: #f1f5f9; }
+    html[data-theme="light"] [class~="bg-slate-800/80"] { background-color: #f1f5f9; }
+    html[data-theme="light"] [class~="bg-slate-700"] { background-color: #cbd5e1; }
+    html[data-theme="light"] [class~="bg-white/5"] { background-color: rgba(15, 23, 42, 0.04); }
+    html[data-theme="light"] [class~="bg-white/10"] { background-color: rgba(15, 23, 42, 0.07); }
+    html[data-theme="light"] [class~="bg-[#050917]/70"] { background-color: rgba(255, 255, 255, 0.85); }
+    html[data-theme="light"] [class~="bg-sky-950/70"] { background-color: #e0f2fe; }
+    html[data-theme="light"] [class~="bg-sky-950/80"] { background-color: #e0f2fe; }
+    html[data-theme="light"] [class~="bg-sky-950/90"] { background-color: #e0f2fe; }
+    html[data-theme="light"] [class~="bg-emerald-950/20"] { background-color: #ecfdf5; }
+    html[data-theme="light"] [class~="bg-emerald-950/70"] { background-color: #d1fae5; }
+    html[data-theme="light"] [class~="bg-emerald-950/80"] { background-color: #d1fae5; }
+    html[data-theme="light"] [class~="bg-emerald-950/90"] { background-color: #d1fae5; }
+    html[data-theme="light"] [class~="bg-amber-950/70"] { background-color: #fef3c7; }
+    html[data-theme="light"] [class~="bg-amber-950/80"] { background-color: #fef3c7; }
+    html[data-theme="light"] [class~="bg-amber-950/90"] { background-color: #fef3c7; }
+    html[data-theme="light"] [class~="bg-indigo-950/80"] { background-color: #e0e7ff; }
+    html[data-theme="light"] [class~="bg-rose-950/70"] { background-color: #ffe4e6; }
+    html[data-theme="light"] [class~="border-white/5"] { border-color: rgba(15, 23, 42, 0.08); }
+    html[data-theme="light"] [class~="border-white/10"] { border-color: rgba(15, 23, 42, 0.14); }
+    html[data-theme="light"] [class~="border-slate-700"] { border-color: #cbd5e1; }
+    html[data-theme="light"] [class~="border-slate-500/40"] { border-color: #94a3b8; }
+    html[data-theme="light"] [class~="hover:bg-slate-800"]:hover { background-color: #e2e8f0; }
+    html[data-theme="light"] [class~="hover:bg-slate-700"]:hover { background-color: #cbd5e1; }
+    html[data-theme="light"] [class~="hover:bg-white/5"]:hover { background-color: rgba(15, 23, 42, 0.05); }
+    html[data-theme="light"] [class~="hover:bg-white/10"]:hover { background-color: rgba(15, 23, 42, 0.08); }
+    html[data-theme="light"] [class~="hover:text-white"]:hover { color: #0f172a; }
+    html[data-theme="light"] [class~="hover:text-rose-400"]:hover { color: #be123c; }
+    html[data-theme="light"] [class~="placeholder:text-slate-600"]::placeholder { color: #94a3b8; }
+    /* NGSS helper banner (inline-styled by assets/ngss-helper.js) */
+    html[data-theme="light"] .ngss-banner-card {
+      background: #ffffff !important;
+      border-color: rgba(2, 132, 199, 0.3) !important;
+    }
+    html[data-theme="light"] .ngss-banner-card h4,
+    html[data-theme="light"] .ngss-pill-btn span:first-child {
+      color: #0369a1 !important;
+    }
+    html[data-theme="light"] .ngss-banner-card a {
+      color: #475569 !important;
+    }
+    html[data-theme="light"] .ngss-pill-btn {
+      background: #f1f5f9 !important;
+      border-color: rgba(15, 23, 42, 0.14) !important;
+    }
+    html[data-theme="light"] .ngss-pill-btn span:last-child {
+      color: #334155 !important;
+    }
+    html[data-theme="light"] #preview-view option { color: #0f172a; }
+    #preview-view option { color: #0f172a; }
+    /* Locked level buttons look locked */
+    html[data-theme="light"] button:disabled[class~="cursor-not-allowed"] {
+      background-color: #e2e8f0;
+      color: #94a3b8;
+      border-style: dashed;
+    }
+    /* Certificate card gradient */
+    html[data-theme="light"] .cert-card {
+      background-image: linear-gradient(to bottom, #ffffff, #fffbeb);
+    }
+    /* Solid colored buttons keep white text */
+    html[data-theme="light"] [class~="bg-sky-600"], html[data-theme="light"] [class~="bg-sky-600"] *,
+    html[data-theme="light"] [class~="bg-emerald-600"], html[data-theme="light"] [class~="bg-emerald-600"] *,
+    html[data-theme="light"] [class~="from-sky-600"], html[data-theme="light"] [class~="from-sky-600"] * {
+      color: #ffffff;
+    }
+    /* White buttons on white cards become dark buttons */
+    html[data-theme="light"] [class~="bg-white"][class~="text-black"] {
+      background-color: #0f172a;
+      color: #ffffff;
+    }
+    html[data-theme="light"] [class~="bg-white"][class~="text-black"]:hover {
+      background-color: #334155;
+    }
+    /* Solid amber buttons keep dark text */
+    html[data-theme="light"] [class~="bg-amber-500"], html[data-theme="light"] [class~="from-amber-500"] {
+      color: #0f172a;
+    }
+
+    /* Print Certificate Styles */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+      }
+      body * {
+        visibility: hidden !important;
+      }
+      #modal-completion, #modal-completion * {
+        visibility: visible !important;
+      }
+      #modal-completion {
+        position: fixed !important;
+        inset: 0 !important;
+        background: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        backdrop-filter: none !important;
+        z-index: 999999 !important;
+      }
+      .cert-card {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        border: 4px double #b45309 !important;
+        box-shadow: none !important;
+        width: 100% !important;
+        max-width: 680px !important;
+        padding: 24px !important;
+      }
+      /* Toner friendly: no fills or shadows anywhere on the printed certificate */
+      .cert-card * {
+        color: #0f172a !important;
+        text-shadow: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+      }
+      .cert-card #cert-student-name {
+        color: #b45309 !important;
+      }
+      .cert-card .cert-badge {
+        border: 1px solid #94a3b8 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-grid min-h-screen flex flex-col relative overflow-hidden">
+
+  <!-- Header -->
+  <header class="w-full py-2 px-4 border-b border-white/5 bg-[#050917]/70 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors mr-2" title="Return to Dashboard">
+        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+      </a>
+      <div class="bg-sky-600/20 p-1.5 rounded-lg border border-sky-500/30">
+        <i data-lucide="move-right" class="text-sky-400 w-5 h-5 animate-pulse"></i>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold tracking-tight">Newton's 2nd Law <span class="text-sky-400">Calculator</span></h1>
+        <p class="text-[10px] text-slate-400 font-medium">Net Force, Mass &amp; Acceleration &bull; F<sub>net</sub> = m &middot; a</p>
+      </div>
+    </div>
+    
+    <div class="flex items-center gap-3">
+    <!-- Light / Dark toggle -->
+    <button id="btn-theme" type="button" onclick="toggleTheme()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 border border-white/10 transition-colors cursor-pointer" title="Switch to light mode" aria-label="Switch to light mode">
+      <i data-lucide="sun" class="w-4 h-4"></i>
+    </button>
+
+    <!-- Student Badge -->
+    <div id="student-badge" class="hidden flex items-center gap-4">
+      <div class="glass px-2.5 py-1 rounded-lg border border-white/5 flex items-center gap-1.5">
+        <img id="badge-avatar" src="" class="w-5 h-5 rounded-full hidden" alt="">
+        <span class="text-[10px] text-slate-400">Signed in:</span>
+        <span id="badge-id" class="text-xs font-bold mono text-sky-400">student</span>
+      </div>
+      <button onclick="logout()" class="text-slate-400 hover:text-rose-400 transition-colors p-1 rounded-md hover:bg-white/5" title="Exit Laboratory">
+        <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+      </button>
+    </div>
+    </div>
+  </header>
+
+  <!-- Main View Container -->
+  <main class="flex-grow flex items-center justify-center p-2 md:p-3 z-10">
+    
+    <!-- SECTION 1: GOOGLE SIGN-IN -->
+    <section id="view-register" class="max-w-md w-full glass p-8 md:p-10 rounded-[2.5rem] border border-white/10 relative z-10 shadow-2xl transition-all duration-500">
+      <div class="text-center space-y-6">
+        <div class="bg-sky-600 w-20 h-20 rounded-[2rem] flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(2,132,199,0.3)]">
+          <i data-lucide="move-right" class="text-white w-10 h-10"></i>
+        </div>
+        <div>
+          <h2 class="text-3xl font-black uppercase tracking-tight italic">Initialize <span class="text-sky-400">Lab Log</span></h2>
+          <p class="text-slate-400 font-medium text-sm mt-2 leading-relaxed">Sign in with your school Google account to practice Newton's 2nd Law: F<sub>net</sub> = m &middot; a.</p>
+        </div>
+        
+        <div class="space-y-4 pt-2">
+          <button id="btn-google-signin" type="button" onclick="handleGoogleSignIn()" class="w-full bg-white text-slate-900 py-4 rounded-2xl font-black uppercase tracking-widest hover:scale-[1.02] hover:bg-slate-100 transition-all flex items-center justify-center gap-3 shadow-2xl cursor-pointer">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google">
+            Sign In with Google
+          </button>
+          <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] leading-relaxed">
+            Use your school-issued <span class="text-sky-400">@orangeusd.org</span> account
+          </p>
+
+          <div class="relative flex py-1 items-center">
+            <div class="flex-grow border-t border-white/10"></div>
+            <span class="flex-shrink mx-3 text-[10px] uppercase tracking-widest text-slate-500 font-bold">Or Instant Preview</span>
+            <div class="flex-grow border-t border-white/10"></div>
+          </div>
+
+          <button id="btn-guest-preview" type="button" onclick="startGuestMode()" class="w-full bg-slate-800/90 hover:bg-slate-700 text-sky-300 border border-sky-500/30 hover:border-sky-400/50 py-3.5 rounded-2xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2.5 hover:scale-[1.02] shadow-lg cursor-pointer">
+            <i data-lucide="eye" class="w-4 h-4 text-sky-400"></i>
+            <span>Teacher Preview / Test Mode (No Login)</span>
+          </button>
+        </div>
+        <div data-ngss="HS-PS2-1" class="text-left"></div>
+        <p id="register-error" class="text-rose-400 text-xs font-bold uppercase tracking-wider hidden">Access denied &mdash; use your @orangeusd.org school account</p>
+        <p id="register-status" class="text-sky-400 text-[10px] font-bold uppercase tracking-widest animate-pulse hidden">Connecting&hellip;</p>
+      </div>
+    </section>
+
+    <!-- SECTION 2: WORKSPACE -->
+    <section id="view-workspace" class="max-w-4xl w-full hidden flex flex-col gap-3.5 transition-all duration-500">
+      
+      <!-- Top Stats Bar -->
+      <div class="flex flex-col md:flex-row justify-between items-center gap-3 glass p-2.5 rounded-xl border border-white/5">
+        
+        <!-- Level Select Buttons -->
+        <div class="flex flex-wrap md:flex-nowrap md:shrink-0 justify-center gap-2 [&>button]:whitespace-nowrap">
+          <button id="btn-level-1" onclick="changeLevel(1)" class="px-3 py-1.5 text-xs rounded-lg font-bold transition-all bg-slate-800 text-slate-400 border border-white/5">Level 1</button>
+          <button id="btn-level-2" onclick="changeLevel(2)" class="px-3 py-1.5 text-xs rounded-lg font-bold transition-all bg-slate-800 text-slate-400 border border-white/5 cursor-not-allowed" disabled>Level 2</button>
+          <button id="btn-level-3" onclick="changeLevel(3)" class="px-3 py-1.5 text-xs rounded-lg font-bold transition-all bg-slate-800 text-slate-400 border border-white/5 cursor-not-allowed" disabled>Level 3</button>
+          <button id="btn-honors" onclick="toggleHonors()" type="button" class="hidden px-3 py-1.5 text-xs rounded-lg font-bold transition-all bg-slate-800 text-slate-400 border border-white/5" title="Honors problems: two forces with signs (right +, left −) and total system mass">⭐ Honors: Off</button>
+        </div>
+ 
+        <!-- Telemetry HUD -->
+        <div class="flex items-center gap-3 sm:gap-5 text-xs text-slate-400 flex-wrap justify-center">
+          <div>
+            <span class="font-semibold block md:inline">Student:</span> 
+            <span id="hud-student-id" class="text-white font-bold mono ml-1">—</span>
+          </div>
+          <div>
+            <span class="font-semibold block md:inline">Progress:</span> 
+            <span id="hud-answered" class="text-white font-bold mono ml-1">0 / 6 Completed</span>
+          </div>
+          <div id="hud-streak-container">
+            <span class="font-semibold block md:inline">Streak:</span> 
+            <span id="hud-streak" class="text-white font-bold mono ml-1">0 / 4</span>
+          </div>
+          <!-- Preview only: see the app as a Conceptual Physics or Honors student would -->
+          <label id="preview-view-wrap" class="hidden items-center gap-1.5 text-[10px] font-semibold text-sky-300 bg-sky-950/70 border border-sky-500/30 px-2 py-0.5 rounded-lg">
+            <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+            <span>View as</span>
+            <select id="preview-view" onchange="switchPreviewView(this.value)" class="bg-transparent font-bold text-[11px] focus:outline-none cursor-pointer">
+              <option value="teacher">Teacher (all unlocked)</option>
+              <option value="cp">Regular / CP student (P1–6)</option>
+              <option value="honors">Honors student (Period 0)</option>
+            </select>
+          </label>
+          <div id="hud-cloud-status" class="flex items-center gap-1.5 text-[10px] text-emerald-400 bg-emerald-950/70 border border-emerald-500/30 px-2.5 py-1 rounded-lg transition-all font-mono">
+            <i data-lucide="cloud-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span id="hud-cloud-text">Auto-Saved</span>
+          </div>
+          <button id="btn-view-cert" onclick="openCompletionCertificateModal()" type="button" class="hidden px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer" title="View your earned Certificate of Mastery">
+            <span>🏆</span> View Certificate
+          </button>
+        </div>
+      </div>
+ 
+      <!-- Question Progress Bar -->
+      <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden border border-white/5">
+        <div id="progress-bar-fill" class="h-full bg-sky-500 transition-all duration-500 ease-out" style="width: 0%;"></div>
+      </div>
+ 
+      <!-- Workspace Layout Container (collapsible sidebar) -->
+      <div class="flex flex-col lg:flex-row gap-4 items-start w-full">
+         
+         <!-- Main Interaction Area (Full Width Column) -->
+         <div class="flex-grow w-full min-w-0 flex flex-col gap-3.5">
+
+            <!-- Card 1: Word Problem Card & TTS Button -->
+            <div class="glass rounded-xl p-4 sm:p-5 border border-white/5 flex flex-col justify-center relative min-h-[95px]">
+              <button onclick="readQuestionAloud()" id="btn-tts" class="absolute top-3 right-3 p-1.5 rounded-full transition-all duration-200 bg-slate-800/80 text-slate-400 hover:text-white border border-white/5" title="Read Aloud">
+                <i data-lucide="volume-2" class="w-4 h-4"></i>
+              </button>
+              
+              <p id="question-text" class="text-base sm:text-lg font-semibold leading-relaxed text-slate-100 pr-8 text-center">
+                <!-- Inline values and unknown will be rendered here dynamically -->
+              </p>
+            </div>
+
+            <!-- Card 2: Full-Width Equation Arranging Board (NEVER WRAPS) -->
+            <div class="glass rounded-xl p-3 sm:p-4 border border-white/5 flex flex-col items-center justify-center w-full shadow-lg">
+              
+              <!-- Equation Scroll Container: Strictly horizontal with flex-nowrap -->
+              <div class="w-full flex items-center justify-center overflow-x-auto py-2 px-1">
+                <div class="flex items-center justify-center gap-1.5 sm:gap-2.5 md:gap-3.5 font-mono flex-nowrap shrink-0 select-none">
+                  
+                  <!-- F Slot (Net Force) -->
+                  <div 
+                    data-slot="F" 
+                    class="drag-target equation-slot bg-slate-950/80 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-sm font-semibold select-none cursor-pointer transition-all"
+                    onclick="handleSlotClick(this)"
+                  >
+                    <span class="text-slate-500 text-lg sm:text-2xl md:text-3xl font-mono select-none">F<sub>net</sub></span>
+                    <span class="text-[7.5px] sm:text-[9px] text-slate-600 font-sans tracking-wider uppercase font-semibold select-none mt-0.5">net force</span>
+                  </div>
+
+                  <span class="font-sans text-slate-400 font-bold select-none text-lg sm:text-2xl md:text-3xl px-0.5 shrink-0">=</span>
+
+                  <!-- m Slot (Mass) -->
+                  <div 
+                    data-slot="m" 
+                    class="drag-target equation-slot bg-slate-950/80 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-sm font-semibold select-none cursor-pointer transition-all"
+                    onclick="handleSlotClick(this)"
+                  >
+                    <span class="text-slate-500 text-lg sm:text-2xl md:text-3xl font-mono select-none">m</span>
+                    <span class="text-[7.5px] sm:text-[9px] text-slate-600 font-sans tracking-wider uppercase font-semibold select-none mt-0.5">mass</span>
+                  </div>
+
+                  <span class="font-sans text-slate-400 font-bold select-none text-lg sm:text-2xl md:text-3xl px-0.5 shrink-0">&middot;</span>
+
+                  <!-- a Slot (Acceleration) -->
+                  <div 
+                    data-slot="a" 
+                    class="drag-target equation-slot bg-slate-950/80 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-sm font-semibold select-none cursor-pointer transition-all"
+                    onclick="handleSlotClick(this)"
+                  >
+                    <span class="text-slate-500 text-lg sm:text-2xl md:text-3xl font-mono select-none">a</span>
+                    <span class="text-[7.5px] sm:text-[9px] text-slate-600 font-sans tracking-wider uppercase font-semibold select-none mt-0.5">accel</span>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Selection helper text -->
+              <div id="selection-helper" class="text-center text-[10px] sm:text-[11px] text-slate-400 font-semibold h-4 select-none mt-1">
+                <!-- Selected item details -->
+              </div>
+            </div>
+
+            <!-- Card 3: Action Controls & Feedback Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-stretch">
+              
+              <!-- LEFT: Feedback Message Box & Desmos Telemetry (md:col-span-7) -->
+              <div class="md:col-span-7 flex flex-col gap-3">
+                
+                <!-- Feedback Message box -->
+                <div id="feedback-box" class="glass rounded-xl p-3 text-center font-bold text-xs min-h-[48px] flex items-center justify-center border border-white/5">
+                  Place the given values and the unknown into the equation, then check your work.
+                </div>
+
+                <!-- Calculation input helper (For Level 2 & 3) -->
+                <div id="calc-input-helper" class="glass rounded-xl p-3.5 border border-white/5 flex flex-col hidden">
+                  <div class="flex items-center justify-between gap-2">
+                    <div>
+                      <span class="text-[9px] text-sky-400 uppercase tracking-widest block font-bold">Calculation Telemetry</span>
+                      <p class="text-[11px] text-slate-400 mt-0.5 leading-relaxed">Calculate in Desmos, then paste or enter your result below.</p>
+                    </div>
+                    <span id="telemetry-req-badge" class="text-[8px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300 uppercase tracking-wider">
+                      Desmos Required
+                    </span>
+                  </div>
+                  
+                  <div class="my-2.5 flex flex-col sm:flex-row gap-2">
+                    <input 
+                      type="number" 
+                      step="0.01" 
+                      id="manual-user-answer" 
+                      placeholder="Enter result..." 
+                      oninput="syncManualInput(this.value)"
+                      class="flex-1 bg-slate-950/85 text-white py-2.5 px-3 rounded-xl border border-white/10 text-center font-bold tracking-wide text-lg focus:border-sky-500 focus:outline-none transition-all mono placeholder:font-normal placeholder:text-slate-600"
+                    >
+                    <button 
+                      id="btn-paste-desmos-input"
+                      type="button" 
+                      onclick="pasteDesmosResult()" 
+                      class="sm:w-auto px-4 py-2.5 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-500 hover:to-cyan-500 text-white rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md hover:scale-[1.01] active:scale-95 border border-sky-400/30 cursor-pointer shrink-0"
+                      title="Paste latest calculated value from Desmos"
+                    >
+                      <i data-lucide="clipboard-paste" class="w-4 h-4 text-cyan-200"></i>
+                      <span>Paste Desmos</span>
+                    </button>
+                  </div>
+
+                  <div id="calc-telemetry-status" class="text-[10px] text-slate-400 font-mono text-center min-h-[16px]">
+                    Use the Desmos calculator on the right to compute your answer.
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- RIGHT: Action Buttons & Utilities (md:col-span-5) -->
+              <div class="md:col-span-5 flex flex-col gap-2 justify-between">
+                <div class="flex flex-col gap-2">
+                  <button id="btn-check-answer" onclick="checkCurrentAnswer()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-black py-2.5 px-4 rounded-xl transition-all shadow-lg text-xs uppercase tracking-wider cursor-pointer">
+                    Check Answer
+                  </button>
+                  <button onclick="resetWorkspace()" class="w-full bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold py-2.5 px-4 rounded-xl transition-all border border-white/5 text-xs uppercase tracking-wider cursor-pointer">
+                    Reset Workspace
+                  </button>
+                  <button id="btn-next-question" onclick="nextQuestion()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 px-4 rounded-xl transition-all shadow-lg text-xs uppercase tracking-wider hidden cursor-pointer">
+                    Next Question
+                  </button>
+                  <button id="btn-new-problem" onclick="nextQuestion()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-2.5 px-4 rounded-xl transition-all shadow-lg text-xs uppercase tracking-wider hidden cursor-pointer">
+                    Try a New Problem
+                  </button>
+                </div>
+                
+                <!-- Step-by-step hints (opened one at a time, no penalty) -->
+                <div id="hint-panel" class="glass rounded-xl p-3 border border-amber-500/20 hidden">
+                  <div class="flex items-center justify-between gap-2 mb-1.5">
+                    <span class="text-[9px] text-amber-300 uppercase tracking-widest font-bold flex items-center gap-1.5"><i data-lucide="lightbulb" class="w-3.5 h-3.5"></i> Hints</span>
+                    <span id="hint-count" class="text-[9px] text-slate-500 font-mono">0 / 0</span>
+                  </div>
+                  <ol id="hint-list" class="text-xs text-slate-200 leading-relaxed space-y-1.5 list-decimal list-inside"></ol>
+                </div>
+
+                <!-- Utility Bar: Hint, Help & Calculator buttons -->
+                <div class="grid grid-cols-3 gap-2 mt-1">
+                  <button id="btn-hint" onclick="showNextHint()" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 py-2.5 rounded-xl border border-amber-500/30 font-semibold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i data-lucide="lightbulb" class="w-4 h-4"></i> Hint
+                  </button>
+                  <button onclick="toggleHelpModal(true)" class="bg-slate-900 hover:bg-slate-800 text-slate-300 py-2.5 rounded-xl border border-white/5 font-semibold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i data-lucide="help-circle" class="w-4 h-4"></i> Help
+                  </button>
+                  <button onclick="toggleCalculatorModal(true)" class="bg-slate-900 hover:bg-slate-800 text-slate-300 py-2.5 rounded-xl border border-white/5 font-semibold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i data-lucide="calculator" class="w-4 h-4"></i> Calculator
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+         </div>
+
+         <!-- Calculator Sidebar Panel -->
+         <div id="modal-calculator" class="w-full lg:w-[410px] flex-shrink-0 hidden transition-all duration-300">
+           <div id="desmos-card-wrapper" class="bg-slate-900 border border-white/10 shadow-2xl rounded-2xl overflow-hidden lg:sticky lg:top-24">
+             
+             <!-- Titlebar -->
+             <div class="flex items-center justify-between px-3.5 py-2.5 bg-slate-800 text-white rounded-t-2xl select-none">
+               <div class="flex items-center gap-2 text-slate-300">
+                 <i data-lucide="calculator" class="w-4 h-4 text-sky-400"></i>
+                 <span class="text-xs font-bold uppercase tracking-wider font-sans">Desmos Scientific</span>
+                 <span id="desmos-status-badge" class="text-[8px] font-bold text-sky-300 bg-sky-950/80 px-2 py-0.5 rounded border border-sky-500/30 uppercase tracking-wider font-mono">STANDBY</span>
+               </div>
+               <div class="flex items-center gap-2">
+                 <button id="btn-desmos-paste-header" onclick="pasteDesmosResult()" type="button" class="hidden px-2 py-1 rounded-md bg-sky-600 hover:bg-sky-500 text-white text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1" title="Paste result into answer box">
+                   <i data-lucide="clipboard-paste" class="w-3 h-3"></i> Paste
+                 </button>
+                 <button onclick="toggleCalculatorModal(false)" class="text-slate-400 hover:text-white p-1 rounded hover:bg-white/10 transition-colors" title="Collapse Calculator">
+                   <i data-lucide="x" class="w-4 h-4"></i>
+                 </button>
+               </div>
+             </div>
+
+             <!-- Calculator Body -->
+             <div class="p-0.5 bg-slate-900 overflow-hidden">
+               <div id="desmos-calculator-container" class="w-full h-[400px] bg-white rounded-b-xl overflow-hidden"></div>
+             </div>
+
+             <!-- Calculator Footer Action Bar -->
+             <div id="desmos-footer-action" class="px-3.5 py-2.5 bg-slate-800/90 border-t border-white/10 flex items-center justify-between gap-2">
+               <span id="desmos-live-feedback" class="text-[11px] text-slate-300 font-mono truncate">Ready for calculation...</span>
+               <button onclick="pasteDesmosResult()" type="button" class="px-3 py-1.5 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-500 hover:to-cyan-500 text-white text-xs font-bold uppercase tracking-wider rounded-lg flex items-center gap-1.5 transition-all shadow-md hover:scale-[1.02] active:scale-95 flex-shrink-0 border border-sky-400/30">
+                 <i data-lucide="clipboard-paste" class="w-3.5 h-3.5"></i> Paste Result
+               </button>
+             </div>
+
+           </div>
+         </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- HELP GUIDE MODAL (Rearranging Fnet = m · a) -->
+  <div id="modal-help" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 hidden">
+    <div class="bg-slate-900 border border-white/10 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative">
+      <div class="flex items-center justify-between border-b border-white/5 pb-3">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <i data-lucide="help-circle" class="w-5 h-5 text-sky-400"></i>
+          Formula Rearrangement Guide
+        </h3>
+        <button onclick="toggleHelpModal(false)" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+
+      <p class="text-slate-400 text-sm leading-relaxed">
+        Tap a variable to see how <strong>F<sub>net</sub> = m &middot; a</strong> is rearranged to solve for it.
+      </p>
+
+      <!-- Formula Variable Selector -->
+      <div class="grid grid-cols-3 gap-2 py-2">
+        <button onclick="selectHelpVariable('F')" id="btn-help-F" class="py-3 rounded-xl font-bold text-center border transition-all text-base mono">F<sub>net</sub><span class="block text-[9px] font-sans font-normal text-slate-500 not-italic tracking-wider mt-0.5">net force (N)</span></button>
+        <button onclick="selectHelpVariable('m')" id="btn-help-m" class="py-3 rounded-xl font-bold text-center border transition-all text-base mono">m<span class="block text-[9px] font-sans font-normal text-slate-500 not-italic tracking-wider mt-0.5">mass (kg)</span></button>
+        <button onclick="selectHelpVariable('a')" id="btn-help-a" class="py-3 rounded-xl font-bold text-center border transition-all text-base mono">a<span class="block text-[9px] font-sans font-normal text-slate-500 not-italic tracking-wider mt-0.5">accel (m/s²)</span></button>
+      </div>
+
+      <!-- Dynamic Formula Display Panel -->
+      <div class="bg-slate-950 border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[140px]">
+        <div id="help-equation-render" class="text-2xl sm:text-3xl font-mono text-white flex items-center gap-3">
+          <!-- Dynamic equation goes here -->
+        </div>
+        <p id="help-equation-desc" class="text-slate-400 text-xs text-center mt-3 max-w-sm">
+          <!-- Dynamic description goes here -->
+        </p>
+      </div>
+
+      <div id="help-honors" class="hidden bg-amber-500/5 border border-amber-500/20 rounded-xl p-3 text-xs text-slate-300 leading-relaxed space-y-1">
+        <div class="text-amber-300 font-bold uppercase tracking-wider text-[10px]">⭐ Honors problems</div>
+        <div><strong>Two forces?</strong> Right is <span class="text-emerald-400 font-bold">+</span>, left is <span class="text-rose-400 font-bold">&minus;</span>. Add them to get the net force: 50 N right and 20 N left &rarr; <span class="whitespace-nowrap">F<sub>net</sub> = 50 + (&minus;20) = 30 N</span>.</div>
+        <div><strong>Two masses?</strong> Things that move together share one acceleration. Add their masses to get the total mass.</div>
+        <div><strong>Negative answer?</strong> A negative net force or acceleration points left.</div>
+      </div>
+
+      <div class="text-center pt-2">
+        <button onclick="toggleHelpModal(false)" class="bg-white text-black py-3 px-8 rounded-xl font-black uppercase tracking-wider hover:bg-slate-200 transition-all text-xs">
+          Close Help
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEVEL UNLOCKED MODAL -->
+  <div id="modal-level-unlocked" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md px-4 hidden transition-opacity duration-300">
+    <div class="w-full max-w-sm bg-slate-900 border border-white/10 shadow-2xl rounded-3xl p-6 space-y-6 text-center transform scale-95 transition-all duration-300">
+      
+      <div class="bg-amber-500/10 text-amber-400 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto border border-amber-500/20 shadow-[0_0_30px_rgba(245,158,11,0.15)] animate-bounce">
+        <i data-lucide="unlock" class="w-8 h-8"></i>
+      </div>
+      
+      <div>
+        <h2 class="text-2xl font-black tracking-tight text-white uppercase italic">Level Unlocked!</h2>
+        <p id="unlock-level-title" class="text-amber-400 font-bold text-sm mt-1">LEVEL 2 IS NOW ACCESSIBLE</p>
+      </div>
+
+      <div class="w-full h-px bg-white/10"></div>
+
+      <p id="unlock-level-description" class="text-slate-400 text-xs leading-relaxed">
+        Place the values, then calculate the answer with the Desmos calculator.
+      </p>
+
+      <div class="flex flex-col gap-2 pt-2">
+        <button id="btn-start-unlocked-level" onclick="startUnlockedLevel()" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl font-extrabold transition-all text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-1.5 hover:scale-[1.02]">
+          Go to Level <span id="unlock-level-num">2</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+        <button onclick="closeUnlockModal()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold transition-all text-xs uppercase tracking-wider border border-white/5">
+          Keep Practicing
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- COMPLETION CERTIFICATE MODAL -->
+  <div id="modal-completion" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md px-3 sm:px-4 hidden transition-opacity duration-300 overflow-y-auto py-6">
+    <div class="cert-card w-full max-w-2xl bg-gradient-to-b from-slate-900 via-[#0a1026] to-slate-950 border-2 border-amber-500/40 shadow-2xl rounded-3xl p-6 sm:p-8 space-y-5 text-center relative overflow-hidden my-auto">
+      
+      <!-- Top Decorative Gradient Ribbon -->
+      <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-500 via-sky-400 to-amber-500"></div>
+
+      <!-- Close Button -->
+      <button onclick="closeCompletionModal(false)" class="no-print absolute top-4 right-4 text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer" title="Close Certificate">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <!-- Certificate Header -->
+      <div class="space-y-1.5 pt-1">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-3xl shadow-lg shadow-amber-500/10 mb-1">
+          🏆
+        </div>
+        <div class="text-[10px] sm:text-[11px] font-mono uppercase tracking-[0.25em] text-amber-400 font-bold">
+          Orange High School Physics Laboratory
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-white uppercase italic">
+          Certificate of Newton's 2nd Law Mastery
+        </h2>
+        <p class="text-slate-400 text-xs sm:text-sm font-medium">
+          Net Force, Mass &amp; Acceleration Problem-Solving Core &bull; F<sub>net</sub> = m &middot; a
+        </p>
+      </div>
+
+      <!-- Golden Divider -->
+      <div class="w-full h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent"></div>
+
+      <!-- Recipient -->
+      <div class="space-y-1 py-0.5">
+        <p class="text-slate-400 text-[11px] uppercase tracking-widest font-semibold">This certifies that</p>
+        <div id="cert-student-name" class="text-2xl sm:text-3xl font-black text-amber-300 tracking-wide font-sans py-0.5">
+          Student Name
+        </div>
+        <p class="text-slate-400 text-xs mono">
+          Student Account: <span id="cert-student-id" class="text-white font-bold">000000</span>
+        </p>
+      </div>
+
+      <!-- Citation -->
+      <p class="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-lg mx-auto">
+        has successfully used Newton's 2nd Law to solve for
+        <strong class="text-emerald-400 whitespace-nowrap">Net Force (F<sub>net</sub> = m &middot; a)</strong>,
+        <strong class="text-sky-400 whitespace-nowrap">Mass (m = F<sub>net</sub> &divide; a)</strong>, and
+        <strong class="text-amber-400 whitespace-nowrap">Acceleration (a = F<sub>net</sub> &divide; m)</strong>
+        across all three scaffolded levels<span id="cert-honors-note"></span>.
+      </p>
+
+      <!-- Performance Badges Grid -->
+      <div class="grid grid-cols-3 gap-2 sm:gap-3 max-w-md mx-auto">
+        <div class="cert-badge p-2.5 rounded-xl bg-slate-900/80 border border-white/10 text-center">
+          <span class="text-[9px] uppercase tracking-wider text-slate-400 block font-bold">Tier 1: Formula</span>
+          <span class="text-xs font-bold text-emerald-400 mt-1 block">Mastered ✓</span>
+        </div>
+        <div class="cert-badge p-2.5 rounded-xl bg-slate-900/80 border border-white/10 text-center">
+          <span class="text-[9px] uppercase tracking-wider text-slate-400 block font-bold">Tier 2: Desmos</span>
+          <span class="text-xs font-bold text-emerald-400 mt-1 block">Mastered ✓</span>
+        </div>
+        <div class="cert-badge p-2.5 rounded-xl bg-slate-900/80 border border-white/10 text-center">
+          <span class="text-[9px] uppercase tracking-wider text-slate-400 block font-bold">Tier 3: Final Score</span>
+          <span id="cert-score" class="text-xs font-bold text-amber-300 mono mt-1 block">6 / 6</span>
+        </div>
+      </div>
+
+      <!-- Automatic Cloud Save Indication Box -->
+      <div class="p-3 bg-emerald-950/70 border border-emerald-500/40 rounded-2xl flex items-center justify-center gap-3 text-emerald-300 text-left max-w-lg mx-auto shadow-lg shadow-emerald-950/40">
+        <div class="w-9 h-9 rounded-xl bg-emerald-500/20 flex items-center justify-center flex-shrink-0 text-emerald-400">
+          <i data-lucide="cloud-check" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="text-xs font-bold text-emerald-200 flex items-center gap-1.5">
+            <span id="cert-save-title">Score Automatically Saved to Teacher Gradebook</span>
+            <span id="cert-save-badge" class="text-[9px] font-mono bg-emerald-500/20 px-1.5 py-0.5 rounded text-emerald-300 border border-emerald-500/30">CONFIRMED ✓</span>
+          </div>
+          <div class="text-[11px] text-emerald-300/85 leading-snug mt-0.5">
+            <span id="cert-save-text">Your results have been automatically recorded. No screenshot or manual turn-in is required!</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Certificate Metadata & Verification Code -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-1.5 text-[10px] text-slate-400 mono border-t border-white/10 pt-3">
+        <div>Date: <span id="cert-date" class="text-slate-200 font-bold">—</span></div>
+        <div>Standard: <span class="text-slate-200 font-bold">NGSS HS-PS2-1</span></div>
+        <div>Token: <span id="cert-token" class="text-slate-200 select-all font-bold">—</span></div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="no-print flex flex-col sm:flex-row gap-2.5 justify-center pt-1">
+        <button onclick="window.print()" class="flex-1 py-3 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 rounded-xl font-bold transition-all text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 cursor-pointer">
+          <i data-lucide="printer" class="w-4 h-4"></i> Print / Save PDF
+        </button>
+        <button onclick="closeCompletionModal(true)" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl font-bold transition-all text-xs uppercase tracking-wider border border-white/10 cursor-pointer">
+          Practice Again
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="w-full py-2 text-center border-t border-white/5 bg-[#050917]/70 backdrop-blur-md text-[10px] text-slate-500 select-none z-10">
+    &copy; 2026 Mr. Mudry's Physics Science Laboratory &bull; Newton's 2nd Law Problem-Solving Core &bull; F<sub>net</sub> = m &middot; a
+  </footer>
+  <script src="../assets/ngss-helper.js"></script>
+
+  <!-- Web Audio Synthesizer & Game Control Logic -->
+
+  <script>
+    // -------------------------------------------------------------
+    // AUDIO SYNTHESIZER (Web Audio API)
+    // -------------------------------------------------------------
+    class SynthManager {
+      constructor() {
+        this.ctx = null;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playBeep() {
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+        gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.12);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.12);
+      }
+
+      playSuccess() {
+        this.init();
+        if (!this.ctx) return;
+        
+        const now = this.ctx.currentTime;
+        const playNote = (freq, delay, dur) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + delay);
+          gain.gain.setValueAtTime(0, now + delay);
+          gain.gain.linearRampToValueAtTime(0.12, now + delay + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + delay + dur);
+
+          osc.start(now + delay);
+          osc.stop(now + delay + dur);
+        };
+
+        playNote(261.63, 0, 0.4);      // C4
+        playNote(329.63, 0.08, 0.4);   // E4
+        playNote(392.00, 0.16, 0.4);   // G4
+        playNote(523.25, 0.24, 0.6);   // C5
+      }
+
+      playError() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.linearRampToValueAtTime(110, now + 0.35);
+
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+
+        osc.start();
+        osc.stop(now + 0.35);
+      }
+
+      playCombo() {
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.15);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.15);
+      }
+    }
+
+    const sound = new SynthManager();
+
+    // -------------------------------------------------------------
+    // QUESTIONS DATABASE (curated in questions.js, injected by build-html.js)
+    // -------------------------------------------------------------
+    const QUESTIONS = [{"id":1,"level":1,"honors":false,"solveFor":"F","textParts":["A ",{"valueId":"q1m"}," toy car speeds up at ",{"valueId":"q1a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q1m","value":4,"unit":"kg","variable":"m"},{"id":"q1a","value":3,"unit":"m/s²","variable":"a"}],"unknownText":"the net force on the car"},{"id":2,"level":1,"honors":false,"solveFor":"F","textParts":["A ",{"valueId":"q2m"}," car speeds up at ",{"valueId":"q2a"}," when the light turns green. What is ",{"isUnknown":true},"?"],"values":[{"id":"q2m","value":1200,"unit":"kg","variable":"m"},{"id":"q2a","value":2,"unit":"m/s²","variable":"a"}],"unknownText":"the net force on the car"},{"id":3,"level":1,"honors":false,"solveFor":"F","textParts":["A ",{"valueId":"q3m"}," skater speeds up at ",{"valueId":"q3a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q3m","value":60,"unit":"kg","variable":"m"},{"id":"q3a","value":2,"unit":"m/s²","variable":"a"}],"unknownText":"the net force on the skater"},{"id":4,"level":1,"honors":false,"solveFor":"F","textParts":["A player kicks a ",{"valueId":"q4m"}," soccer ball. The ball speeds up at ",{"valueId":"q4a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q4m","value":0.5,"unit":"kg","variable":"m"},{"id":"q4a","value":40,"unit":"m/s²","variable":"a"}],"unknownText":"the net force on the ball"},{"id":5,"level":1,"honors":false,"solveFor":"F","textParts":["A ",{"valueId":"q5m"}," wagon speeds up at ",{"valueId":"q5a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q5m","value":10,"unit":"kg","variable":"m"},{"id":"q5a","value":3,"unit":"m/s²","variable":"a"}],"unknownText":"the net force on the wagon"},{"id":6,"level":1,"honors":false,"solveFor":"F","textParts":["A ",{"valueId":"q6m"}," sprinter leaves the starting line with an acceleration of ",{"valueId":"q6a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q6m","value":70,"unit":"kg","variable":"m"},{"id":"q6a","value":4,"unit":"m/s²","variable":"a"}],"unknownText":"the net force on the sprinter"},{"id":7,"level":1,"honors":false,"solveFor":"F","textParts":["A ",{"valueId":"q7m"}," lab cart speeds up at ",{"valueId":"q7a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q7m","value":2,"unit":"kg","variable":"m"},{"id":"q7a","value":6,"unit":"m/s²","variable":"a"}],"unknownText":"the net force on the cart"},{"id":8,"level":1,"honors":false,"solveFor":"a","textParts":["A net force of ",{"valueId":"q8F"}," acts on a ",{"valueId":"q8m"}," box. What is ",{"isUnknown":true},"?"],"values":[{"id":"q8F","value":30,"unit":"N","variable":"F"},{"id":"q8m","value":6,"unit":"kg","variable":"m"}],"unknownText":"the acceleration of the box"},{"id":9,"level":1,"honors":false,"solveFor":"a","textParts":["A ",{"valueId":"q9m"}," motorcycle has a net force of ",{"valueId":"q9F"}," on it. What is ",{"isUnknown":true},"?"],"values":[{"id":"q9m","value":250,"unit":"kg","variable":"m"},{"id":"q9F","value":500,"unit":"N","variable":"F"}],"unknownText":"the acceleration of the motorcycle"},{"id":10,"level":1,"honors":false,"solveFor":"a","textParts":["A net force of ",{"valueId":"q10F"}," pushes a ",{"valueId":"q10m"}," backpack across a table. What is ",{"isUnknown":true},"?"],"values":[{"id":"q10F","value":18,"unit":"N","variable":"F"},{"id":"q10m","value":3,"unit":"kg","variable":"m"}],"unknownText":"the acceleration of the backpack"},{"id":11,"level":1,"honors":false,"solveFor":"a","textParts":["A ",{"valueId":"q11m"}," go-kart has a net force of ",{"valueId":"q11F"}," on it. What is ",{"isUnknown":true},"?"],"values":[{"id":"q11m","value":500,"unit":"kg","variable":"m"},{"id":"q11F","value":1000,"unit":"N","variable":"F"}],"unknownText":"the acceleration of the go-kart"},{"id":12,"level":1,"honors":false,"solveFor":"a","textParts":["A net force of ",{"valueId":"q12F"}," acts on a ",{"valueId":"q12m"}," bowling ball. What is ",{"isUnknown":true},"?"],"values":[{"id":"q12F","value":45,"unit":"N","variable":"F"},{"id":"q12m","value":9,"unit":"kg","variable":"m"}],"unknownText":"the acceleration of the bowling ball"},{"id":13,"level":1,"honors":false,"solveFor":"a","textParts":["A ",{"valueId":"q13m"}," basketball is thrown with a net force of ",{"valueId":"q13F"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q13m","value":0.5,"unit":"kg","variable":"m"},{"id":"q13F","value":10,"unit":"N","variable":"F"}],"unknownText":"the acceleration of the basketball"},{"id":14,"level":1,"honors":false,"solveFor":"a","textParts":["A ",{"valueId":"q14m"}," truck has a net force of ",{"valueId":"q14F"}," on it. What is ",{"isUnknown":true},"?"],"values":[{"id":"q14m","value":1600,"unit":"kg","variable":"m"},{"id":"q14F","value":4800,"unit":"N","variable":"F"}],"unknownText":"the acceleration of the truck"},{"id":15,"level":1,"honors":false,"solveFor":"m","textParts":["A net force of ",{"valueId":"q15F"}," gives a box an acceleration of ",{"valueId":"q15a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q15F","value":20,"unit":"N","variable":"F"},{"id":"q15a","value":4,"unit":"m/s²","variable":"a"}],"unknownText":"the mass of the box"},{"id":16,"level":1,"honors":false,"solveFor":"m","textParts":["A net force of ",{"valueId":"q16F"}," makes a car speed up at ",{"valueId":"q16a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q16F","value":3000,"unit":"N","variable":"F"},{"id":"q16a","value":2,"unit":"m/s²","variable":"a"}],"unknownText":"the mass of the car"},{"id":17,"level":1,"honors":false,"solveFor":"m","textParts":["A net force of ",{"valueId":"q17F"}," acts on a dog sled. The sled speeds up at ",{"valueId":"q17a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q17F","value":90,"unit":"N","variable":"F"},{"id":"q17a","value":3,"unit":"m/s²","variable":"a"}],"unknownText":"the mass of the sled"},{"id":18,"level":1,"honors":false,"solveFor":"m","textParts":["A net force of ",{"valueId":"q18F"}," gives a lab cart an acceleration of ",{"valueId":"q18a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q18F","value":12,"unit":"N","variable":"F"},{"id":"q18a","value":6,"unit":"m/s²","variable":"a"}],"unknownText":"the mass of the cart"},{"id":19,"level":1,"honors":false,"solveFor":"m","textParts":["A net force of ",{"valueId":"q19F"}," makes a runner speed up at ",{"valueId":"q19a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q19F","value":240,"unit":"N","variable":"F"},{"id":"q19a","value":4,"unit":"m/s²","variable":"a"}],"unknownText":"the mass of the runner"},{"id":20,"level":1,"honors":false,"solveFor":"m","textParts":["A net force of ",{"valueId":"q20F"}," gives a crate an acceleration of ",{"valueId":"q20a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q20F","value":150,"unit":"N","variable":"F"},{"id":"q20a","value":5,"unit":"m/s²","variable":"a"}],"unknownText":"the mass of the crate"},{"id":21,"level":2,"honors":false,"solveFor":"F","textParts":["A ",{"valueId":"q21m"}," cart speeds up at ",{"valueId":"q21a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q21m","value":1.5,"unit":"kg","variable":"m"},{"id":"q21a","value":3.2,"unit":"m/s²","variable":"a"}],"unknownText":"the net force on the cart"},{"id":22,"level":2,"honors":false,"solveFor":"F","textParts":["A ",{"valueId":"q22m"}," car speeds up at ",{"valueId":"q22a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q22m","value":850,"unit":"kg","variable":"m"},{"id":"q22a","value":2.4,"unit":"m/s²","variable":"a"}],"unknownText":"the net force on the car"},{"id":23,"level":2,"honors":false,"solveFor":"F","textParts":["A bat hits a ",{"valueId":"q23m"}," baseball. The ball speeds up at ",{"valueId":"q23a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q23m","value":0.145,"unit":"kg","variable":"m"},{"id":"q23a","value":250,"unit":"m/s²","variable":"a"}],"unknownText":"the net force on the baseball"},{"id":24,"level":2,"honors":false,"solveFor":"F","textParts":["A ",{"valueId":"q24m"}," cyclist speeds up at ",{"valueId":"q24a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q24m","value":65,"unit":"kg","variable":"m"},{"id":"q24a","value":1.8,"unit":"m/s²","variable":"a"}],"unknownText":"the net force on the cyclist"},{"id":25,"level":2,"honors":false,"solveFor":"F","textParts":["A ",{"valueId":"q25m"}," sled speeds up at ",{"valueId":"q25a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q25m","value":12.5,"unit":"kg","variable":"m"},{"id":"q25a","value":0.8,"unit":"m/s²","variable":"a"}],"unknownText":"the net force on the sled"},{"id":26,"level":2,"honors":false,"solveFor":"F","textParts":["A ",{"valueId":"q26m"}," drone speeds up at ",{"valueId":"q26a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q26m","value":2.4,"unit":"kg","variable":"m"},{"id":"q26a","value":4.5,"unit":"m/s²","variable":"a"}],"unknownText":"the net force on the drone"},{"id":27,"level":2,"honors":false,"solveFor":"F","textParts":["A racket hits a ",{"valueId":"q27m"}," tennis ball. The ball speeds up at ",{"valueId":"q27a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q27m","value":0.06,"unit":"kg","variable":"m"},{"id":"q27a","value":500,"unit":"m/s²","variable":"a"}],"unknownText":"the net force on the tennis ball"},{"id":28,"level":2,"honors":false,"solveFor":"a","textParts":["A net force of ",{"valueId":"q28F"}," acts on a ",{"valueId":"q28m"}," box. What is ",{"isUnknown":true},"?"],"values":[{"id":"q28F","value":25,"unit":"N","variable":"F"},{"id":"q28m","value":8,"unit":"kg","variable":"m"}],"unknownText":"the acceleration of the box"},{"id":29,"level":2,"honors":false,"solveFor":"a","textParts":["A ",{"valueId":"q29m"}," rider on a scooter has a net force of ",{"valueId":"q29F"}," on them. What is ",{"isUnknown":true},"?"],"values":[{"id":"q29m","value":75,"unit":"kg","variable":"m"},{"id":"q29F","value":360,"unit":"N","variable":"F"}],"unknownText":"the acceleration of the rider"},{"id":30,"level":2,"honors":false,"solveFor":"a","textParts":["A net force of ",{"valueId":"q30F"}," acts on a ",{"valueId":"q30m"}," bag of rice. What is ",{"isUnknown":true},"?"],"values":[{"id":"q30F","value":7.5,"unit":"N","variable":"F"},{"id":"q30m","value":2.5,"unit":"kg","variable":"m"}],"unknownText":"the acceleration of the bag"},{"id":31,"level":2,"honors":false,"solveFor":"a","textParts":["A ",{"valueId":"q31m"}," car has a net force of ",{"valueId":"q31F"}," on it. What is ",{"isUnknown":true},"?"],"values":[{"id":"q31m","value":1250,"unit":"kg","variable":"m"},{"id":"q31F","value":2900,"unit":"N","variable":"F"}],"unknownText":"the acceleration of the car"},{"id":32,"level":2,"honors":false,"solveFor":"a","textParts":["A player kicks a ",{"valueId":"q32m"}," soccer ball with a net force of ",{"valueId":"q32F"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q32m","value":0.45,"unit":"kg","variable":"m"},{"id":"q32F","value":15,"unit":"N","variable":"F"}],"unknownText":"the acceleration of the ball"},{"id":33,"level":2,"honors":false,"solveFor":"a","textParts":["A net force of ",{"valueId":"q33F"}," acts on a ",{"valueId":"q33m"}," suitcase. What is ",{"isUnknown":true},"?"],"values":[{"id":"q33F","value":52,"unit":"N","variable":"F"},{"id":"q33m","value":16,"unit":"kg","variable":"m"}],"unknownText":"the acceleration of the suitcase"},{"id":34,"level":2,"honors":false,"solveFor":"a","textParts":["A ",{"valueId":"q34m"}," toy truck has a net force of ",{"valueId":"q34F"}," on it. What is ",{"isUnknown":true},"?"],"values":[{"id":"q34m","value":0.3,"unit":"kg","variable":"m"},{"id":"q34F","value":0.9,"unit":"N","variable":"F"}],"unknownText":"the acceleration of the toy truck"},{"id":35,"level":2,"honors":false,"solveFor":"m","textParts":["A net force of ",{"valueId":"q35F"}," gives a wheelbarrow an acceleration of ",{"valueId":"q35a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q35F","value":84,"unit":"N","variable":"F"},{"id":"q35a","value":3.5,"unit":"m/s²","variable":"a"}],"unknownText":"the mass of the wheelbarrow"},{"id":36,"level":2,"honors":false,"solveFor":"m","textParts":["A net force of ",{"valueId":"q36F"}," gives a lab cart an acceleration of ",{"valueId":"q36a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q36F","value":6.6,"unit":"N","variable":"F"},{"id":"q36a","value":2.2,"unit":"m/s²","variable":"a"}],"unknownText":"the mass of the cart"},{"id":37,"level":2,"honors":false,"solveFor":"m","textParts":["A net force of ",{"valueId":"q37F"}," makes a car speed up at ",{"valueId":"q37a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q37F","value":1800,"unit":"N","variable":"F"},{"id":"q37a","value":1.2,"unit":"m/s²","variable":"a"}],"unknownText":"the mass of the car"},{"id":38,"level":2,"honors":false,"solveFor":"m","textParts":["A net force of ",{"valueId":"q38F"}," gives a box an acceleration of ",{"valueId":"q38a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q38F","value":27,"unit":"N","variable":"F"},{"id":"q38a","value":4.5,"unit":"m/s²","variable":"a"}],"unknownText":"the mass of the box"},{"id":39,"level":2,"honors":false,"solveFor":"m","textParts":["A net force of ",{"valueId":"q39F"}," makes a bowling ball speed up at ",{"valueId":"q39a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q39F","value":4.2,"unit":"N","variable":"F"},{"id":"q39a","value":0.6,"unit":"m/s²","variable":"a"}],"unknownText":"the mass of the bowling ball"},{"id":40,"level":2,"honors":false,"solveFor":"m","textParts":["A net force of ",{"valueId":"q40F"}," makes a person on skates speed up at ",{"valueId":"q40a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q40F","value":520,"unit":"N","variable":"F"},{"id":"q40a","value":6.5,"unit":"m/s²","variable":"a"}],"unknownText":"the mass of the person"},{"id":41,"level":3,"honors":false,"solveFor":"F","textParts":["A ",{"valueId":"q41m"}," hockey player speeds up at ",{"valueId":"q41a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q41m","value":55,"unit":"kg","variable":"m"},{"id":"q41a","value":2.6,"unit":"m/s²","variable":"a"}],"unknownText":"the net force on the player"},{"id":42,"level":3,"honors":false,"solveFor":"a","textParts":["A net force of ",{"valueId":"q42F"}," acts on an ",{"valueId":"q42m"}," pony. What is ",{"isUnknown":true},"?"],"values":[{"id":"q42F","value":640,"unit":"N","variable":"F"},{"id":"q42m","value":80,"unit":"kg","variable":"m"}],"unknownText":"the acceleration of the pony"},{"id":43,"level":3,"honors":false,"solveFor":"m","textParts":["A net force of ",{"valueId":"q43F"}," gives a shopping cart an acceleration of ",{"valueId":"q43a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q43F","value":96,"unit":"N","variable":"F"},{"id":"q43a","value":3.2,"unit":"m/s²","variable":"a"}],"unknownText":"the mass of the shopping cart"},{"id":44,"level":3,"honors":false,"solveFor":"F","textParts":["A ",{"valueId":"q44m"}," soccer ball speeds up at ",{"valueId":"q44a"}," after a kick. What is ",{"isUnknown":true},"?"],"values":[{"id":"q44m","value":0.42,"unit":"kg","variable":"m"},{"id":"q44a","value":35,"unit":"m/s²","variable":"a"}],"unknownText":"the net force on the ball"},{"id":45,"level":3,"honors":false,"solveFor":"a","textParts":["A net force of ",{"valueId":"q45F"}," acts on a ",{"valueId":"q45m"}," watermelon. What is ",{"isUnknown":true},"?"],"values":[{"id":"q45F","value":13.5,"unit":"N","variable":"F"},{"id":"q45m","value":4.5,"unit":"kg","variable":"m"}],"unknownText":"the acceleration of the watermelon"},{"id":46,"level":3,"honors":false,"solveFor":"m","textParts":["A net force of ",{"valueId":"q46F"}," makes a car speed up at ",{"valueId":"q46a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q46F","value":2250,"unit":"N","variable":"F"},{"id":"q46a","value":1.5,"unit":"m/s²","variable":"a"}],"unknownText":"the mass of the car"},{"id":47,"level":3,"honors":false,"solveFor":"F","textParts":["A ",{"valueId":"q47m"}," sled speeds up at ",{"valueId":"q47a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q47m","value":9.5,"unit":"kg","variable":"m"},{"id":"q47a","value":2,"unit":"m/s²","variable":"a"}],"unknownText":"the net force on the sled"},{"id":48,"level":3,"honors":false,"solveFor":"a","textParts":["A ",{"valueId":"q48m"}," kayak has a net force of ",{"valueId":"q48F"}," on it. What is ",{"isUnknown":true},"?"],"values":[{"id":"q48m","value":35,"unit":"kg","variable":"m"},{"id":"q48F","value":210,"unit":"N","variable":"F"}],"unknownText":"the acceleration of the kayak"},{"id":49,"level":3,"honors":false,"solveFor":"m","textParts":["A net force of ",{"valueId":"q49F"}," makes a skateboard speed up at ",{"valueId":"q49a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q49F","value":7.2,"unit":"N","variable":"F"},{"id":"q49a","value":3.2,"unit":"m/s²","variable":"a"}],"unknownText":"the mass of the skateboard"},{"id":50,"level":3,"honors":false,"solveFor":"a","textParts":["A ",{"valueId":"q50m"}," truck has a net force of ",{"valueId":"q50F"}," on it. What is ",{"isUnknown":true},"?"],"values":[{"id":"q50m","value":1400,"unit":"kg","variable":"m"},{"id":"q50F","value":3150,"unit":"N","variable":"F"}],"unknownText":"the acceleration of the truck"},{"id":101,"level":1,"honors":true,"solveFor":"a","textParts":["You push a ",{"valueId":"q101m"}," box to the right with ",{"valueId":"q101F1"},". Friction pulls left on it with ",{"valueId":"q101F2"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q101m","value":10,"unit":"kg","variable":"m"},{"id":"q101F1","value":50,"unit":"N","variable":"F","dir":"right"},{"id":"q101F2","value":20,"unit":"N","variable":"F","dir":"left"}],"unknownText":"the acceleration of the box"},{"id":102,"level":1,"honors":true,"solveFor":"a","textParts":["A ",{"valueId":"q102m1"}," child sits in a ",{"valueId":"q102m2"}," wagon. The net force on the wagon and child is ",{"valueId":"q102F"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q102m1","value":25,"unit":"kg","variable":"m"},{"id":"q102m2","value":5,"unit":"kg","variable":"m"},{"id":"q102F","value":60,"unit":"N","variable":"F"}],"unknownText":"their acceleration"},{"id":103,"level":1,"honors":true,"solveFor":"F","textParts":["A ",{"valueId":"q103m"}," cart speeds up to the left at ",{"valueId":"q103a"},". What is ",{"isUnknown":true},"? (Right is +, left is −.)"],"values":[{"id":"q103m","value":8,"unit":"kg","variable":"m"},{"id":"q103a","value":4,"unit":"m/s²","variable":"a","dir":"left"}],"unknownText":"the net force on the cart"},{"id":104,"level":1,"honors":true,"solveFor":"a","textParts":["A ",{"valueId":"q104m"}," box is pulled left with ",{"valueId":"q104F1"}," and pulled right with ",{"valueId":"q104F2"},". What is ",{"isUnknown":true},"? (Right is +, left is −.)"],"values":[{"id":"q104m","value":5,"unit":"kg","variable":"m"},{"id":"q104F1","value":40,"unit":"N","variable":"F","dir":"left"},{"id":"q104F2","value":10,"unit":"N","variable":"F","dir":"right"}],"unknownText":"the acceleration of the box"},{"id":105,"level":1,"honors":true,"solveFor":"F","textParts":["A ",{"valueId":"q105m1"}," skater wears a ",{"valueId":"q105m2"}," backpack. Together they speed up at ",{"valueId":"q105a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q105m1","value":70,"unit":"kg","variable":"m"},{"id":"q105m2","value":10,"unit":"kg","variable":"m"},{"id":"q105a","value":2,"unit":"m/s²","variable":"a"}],"unknownText":"the net force on the skater and backpack"},{"id":106,"level":1,"honors":true,"solveFor":"m","textParts":["A net force of ",{"valueId":"q106F"}," to the left makes a sled speed up at ",{"valueId":"q106a"}," to the left. What is ",{"isUnknown":true},"?"],"values":[{"id":"q106F","value":90,"unit":"N","variable":"F","dir":"left"},{"id":"q106a","value":3,"unit":"m/s²","variable":"a","dir":"left"}],"unknownText":"the mass of the sled"},{"id":107,"level":2,"honors":true,"solveFor":"a","textParts":["A ",{"valueId":"q107m"}," crate is pushed right with ",{"valueId":"q107F1"},". Friction pulls left with ",{"valueId":"q107F2"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q107m","value":30,"unit":"kg","variable":"m"},{"id":"q107F1","value":120,"unit":"N","variable":"F","dir":"right"},{"id":"q107F2","value":45,"unit":"N","variable":"F","dir":"left"}],"unknownText":"the acceleration of the crate"},{"id":108,"level":2,"honors":true,"solveFor":"a","textParts":["Two lab carts are hooked together: a ",{"valueId":"q108m1"}," cart and a ",{"valueId":"q108m2"}," cart. The net force on both carts is ",{"valueId":"q108F"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q108m1","value":1.2,"unit":"kg","variable":"m"},{"id":"q108m2","value":0.8,"unit":"kg","variable":"m"},{"id":"q108F","value":5,"unit":"N","variable":"F"}],"unknownText":"their acceleration"},{"id":109,"level":2,"honors":true,"solveFor":"F","textParts":["A ",{"valueId":"q109m"}," cart speeds up to the left at ",{"valueId":"q109a"},". What is ",{"isUnknown":true},"? (Right is +, left is −.)"],"values":[{"id":"q109m","value":2.5,"unit":"kg","variable":"m"},{"id":"q109a","value":3.6,"unit":"m/s²","variable":"a","dir":"left"}],"unknownText":"the net force on the cart"},{"id":110,"level":2,"honors":true,"solveFor":"a","textParts":["A ",{"valueId":"q110m"}," box is pushed right with ",{"valueId":"q110F1"}," and pulled left with ",{"valueId":"q110F2"},". What is ",{"isUnknown":true},"? (Right is +, left is −.)"],"values":[{"id":"q110m","value":18,"unit":"kg","variable":"m"},{"id":"q110F1","value":35,"unit":"N","variable":"F","dir":"right"},{"id":"q110F2","value":80,"unit":"N","variable":"F","dir":"left"}],"unknownText":"the acceleration of the box"},{"id":111,"level":2,"honors":true,"solveFor":"m","textParts":["A rope pulls a crate right with ",{"valueId":"q111F1"},". Friction pulls left with ",{"valueId":"q111F2"},". The crate speeds up at ",{"valueId":"q111a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q111F1","value":200,"unit":"N","variable":"F","dir":"right"},{"id":"q111F2","value":50,"unit":"N","variable":"F","dir":"left"},{"id":"q111a","value":2.5,"unit":"m/s²","variable":"a"}],"unknownText":"the mass of the crate"},{"id":112,"level":2,"honors":true,"solveFor":"F","textParts":["A ",{"valueId":"q112m1"}," car tows a ",{"valueId":"q112m2"}," trailer. Together they speed up at ",{"valueId":"q112a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q112m1","value":1500,"unit":"kg","variable":"m"},{"id":"q112m2","value":300,"unit":"kg","variable":"m"},{"id":"q112a","value":1.5,"unit":"m/s²","variable":"a"}],"unknownText":"the net force on the car and trailer"},{"id":113,"level":2,"honors":true,"solveFor":"a","textParts":["A ",{"valueId":"q113m1"}," cart carries a ",{"valueId":"q113m2"}," brick. The cart is pushed left with ",{"valueId":"q113F1"}," and right with ",{"valueId":"q113F2"},". What is ",{"isUnknown":true},"? (Right is +, left is −.)"],"values":[{"id":"q113m1","value":2,"unit":"kg","variable":"m"},{"id":"q113m2","value":1.5,"unit":"kg","variable":"m"},{"id":"q113F1","value":14,"unit":"N","variable":"F","dir":"left"},{"id":"q113F2","value":3.5,"unit":"N","variable":"F","dir":"right"}],"unknownText":"their acceleration"},{"id":114,"level":2,"honors":true,"solveFor":"m","textParts":["A net force of ",{"valueId":"q114F"}," to the left makes a cart speed up at ",{"valueId":"q114a"}," to the left. What is ",{"isUnknown":true},"?"],"values":[{"id":"q114F","value":7.2,"unit":"N","variable":"F","dir":"left"},{"id":"q114a","value":1.8,"unit":"m/s²","variable":"a","dir":"left"}],"unknownText":"the mass of the cart"},{"id":115,"level":3,"honors":true,"solveFor":"a","textParts":["A ",{"valueId":"q115m"}," refrigerator is pushed right with ",{"valueId":"q115F1"},". Friction pulls left with ",{"valueId":"q115F2"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q115m","value":60,"unit":"kg","variable":"m"},{"id":"q115F1","value":250,"unit":"N","variable":"F","dir":"right"},{"id":"q115F2","value":100,"unit":"N","variable":"F","dir":"left"}],"unknownText":"the acceleration of the refrigerator"},{"id":116,"level":3,"honors":true,"solveFor":"F","textParts":["A ",{"valueId":"q116m"}," cart speeds up to the left at ",{"valueId":"q116a"},". What is ",{"isUnknown":true},"? (Right is +, left is −.)"],"values":[{"id":"q116m","value":4.5,"unit":"kg","variable":"m"},{"id":"q116a","value":2.4,"unit":"m/s²","variable":"a","dir":"left"}],"unknownText":"the net force on the cart"},{"id":117,"level":3,"honors":true,"solveFor":"a","textParts":["A ",{"valueId":"q117m1"}," cart carries a ",{"valueId":"q117m2"}," bag of sand. The net force on them is ",{"valueId":"q117F"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q117m1","value":6,"unit":"kg","variable":"m"},{"id":"q117m2","value":3,"unit":"kg","variable":"m"},{"id":"q117F","value":27,"unit":"N","variable":"F"}],"unknownText":"their acceleration"},{"id":118,"level":3,"honors":true,"solveFor":"a","textParts":["An ",{"valueId":"q118m"}," box is pushed right with ",{"valueId":"q118F1"}," and pulled left with ",{"valueId":"q118F2"},". What is ",{"isUnknown":true},"? (Right is +, left is −.)"],"values":[{"id":"q118m","value":8,"unit":"kg","variable":"m"},{"id":"q118F1","value":18,"unit":"N","variable":"F","dir":"right"},{"id":"q118F2","value":42,"unit":"N","variable":"F","dir":"left"}],"unknownText":"the acceleration of the box"},{"id":119,"level":3,"honors":true,"solveFor":"m","textParts":["A dog pulls a sled right with ",{"valueId":"q119F1"},". Friction pulls left with ",{"valueId":"q119F2"},". The sled speeds up at ",{"valueId":"q119a"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q119F1","value":95,"unit":"N","variable":"F","dir":"right"},{"id":"q119F2","value":15,"unit":"N","variable":"F","dir":"left"},{"id":"q119a","value":4,"unit":"m/s²","variable":"a"}],"unknownText":"the mass of the sled"},{"id":120,"level":3,"honors":true,"solveFor":"F","textParts":["A ",{"valueId":"q120m1"}," cyclist rides a ",{"valueId":"q120m2"}," bike. Together they speed up to the left at ",{"valueId":"q120a"},". What is ",{"isUnknown":true},"? (Right is +, left is −.)"],"values":[{"id":"q120m1","value":55,"unit":"kg","variable":"m"},{"id":"q120m2","value":15,"unit":"kg","variable":"m"},{"id":"q120a","value":1.2,"unit":"m/s²","variable":"a","dir":"left"}],"unknownText":"the net force on the cyclist and bike"},{"id":121,"level":3,"honors":true,"solveFor":"m","textParts":["A net force of ",{"valueId":"q121F"}," to the left makes a crate speed up at ",{"valueId":"q121a"}," to the left. What is ",{"isUnknown":true},"?"],"values":[{"id":"q121F","value":36,"unit":"N","variable":"F","dir":"left"},{"id":"q121a","value":4.5,"unit":"m/s²","variable":"a","dir":"left"}],"unknownText":"the mass of the crate"},{"id":122,"level":3,"honors":true,"solveFor":"a","textParts":["A ",{"valueId":"q122m1"}," boat pulls a ",{"valueId":"q122m2"}," water skier. The boat engine pushes right with ",{"valueId":"q122F1"},". Water drag pulls left with ",{"valueId":"q122F2"},". What is ",{"isUnknown":true},"?"],"values":[{"id":"q122m1","value":400,"unit":"kg","variable":"m"},{"id":"q122m2","value":50,"unit":"kg","variable":"m"},{"id":"q122F1","value":600,"unit":"N","variable":"F","dir":"right"},{"id":"q122F2","value":150,"unit":"N","variable":"F","dir":"left"}],"unknownText":"their acceleration"}];
+
+    function signedValue(v) {
+  return v.dir === 'left' ? -v.value : v.value;
+}
+
+    function solveQuestion(q) {
+  const sum = (variable) => q.values.filter(v => v.variable === variable).reduce((s, v) => s + signedValue(v), 0);
+  if (q.solveFor === 'F') return sum('m') * sum('a');
+  if (q.solveFor === 'a') return sum('F') / sum('m');
+  return sum('F') / sum('a');
+}
+
+    // -------------------------------------------------------------
+    // SPEECH SYNTHESIS ACCESSIBILITY
+    // -------------------------------------------------------------
+    class SpeechManager {
+      constructor() {
+        this.synth = window.speechSynthesis;
+        this.speaking = false;
+        this.utterance = null;
+      }
+
+      speak(text) {
+        if (!this.synth) {
+          console.warn("Speech synthesis not supported.");
+          return;
+        }
+        
+        this.cancel();
+        
+        // Expand abbreviations to make it sound natural and clear
+        let cleanText = text;
+        const expansions = {
+          "m/s²": "meters per second squared",
+          "m/s2": "meters per second squared",
+          "m/s": "meters per second",
+          "km/h/s": "kilometers per hour per second",
+          "km/h": "kilometers per hour",
+          "mph": "miles per hour",
+          "kg": "kilograms",
+          "N": "newtons",
+          "s": "seconds",
+          "h": "hours"
+        };
+        
+        for (let key in expansions) {
+          const regex = new RegExp(`\\b${key}\\b`, 'g');
+          cleanText = cleanText.replace(regex, expansions[key]);
+        }
+
+        this.utterance = new SpeechSynthesisUtterance(cleanText);
+        this.utterance.onstart = () => {
+          this.speaking = true;
+          this.updateSpeakButton();
+        };
+        this.utterance.onend = () => {
+          this.speaking = false;
+          this.updateSpeakButton();
+        };
+        this.utterance.onerror = () => {
+          this.speaking = false;
+          this.updateSpeakButton();
+        };
+
+        this.synth.speak(this.utterance);
+      }
+
+      cancel() {
+        if (this.synth && this.synth.speaking) {
+          this.synth.cancel();
+        }
+        this.speaking = false;
+        this.updateSpeakButton();
+      }
+
+      updateSpeakButton() {
+        const btn = document.getElementById("btn-tts");
+        if (!btn) return;
+        if (this.speaking) {
+          btn.innerHTML = `<i data-lucide="square" class="w-5 h-5 text-rose-500"></i>`;
+          btn.classList.add("ring-2", "ring-rose-500/50");
+          btn.title = "Stop reading aloud";
+        } else {
+          btn.innerHTML = `<i data-lucide="volume-2" class="w-5 h-5"></i>`;
+          btn.classList.remove("ring-2", "ring-rose-500/50");
+          btn.title = "Read aloud";
+        }
+        lucide.createIcons();
+      }
+    }
+
+    const speech = new SpeechManager();
+
+    // -------------------------------------------------------------
+    // DESMOS INTEGRATION
+    // -------------------------------------------------------------
+    let desmosLoaded = false;
+    let desmosCalculator = null;
+    let isCurrentQuestionSolved = false;
+
+    function initDesmos() {
+      const container = document.getElementById('desmos-calculator-container');
+      if (!container) return;
+
+      if (window.Desmos && !desmosCalculator) {
+        try {
+          desmosCalculator = Desmos.ScientificCalculator(container, {
+            fontSize: Desmos.FontSizes.SMALL,
+            keypad: true,
+            settingsMenu: false
+          });
+          window.desmosCalculator = desmosCalculator;
+          desmosLoaded = true;
+
+          desmosCalculator.observeEvent('change', () => {
+            onDesmosChange();
+          });
+
+          // Also hook onEvaluationUpdate on model if present so async evaluations immediately update UI
+          try {
+            const model = desmosCalculator.controller && desmosCalculator.controller.model;
+            if (model && typeof model.onEvaluationUpdate === 'function') {
+              const origOnEval = model.onEvaluationUpdate.bind(model);
+              model.onEvaluationUpdate = function(...args) {
+                origOnEval(...args);
+                onDesmosChange();
+              };
+            }
+          } catch (e) {}
+
+          onDesmosChange();
+        } catch (err) {
+          console.error("Desmos init error:", err);
+        }
+      } else if (!window.Desmos && !desmosLoaded) {
+        setTimeout(() => {
+          if (window.Desmos && !desmosCalculator) initDesmos();
+        }, 400);
+      }
+    }
+
+    function getDesmosExpressions() {
+      if (!desmosCalculator) return [];
+      try {
+        const calcState = desmosCalculator.getState();
+        return calcState?.expressions?.list || [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function evaluateLatex(latex) {
+      if (!latex) return null;
+      let s = latex
+        .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, "($1)/($2)")
+        .replace(/\\cdot|\\times/g, "*")
+        .replace(/\\div/g, "/")
+        .replace(/\\left\(/g, "(")
+        .replace(/\\right\)/g, ")")
+        .replace(/\\sqrt\{([^}]+)\}/g, "Math.sqrt($1)")
+        .replace(/\^\{([^}]+)\}/g, "**($1)")
+        .replace(/\^([0-9]+)/g, "**$1")
+        .replace(/[^0-9+\-*\/().Mathsqrt]/g, "");
+      try {
+        const val = Function('"use strict"; return (' + s + ')')();
+        return typeof val === "number" && !isNaN(val) && isFinite(val) ? val : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // Comprehensive extraction of the latest calculated result from Desmos Scientific Calculator
+    function getDesmosLatestCalculation() {
+      if (!desmosCalculator) return null;
+
+      // Tier 1: Desmos internal controller model (handles ans, fractions, trig, parenthesized operations)
+      try {
+        const model = desmosCalculator.controller && desmosCalculator.controller.model;
+        if (model && typeof model.getExpressionOrder === 'function') {
+          const order = model.getExpressionOrder();
+          for (let i = order.length - 1; i >= 0; i--) {
+            const id = order[i];
+            let val = null;
+            if (typeof model.getExpressionValue === 'function') {
+              val = model.getExpressionValue(id);
+            }
+            if ((val === null || val === undefined || isNaN(val)) && model._evaluations && model._evaluations[id]) {
+              val = model._evaluations[id].value;
+            }
+            if (typeof val === 'number' && !isNaN(val) && isFinite(val)) {
+              const latex = typeof model.getExpressionLatex === 'function' ? model.getExpressionLatex(id) : '';
+              return { id, latex, value: val };
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("Desmos model evaluation check:", e);
+      }
+
+      // Tier 2: DOM display elements (.dcg-basic-expression-value)
+      try {
+        const domValues = document.querySelectorAll('.dcg-basic-expression-value');
+        for (let i = domValues.length - 1; i >= 0; i--) {
+          const text = (domValues[i].innerText || '').trim();
+          const m = text.match(/=\s*([+\-−]?\d+(?:\.\d+)?)/);
+          if (m) {
+            const val = parseFloat(m[1].replace('−', '-'));
+            if (!isNaN(val) && isFinite(val)) {
+              return { id: 'dom-' + i, latex: '', value: val };
+            }
+          }
+        }
+      } catch (e) {}
+
+      // Tier 3: getState fallback with regex parser
+      try {
+        const list = getDesmosExpressions();
+        for (let i = list.length - 1; i >= 0; i--) {
+          const item = list[i];
+          if (!item || !item.latex) continue;
+          const val = evaluateLatex(item.latex);
+          if (val !== null && !isNaN(val) && isFinite(val)) {
+            return { latex: item.latex, value: val };
+          }
+        }
+      } catch (e) {}
+
+      return null;
+    }
+
+    function onDesmosChange() {
+      const calc = getDesmosLatestCalculation();
+      const statusBadge = document.getElementById('desmos-status-badge');
+      const liveFeedback = document.getElementById('desmos-live-feedback');
+      const pasteHeaderBtn = document.getElementById('btn-desmos-paste-header');
+      const telemetryReqBadge = document.getElementById('telemetry-req-badge');
+      const telemetryStatus = document.getElementById('calc-telemetry-status');
+
+      if (calc && typeof calc.value === 'number' && !isNaN(calc.value)) {
+        const rounded = Number(calc.value.toFixed(2));
+        if (statusBadge) {
+          statusBadge.textContent = "RESULT: " + rounded;
+          statusBadge.className = "text-[8px] font-bold text-emerald-300 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/40 uppercase tracking-wider font-mono";
+        }
+        if (liveFeedback) {
+          liveFeedback.textContent = "Computed: " + rounded;
+          liveFeedback.className = "text-[11px] text-emerald-400 font-mono font-bold truncate";
+        }
+        if (pasteHeaderBtn) pasteHeaderBtn.classList.remove('hidden');
+        if (telemetryReqBadge) {
+          telemetryReqBadge.textContent = "CALCULATION READY ✓";
+          telemetryReqBadge.className = "text-[8px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 uppercase tracking-wider";
+        }
+        if (telemetryStatus) {
+          telemetryStatus.innerHTML = `Desmos Result: <span class="text-emerald-400 font-bold">${rounded}</span> (click Paste Desmos to insert)`;
+        }
+      } else {
+        if (statusBadge) {
+          statusBadge.textContent = state && state.currentLevel >= 2 ? "WORK REQUIRED" : "STANDBY";
+          statusBadge.className = state && state.currentLevel >= 2 ?
+            "text-[8px] font-bold text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/40 uppercase tracking-wider font-mono" :
+            "text-[8px] font-bold text-sky-300 bg-sky-950/80 px-2 py-0.5 rounded border border-sky-500/30 uppercase tracking-wider font-mono";
+        }
+        if (liveFeedback) {
+          liveFeedback.textContent = "Ready for calculation...";
+          liveFeedback.className = "text-[11px] text-slate-400 font-mono truncate";
+        }
+        if (pasteHeaderBtn) pasteHeaderBtn.classList.add('hidden');
+        if (telemetryReqBadge) {
+          telemetryReqBadge.textContent = "DESMOS REQUIRED";
+          telemetryReqBadge.className = "text-[8px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300 uppercase tracking-wider";
+        }
+        if (telemetryStatus) {
+          telemetryStatus.textContent = "Use the Desmos calculator on the right to compute your answer.";
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function pasteDesmosResult() {
+      const calc = getDesmosLatestCalculation();
+      const feedbackBox = document.getElementById('feedback-box');
+      if (!calc || typeof calc.value !== 'number' || isNaN(calc.value)) {
+        sound.playError();
+        if (feedbackBox) {
+          feedbackBox.innerText = "No calculated result found in Desmos yet. Enter your calculation in Desmos first!";
+          feedbackBox.className = "glass rounded-xl p-3 text-center font-bold text-amber-400 text-xs min-h-[48px] flex items-center justify-center border border-amber-500/30 animate-shake";
+        }
+        toggleCalculatorModal(true);
+        return;
+      }
+
+      sound.playBeep();
+      const rounded = Number(calc.value.toFixed(2));
+
+      // 1. Populate manual telemetry input
+      const manualInput = document.getElementById('manual-user-answer');
+      if (manualInput) {
+        manualInput.value = rounded;
+        manualInput.focus();
+      }
+
+      // 2. Populate equation inline slot input if present
+      const inlineInput = document.getElementById('equation-inline-input');
+      if (inlineInput) {
+        inlineInput.value = rounded;
+      }
+
+      // 3. Telemetry feedback
+      const telemetryStatus = document.getElementById('calc-telemetry-status');
+      if (telemetryStatus) {
+        telemetryStatus.innerHTML = `<span class="text-emerald-400 font-bold">Pasted ${rounded} from Desmos ✓</span>`;
+      }
+
+      if (feedbackBox) {
+        feedbackBox.innerText = `Pasted ${rounded} into your answer box. Click Check Answer to verify!`;
+        feedbackBox.className = "glass rounded-xl p-3 text-center font-bold text-sky-300 text-xs min-h-[48px] flex items-center justify-center border border-sky-500/20";
+      }
+    }
+
+    function syncManualInput(val) {
+      const inlineInput = document.getElementById('equation-inline-input');
+      if (inlineInput && inlineInput.value !== val) {
+        inlineInput.value = val;
+      }
+    }
+
+    // Desmos is required at Levels 2 and 3: the number the student enters must appear in Desmos.
+    // Signs are ignored here so a student who computed 32 and typed −32 is not blocked.
+    function verifyDesmosWork(userValue) {
+      if (!state || state.currentLevel < 2) return true;
+      const target = Math.abs(userValue);
+      const near = (val) => typeof val === 'number' && !isNaN(val) && answerMatches(Math.abs(val), target);
+
+      const calc = getDesmosLatestCalculation();
+      if (calc && near(calc.value)) return true;
+
+      // Scan all expressions in Desmos model
+      if (desmosCalculator && desmosCalculator.controller && desmosCalculator.controller.model) {
+        try {
+          const model = desmosCalculator.controller.model;
+          if (typeof model.getExpressionOrder === 'function') {
+            for (let id of model.getExpressionOrder()) {
+              let val = typeof model.getExpressionValue === 'function' ? model.getExpressionValue(id) : null;
+              if ((val === null || val === undefined || isNaN(val)) && model._evaluations && model._evaluations[id]) {
+                val = model._evaluations[id].value;
+              }
+              if (near(val)) return true;
+            }
+          }
+        } catch (e) {}
+      }
+
+      // Check DOM display values
+      try {
+        for (let el of document.querySelectorAll('.dcg-basic-expression-value')) {
+          const m = (el.innerText || '').trim().match(/=\s*([+\-−]?\d+(?:\.\d+)?)/);
+          if (m && near(parseFloat(m[1].replace('−', '-')))) return true;
+        }
+      } catch (e) {}
+
+      return false;
+    }
+
+    // -------------------------------------------------------------
+    // LIGHT / DARK THEME (choice saved on this device only)
+    // -------------------------------------------------------------
+    function updateThemeButton() {
+      const btn = document.getElementById('btn-theme');
+      if (!btn) return;
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      const label = isLight ? 'Switch to dark mode' : 'Switch to light mode';
+      btn.title = label;
+      btn.setAttribute('aria-label', label);
+      btn.innerHTML = `<i data-lucide="${isLight ? 'moon' : 'sun'}" class="w-4 h-4"></i>`;
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function toggleTheme() {
+      const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('nsl_calc_theme', next); } catch (e) {}
+      updateThemeButton();
+    }
+
+    // With no saved choice, follow the device setting if it changes
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
+        let saved = null;
+        try { saved = localStorage.getItem('nsl_calc_theme'); } catch (err) {}
+        if (saved) return;
+        document.documentElement.setAttribute('data-theme', e.matches ? 'light' : 'dark');
+        updateThemeButton();
+      });
+    }
+
+    // -------------------------------------------------------------
+    // VARIABLE LABELS & NUMBER FORMATTING
+    // -------------------------------------------------------------
+    const VARS = {
+      F: { html: 'F<sub>net</sub>', name: 'net force', sub: 'net force', unit: 'N', badge: 'bg-emerald-950/80 text-emerald-400 border border-emerald-500/30', slot: 'bg-emerald-950/90 border-emerald-500 text-emerald-400' },
+      m: { html: 'm', name: 'mass', sub: 'mass', unit: 'kg', badge: 'bg-sky-950/80 text-sky-400 border border-sky-500/30', slot: 'bg-sky-950/90 border-sky-500 text-sky-400' },
+      a: { html: 'a', name: 'acceleration', article: 'an', sub: 'accel', unit: 'm/s²', badge: 'bg-amber-950/80 text-amber-400 border border-amber-500/30', slot: 'bg-amber-950/90 border-amber-500 text-amber-400' }
+    };
+    const SLOT_ORDER = ['F', 'm', 'a'];
+
+    // "a net force", "a mass", "an acceleration"
+    function aName(variable) {
+      return `${VARS[variable].article || 'a'} ${VARS[variable].name}`;
+    }
+
+    // Up to 3 decimals, true minus sign
+    function fmt(x) {
+      const n = Math.round(x * 1000) / 1000;
+      return n < 0 ? `−${Math.abs(n)}` : `${n}`;
+    }
+
+    // In parentheses when negative, e.g. 50 + (−20)
+    function fmtTerm(x) {
+      return x < 0 ? `(${fmt(x)})` : fmt(x);
+    }
+
+    function arrow(dir) {
+      return dir === 'left' ? '←' : (dir === 'right' ? '→' : '');
+    }
+
+    // Accepts normal 2-decimal rounding; a wrong sign is never close enough
+    function answerMatches(user, exact) {
+      const delta = Math.abs(user - exact);
+      return delta <= 0.006 || (exact !== 0 && delta / Math.abs(exact) <= 0.02);
+    }
+
+    function valuesOf(q, variable) {
+      return q.values.filter(v => v.variable === variable);
+    }
+
+    // Worked solution, e.g. "Fnet = 50 + (−20) = 30 N · a = Fnet ÷ m = 30 ÷ 10 = 3 m/s²"
+    // Each step is wrapped in nowrap so a calculation never breaks across lines.
+    function workedSolutionHTML(q) {
+      const steps = [];
+      const total = {};
+      ['F', 'm', 'a'].forEach(variable => {
+        const vals = valuesOf(q, variable);
+        if (!vals.length) return;
+        total[variable] = vals.reduce((s, v) => s + signedValue(v), 0);
+        if (vals.length > 1) {
+          const label = variable === 'm' ? 'm<sub>total</sub>' : VARS[variable].html;
+          steps.push(`${label} = ${vals.map((v, i) => i === 0 ? fmt(signedValue(v)) : fmtTerm(signedValue(v))).join(' + ')} = ${fmt(total[variable])} ${VARS[variable].unit}`);
+        }
+      });
+      const exact = solveQuestion(q);
+      const unit = VARS[q.solveFor].unit;
+      if (q.solveFor === 'F') {
+        steps.push(`F<sub>net</sub> = m · a = ${fmt(total.m)} · ${fmtTerm(total.a)} = ${fmt(exact)} ${unit}`);
+      } else if (q.solveFor === 'a') {
+        steps.push(`a = F<sub>net</sub> ÷ m = ${fmt(total.F)} ÷ ${fmt(total.m)} = ${fmt(exact)} ${unit}`);
+      } else {
+        steps.push(`m = F<sub>net</sub> ÷ a = ${fmt(total.F)} ÷ ${fmtTerm(total.a)} = ${fmt(exact)} ${unit}`);
+      }
+      return steps.map(s => `<span class="whitespace-nowrap">${s}</span>`).join(' &nbsp;·&nbsp; ');
+    }
+
+    // Common mistakes, solved the wrong way, so feedback can say what went wrong
+    function solveWithMistake(q, mistake) {
+      const sum = (variable) => {
+        let vals = valuesOf(q, variable);
+        if (mistake === 'oneMass' && variable === 'm') vals = vals.slice(0, 1);
+        if (mistake === 'otherMass' && variable === 'm') vals = vals.slice(-1);
+        return vals.reduce((s, v) => s + (mistake === 'noSigns' ? v.value : signedValue(v)), 0);
+      };
+      const F = sum('F'), m = sum('m'), a = sum('a');
+      if (mistake === 'multiplied') return q.solveFor === 'a' ? F * m : F * a;
+      if (mistake === 'flipped') return q.solveFor === 'a' ? m / F : (q.solveFor === 'm' ? a / F : null);
+      if (q.solveFor === 'F') return m * a;
+      if (q.solveFor === 'a') return F / m;
+      return F / a;
+    }
+
+    function diagnoseWrongNumber(q, user) {
+      const exact = solveQuestion(q);
+      const forces = valuesOf(q, 'F');
+      const masses = valuesOf(q, 'm');
+      const hasLeft = q.values.some(v => v.dir === 'left');
+      if (forces.length > 1 && answerMatches(user, solveWithMistake(q, 'noSigns'))) {
+        return 'You added the two forces as if they pointed the same way. Forces in opposite directions work against each other: right is +, left is −.';
+      }
+      if (masses.length > 1 && (answerMatches(user, solveWithMistake(q, 'oneMass')) || answerMatches(user, solveWithMistake(q, 'otherMass')))) {
+        return 'You used only one mass. The objects move together, so add the masses to get the total mass.';
+      }
+      if (exact !== 0 && answerMatches(user, -exact)) {
+        if (!hasLeft) return 'Check the sign. Nothing in this problem points left, so the answer is positive.';
+        return exact < 0
+          ? 'Check the sign. Right is +, left is −. This answer points left, so it is negative.'
+          : 'Check the sign. Right is +, left is −. This answer points right, so it is positive.';
+      }
+      if (q.solveFor !== 'F' && answerMatches(user, solveWithMistake(q, 'multiplied'))) {
+        return `You multiplied. To find ${VARS[q.solveFor].name}, divide instead.`;
+      }
+      const flipped = solveWithMistake(q, 'flipped');
+      if (flipped !== null && answerMatches(user, flipped)) {
+        return 'You divided in the wrong order. Net force goes on top: divide the net force by the other number.';
+      }
+      return 'Not quite. Check which numbers you used and what you typed into Desmos.';
+    }
+
+    // -------------------------------------------------------------
+    // HELP MODAL FORMULA EXPLANATIONS
+    // -------------------------------------------------------------
+    function selectHelpVariable(vName) {
+      sound.playBeep();
+
+      SLOT_ORDER.forEach(v => {
+        const btn = document.getElementById(`btn-help-${v}`);
+        if (v === vName) {
+          btn.className = "py-3 rounded-xl font-bold text-center border-2 border-sky-500 bg-sky-600/10 text-sky-400 transition-all text-base mono glow-neon";
+        } else {
+          btn.className = "py-3 rounded-xl font-bold text-center border border-white/5 bg-slate-900/60 hover:bg-slate-800 text-slate-400 transition-all text-base mono";
+        }
+      });
+
+      const F = '<span class="text-emerald-400">F<sub>net</sub></span>';
+      const m = '<span class="text-sky-400">m</span>';
+      const a = '<span class="text-amber-400">a</span>';
+      const eq = '<span class="font-sans text-slate-500">=</span>';
+      const fraction = (top, bottom) => `
+        <div class="flex flex-col items-center">
+          <span>${top}</span>
+          <div class="w-16 sm:w-20 h-0.5 bg-slate-500 my-1 rounded"></div>
+          <span>${bottom}</span>
+        </div>`;
+
+      const equationRender = document.getElementById('help-equation-render');
+      const equationDesc = document.getElementById('help-equation-desc');
+
+      if (vName === 'F') {
+        equationRender.innerHTML = `${F} ${eq} ${m} <span class="font-sans text-slate-500">&middot;</span> ${a}`;
+        equationDesc.innerText = "To find the net force (in newtons, N), multiply the mass (kg) by the acceleration (m/s²).";
+      } else if (vName === 'm') {
+        equationRender.innerHTML = `${m} ${eq} ${fraction(F, a)}`;
+        equationDesc.innerText = "To find the mass (in kilograms, kg), divide the net force by the acceleration. Work backward from the forces.";
+      } else {
+        equationRender.innerHTML = `${a} ${eq} ${fraction(F, m)}`;
+        equationDesc.innerText = "To find the acceleration (in m/s²), divide the net force by the mass. More net force means more acceleration. More mass means less.";
+      }
+    }
+
+    // -------------------------------------------------------------
+    // GAME LOOPS & STATE MANAGEMENT
+    // -------------------------------------------------------------
+    function freshState() {
+      return {
+        studentId: '',
+        displayName: '',
+        photoURL: '',
+        period: null,
+        honorsRequired: false,
+        honorsOn: false,
+        currentLevel: 1,
+        unlockedLevels: [1],
+        score: 0,
+        answered: 0,
+        streak: 0,
+        bestQuizScore: 0,
+        bestPct: 0,
+        quizDone: false,
+        completed: false,
+        completedAt: '',
+        certificateId: '',
+        deck: [],
+        currentQuestionIndex: 0
+      };
+    }
+
+    let state = freshState();
+
+    const MIN_QUESTIONS = 6;
+    const REQUIRED_STREAK = 4;
+    const MASTERY_PASS = 4; // quiz score needed for the certificate
+    const MAX_POINTS = 10;
+    const ASSIGNMENT_ID = 'newtons_second_law_calculator';
+    const PHYSICS_LABS_COLLECTION = 'physics_labs';
+    const LAB_FIELD = 'newtons_second_law';
+    const HONORS_PERIODS = [0];
+    const TEACHER_EMAILS = ['rmudry@orangeusd.org', 'ryan.mudry@gmail.com', 'ryanmudry@gmail.com'];
+
+    function updateCloudStatus(status) {
+      const el = document.getElementById('hud-cloud-status');
+      const text = document.getElementById('hud-cloud-text');
+      if (!el || !text) return;
+      if (status === 'saving') {
+        text.innerText = 'Saving...';
+        el.className = 'flex items-center gap-1.5 text-[10px] text-amber-400 bg-amber-950/70 border border-amber-500/30 px-2.5 py-1 rounded-lg transition-all font-mono';
+      } else if (status === 'saved') {
+        text.innerText = 'Auto-Saved';
+        el.className = 'flex items-center gap-1.5 text-[10px] text-emerald-400 bg-emerald-950/70 border border-emerald-500/30 px-2.5 py-1 rounded-lg transition-all font-mono';
+      } else if (status === 'preview') {
+        text.innerText = 'Preview Mode';
+        el.className = 'flex items-center gap-1.5 text-[10px] text-sky-400 bg-sky-950/70 border border-sky-500/30 px-2.5 py-1 rounded-lg transition-all font-mono';
+      } else if (status === 'error') {
+        text.innerText = 'Sync Offline';
+        el.className = 'flex items-center gap-1.5 text-[10px] text-rose-400 bg-rose-950/70 border border-rose-500/30 px-2.5 py-1 rounded-lg transition-all font-mono';
+      }
+    }
+
+    function updateCertButtonHUD() {
+      const btn = document.getElementById('btn-view-cert');
+      if (!btn) return;
+      btn.classList.toggle('hidden', !state.completed);
+    }
+
+    // Only Period 0 (Honors) and the teacher ever see Honors. Other classes get no badge or toggle.
+    function isTeacher() {
+      return state.period === 'T';
+    }
+
+    function updateHonorsButton() {
+      const btn = document.getElementById('btn-honors');
+      if (!btn) return;
+      if (state.honorsRequired) {
+        btn.innerText = '⭐ Honors: Required';
+        btn.title = 'Honors problems are part of your class (Period 0).';
+        btn.className = 'px-3 py-1.5 text-xs rounded-lg font-bold transition-all bg-amber-500/20 text-amber-300 border border-amber-500/40 cursor-default';
+      } else if (state.honorsOn) {
+        btn.innerText = '⭐ Honors: On';
+        btn.title = 'Teacher only: tap to turn off the Honors problems.';
+        btn.className = 'px-3 py-1.5 text-xs rounded-lg font-bold transition-all bg-amber-500 text-slate-950 border border-amber-400 hover:bg-amber-400';
+      } else {
+        btn.innerText = '⭐ Honors: Off';
+        btn.title = 'Teacher only: preview the Honors problems (two forces with signs, total system mass).';
+        btn.className = 'px-3 py-1.5 text-xs rounded-lg font-bold transition-all bg-slate-800 text-amber-300/80 border border-amber-500/20 hover:bg-slate-700';
+      }
+      // After className is set, so it isn't overwritten
+      btn.classList.toggle('hidden', !state.honorsRequired && !isTeacher());
+      document.getElementById('help-honors').classList.toggle('hidden', !state.honorsOn);
+    }
+
+    function toggleHonors() {
+      if (state.honorsRequired) {
+        setFeedback('⭐ Honors problems are part of your class (Period 0), so they stay on.', 'info');
+        return;
+      }
+      if (!isTeacher()) return;
+      state.honorsOn = !state.honorsOn;
+      updateHonorsButton();
+      // A Level 3 quiz restarts so every quiz has one consistent mix of problems
+      if (state.currentLevel === 3) {
+        state.answered = 0;
+        state.score = 0;
+        state.quizDone = false;
+      }
+      state.deck = buildDeck(state.currentLevel);
+      loadQuestion(0);
+      setFeedback(state.honorsOn
+        ? '⭐ Honors is on! Every other problem has two forces (right +, left −) or two masses to add.'
+        : 'Honors is off. Back to standard problems.', 'info');
+      saveState();
+    }
+
+    // Preview views (?view=cp or ?view=honors): see the app the way a student does.
+    // Student views start with only Level 1 unlocked; nothing is saved in any preview.
+    const PREVIEW_VIEWS = {
+      teacher: { displayName: 'Teacher Preview', unlockedLevels: [1, 2, 3], period: 'T' },
+      cp: { displayName: 'Preview: Regular / CP student', unlockedLevels: [1], period: 3 },
+      honors: { displayName: 'Preview: Honors student (P0)', unlockedLevels: [1], period: 0 }
+    };
+
+    function startGuestMode() {
+      const requested = new URLSearchParams(window.location.search).get('view');
+      const viewKey = PREVIEW_VIEWS[requested] ? requested : 'teacher';
+      const view = PREVIEW_VIEWS[viewKey];
+      const honorsRequired = HONORS_PERIODS.includes(view.period);
+      Object.assign(state, freshState(), {
+        studentId: 'teacher_preview',
+        displayName: view.displayName,
+        unlockedLevels: [...view.unlockedLevels],
+        period: view.period,
+        honorsRequired,
+        honorsOn: honorsRequired
+      });
+      const wrap = document.getElementById('preview-view-wrap');
+      wrap.classList.remove('hidden');
+      wrap.classList.add('flex');
+      document.getElementById('preview-view').value = viewKey;
+      hudInitialize();
+      updateCloudStatus('preview');
+    }
+
+    function switchPreviewView(viewKey) {
+      const params = new URLSearchParams(window.location.search);
+      params.set('preview', '');
+      params.set('view', viewKey);
+      window.location.search = params.toString().replace('preview=&', 'preview&').replace(/preview=$/, 'preview');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      updateThemeButton();
+
+      // Auto-detect preview mode: local file, localhost, or query parameters (?preview, ?test, ?guest)
+      const urlParams = new URLSearchParams(window.location.search);
+      const isAutoPreview = window.location.protocol === 'file:' ||
+                            window.location.hostname === 'localhost' ||
+                            window.location.hostname === '127.0.0.1' ||
+                            urlParams.has('preview') ||
+                            urlParams.has('test') ||
+                            urlParams.has('guest');
+
+      if (isAutoPreview) {
+        startGuestMode();
+      } else {
+        showSection('view-register');
+      }
+
+      // Firebase Auth observer
+      fbAuth.onAuthStateChanged(async user => {
+        if (user) {
+          const emailLower = (user.email || '').toLowerCase();
+          const isAllowed = emailLower.endsWith('@orangeusd.org') || TEACHER_EMAILS.includes(emailLower);
+
+          if (!isAllowed) {
+            document.getElementById('register-error').classList.remove('hidden');
+            document.getElementById('register-status').classList.add('hidden');
+            await fbAuth.signOut();
+            return;
+          }
+
+          const prefix = emailLower.split('@')[0];
+          state.studentId = prefix;
+          state.displayName = user.displayName || prefix;
+          state.photoURL = user.photoURL || '';
+
+          await loadProgressFromFirestore(prefix);
+          await lookupRosterPeriod(prefix, emailLower);
+          hudInitialize();
+        } else {
+          // If in preview mode, do not kick back to login screen
+          if (state.studentId !== 'teacher_preview') {
+            showSection('view-register');
+            document.getElementById('register-status').classList.add('hidden');
+          }
+        }
+      });
+
+      document.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => sound.playBeep());
+      });
+
+      bindDragAndDropEvents();
+    });
+
+    async function handleGoogleSignIn() {
+      const errEl = document.getElementById('register-error');
+      const statusEl = document.getElementById('register-status');
+      errEl.classList.add('hidden');
+      statusEl.classList.remove('hidden');
+      statusEl.innerText = 'Connecting to Google...';
+      const provider = new firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      try {
+        await fbAuth.signInWithPopup(provider);
+      } catch (e) {
+        console.error(e);
+        statusEl.classList.add('hidden');
+        errEl.classList.remove('hidden');
+        errEl.innerText = 'Sign-in failed — please try again';
+      }
+    }
+
+    // Class period from the roster decides whether the Honors problems are required
+    async function lookupRosterPeriod(studentId, email) {
+      if (TEACHER_EMAILS.includes(email)) {
+        state.period = 'T';
+        state.honorsRequired = false;
+        return;
+      }
+      try {
+        const snap = await fbDb.collection('roster').doc(studentId).get();
+        if (snap.exists) {
+          const d = snap.data();
+          const p = (d.class_period !== undefined && d.class_period !== null)
+            ? d.class_period
+            : (d.period !== undefined && d.period !== null ? d.period : null);
+          if (p !== null) {
+            const num = parseInt(p, 10);
+            state.period = Number.isNaN(num) ? p : num;
+          }
+        }
+      } catch (e) {
+        console.warn('Roster lookup failed; treating as a standard class (no Honors):', e);
+      }
+      state.honorsRequired = HONORS_PERIODS.includes(state.period);
+      // Honors is on for Period 0 and off for every other class, whatever was saved before
+      state.honorsOn = state.honorsRequired;
+    }
+
+    // Grade (best ever, never lowered):
+    // Level 1: 5% per correct answer up to 30%. Level 2: 30% + 5% per correct answer up to 60%.
+    // Level 3 quiz: 60% + 40% × (best quiz score ÷ 6).
+    function progressPct() {
+      let pct = 0;
+      if (state.unlockedLevels.includes(3)) pct = 60;
+      else if (state.unlockedLevels.includes(2)) pct = 30 + (state.currentLevel === 2 ? Math.min(state.answered, MIN_QUESTIONS) * 5 : 0);
+      else pct = Math.min(state.answered, MIN_QUESTIONS) * 5;
+      if (state.bestQuizScore > 0) pct = Math.max(pct, 60 + Math.round(40 * state.bestQuizScore / MIN_QUESTIONS));
+      return Math.min(100, pct);
+    }
+
+    async function saveState() {
+      if (!state.studentId) return;
+      if (state.studentId === 'teacher_preview') {
+        updateCloudStatus('preview');
+        return;
+      }
+      state.bestPct = Math.max(state.bestPct || 0, progressPct());
+      updateCloudStatus('saving');
+      const periodVal = (state.period !== undefined && state.period !== null) ? state.period : null;
+      try {
+        // 1. Save to physics_labs for student lab resumption
+        await fbDb.collection(PHYSICS_LABS_COLLECTION)
+          .doc(state.studentId)
+          .set({
+            studentId: state.studentId,
+            student_id: state.studentId,
+            displayName: state.displayName || state.studentId,
+            class_period: periodVal,
+            [LAB_FIELD]: {
+              currentLevel: state.currentLevel,
+              unlockedLevels: state.unlockedLevels,
+              answered: state.answered,
+              streak: state.streak,
+              score: state.score,
+              quizDone: !!state.quizDone,
+              honorsOn: !!state.honorsOn,
+              bestQuizScore: state.bestQuizScore,
+              bestPct: state.bestPct,
+              completed: !!state.completed,
+              completedAt: state.completedAt || null,
+              certificateId: state.certificateId || null
+            },
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+
+        // 2. Save to standard student_results collection for Gradebook sync
+        await fbDb.collection('student_results')
+          .doc(ASSIGNMENT_ID)
+          .collection('students')
+          .doc(state.studentId)
+          .set({
+            student_id: state.studentId,
+            studentId: state.studentId,
+            student_name: state.displayName || state.studentId,
+            displayName: state.displayName || state.studentId,
+            score: Math.round((state.bestPct / 100) * MAX_POINTS),
+            maxScore: MAX_POINTS,
+            maxPoints: MAX_POINTS,
+            percentage: state.bestPct,
+            class_period: periodVal,
+            honors: !!state.honorsOn,
+            honors_required: !!state.honorsRequired,
+            completed: !!state.completed,
+            completedAt: state.completedAt || new Date().toISOString(),
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+
+        updateCloudStatus('saved');
+      } catch (e) {
+        console.error('Firestore save error', e);
+        updateCloudStatus('error');
+      }
+    }
+
+    async function loadProgressFromFirestore(studentId) {
+      Object.assign(state, {
+        unlockedLevels: [1], currentLevel: 1, answered: 0, streak: 0, score: 0, quizDone: false,
+        honorsOn: false, bestQuizScore: 0, bestPct: 0, completed: false, completedAt: '', certificateId: ''
+      });
+      try {
+        const snap = await fbDb.collection(PHYSICS_LABS_COLLECTION).doc(studentId).get();
+        const labData = snap.exists ? (snap.data()[LAB_FIELD] || {}) : {};
+        state.unlockedLevels = labData.unlockedLevels || [1];
+        state.bestQuizScore = labData.bestQuizScore || 0;
+        state.bestPct = labData.bestPct || 0;
+        state.honorsOn = !!labData.honorsOn;
+        state.completed = !!labData.completed;
+        state.completedAt = labData.completedAt || '';
+        state.certificateId = labData.certificateId || '';
+        const savedLevel = labData.currentLevel || 1;
+        state.currentLevel = state.unlockedLevels.includes(savedLevel) ? savedLevel : 1;
+        state.answered = typeof labData.answered === 'number' ? labData.answered : 0;
+        state.streak = typeof labData.streak === 'number' ? labData.streak : 0;
+        state.score = typeof labData.score === 'number' ? labData.score : 0;
+        state.quizDone = !!labData.quizDone;
+
+        // Never lower a grade that is already in the gradebook
+        const resultSnap = await fbDb.collection('student_results').doc(ASSIGNMENT_ID).collection('students').doc(studentId).get();
+        if (resultSnap.exists) {
+          state.bestPct = Math.max(state.bestPct, Number(resultSnap.data().percentage) || 0);
+        }
+      } catch (e) {
+        console.error('Firestore load error', e);
+      }
+      updateCertButtonHUD();
+    }
+
+    function showSection(id) {
+      ['view-register', 'view-workspace'].forEach(s => {
+        const el = document.getElementById(s);
+        if (s === id) {
+          el.classList.remove('hidden');
+          el.style.opacity = '0';
+          setTimeout(() => el.style.opacity = '1', 50);
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+      document.getElementById('student-badge').classList.toggle('hidden', id === 'view-register');
+    }
+
+    function logout() {
+      if (confirm("Sign out of the lab? Your progress is saved to your account.")) {
+        state = freshState();
+        speech.cancel();
+        showSection('view-register');
+        if (fbAuth.currentUser) {
+          fbAuth.signOut();
+        }
+      }
+    }
+
+    function hudInitialize() {
+      const displayLabel = state.displayName || state.studentId;
+      document.getElementById('badge-id').innerText = displayLabel;
+      document.getElementById('hud-student-id').innerText = displayLabel;
+
+      const avatarEl = document.getElementById('badge-avatar');
+      if (state.photoURL) {
+        avatarEl.src = state.photoURL;
+        avatarEl.classList.remove('hidden');
+      } else {
+        avatarEl.classList.add('hidden');
+      }
+
+      updateCertButtonHUD();
+      updateHonorsButton();
+      updateLevelButtonsUI();
+
+      changeLevel(state.currentLevel || 1, true);
+      showSection('view-workspace');
+    }
+
+    function updateLevelButtonsUI() {
+      for (let lvl = 1; lvl <= 3; lvl++) {
+        const btn = document.getElementById(`btn-level-${lvl}`);
+        if (state.unlockedLevels.includes(lvl)) {
+          btn.disabled = false;
+          if (state.currentLevel === lvl) {
+            btn.className = "px-3 py-1.5 text-xs rounded-lg font-bold transition-all bg-sky-600 text-white shadow-md glow-neon";
+          } else if (lvl > state.currentLevel) {
+            btn.className = "px-3 py-1.5 text-xs rounded-lg font-bold transition-all bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/40 pulse-amber";
+          } else {
+            btn.className = "px-3 py-1.5 text-xs rounded-lg font-bold transition-all bg-white text-slate-800 hover:bg-slate-100 border border-white/5";
+          }
+        } else {
+          btn.disabled = true;
+          btn.className = "px-3 py-1.5 text-xs rounded-lg font-bold transition-all bg-slate-900 text-slate-500 border border-white/5 cursor-not-allowed";
+        }
+      }
+    }
+
+    // Standard problems for the level; with Honors on, every other problem is an Honors problem
+    function buildDeck(levelNum) {
+      const regular = shuffleArray(QUESTIONS.filter(q => q.level === levelNum && !q.honors));
+      if (!state.honorsOn) return regular;
+      const honors = shuffleArray(QUESTIONS.filter(q => q.level === levelNum && q.honors));
+      const deck = [];
+      for (let i = 0; i < Math.max(regular.length, honors.length); i++) {
+        if (i < regular.length) deck.push(regular[i]);
+        if (i < honors.length) deck.push(honors[i]);
+      }
+      return deck;
+    }
+
+    function changeLevel(levelNum, preserveProgress = false) {
+      if (!state.unlockedLevels.includes(levelNum)) return;
+
+      sound.playBeep();
+      speech.cancel();
+
+      state.currentLevel = levelNum;
+      if (!preserveProgress) {
+        state.answered = 0;
+        state.streak = 0;
+        state.score = 0;
+        state.quizDone = false;
+      }
+
+      updateLevelButtonsUI();
+
+      state.deck = buildDeck(levelNum);
+      state.currentQuestionIndex = 0;
+
+      document.getElementById('hud-streak-container').classList.toggle('hidden', levelNum === 3);
+      toggleCalculatorModal(levelNum >= 2);
+
+      loadQuestion(0);
+      saveState();
+    }
+
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    // -------------------------------------------------------------
+    // PLAYING QUESTION & SLOTS STATE
+    // -------------------------------------------------------------
+    // Each slot holds a list: given value objects, or the 'unknown' marker.
+    // A slot holds two values only when the problem has two of that variable (Honors: two forces or two masses).
+    let placed = { F: [], m: [], a: [] };
+    let selectedDragItem = null;
+    let hintsShown = 0;
+
+    function currentQuestion() {
+      return state.deck[state.currentQuestionIndex];
+    }
+
+    function feedbackClass(tone) {
+      const tones = {
+        neutral: 'text-slate-300 border-white/5',
+        info: 'text-sky-300 border-sky-500/20',
+        success: 'text-emerald-400 border-emerald-500/20',
+        warn: 'text-amber-400 border-amber-500/30 animate-shake',
+        error: 'text-rose-300 border-rose-500/30 animate-shake'
+      };
+      return `glass rounded-xl p-3 text-center font-bold text-xs min-h-[48px] flex flex-col items-center justify-center gap-1 border ${tones[tone] || tones.neutral}`;
+    }
+
+    function setFeedback(html, tone = 'neutral') {
+      const box = document.getElementById('feedback-box');
+      box.className = feedbackClass(tone);
+      box.innerHTML = html;
+    }
+
+    function loadQuestion(idx = state.currentQuestionIndex || 0) {
+      if (typeof idx !== 'number' || isNaN(idx) || idx < 0 || idx >= state.deck.length) {
+        state.deck = buildDeck(state.currentLevel);
+        idx = 0;
+      }
+
+      state.currentQuestionIndex = idx;
+      isCurrentQuestionSolved = false;
+      placed = { F: [], m: [], a: [] };
+      selectedDragItem = null;
+      hintsShown = 0;
+      renderHints();
+
+      document.getElementById('selection-helper').innerText = '';
+      document.getElementById('manual-user-answer').value = '';
+      setFeedback(getLevelInstruction());
+
+      document.getElementById('btn-next-question').classList.add('hidden');
+      document.getElementById('btn-new-problem').classList.add('hidden');
+      document.getElementById('btn-check-answer').classList.remove('hidden');
+      document.getElementById('calc-input-helper').classList.add('hidden');
+
+      if (state.currentLevel >= 2) {
+        if (desmosCalculator) {
+          try {
+            desmosCalculator.setBlank();
+          } catch (e) {}
+        }
+        onDesmosChange();
+      }
+
+      updateProgressHUD();
+      renderQuestionBadges();
+      updateEquationSlotsUI();
+
+      // Quiz already finished (e.g. resumed after reload): offer the retake
+      if (state.currentLevel === 3 && state.quizDone) showQuizResult();
+    }
+
+    function getLevelInstruction() {
+      const honors = currentQuestion() && currentQuestion().honors ? '⭐ Honors problem! ' : '';
+      if (state.currentLevel === 1) {
+        return honors + "Drag or tap each given value and the unknown into the equation, then check your answer.";
+      } else if (state.currentLevel === 2) {
+        return honors + "Place the values, calculate in Desmos, paste or type your answer, then check it.";
+      }
+      return honors + "Mastery quiz! Each problem counts. A wrong answer moves on to the next problem.";
+    }
+
+    function updateProgressHUD() {
+      const total = MIN_QUESTIONS;
+      document.getElementById('progress-bar-fill').style.width = `${Math.min((state.answered / total) * 100, 100)}%`;
+      const answeredHUD = document.getElementById('hud-answered');
+
+      if (state.currentLevel === 3) {
+        answeredHUD.innerText = `${Math.min(state.answered, total)} / ${total} Answered · Score: ${state.score} / ${total}`;
+      } else {
+        answeredHUD.innerText = `${Math.min(state.answered, total)} / ${total} Correct`;
+        document.getElementById('hud-streak').innerText = `${Math.min(state.streak, REQUIRED_STREAK)} / ${REQUIRED_STREAK}`;
+      }
+    }
+
+    function isValuePlaced(id) {
+      return SLOT_ORDER.some(s => placed[s].some(item => item !== 'unknown' && item.id === id));
+    }
+
+    function findUnknownSlotName() {
+      return SLOT_ORDER.find(s => placed[s].includes('unknown')) || null;
+    }
+
+    function valueText(v) {
+      return `${v.value} ${v.unit}`;
+    }
+
+    function renderQuestionBadges() {
+      const q = currentQuestion();
+      const container = document.getElementById('question-text');
+      container.innerHTML = '';
+
+      const crossedOut = (text) => {
+        const span = document.createElement('span');
+        span.className = "inline-block mx-1 font-bold text-slate-500 line-through select-none";
+        span.innerText = text;
+        return span;
+      };
+
+      const makeBadge = (text, colorClass, payload) => {
+        const badge = document.createElement('div');
+        badge.className = `${colorClass} font-bold p-1.5 px-3 rounded-lg inline-block mx-1.5 hover:scale-102 transition-all text-sm drag-item ring-1 ring-white/5 whitespace-nowrap`;
+        badge.innerText = text;
+        badge.draggable = true;
+        badge.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('application/json', JSON.stringify(payload));
+          badge.classList.add('opacity-40');
+        });
+        badge.addEventListener('dragend', () => badge.classList.remove('opacity-40'));
+        badge.addEventListener('click', () => selectBadgeClick(badge, payload, text));
+        return badge;
+      };
+
+      q.textParts.forEach(part => {
+        if (typeof part === 'string') {
+          const span = document.createElement('span');
+          span.innerText = part;
+          container.appendChild(span);
+        } else if (part.isUnknown) {
+          container.appendChild(findUnknownSlotName()
+            ? crossedOut(q.unknownText)
+            : makeBadge(q.unknownText, "bg-indigo-950/80 text-indigo-300 border border-indigo-500/40", { type: 'unknown' }));
+        } else if (part.valueId) {
+          const v = q.values.find(x => x.id === part.valueId);
+          if (!v) return;
+          // Badge color is neutral so students identify the variable from the unit, not the color
+          container.appendChild(isValuePlaced(v.id)
+            ? crossedOut(valueText(v))
+            : makeBadge(valueText(v), "bg-slate-800/90 text-white border border-slate-500/40", { type: 'value', value: v }));
+        }
+      });
+    }
+
+    function selectBadgeClick(el, payload, text) {
+      if (isCurrentQuestionSolved) return;
+      sound.playBeep();
+      document.querySelectorAll('.drag-item').forEach(b => b.classList.remove('glow-neon', 'ring-2', 'ring-sky-400'));
+
+      if (selectedDragItem && selectedDragItem.text === text) {
+        selectedDragItem = null;
+        document.getElementById('selection-helper').innerText = '';
+      } else {
+        selectedDragItem = { payload, text };
+        el.classList.add('glow-neon', 'ring-2', 'ring-sky-400');
+        document.getElementById('selection-helper').innerText = `Selected ${text}. Now tap a slot in the equation to place it.`;
+      }
+    }
+
+    function handleSlotClick(slotEl) {
+      if (isCurrentQuestionSolved) return;
+      sound.playBeep();
+      const slotName = slotEl.getAttribute('data-slot');
+
+      if (selectedDragItem) {
+        placePayloadInSlot(selectedDragItem.payload, slotName);
+        selectedDragItem = null;
+        document.getElementById('selection-helper').innerText = '';
+      } else if (placed[slotName].length) {
+        clearSlot(slotName);
+      }
+    }
+
+    function placePayloadInSlot(payload, slotName) {
+      if (isCurrentQuestionSolved) return;
+      const q = currentQuestion();
+      if (payload.type === 'unknown') {
+        SLOT_ORDER.forEach(s => { placed[s] = placed[s].filter(item => item !== 'unknown'); });
+        placed[slotName] = ['unknown'];
+      } else if (payload.type === 'value') {
+        const v = q.values.find(x => x.id === payload.value.id);
+        if (!v) return;
+        SLOT_ORDER.forEach(s => { placed[s] = placed[s].filter(item => item === 'unknown' || item.id !== v.id); });
+        const current = placed[slotName];
+        const twoOfThisVariable = valuesOf(q, v.variable).length > 1;
+        const canStack = twoOfThisVariable && current.length > 0 && current.every(item => item !== 'unknown' && item.variable === v.variable);
+        placed[slotName] = canStack ? [...current, v] : [v];
+      }
+
+      updateEquationSlotsUI();
+      renderQuestionBadges();
+      validateLevel2InputHelperVisibility();
+    }
+
+    function clearSlot(slotName) {
+      placed[slotName] = [];
+      updateEquationSlotsUI();
+      renderQuestionBadges();
+      validateLevel2InputHelperVisibility();
+    }
+
+    function validateLevel2InputHelperVisibility() {
+      const helper = document.getElementById('calc-input-helper');
+      if (state.currentLevel >= 2 && findUnknownSlotName()) {
+        helper.classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
+        onDesmosChange();
+      } else {
+        helper.classList.add('hidden');
+      }
+    }
+
+    function updateEquationSlotsUI() {
+      const q = currentQuestion();
+
+      SLOT_ORDER.forEach(slotName => {
+        const slotEl = document.querySelector(`[data-slot="${slotName}"]`);
+        const items = placed[slotName];
+        const label = VARS[slotName].html;
+
+        if (items.includes('unknown')) {
+          if (state.currentLevel >= 2 && slotName === q.solveFor) {
+            slotEl.innerHTML = `
+              <span class="text-[8px] sm:text-[9px] text-slate-400 block select-none tracking-wider mb-0.5">${label} (solve)</span>
+              <div onclick="event.stopPropagation();" class="w-full px-1 sm:px-2">
+                <input
+                  type="number"
+                  step="0.01"
+                  id="equation-inline-input"
+                  placeholder="?"
+                  value="${document.getElementById('manual-user-answer').value || ''}"
+                  oninput="syncInlineInputs(this.value)"
+                  class="w-full bg-slate-950/90 border border-indigo-500/40 text-center font-bold text-lg sm:text-xl py-0.5 sm:py-1 rounded-lg text-indigo-300 focus:outline-none focus:border-indigo-400 mono"
+                >
+              </div>
+            `;
+            slotEl.className = "drag-target equation-slot bg-slate-900 border-2 border-slate-700 rounded-xl flex flex-col items-center justify-center transition-all scale-102";
+          } else {
+            slotEl.innerHTML = `
+              <span class="text-[8px] sm:text-[9px] text-slate-400 block select-none tracking-wider">${label}</span>
+              <span class="text-[10px] sm:text-xs font-bold text-center px-1 leading-tight line-clamp-3">${q.unknownText}</span>
+            `;
+            slotEl.className = "drag-target equation-slot bg-indigo-950/80 border-indigo-500 text-indigo-300 border-2 rounded-xl flex flex-col items-center justify-center transition-all scale-102";
+          }
+        } else if (items.length) {
+          // Color comes from the slot, so a value in the wrong slot is not flagged by color
+          const lines = items.map(item => `<span class="text-sm sm:text-base font-black mono leading-tight whitespace-nowrap">${item.value}${item.dir ? ' ' + arrow(item.dir) : ''}</span>`).join('');
+          const units = [...new Set(items.map(item => item.unit))].join(', ');
+          slotEl.innerHTML = `
+            <span class="text-[8px] sm:text-[9px] text-slate-400 block select-none tracking-wider">${label}</span>
+            ${lines}
+            <span class="text-[9px] text-slate-400 mono">${units}</span>
+          `;
+          slotEl.className = `drag-target equation-slot ${VARS[slotName].slot} border-2 rounded-xl flex flex-col items-center justify-center transition-all scale-102`;
+        } else {
+          slotEl.innerHTML = `
+            <span class="text-slate-500 text-xl sm:text-3xl font-mono select-none">${label}</span>
+            <span class="text-[8px] sm:text-[9px] text-slate-600 font-sans tracking-wider uppercase font-semibold select-none mt-0.5">${VARS[slotName].sub}</span>
+          `;
+          slotEl.className = "drag-target equation-slot bg-slate-950/80 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-slate-500 select-none cursor-pointer transition-all";
+        }
+      });
+    }
+
+    function syncInlineInputs(val) {
+      document.getElementById('manual-user-answer').value = val;
+    }
+
+    function bindDragAndDropEvents() {
+      document.querySelectorAll('.drag-target').forEach(slot => {
+        slot.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          slot.classList.add('drag-over');
+        });
+        slot.addEventListener('dragleave', () => {
+          slot.classList.remove('drag-over');
+        });
+        slot.addEventListener('drop', (e) => {
+          e.preventDefault();
+          slot.classList.remove('drag-over');
+          try {
+            const payload = JSON.parse(e.dataTransfer.getData('application/json'));
+            placePayloadInSlot(payload, slot.getAttribute('data-slot'));
+          } catch (err) {
+            console.error("Failed to drop payload", err);
+          }
+        });
+      });
+    }
+
+    function resetWorkspace() {
+      if (isCurrentQuestionSolved) return;
+      sound.playBeep();
+      placed = { F: [], m: [], a: [] };
+      selectedDragItem = null;
+      document.getElementById('selection-helper').innerText = '';
+      document.getElementById('manual-user-answer').value = '';
+      setFeedback(getLevelInstruction());
+
+      validateLevel2InputHelperVisibility();
+      renderQuestionBadges();
+      updateEquationSlotsUI();
+    }
+
+    // -------------------------------------------------------------
+    // STEP-BY-STEP HINTS (one at a time, no penalty)
+    // -------------------------------------------------------------
+    function getHints(q) {
+      const target = VARS[q.solveFor];
+      const forces = valuesOf(q, 'F');
+      const masses = valuesOf(q, 'm');
+      const hints = [
+        `You are looking for <b>${q.unknownText}</b>. That is ${target.article || 'a'} <b>${target.name}</b>, so the purple unknown goes in the <b>${target.html}</b> slot.`,
+        `Match each value by its unit: <b>N</b> (newtons) is a force, <b>kg</b> (kilograms) is a mass, and <b>m/s²</b> is an acceleration.`
+      ];
+      if (forces.length > 1) {
+        hints.push(`There are two forces. Put both in the F<sub>net</sub> slot. The net force is what is left over when they push against each other: right is +, left is −.`);
+      }
+      if (masses.length > 1) {
+        hints.push(`The objects move together, so they share one acceleration. Put both masses in the m slot. Add them to get the total mass.`);
+      }
+      if (forces.length < 2 && q.values.some(v => v.dir === 'left')) {
+        hints.push(`Something points left. Left is negative, so use a minus sign for it.`);
+      }
+      if (q.solveFor === 'F') {
+        hints.push(`Multiply: <span class="whitespace-nowrap">F<sub>net</sub> = m · a</span>.`);
+      } else if (q.solveFor === 'a') {
+        hints.push(`Divide: <span class="whitespace-nowrap">a = F<sub>net</sub> ÷ m</span>. The net force goes on top.`);
+      } else {
+        hints.push(`Work backward. Divide: <span class="whitespace-nowrap">m = F<sub>net</sub> ÷ a</span>. The net force goes on top.`);
+      }
+      if (state.currentLevel >= 2) {
+        hints.push(`In Desmos, type the numbers with <b>×</b> to multiply or <b>÷</b> to divide, then tap <b>Paste Desmos</b>.`);
+      }
+      return hints;
+    }
+
+    function renderHints() {
+      const panel = document.getElementById('hint-panel');
+      const list = document.getElementById('hint-list');
+      const btn = document.getElementById('btn-hint');
+      const q = currentQuestion();
+      const hints = q ? getHints(q) : [];
+      panel.classList.toggle('hidden', hintsShown === 0);
+      list.innerHTML = hints.slice(0, hintsShown).map(h => `<li>${h}</li>`).join('');
+      document.getElementById('hint-count').innerText = `${hintsShown} / ${hints.length}`;
+      const done = hintsShown >= hints.length;
+      btn.disabled = done;
+      btn.classList.toggle('opacity-40', done);
+      btn.classList.toggle('cursor-not-allowed', done);
+    }
+
+    function showNextHint() {
+      const q = currentQuestion();
+      if (!q || hintsShown >= getHints(q).length) return;
+      hintsShown++;
+      renderHints();
+    }
+
+    // -------------------------------------------------------------
+    // ALGEBRAIC EQUATION VALIDATION CHECK
+    // -------------------------------------------------------------
+    // Explains a misplaced value or unknown, or returns null when every slot is right
+    function placementProblem(q) {
+      const unknownSlot = findUnknownSlotName();
+      if (unknownSlot !== q.solveFor) {
+        return `The unknown is ${q.unknownText}. That is ${aName(q.solveFor)}, so it goes in the ${VARS[q.solveFor].html} slot.`;
+      }
+      for (const slotName of SLOT_ORDER) {
+        for (const item of placed[slotName]) {
+          if (item !== 'unknown' && item.variable !== slotName) {
+            return `${valueText(item)} is ${aName(item.variable)} (its unit is ${item.unit}), so it goes in the ${VARS[item.variable].html} slot.`;
+          }
+        }
+      }
+      return null;
+    }
+
+    function checkCurrentAnswer() {
+      if (isCurrentQuestionSolved) return;
+      const q = currentQuestion();
+
+      // Not finished placing: no penalty, just a reminder
+      const needed = q.values.length + 1;
+      const placedCount = SLOT_ORDER.reduce((n, s) => n + placed[s].length, 0);
+      if (placedCount < needed) {
+        setFeedback(`Place all ${q.values.length} given values and the unknown into the equation first.`, 'warn');
+        sound.playError();
+        return;
+      }
+
+      const why = placementProblem(q);
+      if (why) {
+        markWrong(why);
+        return;
+      }
+
+      const exactVal = solveQuestion(q);
+
+      if (state.currentLevel === 1) {
+        // Level 1: placement is the task, so the answer is calculated for the student
+        isCurrentQuestionSolved = true;
+        sound.playSuccess();
+        confetti({ particleCount: 40, spread: 50 });
+
+        const unknownSlotEl = document.querySelector(`[data-slot="${q.solveFor}"]`);
+        unknownSlotEl.innerHTML = `
+          <span class="text-[8px] sm:text-[9px] text-slate-400 block tracking-wider">${VARS[q.solveFor].html}</span>
+          <span class="text-sm sm:text-base font-extrabold text-emerald-400 mono whitespace-nowrap">${fmt(exactVal)}</span>
+          <span class="text-[9px] text-slate-400 mono">${VARS[q.solveFor].unit}</span>
+        `;
+        unknownSlotEl.className = "drag-target equation-slot bg-emerald-950/20 border-2 border-emerald-500 rounded-xl flex flex-col items-center justify-center transition-all scale-105";
+
+        const leftNote = exactVal < 0 ? '<span class="text-slate-300 font-semibold">The answer is negative, so it points left.</span>' : '';
+        setFeedback(`<span>Correct! Every value is in the right place.</span><span class="text-slate-300 font-semibold">${workedSolutionHTML(q)}</span>${leftNote}`, 'success');
+        incrementStateStats(true);
+        return;
+      }
+
+      // Level 2 & 3: check the student's own calculation
+      const userInput = parseFloat(document.getElementById('manual-user-answer').value);
+      if (isNaN(userInput)) {
+        setFeedback("Type or paste your answer as a number first.", 'warn');
+        sound.playError();
+        return;
+      }
+
+      if (!verifyDesmosWork(userInput)) {
+        setFeedback("⚠️ Do the calculation in the Desmos calculator first, then paste or type that answer.", 'warn');
+        sound.playError();
+        toggleCalculatorModal(true);
+        const desmosCard = document.getElementById('desmos-card-wrapper');
+        if (desmosCard) {
+          desmosCard.classList.add('ring-2', 'ring-amber-400');
+          setTimeout(() => desmosCard.classList.remove('ring-2', 'ring-amber-400'), 1500);
+        }
+        return;
+      }
+
+      if (answerMatches(userInput, exactVal)) {
+        isCurrentQuestionSolved = true;
+        sound.playSuccess();
+        confetti({ particleCount: 50, spread: 60 });
+
+        setFeedback(`<span>${state.currentLevel === 3 ? 'Correct! You earned a point.' : 'Correct! Calculation checked.'}</span><span class="text-slate-300 font-semibold">${workedSolutionHTML(q)}</span>`, 'success');
+
+        const inlineInput = document.getElementById('equation-inline-input');
+        if (inlineInput) {
+          inlineInput.disabled = true;
+          inlineInput.classList.remove('border-indigo-500/40', 'text-indigo-300');
+          inlineInput.classList.add('border-emerald-500', 'text-emerald-400', 'bg-emerald-950/20');
+        }
+        incrementStateStats(true);
+      } else {
+        markWrong(diagnoseWrongNumber(q, userInput), true);
+      }
+    }
+
+    // Wrong answer: say why, show the worked solution, then the student gets a NEW problem
+    function markWrong(why, showWork = false) {
+      const q = currentQuestion();
+      isCurrentQuestionSolved = true;
+      sound.playError();
+      const work = showWork ? `<span class="text-slate-300 font-semibold">Correct work: ${workedSolutionHTML(q)}</span>` : '';
+      setFeedback(`<span>${why}</span>${work}`, 'error');
+      incrementStateStats(false);
+    }
+
+    function incrementStateStats(isCorrect) {
+      if (state.currentLevel === 3) {
+        // Quiz: every problem counts, right or wrong
+        state.answered++;
+        if (isCorrect) state.score++;
+      } else if (isCorrect) {
+        state.answered++;
+        state.streak++;
+      } else {
+        state.streak = 0;
+      }
+
+      document.getElementById('btn-check-answer').classList.add('hidden');
+      const nextBtn = document.getElementById(isCorrect ? 'btn-next-question' : 'btn-new-problem');
+      nextBtn.innerText = isCorrect ? 'Next Question' : (state.currentLevel === 3 ? 'Next Question' : 'Try a New Problem');
+      nextBtn.classList.remove('hidden');
+
+      evaluateLevelUnlocks();
+      updateProgressHUD();
+      saveState();
+    }
+
+    function evaluateLevelUnlocks() {
+      if (state.currentLevel === 1 || state.currentLevel === 2) {
+        const next = state.currentLevel + 1;
+        if (state.answered >= MIN_QUESTIONS && state.streak >= REQUIRED_STREAK && !state.unlockedLevels.includes(next)) {
+          state.unlockedLevels.push(next);
+          setTimeout(() => {
+            triggerLevelUnlockModal(next);
+            updateLevelButtonsUI();
+          }, 800);
+        }
+      } else if (state.currentLevel === 3 && state.answered >= MIN_QUESTIONS && !state.quizDone) {
+        finishQuiz();
+      }
+    }
+
+    function makeCertificateId(score) {
+      const dateStr = new Date().toLocaleDateString();
+      const dataStr = `${state.studentId}-3-${score}-${dateStr}`;
+      let check = 0;
+      for (let i = 0; i < dataStr.length; i++) {
+        check += dataStr.charCodeAt(i) * (i + 1);
+      }
+      return `MUD-NEWTON2-${state.studentId}-3-${score}-${check.toString(16).toUpperCase()}`;
+    }
+
+    function finishQuiz() {
+      state.quizDone = true;
+      const improved = state.score > state.bestQuizScore;
+      state.bestQuizScore = Math.max(state.bestQuizScore, state.score);
+
+      if (state.score >= MASTERY_PASS && (improved || !state.completed)) {
+        state.completed = true;
+        state.completedAt = new Date().toISOString();
+        state.certificateId = makeCertificateId(state.bestQuizScore);
+        updateCertButtonHUD();
+        setTimeout(() => triggerCompletionCertificate(), 1200);
+      }
+      setTimeout(() => showQuizResult(), 1200);
+    }
+
+    function showQuizResult() {
+      const passed = state.score >= MASTERY_PASS;
+      const msg = passed
+        ? `Quiz complete: ${state.score} / ${MIN_QUESTIONS}! Your best score is ${state.bestQuizScore} / ${MIN_QUESTIONS}. Retake the quiz any time — your best score is kept.`
+        : `Quiz complete: ${state.score} / ${MIN_QUESTIONS}. You need ${MASTERY_PASS} / ${MIN_QUESTIONS} for the certificate. Use the Hint button and try again — your best score is kept.`;
+      isCurrentQuestionSolved = true;
+      setFeedback(msg, passed ? 'success' : 'warn');
+      document.getElementById('btn-check-answer').classList.add('hidden');
+      document.getElementById('btn-next-question').classList.add('hidden');
+      const retake = document.getElementById('btn-new-problem');
+      retake.innerText = 'Retake Quiz';
+      retake.classList.remove('hidden');
+    }
+
+    function nextQuestion() {
+      if (state.currentLevel === 3 && state.quizDone) {
+        changeLevel(3);
+        return;
+      }
+      loadQuestion(state.currentQuestionIndex + 1);
+    }
+
+    let nextUnlockedLevel = 2;
+
+    function triggerLevelUnlockModal(levelNum) {
+      nextUnlockedLevel = levelNum;
+      document.getElementById('unlock-level-num').innerText = levelNum;
+
+      const titleEl = document.getElementById('unlock-level-title');
+      const descEl = document.getElementById('unlock-level-description');
+
+      if (levelNum === 2) {
+        titleEl.innerText = "LEVEL 2 IS NOW ACCESSIBLE";
+        descEl.innerText = "Place the values, then calculate the answer yourself with the Desmos calculator.";
+      } else {
+        titleEl.innerText = "LEVEL 3 IS NOW ACCESSIBLE";
+        descEl.innerText = `Mastery quiz! Solve ${MIN_QUESTIONS} problems with Desmos. Get ${MASTERY_PASS} or more right to earn your Certificate of Mastery.`;
+      }
+
+      sound.playSuccess();
+      confetti({ particleCount: 60, spread: 80, origin: { y: 0.6 } });
+
+      const modal = document.getElementById('modal-level-unlocked');
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.querySelector('.transform').classList.remove('scale-95');
+        modal.querySelector('.transform').classList.add('scale-100');
+      }, 50);
+
+      lucide.createIcons();
+    }
+
+    function startUnlockedLevel() {
+      closeUnlockModal();
+      changeLevel(nextUnlockedLevel);
+    }
+
+    function closeUnlockModal() {
+      const modal = document.getElementById('modal-level-unlocked');
+      modal.querySelector('.transform').classList.remove('scale-100');
+      modal.querySelector('.transform').classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 150);
+    }
+
+    // -------------------------------------------------------------
+    // ACCESSIBILITY & AUDIO READ ALOUD
+    // -------------------------------------------------------------
+    function readQuestionAloud() {
+      sound.playBeep();
+      if (speech.speaking) {
+        speech.cancel();
+        return;
+      }
+      const q = currentQuestion();
+      const text = q.textParts.map(part => {
+        if (typeof part === 'string') return part;
+        if (part.isUnknown) return q.unknownText;
+        const v = q.values.find(x => x.id === part.valueId);
+        return v ? valueText(v) : '';
+      }).join('')
+        .replace(/Right is \+, left is −\./g, 'Right is positive, left is negative.');
+      speech.speak(text);
+    }
+
+    // -------------------------------------------------------------
+    // MODALS TRIGGERS
+    // -------------------------------------------------------------
+    function toggleHelpModal(open) {
+      sound.playBeep();
+      const el = document.getElementById('modal-help');
+      if (open) {
+        el.classList.remove('hidden');
+        const q = currentQuestion();
+        selectHelpVariable(q ? q.solveFor : 'F');
+      } else {
+        el.classList.add('hidden');
+      }
+    }
+
+    function toggleCalculatorModal(open) {
+      const el = document.getElementById('modal-calculator');
+      const workspaceEl = document.getElementById('view-workspace');
+      if (open) {
+        workspaceEl.classList.remove('max-w-4xl');
+        workspaceEl.classList.add('max-w-[1280px]');
+        el.classList.remove('hidden');
+        if (!desmosLoaded || !desmosCalculator) {
+          initDesmos();
+        } else {
+          onDesmosChange();
+        }
+        if (window.lucide) lucide.createIcons();
+      } else {
+        if (state && state.currentLevel >= 2) {
+          setFeedback(`Notice: Level ${state.currentLevel} needs the Desmos calculator. Reopen it any time with the Calculator button.`, 'info');
+        }
+        workspaceEl.classList.remove('max-w-[1280px]');
+        workspaceEl.classList.add('max-w-4xl');
+        el.classList.add('hidden');
+      }
+    }
+
+    // -------------------------------------------------------------
+    // COMPLETION CERTIFICATE & VERIFICATION
+    // -------------------------------------------------------------
+    function triggerCompletionCertificate() {
+      const modal = document.getElementById('modal-completion');
+      if (!modal) return;
+
+      document.getElementById('cert-student-name').innerText = state.displayName || state.studentId;
+      document.getElementById('cert-student-id').innerText = state.studentId;
+      document.getElementById('cert-score').innerText = `${state.bestQuizScore} / ${MIN_QUESTIONS}`;
+      document.getElementById('cert-honors-note').innerText = state.honorsOn ? ', including ⭐ Honors problems with signed net force and total system mass' : '';
+      document.getElementById('cert-save-title').innerText = state.studentId === 'teacher_preview'
+        ? 'Teacher Preview (not saved)'
+        : 'Score Automatically Saved to Teacher Gradebook';
+      document.getElementById('cert-save-badge').classList.toggle('hidden', state.studentId === 'teacher_preview');
+      document.getElementById('cert-save-text').innerText = state.studentId === 'teacher_preview'
+        ? 'Teacher Preview: nothing is saved in preview mode.'
+        : 'Your results have been automatically recorded. No screenshot or manual turn-in is required!';
+
+      const dateStr = state.completedAt
+        ? new Date(state.completedAt).toLocaleDateString()
+        : new Date().toLocaleDateString();
+      document.getElementById('cert-date').innerText = dateStr;
+
+      if (!state.certificateId) state.certificateId = makeCertificateId(state.bestQuizScore);
+      document.getElementById('cert-token').innerText = state.certificateId;
+
+      modal.classList.remove('hidden');
+      sound.playSuccess();
+      confetti({ particleCount: 80, spread: 100, origin: { y: 0.5 } });
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function openCompletionCertificateModal() {
+      sound.playBeep();
+      triggerCompletionCertificate();
+    }
+
+    function closeCompletionModal(restartPractice = false) {
+      sound.playBeep();
+      document.getElementById('modal-completion').classList.add('hidden');
+      if (restartPractice) {
+        changeLevel(3);
+      }
+    }
+
+  </script>
 </body>
 </html>
