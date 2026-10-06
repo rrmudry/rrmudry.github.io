@@ -3,6 +3,15 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-05 — Google Classroom Sync & Daily Update
+**Patterns Updated**: `classroom-gradebook-sync.md`.
+
+**Changes**:
+- **Firestore Slash ID Resolution**: Fixed Firestore document resolution in `sync-classroom/sync-cli.js` for date-named assignments with forward slashes (e.g. `9/28` -> `9%2F28`) by expanding `possibleIds` to include URL encoded and decoded variants.
+- **Google Classroom API Past Due Date Handling**: Omitted `dueDate` for retrospective coursework to satisfy the Google Classroom API constraint (`dueDate: Due date must be in the future`).
+- **The Gradest `9/28` Synced**: Successfully deployed `9/28` (20 pts) across all 7 periods and synced 74 student scores with 0 errors.
+- **Daily Site Update**: Refreshed deployment timestamp (`partials/footer.html`) and verified Day 26 & 27 curriculum alignments in `assets/lessons-data.js`.
+
 ## 2026-10-05 — The Gradest: Zero-Latency Master Roster Fallback & Manual Grading Prioritization
 
 **Patterns Updated**: `cloud-sync-architecture.md`, `cast-aligned-webapp-design.md`.
