@@ -10,8 +10,48 @@ const htmlContent = `<!DOCTYPE html>
   <title>Kinematic Velocity Calculator | v_f = v_o + at</title>
   
   <!-- CDNs for styling, icons, and libraries -->
+  <script>
+    // Suppress Tailwind Play CDN notice in student console
+    (function() {
+      const origWarn = console.warn;
+      console.warn = function(...args) {
+        if (typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com should not be used in production')) return;
+        origWarn.apply(console, args);
+      };
+    })();
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="../../assets/lucide.min.js"></script>
+  <script src="../assets/lucide.min.js"></script>
+  <script src="../lucide.min.js"></script>
+  <script src="lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
+    // Bulletproof Lucide shim fallback so missing or blocked CDN never halts app execution
+    window.lucide = window.lucide || {
+      createIcons: function() {
+        try {
+          const map = {
+            'arrow-left': '←', 'arrow-right': '→', 'gauge': '⚡',
+            'sun': '☀️', 'moon': '🌙', 'log-out': '🚪', 'eye': '👁️',
+            'cloud-check': '☁️✓', 'volume-2': '🔊', 'clipboard-paste': '📋',
+            'lightbulb': '💡', 'help-circle': '❓', 'calculator': '🧮',
+            'x': '✕', 'unlock': '🔓', 'printer': '🖨️', 'square': '⏹'
+          };
+          document.querySelectorAll('i[data-lucide]').forEach(el => {
+            const icon = el.getAttribute('data-lucide');
+            if (map[icon]) {
+              el.textContent = map[icon];
+              el.style.fontStyle = 'normal';
+              el.style.display = 'inline-flex';
+              el.style.alignItems = 'center';
+              el.style.justifyContent = 'center';
+            }
+          });
+        } catch (e) {}
+      }
+    };
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <!-- Official Desmos Scientific Calculator API -->
@@ -52,6 +92,11 @@ const htmlContent = `<!DOCTYPE html>
       --accent-amber: #f59e0b;
     }
     
+    html {
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
     body {
       font-family: 'Outfit', sans-serif;
       background-color: var(--bg);
@@ -61,6 +106,7 @@ const htmlContent = `<!DOCTYPE html>
       color: #f8fafc;
       min-height: 100vh;
       overflow-x: hidden;
+      overflow-y: auto;
     }
     
     .mono {
@@ -85,18 +131,23 @@ const htmlContent = `<!DOCTYPE html>
     }
 
     /* custom scrollbar */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+    }
     ::-webkit-scrollbar {
-      width: 6px;
+      width: 8px;
+      height: 8px;
     }
     ::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.02);
+      background: rgba(255, 255, 255, 0.03);
     }
     ::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 4px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(56, 189, 248, 0.5);
     }
 
     /* Drag & Drop Visuals */
@@ -216,7 +267,7 @@ const htmlContent = `<!DOCTYPE html>
     }
   </style>
 </head>
-<body class="bg-grid min-h-screen flex flex-col relative overflow-hidden">
+<body class="bg-grid min-h-screen flex flex-col relative overflow-x-hidden">
 
   <!-- Header -->
   <header class="w-full py-2 px-4 border-b border-white/5 bg-[#050917]/70 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between">
@@ -247,10 +298,10 @@ const htmlContent = `<!DOCTYPE html>
   </header>
 
   <!-- Main View Container -->
-  <main class="flex-grow flex items-center justify-center p-2 md:p-3 z-10">
+  <main class="flex-grow flex justify-center p-2 md:p-3 z-10">
     
     <!-- SECTION 1: GOOGLE SIGN-IN -->
-    <section id="view-register" class="max-w-md w-full glass p-8 md:p-10 rounded-[2.5rem] border border-white/10 relative z-10 shadow-2xl transition-all duration-500">
+    <section id="view-register" class="max-w-md w-full glass p-8 md:p-10 rounded-[2.5rem] border border-white/10 relative z-10 shadow-2xl transition-all duration-500 my-auto">
       <div class="text-center space-y-6">
         <div class="bg-sky-600 w-20 h-20 rounded-[2rem] flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(2,132,199,0.3)]">
           <i data-lucide="gauge" class="text-white w-10 h-10"></i>
@@ -286,7 +337,7 @@ const htmlContent = `<!DOCTYPE html>
     </section>
 
     <!-- SECTION 2: WORKSPACE -->
-    <section id="view-workspace" class="max-w-4xl w-full hidden flex flex-col gap-3.5 transition-all duration-500">
+    <section id="view-workspace" class="max-w-4xl w-full hidden flex flex-col gap-3.5 transition-all duration-500 my-auto">
       
       <!-- Top Stats Bar -->
       <div class="flex flex-col md:flex-row justify-between items-center gap-3 glass p-2.5 rounded-xl border border-white/5">
@@ -899,7 +950,9 @@ const htmlContent = `<!DOCTYPE html>
           btn.classList.remove("ring-2", "ring-rose-500/50");
           btn.title = "Read aloud";
         }
-        lucide.createIcons();
+        if (window.lucide && typeof lucide.createIcons === 'function') {
+          lucide.createIcons();
+        }
       }
     }
 
@@ -1342,7 +1395,16 @@ const htmlContent = `<!DOCTYPE html>
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      lucide.createIcons();
+      if (window.lucide && typeof lucide.createIcons === 'function') {
+        lucide.createIcons();
+      }
+
+      // Check redirect result for devices that fallback to signInWithRedirect
+      if (fbAuth && fbAuth.getRedirectResult) {
+        fbAuth.getRedirectResult().catch(err => {
+          console.warn('Redirect sign-in notice:', err);
+        });
+      }
 
       // Auto-detect preview mode: local file, localhost, or query parameters (?preview, ?test, ?guest)
       const urlParams = new URLSearchParams(window.location.search);
@@ -1404,14 +1466,28 @@ const htmlContent = `<!DOCTYPE html>
       statusEl.classList.remove('hidden');
       statusEl.innerText = 'Connecting to Google...';
       const provider = new firebase.auth.GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
+      provider.setCustomParameters({ hd: 'orangeusd.org', prompt: 'select_account' });
       try {
         await fbAuth.signInWithPopup(provider);
       } catch (e) {
-        console.error(e);
-        statusEl.classList.add('hidden');
-        errEl.classList.remove('hidden');
-        errEl.innerText = 'Sign-in failed — please try again';
+        console.warn('Popup sign-in encounter:', e);
+        if (e.code === 'auth/popup-blocked' || e.code === 'auth/cancelled-popup-request' || (e.message && e.message.includes('Cross-Origin-Opener-Policy'))) {
+          statusEl.innerText = 'Redirecting to Google sign-in...';
+          try {
+            await fbAuth.signInWithRedirect(provider);
+            return;
+          } catch (rErr) {
+            console.error('Redirect sign-in error:', rErr);
+          }
+        }
+        if (e.code !== 'auth/popup-closed-by-user') {
+          console.error(e);
+          statusEl.classList.add('hidden');
+          errEl.classList.remove('hidden');
+          errEl.innerText = 'Sign-in failed — please try again or use Preview Mode';
+        } else {
+          statusEl.classList.add('hidden');
+        }
       }
     }
 
@@ -2261,7 +2337,9 @@ const htmlContent = `<!DOCTYPE html>
         modal.querySelector('.transform').classList.add('scale-100');
       }, 50);
       
-      lucide.createIcons();
+      if (window.lucide && typeof lucide.createIcons === 'function') {
+        lucide.createIcons();
+      }
     }
 
     function startUnlockedLevel() {
