@@ -3,6 +3,21 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-07 — Kinematic Velocity Calculator: Auth Resilience & Lucide District Filter Armor
+**Patterns Updated**: `dashboard-layout.md`, `mobile-responsive.md`.
+
+**Changes**:
+- **Resolved District Web Filter & Blocksi Lucide Crash**:
+  - Replaced unpkg CDN script with local vendored `lucide.min.js`, multi-tier fallbacks (`assets/lucide.min.js`, jsDelivr), and an inline Unicode glyph shim in `kinematic_velocity_calculator/build-html.js`.
+  - Added safety checks around all `lucide.createIcons()` invocations (`SpeechManager.updateSpeakButton`, `DOMContentLoaded`, level unlock modals), preventing `Uncaught ReferenceError: lucide is not defined` from halting login or preview mode.
+- **Cross-Origin-Opener-Policy & Popup Auth Fallback**:
+  - Configured Google Auth Provider with `hd: 'orangeusd.org'` domain hint.
+  - Added automatic fallback to `fbAuth.signInWithRedirect(provider)` when popups are blocked or terminated by Chrome's `Cross-Origin-Opener-Policy` / Blocksi scanner.
+  - Added `fbAuth.getRedirectResult()` handler on boot to complete sign-in smoothly upon redirection.
+- **Chromebook Viewport Height & Vertical Scrolling Fix**:
+  - Removed `overflow-hidden` from `<body>`, enabled `overflow-y: auto`, `my-auto` centering on view sections, and styled 8px high-contrast scrollbars.
+  - Rebuilt `dist/index.html` and `index.html` via `build-html.js`.
+
 ## 2026-10-06 — Modified Atwood Hall's Carriage Lab
 **Patterns Added**: `halls-carriage-modified-atwood-lab.md`.
 
