@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modified Atwood Machine: Hall's Carriage Lab | Unit 2 Dynamics</title>
+  <meta name="description" content="Authentic student laboratory activity: Measure the acceleration of a Hall's carriage horizontal modified Atwood machine across 5 mass configurations using slow-motion video timing, graph a vs m and a vs 1/m, and verify Newton's Second Law.">
+  <link rel="icon" type="image/png" href="../../head.png">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Space Grotesk, Outfit, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+
+  <!-- Desmos Scientific Calculator API -->
+  <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+
+  <!-- Confetti Effects -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <!-- Firebase App Initialization -->
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
+
+  <!-- NGSS Integration Helper -->
+  <script src="../../assets/ngss-helper.js"></script>
+
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 flex flex-col min-h-screen">
+
+  <!-- TOP LAB APP HEADER -->
+  <header class="border-b border-white/10 bg-slate-950/85 backdrop-blur-md sticky top-0 z-40 px-4 py-2.5 shadow-sm">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Brand & Standard Alignment -->
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">🛒</span>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-display text-base sm:text-lg font-bold tracking-wide text-sky-200">
+              Modified Atwood Machine: Hall's Carriage Lab
+            </h1>
+            <span data-ngss-code="HS-PS2-1" class="hidden sm:inline-block px-2 py-0.5 rounded text-[11px] font-mono bg-sky-500/20 text-sky-300 border border-sky-500/30 font-semibold">
+              HS-PS2-1
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400 hidden sm:block">
+            Constant Pulling Force &bull; 5 Carriage Mass Configurations &bull; Video Frame Timing &bull; a vs. m & a vs. 1/m Graphing
+          </p>
+        </div>
+      </div>
+
+      <!-- Utilities & Auth -->
+      <div class="flex items-center gap-2">
+        <!-- Desmos Calculator Drawer Toggle -->
+        <button id="btn-toggle-calculator" class="px-3 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 text-xs font-bold border border-purple-500/40 transition-all flex items-center gap-1.5 shadow-sm" title="Toggle Desmos Scientific Calculator">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
+          <span class="hidden sm:inline">Calculator</span>
+        </button>
+
+        <!-- Sound FX Toggle -->
+        <button id="btn-sound-toggle" class="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-xs transition-colors" title="Toggle Sound FX">
+          🔊
+        </button>
+
+        <!-- Theme Toggle -->
+        <button id="btn-theme-toggle" class="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-xs transition-colors" title="Toggle Light / Dark Theme">
+          ☀️
+        </button>
+
+        <!-- Live Cloud Save Indicator -->
+        <div id="firestore-save-indicator" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900/80 border border-slate-700/60 font-mono text-[10px] text-slate-300 transition-all shadow-sm" title="Live Cloud Sync Status">
+          <span id="save-status-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          <span id="save-status-text">Cloud Ready</span>
+        </div>
+
+        <!-- Google Sign-in / User Profile -->
+        <div id="auth-user-status">
+          <button id="btn-google-login" class="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition-all shadow-sm active:scale-95 flex items-center gap-1.5">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-3.5 h-3.5 bg-white rounded-full p-0.5" alt="Google">
+            <span>Sign In</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN LAB CONTAINER -->
+  <main class="max-w-6xl mx-auto px-4 py-6 flex-1 w-full space-y-6">
+
+    <!-- 1. SAFETY & APPARATUS BANNER WITH HALL'S CARRIAGE PHOTO -->
+    <div class="safety-banner flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div class="flex items-start sm:items-center gap-4">
+        <!-- Hall's Carriage Visual Thumbnail -->
+        <div class="w-20 h-14 sm:w-24 sm:h-16 flex-shrink-0 bg-white/10 rounded-xl p-1.5 border border-white/15 flex items-center justify-center overflow-hidden shadow-inner">
+          <img src="assets/halls_carriage.png" alt="Blue Plastic Hall's Carriage" class="w-full h-full object-contain">
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <strong class="text-rose-400 font-extrabold uppercase tracking-wider text-xs sm:text-sm">Modified Atwood Protocol:</strong>
+            <span class="text-xs font-mono font-bold bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30">NO PULLEYS USED</span>
+          </div>
+          <span class="text-base sm:text-lg font-bold text-slate-100 mt-0.5 block">
+            String Lays Over Table Edge &bull; Constant Hanging Weight &bull; Vary Carriage Cargo
+          </span>
+          <p class="text-xs sm:text-sm text-slate-300 mt-1 leading-relaxed">
+            The string runs straight across the smooth table and directly over the table edge to the hanging mass. Keep the hanging pulling weight constant across all 5 trials while systematically changing the mass inside the blue carriage well.
+          </p>
+        </div>
+      </div>
+      <div id="badge-lab-status" class="px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 whitespace-nowrap self-start md:self-center">
+        In Progress (0/10)
+      </div>
+    </div>
+
+    <!-- 2. LAB SETUP PROTOCOL & STOPWATCH TOOL -->
+    <div class="glass-card p-5 sm:p-6">
+      <div class="mb-4 border-b border-white/10 pb-3">
+        <h2 class="font-display text-lg sm:text-xl font-extrabold text-sky-300 flex items-center gap-2">
+          <span>📋</span> Step 1: Equipment & Video Setup Protocol (Step-by-Step)
+        </h2>
+        <p class="text-sm sm:text-base text-slate-300 mt-1 leading-relaxed">
+          Follow the sequential setup protocol below before releasing the Hall's carriage.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        
+        <!-- STEP-BY-STEP PROCEDURE (7 cols) -->
+        <div class="lg:col-span-7 space-y-4">
+          <!-- Stepper Tab Navigation -->
+          <div class="stepper-nav" id="stepper-tabs">
+            <button type="button" class="step-tab-btn active" data-step="1">
+              <span class="w-5 h-5 rounded-full bg-sky-500/20 flex items-center justify-center text-xs font-black">1</span>
+              <span>Track Marks</span>
+            </button>
+            <button type="button" class="step-tab-btn" data-step="2">
+              <span class="w-5 h-5 rounded-full bg-sky-500/20 flex items-center justify-center text-xs font-black">2</span>
+              <span>Camera Framing</span>
+            </button>
+            <button type="button" class="step-tab-btn" data-step="3">
+              <span class="w-5 h-5 rounded-full bg-sky-500/20 flex items-center justify-center text-xs font-black">3</span>
+              <span>Running Timer</span>
+            </button>
+            <button type="button" class="step-tab-btn" data-step="4">
+              <span class="w-5 h-5 rounded-full bg-sky-500/20 flex items-center justify-center text-xs font-black">4</span>
+              <span>5 Mass Configs</span>
+            </button>
+            <button type="button" class="step-tab-btn" data-step="5">
+              <span class="w-5 h-5 rounded-full bg-sky-500/20 flex items-center justify-center text-xs font-black">5</span>
+              <span>Time Zeroing</span>
+            </button>
+          </div>
+
+          <!-- Step Content Container -->
+          <div class="p-5 rounded-xl bg-white/5 border border-white/10 min-h-[190px] flex flex-col justify-between" id="step-content-box">
+            
+            <!-- Stage 1 -->
+            <div class="step-panel" id="step-panel-1">
+              <div class="flex items-start justify-between gap-3 mb-2">
+                <div class="flex items-start gap-3.5">
+                  <span class="text-3xl p-2.5 rounded-lg bg-sky-500/20 border border-sky-500/30">📏</span>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-sky-400">Stage 1 of 5</span>
+                      <span class="text-sm text-slate-500">•</span>
+                      <span class="text-xs sm:text-sm font-bold text-slate-300">Track & Table Edge</span>
+                    </div>
+                    <h3 class="font-display text-base sm:text-lg font-extrabold text-slate-100 mt-1">Mark 0.0 cm Start & 100.0 cm Finish Lines</h3>
+                  </div>
+                </div>
+                <button type="button" class="btn-tts-stage flex-shrink-0 px-3 py-1.5 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/30 text-sky-300 hover:text-white text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-sm active:scale-95" data-stage="1" title="Read instructions aloud">
+                  <span class="tts-icon">🔊</span>
+                  <span class="tts-label">Listen</span>
+                </button>
+              </div>
+              <p class="text-sm sm:text-base text-slate-200 mt-1.5 leading-relaxed">
+                Place masking tape marks on a smooth, level lab table at:
+                <strong class="text-sky-300">0.0 cm (Start Line) and 100.0 cm (1.0 m Finish Line)</strong>.
+                Connect string to the blue Hall's carriage and lay it directly over the smooth table edge. <strong>No pulleys are used!</strong> Ensure hanging mass has clear vertical drop clearance.
+              </p>
+              <label class="checklist-item mt-3.5">
+                <input type="checkbox" id="chk-step-1" checked>
+                <span class="text-sm sm:text-base font-semibold flex-1">Tape marks are aligned straight at 0.0 and 100.0 cm, and string lays smoothly over the table edge.</span>
+                <button type="button" class="btn-tts-mini text-slate-400 hover:text-sky-300 text-base transition-colors p-1" data-tts-text="Checklist: Tape marks are aligned straight at 0.0 and 100.0 centimeters, and string lays smoothly over the table edge." title="Read checklist item aloud">
+                  🔊
+                </button>
+              </label>
+            </div>
+
+            <!-- Stage 2 -->
+            <div class="step-panel hidden" id="step-panel-2">
+              <div class="flex items-start justify-between gap-3 mb-2">
+                <div class="flex items-start gap-3.5">
+                  <span class="text-3xl p-2.5 rounded-lg bg-indigo-500/20 border border-indigo-500/30">📐</span>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-indigo-400">Stage 2 of 5</span>
+                      <span class="text-sm text-slate-500">•</span>
+                      <span class="text-xs sm:text-sm text-indigo-300 font-extrabold">CRITICAL CAMERA FRAMING</span>
+                    </div>
+                    <h3 class="font-display text-base sm:text-lg font-extrabold text-slate-100 mt-1">Single-Shot View: Frame Track AND Stopwatch Together</h3>
+                  </div>
+                </div>
+                <button type="button" class="btn-tts-stage flex-shrink-0 px-3 py-1.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/30 text-indigo-300 hover:text-white text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-sm active:scale-95" data-stage="2" title="Read instructions aloud">
+                  <span class="tts-icon">🔊</span>
+                  <span class="tts-label">Listen</span>
+                </button>
+              </div>
+              <p class="text-sm sm:text-base text-slate-200 mt-1.5 leading-relaxed">
+                Step back and position your phone camera so that <strong>BOTH the full track (Start to Finish) AND the propped-up stopwatch screen are visible simultaneously in the exact same video frame</strong>! Set camera to <strong>Slow-Motion (120 or 240 fps)</strong>.
+              </p>
+
+              <!-- Inline Viewfinder Apparatus Diagram -->
+              <div class="mt-2.5 p-3 rounded-xl camera-diagram-box">
+                <div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-1 px-1">
+                  <span class="flex items-center gap-1.5 text-rose-400 font-bold">
+                    <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+                    REC • 120/240 fps Slow-Mo
+                  </span>
+                  <span class="text-sky-300 font-bold">Single-Frame Dual View: Modified Atwood Track</span>
+                </div>
+                
+                <svg viewBox="0 0 540 160" class="w-full h-auto select-none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Viewfinder Border -->
+                  <rect x="2" y="2" width="536" height="156" rx="6" class="diagram-bg" />
+                  
+                  <!-- Framing Guides -->
+                  <path d="M 10 20 L 10 10 L 20 10" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M 530 20 L 530 10 L 520 10" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M 10 140 L 10 150 L 20 150" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M 530 140 L 530 150 L 520 150" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+                  
+                  <!-- Propped Timer Device -->
+                  <g transform="translate(185, 12)">
+                    <rect x="0" y="0" width="170" height="46" rx="6" class="diagram-device-bg" stroke="#38bdf8" stroke-width="1.5" />
+                    <rect x="4" y="4" width="162" height="38" rx="4" class="diagram-screen-bg" />
+                    <text x="85" y="26" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="19" font-weight="800" fill="#38bdf8" letter-spacing="-0.5">00:01.42</text>
+                    <text x="85" y="38" text-anchor="middle" font-family="sans-serif" font-size="8" font-weight="700" fill="#94a3b8" letter-spacing="0.5">PROPPED STOPWATCH IN FRAME</text>
+                  </g>
+                  
+                  <!-- Table Surface -->
+                  <rect x="25" y="90" width="395" height="12" rx="2" class="diagram-track-bg" />
+                  <rect x="415" y="90" width="8" height="60" rx="2" class="diagram-table-edge" />
+                  
+                  <!-- Marks -->
+                  <line x1="45" y1="82" x2="45" y2="108" stroke="#f43f5e" stroke-width="2.5" />
+                  <text x="45" y="76" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="800" fill="#f43f5e">0cm (t₀)</text>
+                  <text x="45" y="118" text-anchor="middle" font-family="sans-serif" font-size="8" font-weight="800" fill="#f43f5e">START</text>
+                  
+                  <line x1="395" y1="82" x2="395" y2="108" stroke="#10b981" stroke-width="2.5" />
+                  <text x="395" y="76" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="800" fill="#10b981">100cm (tf)</text>
+                  <text x="395" y="118" text-anchor="middle" font-family="sans-serif" font-size="8" font-weight="800" fill="#10b981">FINISH</text>
+                  
+                  <!-- Blue Hall's Carriage at start -->
+                  <g transform="translate(140, 78)">
+                    <!-- Blue Chassis -->
+                    <rect x="0" y="2" width="60" height="15" rx="3" fill="#0284c7" />
+                    <!-- Cargo Well -->
+                    <rect x="18" y="2" width="24" height="8" rx="1" fill="#0369a1" />
+                    <rect x="22" y="3" width="16" height="6" rx="1" fill="#475569" stroke="#94a3b8" stroke-width="0.5" />
+                    <!-- Wheels -->
+                    <circle cx="12" cy="17" r="4.5" fill="#1e293b" stroke="#0f172a" stroke-width="1.5" />
+                    <circle cx="48" cy="17" r="4.5" fill="#1e293b" stroke="#0f172a" stroke-width="1.5" />
+                  </g>
+                  
+                  <!-- String from front of carriage over table edge -->
+                  <line x1="200" y1="88" x2="420" y2="88" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,2" />
+                  <path d="M 420 88 Q 423 88 423 93 L 423 130" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,2" />
+                  
+                  <!-- Hanging Mass -->
+                  <g transform="translate(416, 130)">
+                    <rect x="0" y="0" width="14" height="16" rx="2" class="diagram-hanger" />
+                    <text x="7" y="11" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="7" font-weight="700" fill="#1e293b">50g</text>
+                  </g>
+                  
+                  <!-- Callout -->
+                  <rect x="35" y="132" width="370" height="22" rx="4" class="diagram-callout-bg" />
+                  <text x="220" y="147" text-anchor="middle" font-family="sans-serif" font-size="9.5" font-weight="700" class="diagram-callout-text">
+                    ⚡ No Pulley: String glides over rounded table edge. Record single-shot video!
+                  </text>
+                </svg>
+              </div>
+
+              <label class="checklist-item mt-3.5">
+                <input type="checkbox" id="chk-step-2" checked>
+                <span class="text-sm sm:text-base font-semibold flex-1">Camera is framed so <strong>both the 1.0 m track AND the stopwatch</strong> appear clearly in the same shot.</span>
+                <button type="button" class="btn-tts-mini text-slate-400 hover:text-sky-300 text-base transition-colors p-1" data-tts-text="Checklist: Camera is framed so both the 1.0 meter track and the stopwatch appear clearly in the same shot." title="Read checklist item aloud">
+                  🔊
+                </button>
+              </label>
+            </div>
+
+            <!-- Stage 3 -->
+            <div class="step-panel hidden" id="step-panel-3">
+              <div class="flex items-start justify-between gap-3 mb-2">
+                <div class="flex items-start gap-3.5">
+                  <span class="text-3xl p-2.5 rounded-lg bg-amber-500/20 border border-amber-500/30">⏱️</span>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-amber-400">Stage 3 of 5</span>
+                      <span class="text-sm text-slate-500">•</span>
+                      <span class="text-xs sm:text-sm text-amber-300 font-extrabold">CRITICAL TIMING TECHNIQUE</span>
+                    </div>
+                    <h3 class="font-display text-base sm:text-lg font-extrabold text-slate-100 mt-1">Prop Up Stopwatch & Start Running BEFORE Release</h3>
+                  </div>
+                </div>
+                <button type="button" class="btn-tts-stage flex-shrink-0 px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 hover:text-white text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-sm active:scale-95" data-stage="3" title="Read instructions aloud">
+                  <span class="tts-icon">🔊</span>
+                  <span class="tts-label">Listen</span>
+                </button>
+              </div>
+              <p class="text-sm sm:text-base text-slate-200 mt-1.5 leading-relaxed">
+                Place your second device facing the camera right beside the track. Click <strong class="text-sky-300">⛶ Fullscreen Timer</strong> for massive, high-contrast digits.
+              </p>
+              <p class="text-sm sm:text-base text-amber-200 mt-2 leading-relaxed bg-amber-500/10 p-3 rounded-lg border border-amber-500/20">
+                ⚡ <strong>Why Start Before Release?</strong> Starting the clock several seconds ahead ensures the timer is already ticking steadily in your video shot, allowing you to accurately zero your Start Time (t₀) when the cart first moves!
+              </p>
+              <label class="checklist-item mt-3.5">
+                <input type="checkbox" id="chk-step-3" checked>
+                <span class="text-sm sm:text-base font-semibold flex-1">Stopwatch is propped in the camera shot, set to fullscreen, and running before release.</span>
+                <button type="button" class="btn-tts-mini text-slate-400 hover:text-sky-300 text-base transition-colors p-1" data-tts-text="Checklist: Stopwatch is propped in the camera shot, set to fullscreen, and running before release." title="Read checklist item aloud">
+                  🔊
+                </button>
+              </label>
+            </div>
+
+            <!-- Stage 4 -->
+            <div class="step-panel hidden" id="step-panel-4">
+              <div class="flex items-start justify-between gap-3 mb-2">
+                <div class="flex items-start gap-3.5">
+                  <span class="text-3xl p-2.5 rounded-lg bg-emerald-500/20 border border-emerald-500/30">⚖️</span>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-400">Stage 4 of 5</span>
+                      <span class="text-sm text-slate-500">•</span>
+                      <span class="text-xs sm:text-sm font-bold text-slate-300">Controlled Variable Protocol</span>
+                    </div>
+                    <h3 class="font-display text-base sm:text-lg font-extrabold text-slate-100 mt-1">Keep Hanging Mass Constant & Vary 5 Carriage Masses</h3>
+                  </div>
+                </div>
+                <button type="button" class="btn-tts-stage flex-shrink-0 px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 hover:text-white text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-sm active:scale-95" data-stage="4" title="Read instructions aloud">
+                  <span class="tts-icon">🔊</span>
+                  <span class="tts-label">Listen</span>
+                </button>
+              </div>
+              <p class="text-sm sm:text-base text-slate-200 mt-1.5 leading-relaxed">
+                Keep the same hanging pulling weight for all trials (e.g. 50 g). Test 5 different cart mass configurations by varying the carriage mass on an electronic balance. Release cleanly from rest at <strong>0.0 cm (v₀ = 0)</strong> without pushing.
+              </p>
+              <label class="checklist-item mt-3.5">
+                <input type="checkbox" id="chk-step-4" checked>
+                <span class="text-sm sm:text-base font-semibold flex-1">Recorded 5 mass configurations with constant hanging mass and clean releases from rest.</span>
+                <button type="button" class="btn-tts-mini text-slate-400 hover:text-sky-300 text-base transition-colors p-1" data-tts-text="Checklist: Recorded 5 mass configurations with constant hanging mass and clean releases from rest." title="Read checklist item aloud">
+                  🔊
+                </button>
+              </label>
+            </div>
+
+            <!-- Stage 5 -->
+            <div class="step-panel hidden" id="step-panel-5">
+              <div class="flex items-start justify-between gap-3 mb-2">
+                <div class="flex items-start gap-3.5">
+                  <span class="text-3xl p-2.5 rounded-lg bg-purple-500/20 border border-purple-500/30">🔍</span>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-purple-400">Stage 5 of 5</span>
+                      <span class="text-sm text-slate-500">•</span>
+                      <span class="text-xs sm:text-sm font-bold text-slate-300">Video Analysis & Zeroing</span>
+                    </div>
+                    <h3 class="font-display text-base sm:text-lg font-extrabold text-slate-100 mt-1">Record Raw Start (t₀) and Finish (tf) Times</h3>
+                  </div>
+                </div>
+                <button type="button" class="btn-tts-stage flex-shrink-0 px-3 py-1.5 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/30 text-purple-300 hover:text-white text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-sm active:scale-95" data-stage="5" title="Read instructions aloud">
+                  <span class="tts-icon">🔊</span>
+                  <span class="tts-label">Listen</span>
+                </button>
+              </div>
+              <p class="text-sm sm:text-base text-slate-200 mt-1.5 leading-relaxed">
+                Scrub video frame-by-frame for each run. Note the exact stopwatch reading when the cart <strong>first moves from 0.0 cm</strong> and enter as <strong class="text-sky-300">Start Time (t₀)</strong>. Note when the front bumper crosses 100 cm as <strong class="text-sky-300">Finish Time (tf)</strong>. The table automatically calculates zeroed elapsed time <strong class="text-emerald-300">Δt = tf − t₀</strong>!
+              </p>
+              <label class="checklist-item mt-3.5">
+                <input type="checkbox" id="chk-step-5" checked>
+                <span class="text-sm sm:text-base font-semibold flex-1">Ready to enter raw times and carriage masses into the Step 2 data table below.</span>
+                <button type="button" class="btn-tts-mini text-slate-400 hover:text-sky-300 text-base transition-colors p-1" data-tts-text="Checklist: Ready to enter raw times and carriage masses into the Step 2 data table below." title="Read checklist item aloud">
+                  🔊
+                </button>
+              </label>
+            </div>
+
+            <!-- Stepper Footer Navigation Controls -->
+            <div class="flex items-center justify-between pt-3.5 mt-3 border-t border-white/10">
+              <button type="button" id="btn-prev-step" class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-sm font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+                ⬅ Previous
+              </button>
+              <div class="flex items-center gap-2" id="stepper-dots">
+                <span class="w-3 h-3 rounded-full bg-sky-400 dot-1"></span>
+                <span class="w-3 h-3 rounded-full bg-white/20 dot-2"></span>
+                <span class="w-3 h-3 rounded-full bg-white/20 dot-3"></span>
+                <span class="w-3 h-3 rounded-full bg-white/20 dot-4"></span>
+                <span class="w-3 h-3 rounded-full bg-white/20 dot-5"></span>
+              </div>
+              <button type="button" id="btn-next-step" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-sm font-extrabold transition-all shadow-md">
+                Next Step ➔
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- BUILT-IN VIRTUAL STOPWATCH TOOL (5 cols) -->
+        <div class="lg:col-span-5 stopwatch-card p-5 space-y-3">
+          <div class="flex items-center justify-between gap-2 border-b border-white/10 pb-2.5">
+            <h3 class="font-display text-sm font-extrabold text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
+              <span>⏱️</span> In-App Video Stopwatch
+            </h3>
+            <button id="btn-stopwatch-expand" class="px-3 py-1.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm active:scale-95 whitespace-nowrap" title="Expand Stopwatch to Full Screen for Video Capture">
+              <span>⛶ Fullscreen Timer</span>
+            </button>
+          </div>
+
+          <div class="text-center py-1">
+            <div id="stopwatch-display" class="stopwatch-hud">00:00.00</div>
+          </div>
+
+          <div class="flex items-center justify-center gap-2.5">
+            <button id="btn-stopwatch-toggle" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition-all shadow-sm">
+              ▶️ Start
+            </button>
+            <button id="btn-stopwatch-reset" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 text-sm font-bold transition-all">
+              🔄 Reset
+            </button>
+          </div>
+
+          <div class="flex items-center justify-center text-[11px] text-slate-400 font-mono px-1">
+            <span>Shortcut: Spacebar (Start / Stop)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. STEP 2: DISTANCE, MASS & TIME DATA TABLE -->
+    <div class="glass-card p-4 sm:p-6 space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
+        <div>
+          <h2 class="font-display text-lg sm:text-xl font-extrabold text-sky-300 flex items-center gap-2">
+            <span>📊</span> Step 2: 5 Mass Configurations Data Table
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-300 mt-0.5">
+            Constant Pulling Force &bull; Record Cart Mass & Raw Video Times for 5 Configurations
+          </p>
+        </div>
+        
+        <!-- Global Track Distance & Hanging Mass Inputs -->
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10 text-xs font-mono">
+            <span class="text-slate-400">Track (d):</span>
+            <input type="number" id="input-track-distance" value="100.0" step="1" min="10" max="500" class="w-16 bg-black/40 border border-white/20 rounded px-1.5 py-0.5 text-sky-300 text-center font-bold">
+            <span class="text-slate-400">cm</span>
+          </div>
+          <div class="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10 text-xs font-mono">
+            <span class="text-slate-400">Hanger (m<sub>hang</sub>):</span>
+            <input type="number" id="input-hanging-mass" value="50.0" step="1" min="1" max="1000" class="w-16 bg-black/40 border border-white/20 rounded px-1.5 py-0.5 text-amber-300 text-center font-bold">
+            <span class="text-slate-400">g</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Time Zeroing Banner -->
+      <div class="p-3 rounded-xl bg-sky-500/10 border border-sky-500/20 text-xs sm:text-sm text-sky-200 leading-relaxed flex items-start gap-2">
+        <span class="text-base">ℹ️</span>
+        <div>
+          <strong class="font-bold text-sky-300">Time Zeroing & Total Mass:</strong> Enter the video stopwatch reading at release (0.0 cm) into <strong>t₀</strong> and finish line (100 cm) into <strong>tf</strong>.
+          The table calculates <span class="font-mono font-bold text-emerald-300">Δt = tf − t₀</span> and total system mass <span class="font-mono font-bold text-sky-300">M<sub>total</sub> = m<sub>cart</sub> + m<sub>hang</sub></span>.
+        </div>
+      </div>
+
+      <!-- Data Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs sm:text-sm border-collapse">
+          <thead>
+            <tr class="border-b border-white/10 text-slate-300 font-mono text-xs sm:text-sm">
+              <th class="py-2.5 px-2 text-left font-bold whitespace-nowrap">Configuration</th>
+              <th class="py-2.5 px-2 text-left font-bold whitespace-nowrap">Cart Mass (m<sub>cart</sub>)</th>
+              <th class="py-2.5 px-2 text-left font-bold whitespace-nowrap">Total System Mass (M<sub>total</sub>)</th>
+              <th class="py-2.5 px-2 text-left font-bold whitespace-nowrap">Start (t₀)</th>
+              <th class="py-2.5 px-2 text-left font-bold whitespace-nowrap">Finish (t<sub>f</sub>)</th>
+              <th class="py-2.5 px-2 text-center font-bold whitespace-nowrap">Elapsed (Δt)</th>
+              <th class="py-2.5 px-2 text-right font-bold whitespace-nowrap">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/5 font-mono text-xs sm:text-sm">
+            <!-- Config 1 -->
+            <tr>
+              <td class="py-2 px-2 text-sky-400 font-bold whitespace-nowrap">Config 1</td>
+              <td class="py-2 px-2">
+                <div class="flex items-center gap-1">
+                  <input type="number" id="mass-cart-0" step="0.1" min="1" class="table-input w-20 text-center font-bold">
+                  <span class="text-slate-400 text-xs">g</span>
+                </div>
+              </td>
+              <td id="total-mass-0" class="py-2 px-2 whitespace-nowrap text-slate-400">--</td>
+              <td class="py-2 px-2">
+                <input type="number" id="raw-t0-0" step="0.01" min="0" class="table-input w-20 text-center font-bold">
+              </td>
+              <td class="py-2 px-2">
+                <input type="number" id="raw-tf-0" step="0.01" min="0" class="table-input w-20 text-center font-bold">
+              </td>
+              <td id="elapsed-time-0" class="py-2 px-2 text-center whitespace-nowrap text-slate-400">--</td>
+              <td id="row-status-0" class="py-2 px-2 text-right whitespace-nowrap">
+                <span class="text-slate-500 text-[10px]">Needs Data</span>
+              </td>
+            </tr>
+
+            <!-- Config 2 -->
+            <tr>
+              <td class="py-2 px-2 text-sky-400 font-bold whitespace-nowrap">Config 2</td>
+              <td class="py-2 px-2">
+                <div class="flex items-center gap-1">
+                  <input type="number" id="mass-cart-1" step="0.1" min="1" class="table-input w-20 text-center font-bold">
+                  <span class="text-slate-400 text-xs">g</span>
+                </div>
+              </td>
+              <td id="total-mass-1" class="py-2 px-2 whitespace-nowrap text-slate-400">--</td>
+              <td class="py-2 px-2">
+                <input type="number" id="raw-t0-1" step="0.01" min="0" class="table-input w-20 text-center font-bold">
+              </td>
+              <td class="py-2 px-2">
+                <input type="number" id="raw-tf-1" step="0.01" min="0" class="table-input w-20 text-center font-bold">
+              </td>
+              <td id="elapsed-time-1" class="py-2 px-2 text-center whitespace-nowrap text-slate-400">--</td>
+              <td id="row-status-1" class="py-2 px-2 text-right whitespace-nowrap">
+                <span class="text-slate-500 text-[10px]">Needs Data</span>
+              </td>
+            </tr>
+
+            <!-- Config 3 -->
+            <tr>
+              <td class="py-2 px-2 text-sky-400 font-bold whitespace-nowrap">Config 3</td>
+              <td class="py-2 px-2">
+                <div class="flex items-center gap-1">
+                  <input type="number" id="mass-cart-2" step="0.1" min="1" class="table-input w-20 text-center font-bold">
+                  <span class="text-slate-400 text-xs">g</span>
+                </div>
+              </td>
+              <td id="total-mass-2" class="py-2 px-2 whitespace-nowrap text-slate-400">--</td>
+              <td class="py-2 px-2">
+                <input type="number" id="raw-t0-2" step="0.01" min="0" class="table-input w-20 text-center font-bold">
+              </td>
+              <td class="py-2 px-2">
+                <input type="number" id="raw-tf-2" step="0.01" min="0" class="table-input w-20 text-center font-bold">
+              </td>
+              <td id="elapsed-time-2" class="py-2 px-2 text-center whitespace-nowrap text-slate-400">--</td>
+              <td id="row-status-2" class="py-2 px-2 text-right whitespace-nowrap">
+                <span class="text-slate-500 text-[10px]">Needs Data</span>
+              </td>
+            </tr>
+
+            <!-- Config 4 -->
+            <tr>
+              <td class="py-2 px-2 text-sky-400 font-bold whitespace-nowrap">Config 4</td>
+              <td class="py-2 px-2">
+                <div class="flex items-center gap-1">
+                  <input type="number" id="mass-cart-3" step="0.1" min="1" class="table-input w-20 text-center font-bold">
+                  <span class="text-slate-400 text-xs">g</span>
+                </div>
+              </td>
+              <td id="total-mass-3" class="py-2 px-2 whitespace-nowrap text-slate-400">--</td>
+              <td class="py-2 px-2">
+                <input type="number" id="raw-t0-3" step="0.01" min="0" class="table-input w-20 text-center font-bold">
+              </td>
+              <td class="py-2 px-2">
+                <input type="number" id="raw-tf-3" step="0.01" min="0" class="table-input w-20 text-center font-bold">
+              </td>
+              <td id="elapsed-time-3" class="py-2 px-2 text-center whitespace-nowrap text-slate-400">--</td>
+              <td id="row-status-3" class="py-2 px-2 text-right whitespace-nowrap">
+                <span class="text-slate-500 text-[10px]">Needs Data</span>
+              </td>
+            </tr>
+
+            <!-- Config 5 -->
+            <tr>
+              <td class="py-2 px-2 text-sky-400 font-bold whitespace-nowrap">Config 5</td>
+              <td class="py-2 px-2">
+                <div class="flex items-center gap-1">
+                  <input type="number" id="mass-cart-4" step="0.1" min="1" class="table-input w-20 text-center font-bold">
+                  <span class="text-slate-400 text-xs">g</span>
+                </div>
+              </td>
+              <td id="total-mass-4" class="py-2 px-2 whitespace-nowrap text-slate-400">--</td>
+              <td class="py-2 px-2">
+                <input type="number" id="raw-t0-4" step="0.01" min="0" class="table-input w-20 text-center font-bold">
+              </td>
+              <td class="py-2 px-2">
+                <input type="number" id="raw-tf-4" step="0.01" min="0" class="table-input w-20 text-center font-bold">
+              </td>
+              <td id="elapsed-time-4" class="py-2 px-2 text-center whitespace-nowrap text-slate-400">--</td>
+              <td id="row-status-4" class="py-2 px-2 text-right whitespace-nowrap">
+                <span class="text-slate-500 text-[10px]">Needs Data</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 4. STEP 3 & STEP 4 SPLIT WORKBENCH (Calculations & Motion Graph) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- LEFT: KINEMATIC CALCULATIONS WORKBENCH (6 cols) -->
+      <div class="lg:col-span-6 space-y-4">
+        <div class="glass-card p-5 sm:p-6 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
+            <div>
+              <h2 class="font-display text-lg sm:text-xl font-extrabold text-sky-300 flex items-center gap-2">
+                <span>🧮</span> Step 3: Kinematic Calculations
+              </h2>
+              <p class="text-xs text-slate-400 mt-0.5">3-Step Acceleration Ladder (Productive Science Practice)</p>
+            </div>
+            <button onclick="document.getElementById('desmos-drawer').classList.add('open')" class="px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-300 text-xs font-bold border border-purple-500/30">
+              Open Calc ↗
+            </button>
+          </div>
+
+          <!-- Configuration Tab Selector -->
+          <div class="space-y-1.5">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Select Configuration to Calculate:</span>
+            <div class="config-selector-tabs">
+              <button type="button" class="config-tab-btn active" data-config="0">Config 1</button>
+              <button type="button" class="config-tab-btn" data-config="1">Config 2</button>
+              <button type="button" class="config-tab-btn" data-config="2">Config 3</button>
+              <button type="button" class="config-tab-btn" data-config="3">Config 4</button>
+              <button type="button" class="config-tab-btn" data-config="4">Config 5</button>
+            </div>
+          </div>
+
+          <!-- Active Config Header -->
+          <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 text-xs font-mono text-sky-300" id="calc-active-label">
+            Config 1: Cart = -- g, Total = -- g, Δt = -- s
+          </div>
+
+          <!-- CALCULATION 1: AVERAGE SPEED -->
+          <div class="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-sky-500/20 text-sky-300 border border-sky-500/30 font-extrabold uppercase">Step 1</span>
+                <h3 class="font-bold text-sm sm:text-base text-slate-100 mt-0.5">Average Speed (v<sub>avg</sub>)</h3>
+              </div>
+              <span class="text-xs font-mono text-slate-300 font-bold">v<sub>avg</sub> = d / Δt</span>
+            </div>
+            <p class="text-xs text-slate-300">
+              Divide total track distance by elapsed time for this trial:
+            </p>
+            <div class="flex flex-wrap items-center gap-2 pt-1">
+              <span class="text-xs font-mono font-bold text-slate-300">v<sub>avg</sub> =</span>
+              <input type="number" id="input-vavg" step="0.1" placeholder="Value" class="lab-input w-28 text-center text-xs sm:text-sm font-bold py-1.5">
+              <span class="text-xs font-mono text-slate-400">cm/s</span>
+              <button id="btn-check-vavg" class="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs transition-all shadow-sm">
+                Check Math
+              </button>
+            </div>
+            <div id="feedback-vavg" class="hidden text-xs font-mono font-semibold pt-1"></div>
+          </div>
+
+          <!-- CALCULATION 2: FINAL SPEED (Vf) -->
+          <div class="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-purple-500/20 text-purple-300 border border-purple-500/30 font-extrabold uppercase">Step 2</span>
+                <h3 class="font-bold text-sm sm:text-base text-slate-100 mt-0.5">Final Speed at Finish Line (v<sub>f</sub>)</h3>
+              </div>
+              <span class="text-xs font-mono text-slate-300 font-bold">v<sub>f</sub> = 2 &bull; v<sub>avg</sub></span>
+            </div>
+            <p class="text-xs text-slate-300">
+              Because the carriage accelerates from rest (v₀ = 0), average speed is half of final speed:
+            </p>
+            <div class="flex flex-wrap items-center gap-2 pt-1">
+              <span class="text-xs font-mono font-bold text-slate-300">v<sub>f</sub> =</span>
+              <input type="number" id="input-vfinal" step="0.1" placeholder="Value" class="lab-input w-28 text-center text-xs sm:text-sm font-bold py-1.5">
+              <span class="text-xs font-mono text-slate-400">cm/s</span>
+              <button id="btn-check-vfinal" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-all shadow-sm">
+                Check Math
+              </button>
+            </div>
+            <div id="feedback-vfinal" class="hidden text-xs font-mono font-semibold pt-1"></div>
+          </div>
+
+          <!-- CALCULATION 3: ACCELERATION (a) -->
+          <div class="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-extrabold uppercase">Step 3</span>
+                <h3 class="font-bold text-sm sm:text-base text-slate-100 mt-0.5">Acceleration of the System (a)</h3>
+              </div>
+              <span class="text-xs font-mono text-slate-300 font-bold">a = v<sub>f</sub> / Δt</span>
+            </div>
+            <p class="text-xs text-slate-300">
+              Calculate the constant acceleration: <code class="bg-black/30 px-1 py-0.5 rounded text-emerald-300 font-mono">a = (v<sub>f</sub> − v₀) / Δt</code>:
+            </p>
+            <div class="flex flex-wrap items-center gap-2 pt-1">
+              <span class="text-xs font-mono font-bold text-slate-300">a =</span>
+              <input type="number" id="input-accel" step="0.1" placeholder="Value" class="lab-input w-28 text-center text-xs sm:text-sm font-bold py-1.5">
+              <span class="text-xs font-mono text-slate-400">cm/s²</span>
+              <button id="btn-check-accel" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all shadow-sm">
+                Check Math
+              </button>
+            </div>
+            <div id="feedback-accel" class="hidden text-xs font-mono font-semibold pt-1"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- RIGHT: REAL-TIME MOTION GRAPH (6 cols) -->
+      <div class="lg:col-span-6 space-y-4">
+        <div class="glass-card p-5 sm:p-6 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h2 class="font-display text-base sm:text-lg font-extrabold text-sky-300" id="graph-heading-text">
+              Step 4: Acceleration vs. Total Mass <span class="whitespace-nowrap text-sky-300 font-extrabold">(a vs. m)</span> Graph
+            </h2>
+            
+            <!-- Graph Mode Switcher -->
+            <div class="graph-tabs">
+              <button type="button" id="btn-graph-mode-inverse" class="graph-tab-btn active" title="View Inverse Curve (a vs m)">
+                <span>📈 a vs. m</span>
+              </button>
+              <button type="button" id="btn-graph-mode-linear" class="graph-tab-btn" title="View Linearized Curve (a vs 1/m)">
+                <span>⚡ a vs. 1/m</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Dynamic Legend Badges -->
+          <div id="graph-legend-container" class="flex items-center gap-2 text-xs flex-wrap">
+            <div id="legend-inverse-group" class="flex items-center gap-2 flex-wrap">
+              <span class="graph-legend-badge points">
+                <span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span> Plotted Data
+              </span>
+              <span class="graph-legend-badge secant">
+                <span class="w-3.5 h-0.5 bg-amber-400 rounded-full"></span> Theoretical Model (F<sub>net</sub>/m)
+              </span>
+            </div>
+            <div id="legend-linear-group" class="hidden flex items-center gap-2 flex-wrap">
+              <span class="graph-legend-badge linear">
+                <span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span> 1/M Data Points
+              </span>
+              <span class="graph-legend-badge linear">
+                <span class="w-3.5 h-0.5 bg-purple-400 rounded-full"></span> Linear Best-Fit Line
+              </span>
+            </div>
+          </div>
+
+          <p id="graph-description" class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            Observe the inverse relationship (hyperbolic curve) between acceleration and total system mass under constant hanging force!
+          </p>
+
+          <div id="motion-graph-container" class="relative w-full aspect-[16/10] bg-slate-900/80 rounded-xl border border-white/10 overflow-hidden shadow-inner transition-colors">
+            <canvas id="motion-graph-canvas" class="w-full h-full block"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 5. STEP 5: SCIENTIFIC ANALYSIS & CER STUDIO -->
+    <div class="glass-card p-5 sm:p-6 space-y-5">
+      <div class="border-b border-white/10 pb-3">
+        <h2 class="font-display text-lg sm:text-xl font-extrabold text-sky-300 flex items-center gap-2">
+          <span>📝</span> Step 5: Scientific Analysis & CER Explanation
+        </h2>
+        <p class="text-sm text-slate-300 mt-1 leading-relaxed">
+          Synthesize your findings regarding mass, acceleration, and Newton's Second Law.
+        </p>
+      </div>
+
+      <!-- Multiple-Choice Diagnostic Checks -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Q1 -->
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
+          <span class="text-xs font-mono font-bold text-sky-400 uppercase">Question 1</span>
+          <p class="text-xs sm:text-sm font-semibold text-slate-100">
+            As you added mass into the carriage well (keeping hanging weight constant), what happened to the measured acceleration?
+          </p>
+          <div class="space-y-1.5 text-xs">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="analysis-q1" value="increased" class="accent-sky-500">
+              <span>Acceleration increased</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="analysis-q1" value="decreased" class="accent-sky-500">
+              <span>Acceleration decreased (Inverse relationship)</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="analysis-q1" value="constant" class="accent-sky-500">
+              <span>Acceleration remained unchanged</span>
+            </label>
+          </div>
+          <div id="feedback-q1"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
+          <span class="text-xs font-mono font-bold text-purple-400 uppercase">Question 2</span>
+          <p class="text-xs sm:text-sm font-semibold text-slate-100">
+            What physical property does the slope of the linearized graph (a vs. 1/M<sub>total</sub>) represent?
+          </p>
+          <div class="space-y-1.5 text-xs">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="analysis-q2" value="net_force" class="accent-purple-500">
+              <span>Net Pulling Force (F<sub>net</sub> = m<sub>hang</sub> &bull; g)</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="analysis-q2" value="velocity" class="accent-purple-500">
+              <span>Final velocity of the cart</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="analysis-q2" value="mass" class="accent-purple-500">
+              <span>Total system mass</span>
+            </label>
+          </div>
+          <div id="feedback-q2"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
+          <span class="text-xs font-mono font-bold text-amber-400 uppercase">Question 3</span>
+          <p class="text-xs sm:text-sm font-semibold text-slate-100">
+            In this lab we did not use pulleys. How did sliding the string over the table edge affect experimental acceleration?
+          </p>
+          <div class="space-y-1.5 text-xs">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="analysis-q3" value="reduced_friction" class="accent-amber-500">
+              <span>Friction at the table edge slightly reduced acceleration</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="analysis-q3" value="increased_speed" class="accent-amber-500">
+              <span>It made the cart accelerate faster than theoretical</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="analysis-q3" value="no_effect" class="accent-amber-500">
+              <span>It had zero effect on the system</span>
+            </label>
+          </div>
+          <div id="feedback-q3"></div>
+        </div>
+      </div>
+
+      <!-- CER Studio Textareas -->
+      <div class="space-y-4 pt-2">
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
+          <label for="cer-claim" class="text-xs font-mono font-bold uppercase tracking-wider text-sky-400 block">
+            1. Scientific Claim (How does varying carriage mass affect acceleration under constant pulling force?):
+          </label>
+          <textarea id="cer-claim" rows="2" placeholder="e.g., When the hanging pulling force is held constant, increasing the mass in the Hall's carriage causes the acceleration of the system to decrease inversely..." class="w-full bg-black/40 border border-white/20 rounded-xl p-3 text-xs sm:text-sm text-slate-100 focus:border-sky-400 outline-none transition-all"></textarea>
+        </div>
+
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
+          <label for="cer-evidence" class="text-xs font-mono font-bold uppercase tracking-wider text-purple-400 block">
+            2. Empirical Evidence (Cite specific numerical numbers from your data table: lightest cart mass vs heaviest, and their respective accelerations):
+          </label>
+          <textarea id="cer-evidence" rows="2" placeholder="e.g., In Config 1 with a total mass of 200 g, the cart accelerated at 2.45 m/s² in 0.90 s. When mass increased to 600 g in Config 5, acceleration dropped to 0.82 m/s²..." class="w-full bg-black/40 border border-white/20 rounded-xl p-3 text-xs sm:text-sm text-slate-100 focus:border-purple-400 outline-none transition-all"></textarea>
+        </div>
+
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
+          <label for="cer-reasoning" class="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400 block">
+            3. Scientific Reasoning (Connect your evidence to Newton's Second Law and inertia):
+          </label>
+          <textarea id="cer-reasoning" rows="2" placeholder="e.g., According to Newton's Second Law (a = F_net / m), acceleration is inversely proportional to mass. Mass measures an object's inertia, so greater mass offers more resistance to acceleration..." class="w-full bg-black/40 border border-white/20 rounded-xl p-3 text-xs sm:text-sm text-slate-100 focus:border-emerald-400 outline-none transition-all"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. SUBMISSION & GRADE PROGRESS BAR -->
+    <div class="glass-card p-5 sm:p-6">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="w-full sm:w-1/2 space-y-2">
+          <div class="flex justify-between items-center text-sm sm:text-base">
+            <span class="font-bold text-slate-200">Lab Completion Progress:</span>
+            <span id="lab-progress-label" class="font-mono text-sky-400 font-bold">0% Complete</span>
+          </div>
+          <div class="w-full h-3.5 bg-white/10 rounded-full overflow-hidden">
+            <div id="lab-progress-bar" class="h-full bg-gradient-to-r from-sky-500 via-purple-500 to-emerald-500 transition-all duration-300 w-0"></div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button id="btn-submit-lab" disabled class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-bold text-sm sm:text-base shadow-lg transition-all opacity-50 cursor-not-allowed">
+            🚀 Submit 10/10 Score to Classroom
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FULLSCREEN STOPWATCH OVERLAY -->
+  <div id="stopwatch-fullscreen-modal" class="fixed inset-0 z-50 flex flex-col justify-between p-6 sm:p-10 hidden backdrop-blur-2xl transition-colors">
+    <!-- Top bar -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl sm:text-4xl">🛒</span>
+        <div>
+          <h2 class="font-display text-xl sm:text-2xl font-bold text-sky-400">Hall's Carriage Video Timer HUD</h2>
+          <p class="text-sm sm:text-base text-slate-300">Position this screen in your phone camera shot alongside the track</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="btn-fs-theme" class="px-4 py-2 rounded-xl bg-white/10 border border-white/15 text-sm font-bold hover:bg-white/20 transition-all flex items-center gap-1.5" title="Toggle Light/Dark High Contrast">
+          <span>🌓 High Contrast</span>
+        </button>
+        <button id="btn-fs-exit" class="px-5 py-2 rounded-xl bg-rose-600/30 hover:bg-rose-600/50 text-rose-200 border border-rose-500/40 text-sm sm:text-base font-bold transition-all flex items-center gap-1.5">
+          <span>✕ Exit Fullscreen</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Giant Centered Stopwatch Display -->
+    <div class="flex-1 flex flex-col items-center justify-center py-6">
+      <div id="stopwatch-fullscreen-display" class="stopwatch-hud font-mono font-black tracking-tight text-center select-none" style="font-size: clamp(4.5rem, 16vw, 13rem); line-height: 1;">
+        00:00.00
+      </div>
+    </div>
+
+    <!-- Giant Action Controls -->
+    <div class="space-y-4 max-w-2xl mx-auto w-full pb-4">
+      <div class="grid grid-cols-2 gap-4">
+        <button id="btn-fs-toggle" class="py-4 sm:py-5 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xl sm:text-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3">
+          <span>▶️ Start Timer</span>
+        </button>
+        <button id="btn-fs-reset" class="py-4 sm:py-5 px-6 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 font-bold text-xl sm:text-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3">
+          <span>🔄 Reset</span>
+        </button>
+      </div>
+      <div class="text-center text-xs sm:text-sm text-slate-400 font-mono">
+        <span>Shortcut: Spacebar (Start / Stop) &bull; Esc (Exit Fullscreen)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBMIT SUCCESS MODAL -->
+  <div id="submit-success-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="glass-card max-w-md w-full p-6 text-center space-y-4 border-emerald-500/40 shadow-2xl">
+      <div class="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 text-3xl flex items-center justify-center mx-auto border border-emerald-500/30 animate-bounce">
+        ✓
+      </div>
+      <h3 class="font-display text-xl sm:text-2xl font-bold text-white">Lab Score Recorded!</h3>
+      <p class="text-sm sm:text-base text-slate-200 leading-relaxed">
+        Outstanding work! Your verified 5-configuration data table, acceleration graphs (a vs. m and a vs. 1/m), and scientific CER explanation have been recorded to your student gradebook.
+      </p>
+      <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 font-mono text-base font-bold">
+        Score: 10 / 10 Points (100%)
+      </div>
+      <button onclick="document.getElementById('submit-success-modal').classList.add('hidden')" class="w-full py-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-base transition-all">
+        Close & Continue
+      </button>
+    </div>
+  </div>
+
+  <!-- DESMOS SCIENTIFIC CALCULATOR DRAWER -->
+  <div id="desmos-drawer">
+    <div class="p-3 border-b border-white/10 flex items-center justify-between bg-slate-900/90">
+      <div class="flex items-center gap-2">
+        <span class="text-sm">🧮</span>
+        <h4 class="font-display text-xs font-bold text-slate-200">Desmos Scientific Calculator</h4>
+      </div>
+      <button id="btn-close-desmos" class="text-slate-400 hover:text-white text-lg font-bold px-2 py-0.5 rounded">&times;</button>
+    </div>
+    <div id="desmos-calculator-container" class="flex-1 w-full h-full"></div>
+  </div>
+
+  <!-- JAVASCRIPT ASSETS -->
+  <script src="js/sound_fx.js"></script>
+  <script src="js/tts.js"></script>
+  <script src="js/stopwatch.js"></script>
+  <script src="js/auth_manager.js"></script>
+  <script src="js/lab_engine.js"></script>
+
+  <!-- Theme Toggle Script -->
+  <script>
+    const themeBtn = document.getElementById('btn-theme-toggle');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        document.documentElement.classList.toggle('light');
+        if (window.labEngine) window.labEngine.renderGraph();
+      });
+    }
+    const soundBtn = document.getElementById('btn-sound-toggle');
+    if (soundBtn) {
+      soundBtn.addEventListener('click', () => {
+        if (window.labSound) {
+          const isMuted = window.labSound.toggleMute();
+          soundBtn.textContent = isMuted ? '🔇' : '🔊';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

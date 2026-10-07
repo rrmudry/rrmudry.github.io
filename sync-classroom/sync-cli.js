@@ -278,7 +278,8 @@ async function fetchRosterMap() {
       rosterMap.set(sid, {
         name: sName,
         period: cleanP,
-        email: data.student_email || data.email || null
+        email: data.student_email || data.email || null,
+        isTransferBaseline: !!(data.transfer_student || data.isTransferBaseline)
       });
     });
   } catch (e) {
@@ -320,7 +321,11 @@ async function fetchAssignmentScores(assignmentId, rosterMap) {
             const answered = labObj.answered !== undefined ? labObj.answered : (data.answered || 0);
 
             let pct = 0;
-            if (isCompleted) {
+            if (data.percentage !== undefined && data.percentage !== null) {
+              pct = Number(data.percentage);
+            } else if (labObj.percentage !== undefined && labObj.percentage !== null) {
+              pct = Number(labObj.percentage);
+            } else if (isCompleted) {
               pct = 100;
             } else if (currentLvl === 3) {
               pct = Math.round((scoreLvl3 / 6) * 100);
@@ -337,7 +342,8 @@ async function fetchAssignmentScores(assignmentId, rosterMap) {
               name: data.displayName || rosterInfo.name || `Student ${sId}`,
               email: rosterInfo.email || `${sId}@orangeusd.org`,
               period: cleanPeriod,
-              rawPercentage: pct
+              rawPercentage: pct,
+              isTransferBaseline: !!(data.isTransferBaseline || rosterInfo.isTransferBaseline)
             });
           }
         }
@@ -393,7 +399,8 @@ async function fetchAssignmentScores(assignmentId, rosterMap) {
               name: data.student_name || data.studentName || rosterInfo.name || `Student ${sId}`,
               email: rosterInfo.email || `${sId}@orangeusd.org`,
               period: cleanPeriod,
-              rawPercentage: rawPct
+              rawPercentage: rawPct,
+              isTransferBaseline: !!(data.isTransferBaseline || rosterInfo.isTransferBaseline)
             });
           }
         });
@@ -718,7 +725,7 @@ async function syncAssignment({
       // effectivePct = 60 + 0.40 * rawPct
       const isConceptualPhysics = (p === 1 || p === 2 || p === 3);
       let effectivePct = student.rawPercentage;
-      if (isConceptualPhysics && effectivePct > 0 && effectivePct < 100) {
+      if (isConceptualPhysics && effectivePct > 0 && effectivePct < 100 && !student.isTransferBaseline) {
         effectivePct = Math.round((60 + 0.40 * effectivePct) * 10) / 10;
       }
 

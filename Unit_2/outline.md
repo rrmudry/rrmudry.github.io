@@ -277,7 +277,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Demonstration & Interactive Analysis: Slowly increasing tension on a heavy wood block using a force sensor until breakaway, displaying the classic static peak spike followed by the lower, flat kinetic friction plateau.
     *   *Essential Question:* What occurs at the microscopic interface between two solid surfaces when static friction breaks away into kinetic friction?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Demonstration
-    *   *Links:* [Science of Friction Presentation](Unit_2/describing-motion-presentation/index.html), Friction Analysis Handout *(Planned In-Class)*
+    *   *Links:* [Modified Atwood Machine: Hall's Carriage Lab](Unit_2/halls_carriage_lab/index.html), [Science of Friction Presentation](Unit_2/describing-motion-presentation/index.html), Friction Analysis Handout *(Planned In-Class)*
 
 *   **Day 29 (2026-10-08): Friction Block Inquiry Lab: Measuring Friction Coefficients**
     *   *Bell-Ringer:* Friction Coefficient Calculation (CAST Challenge): A 4.0 kg wooden crate requires 16.0 N of horizontal force to slide across a warehouse floor at constant speed. Calculate the normal force, the kinetic friction force, and the coefficient of kinetic friction μ<sub>k</sub>.
