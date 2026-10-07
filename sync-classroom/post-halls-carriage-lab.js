@@ -99,10 +99,11 @@ Activity Link: https://rrmudry.github.io/Unit_2/halls_carriage_lab/index.html`,
   maxPoints: 10,
   dueDate: { year: 2026, month: 10, day: 8 }, // Oct 7, 6:00 PM PDT = Oct 8, 01:00 UTC
   dueTime: { hours: 1, minutes: 0 },
-  activityUrl: 'https://rrmudry.github.io/Unit_2/halls_carriage_lab/index.html'
+  activityUrl: 'https://rrmudry.github.io/Unit_2/halls_carriage_lab/'
 };
 
 const isDryRun = process.argv.includes('--dry-run') || process.argv.includes('-d');
+const isReplace = process.argv.includes('--replace') || true; // Replace by default to refresh link metadata
 
 async function postAssignments() {
   console.log('====================================================');
@@ -128,7 +129,7 @@ async function postAssignments() {
       continue;
     }
     try {
-      // Check existing coursework to prevent duplicates
+      // Check existing coursework to prevent duplicates or replace stale link preview
       const listRes = await classroom.courses.courseWork.list({
         courseId: p.courseId,
         pageSize: 30
@@ -137,7 +138,14 @@ async function postAssignments() {
         cw.title && cw.title.trim().toLowerCase() === ASSIGNMENT.title.toLowerCase()
       );
 
-      if (existing) {
+      if (existing && isReplace && !isDryRun) {
+        console.log(`   🗑️ Replacing existing coursework (${existing.id}) to refresh link preview...`);
+        await classroom.courses.courseWork.delete({
+          courseId: p.courseId,
+          id: existing.id
+        });
+        await new Promise(r => setTimeout(r, 400));
+      } else if (existing && !isReplace) {
         console.log(`   ✓ Coursework already exists! (ID: ${existing.id})`);
         deployments.push({
           period: p.period,
