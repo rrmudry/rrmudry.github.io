@@ -1612,14 +1612,6 @@ const lessonsData = [
         "actionLabel": "Launch Studio 🚀",
         "description": "Interactive graded laboratory: Master slope as velocity (rise/run), spatial number line mapping, fast vs. slow steepness, and bidirectional graph-table translation.",
         "points": 100
-      },
-      {
-        "title": "Position vs. Time Graph Matching & Slope Worksheet",
-        "typeLabel": "Classwork Practice",
-        "submission": "In-Class Handout (Subject to Pacing)",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Calculate velocities for 4 multi-segment position-time graphs and sketch matching motion journeys.",
-        "status": "planned"
       }
     ],
     "resources": [
@@ -3264,12 +3256,6 @@ const lessonsData = [
         "url": "https://www.youtube.com/watch?v=Kx2yqEB20k8&list=PLOoPEMh8proU",
         "typeLabel": "Video Demonstration",
         "description": "Classic demonstration lecture on inertia, table cloth pulls, and resistance to change in motion."
-      },
-      {
-        "title": "Galileo vs. Aristotle Thought Experiments",
-        "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
-        "typeLabel": "Lecture Slides",
-        "description": "Historical debate on natural states of motion and Galileo double incline."
       }
     ],
     "practice": [
@@ -3635,9 +3621,19 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Hall's Carriage Modified Atwood Lab": "Unit_2/halls_carriage_lab/index.html",
       "Science of Friction Presentation": "Unit_2/describing-motion-presentation/index.html"
     },
     "assignments": [
+      {
+        "title": "Modified Atwood Machine: Hall's Carriage Lab",
+        "url": "Unit_2/halls_carriage_lab/index.html",
+        "typeLabel": "Interactive Lab & Data Analysis",
+        "submission": "Sign in with your school Google account; submit verified 10/10 score to Classroom",
+        "actionLabel": "Open Lab Workbench",
+        "description": "Authentic video timing of a Hall's carriage accelerated across 1.0 m by a constant hanging weight over the table edge (no pulleys). Collect 5 mass configurations, complete the 3-step kinematic acceleration ladder, graph a vs m and a vs 1/m, and write your CER conclusion.",
+        "status": "active"
+      },
       {
         "title": "Static vs. Kinetic Friction Analysis Worksheet",
         "typeLabel": "Class Worksheet",

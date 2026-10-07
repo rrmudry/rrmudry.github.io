@@ -3,6 +3,62 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-06 — Modified Atwood Hall's Carriage Lab
+**Patterns Added**: `halls-carriage-modified-atwood-lab.md`.
+
+**Changes**:
+- **Hall's Carriage Modified Atwood Webapp (`Unit_2/halls_carriage_lab/`)**:
+  - Engineered student lab activity modeled on `pull_back_toy_lab` for a horizontal modified Atwood machine setup using a blue plastic Hall's carriage and string laying over the table edge (no pulleys).
+  - Maintained constant hanging pulling mass across 5 user-configurable carriage mass configurations.
+  - Video timing protocol with precision digital stopwatch, fullscreen HUD, slow-mo 120/240 fps camera framing diagram, and time zeroing ($\Delta t = t_f - t_0$).
+  - 3-step kinematic acceleration ladder ($v_{avg} = d/\Delta t$, $v_f = 2\cdot v_{avg}$, $a = v_f/\Delta t$) with 8% tolerance checking and instant feedback.
+  - Dual-mode dynamic canvas graphs: $a$ vs. $M_{total}$ (inverse hyperbola) and $a$ vs. $1/M_{total}$ (linearized trendline through origin with slope $= F_{net}$).
+  - Full WCAG AAA high-contrast light mode styling and updated curriculum integration in `assets/lessons-data.js` and `Unit_2/outline.md` under Day 28.
+
+## 2026-10-06 — Transfer Student Baseline: Antonio Herrera (397817, Period 1)
+**Patterns Updated**: `classroom-gradebook-sync.md`.
+
+**Changes**:
+- **59% Benefit-of-the-Doubt Transfer Baseline**:
+  - Identified transfer student Antonio Herrera (`397817@orangeusd.org`) in Period 1 Conceptual Physics.
+  - Tagged Firestore `roster` record with `transfer_student: true`, `isTransferBaseline: true`, `transfer_baseline_pct: 59`.
+  - Populated 59% baseline scores across 17 Firestore assignment collections (`student_results` and `physics_labs`).
+  - Patched Google Classroom gradebook across all 18 API-managed Period 1 coursework items (`5.9/10`, `11.8/20`, and `47.2/80`).
+  - Updated `sync-classroom/sync-cli.js` so automated Conceptual Physics curves (`60 + 0.40 * rawPct`) respect `isTransferBaseline` and do not alter transfer baseline grades.
+
+## 2026-10-06 — Roster Reconciliation & Dropped Student Pruning
+**Patterns Updated**: `classroom-gradebook-sync.md`.
+
+**Changes**:
+- **Google Classroom vs Firestore Roster Reconciliation**:
+  - Implemented `sync-classroom/compare-roster.js` (`npm run check:roster`) to reconcile Firestore `roster` collection against Google Classroom API enrollments across Periods 0–6.
+  - Resolved dual-enrollment for Christian Ortiz Flores (confirmed removed from Period 2 Classroom course, active in Period 3).
+  - Backed up all 8 dropped student documents to `sync-classroom/backup-pruned-students-2026-10-06.json` (safely `.gitignore`d for FERPA compliance) and pruned them from Firestore `roster`.
+  - Re-ran comparison confirming 100% parity: exactly 177 active students across both systems with 0 missing, 0 extra, and 0 period mismatches.
+
+## 2026-10-06 — Bell-Ringer Weekly Grading: Week 6 & Week 7 Deployed and Synced
+**Patterns Updated**: `bell-ringer-config.md`, `classroom-gradebook-sync.md`.
+
+**Changes**:
+- **Dynamic School Week Calendar Resolution**: Enhanced `sync-classroom/sync-bellringers.js` with `WEEK_CALENDAR` date window mapping and automatic `--weekly` mode activation when `--week=N` is supplied.
+- **Week 6 Synced & Returned**: Evaluated 534 submissions (Sep 21–25, 20 pts max), filtered zero-effort bypasses, generated Firestore `student_results/bell_ringer_week_6`, created Classroom coursework across all 7 periods under `Unit 2: Motion`, and pushed/returned 177 student grades.
+- **Week 7 Synced & Returned**: Evaluated 543 submissions (Sep 28–Oct 02, 20 pts max), filtered zero-effort bypasses, generated Firestore `student_results/bell_ringer_week_7`, created Classroom coursework across all 7 periods, and pushed/returned 177 student grades.
+- **Refreshed Timestamp**: Updated deployment timestamp in `partials/footer.html`.
+
+## 2026-10-06 — Day 11 Curriculum Pruning: Removed Planned Graph Matching Worksheet
+**Patterns Updated**: `dashboard-layout.md`.
+
+**Changes**:
+- **Removed Planned In-Class Worksheet Entry**: Pruned planned "Position vs. Time Graph Matching & Slope Worksheet" from Day 11 `assignments` in `assets/lessons-data.js`, keeping the graded and live "Position vs. Time Graphing Studio" webapp as the primary deliverable.
+- **Refreshed Timestamp**: Updated deployment timestamp in `partials/footer.html`.
+
+## 2026-10-06 — Day 22 Curriculum Pruning: Removed Galileo Thought Experiment Slides
+**Patterns Updated**: `dashboard-layout.md`.
+
+**Changes**:
+- **Removed Stand-in Lecture Slides**: Pruned "Galileo vs. Aristotle Thought Experiments" resource link from Day 22 in `assets/lessons-data.js`, keeping the authentic "Inertia Presentation Slides" and Julius Sumner Miller demonstration video.
+- **Refreshed Timestamp**: Updated site deployment timestamp in `partials/footer.html`.
+
 ## 2026-10-06 — Newton's 2nd Law Calculator: Chromebook Viewport & Vertical Scroll Restoration
 **Patterns Updated**: `mobile-responsive.md`.
 

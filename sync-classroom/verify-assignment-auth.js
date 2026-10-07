@@ -160,6 +160,7 @@ async function runPreFlightCheck() {
   const possiblePaths = [
     path.join(__dirname, '..', 'Unit_2', 'newtons_second_law_studio', 'js', 'auth.js'),
     path.join(__dirname, '..', 'Unit_2', 'mass_weight_studio', 'js', 'auth.js'),
+    path.join(__dirname, '..', 'Unit_2', 'halls_carriage_lab', 'js', 'auth_manager.js'),
     path.join(__dirname, '..', 'newtons_second_law_calculator', 'src', 'app.js'),
     path.join(__dirname, '..', 'newtons_second_law_calculator', 'dist', 'index.html')
   ];

@@ -209,12 +209,23 @@ Flags:
     else if (arg === '--weekly') options.mode = 'weekly';
     else if (arg.startsWith('--period=')) options.period = parseInt(arg.split('=')[1], 10);
     else if (arg.startsWith('-p=')) options.period = parseInt(arg.split('=')[1], 10);
-    else if (arg.startsWith('--week=')) options.weekNumber = parseInt(arg.split('=')[1], 10);
+    else if (arg.startsWith('--week=')) {
+      options.weekNumber = parseInt(arg.split('=')[1], 10);
+      options.mode = 'weekly';
+    }
     else if (arg.startsWith('--start=')) options.startDate = arg.split('=')[1];
     else if (arg.startsWith('--end=')) options.endDate = arg.split('=')[1];
     else if (arg.startsWith('--points=')) options.maxPoints = parseFloat(arg.split('=')[1]);
     else if (arg.startsWith('--target=')) options.targetGenuine = parseInt(arg.split('=')[1], 10);
   }
+
+  const WEEK_CALENDAR = {
+    6: { start: '2026-09-21', end: '2026-09-25' },
+    7: { start: '2026-09-28', end: '2026-10-02' },
+    8: { start: '2026-10-05', end: '2026-10-09' },
+    9: { start: '2026-10-12', end: '2026-10-16' },
+    10: { start: '2026-10-19', end: '2026-10-23' }
+  };
 
   // Set defaults based on mode
   if (options.mode === 'retroactive') {
@@ -239,17 +250,21 @@ Submissions flagged for zero effort (such as 0% completion on CAST challenges, 0
 Moving forward, Bell-Ringers will be graded weekly at 4 points per day (20 points per week).`;
   } else {
     // Weekly mode
+    if (!options.weekNumber) {
+      options.weekNumber = 6;
+    }
+    if (WEEK_CALENDAR[options.weekNumber]) {
+      if (!options.startDate) options.startDate = WEEK_CALENDAR[options.weekNumber].start;
+      if (!options.endDate) options.endDate = WEEK_CALENDAR[options.weekNumber].end;
+    }
     if (!options.startDate || !options.endDate) {
-      if (options.weekNumber === 6 || !options.weekNumber) {
-        options.startDate = '2026-09-21';
-        options.endDate = '2026-09-25';
-        options.weekNumber = 6;
-      }
+      options.startDate = '2026-09-21';
+      options.endDate = '2026-09-25';
     }
     if (!options.maxPoints) options.maxPoints = 20;
     if (!options.targetGenuine) options.targetGenuine = 5;
-    options.assignmentId = `bell_ringer_week_${options.weekNumber || 'curr'}`;
-    options.title = `Bell-Ringer: Week ${options.weekNumber || ''} (${options.startDate} to ${options.endDate})`.replace('  ', ' ');
+    options.assignmentId = `bell_ringer_week_${options.weekNumber}`;
+    options.title = `Bell-Ringer: Week ${options.weekNumber} (${options.startDate} to ${options.endDate})`;
     options.description =
 `Weekly Bell-Ringer grade for ${options.startDate} to ${options.endDate}.
 Each day's genuine Bell-Ringer activity is worth 4 points (4 pts/day × 5 days = 20 points total).
