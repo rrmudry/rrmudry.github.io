@@ -56,18 +56,17 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // 3. System Config / Assessments / Question Bank (Hardened)
+    // 3. System Config / Assessments / Question Bank
     match /system_config/{configDoc} {
       allow read: if configDoc != "gemini_config" || (request.auth != null && isAuthorizedEmail(request.auth.token.email));
       allow write: if isAdmin();
     }
     match /assessments/{assessmentId} {
-      allow get: if true;
-      allow list: if isAdmin();
+      allow read: if true;
       allow write: if isAdmin();
     }
     match /questions/{questionId} {
-      allow read: if isAdmin();
+      allow read: if true;
       allow write: if isAdmin();
     }
 

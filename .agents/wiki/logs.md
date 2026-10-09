@@ -3,6 +3,17 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-09 — Student Dashboard & THE_PROCTOR: Firestore Permissions Hotfix
+**Patterns Updated**: `proctor-assessment-question-bank.md`.
+
+**Changes**:
+- **Resolved Firestore Permission-Denied for Students (`firestore.rules`)**:
+  - Restored `allow read: if true;` for `assessments` and `questions` collections.
+  - Previous audit had restricted `assessments` list and `questions` read to `isAdmin()`, causing `student_dashboard.html`'s `assessments.onSnapshot` listener to throw `[code=permission-denied]` and freeze student dashboard initialization.
+  - Deployed updated rules directly to Firebase project `site-6e500`.
+- **Dashboard Promise Resilience (`student_dashboard.html`)**:
+  - Added explicit error handler to `db.collection('assessments').onSnapshot` ensuring initialization promise always resolves and never hangs student screens indefinitely.
+
 ## 2026-10-09 — THE_PROCTOR & Admin Suites: District Web Filter Lucide Resilience
 **Patterns Updated**: `proctor-assessment-question-bank.md`.
 
