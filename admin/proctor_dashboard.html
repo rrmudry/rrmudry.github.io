@@ -399,28 +399,33 @@
             console.log(`[DASHBOARD] Setting up listeners for ${assignment}, period: ${period}...`);
 
             // 0. Fetch Roster
-            let rosterQuery = db.collection('roster');
-            if (period !== 'ALL') {
-                rosterQuery = rosterQuery.where('class_period', '==', parseInt(period));
-            }
             try {
-                const rosterSnap = await rosterQuery.get();
-                rosterDataCache = rosterSnap.docs.map(doc => {
-                    const d = doc.data();
-                    return {
-                        id: doc.id,
-                        student_id: d.student_id || doc.id,
-                        student_name: d.name || d.full_name || 'Unknown',
-                        class_period: d.class_period,
-                        score: '-', // Default score
-                        details: {
-                            status: 'OFFLINE',
-                            last_alert: 'WAITING FOR CONNECTION',
-                            violations: [],
-                            is_locked: false
-                        }
-                    };
-                });
+                const rosterSnap = await db.collection('roster').get();
+                rosterDataCache = rosterSnap.docs
+                    .map(doc => {
+                        const d = doc.data();
+                        const p = d.class_period !== undefined && d.class_period !== null 
+                            ? d.class_period 
+                            : (d.period !== undefined && d.period !== null ? d.period : null);
+                        return {
+                            id: doc.id,
+                            student_id: d.student_id || doc.id,
+                            student_name: d.name || d.full_name || d.student_name || 'Unknown',
+                            class_period: p,
+                            score: '-', // Default score
+                            details: {
+                                status: 'OFFLINE',
+                                last_alert: 'WAITING FOR CONNECTION',
+                                violations: [],
+                                is_locked: false
+                            }
+                        };
+                    })
+                    .filter(s => {
+                        if (period === 'ALL') return true;
+                        const studentP = parseInt(String(s.class_period || '').replace(/\D/g, ''), 10);
+                        return studentP === parseInt(period, 10);
+                    });
             } catch (e) {
                 console.error("Failed to fetch roster:", e);
                 rosterDataCache = [];
@@ -459,7 +464,16 @@
                 const mergedData = [...rosterDataCache];
                 
                 liveData.forEach(liveStudent => {
-                    const existingIndex = mergedData.findIndex(s => s.id === liveStudent.id);
+                    const existingIndex = mergedData.findIndex(s => 
+                        s.id === liveStudent.id || 
+                        (s.student_id && s.student_id === liveStudent.id) ||
+                        (liveStudent.student_id && (s.id === liveStudent.student_id || s.student_id === liveStudent.student_id))
+                    );
+
+                    const resolvedPeriod = liveStudent.class_period !== undefined && liveStudent.class_period !== null
+                        ? liveStudent.class_period
+                        : (liveStudent.period !== undefined && liveStudent.period !== null ? liveStudent.period : null);
+                    
                     if (existingIndex > -1) {
                         // Update existing roster student with live data
                         mergedData[existingIndex] = {
@@ -467,18 +481,18 @@
                             ...liveStudent,
                             id: mergedData[existingIndex].id,
                             student_name: mergedData[existingIndex].student_name, // Prefer roster name
-                            class_period: mergedData[existingIndex].class_period, // Prefer roster period
+                            class_period: mergedData[existingIndex].class_period || resolvedPeriod,
                             score: liveStudent.score !== undefined ? liveStudent.score : mergedData[existingIndex].score,
                             details: liveStudent.details || mergedData[existingIndex].details
                         };
                     } else {
-                        // Add live student NOT in roster, ONLY IF they match the current period filter
-                        let studentPeriod = String(liveStudent.class_period || '').replace(/\D/g, '');
-                        if (period === 'ALL' || studentPeriod === String(period)) {
+                        // Add live student NOT in roster, matching period filter
+                        let studentPeriod = parseInt(String(resolvedPeriod || '').replace(/\D/g, ''), 10);
+                        if (period === 'ALL' || studentPeriod === parseInt(period, 10)) {
                             mergedData.push({
                                 ...liveStudent,
                                 student_name: liveStudent.student_name || 'Unknown Student',
-                                class_period: liveStudent.class_period || '?',
+                                class_period: resolvedPeriod || '?',
                                 score: liveStudent.score || 0,
                                 details: liveStudent.details || { status: 'OFFLINE', violations: [] }
                             });

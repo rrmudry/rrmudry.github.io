@@ -3,6 +3,21 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-09 — THE_PROCTOR: Sync Pipeline Resilience, Watchdog, & Dashboard Period Normalization
+**Patterns Updated**: `proctor-assessment-question-bank.md`.
+
+**Changes**:
+- **Resolved Sync Freeze on School Chromebooks (`THE_PROCTOR_TEMPLATE.html`, `THE_PROCTOR_BETA.html`)**:
+  - Root cause: Intermittent Wi-Fi drops left Firestore `studentDocRef.set()` Promises pending indefinitely with no timeout. Because `isSyncing` was set to `true`, all subsequent answer submissions and heartbeat updates were discarded by `if (isSyncing) return;`.
+  - Added an 8-second `Promise.race` rejection timeout on Firestore writes.
+  - Added a 10-second watchdog timer to unconditionally reset `isSyncing = false` and recover the sync loop if a write hangs.
+  - Enabled dynamic DOM score recalculation from checked radio inputs during every sync call to ensure current score is never stale.
+  - Added offline retry queuing and an `online` window event listener to flush test progress immediately when Chromebook reconnects.
+  - Strengthened `handleBlur` with a 300ms debounce, `document.hasFocus()` verification, and active element checks to prevent false focus penalties from ChromeOS notifications and Desmos interactions.
+- **Proctor Dashboard Period 6 Normalization (`admin/proctor_dashboard.html`)**:
+  - Replaced strict Firestore query filter `where('class_period', '==', 6)` with full roster fetching and in-memory regex normalization (`replace(/\D/g, '')`), handling both numbers and strings, and checking both `class_period` and `period`.
+  - Added dual-key student matching (`s.id === liveStudent.id` or `s.student_id === liveStudent.id`) so students whose auth UID differs from roster ID are accurately displayed under Period 6.
+
 ## 2026-10-09 — THE_PROCTOR & Dashboard: Untimed Assessments & 15-Minute Timer Removal
 **Patterns Updated**: `proctor-assessment-question-bank.md`.
 

@@ -114,5 +114,34 @@ Across all high school physics assessments, webapps, and problem sets in this wo
 - **Never Fallback to 15**: Never default `TIME_LIMIT_MINS` to `15` (`|| 15`). Initialize `TIME_LIMIT_MINS = null`. When `data.time_limit_mins` is absent/null, set `TIME_LIMIT_MINS = null`.
 - **UI State**: In untimed mode, `#timer` renders as `Untimed` in muted slate (`text-slate-400 font-mono text-base font-bold`) rather than a red ticking countdown (`15:00`). `startTimer(null)` clears any active intervals and immediately exits without scheduling an auto-submit.
 
+### 8. Live Sync Pipeline Resilience & Dashboard Period Normalization
+During active testing on school Chromebooks, intermittent Wi-Fi hiccups and ChromeOS background events can stall client sync or drop students from the teacher proctor dashboard.
+
+#### Client-Side Sync Shielding (`THE_PROCTOR_TEMPLATE.html`, `THE_PROCTOR_BETA.html`)
+1. **Firestore Timeout Shield (`Promise.race`)**:
+   - Firestore writes on school Wi-Fi can hang indefinitely without throwing or resolving.
+   - Wrap `studentDocRef.set(...)` in `Promise.race` with an 8-second rejection timeout (`"Sync timeout: Firestore write took longer than 8000ms"`).
+2. **`isSyncing` Deadlock Watchdog**:
+   - If `isSyncing` is set to `true` and a write hangs, all future sync calls would exit early (`if (isSyncing) return;`), permanently freezing score updates.
+   - Run a 10-second watchdog timer: if `isSyncing` remains `true` after 10s, force `isSyncing = false` and retry pending updates.
+3. **Dynamic DOM Live Score Recalculation**:
+   - Never rely exclusively on memory state for `currentScore`.
+   - On every `syncResults` execution, dynamically recalculate `currentScore` directly from checked radio inputs (`document.querySelectorAll('input[type="radio"]:checked')`).
+4. **Offline Queue & Reconnection Auto-Flush**:
+   - If a sync fails, record `pendingStatus` and `pendingScore`.
+   - Listen for `window.addEventListener('online', ...)` to immediately flush pending test progress once Wi-Fi reconnects.
+5. **Chromebook Focus Loss Debounce (`handleBlur`)**:
+   - ChromeOS system notifications, shelf clicks, and Desmos iframe clicks trigger `window.blur`.
+   - Use a 300ms debounce and verify `document.hasFocus()` and `document.activeElement` (checking for `IFRAME`, `INPUT`, `BUTTON`) before logging a genuine focus violation or penalizing questions.
+
+#### Proctor Dashboard Period Normalization (`admin/proctor_dashboard.html`)
+1. **In-Memory Normalization**:
+   - Do NOT use strict Firestore query filtering (`where('class_period', '==', parseInt(period))`), as documents may store strings (`"6"`), numbers (`6`), or alternate keys (`period` vs `class_period`).
+   - Fetch the roster and normalize periods in memory by stripping non-digit characters (`String(p).replace(/\D/g, '')`).
+2. **Dual-Key Student Matching**:
+   - When merging live Firestore session data with the class roster, match on both `s.id === liveStudent.id` AND `s.student_id === liveStudent.id` (and vice-versa).
+   - This guarantees students whose authentication UID differs from their student roster ID are properly matched and displayed under their selected period.
+
+
 
 
