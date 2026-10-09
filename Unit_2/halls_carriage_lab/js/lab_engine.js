@@ -901,6 +901,25 @@ class HallsCarriageLabEngine {
     if (btnSubmit) {
       btnSubmit.onclick = () => this.handleLabSubmit();
     }
+
+    const btnViewCert = document.getElementById('btn-view-certificate');
+    if (btnViewCert) {
+      btnViewCert.onclick = () => this.openCertificateModal();
+    }
+
+    const btnModalOpenCert = document.getElementById('btn-modal-open-cert');
+    if (btnModalOpenCert) {
+      btnModalOpenCert.onclick = () => {
+        const successModal = document.getElementById('submit-success-modal');
+        if (successModal) successModal.classList.add('hidden');
+        this.openCertificateModal();
+      };
+    }
+
+    const btnCopySummary = document.getElementById('btn-copy-summary');
+    if (btnCopySummary) {
+      btnCopySummary.onclick = () => this.copyClassroomSummary();
+    }
   }
 
   checkQuestion(qNum, selected) {
@@ -1011,6 +1030,15 @@ class HallsCarriageLabEngine {
         btnSubmit.className = "px-6 py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-bold text-sm sm:text-base shadow-lg transition-all opacity-50 cursor-not-allowed";
       }
     }
+
+    const btnViewCert = document.getElementById('btn-view-certificate');
+    if (btnViewCert) {
+      if (points >= 10 || (window.labAuth && window.labAuth.isCompleted)) {
+        btnViewCert.classList.remove('hidden');
+      } else {
+        btnViewCert.classList.add('hidden');
+      }
+    }
   }
 
   async handleLabSubmit() {
@@ -1036,6 +1064,119 @@ class HallsCarriageLabEngine {
       if (window.labSound) window.labSound.playSuccess();
       const modal = document.getElementById('submit-success-modal');
       if (modal) modal.classList.remove('hidden');
+    }
+  }
+
+  // -------------------------------------------------------------
+  // Completion Certificate & Classroom Summary Export
+  // -------------------------------------------------------------
+  generateSecurityHash(name, score, slope, dateStr) {
+    const raw = `${name}_${score}_${slope}_${dateStr}_unit2_day28_halls_carriage`;
+    let hash = 0;
+    for (let i = 0; i < raw.length; i++) {
+      const char = raw.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash |= 0;
+    }
+    const hex = Math.abs(hash).toString(16).toUpperCase().padStart(8, '0');
+    return `HC-${hex.substring(0, 4)}-${hex.substring(4, 8)}`;
+  }
+
+  calculateExpSlope() {
+    let sumXY = 0;
+    let sumX2 = 0;
+    this.configs.forEach((c, idx) => {
+      const dt = this.getElapsedTime(idx);
+      const totalMG = this.getTotalMassG(idx);
+      if (totalMG !== null && dt !== null) {
+        const a_cm = c.accel !== null ? c.accel : (2 * this.trackDistance) / (dt * dt);
+        const a_m = a_cm / 100.0;
+        const m_kg = totalMG / 1000.0;
+        const inv_m = 1.0 / m_kg;
+        sumXY += inv_m * a_m;
+        sumX2 += inv_m * inv_m;
+      }
+    });
+    return sumX2 > 0 ? (sumXY / sumX2) : (this.hangingMass / 1000.0) * 9.8;
+  }
+
+  openCertificateModal() {
+    const modal = document.getElementById('certificate-modal');
+    if (!modal) return;
+
+    const auth = window.labAuth;
+    const name = (auth && auth.studentName) ? auth.studentName : "Student Investigator";
+    const studentId = (auth && auth.studentId) ? auth.studentId : "Guest";
+    const period = (auth && auth.classPeriod !== null && auth.classPeriod !== undefined) ? auth.classPeriod : "Unassigned";
+
+    const verifiedConfigs = this.configs.filter(c => c.accelVerified).length;
+    const slope = this.calculateExpSlope();
+    const fPull = (this.hangingMass / 1000.0) * 9.8;
+    const dateObj = new Date();
+    const dateStr = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    const timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    const hash = this.generateSecurityHash(name, 10, slope.toFixed(3), dateStr);
+
+    const elName = document.getElementById('cert-student-name');
+    const elId = document.getElementById('cert-student-id');
+    const elPeriod = document.getElementById('cert-period');
+    const elScore = document.getElementById('cert-score');
+    const elTrials = document.getElementById('cert-trials');
+    const elSlope = document.getElementById('cert-slope');
+    const elPull = document.getElementById('cert-pull');
+    const elDate = document.getElementById('cert-date');
+    const elHash = document.getElementById('cert-hash');
+
+    if (elName) elName.textContent = name;
+    if (elId) elId.textContent = studentId;
+    if (elPeriod) elPeriod.textContent = typeof period === 'number' ? `Period ${period}` : period;
+    if (elScore) elScore.textContent = "10 / 10 (100%)";
+    if (elTrials) elTrials.textContent = `${verifiedConfigs} / 5 Verified`;
+    if (elSlope) elSlope.textContent = `${slope.toFixed(3)} N`;
+    if (elPull) elPull.textContent = `${fPull.toFixed(3)} N`;
+    if (elDate) elDate.textContent = `${dateStr} at ${timeStr}`;
+    if (elHash) elHash.textContent = hash;
+
+    modal.classList.remove('hidden');
+
+    if (typeof confetti === 'function') {
+      confetti({ particleCount: 80, spread: 70, origin: { y: 0.5 } });
+    }
+  }
+
+  async copyClassroomSummary() {
+    const auth = window.labAuth;
+    const name = (auth && auth.studentName) ? auth.studentName : "Student Investigator";
+    const studentId = (auth && auth.studentId) ? auth.studentId : "Guest";
+    const period = (auth && auth.classPeriod !== null && auth.classPeriod !== undefined) ? auth.classPeriod : "Unassigned";
+    const slope = this.calculateExpSlope();
+    const fPull = (this.hangingMass / 1000.0) * 9.8;
+    const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    const hash = this.generateSecurityHash(name, 10, slope.toFixed(3), dateStr);
+
+    const summaryText = `🎓 Hall's Carriage Modified Atwood Lab Completion Certificate
+Investigator: ${name} (ID: ${studentId} | Period: ${period})
+Score: 10/10 Points (100%)
+Verified Mass Configurations: 5/5
+Hanging Pulling Force (F_hang): ${fPull.toFixed(3)} N
+Experimental Net Force (Slope k): ${slope.toFixed(3)} N
+Verification Hash: ${hash}
+Date: ${dateStr}`;
+
+    try {
+      await navigator.clipboard.writeText(summaryText);
+      const btn = document.getElementById('btn-copy-summary');
+      if (btn) {
+        const origHTML = btn.innerHTML;
+        btn.innerHTML = `<span>✓ Copied to Clipboard!</span>`;
+        btn.classList.add('bg-emerald-700', 'text-white');
+        setTimeout(() => {
+          btn.innerHTML = origHTML;
+          btn.classList.remove('bg-emerald-700', 'text-white');
+        }, 2200);
+      }
+    } catch (e) {
+      alert(summaryText);
     }
   }
 

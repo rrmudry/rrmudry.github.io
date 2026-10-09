@@ -20,7 +20,10 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
-    <!-- Lucide Icons -->
+    <!-- Lucide Icons (District Web Filter Resilient Multi-Tier Loaders) -->
+    <script src="../../assets/lucide.min.js"></script>
+    <script src="../../assets/vendor/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
@@ -327,8 +330,17 @@
     <div id="toast-container" class="fixed top-6 right-6 z-50 flex flex-col gap-2 w-80"></div>
 
     <script>
-        // Initialize Lucide Icons
-        lucide.createIcons();
+        // Safe Lucide initialization wrapper (District filter armor)
+        function safeCreateIcons() {
+            if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+                try {
+                    lucide.createIcons();
+                } catch (e) {
+                    console.warn("Lucide non-blocking icon render error:", e);
+                }
+            }
+        }
+        safeCreateIcons();
 
         // --- FIREBASE CONFIG ---
         const firebaseConfig = {
@@ -452,7 +464,7 @@
             const btn = document.getElementById('login-btn');
             btn.disabled = true;
             btn.innerHTML = '<i data-lucide="loader" class="animate-spin w-5 h-5"></i> Authenticating...';
-            lucide.createIcons();
+            safeCreateIcons();
             
             const provider = new firebase.auth.GoogleAuthProvider();
             provider.setCustomParameters({ 
@@ -806,7 +818,7 @@
                 </div>
             `;
             document.body.appendChild(div);
-            lucide.createIcons();
+            safeCreateIcons();
         }
 
         async function syncResults(statusLabel, score = null) {
@@ -969,7 +981,7 @@
         btnSetup.addEventListener('click', async () => {
             btnSetup.disabled = true;
             btnSetup.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Requesting Camera...';
-            lucide.createIcons();
+            safeCreateIcons();
             syncResults("HARDWARE_SETUP", 0);
 
             try {
@@ -992,22 +1004,22 @@
 
                 // 2. Load AI Models
                 btnSetup.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Initializing GPU...';
-                lucide.createIcons();
+                safeCreateIcons();
 
                 // Explicitly set WebGL backend for GPU acceleration
                 await tf.setBackend('webgl');
                 await tf.ready();
 
                 btnSetup.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Preparing System (Part 1/2)...';
-                lucide.createIcons();
+                safeCreateIcons();
                 model = await cocoSsd.load({ base: 'mobilenet_v2' });
 
                 btnSetup.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Preparing System (Part 2/2)...';
-                lucide.createIcons();
+                safeCreateIcons();
                 faceModel = await blazeface.load();
 
                 btnSetup.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Warming up engines...';
-                lucide.createIcons();
+                safeCreateIcons();
                 
                 // Warm-up inference to prevent lag during the actual test
                 await Promise.all([
@@ -1077,7 +1089,7 @@
             dot.style.top = pt.y;
             dot.style.transform = 'translate(-50%, -50%)';
             
-            lucide.createIcons();
+            safeCreateIcons();
         }
 
         document.getElementById('calibration-dot').addEventListener('click', () => {
@@ -1610,7 +1622,7 @@
             `;
 
             form.innerHTML = html + navHtml;
-            lucide.createIcons();
+            safeCreateIcons();
             updateSidebarCalculator();
         }
 
@@ -1818,7 +1830,7 @@
             syncResults(`COMPLETED: ${finalDisplayScore}`, rawScore);
             
             // Re-initialize icons in results screen
-            lucide.createIcons();
+            safeCreateIcons();
         }
 
         // --- UTILS ---
@@ -1835,7 +1847,7 @@
             `;
 
             toastContainer.appendChild(toast);
-            lucide.createIcons();
+            safeCreateIcons();
 
             // Auto remove after 4 seconds
             setTimeout(() => {

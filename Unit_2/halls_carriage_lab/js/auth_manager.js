@@ -170,6 +170,13 @@ class LabAuthManager {
       btnSubmit.textContent = "✓ Lab Score Recorded (10/10)";
       btnSubmit.classList.add('bg-emerald-700', 'pointer-events-none');
     }
+    const btnViewCert = document.getElementById('btn-view-certificate');
+    if (btnViewCert) {
+      btnViewCert.classList.remove('hidden');
+      btnViewCert.onclick = () => {
+        if (window.labEngine) window.labEngine.openCertificateModal();
+      };
+    }
   }
 
   sanitizePayload(val) {
