@@ -3,6 +3,56 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-08 — THE_PROCTOR: Newton's 2nd Law Quiz Bank Pruned (Pedagogical Alignment)
+**Patterns Updated**: `proctor-assessment-question-bank.md`.
+
+**Changes**:
+- **Pruned 32 Out-of-Scope Questions from `newtons_second_law_quiz`**:
+  - Removed questions introducing topics beyond foundational Newton's 2nd Law or possessing over-complicated/dense answer rationales:
+    - *Free Fall & Vacuum Chamber*: Q329 (bowling ball vs. tennis ball $F/m$ ratio).
+    - *Elevators & Apparent Weight*: Q319, Q320, Q321, Q368, Q369 (scale readings $N = m(g \pm a)$).
+    - *Modified Atwood Systems*: Q323, Q324, Q372, Q373 (two-body system inertia and acceleration formulas).
+    - *Multi-Step Kinematics Combinations*: Q340, Q364, Q365, Q366, Q367, Q376, Q377, Q378 (combining $F=ma$ with $v=at$, $\Delta x = \frac{1}{2}at^2$, $v^2=2ad$).
+    - *Vertical Lifting*: Q370, Q371, Q375 (crane and rocket thrust against gravity).
+    - *Drag / Terminal Velocity*: Q316, Q374.
+    - *2D Perpendicular Vectors & Circular Motion*: Q330 (30 N + 40 N), Q336 (curve turning).
+    - *Graph Slope Linearization*: Q311, Q312, Q313 ($F$ vs $a$, $a$ vs $F$, $a$ vs $1/m$).
+    - *Off-Earth Gravitational Decimal Weight*: Q353, Q354 (Moon $1.6$, Mars $3.7$).
+  - Bank pruned in Cloud Firestore `questions` collection and updated in `admin/scripts/populate_nsl_questions.js`.
+  - Final bank size: 46 clean questions (23 static conceptual, 23 calculated $F=ma$ / 1D net force problems).
+  - **Standardized Earth Gravity to Strictly $g = 10\text{ m/s}^2$**: Converted Q352, Q355, Q322, Q327, and Q410 to use $g = 10\text{ m/s}^2$ instead of $9.8$ across prompts, formulas, and distractors in both Firestore and local population scripts, permanently documenting the $g = 10\text{ m/s}^2$ classroom standard in `proctor-assessment-question-bank.md`.
+
+## 2026-10-08 — THE_PROCTOR: CP Newton's 2nd Law Quiz (Accessible Bank & Static Option Shuffling)
+**Patterns Updated**: `proctor-assessment-question-bank.md`.
+
+**Changes**:
+- **Created "CP Newton's 2nd Law Quiz" (`cp_newtons_second_law_quiz`)**:
+  - Provisioned a dedicated lower-level Conceptual Physics assessment with a hard limit of `max_questions: 12`.
+  - Synced assessment record to `assessments` and `gradest_assignments` with `maxScore: 12`.
+- **40-Question Accessible Bank (IDs 401–440)**:
+  - **20 Straightforward Conceptual MCQs (IDs 401–420)**: Clean, 1–2 sentence prompts focusing on core definitions ($F=ma$, units of N, kg, m/s²), direct relationships (push harder = faster acceleration, heavier = slower acceleration), direction of net force, balanced vs unbalanced forces, and mass vs weight.
+  - **20 Low-Level Calculation Problems (IDs 421–440)**: Friendly, small integer arithmetic for $F = m \cdot a$, $a = F/m$, $m = F/a$, Earth weight ($W = m \cdot 10$ and $9.8$), opposing forces ($F_1 - F_2$), and push against friction.
+  - All 40 questions have `has_calculator: true` with embedded Desmos calculator enabled and zero LaTeX notation.
+- **Fixed Static Option Shuffling (All Questions Were Option A)**:
+  - Identified that `processDynamicQuestions()` in `THE_PROCTOR_TEMPLATE.html` and `THE_PROCTOR_BETA.html` only shuffled options for `calculated` questions; static questions were returned with their original array order, which had the correct answer at index 0 (Option A).
+  - Added runtime Fisher-Yates array shuffling for static questions in both proctor templates.
+  - Randomized stored `options` order for all static questions across both `cp_newtons_second_law_quiz` and `newtons_second_law_quiz` in Firestore.
+
+
+## 2026-10-07 — THE_PROCTOR: Newton's 2nd Law 80-Question Bank & Desmos Integration
+**Patterns Added**: `proctor-assessment-question-bank.md`.
+
+**Changes**:
+- **Newton's 2nd Law Question Bank (`newtons_second_law_quiz`)**:
+  - Populated complete 80-question bank in Cloud Firestore under `questions` collection mapped to assignment ID `newtons_second_law_quiz`.
+  - **40 Static Multiple Choice Questions (IDs 301–340)**: Core concepts, proportional relationships ($a \propto F_{net}$, $a \propto 1/m$), vector directions, mass vs. weight, friction opposition, elevator apparent weights, Modified Atwood system mass inertia, and graphical interpretations.
+  - **40 Calculated Math Questions (IDs 341–380)**: Dynamic calculations with randomized parameters ($F_{net} = m \cdot a$, $a = F_{net}/m$, $m = F_{net}/a$, gravitational weight $F_g = m \cdot g$, friction braking $a = (F_{app} - F_{fric})/m$, tension vs weight, rocket thrust, stopping distance, and system acceleration).
+  - Configured `has_calculator: true` on all 80 questions to guarantee embedded Desmos scientific calculator access for every problem.
+- **Proctor Runtime & UI Enhancements**:
+  - Updated `admin/question_editor.html` to default the "Enable Embedded Desmos Calculator" toggle to `true` for newly created questions.
+  - Added query fallback in `admin/THE_PROCTOR/THE_PROCTOR_TEMPLATE.html` and `THE_PROCTOR_BETA.html` to resolve questions by either slug or lowercase underscore name, and formatted title display cleanly using `assessment_name`.
+  - Validated zero LaTeX math syntax across all 80 questions and ensured all calculated question variables generate strictly positive results and distinct distractor options.
+
 ## 2026-10-07 — Kinematic Velocity Calculator: Auth Resilience & Lucide District Filter Armor
 **Patterns Updated**: `dashboard-layout.md`, `mobile-responsive.md`.
 
