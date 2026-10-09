@@ -109,4 +109,10 @@ Across all high school physics assessments, webapps, and problem sets in this wo
 - **Multi-Tier Script Loaders**: Load local vendored `../../assets/lucide.min.js` and `../../assets/vendor/lucide.min.js` before CDN sources (`jsDelivr`, `unpkg`), preventing script load failures when district web filters block `unpkg.com`.
 - **`safeCreateIcons()` Function Guard**: Wrap all `lucide.createIcons()` calls inside `safeCreateIcons()`. If `lucide` fails to load or is blocked, the function catches non-blocking errors, preventing unhandled `ReferenceError` crashes during quiz runtime.
 
+### 7. Untimed Assessments vs. Timer Defaults
+- **Untimed Standard**: When `assessments/{id}.time_limit_mins` is `null` or omitted in Firestore, the assessment MUST run untimed with zero auto-submission timeouts.
+- **Never Fallback to 15**: Never default `TIME_LIMIT_MINS` to `15` (`|| 15`). Initialize `TIME_LIMIT_MINS = null`. When `data.time_limit_mins` is absent/null, set `TIME_LIMIT_MINS = null`.
+- **UI State**: In untimed mode, `#timer` renders as `Untimed` in muted slate (`text-slate-400 font-mono text-base font-bold`) rather than a red ticking countdown (`15:00`). `startTimer(null)` clears any active intervals and immediately exits without scheduling an auto-submit.
+
+
 
