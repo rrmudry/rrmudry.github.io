@@ -3,6 +3,19 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-09 — THE_PROCTOR & Dashboard: Untimed Assessments & 15-Minute Timer Removal
+**Patterns Updated**: `proctor-assessment-question-bank.md`.
+
+**Changes**:
+- **Eliminated Hardcoded 15-Minute Default Timer (`admin/THE_PROCTOR/THE_PROCTOR_TEMPLATE.html`, `THE_PROCTOR_BETA.html`)**:
+  - Root cause: `TIME_LIMIT_MINS` was initialized to `15` and `fetchAssessmentConfig` used `parseFloat(data.time_limit_mins) || 15`, forcing untimed assessments (`time_limit_mins: null` in Firestore) to run a 15-minute countdown and auto-submit tests unexpectedly.
+  - Initialized `TIME_LIMIT_MINS = null` and only activate countdown when `time_limit_mins` is an explicit positive number.
+  - Added slug fallback in `fetchAssessmentConfig` matching `fetchQuestions` resolution (`altName = ASSIGNMENT_NAME.replace(/\s+/g, '_').toLowerCase()`).
+  - Updated `startTimer()` to cleanly cancel intervals and display `Untimed` in muted slate (`text-slate-400 font-mono text-base font-bold`) when duration is null/0.
+  - Hardened resume and session_progress synchronization to preserve untimed testing sessions without timer expiration.
+- **Student Dashboard Label Clarity (`student_dashboard.html`)**:
+  - Updated time limit badge to check `assessment.time_limit_mins || assessment.time_limit`, displaying "Untimed" when no time limit is specified.
+
 ## 2026-10-09 — Student Dashboard & THE_PROCTOR: Firestore Permissions Hotfix
 **Patterns Updated**: `proctor-assessment-question-bank.md`.
 
