@@ -903,9 +903,12 @@
           </div>
         </div>
 
-        <div class="flex items-center gap-3">
+        <div class="flex flex-wrap items-center gap-3">
           <button id="btn-submit-lab" disabled class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-bold text-sm sm:text-base shadow-lg transition-all opacity-50 cursor-not-allowed">
             🚀 Submit 10/10 Score to Classroom
+          </button>
+          <button id="btn-view-certificate" class="hidden px-5 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm sm:text-base shadow-lg transition-all cursor-pointer active:scale-95 flex items-center gap-2">
+            <span>📜 View Certificate</span>
           </button>
         </div>
       </div>
@@ -970,9 +973,111 @@
       <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 font-mono text-base font-bold">
         Score: 10 / 10 Points (100%)
       </div>
-      <button onclick="document.getElementById('submit-success-modal').classList.add('hidden')" class="w-full py-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-base transition-all">
-        Close & Continue
+      <div class="space-y-2 pt-2">
+        <button id="btn-modal-open-cert" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-bold text-base transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-95">
+          <span>📜 View &amp; Print Official Certificate</span>
+        </button>
+        <button onclick="document.getElementById('submit-success-modal').classList.add('hidden')" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm transition-all cursor-pointer">
+          Close &amp; Continue
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OFFICIAL COMPLETION CERTIFICATE MODAL -->
+  <div id="certificate-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto hidden">
+    <div class="certificate-container max-w-3xl w-full bg-slate-900 border-2 border-emerald-500/50 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6 relative text-slate-100">
+      
+      <!-- Close Button -->
+      <button onclick="document.getElementById('certificate-modal').classList.add('hidden')" class="no-print absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center font-bold transition-all cursor-pointer">
+        ✕
       </button>
+
+      <!-- Certificate Border Frame (Prints clean on paper) -->
+      <div class="certificate-frame p-6 sm:p-8 rounded-xl border-4 border-double border-emerald-500/60 bg-gradient-to-b from-slate-900/90 via-slate-950 to-slate-900 space-y-6 relative overflow-hidden">
+        
+        <!-- Watermark Crest -->
+        <div class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none select-none">
+          <span class="text-[16rem]">🛒</span>
+        </div>
+
+        <!-- Header -->
+        <div class="text-center space-y-2 relative z-10">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs font-bold uppercase tracking-widest">
+            <span>Official Physics Verification</span>
+          </div>
+          <h2 class="font-display text-2xl sm:text-4xl font-extrabold text-white tracking-wide">
+            Certificate of Kinematic Mastery
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-300 font-medium">
+            Newton's Second Law &amp; Modified Atwood Hall's Carriage Dynamic Analysis
+          </p>
+          <div class="h-0.5 w-32 bg-gradient-to-r from-transparent via-emerald-500 to-transparent mx-auto my-2"></div>
+        </div>
+
+        <!-- Recipient Information -->
+        <div class="text-center space-y-2 relative z-10 py-2">
+          <p class="text-xs uppercase tracking-wider text-slate-400 font-mono">This certifies that investigator</p>
+          <h3 id="cert-student-name" class="font-display text-2xl sm:text-3xl font-black text-sky-400 tracking-wide">
+            Student Investigator
+          </h3>
+          <p id="cert-student-meta" class="text-xs text-slate-400 font-mono">
+            ID: <span id="cert-student-id">--</span> &bull; Period: <span id="cert-period">--</span>
+          </p>
+        </div>
+
+        <!-- Verification Statements -->
+        <p class="text-xs sm:text-sm text-slate-300 text-center max-w-xl mx-auto leading-relaxed relative z-10">
+          has successfully executed all 5 experimental mass configurations, calculated linearized acceleration curves (a vs. m and a vs. 1/m), and authored a complete Scientific CER argument adhering to NGSS standard <strong>HS-PS2-1</strong>.
+        </p>
+
+        <!-- Dynamic Telemetry Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 relative z-10 bg-white/5 dark:bg-black/30 p-4 rounded-xl border border-white/10 text-center font-mono">
+          <div class="space-y-1">
+            <span class="text-[10px] uppercase text-slate-400 block font-sans">Final Score</span>
+            <span id="cert-score" class="text-lg font-bold text-emerald-400">10 / 10 (100%)</span>
+          </div>
+          <div class="space-y-1">
+            <span class="text-[10px] uppercase text-slate-400 block font-sans">Mass Trials</span>
+            <span id="cert-trials" class="text-lg font-bold text-sky-400">5 / 5 Verified</span>
+          </div>
+          <div class="space-y-1">
+            <span class="text-[10px] uppercase text-slate-400 block font-sans">Exp. Force (Slope k)</span>
+            <span id="cert-slope" class="text-lg font-bold text-amber-400">-- N</span>
+          </div>
+          <div class="space-y-1">
+            <span class="text-[10px] uppercase text-slate-400 block font-sans">Pull Force (F_hang)</span>
+            <span id="cert-pull" class="text-lg font-bold text-purple-400">-- N</span>
+          </div>
+        </div>
+
+        <!-- Security Hash & Timestamp Footer inside Certificate -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-400 font-mono border-t border-white/10 pt-4 relative z-10">
+          <div>
+            <span>Verified: </span>
+            <span id="cert-date" class="text-slate-300">--</span>
+          </div>
+          <div class="text-right">
+            <span>Security Hash: </span>
+            <span id="cert-hash" class="text-emerald-400 font-bold">--</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Action Control Buttons (Hidden when printing) -->
+      <div class="no-print flex flex-col sm:flex-row items-center gap-3 pt-2">
+        <button id="btn-print-certificate" onclick="window.print()" class="w-full sm:flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-sm shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95">
+          <span>🖨️ Print / Save PDF Certificate</span>
+        </button>
+        <button id="btn-copy-summary" class="w-full sm:w-auto py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/15 font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95">
+          <span>📋 Copy Classroom Summary</span>
+        </button>
+        <button onclick="document.getElementById('certificate-modal').classList.add('hidden')" class="w-full sm:w-auto py-3 px-5 rounded-xl bg-white/10 hover:bg-white/15 text-slate-300 font-semibold text-sm transition-all cursor-pointer">
+          Close
+        </button>
+      </div>
+
     </div>
   </div>
 

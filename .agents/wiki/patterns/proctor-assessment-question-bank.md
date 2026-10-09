@@ -105,3 +105,8 @@ Across all high school physics assessments, webapps, and problem sets in this wo
 - **Pedagogical Rationale**: Eliminates gratuitous decimal arithmetic friction, supports quick mental math, and keeps students focused on physical relationships rather than rounding errors.
 - **Formulas & Prompts**: Write prompts as `g = 10 m/s²` (e.g. `W = m · 10`), and avoid introducing `9.8` in formulas, prompts, or distractor answer choices.
 
+### 6. Lucide Icon Resilience & Web Filter Armor
+- **Multi-Tier Script Loaders**: Load local vendored `../../assets/lucide.min.js` and `../../assets/vendor/lucide.min.js` before CDN sources (`jsDelivr`, `unpkg`), preventing script load failures when district web filters block `unpkg.com`.
+- **`safeCreateIcons()` Function Guard**: Wrap all `lucide.createIcons()` calls inside `safeCreateIcons()`. If `lucide` fails to load or is blocked, the function catches non-blocking errors, preventing unhandled `ReferenceError` crashes during quiz runtime.
+
+

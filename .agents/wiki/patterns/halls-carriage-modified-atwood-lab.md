@@ -30,3 +30,10 @@ Rather than auto-calculating acceleration, students complete a scaffolded 3-step
 - Integrated Web Audio sound effects synthesizer.
 - Embedded Desmos Scientific Calculator slide-out drawer.
 - Google Authentication with `@orangeusd.org` domain enforcement and auto-save to Firestore.
+
+## Completion Certificate & Print System
+- **Verification Certificate**: Generates an anti-tamper **Certificate of Kinematic Mastery** upon completing 5 verified mass configurations, $a$ vs. $m$ & $a$ vs. $1/m$ graphing, and CER writing.
+- **Anti-Tamper Hash**: Computes unique verification hash (`HC-XXXX-XXXX`) derived from student ID, date, completion score (10/10), and experimental slope $k$.
+- **1-Click Classroom Export**: Includes a **📋 Copy Classroom Summary** button that formats all experimental telemetry (Experimental Net Force, Hanging Pulling Force, Verification Hash) into clipboard text for Google Classroom comments.
+- **Ink-Friendly Print Layout (`@media print`)**: Hides top nav headers, stopwatch HUD, drawers, and control buttons, rendering a clean double-bordered letter certificate for saving as PDF or printing.
+

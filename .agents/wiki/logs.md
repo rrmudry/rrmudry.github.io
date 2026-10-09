@@ -3,6 +3,29 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-09 — THE_PROCTOR & Admin Suites: District Web Filter Lucide Resilience
+**Patterns Updated**: `proctor-assessment-question-bank.md`.
+
+**Changes**:
+- **Multi-Tier Lucide Script Loaders (`admin/THE_PROCTOR/`, `admin/`)**:
+  - Replaced single `unpkg.com` CDN script tags in `THE_PROCTOR_TEMPLATE.html`, `THE_PROCTOR_BETA.html`, `proctor_dashboard.html`, and `question_editor.html` with multi-tier fallbacks (`../../assets/lucide.min.js`, `../../assets/vendor/lucide.min.js`, jsDelivr, unpkg).
+  - Eliminates failures when school Chromebook filters (Blocksi, GoGuardian, Securly) block unpkg.com.
+- **Safe Icon Guard (`safeCreateIcons()`)**:
+  - Wrapped all runtime `lucide.createIcons()` calls inside `safeCreateIcons()` in `THE_PROCTOR_TEMPLATE.html` and `THE_PROCTOR_BETA.html`.
+  - Prevents `Uncaught ReferenceError: lucide is not defined` from throwing unhandled exceptions and halting test execution during authentication, camera setup, GPU warmup, and question rendering.
+
+## 2026-10-08 — Hall's Carriage Modified Atwood Lab: Completion Certificate & Print System
+**Patterns Updated**: `halls-carriage-modified-atwood-lab.md`.
+
+**Changes**:
+- **Added Completion Certificate Modal (`Unit_2/halls_carriage_lab/`)**:
+  - Engineered anti-tamper **Certificate of Kinematic Mastery** modal for students completing the 5-configuration Modified Atwood Hall's Carriage lab (10/10 score).
+  - Displays student investigator name, student ID, class period, verified mass configurations (5/5), experimental net force slope k (a vs. 1/M_total), theoretical pulling force (F_hang), completion timestamp, and unique security hash (`HC-XXXX-XXXX`).
+  - Added **🖨️ Print / Save PDF Certificate** button calling `window.print()` and **📋 Copy Classroom Summary** button for Google Classroom turn-in comments.
+  - Implemented `@media print` CSS rules in `style.css` to hide headers, HUD overlays, drawers, and buttons, rendering an ink-friendly double-bordered letter certificate.
+  - Added persistent **📜 View Certificate** buttons in the bottom submission card and Google Auth completion handler.
+- **Refreshed Timestamp**: Updated deployment timestamp via `scripts/update-timestamp.js`.
+
 ## 2026-10-08 — THE_PROCTOR: Newton's 2nd Law Quiz Bank Pruned (Pedagogical Alignment)
 **Patterns Updated**: `proctor-assessment-question-bank.md`.
 
@@ -37,21 +60,6 @@ Append-only log tracking pattern changes across recent sessions.
   - Identified that `processDynamicQuestions()` in `THE_PROCTOR_TEMPLATE.html` and `THE_PROCTOR_BETA.html` only shuffled options for `calculated` questions; static questions were returned with their original array order, which had the correct answer at index 0 (Option A).
   - Added runtime Fisher-Yates array shuffling for static questions in both proctor templates.
   - Randomized stored `options` order for all static questions across both `cp_newtons_second_law_quiz` and `newtons_second_law_quiz` in Firestore.
-
-
-## 2026-10-07 — THE_PROCTOR: Newton's 2nd Law 80-Question Bank & Desmos Integration
-**Patterns Added**: `proctor-assessment-question-bank.md`.
-
-**Changes**:
-- **Newton's 2nd Law Question Bank (`newtons_second_law_quiz`)**:
-  - Populated complete 80-question bank in Cloud Firestore under `questions` collection mapped to assignment ID `newtons_second_law_quiz`.
-  - **40 Static Multiple Choice Questions (IDs 301–340)**: Core concepts, proportional relationships ($a \propto F_{net}$, $a \propto 1/m$), vector directions, mass vs. weight, friction opposition, elevator apparent weights, Modified Atwood system mass inertia, and graphical interpretations.
-  - **40 Calculated Math Questions (IDs 341–380)**: Dynamic calculations with randomized parameters ($F_{net} = m \cdot a$, $a = F_{net}/m$, $m = F_{net}/a$, gravitational weight $F_g = m \cdot g$, friction braking $a = (F_{app} - F_{fric})/m$, tension vs weight, rocket thrust, stopping distance, and system acceleration).
-  - Configured `has_calculator: true` on all 80 questions to guarantee embedded Desmos scientific calculator access for every problem.
-- **Proctor Runtime & UI Enhancements**:
-  - Updated `admin/question_editor.html` to default the "Enable Embedded Desmos Calculator" toggle to `true` for newly created questions.
-  - Added query fallback in `admin/THE_PROCTOR/THE_PROCTOR_TEMPLATE.html` and `THE_PROCTOR_BETA.html` to resolve questions by either slug or lowercase underscore name, and formatted title display cleanly using `assessment_name`.
-  - Validated zero LaTeX math syntax across all 80 questions and ensured all calculated question variables generate strictly positive results and distinct distractor options.
 
 ## 2026-10-07 — Kinematic Velocity Calculator: Auth Resilience & Lucide District Filter Armor
 **Patterns Updated**: `dashboard-layout.md`, `mobile-responsive.md`.
