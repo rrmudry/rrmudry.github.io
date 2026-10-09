@@ -741,13 +741,31 @@
 
         async function syncResults(statusLabel, score = null) {
             if (!student.id) return;
+
+            // Recalculate live score directly from the DOM to guarantee score is never stale
+            const form = document.getElementById('test-form');
+            if (form && questionsData.length > 0) {
+                let livePts = 0;
+                questionsData.forEach((q, idx) => {
+                    const selected = form.querySelector(`input[name="q${idx}"]:checked`);
+                    if (selected && selected.value === q.correct_answer) {
+                        livePts++;
+                    }
+                });
+                currentScore = livePts;
+            }
             if (score !== null) currentScore = score;
             
-            // If already syncing, queue this update and return
+            // If already syncing, check watchdog timeout (> 8s) to break hanging locks on poor Wi-Fi
             if (isSyncing) {
-                pendingStatus = statusLabel;
-                if (score !== null) pendingScore = score;
-                return;
+                if (Date.now() - lastSyncTime > 8000) {
+                    console.warn("[PROCTOR] Sync watchdog triggered: Breaking stalled write lock (>8s).");
+                    isSyncing = false;
+                } else {
+                    pendingStatus = statusLabel;
+                    if (score !== null) pendingScore = score;
+                    return;
+                }
             }
 
             student.status = statusLabel; // Keep local status updated with what we are syncing
@@ -790,7 +808,6 @@
                 // Build session progress snapshot for resume-on-refresh
                 const sessionAnswers = {};
                 const lockedQuestions = [];
-                const form = document.getElementById('test-form');
                 if (form && questionsData.length > 0) {
                     questionsData.forEach((q, idx) => {
                         const selected = form.querySelector(`input[name="q${idx}"]:checked`);
@@ -804,7 +821,8 @@
                     student_id: student.id,
                     student_name: student.name,
                     assignment_name: assignmentName,
-                    class_period: student.period,
+                    class_period: student.period !== undefined && student.period !== null ? student.period : null,
+                    period: student.period !== undefined && student.period !== null ? student.period : null,
                     status: statusLabel,
                     score: currentScore,
                     total_points: totalQuestions,
@@ -840,10 +858,20 @@
 
                 checkAccessControl();
 
-                await studentDocRef.set(payload, { merge: true });
+                // 8-second timeout shield: never let a stalled connection hang the sync pipeline forever
+                const writePromise = studentDocRef.set(payload, { merge: true });
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error("Firestore sync timeout (8000ms)")), 8000)
+                );
+                await Promise.race([writePromise, timeoutPromise]);
 
             } catch (e) {
-                console.error("Sync Error:", e);
+                console.error("[PROCTOR] Sync Error:", e);
+                // Queue a retry if test is still active
+                if (!pendingStatus && isTesting && !isSessionTerminated) {
+                    pendingStatus = statusLabel;
+                    pendingScore = currentScore;
+                }
             } finally {
                 isSyncing = false;
                 if (syncInd) syncInd.classList.remove('animate-pulse');
@@ -1070,18 +1098,16 @@
 
         const handleBlur = () => {
             if (!isTesting) return;
-            // Delay check: when focus moves to an iframe (e.g. Desmos calculator),
-            // the browser fires blur on the window. We wait briefly, then check
-            // if the active element is an iframe — if so, the student is still
-            // on-page and this is NOT a violation.
+            // Delay check: when focus moves to an iframe (e.g. Desmos calculator) or internal element,
+            // the browser fires blur on the window. We wait briefly, then verify if document genuinely lost focus.
             setTimeout(() => {
-                if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
-                    console.log('[PROCTOR] Focus moved to embedded iframe (calculator) — not a violation.');
+                if (document.hasFocus()) return;
+                if (document.activeElement && (document.activeElement.tagName === 'IFRAME' || document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'BUTTON')) {
                     return;
                 }
                 logViolation("Focus Loss", "User switched tabs or minimized the window.");
                 penalizeCurrentQuestion();
-            }, 150);
+            }, 300);
         };
 
         const handleClipboard = (e) => {
@@ -1906,6 +1932,15 @@
 
         // Initialize default mode
         document.body.classList.add('calc-mode-inline');
+
+        // Network recovery: automatically retry sync when device reconnects
+        window.addEventListener('online', () => {
+            console.log('[PROCTOR] Device reconnected to network. Flushing pending sync.');
+            isSyncing = false;
+            if (isTesting || isSessionTerminated) {
+                syncResults('ONLINE_SYNC');
+            }
+        });
 
     </script>
 </body>
