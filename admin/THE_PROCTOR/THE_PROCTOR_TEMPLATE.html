@@ -455,6 +455,10 @@
             lucide.createIcons();
             
             const provider = new firebase.auth.GoogleAuthProvider();
+            provider.setCustomParameters({ 
+                hd: 'orangeusd.org', 
+                prompt: 'select_account' 
+            });
             try {
                 await auth.signInWithPopup(provider);
             } catch (error) {
@@ -1430,7 +1434,11 @@
         async function fetchQuestions() {
             try {
                 // Fetch questions from root 'questions' collection matching the assignment
-                const qSnap = await db.collection('questions').where('assignment_name', '==', ASSIGNMENT_NAME).get();
+                let qSnap = await db.collection('questions').where('assignment_name', '==', ASSIGNMENT_NAME).get();
+                if (qSnap.empty) {
+                    const altName = ASSIGNMENT_NAME.replace(/\s+/g, '_').toLowerCase();
+                    qSnap = await db.collection('questions').where('assignment_name', '==', altName).get();
+                }
                 const data = qSnap.docs.map(doc => doc.data());
                 
                 if (data.length === 0) {
@@ -1439,8 +1447,15 @@
                     return;
                 }
 
-                // Update Header Title to match assignment
-                document.getElementById('assessment-title').textContent = ASSIGNMENT_NAME;
+                // Update Header Title to match assignment cleanly
+                let displayTitle = ASSIGNMENT_NAME.replace(/_/g, ' ');
+                try {
+                    const assmtSnap = await db.collection('assessments').doc(ASSIGNMENT_NAME).get();
+                    if (assmtSnap.exists && assmtSnap.data().assignment_name) {
+                        displayTitle = assmtSnap.data().assignment_name;
+                    }
+                } catch(e) {}
+                document.getElementById('assessment-title').textContent = displayTitle;
 
                 // Randomize without replacement (Fisher-Yates Shuffle)
                 questionsData = [...data];
@@ -1468,7 +1483,18 @@
                 const isLegacy = q.text && q.text.includes('|||');
                 const isStructured = q.type === 'calculated' || q.config;
 
-                if (!isLegacy && !isStructured) return q;
+                if (!isLegacy && !isStructured) {
+                    // Randomize options for static questions so Option A is not always the correct answer
+                    if (q.options && Array.isArray(q.options) && q.options.length > 1) {
+                        const shuffled = [...q.options];
+                        for (let i = shuffled.length - 1; i > 0; i--) {
+                            const j = Math.floor(Math.random() * (i + 1));
+                            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                        }
+                        return { ...q, options: shuffled };
+                    }
+                    return q;
+                }
 
                 try {
                     let textTemplate = q.text;
