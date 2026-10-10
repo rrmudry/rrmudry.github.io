@@ -381,7 +381,7 @@ async function fetchAssignmentScores(assignmentId, rosterMap) {
               rawPct = Number(data.percentage);
             } else if (data.score !== undefined && data.score !== null) {
               const numScore = Number(data.score);
-              const max = Number(data.maxScore || data.maxPoints || 0);
+              const max = Number(data.total_points || data.totalPoints || data.maxScore || data.maxPoints || 0);
               if (max > 0 && numScore <= max) {
                 rawPct = Math.round((numScore / max) * 100);
               } else {
@@ -431,7 +431,7 @@ async function fetchAssignmentScores(assignmentId, rosterMap) {
                 rawPct = Number(g.percentage);
               } else if (g.score !== undefined && g.score !== null) {
                 const numScore = Number(g.score);
-                const max = Number(g.maxPoints || g.maxScore || data.maxPoints || data.maxScore || 0);
+                const max = Number(g.total_points || g.totalPoints || g.maxPoints || g.maxScore || data.maxPoints || data.maxScore || 0);
                 if (max > 0 && numScore <= max) {
                   rawPct = Math.round((numScore / max) * 100);
                 } else {
@@ -507,6 +507,15 @@ function findMatchingCourseWork(assignment, cwList) {
     m = cwList.find(cw => {
       const cwNorm = cw.title.toLowerCase().replace(/[^a-z0-9]/g, '');
       return cwNorm.includes('accelerationstudio');
+    });
+    if (m) return m;
+  }
+
+  // 1f. Newton's 2nd Law Quiz / CP Newton's 2nd Law Quiz
+  if (aNorm.includes('newton') && (aNorm.includes('second') || aNorm.includes('2nd')) && aNorm.includes('quiz')) {
+    m = cwList.find(cw => {
+      const cwNorm = cw.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+      return cwNorm.includes('newton') && (cwNorm.includes('second') || cwNorm.includes('2nd')) && cwNorm.includes('quiz');
     });
     if (m) return m;
   }
@@ -1192,14 +1201,17 @@ async function main() {
       process.exit(1);
     }
   } else {
-    // Single assignment target query
-    const matches = allAssignments.filter(a => 
-      a.id.toLowerCase().includes(targetQuery.toLowerCase()) || 
-      a.name.toLowerCase().includes(targetQuery.toLowerCase())
-    ).sort((a, b) => b.studentCount - a.studentCount);
+    // Single assignment target query with normalized number matching (e.g. 2nd <-> second)
+    const normQ = (str) => String(str || '').toLowerCase().replace(/2nd/g, 'second').replace(/[^a-z0-9]/g, '');
+    const cleanTarget = normQ(targetQuery);
+    const matches = allAssignments.filter(a => {
+      const idNorm = normQ(a.id);
+      const nameNorm = normQ(a.name);
+      return idNorm.includes(cleanTarget) || nameNorm.includes(cleanTarget) || cleanTarget.includes(idNorm) || cleanTarget.includes(nameNorm);
+    }).sort((a, b) => b.studentCount - a.studentCount);
 
     if (matches.length > 0) {
-      targets = [matches[0]];
+      targets = matches;
     } else {
       console.warn(`No exact match for query "${targetQuery}". Searching Classroom matches...`);
       const matchedByCw = allAssignments.find(a => {
@@ -1211,8 +1223,8 @@ async function main() {
       } else {
         // Fallback: Check assignment registry directly
         const regMatch = Array.from(registry.entries()).find(([k, v]) => 
-          k.toLowerCase().includes(targetQuery.toLowerCase()) || 
-          (v.title && v.title.toLowerCase().includes(targetQuery.toLowerCase()))
+          normQ(k).includes(cleanTarget) || 
+          normQ(v.title).includes(cleanTarget)
         );
         if (regMatch) {
           targets = [{ id: regMatch[0], name: regMatch[1].title || regMatch[0], studentCount: 0 }];
