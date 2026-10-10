@@ -3,6 +3,18 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-09 — THE_PROCTOR Dashboard: CP Quiz Score Rendering & Firestore Restoration
+**Patterns Updated**: `proctor-assessment-question-bank.md`.
+
+**Changes**:
+- **Resolved "LOCKED_BY_PROCTOR" Displayed as Score (`admin/proctor_dashboard.html`)**:
+  - Root cause: The dashboard computed score via `isFinished && s.status ? s.status.replace('COMPLETED: ', '') : ...`. If `s.status` was `"LOCKED_BY_PROCTOR"` (from a previous period lock), `.replace('COMPLETED: ', '')` left the string unchanged, causing the card and report modal to literally display "LOCKED_BY_PROCTOR" as the student's score.
+  - Added `getStudentScoreDisplay(s)` helper that prioritizes numeric `score` / `total_points` and strictly validates `COMPLETED:` prefixes before string extraction, ensuring system lock statuses are never displayed as scores.
+  - Hardened `lockStudent` and `acknowledgeStudent` to check `isStudentFinished` and preserve completed test status and scores.
+  - Removed duplicate `isCritical` condition in `updateGrid`.
+- **Restored 36 Completed Student Records in `cp_newtons_second_law_quiz`**:
+  - Restored `status: "COMPLETED: X / 12"`, `isCompleted: true`, and `details.status: "COMPLETED: X / 12"` for all 14 completed students in Period 3, 9 completed students in Period 1, and 13 completed students in Period 2.
+
 ## 2026-10-09 — THE_PROCTOR: Completed Status Preservation & Session Question Persistence
 **Patterns Updated**: `proctor-assessment-question-bank.md`.
 
