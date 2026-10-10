@@ -547,6 +547,23 @@
             }
         }
 
+        function getStudentScoreDisplay(s) {
+            const details = s?.details || {};
+            if (typeof s?.score === 'number' && s?.total_points) {
+                return `${s.score} / ${s.total_points}`;
+            }
+            if (typeof s?.score === 'number') {
+                return `${s.score}`;
+            }
+            if (s?.status && typeof s.status === 'string' && s.status.startsWith('COMPLETED:')) {
+                return s.status.replace('COMPLETED:', '').trim();
+            }
+            if (details?.status && typeof details.status === 'string' && details.status.startsWith('COMPLETED:')) {
+                return details.status.replace('COMPLETED:', '').trim();
+            }
+            return '--';
+        }
+
         function updateGrid(students) {
             const grid = document.getElementById('integrity-grid');
             
@@ -577,10 +594,8 @@
                 const studentPeriod = parseInt(String(s.class_period || '').replace(/\D/g, ''));
                 const lockSource = assignmentSettings.is_global_locked ? 'GLOBAL' : (assignmentSettings.locked_periods.includes(studentPeriod) ? `P${studentPeriod}` : 'INDIVIDUAL');
 
-                // Extract score display (e.g. "3 / 5" from "COMPLETED: 3 / 5", or format as "score / total" if not finished but total is available)
-                const scoreDisplay = isFinished && s.status 
-                    ? s.status.replace('COMPLETED: ', '') 
-                    : (typeof s.score === 'number' && s.total_points ? `${s.score} / ${s.total_points}` : s.score);
+                // Extract score display safely without exposing internal lock status strings
+                const scoreDisplay = getStudentScoreDisplay(s);
                 
                 // Use live status over stale last_alert for display
                 const liveStatus = s.status || details.status || '';
@@ -600,10 +615,6 @@
                     statusColor = "bg-slate-500";
                     borderColor = assignmentSettings.is_global_locked ? 'border-red-500/30' : 'border-white/10';
                     cardOpacity = "opacity-40";
-                } else if (isCritical) {
-                    statusText = "SUBMITTED";
-                    statusColor = "bg-emerald-500";
-                    borderColor = "border-emerald-500/30";
                 } else if (isCritical) {
                     statusColor = "bg-red-500";
                     borderColor = "border-red-500/50";
@@ -714,19 +725,26 @@
             const assignment = document.getElementById('assignment-filter').value;
             const s = window.currentStudents.find(std => std.id === recordId);
             const preservedLock = s?.details?.is_locked || false;
+            const isStudentFinished = s?.isCompleted === true || (s?.status && s.status.startsWith('COMPLETED')) || (s?.details?.status && s.details.status.startsWith('COMPLETED'));
+            const preservedStatus = isStudentFinished 
+                ? ((s?.status && s.status.startsWith('COMPLETED')) ? s.status : (s?.details?.status && s.details.status.startsWith('COMPLETED') ? s.details.status : (typeof s?.score === 'number' ? `COMPLETED: ${s.score} / ${s.total_points || 12}` : 'COMPLETED')))
+                : (preservedLock ? "LOCKED_BY_PROCTOR" : "CLEARED_BY_TEACHER");
 
             try {
-                await db.collection('student_results').doc(assignment).collection('students').doc(String(recordId)).set({
-                    status: preservedLock ? "LOCKED_BY_PROCTOR" : "CLEARED_BY_TEACHER",
+                const updatePayload = {
                     details: { 
                         ...(s?.details || {}),
-                        status: "CLEARED_BY_TEACHER", 
+                        status: isStudentFinished ? preservedStatus : "CLEARED_BY_TEACHER", 
                         violations: [], 
                         last_alert: "NONE",
                         is_locked: preservedLock,
                         ts: new Date().toISOString() 
                     }
-                }, { merge: true });
+                };
+                if (!isStudentFinished) {
+                    updatePayload.status = preservedStatus;
+                }
+                await db.collection('student_results').doc(assignment).collection('students').doc(String(recordId)).set(updatePayload, { merge: true });
                 console.log(`[DASHBOARD] Acknowledged student: ${recordId}`);
             } catch (e) {
                 console.error("Acknowledge error:", e);
@@ -741,6 +759,7 @@
             const s = window.currentStudents.find(std => std.id === recordId);
             if (!s) return;
             
+            const isStudentFinished = s.isCompleted === true || (s.status && s.status.startsWith('COMPLETED')) || (s.details?.status && s.details.status.startsWith('COMPLETED'));
             const isCurrentlyLocked = isStudentLocked(s);
             const newLockedState = !isCurrentlyLocked;
             
@@ -760,13 +779,19 @@
             }
 
             try {
-                await db.collection('student_results').doc(assignment).collection('students').doc(String(recordId)).set({
-                    status: newLockedState ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE",
+                const updatePayload = {
                     details: newDetails 
-                }, { merge: true });
+                };
+                if (!isStudentFinished) {
+                    updatePayload.status = newLockedState ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE";
+                }
+
+                await db.collection('student_results').doc(assignment).collection('students').doc(String(recordId)).set(updatePayload, { merge: true });
 
                 s.details = newDetails;
-                s.status = newLockedState ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE";
+                if (!isStudentFinished) {
+                    s.status = newLockedState ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE";
+                }
                 
                 if (lockBtn) {
                     lockBtn.disabled = false;
@@ -866,15 +891,13 @@
         function updateModalFields(s) {
             const details = s.details || {};
             const violations = details.violations || [];
-            const isFinished = (s.status && s.status.startsWith('COMPLETED')) || (details.status && details.status.startsWith('COMPLETED'));
+            const isFinished = s.isCompleted === true || (s.status && s.status.startsWith('COMPLETED')) || (details.status && details.status.startsWith('COMPLETED'));
             const isCritical = (violations.length > 0 || (details.status && details.status.includes('ALERT'))) && !isFinished;
 
             document.getElementById('modal-avatar').textContent = s.student_name.charAt(0);
             document.getElementById('modal-name').textContent = s.student_name;
             document.getElementById('modal-meta').textContent = `ID: ${s.student_id} // PERIOD ${s.class_period || '?'}`;
-            const scoreDisplay = isFinished && s.status 
-                ? s.status.replace('COMPLETED: ', '') 
-                : (typeof s.score === 'number' && s.total_points ? `${s.score} / ${s.total_points}` : s.score);
+            const scoreDisplay = getStudentScoreDisplay(s);
             document.getElementById('modal-score').textContent = `${scoreDisplay}`;
             
             const activeQuestion = !isFinished && s.session_progress && s.session_progress.current_question !== undefined 
