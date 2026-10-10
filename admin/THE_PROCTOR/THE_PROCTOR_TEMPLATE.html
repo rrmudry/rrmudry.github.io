@@ -648,6 +648,13 @@
                 console.log("[PROCTOR] Restored gaze baseline:", baselinePitchRatio);
             }
 
+            // Restore exact questionsData if preserved in session_progress to prevent reshuffling on refresh
+            if (progress.questions && Array.isArray(progress.questions) && progress.questions.length > 0) {
+                questionsData = progress.questions;
+                totalQuestions = questionsData.length;
+                console.log("[PROCTOR] Restored exact assigned questions from session_progress:", totalQuestions);
+            }
+
             // 3. Render the questions
             renderQuestions();
             
@@ -942,10 +949,16 @@
                         locked_questions: lockedQuestions,
                         timer_remaining: timerRemaining !== undefined ? timerRemaining : null,
                         baseline_pitch: baselinePitchRatio,
+                        questions: questionsData,
                         updated_at: new Date().toISOString()
                     };
                 } else {
                     payload.session_progress = firebase.firestore.FieldValue.delete();
+                }
+
+                if (isCompleted) {
+                    payload.isCompleted = true;
+                    payload.completed_at = firebase.firestore.FieldValue.serverTimestamp();
                 }
 
                 checkAccessControl();
