@@ -570,7 +570,7 @@
                 const details = s.details || {};
                 const violations = details.violations || [];
                 const lastAlert = details.last_alert || "NONE";
-                const isFinished = (s.status && s.status.startsWith('COMPLETED')) || (details.status && details.status.startsWith('COMPLETED'));
+                const isFinished = s.isCompleted === true || (s.status && s.status.startsWith('COMPLETED')) || (details.status && details.status.startsWith('COMPLETED'));
                 const isCritical = (violations.length > 0 || (details.status && details.status.includes('ALERT'))) && !isFinished;
                 
                 const isLocked = isStudentLocked(s);
@@ -590,12 +590,17 @@
                 let cardOpacity = "opacity-100";
                 let pulseClass = "";
 
-                if (isLocked) {
+                if (isFinished) {
+                    statusText = isLocked ? "SUBMITTED (LOCKED)" : "SUBMITTED";
+                    statusColor = "bg-emerald-500";
+                    borderColor = "border-emerald-500/30";
+                    cardOpacity = isLocked ? "opacity-75" : "opacity-100";
+                } else if (isLocked) {
                     statusText = `LOCKED (${lockSource})`;
                     statusColor = "bg-slate-500";
                     borderColor = assignmentSettings.is_global_locked ? 'border-red-500/30' : 'border-white/10';
                     cardOpacity = "opacity-40";
-                } else if (isFinished) {
+                } else if (isCritical) {
                     statusText = "SUBMITTED";
                     statusColor = "bg-emerald-500";
                     borderColor = "border-emerald-500/30";
@@ -825,10 +830,15 @@
                 const data = doc.data();
                 if (period !== 'ALL' && data.class_period != period) return;
 
+                const isStudentFinished = data.isCompleted || (data.status && data.status.startsWith('COMPLETED')) || (data.details?.status && data.details.status.startsWith('COMPLETED'));
+                const preservedStatus = isStudentFinished 
+                    ? ((data.details?.status && data.details.status.startsWith('COMPLETED')) ? data.details.status : (data.status?.startsWith('COMPLETED') ? data.status : 'COMPLETED'))
+                    : "CLASS_CLEARED";
+
                 batch.set(doc.ref, {
                     details: { 
                         ...(data.details || {}),
-                        status: "CLASS_CLEARED", 
+                        status: preservedStatus, 
                         violations: [], 
                         last_alert: "NONE",
                         ts: new Date().toISOString() 
@@ -959,10 +969,13 @@
 
             // INSTANT visual feedback: update local state and re-render grid immediately
             window.currentStudents.forEach(s => {
+                const isStudentFinished = s.isCompleted || (s.status && s.status.startsWith('COMPLETED')) || (s.details?.status && s.details.status.startsWith('COMPLETED'));
                 if (!s.details) s.details = {};
                 s.details.is_locked = locked;
                 s.details.is_unlocked_override = !locked;
-                s.status = locked ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE";
+                if (!isStudentFinished) {
+                    s.status = locked ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE";
+                }
             });
             updateGrid(window.currentStudents);
             updateGlobalFeed(window.currentStudents);
@@ -973,10 +986,10 @@
             const batch = db.batch();
             let count = 0;
             window.currentStudents.forEach(s => {
+                const isStudentFinished = s.isCompleted || (s.status && s.status.startsWith('COMPLETED')) || (s.details?.status && s.details.status.startsWith('COMPLETED'));
                 const ref = db.collection('student_results').doc(assignment).collection('students').doc(String(s.id));
                 const existingDetails = s.details || {};
-                batch.set(ref, {
-                    status: locked ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE",
+                const updatePayload = {
                     details: {
                         ...existingDetails,
                         is_locked: locked,
@@ -984,7 +997,11 @@
                         last_alert: locked ? "NODE_LOCKED" : (existingDetails.last_alert || "NONE"),
                         ts: new Date().toISOString()
                     }
-                }, { merge: true });
+                };
+                if (!isStudentFinished) {
+                    updatePayload.status = locked ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE";
+                }
+                batch.set(ref, updatePayload, { merge: true });
                 count++;
             });
             
@@ -1026,10 +1043,13 @@
             window.currentStudents.forEach(s => {
                 const safePeriod = parseInt(String(s.class_period || "").replace(/\D/g, ''));
                 if (safePeriod === p) {
+                    const isStudentFinished = s.isCompleted || (s.status && s.status.startsWith('COMPLETED')) || (s.details?.status && s.details.status.startsWith('COMPLETED'));
                     if (!s.details) s.details = {};
                     s.details.is_locked = newState;
                     s.details.is_unlocked_override = !newState;
-                    s.status = newState ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE";
+                    if (!isStudentFinished) {
+                        s.status = newState ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE";
+                    }
                 }
             });
             updateGrid(window.currentStudents);
@@ -1041,10 +1061,10 @@
             window.currentStudents.forEach(s => {
                 const safePeriod = parseInt(String(s.class_period || "").replace(/\D/g, ''));
                 if (safePeriod === p) {
+                    const isStudentFinished = s.isCompleted || (s.status && s.status.startsWith('COMPLETED')) || (s.details?.status && s.details.status.startsWith('COMPLETED'));
                     const ref = db.collection('student_results').doc(assignment).collection('students').doc(String(s.id));
                     const existingDetails = s.details || {};
-                    batch.set(ref, {
-                        status: newState ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE",
+                    const updatePayload = {
                         details: {
                             ...existingDetails,
                             is_locked: newState,
@@ -1052,7 +1072,11 @@
                             last_alert: newState ? "NODE_LOCKED" : (existingDetails.last_alert || "NONE"),
                             ts: new Date().toISOString()
                         }
-                    }, { merge: true });
+                    };
+                    if (!isStudentFinished) {
+                        updatePayload.status = newState ? "LOCKED_BY_PROCTOR" : "TEST_ACTIVE";
+                    }
+                    batch.set(ref, updatePayload, { merge: true });
                     count++;
                 }
             });

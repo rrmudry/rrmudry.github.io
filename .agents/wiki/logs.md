@@ -3,6 +3,21 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-09 — THE_PROCTOR: Completed Status Preservation & Session Question Persistence
+**Patterns Updated**: `proctor-assessment-question-bank.md`.
+
+**Changes**:
+- **Fixed Done Ribbon & Completed Status Erased on Dashboard (`proctor_dashboard.html`)**:
+  - Identified that batch lock (`setBatchLock`), period lock (`togglePeriodLock`), and violation clear (`acknowledgeAll`) unconditionally overwrote student `status` to `LOCKED_BY_PROCTOR` or `CLASS_CLEARED`, stripping the `COMPLETED: X / Y` status and removing the emerald "Done" ribbon from completed cards across Periods 4, 5, and 6.
+  - Updated lock and clear routines to preserve `status` for completed students, and prioritized `isFinished` in card rendering so submitted students maintain their score, green badge, and "Done" ribbon even under active classroom locks.
+  - Backfilled and restored 90 completed student records across Periods 4, 5, and 6 in Firestore.
+- **Fixed Test Resume Re-Shuffling Bug (`THE_PROCTOR_TEMPLATE.html`, `THE_PROCTOR_BETA.html`)**:
+  - Identified that mid-test disconnections/reloads re-ran `fetchQuestions()`, re-shuffling the question bank and changing dynamic math variables, causing previously selected answers to fail re-attachment.
+  - Persisted the active assigned question array inside `session_progress.questions` and updated `resumeSession()` to restore the exact question array upon reload.
+  - Added explicit `isCompleted: true` and `completed_at` timestamp flags upon test submission.
+- **Student Grade Adjustments**:
+  - Updated Oscar Bonifacio (`392126`, Period 6) to `13 / 20` (`COMPLETED: 13 / 20`) per teacher verification.
+
 ## 2026-10-09 — THE_PROCTOR: Sync Pipeline Resilience, Watchdog, & Dashboard Period Normalization
 **Patterns Updated**: `proctor-assessment-question-bank.md`.
 
