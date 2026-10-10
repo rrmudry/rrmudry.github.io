@@ -3,6 +3,23 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-09 — Google Classroom: "Newton's 2nd Law Quiz" Multi-Period Deployment
+**Patterns Updated**: `classroom-gradebook-sync.md`.
+
+**Changes**:
+- **Deployed Coursework Across All 7 Periods (`post-newtons-second-law-quiz.js`)**:
+  - Generated Google Classroom coursework titled **"Newton's 2nd Law Quiz"** across all 7 courses.
+  - Periods 0, 4, 5, 6: Configured with **20 points possible** linked to `newtons_second_law_quiz` results data.
+  - Periods 1, 2, 3: Configured with **12 points possible** linked to `cp_newtons_second_law_quiz` results data.
+  - Attached verified live Student Dashboard material link (`https://rrmudry.github.io/student_dashboard.html`).
+- **Registered Single Source of Truth in Firestore**:
+  - `assignment_registry`: Added entries for `newtons_second_law_quiz`, `cp_newtons_second_law_quiz`, and master `Newton's 2nd Law Quiz`.
+  - `student_results` & `gradest_assignments`: Linked parent document coursework maps and max point values.
+- **Enhanced `sync-cli.js` Scoring & Query Matching**:
+  - Supported `data.total_points` alongside `maxPoints` to accurately calculate raw percentages for quiz documents.
+  - Added normalized numeral-to-word matching (`2nd` ↔ `second`) so `npm run sync -- "Newton's 2nd Law Quiz"` resolves and synchronizes both Standard/Honors and CP quiz collections in a single command.
+  - Verified dry-run execution with 100% success across all periods.
+
 ## 2026-10-09 — THE_PROCTOR Dashboard: CP Quiz Score Rendering & Firestore Restoration
 **Patterns Updated**: `proctor-assessment-question-bank.md`.
 
