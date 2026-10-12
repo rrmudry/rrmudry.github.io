@@ -834,12 +834,20 @@
                     const score = resolveBellRingerScore(submission, activeActivityType);
 
                     if (activeActivityType === 'concept_chat') {
+                        const userTurns = (submission.chatMessages && Array.isArray(submission.chatMessages))
+                            ? submission.chatMessages.filter(m => (m.role === 'user' || m.sender === 'user') && !m.parts?.[0]?.text?.startsWith('[System:')).length
+                            : 0;
+
                         if (score === undefined) {
                             tileClass = 'tile-submitted';
                             statusIcon = '💬';
-                            const msgCount = (submission.chatMessages && Array.isArray(submission.chatMessages)) ? submission.chatMessages.length : 0;
-                            statusLabel = `${msgCount} turns`;
-                            progressDisplayHTML = `<span class="text-[10px] font-semibold text-orange-400 uppercase tracking-widest">💬 ${msgCount} turns</span>`;
+                            if (userTurns === 0) {
+                                statusLabel = '0 turns';
+                                progressDisplayHTML = `<span class="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">💬 0 turns</span>`;
+                            } else {
+                                statusLabel = `${userTurns} turn${userTurns === 1 ? '' : 's'}`;
+                                progressDisplayHTML = `<span class="text-[10px] font-semibold text-orange-400 uppercase tracking-widest">💬 ${userTurns} turn${userTurns === 1 ? '' : 's'}</span>`;
+                            }
                         } else {
                             const numericScore = parseInt(score) || 0;
                             if (numericScore >= 70) {
@@ -847,10 +855,15 @@
                                 statusIcon = '✅';
                                 statusLabel = `${numericScore}%`;
                                 numVerified++;
-                            } else {
+                            } else if (numericScore > 0) {
                                 tileClass = 'tile-fail';
                                 statusIcon = '⚠️';
                                 statusLabel = `${numericScore}%`;
+                                numRevision++;
+                            } else {
+                                tileClass = 'tile-fail';
+                                statusIcon = '❌';
+                                statusLabel = '0%';
                                 numRevision++;
                             }
                             progressDisplayHTML = `<span class="text-[10px] font-bold text-slate-300 uppercase tracking-widest">${numericScore}% Score</span>`;
@@ -1055,7 +1068,12 @@
                 badgeEl.innerHTML = `<span class="bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-3 py-1 rounded-full text-xs font-mono font-bold">PENDING</span>`;
             } else if (activeActivityType === 'concept_chat') {
                 const num = parseInt(scoreVal) || 0;
-                const badgeColor = num >= 70 ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20';
+                let badgeColor = 'bg-red-500/10 text-red-400 border-red-500/20';
+                if (num >= 70) {
+                    badgeColor = 'bg-green-500/10 text-green-400 border-green-500/20';
+                } else if (num > 0) {
+                    badgeColor = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+                }
                 badgeEl.innerHTML = `<span class="${badgeColor} border px-3 py-1 rounded-full text-xs font-mono font-bold">${num}% Score</span>`;
             } else if (scoreVal === "1" || scoreVal === 1) {
                 badgeEl.innerHTML = `<span class="bg-green-500/10 text-green-400 border border-green-500/20 px-3 py-1 rounded-full text-xs font-mono font-bold">Grade 1 (Pass)</span>`;

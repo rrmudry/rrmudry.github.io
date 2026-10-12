@@ -1182,7 +1182,12 @@ CRITICAL RULES:
                             scoreBadge = `<span class="bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-2 py-0.5 rounded text-xs font-mono whitespace-nowrap">PENDING</span>`;
                         } else if (effectiveType === "concept_chat") {
                             const numericScore = parseInt(score);
-                            const badgeColor = numericScore >= 70 ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20';
+                            let badgeColor = 'bg-red-500/10 text-red-400 border-red-500/20';
+                            if (numericScore >= 70) {
+                                badgeColor = 'bg-green-500/10 text-green-400 border-green-500/20';
+                            } else if (numericScore > 0) {
+                                badgeColor = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+                            }
                             scoreBadge = `<span class="${badgeColor} px-2 py-0.5 rounded text-xs font-mono font-bold whitespace-nowrap">${numericScore}%</span>`;
                         } else if (score === "1" || score === 1) {
                             scoreBadge = `<span class="bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded text-xs font-mono whitespace-nowrap">1</span>`;
@@ -1770,8 +1775,36 @@ CRITICAL RULES:
                 try {
                     let scoreVal = 1;
                     if (activeActivityType === 'concept_chat') {
-                        const msgCount = (sub.chatMessages && Array.isArray(sub.chatMessages)) ? sub.chatMessages.length : 0;
-                        scoreVal = msgCount >= 4 ? 100 : msgCount >= 2 ? 85 : 70;
+                        const userMsgs = (sub.chatMessages && Array.isArray(sub.chatMessages))
+                            ? sub.chatMessages.filter(m => {
+                                const isUser = m.role === 'user' || m.sender === 'user';
+                                const text = ((m.parts && m.parts[0] ? m.parts[0].text : m.text) || '').trim();
+                                return isUser && !text.startsWith('[System:');
+                            })
+                            : [];
+
+                        if (userMsgs.length === 0) {
+                            // Student did not respond at all: 0% / No Credit
+                            scoreVal = 0;
+                        } else {
+                            const optOutRegex = /^(idk|i don'?t know|none|nothing|no|n\/?a|pass|asdf|qwerty|dunno)$/i;
+                            const genuineMsgs = userMsgs.filter(m => {
+                                const text = ((m.parts && m.parts[0] ? m.parts[0].text : m.text) || '').trim();
+                                return text.length >= 2 && !optOutRegex.test(text);
+                            });
+
+                            if (genuineMsgs.length === 0) {
+                                // Only gibberish or explicit opt-out
+                                scoreVal = 0;
+                            } else if (genuineMsgs.length >= 3) {
+                                scoreVal = 100;
+                            } else if (genuineMsgs.length === 2) {
+                                scoreVal = 85;
+                            } else {
+                                // 1 genuine attempt / minor effort earns passing credit (70%)
+                                scoreVal = 70;
+                            }
+                        }
                     } else {
                         const respText = (sub.studentResponse || '').trim();
                         if (respText.length < 3 || /^(idk|pass|nothing|asdf|qwerty)$/i.test(respText)) {

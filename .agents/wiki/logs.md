@@ -3,6 +3,24 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-12 — Bell-Ringer Concept Chat: Grading Fairness & Inverted Incentive Hotfix
+**Patterns Updated**: `bell-ringer-config.md`.
+
+**Changes**:
+- **Eliminated 70% Default Score for Non-Responding Students (`Bell-Ringer/teacher.html`)**:
+  - Root cause: `autoGradePendingSubmissions()` counted raw `sub.chatMessages.length`. Because every chat session is initialized with 1 AI tutor greeting prompt, a student who never typed anything had `msgCount = 1`, which fell through to `scoreVal = 70`. Non-responding students were awarded 70% passing credit.
+  - Resolved by filtering strictly for student user messages (`m.role === 'user' || m.sender === 'user'`). Students with 0 user responses or explicit opt-outs receive 0% (zero credit).
+  - Minor good-faith attempts (1 genuine response) receive 70% passing credit, 2 genuine turns receive 85%, and 3+ turns receive 100%.
+- **Corrected Live Turn Counting on Classroom Dashboard (`Bell-Ringer/dashboard.html`)**:
+  - Filtered turn count to student user messages so unstarted sessions accurately display `💬 0 turns (Waiting)` instead of falsely displaying `1 turns`.
+  - Added explicit red `0% (❌)` failure status indicator for 0 scores.
+- **Fixed AI Evaluation Rubric & Fallback Floor (`Bell-Ringer/index.html`)**:
+  - Updated Gemini grading prompt rubric: 1 genuine attempt is explicitly designated as passing participation credit (70–79%), preventing the AI from penalizing honest minor attempts with failing grades (e.g. 60%).
+  - Replaced hardcoded fallback score of 70 with deterministic user turn scoring (`0 turns = 0%, 1 turn = 70%, 2+ turns = 85%`).
+- **Hardened Google Classroom Gradebook Sync (`sync-classroom/sync-bellringers.js`)**:
+  - Replaced arbitrary `< 15` character penalty on single turns with opt-out dictionary validation, preventing legitimate short scientific answers (e.g. "stopwatch", "scale", "friction") from being rejected.
+  - Flagged any submission with score < 70% or 0 user turns as ineligible for participation credit.
+
 ## 2026-10-11 — Week 7 Preparation: Cardstock Rocketry Capstone & AVID Reading Pattern
 **Patterns Updated/Added**: `cardstock-rocketry-engineering-and-telemetry.md`.
 

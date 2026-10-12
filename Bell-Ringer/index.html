@@ -2119,7 +2119,9 @@ The student is discussing their answers with you. Adapt fluidly to the student's
                             
                         title.innerText = "Concept Chat Graded!";
                         title.className = numericScore >= 70 ? "text-sm font-bold text-green-400 mt-0.5" : "text-sm font-bold text-red-400 mt-0.5";
-                        msg.innerText = `Your participation score is ${numericScore}%. Great job completing today's tutoring session!`;
+                        msg.innerText = numericScore >= 70
+                            ? `Your participation score is ${numericScore}%. Great job completing today's tutoring session!`
+                            : `Your participation score is ${numericScore}%. You need at least 70% participation to receive credit for today's session.`;
                         
                         document.getElementById('followup-card').classList.add('hidden');
                         
@@ -2735,10 +2737,10 @@ IMPORTANT CHAT GUIDELINES:
 - If a student encounters a difficult question and honestly says "idk" after engaging well on previous questions, that is an honest attempt, NOT non-participation.
 
 RUBRIC:
-- 90-100 (Full Credit / High Engagement): Excellent, active participation. The student responded across multiple turns (3+ responses), attempted the questions in good faith, and engaged with the tutor.
-- 75-89 (Good Effort): The student participated constructively with 2+ meaningful attempts.
-- 50-74 (Minimal Effort): The student only responded 1 time or disengaged immediately.
-- 0-49 (Non-Participation): Total non-participation, mashed keyboard gibberish (e.g. "asdfghjkl"), or explicit immediate refusal to participate without attempting any questions.
+- 90-100 (Full Credit / High Engagement): Excellent, active participation. The student responded across multiple turns (3+ responses), attempted the questions in good faith, and engaged constructively with the tutor.
+- 80-89 (Good Effort): The student participated constructively with 2 meaningful responses.
+- 70-79 (Passing Credit / Minor Attempt): The student made at least 1 genuine, good-faith attempt or honest answer, even if brief or taking only 1 turn. Any honest attempt earns at least 70% passing credit.
+- 0-40 (Non-Participation / Zero Credit): Total non-participation, mashed keyboard gibberish (e.g. "asdfghjkl"), or explicit immediate refusal/opt-out (e.g. "idk", "none", "no") without attempting any physics thinking.
 
 Output ONLY a raw JSON object containing a single key "score" with the integer value. Do not return markdown, backticks, or any other characters.
 `;
@@ -2762,7 +2764,7 @@ Output ONLY a raw JSON object containing a single key "score" with the integer v
                 const data = await response.json();
                 const resultText = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] ? data.candidates[0].content.parts[0].text : '';
                 
-                let scoreVal = 70; // Fallback score
+                let scoreVal = studentMessages.length >= 2 ? 85 : (studentMessages.length === 1 ? 70 : 0); // Deterministic fallback
                 try {
                     let cleaned = resultText.trim();
                     if (cleaned.startsWith('```')) {
@@ -2792,7 +2794,7 @@ Output ONLY a raw JSON object containing a single key "score" with the integer v
                 statusTitle.innerText = "Grading Connection Error";
                 statusMsg.innerText = "Could not reach grading agent. Temporary participation score was saved.";
                 
-                const fallbackScore = studentMessages.length > 0 ? 70 : 0;
+                const fallbackScore = studentMessages.length >= 2 ? 85 : (studentMessages.length === 1 ? 70 : 0);
                 await db.collection('bellringers').doc(docId).set({
                     effortScore: fallbackScore
                 }, { merge: true }).catch(() => {});

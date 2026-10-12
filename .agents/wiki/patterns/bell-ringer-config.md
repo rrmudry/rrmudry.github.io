@@ -113,9 +113,18 @@ To ensure students who cut corners do not receive participation credit, each sub
 | Activity Type | Genuine Effort (Earns Points) | Low Effort / Half-Assing (0 Credit) |
 |---|---|---|
 | **CAST Challenge** | `percentComplete >= 50%` or `completedSteps >= 2` | 0% completed, blank fields, or 0 steps answered |
-| **Concept Chat** | >= 2 user chat turns (or 1 substantive message >= 15 chars) | 0 chat turns (bypassing to finish) or single-word replies (`"ok"`, `"idk"`) |
+| **Concept Chat** | >= 1 genuine good-faith user turn (score >= 70%) | 0 user turns (no response), explicit opt-outs (`"idk"`, `"pass"`), or score < 70% |
 | **Free Response** | Genuine attempt >= 15 chars (scientific vocabulary or formula) | Blank, `< 15` chars, explicit opt-out (`"idk"`), or Gemini effortScore 0 |
 | **Connections** | At least 1 category solved | 0 categories solved with no real attempt |
+
+### Concept Chat Participation Scoring Tiers
+To prevent inverted grading incentives (where 0 responses scored higher than an honest attempt):
+- **0 User Turns (No Response)**: Always scored **0%** (Zero Credit). Never defaults to 70%.
+- **Opt-Out / Gibberish**: Typing only `"idk"`, `"asdf"`, or single keystrokes scores **0%**.
+- **Minor Attempt / 1 Genuine Turn ("Something")**: Any good-faith physics response (e.g. `"stopwatch"`, `"it moves faster"`) earns passing participation credit (**70%**).
+- **Constructive Discussion (2 Genuine Turns)**: Earns **85%**.
+- **Active Engagement (3+ Genuine Turns)**: Earns full credit (**100%**).
+- **Turn Counting**: Always filter for user messages (`m.role === 'user' || m.sender === 'user'`) excluding system prompts. Never count total messages, which includes the opening AI mentor greeting.
 
 ### Fairness Cushion Pattern
 Due to block schedules (e.g. Thu/Fri alternate periods) and excused absences, different periods have different total possible sessions.
