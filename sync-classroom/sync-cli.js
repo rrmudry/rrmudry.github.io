@@ -169,7 +169,8 @@ const EXCLUDED_ASSIGNMENT_IDS = new Set([
   'accuracy_precision_emoji_art',
   'accuracy_precision',
   'student_survey_and_graph',
-  'student_survey_and_graphing'
+  'student_survey_and_graphing',
+  'fantasy_maps_worksheet' // deleted from Classroom by teacher (2026-10-11)
 ]);
 
   // Filter out assignments with 0 students, excluded manual assignments, and deduplicate by normalized name
@@ -258,6 +259,18 @@ function getCourseworkFromRegistry(assignmentId, courseId, registry) {
     title: regEntry.title || assignmentId
   };
 }
+
+// Students who have left the class (pruned from roster 2026-10-06); their old app scores are not synced
+const DROPPED_STUDENT_IDS = new Set([
+  '393192', // Sophia Lopez
+  '396618', // Mia Gallardo
+  '434043', // Brandon Lopez
+  '441745', // Noah Ordonez
+  '393609', // Jacob Nava
+  '434379', // Unique Primero
+  '438651', // Aleah Perez
+  '445064'  // Arianna Ortuno-Ferreyra
+]);
 
 // ---------------------------------------------------------------------
 // 5. Helper: Fetch Roster Map
@@ -1253,7 +1266,8 @@ async function main() {
     console.log('━'.repeat(80));
 
     process.stdout.write(`⏳ Fetching student records for "${assignment.name}"...`);
-    const studentScores = await fetchAssignmentScores(assignment.id, rosterMap);
+    const studentScores = (await fetchAssignmentScores(assignment.id, rosterMap))
+      .filter(st => !DROPPED_STUDENT_IDS.has(String(st.studentId)));
     console.log(` Loaded ${studentScores.length} records.`);
 
     const res = await syncAssignment({

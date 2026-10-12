@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cardstock Rocket Engineering &amp; Flight Telemetry Lab Guide</title>
+  <style>
+    @page {
+      size: letter portrait;
+      margin: 0.24in 0.30in 0.24in 0.30in;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #0f172a;
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+      line-height: 1.25;
+      font-size: 7.7pt;
+    }
+    .worksheet-page {
+      width: 100%;
+      height: 10.50in;
+      max-height: 10.50in;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      page-break-after: always;
+    }
+    .worksheet-page:last-child {
+      page-break-after: avoid;
+    }
+
+    /* Header */
+    .worksheet-header {
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 3px;
+      margin-bottom: 3px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .header-titles h1 {
+      font-size: 11pt;
+      font-weight: 900;
+      color: #0f172a;
+      margin: 0 0 1px 0;
+      text-transform: uppercase;
+      letter-spacing: -0.2px;
+    }
+    .header-titles .sub {
+      font-size: 7.2pt;
+      font-weight: 700;
+      color: #0369a1;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.2px;
+    }
+    .header-meta {
+      font-size: 7pt;
+      text-align: right;
+      color: #475569;
+      font-weight: 600;
+    }
+    .standard-badge {
+      display: inline-block;
+      background: #0f172a;
+      color: #38bdf8;
+      font-weight: 800;
+      font-size: 6.8pt;
+      padding: 1px 5px;
+      border-radius: 3px;
+      margin-left: 4px;
+    }
+
+    /* Student Fields */
+    .student-fields {
+      display: flex;
+      gap: 12px;
+      font-size: 7.6pt;
+      margin-bottom: 4px;
+      align-items: center;
+      background: #f8fafc;
+      padding: 3px 6px;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+    }
+    .field-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .field-label {
+      font-weight: 800;
+      color: #1e293b;
+      font-size: 7.2pt;
+      text-transform: uppercase;
+    }
+    .field-line {
+      border-bottom: 1.2px solid #334155;
+      display: inline-block;
+      height: 12px;
+    }
+
+    /* Section Containers */
+    .section-card {
+      border: 1.2px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 5px 8px;
+      background: #ffffff;
+      margin-bottom: 4px;
+    }
+    .section-header {
+      font-size: 7.8pt;
+      font-weight: 900;
+      color: #0f172a;
+      text-transform: uppercase;
+      border-bottom: 1.2px solid #e2e8f0;
+      padding-bottom: 2px;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .section-badge {
+      background: #0284c7;
+      color: #ffffff;
+      font-size: 6.5pt;
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    /* Build Step Grid */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .step-card {
+      border: 1px solid #cbd5e1;
+      border-radius: 3px;
+      padding: 4px 6px;
+      background: #fdfdfe;
+      font-size: 7.1pt;
+    }
+    .step-title {
+      font-weight: 800;
+      color: #0369a1;
+      margin-bottom: 2px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .step-desc {
+      color: #1e293b;
+      line-height: 1.22;
+      margin-bottom: 3px;
+    }
+    .step-check {
+      background: #f1f5f9;
+      border-left: 2px solid #0284c7;
+      padding: 2px 4px;
+      font-size: 6.8pt;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    /* Quality Control Certification Box */
+    .qc-card {
+      border: 1.5px solid #0f172a;
+      border-radius: 4px;
+      padding: 5px 8px;
+      background: #f8fafc;
+    }
+    .qc-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+    .qc-items {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      font-size: 7pt;
+    }
+    .qc-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .qc-box {
+      width: 11px;
+      height: 11px;
+      border: 1.2px solid #0f172a;
+      border-radius: 2px;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .qc-stamp-box {
+      border: 2px dashed #0284c7;
+      border-radius: 4px;
+      background: #ffffff;
+      padding: 6px 8px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 72px;
+    }
+    .stamp-title {
+      font-size: 7.5pt;
+      font-weight: 900;
+      color: #0284c7;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .stamp-sig-line {
+      border-bottom: 1.2px solid #0f172a;
+      width: 80%;
+      margin: 8px auto 2px auto;
+    }
+
+    /* Telemetry Table Styles */
+    .telemetry-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 7.2pt;
+      margin-bottom: 4px;
+    }
+    .telemetry-table th {
+      background: #0f172a;
+      color: #ffffff;
+      font-weight: 800;
+      padding: 3px 5px;
+      text-align: center;
+      border: 1px solid #334155;
+      font-size: 6.9pt;
+      text-transform: uppercase;
+    }
+    .telemetry-table td {
+      border: 1px solid #cbd5e1;
+      padding: 4px 5px;
+      text-align: center;
+    }
+
+    /* Calculations Grid */
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .calc-card {
+      border: 1.2px solid #cbd5e1;
+      border-radius: 3px;
+      padding: 4px 6px;
+      background: #ffffff;
+      font-size: 7.1pt;
+    }
+    .calc-header {
+      font-weight: 800;
+      color: #0369a1;
+      margin-bottom: 2px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .calc-formula {
+      font-family: monospace;
+      font-weight: 700;
+      color: #b91c1c;
+      background: #fef2f2;
+      padding: 1px 3px;
+      border-radius: 2px;
+      display: inline-block;
+      margin-bottom: 2px;
+    }
+    .calc-space {
+      height: 38px;
+      border-bottom: 1px dotted #94a3b8;
+      margin-top: 3px;
+    }
+
+    /* CER Block */
+    .cer-card {
+      border: 1.5px solid #0369a1;
+      border-radius: 4px;
+      padding: 5px 8px;
+      background: #f0f9ff;
+    }
+    .cer-title {
+      font-size: 7.6pt;
+      font-weight: 900;
+      color: #0369a1;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .writing-lines {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 2px;
+    }
+    .write-line {
+      border-bottom: 1px dotted #94a3b8;
+      height: 2px;
+    }
+
+    /* Page Footer */
+    .page-footer-bar {
+      border-top: 1px solid #cbd5e1;
+      padding-top: 2px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 6.7pt;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================== -->
+  <!-- PAGE 1: FABRICATION & PRE-FLIGHT QC -->
+  <!-- ========================================== -->
+  <div class="worksheet-page">
+    <div>
+      <!-- Header -->
+      <div class="worksheet-header">
+        <div class="header-titles">
+          <h1>Cardstock Rocket Engineering &amp; Pre-Flight Quality Control</h1>
+          <div class="sub">Part 1: Precision Fabrication, Center of Mass / Pressure &amp; Safety Certification</div>
+        </div>
+        <div class="header-meta">
+          Unit 2: Kinematics &amp; Dynamics<br>
+          Standards: <span class="standard-badge">HS-PS2-1</span> <span class="standard-badge">HS-ETS1-2</span>
+        </div>
+      </div>
+
+      <!-- Student Fields -->
+      <div class="student-fields">
+        <div class="field-item" style="flex: 1.8;">
+          <span class="field-label">Student Name:</span>
+          <span class="field-line" style="flex: 1;"></span>
+        </div>
+        <div class="field-item" style="flex: 0.7;">
+          <span class="field-label">Period:</span>
+          <span class="field-line" style="flex: 1;"></span>
+        </div>
+        <div class="field-item" style="flex: 0.9;">
+          <span class="field-label">Date:</span>
+          <span class="field-line" style="flex: 1;"></span>
+        </div>
+        <div class="field-item" style="flex: 1.6;">
+          <span class="field-label">Rocket Name / Call Sign:</span>
+          <span class="field-line" style="flex: 1;"></span>
+        </div>
+      </div>
+
+      <!-- Overview Banner -->
+      <div style="background:#0f172a; color:#ffffff; padding:4px 8px; border-radius:4px; margin-bottom:4px; font-size:7pt; display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-weight:800; color:#38bdf8;">🛠️ TWO-STAGE IN-CLASS FABRICATION SEQUENCE:</span>
+        <span>Tuesday: Fuselage &amp; Fin Build &nbsp;|&nbsp; Wednesday (30-min Min Day): Assembly, Ballast &amp; Pre-Flight QC</span>
+      </div>
+    </div>
+
+    <!-- 4-Step Build Protocol Grid -->
+    <div class="section-card">
+      <div class="section-header">
+        <span>📐 Step-by-Step Fabrication Protocol &amp; Physical Tolerances</span>
+        <span class="section-badge">Engineering Design Process</span>
+      </div>
+
+      <div class="steps-grid">
+        <!-- Step 1 -->
+        <div class="step-card">
+          <div class="step-title">
+            <span>Step 1: Fuselage Rolling &amp; Tolerance Fit</span>
+            <span>[Tuesday Build]</span>
+          </div>
+          <div class="step-desc">
+            Wrap cardstock tightly around the 1/2-inch PVC rolling mandrel. Secure longitudinal seam with 3 thin pieces of clear tape. Slide tube back and forth to verify smooth travel without friction binding.
+          </div>
+          <div class="step-check">
+            ✓ Gravity Drop Test: Tube must slide freely off vertical mandrel under its own weight.
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-card">
+          <div class="step-title">
+            <span>Step 2: Fin Geometry &amp; Symmetry</span>
+            <span>[Tuesday Build]</span>
+          </div>
+          <div class="step-desc">
+            Cut 3 or 4 identical cardstock fins using the precision template. Crease 5 mm mounting tabs. Align fins parallel to fuselage centerline spaced at 120° (3 fins) or 90° (4 fins).
+          </div>
+          <div class="step-check">
+            ✓ Symmetry Check: Fins must be rigidly perpendicular (no twists that induce barrel roll).
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step-card">
+          <div class="step-title">
+            <span>Step 3: Nose Cone &amp; Clay Ballast</span>
+            <span>[Wednesday QC]</span>
+          </div>
+          <div class="step-desc">
+            Roll cardstock into a smooth aerodynamic nose cone. Pack a calibrated 5–10 g lump of modeling clay firmly into the tip. Secure nose cone to fuselage with an airtight tape wrap.
+          </div>
+          <div class="step-check">
+            ✓ Airtight Seal Check: Gently blow into fuselage base; zero air should leak through nose cone.
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="step-card">
+          <div class="step-title">
+            <span>Step 4: String-Loop Balance Test</span>
+            <span>[Wednesday QC]</span>
+          </div>
+          <div class="step-desc">
+            Tie a slip-knot string loop around the rocket. Adjust loop until rocket balances horizontally. Mark this physical <strong>Center of Mass (CM)</strong>. Verify CM is 1–2 tube diameters forward of fins.
+          </div>
+          <div class="step-check">
+            ✓ Swing Test: Spin balanced rocket overhead on 1m string; it must fly nose-forward, not tumble.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mass & Dimensional Telemetry Log -->
+    <div class="section-card">
+      <div class="section-header">
+        <span>⚖️ Pre-Flight Physical Specifications &amp; Mass Budget</span>
+        <span style="font-size:6.8pt; color:#475569; font-weight:700;">Record with Electronic Balance &amp; Metric Ruler</span>
+      </div>
+      <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:6px; font-size:7pt;">
+        <div style="border:1px solid #cbd5e1; padding:4px 6px; border-radius:3px; background:#fdfdfe;">
+          <div style="font-weight:800; color:#0369a1;">1. Total Rocket Mass (m):</div>
+          <div style="margin-top:2px;">______ grams = ________ kg</div>
+          <div style="font-size:6.2pt; color:#64748b; margin-top:2px;">(Divide grams by 1,000 for kg)</div>
+        </div>
+        <div style="border:1px solid #cbd5e1; padding:4px 6px; border-radius:3px; background:#fdfdfe;">
+          <div style="font-weight:800; color:#0369a1;">2. Total Length (L):</div>
+          <div style="margin-top:2px;">Length: ________ cm</div>
+          <div style="font-size:6.2pt; color:#64748b; margin-top:2px;">Tip of nose to tail base</div>
+        </div>
+        <div style="border:1px solid #cbd5e1; padding:4px 6px; border-radius:3px; background:#fdfdfe;">
+          <div style="font-weight:800; color:#0369a1;">3. CM Location:</div>
+          <div style="margin-top:2px;">CM: ________ cm from nose</div>
+          <div style="font-size:6.2pt; color:#64748b; margin-top:2px;">String balance point</div>
+        </div>
+        <div style="border:1px solid #cbd5e1; padding:4px 6px; border-radius:3px; background:#fdfdfe;">
+          <div style="font-weight:800; color:#0369a1;">4. Stability Margin:</div>
+          <div style="margin-top:2px;">CM is ______ cm forward of fins</div>
+          <div style="font-size:6.2pt; color:#64748b; margin-top:2px;">Must be &gt; 2.5 cm (1 diameter)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pre-Flight Quality Control & Teacher Certification Badge -->
+    <div class="qc-card">
+      <div class="section-header" style="border-bottom:1.2px solid #cbd5e1; margin-bottom:4px;">
+        <span style="color:#0f172a;">🛡️ Pre-Flight Quality Control Checklist &amp; Flight Certification</span>
+        <span style="font-size:6.8pt; color:#b91c1c; font-weight:800;">Required Before Thursday Outdoor Launch</span>
+      </div>
+      <div class="qc-grid">
+        <div class="qc-items">
+          <div class="qc-item">
+            <span class="qc-box"></span>
+            <span><strong>Fuselage Sliding Fit:</strong> Slides off 1/2" test mandrel freely under own weight (no friction binding).</span>
+          </div>
+          <div class="qc-item">
+            <span class="qc-box"></span>
+            <span><strong>Nose Cone Airtight Seal:</strong> Sealed with tape; zero air leakage during base blow test.</span>
+          </div>
+          <div class="qc-item">
+            <span class="qc-box"></span>
+            <span><strong>Aerodynamic Fin Symmetry:</strong> 3 or 4 rigid cardstock fins firmly attached parallel to tube axis.</span>
+          </div>
+          <div class="qc-item">
+            <span class="qc-item"></span>
+            <span class="qc-box"></span>
+            <span><strong>Positive Stability Margin:</strong> String test confirms Center of Mass (CM) is forward of Center of Pressure (CP).</span>
+          </div>
+          <div class="qc-item">
+            <span class="qc-box"></span>
+            <span><strong>Mass Budget Target:</strong> Total dry mass in 20–30 g sweet spot (light enough to accelerate, heavy enough to coast).</span>
+          </div>
+        </div>
+
+        <div class="qc-stamp-box">
+          <div class="stamp-title">PRE-FLIGHT CERTIFIED</div>
+          <div style="font-size:6.5pt; color:#475569;">Teacher Quality Inspection Stamp</div>
+          <div class="stamp-sig-line"></div>
+          <div style="font-size:6.2pt; font-weight:700; color:#0f172a;">Instructor Signature &amp; Launch Clearance</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Page Footer -->
+    <div class="page-footer-bar">
+      <span>High School Physics | Unit 2: Cardstock Rocket Engineering Lab</span>
+      <span>Page 1 of 2 — Bring to Launch Pad on Thursday</span>
+      <span>rrmudry.github.io</span>
+    </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- PAGE 2: LAUNCH TELEMETRY & KINEMATICS -->
+  <!-- ========================================== -->
+  <div class="worksheet-page">
+    <div>
+      <!-- Header -->
+      <div class="worksheet-header">
+        <div class="header-titles">
+          <h1>Cardstock Rocket Flight Telemetry &amp; Kinematic Analysis</h1>
+          <div class="sub">Part 2: Multi-Timer Launch Telemetry, Apogee Derivations &amp; Engineering Synthesis</div>
+        </div>
+        <div class="header-meta">
+          Student: ___________________________ Period: _____
+        </div>
+      </div>
+
+      <!-- Launch Squad Roles Banner -->
+      <div style="background:#0284c7; color:#ffffff; padding:3px 6px; border-radius:3px; margin-bottom:4px; font-size:6.8pt; display:flex; justify-content:space-between;">
+        <span><strong>Launch Pad Telemetry Squad:</strong></span>
+        <span>• Pad Safety Officer &nbsp;|&nbsp; • Pressurization Tech (Calibrated PSI) &nbsp;|&nbsp; • Master Trigger &nbsp;|&nbsp; • 3 Stopwatch Timers &nbsp;|&nbsp; • Recovery Officer</span>
+      </div>
+    </div>
+
+    <!-- Launch Telemetry Data Table -->
+    <div class="section-card" style="margin-bottom:3px;">
+      <div class="section-header">
+        <span>⏱️ Launch Pad Flight Telemetry Log (Thursday Launch Trials)</span>
+        <span style="font-size:6.8pt; color:#475569; font-weight:700;">Operating Pressure: Calibrated Launcher PSI (40–80 PSI)</span>
+      </div>
+      <table class="telemetry-table">
+        <thead>
+          <tr>
+            <th style="width: 10%;">Trial #</th>
+            <th style="width: 14%;">Timer 1 (s)</th>
+            <th style="width: 14%;">Timer 2 (s)</th>
+            <th style="width: 14%;">Timer 3 (s)</th>
+            <th style="width: 18%;">Average t<sub>hang</sub> (s)</th>
+            <th style="width: 14%;">Stability (1–5)</th>
+            <th style="width: 16%;">Trajectory Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Trial 1</strong></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="font-weight:800; background:#f0f9ff;"></td>
+            <td>★ ★ ★ ★ ★</td>
+            <td style="font-size:6.5pt; color:#64748b;">Straight / Spiral / Tumble</td>
+          </tr>
+          <tr>
+            <td><strong>Trial 2</strong></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="font-weight:800; background:#f0f9ff;"></td>
+            <td>★ ★ ★ ★ ★</td>
+            <td style="font-size:6.5pt; color:#64748b;">Straight / Spiral / Tumble</td>
+          </tr>
+          <tr>
+            <td><strong>Trial 3 (Opt)</strong></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="font-weight:800; background:#f0f9ff;"></td>
+            <td>★ ★ ★ ★ ★</td>
+            <td style="font-size:6.5pt; color:#64748b;">Straight / Spiral / Tumble</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="font-size:6.5pt; color:#475569; font-style:italic;">
+        * Note: Multi-timer averaging cancels out individual student reaction time error (±0.20 s). Select your <strong>Best Official Trial</strong> for calculations below.
+      </div>
+    </div>
+
+    <!-- Kinematics Derivation Matrix -->
+    <div class="section-card" style="margin-bottom:3px;">
+      <div class="section-header">
+        <span>🧮 Quantitative Flight Kinematics Calculations (Friday Analysis)</span>
+        <span class="section-badge">g = 10 m/s² Downward</span>
+      </div>
+
+      <div class="calc-grid">
+        <!-- Calc 1: Time to Apogee -->
+        <div class="calc-card">
+          <div class="calc-header">
+            <span>1. Time to Apogee (t<sub>up</sub>)</span>
+            <span class="calc-formula">t<sub>up</sub> = t<sub>hang</sub> / 2</span>
+          </div>
+          <div style="font-size:6.5pt; color:#64748b;">Flight symmetry: ascent time equals descent time.</div>
+          <div class="calc-space"></div>
+        </div>
+
+        <!-- Calc 2: Exit Velocity -->
+        <div class="calc-card">
+          <div class="calc-header">
+            <span>2. Launch Exit Velocity (v₀)</span>
+            <span class="calc-formula">v₀ = 10 · t<sub>up</sub></span>
+          </div>
+          <div style="font-size:6.5pt; color:#64748b;">At apogee v = 0, so 0 = v₀ - gt<sub>up</sub> ➔ v₀ = 10 · t<sub>up</sub> (m/s).</div>
+          <div class="calc-space"></div>
+        </div>
+
+        <!-- Calc 3: Maximum Altitude -->
+        <div class="calc-card">
+          <div class="calc-header">
+            <span>3. Maximum Apogee Altitude (h<sub>max</sub>)</span>
+            <span class="calc-formula">h<sub>max</sub> = 5 · (t<sub>up</sub>)²</span>
+          </div>
+          <div style="font-size:6.5pt; color:#64748b;">Free-fall displacement: h = ½gt² = 5(t<sub>up</sub>)² (meters). Convert to ft (×3.28).</div>
+          <div class="calc-space"></div>
+        </div>
+
+        <!-- Calc 4: Tube Acceleration -->
+        <div class="calc-card">
+          <div class="calc-header">
+            <span>4. Launch Tube Acceleration (a<sub>tube</sub>)</span>
+            <span class="calc-formula">a<sub>tube</sub> = v₀² / (2 · L)</span>
+          </div>
+          <div style="font-size:6.5pt; color:#64748b;">Tube length L = 0.40 m. Use v₀² = 2aL ➔ a<sub>tube</sub> = v₀² / 0.80 (m/s²).</div>
+          <div class="calc-space"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Claim-Evidence-Reasoning Synthesis -->
+    <div class="cer-card">
+      <div class="cer-title">
+        <span>📝 Claim-Evidence-Reasoning (CER) Flight Performance Synthesis</span>
+        <span style="font-size:6.8pt; font-weight:700;">Summative Evaluation</span>
+      </div>
+      <div style="font-size:6.8pt; color:#0369a1; margin-bottom:2px;">
+        <strong>Prompt:</strong> Did your rocket achieve high-performance vertical flight, and which engineering variable (mass budget, pneumatic seal tolerance, or fin stability margin) was most decisive in determining your apogee?
+      </div>
+      <div style="font-size:6.8pt; line-height:1.2; color:#1e293b;">
+        • <strong>Claim:</strong> Direct statement answering the prompt regarding your rocket's flight performance.<br>
+        • <strong>Evidence:</strong> Cite quantitative telemetry data (Mass in g, Hang Time in s, Exit Velocity in m/s, Apogee in m).<br>
+        • <strong>Reasoning:</strong> Explain the physics connecting your evidence to your claim using Newton's 2nd Law (a = F<sub>net</sub> / m) or the Center of Mass vs. Center of Pressure stability rule.
+      </div>
+      <div class="writing-lines" style="gap:7px; margin-top:3px;">
+        <div class="write-line"></div>
+        <div class="write-line"></div>
+        <div class="write-line"></div>
+        <div class="write-line"></div>
+      </div>
+    </div>
+
+    <!-- Page Footer -->
+    <div class="page-footer-bar">
+      <span>High School Physics | Unit 2: Kinematics &amp; Dynamics Synthesis</span>
+      <span>Page 2 of 2 — Submit with Pre-Flight Certification for Full Lab Credit</span>
+      <span>rrmudry.github.io</span>
+    </div>
+  </div>
+
+</body>
+</html>

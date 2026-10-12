@@ -3750,7 +3750,7 @@ const lessonsData = [
         "title": "Experimental Friction Methodology & Pavement Design Guide",
         "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
         "typeLabel": "Engineering Guide",
-        "description": "Comparing drag force sensors vs critical incline slip angles (μ<sub>s</sub> = tan theta) and highway banking equations."
+        "description": "Comparing drag force sensors vs critical incline slip angles (μs = tan theta) and highway banking equations."
       },
       {
         "title": "Two-Car Kinematic Intercept Simulator",
@@ -3771,6 +3771,309 @@ const lessonsData = [
   {
     "day": 31,
     "date": "2026-10-12",
+    "unit": 2,
+    "title": "Cardstock Rocket Engineering: Design & Physics",
+    "topic": "Air Pressure, Mass, Inertia, and Flight Stability",
+    "dok": 2,
+    "type": "Reading / AVID Literacy",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Students perform an AVID annotated close reading on compressed-air cardstock rockets, dissecting key performance characteristics: pneumatic seal tolerances, mass-to-thrust ratios (a = F_net / m), Center of Mass (CM) vs Center of Pressure (CP) stability, and fin aerodynamics.",
+    "activity": "AVID 5-Step Text Annotation: (1) Number paragraphs 1–5, (2) Circle core vocabulary (Fuselage, Pneumatic Thrust, Center of Mass, Center of Pressure, Apogee), (3) Underline physics rules (F_net = m · a, CM ahead of CP), (4) Write 3-word left-margin gist statements, (5) Formulate right-margin Costa's Level 2/3 questions, concluding with Phase 4 FNT rocket specifications.",
+    "essentialQuestion": "How do air pressure, rocket weight, inertia, and fins work together to help a paper rocket fly high and straight?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-ETS1-2"
+    ],
+    "wicor": {
+      "Writing": "Writing 3-word margin gist statements and composing the Phase 4 FNT rocket engineering blueprint.",
+      "Inquiry": "Formulating Costa's Level 2/3 analytical questions evaluating the trade-off between mass and flight acceleration.",
+      "Collaboration": "Partner text analysis and comparing margin gist statements on rocket stability rules.",
+      "Organization": "Executing the 5-step AVID annotation checklist on the 2-page informational reading guide.",
+      "Reading": "Close reading of informational engineering text on cardstock rocket anatomy, pneumatic thrust, and aerodynamic stability."
+    },
+    "bellRinger": {
+      "type": "concept_chat",
+      "title": "Mass vs. Thrust on the Launch Pad",
+      "promptQuestion": "If Team A builds a sleek 20-gram cardstock rocket and Team B builds a heavily taped 50-gram rocket, both launched at identical pressure, which rocket achieves a higher launch velocity? Explain using a = F_net / m.",
+      "explanation": "Team A's 20-gram rocket! By Newton's Second Law (a = F_net / m), for any fixed pneumatic thrust force delivered by the launcher, cutting mass yields significantly higher acceleration up the launch rail and a higher exit velocity (v₀).",
+      "chatSystemInstruction": "You are a warm, adaptive, and relatable physics mentor chatting with a student over SMS/text. Your goal is to explore a physics concept together without being overly formal or using forced slang.\n\nCRITICAL RULES:\n1. NO FISHING / PIVOT TO TEACHING: Never try to \"force\" or repeatedly nudge a student toward a specific technical answer or physics term. If you ask a conceptual question and the student guesses wrong, focuses on a different variable (like friction/roughness), or says \"I don't know,\" DO NOT ask a follow-up question trying to correct their guess. Instead, pivot immediately to teaching: validate their logic, briefly explain the physics concept directly using a relatable analogy, and move on.\n2. NO SOCRATIC TRAPS: Do not get stuck in a loop asking the student to explain the same thing over and over. If they answer correctly, understand a concept, or say \"yes\"/\"obvious\", validate it briefly and immediately MOVE FORWARD to a new dimension or a real-world application.\n3. MOVE DYNAMICALLY: Keep the conversation fluid. Once a basic idea is established, introduce a fun twist, a new scenario, or a practical question (e.g., \"What happens if we try this in space?\" or \"How does that affect a rollercoaster?\"). \n4. CHAT TONE & LENGTH: Keep replies highly conversational and natural—like a text message from a knowledgeable peer. Limit replies to 1–3 short sentences max. Never send multiple distinct thoughts, lists, or bullet points in one message.\n5. CONTINUING THE CONVERSATION: Never end the conversation abruptly or push the student to stop chatting. Even after the student demonstrates understanding or has engaged in multiple turns, keep the conversation flowing naturally by offering intriguing follow-up thoughts, fun scenario twists, or real-world applications. You may let them know they can click the Finish Session button whenever they are ready to submit, but always leave the door open for them to continue chatting.",
+      "defaultDuration": 3
+    },
+    "links": {
+      "Annotated Reading (Google Doc)": "https://docs.google.com/document/d/1fsDiE0mtPhklifH_eB5T-gsIUCMKgAzTz2M_CIUKpMU/edit?usp=sharing",
+      "Cardstock Rocket Simulator": "Unit_2/cardstock_rocket/index.html",
+      "Annotated Reading Worksheet (PDF)": "Unit_2/worksheets/Cardstock_Rocket_Annotated_Reading.pdf",
+      "Physics Curriculum Tie-Ins": "Unit_2/Cardstock_Rocket_Physics_Tie_Ins.md"
+    },
+    "assignments": [
+      {
+        "title": "Cardstock Rocket Performance Characteristics AVID Close Reading",
+        "url": "Unit_2/worksheets/Cardstock_Rocket_Annotated_Reading.pdf",
+        "typeLabel": "AVID Annotated Reading",
+        "submission": "In-Class Handout / AVID Binder",
+        "actionLabel": "Open Worksheet PDF ↗",
+        "description": "2-page AVID close reading on pneumatic seal, mass budget (a = F_net / m), CM/CP stability, and apogee kinematics."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Cardstock Rocket Engineering: Design & Physics (Google Doc)",
+        "url": "https://docs.google.com/document/d/1fsDiE0mtPhklifH_eB5T-gsIUCMKgAzTz2M_CIUKpMU/edit?usp=sharing",
+        "typeLabel": "Google Doc Reading",
+        "description": "Original classroom close reading text with English and Spanish translations."
+      },
+      {
+        "title": "Cardstock Rocket Physics Simulator & Flight Visualizer",
+        "url": "Unit_2/cardstock_rocket/index.html",
+        "typeLabel": "Interactive Simulation",
+        "description": "Virtual launch sandbox modeling pneumatic thrust, stability torque (CM vs CP), and kinematics graphs."
+      },
+      {
+        "title": "Cardstock Rocket Physics Curriculum Tie-Ins Guide",
+        "url": "Unit_2/Cardstock_Rocket_Physics_Tie_Ins.md",
+        "typeLabel": "Teacher Reference",
+        "description": "Comprehensive pedagogical guide detailing phase-by-phase kinematics, Newton's laws, and flight calculations."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Cardstock Rocket Flight Simulator",
+        "url": "Unit_2/cardstock_rocket/index.html",
+        "typeLabel": "Simulation Sandbox",
+        "description": "Test how mass and launch pressure alter trajectory, apogee, and flight time."
+      }
+    ]
+  },
+  {
+    "day": 32,
+    "date": "2026-10-13",
+    "unit": 2,
+    "title": "Cardstock Rocket Precision Fabrication Lab — Part 1: Fuselage & Fins",
+    "topic": "Precision Engineering: Mandrel Tolerance, Pneumatic Seal vs Friction, and Fin Cutting",
+    "dok": 3,
+    "type": "Engineering Design / Lab",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Students begin precision construction of compressed-air cardstock rockets. Teams roll paper fuselages over 1/2-inch PVC mandrels, achieve an airtight sliding fit with minimal kinetic friction, measure component masses on electronic balances, and cut symmetrical aerodynamic fins.",
+    "activity": "Precision Fuselage & Fin Fabrication: (1) Roll cylindrical cardstock fuselages around calibrated 1/2-inch PVC mandrels, testing gravity slide to prevent pressure leakage without binding, (2) Measure initial dry masses on digital balances in grams and convert to kilograms, (3) Cut and bevel 3 or 4 symmetrical stabilizing fins from cardstock, and (4) Join seams using minimal tape to preserve the mass budget.",
+    "essentialQuestion": "How do small physical tolerances in paper construction dramatically impact pneumatic thrust and initial launch acceleration?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-ETS1-2"
+    ],
+    "wicor": {
+      "Writing": "Logging dry component masses (g and kg) and recording mandrel tolerance test results.",
+      "Inquiry": "Iteratively adjusting paper roll tension to balance an airtight seal against kinetic friction binding.",
+      "Collaboration": "Partner pairs holding mandrels, aligning seams, and verifying perpendicular fin cuts.",
+      "Organization": "Executing Steps 1 and 2 of the standardized fabrication protocol and storing components in lab lockers.",
+      "Reading": "Interpreting precision fabrication tolerances and fin geometry templates."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "Why will a rocket fuselage that is rolled too tightly and one that is rolled too loosely on the launch pipe both fail to reach maximum height?",
+      "explanation": "A loose fuselage lets pressurized air escape through gaps (dropping pneumatic thrust F_thrust), while a tight fuselage produces high kinetic friction against the pipe (converting launch kinetic energy into friction heat). High performance requires an airtight sliding fit.",
+      "defaultDuration": 3
+    },
+    "links": {
+      "Cardstock Rocket Lab Guide (PDF)": "Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf"
+    },
+    "assignments": [
+      {
+        "title": "Cardstock Rocket Lab Guide & Quality Control Log",
+        "url": "Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf",
+        "typeLabel": "Engineering Lab Guide",
+        "submission": "In-Class Lab Sheet",
+        "actionLabel": "Open Lab Guide PDF ↗",
+        "description": "Step-by-step fabrication protocol, mass budget log, pre-flight certification, and launch telemetry matrix."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Cardstock Rocket Physics Curriculum Tie-Ins Guide",
+        "url": "Unit_2/Cardstock_Rocket_Physics_Tie_Ins.md",
+        "typeLabel": "Reference Guide",
+        "description": "Pedagogical alignment guide connecting fabrication choices to 1D Kinematics and Dynamics."
+      }
+    ]
+  },
+  {
+    "day": 33,
+    "date": "2026-10-14",
+    "unit": 2,
+    "title": "Cardstock Rocket Assembly & Pre-Flight Certification (Minimum Day)",
+    "topic": "Nose Cone Ballast, Center of Mass (CM) Balance Test, and Pre-Flight Quality Control",
+    "dok": 3,
+    "type": "Engineering Design / Quality Control",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Dedicated in-class construction finishing and quality control inspection day during 30-minute End of Quarter Minimum Day periods. Teams seal nose cones with modeling clay ballast, attach fins with radial symmetry, execute string-loop balance tests to verify CM is forward of CP, and earn teacher Pre-Flight Certification.",
+    "activity": "Pre-Flight Assembly & Stability Certification: (1) Shape and seal nose cones with calibrated clay ballast, (2) Attach fins with 120° (3-fin) or 90° (4-fin) radial symmetry, (3) Conduct string-loop balance test to locate and mark the physical Center of Mass (CM), (4) Verify CM is at least 1–2 body diameters forward of the Center of Pressure (CP), (5) Record final dry mass (g -> kg) and pass the teacher Pre-Flight Quality Control checklist.",
+    "essentialQuestion": "Why must the Center of Mass be located forward of the Center of Pressure to prevent aerodynamic tumbling?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-ETS1-2"
+    ],
+    "wicor": {
+      "Writing": "Documenting pre-flight stability measurements and recording final launch-ready dry mass.",
+      "Inquiry": "Conducting string-pivot balance tests and overhead swing trials to test restoring aerodynamic stability.",
+      "Collaboration": "Team members assisting with fin radial alignment and executing the 5-point quality checklist.",
+      "Organization": "Passing formal Pre-Flight Quality Control inspection and receiving teacher flight certification.",
+      "Reading": "Reading quality control inspection rubrics and aerodynamic stability guidelines."
+    },
+    "bellRinger": {
+      "type": "concept_chat",
+      "title": "The Tumble Trap: Aerodynamic Torque & Stability",
+      "promptQuestion": "A student launches a rocket with no modeling clay in the nose cone. Explain why the rocket flips end-over-end in circles instead of climbing straight up.",
+      "explanation": "Without nose ballast, the heavy fins pull the Center of Mass (CM) behind the Center of Pressure (CP). Any tilt causes drag on the fins to exert an unstable torque around the CM, tumbling the rocket out of control. Clay in the nose shifts CM forward, creating restoring stability.",
+      "chatSystemInstruction": "You are a warm, adaptive, and relatable physics mentor chatting with a student over SMS/text. Your goal is to explore a physics concept together without being overly formal or using forced slang.\n\nCRITICAL RULES:\n1. NO FISHING / PIVOT TO TEACHING: Never try to \"force\" or repeatedly nudge a student toward a specific technical answer or physics term. If you ask a conceptual question and the student guesses wrong, focuses on a different variable (like friction/roughness), or says \"I don't know,\" DO NOT ask a follow-up question trying to correct their guess. Instead, pivot immediately to teaching: validate their logic, briefly explain the physics concept directly using a relatable analogy, and move on.\n2. NO SOCRATIC TRAPS: Do not get stuck in a loop asking the student to explain the same thing over and over. If they answer correctly, understand a concept, or say \"yes\"/\"obvious\", validate it briefly and immediately MOVE FORWARD to a new dimension or a real-world application.\n3. MOVE DYNAMICALLY: Keep the conversation fluid. Once a basic idea is established, introduce a fun twist, a new scenario, or a practical question (e.g., \"What happens if we try this in space?\" or \"How does that affect a rollercoaster?\"). \n4. CHAT TONE & LENGTH: Keep replies highly conversational and natural—like a text message from a knowledgeable peer. Limit replies to 1–3 short sentences max. Never send multiple distinct thoughts, lists, or bullet points in one message.\n5. CONTINUING THE CONVERSATION: Never end the conversation abruptly or push the student to stop chatting. Even after the student demonstrates understanding or has engaged in multiple turns, keep the conversation flowing naturally by offering intriguing follow-up thoughts, fun scenario twists, or real-world applications. You may let them know they can click the Finish Session button whenever they are ready to submit, but always leave the door open for them to continue chatting.",
+      "defaultDuration": 3
+    },
+    "links": {
+      "Cardstock Rocket Lab Guide (PDF)": "Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf"
+    },
+    "assignments": [
+      {
+        "title": "Pre-Flight Quality Control Certification",
+        "url": "Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf",
+        "typeLabel": "Safety Certification",
+        "submission": "Teacher Stamp / In-Class Sign-Off",
+        "actionLabel": "View Lab Sheet ↗",
+        "description": "5-point quality control checklist: sliding fit, airtight seal, fin symmetry, CM forward of CP, and mass budget."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Cardstock Rocket Lab Guide",
+        "url": "Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf",
+        "typeLabel": "Lab Handout",
+        "description": "Page 1: Pre-flight fabrication protocol, mass budget log, and teacher certification box."
+      }
+    ]
+  },
+  {
+    "day": 34,
+    "date": "2026-10-15",
+    "unit": 2,
+    "title": "Cardstock Rocket Pneumatic Launch Day: Outdoor Hang-Time Telemetry",
+    "topic": "Outdoor Launch Operations, Multi-Timer Hang-Time Telemetry, and Trajectory Tracking",
+    "dok": 3,
+    "type": "Hands-On Laboratory / Data Collection",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Full-period outdoor launch day for all physics classes at calibrated operating pressure (40 to 80 PSI via all-metal quick-exhaust launcher). Squad rotation (Pad Safety, Pressurization Tech, Master Trigger, 3 independent stopwatch timers, Recovery). Recording multi-timer hang times (t_hang), assessing apex stability, logging flight trajectory notes.",
+    "activity": "Pneumatic Launch Operations & Telemetry Squads: (1) Flight squads rotate through launch pad operations: Pad Safety Officer, Pressurization Tech (charging chamber up to 80 PSI), Master Countdown/Launch Trigger, and 3 Independent Stopwatch Timers positioned at field vantage points, (2) Execute launches and record hang-time (t_hang) to the nearest hundredth of a second, (3) Log flight anomalies (straight vertical climb vs fin flutter vs weathercocking drift), and (4) Calculate average t_hang across timer squad readouts to eliminate reaction-time bias.",
+    "essentialQuestion": "How do synchronized telemetry measurements allow us to reconstruct a rocket's full vertical flight trajectory?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-ETS1-2"
+    ],
+    "wicor": {
+      "Writing": "Logging multi-timer flight durations and recording qualitative flight trajectory notes.",
+      "Inquiry": "Analyzing flight stability ratings (1-5 stars) and evaluating weathercocking wind deflection.",
+      "Collaboration": "Executing coordinated launch pad squad roles: Safety Officer, Pressurization Tech, Countdown Trigger, Timers, and Recovery.",
+      "Organization": "Maintaining multi-trial data tables with independent timer readings and computing trial averages.",
+      "Reading": "Reading launch pad safety protocols and operating pressure gauges."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "Why does averaging 3 independent student stopwatches significantly reduce human reaction time error (t_react ≈ 0.20 s) when recording rocket hang times?",
+      "explanation": "Human reaction time introduces random timing errors (±0.20 s). Averaging independent measurements cancels out individual early and late reaction delays, providing a significantly more accurate empirical estimate of true flight hang time.",
+      "defaultDuration": 3
+    },
+    "links": {
+      "Cardstock Rocket Lab Guide (PDF)": "Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf"
+    },
+    "assignments": [
+      {
+        "title": "Launch Pad Flight Telemetry Log",
+        "url": "Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf",
+        "typeLabel": "Launch Telemetry Log",
+        "submission": "In-Class Handout / Field Data",
+        "actionLabel": "View Telemetry Table ↗",
+        "description": "Multi-timer trial records at 40 PSI constant pressure, stability ratings, and trajectory notes."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Cardstock Rocket Lab Guide",
+        "url": "Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf",
+        "typeLabel": "Lab Handout",
+        "description": "Page 2: Outdoor launch squad protocol, multi-timer telemetry table, and kinematics derivation matrix."
+      }
+    ]
+  },
+  {
+    "day": 35,
+    "date": "2026-10-16",
+    "unit": 2,
+    "title": "Rocket Flight Kinematics Analysis, Apogee Calculations & CER Synthesis",
+    "topic": "Flight Kinematics Derivations (t_up = t_hang/2, v₀ = 10 · t_up, h_max = 5 · (t_up)²) & Engineering Defense",
+    "dok": 3,
+    "type": "Data Analysis / Engineering Synthesis",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Students analyze launch telemetry, calculate time to apogee (t_up = t_hang / 2), launch exit velocity (v₀ = 10 · t_up), maximum apogee height (h_max = 5 · (t_up)²), and launch tube acceleration (a_tube = v₀² / 2L). Students compose a formal Claim-Evidence-Reasoning (CER) engineering synthesis evaluating mass, tolerance, and stability trade-offs.",
+    "activity": "Kinematic Telemetry Masterclass & CER Synthesis: (1) Convert average flight hang time (t_hang) to time to apogee (t_up = t_hang / 2), (2) Calculate launch exit velocity (v₀ = 10 · t_up in m/s and mph), (3) Calculate maximum apogee altitude (h_max = 5 · (t_up)² in meters and feet), (4) Derive launch rail acceleration (a_tube = v₀² / 2L) and net thrust force (F_thrust = m(a_tube + 10)), and (5) Compose a formal Claim-Evidence-Reasoning (CER) technical evaluation defending what design trade-off was most decisive for their rocket's performance.",
+    "essentialQuestion": "How do mathematical kinematic models transform a simple stopwatch measurement into a comprehensive flight telemetry profile?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-ETS1-2"
+    ],
+    "wicor": {
+      "Writing": "Composing a formal Claim-Evidence-Reasoning (CER) flight performance defense connecting telemetry data to Newtonian mechanics.",
+      "Inquiry": "Applying kinematic formulas to derive unmeasured physical quantities (exit velocity, peak altitude, launch rail acceleration).",
+      "Collaboration": "Comparing flight performance metrics across lab squads to identify class-wide engineering trends.",
+      "Organization": "Executing step-by-step GUESS kinematic derivations with proper metric units and dimensional checks.",
+      "Reading": "Interpreting kinematic formula derivations and scientific argument frameworks."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "At the very highest peak of flight (apogee), is the rocket's acceleration positive, negative, or zero? Defend your answer using Newton's Second Law.",
+      "explanation": "Acceleration is NEGATIVE (-10 m/s² downward due to gravity)! Even though instantaneous velocity is zero (v = 0), gravity continues pulling downward with force F_g = mg. By a = F_net / m, acceleration remains -10 m/s². If acceleration were zero, the rocket would hover frozen in midair.",
+      "defaultDuration": 3
+    },
+    "links": {
+      "Cardstock Rocket Simulator": "Unit_2/cardstock_rocket/index.html",
+      "Cardstock Rocket Lab Guide (PDF)": "Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf",
+      "Physics Curriculum Tie-Ins": "Unit_2/Cardstock_Rocket_Physics_Tie_Ins.md"
+    },
+    "assignments": [
+      {
+        "title": "Flight Kinematics Derivation & CER Synthesis",
+        "url": "Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf",
+        "typeLabel": "Kinematics Analysis & CER",
+        "submission": "In-Class Handout / Google Classroom",
+        "actionLabel": "Open Lab Guide PDF ↗",
+        "description": "Apogee kinematics calculations, tube acceleration, and Claim-Evidence-Reasoning technical flight defense."
+      }
+    ],
+    "resources": [
+      {
+        "title": "Cardstock Rocket Physics Simulator & Flight Visualizer",
+        "url": "Unit_2/cardstock_rocket/index.html",
+        "typeLabel": "Interactive Simulation",
+        "description": "Virtual launch sandbox modeling pneumatic thrust, stability torque (CM vs CP), and kinematics graphs."
+      },
+      {
+        "title": "Cardstock Rocket Physics Curriculum Tie-Ins Guide",
+        "url": "Unit_2/Cardstock_Rocket_Physics_Tie_Ins.md",
+        "typeLabel": "Reference Guide",
+        "description": "Kinematics derivation models, apogee formulas, and physical trade-off explanations."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Cardstock Rocket Flight Simulator",
+        "url": "Unit_2/cardstock_rocket/index.html",
+        "typeLabel": "Simulation Sandbox",
+        "description": "Verify flight hang-time and apogee height predictions against theoretical physics."
+      }
+    ]
+  },
+  {
+    "day": 36,
+    "date": "2026-10-19",
     "unit": 2,
     "title": "Newton's Third Law of Motion (Action-Reaction Pairs)",
     "topic": "Interaction Pairs: Equal Magnitude, Opposite Direction, Different Objects",
@@ -3820,8 +4123,8 @@ const lessonsData = [
     ]
   },
   {
-    "day": 32,
-    "date": "2026-10-13",
+    "day": 37,
+    "date": "2026-10-20",
     "unit": 2,
     "title": "Resolving the Third Law Paradox & System Boundaries",
     "topic": "The Horse-and-Cart Dilemma: Why Motion Occurs Despite Equal Opposing Forces",
@@ -3869,8 +4172,8 @@ const lessonsData = [
     ]
   },
   {
-    "day": 33,
-    "date": "2026-10-14",
+    "day": 38,
+    "date": "2026-10-21",
     "unit": 2,
     "title": "Structural Crashworthiness Engineering: Crumple Zone Impulse Optimization",
     "topic": "Iterative Engineering Design: Reducing Impact Force via Deceleration Duration Extension under Physical Constraints",
@@ -3930,8 +4233,8 @@ const lessonsData = [
     ]
   },
   {
-    "day": 34,
-    "date": "2026-10-15",
+    "day": 39,
+    "date": "2026-10-22",
     "unit": 2,
     "title": "Automotive Safety Symposium & Peer Defense Gallery Walk",
     "topic": "Cross-Disciplinary Kinematics-Dynamics Synthesis, Model Defense, and Peer Technical Review",
@@ -3990,8 +4293,8 @@ const lessonsData = [
     ]
   },
   {
-    "day": 35,
-    "date": "2026-10-16",
+    "day": 40,
+    "date": "2026-10-23",
     "unit": 2,
     "title": "Unit 2 Summative Assessment",
     "topic": "Comprehensive Exam on 1D Kinematics & Newton's Laws of Motion",

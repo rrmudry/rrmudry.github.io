@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cardstock Rocket Physics</title>
+  <link rel="icon" type="image/svg+xml" href="../../assets/unit2-favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Desmos Scientific Calculator API (same key as the other Unit 2 labs) -->
+  <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+  <style>
+    :root {
+      --bg-page: #070d19;
+      --bg-header: rgba(7, 13, 25, 0.95);
+      --bg-card: #0f172a;
+      --bg-sub: #1e293b;
+      --bg-input: #0b1324;
+      --border: rgba(56, 189, 248, 0.3);
+      --border-subtle: rgba(255, 255, 255, 0.12);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --cyan: #38bdf8;
+      --green: #34d399;
+      --green-bg: rgba(52, 211, 153, 0.12);
+      --red: #fb7185;
+      --red-bg: rgba(251, 113, 133, 0.12);
+      --amber: #fbbf24;
+      --purple: #c084fc;
+      --sky-top: #0b1730;
+      --sky-bottom: #12284a;
+      --grid: #1e293b;
+      --axis: #64748b;
+      --canvas-text: #cbd5e1;
+      --ground: #334155;
+    }
+    @media (prefers-color-scheme: light) {
+      :root:not([data-theme="dark"]) {
+        --bg-page: #f1f5f9; --bg-header: rgba(255, 255, 255, 0.96); --bg-card: #ffffff; --bg-sub: #f1f5f9;
+        --bg-input: #ffffff; --border: #cbd5e1; --border-subtle: #e2e8f0; --text: #0f172a; --muted: #475569;
+        --cyan: #0369a1; --green: #047857; --green-bg: #ecfdf5; --red: #be123c; --red-bg: #fff1f2;
+        --amber: #b45309; --purple: #7e22ce; --sky-top: #bfdbfe; --sky-bottom: #eff6ff;
+        --grid: #e2e8f0; --axis: #64748b; --canvas-text: #334155; --ground: #84cc16;
+      }
+    }
+    :root[data-theme="light"] {
+      --bg-page: #f1f5f9; --bg-header: rgba(255, 255, 255, 0.96); --bg-card: #ffffff; --bg-sub: #f1f5f9;
+      --bg-input: #ffffff; --border: #cbd5e1; --border-subtle: #e2e8f0; --text: #0f172a; --muted: #475569;
+      --cyan: #0369a1; --green: #047857; --green-bg: #ecfdf5; --red: #be123c; --red-bg: #fff1f2;
+      --amber: #b45309; --purple: #7e22ce; --sky-top: #bfdbfe; --sky-bottom: #eff6ff;
+      --grid: #e2e8f0; --axis: #64748b; --canvas-text: #334155; --ground: #84cc16;
+    }
+
+    * { box-sizing: border-box; }
+    html { font-size: 18px; }
+    body {
+      margin: 0; background: var(--bg-page); color: var(--text);
+      font-family: 'Outfit', system-ui, sans-serif; line-height: 1.5;
+    }
+    .f { font-family: 'JetBrains Mono', monospace; white-space: nowrap; font-size: 0.95em; }
+
+    header {
+      position: sticky; top: 0; z-index: 5; background: var(--bg-header);
+      border-bottom: 1px solid var(--border); backdrop-filter: blur(8px);
+    }
+    .bar {
+      max-width: 1240px; margin: 0 auto; padding: 0.5rem 16px;
+      display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;
+    }
+    .brand { display: flex; align-items: center; gap: 0.5rem; font-weight: 800; font-size: 1.15rem; }
+    .brand span:first-child { font-size: 1.5rem; }
+    .controls { display: flex; gap: 0.4rem; }
+    .btn {
+      font: inherit; font-size: 0.9rem; font-weight: 600; padding: 0.4rem 0.85rem; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--bg-sub); color: var(--text); cursor: pointer; text-decoration: none;
+    }
+    .btn:hover:not(:disabled) { border-color: var(--cyan); }
+    .btn:disabled { opacity: 0.45; cursor: default; }
+    .btn-go { background: var(--cyan); border-color: var(--cyan); color: var(--bg-page); }
+    .steps {
+      max-width: 1240px; margin: 0 auto; padding: 0 16px 0.5rem;
+      display: flex; gap: 0.35rem; overflow-x: auto;
+    }
+    .pill {
+      font: inherit; font-size: 0.8rem; font-weight: 600; white-space: nowrap;
+      padding: 0.25rem 0.7rem; border-radius: 999px; border: 1px solid var(--border-subtle);
+      background: transparent; color: var(--muted); cursor: pointer;
+    }
+    .pill.done { color: var(--green); border-color: var(--green); }
+    .pill.now { color: var(--bg-page); background: var(--cyan); border-color: var(--cyan); }
+    .pill:disabled { cursor: default; opacity: 0.55; }
+
+    main {
+      max-width: 1240px; margin: 0 auto; padding: 0.9rem 16px 2rem;
+      display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr);
+    }
+    @media (min-width: 900px) { main { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); align-items: start; } }
+    .panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 1rem; }
+    .visual canvas { width: 100%; display: block; border-radius: 10px; aspect-ratio: 4 / 3.4; max-height: 520px; }
+    .visual-controls { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.6rem; flex-wrap: wrap; }
+    .visual-caption { font-size: 0.85rem; color: var(--muted); }
+    .legend { display: flex; gap: 1rem; font-size: 0.85rem; margin-top: 0.5rem; color: var(--muted); flex-wrap: wrap; }
+    .legend b { font-family: 'JetBrains Mono', monospace; }
+
+    .task-top { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; }
+    .eyebrow { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--cyan); }
+    .task-text { font-size: 1.1rem; }
+    .task-text p { margin: 0 0 0.6rem; }
+    .vocab {
+      background: var(--bg-sub); border-left: 4px solid var(--purple); border-radius: 8px;
+      padding: 0.5rem 0.75rem; margin: 0.5rem 0; font-size: 1rem;
+    }
+    .vocab b { color: var(--purple); }
+    .options { display: grid; gap: 0.5rem; margin: 0.6rem 0; }
+    .opt {
+      font: inherit; text-align: left; padding: 0.6rem 0.85rem; border-radius: 10px; cursor: pointer;
+      border: 2px solid var(--border); background: var(--bg-sub); color: var(--text);
+    }
+    .opt:hover:not(:disabled) { border-color: var(--cyan); }
+    .opt:disabled { cursor: default; }
+    .opt.right { border-color: var(--green); background: var(--green-bg); }
+    .opt.wrong { border-color: var(--red); background: var(--red-bg); }
+    .opt svg { display: block; margin-top: 0.3rem; }
+    .options.graphs { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+    .num-row { display: flex; gap: 0.5rem; align-items: center; margin: 0.6rem 0; flex-wrap: wrap; }
+    .num-row input {
+      font: inherit; font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; width: 9rem;
+      padding: 0.45rem 0.6rem; border-radius: 8px; border: 2px solid var(--border);
+      background: var(--bg-input); color: var(--text);
+    }
+    .num-row .unit { font-weight: 700; }
+    .fb { margin: 0.6rem 0; padding: 0.7rem 0.9rem; border-radius: 10px; font-size: 1.02rem; }
+    .fb.right { background: var(--green-bg); border: 1px solid var(--green); }
+    .fb.wrong { background: var(--red-bg); border: 1px solid var(--red); }
+    .fb p { margin: 0 0 0.4rem; }
+    .fb p:last-child { margin: 0; }
+    .hints { margin: 0.5rem 0; }
+    .hint-list { margin: 0 0 0.4rem; padding-left: 1.2rem; }
+    .hint-list li { margin-bottom: 0.3rem; }
+    .btn-hint {
+      font: inherit; font-size: 0.9rem; font-weight: 600; background: none; border: 1px dashed var(--amber);
+      color: var(--amber); padding: 0.3rem 0.7rem; border-radius: 8px; cursor: pointer;
+    }
+    #calcSlot .calc-host { height: 220px; margin-top: 0.6rem; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-subtle); }
+    .calc-missing { font-size: 0.85rem; color: var(--muted); }
+    .task-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 0.8rem; gap: 0.5rem; }
+    .progress { font-size: 0.8rem; color: var(--muted); }
+    .mini-graph { background: var(--bg-input); border-radius: 6px; }
+    .mini-graph .ax { stroke: var(--axis); stroke-width: 1.5; }
+    .mini-graph .ln { stroke: var(--cyan); stroke-width: 3; fill: none; }
+    .mini-graph text { fill: var(--muted); font-size: 11px; font-family: 'Outfit', sans-serif; }
+    .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; margin: 0.6rem 0; }
+    .tool-out { background: var(--bg-sub); border-radius: 8px; padding: 0.5rem 0.7rem; }
+    .tool-out .lbl { font-size: 0.8rem; color: var(--muted); }
+    .tool-out .val { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 1rem; white-space: nowrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="bar">
+      <div class="brand"><span>🚀</span><span>Cardstock Rocket Physics</span></div>
+      <div class="controls">
+        <button class="btn" id="btnTheme" type="button">🌓 Theme</button>
+        <a class="btn" href="../../unit2-dashboard.html">🏠 Unit 2</a>
+      </div>
+    </div>
+    <nav class="steps" id="steps" aria-label="Steps"></nav>
+  </header>
+
+  <main>
+    <section class="panel visual" aria-label="Rocket picture">
+      <canvas id="scene" width="480" height="408" aria-label="Rocket on the launch tube"></canvas>
+      <div class="visual-controls">
+        <button class="btn btn-go" id="btnPlay" type="button">▶ Play</button>
+        <span class="visual-caption" id="caption"></span>
+      </div>
+      <div class="legend">
+        <span><b style="color:var(--cyan)">v</b> arrow = velocity (speed + direction)</span>
+        <span><b style="color:var(--red)">a</b> arrow = acceleration</span>
+        <span>Up is <b>+</b>, down is <b>−</b></span>
+      </div>
+    </section>
+
+    <section class="panel" id="taskCard" aria-live="polite"></section>
+  </main>
+
+  <script>
+  (function () {
+    const G = 10;
+    const $ = id => document.getElementById(id);
+    const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+    const shuffle = arr => arr.map(v => [Math.random(), v]).sort((a, b) => a[0] - b[0]).map(p => p[1]);
+    const n = (v, d) => Number(v.toFixed(d === undefined ? 2 : d)).toString();
+    const near = (v, target) => Math.abs(v - target) <= Math.max(Math.abs(target) * 0.02, 0.011);
+
+    // Small y-t / v-t graph pictures for the graph questions
+    function miniGraph(kind, label) {
+      const paths = {
+        arch: 'M10,70 Q60,-20 110,70',      // upside-down U (correct y-t)
+        rampUp: 'M10,70 L110,10',            // straight line up
+        vee: 'M10,10 L60,70 L110,10',        // V shape
+        lineDown: 'M10,12 L110,68',          // straight line down through 0 (correct v-t)
+        flat: 'M10,25 L110,25',              // flat line
+        archV: 'M10,40 Q60,-20 110,40'       // arch drawn on a v-t graph
+      };
+      const mid = kind === 'lineDown' || kind === 'flat' || kind === 'archV';
+      return `<svg class="mini-graph" viewBox="0 0 120 80" width="150" height="100" aria-hidden="true">
+        <line class="ax" x1="10" y1="5" x2="10" y2="75"></line>
+        <line class="ax" x1="10" y1="${mid ? 40 : 70}" x2="115" y2="${mid ? 40 : 70}"></line>
+        <path class="ln" d="${paths[kind]}"></path>
+        <text x="14" y="12">${label}</text><text x="104" y="${mid ? 52 : 79}">t</text>
+      </svg>`;
+    }
+
+    // ------------------------------------------------------------------
+    // Lesson content — written for ALL students, including Conceptual Physics
+    // students who read below grade level: short sentences, everyday words,
+    // one idea per task. Task types: info (Continue), mc (pick one),
+    // num (type a number, with Desmos + hints), tool (free use at the end).
+    // A wrong answer explains why, then loads a NEW version of that step.
+    // ------------------------------------------------------------------
+    const STEPS = [
+      {
+        title: '1. Meet the Rocket',
+        scene: { from: null, to: null, caption: 'The rocket sits on the launch tube.' },
+        gen: () => ({ q: pick([0, 1, 2]) }),
+        tasks: [
+          {
+            type: 'info',
+            text: () => `<p>This week you build a paper rocket. Then you launch it with air.</p>
+              <div class="vocab"><b>Fuselage</b> (FEW-suh-lahzh): the body of the rocket. Yours is a tube of cardstock.</div>
+              <div class="vocab"><b>Launch tube</b>: the pipe your rocket slides onto. Air rushes up the pipe and shoots the rocket up.</div>
+              <div class="vocab"><b>Hang time</b>: how long the rocket is in the air, from launch until it lands.</div>
+              <div class="vocab"><b>Apogee</b> (AP-uh-jee): the highest point of the flight.</div>`
+          },
+          {
+            type: 'mc',
+            text: ctx => [
+              'What is <strong>hang time</strong>?',
+              'What is the <strong>apogee</strong>?',
+              'What is the <strong>fuselage</strong>?'
+            ][ctx.s.q],
+            options: ctx => shuffle([
+              [
+                { t: 'How long the rocket is in the air', ok: true },
+                { t: 'How long it takes to build the rocket', why: 'Hang time is about the flight, not the building.' },
+                { t: 'How long the rocket stays at the top', why: 'The rocket is at the top for only an instant. Hang time is the whole flight.' }
+              ],
+              [
+                { t: 'The highest point of the flight', ok: true },
+                { t: 'The spot where the rocket lands', why: 'The apogee is up high, not on the ground.' },
+                { t: 'The fastest point of the flight', why: 'At the apogee the rocket is actually stopped for an instant.' }
+              ],
+              [
+                { t: 'The body of the rocket', ok: true },
+                { t: 'The pipe the rocket slides onto', why: 'That pipe is the launch tube.' },
+                { t: 'The fins at the bottom', why: 'The fins attach to the fuselage, but they are not the fuselage.' }
+              ]
+            ][ctx.s.q]),
+            why: 'Read the word boxes again.'
+          }
+        ]
+      },
+      {
+        title: '2. Blast Off',
+        scene: { from: null, to: 0.4, rate: 0.25, caption: 'Press Play to watch the launch (slow motion).' },
+        gen: () => ({ light: pick([15, 20, 25]), heavy: pick([45, 50, 60]), lightIsA: Math.random() < 0.5 }),
+        tasks: [
+          {
+            type: 'info',
+            text: () => `<p><strong>Before launch:</strong> gravity pulls the rocket down. The launch tube holds it up. The forces are <em>balanced</em>, so the rocket stays still. That's Newton's 1st Law.</p>
+              <p><strong>Launch:</strong> air blasts up the tube. The air push is much bigger than gravity. Now the <strong>net force</strong> points up, so the rocket speeds up very fast.</p>
+              <p>Press <strong>▶ Play</strong> to watch.</p>`
+          },
+          {
+            type: 'mc',
+            text: () => 'Before launch, the rocket sits still on the tube. Why does it not move?',
+            options: () => shuffle([
+              { t: 'The forces on it are balanced (net force = 0)', ok: true },
+              { t: 'No forces act on it', why: 'Gravity always pulls on it. The tube pushes up just as hard.' },
+              { t: 'Gravity is turned off on the launch pad', why: 'Gravity never turns off. The tube pushes back up on the rocket.' }
+            ]),
+            right: 'Right! Gravity pulls down and the tube pushes up the same amount. Net force = 0, so nothing changes.',
+            why: 'Gravity pulls down and the tube pushes up by the same amount. Balanced forces mean no change in motion.'
+          },
+          {
+            type: 'mc',
+            text: ctx => {
+              const A = ctx.s.lightIsA ? ctx.s.light : ctx.s.heavy;
+              const B = ctx.s.lightIsA ? ctx.s.heavy : ctx.s.light;
+              return `<p>Both rockets get the <strong>same air push</strong>.</p>
+                <p>Rocket A has a mass of <span class="f">${A} g</span>. Rocket B has a mass of <span class="f">${B} g</span>.</p>
+                <p>Which rocket leaves the tube <strong>faster</strong>?</p>`;
+            },
+            options: ctx => [
+              { t: 'Rocket A', ok: ctx.s.lightIsA, why: 'Rocket A has more mass. The same push gives it less acceleration.' },
+              { t: 'Rocket B', ok: !ctx.s.lightIsA, why: 'Rocket B has more mass. The same push gives it less acceleration.' },
+              { t: 'They leave at the same speed', why: 'Same push, different mass, so the accelerations are different.' }
+            ],
+            right: 'Yes! <span class="f">a = F<sub>net</sub> ÷ m</span>. Same push, less mass, more acceleration. So use as little tape as you can!',
+            why: 'Think of the Hall\'s Carriage lab: more mass with the same pull gave less acceleration.'
+          }
+        ]
+      },
+      {
+        title: '3. Going Up',
+        scene: { from: 0, to: 1.18, caption: 'The rocket left the tube. Watch the arrows.' },
+        gen: () => ({ h: pick([3, 4, 5, 6]) }),
+        tasks: [
+          {
+            type: 'info',
+            text: () => `<p>Once the rocket leaves the tube, the air stops pushing.</p>
+              <p>Now only <strong>gravity</strong> acts on it. Gravity pulls <strong>down</strong>.</p>
+              <p>But the rocket keeps going up for a while. Why? <strong>Inertia</strong>: a moving object keeps moving unless a force changes it.</p>
+              <p>Press <strong>▶ Play</strong> and watch the <span style="color:var(--cyan);font-weight:700">v</span> arrow get shorter.</p>`
+          },
+          {
+            type: 'mc',
+            text: ctx => `The rocket is <span class="f">${ctx.s.h} m</span> above the tube and still moving up. What force is pushing it <strong>up</strong>?`,
+            options: () => shuffle([
+              { t: 'No force. It keeps going up because of inertia.', ok: true },
+              { t: 'The air from the launch tube', why: 'The air stopped pushing when the rocket left the tube.' },
+              { t: 'The "force of motion" it got at launch', why: 'There is no "force of motion." A moving object keeps moving without a push. That is inertia.' }
+            ]),
+            right: 'Right! Nothing pushes it up. Only gravity acts, and gravity pulls down.',
+            why: 'Nothing pushes it up. Only gravity acts, and gravity pulls down.'
+          },
+          {
+            type: 'mc',
+            text: () => `<p>Going up: the velocity is <strong>+</strong> (up). The acceleration is <strong>−</strong> (down, from gravity).</p>
+              <p>What is the rocket doing?</p>`,
+            options: () => shuffle([
+              { t: 'Slowing down', ok: true },
+              { t: 'Speeding up', why: 'v and a have opposite signs. Opposite signs mean slowing down.' },
+              { t: 'Moving at a constant speed', why: 'There is an acceleration, so the speed is changing.' }
+            ]),
+            right: 'Right! <strong>Opposite signs → slowing down.</strong> Same rule as the Acceleration Studio.',
+            why: 'Rule from the Acceleration Studio: opposite signs → slowing down. Same signs → speeding up.'
+          }
+        ]
+      },
+      {
+        title: '4. At the Top',
+        scene: { from: 0, to: 1.5, caption: 'Press Play. The rocket stops at the apogee.' },
+        gen: () => ({}),
+        tasks: [
+          {
+            type: 'mc',
+            text: () => 'At the apogee (the very top), what is the rocket\'s <strong>velocity</strong>?',
+            options: () => shuffle([
+              { t: '0 m/s', ok: true },
+              { t: '+10 m/s (still going up)', why: 'If it were still going up, it would not be at the top yet.' },
+              { t: '−10 m/s (already falling)', why: 'If it were already falling, it would be past the top.' }
+            ]),
+            right: 'Right! For one instant the rocket is stopped: <span class="f">v = 0 m/s</span>.',
+            why: 'At the top the rocket stops going up and has not started down yet.'
+          },
+          {
+            type: 'mc',
+            text: () => 'At the apogee, what is the rocket\'s <strong>acceleration</strong>?',
+            options: () => shuffle([
+              { t: '−10 m/s² (gravity still pulls down)', ok: true },
+              { t: '0 m/s² (the rocket stopped)', why: 'Stopped for an instant is not the same as no acceleration. If a were 0, the rocket would float at the top forever!' },
+              { t: '+10 m/s² (it is turning around)', why: 'Gravity pulls down, so the acceleration is down (−).' }
+            ]),
+            right: 'Yes! Gravity never turns off. <span class="f">a = −10 m/s²</span> the whole flight, even at the top. That is why the rocket falls back down.',
+            why: 'Gravity is still pulling down at the top.'
+          }
+        ]
+      },
+      {
+        title: '5. Coming Down',
+        scene: { from: 1.5, to: 3, caption: 'Press Play. The rocket falls back down.' },
+        gen: () => ({ h: pick([8, 10, 12, 15]) }),
+        tasks: [
+          {
+            type: 'mc',
+            text: () => `<p>Falling: the velocity is <strong>−</strong> (down). The acceleration is <strong>−</strong> (down).</p><p>What is the rocket doing?</p>`,
+            options: () => shuffle([
+              { t: 'Speeding up', ok: true },
+              { t: 'Slowing down', why: 'v and a have the same sign. Same signs mean speeding up.' },
+              { t: 'Moving at a constant speed', why: 'There is an acceleration, so the speed is changing.' }
+            ]),
+            right: 'Right! <strong>Same signs → speeding up.</strong>',
+            why: 'Same signs → speeding up. Opposite signs → slowing down.'
+          },
+          {
+            type: 'mc',
+            text: ctx => `<p>A rocket goes up <span class="f">${ctx.s.h} m</span> and lands back on the launch pad.</p><p>What is its <strong>displacement</strong>?</p>
+              <div class="vocab"><b>Displacement</b>: how far you end up from where you started, in a straight line.</div>`,
+            options: ctx => shuffle([
+              { t: '0 m', ok: true },
+              { t: `${ctx.s.h} m`, why: 'That is how high it went. But it came back down.' },
+              { t: `${ctx.s.h * 2} m`, why: 'That is the total distance (up + down). Displacement only cares about start and end.' }
+            ]),
+            right: ctx => `Right! It ends where it started, so <span class="f">Δy = 0 m</span>. But the <strong>distance</strong> it traveled is <span class="f">${ctx.s.h} + ${ctx.s.h} = ${ctx.s.h * 2} m</span>. Just like the Fantasy Map Quest!`,
+            why: 'It landed where it started.'
+          }
+        ]
+      },
+      {
+        title: '6. Flight Graphs',
+        scene: { from: 0, to: 3, caption: 'Press Play to watch the whole flight.' },
+        gen: () => ({}),
+        tasks: [
+          {
+            type: 'mc', graphs: true,
+            text: () => `Which <strong>position-time</strong> graph matches the flight? (Up, stop at the top, back down.)`,
+            options: () => shuffle([
+              { t: `Arch ${miniGraph('arch', 'y')}`, ok: true },
+              { t: `Straight line up ${miniGraph('rampUp', 'y')}`, why: 'On this graph the rocket never comes back down.' },
+              { t: `V shape ${miniGraph('vee', 'y')}`, why: 'This one starts high and goes down first. The rocket starts on the ground.' }
+            ]),
+            right: 'Yes! It rises, flattens at the top (slope = 0, so v = 0), then falls. The slope is the velocity.',
+            why: 'Height starts at 0, goes up, then comes back to 0.'
+          },
+          {
+            type: 'mc', graphs: true,
+            text: () => `Which <strong>velocity-time</strong> graph matches the flight? (Fast up, slowing, 0 at the top, then faster and faster down.)`,
+            options: () => shuffle([
+              { t: `Straight line going down ${miniGraph('lineDown', 'v')}`, ok: true },
+              { t: `Flat line ${miniGraph('flat', 'v')}`, why: 'A flat line means the velocity never changes. Gravity keeps changing it.' },
+              { t: `Arch ${miniGraph('archV', 'v')}`, why: 'The arch is the shape of the position graph, not the velocity graph.' }
+            ]),
+            right: 'Yes! v starts +, drops by 10 m/s every second, crosses 0 at the top, then goes −. The slope is <span class="f">a = −10 m/s²</span>.',
+            why: 'Velocity starts positive and goes down by the same amount every second.'
+          }
+        ]
+      },
+      {
+        title: '7. Launch-Day Math',
+        scene: null, // uses the scenario's hang time
+        gen: () => {
+          const tHang = pick([2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6]);
+          return { tHang, tUp: tHang / 2 };
+        },
+        tasks: [
+          {
+            type: 'info',
+            text: ctx => `<p>Your team timed a flight. The average <strong>hang time</strong> was:</p>
+              <p style="font-size:1.4rem;text-align:center"><span class="f">t<sub>hang</sub> = ${ctx.s.tHang.toFixed(1)} s</span></p>
+              <p>With just this one number, you can find how fast the rocket launched and how high it went.</p>`
+          },
+          {
+            type: 'num', unit: 's', calc: true,
+            text: ctx => `<p>Hang time: <span class="f">t<sub>hang</sub> = ${ctx.s.tHang.toFixed(1)} s</span></p>
+              <p>How long did the trip <strong>up</strong> take? &nbsp;<span class="f">t<sub>up</sub> = ?</span></p>`,
+            answer: ctx => ctx.s.tUp,
+            hints: ctx => [
+              'The trip up takes the same time as the trip down.',
+              'So the time up is half of the hang time.',
+              `<span class="f">t<sub>up</sub> = ${ctx.s.tHang.toFixed(1)} ÷ 2</span>`
+            ],
+            right: ctx => `Right! <span class="f">t<sub>up</sub> = ${ctx.s.tHang.toFixed(1)} ÷ 2 = ${n(ctx.s.tUp)} s</span>`,
+            why: ctx => `Up and down take the same time, so <span class="f">t<sub>up</sub> = ${ctx.s.tHang.toFixed(1)} ÷ 2 = ${n(ctx.s.tUp)} s</span>.`
+          },
+          {
+            type: 'num', unit: 'm/s', calc: true,
+            text: ctx => `<p>Time up: <span class="f">t<sub>up</sub> = ${n(ctx.s.tUp)} s</span></p>
+              <p>How fast was the rocket going when it left the tube? &nbsp;<span class="f">v<sub>0</sub> = ?</span></p>`,
+            answer: ctx => G * ctx.s.tUp,
+            hints: ctx => [
+              'Gravity slows the rocket down by 10 m/s every second.',
+              `It took ${n(ctx.s.tUp)} s to slow all the way down to 0 at the top.`,
+              `So it started at <span class="f">v<sub>0</sub> = 10 × ${n(ctx.s.tUp)}</span>`
+            ],
+            right: ctx => {
+              const v = G * ctx.s.tUp;
+              return `Right! <span class="f">v<sub>0</sub> = 10 × ${n(ctx.s.tUp)} = ${n(v)} m/s</span>. That is about <strong>${n(v * 2.237, 0)} mph</strong>!`;
+            },
+            why: ctx => `It loses 10 m/s every second for ${n(ctx.s.tUp)} s, so <span class="f">v<sub>0</sub> = 10 × ${n(ctx.s.tUp)} = ${n(G * ctx.s.tUp)} m/s</span>.`
+          },
+          {
+            type: 'num', unit: 'm', calc: true,
+            text: ctx => `<p>Time up: <span class="f">t<sub>up</sub> = ${n(ctx.s.tUp)} s</span></p>
+              <p>How <strong>high</strong> did the rocket go? Use:</p>
+              <p><span class="f">h<sub>max</sub> = 5 × t<sub>up</sub> × t<sub>up</sub></span></p>`,
+            answer: ctx => 5 * ctx.s.tUp * ctx.s.tUp,
+            hints: ctx => [
+              'This is the same formula from the Reaction Time Lab. There, the ruler fell from rest. Here, the rocket falls from rest at the top.',
+              `Put ${n(ctx.s.tUp)} in for t<sub>up</sub> both times.`,
+              `<span class="f">h<sub>max</sub> = 5 × ${n(ctx.s.tUp)} × ${n(ctx.s.tUp)}</span>`
+            ],
+            right: ctx => `Right! <span class="f">h<sub>max</sub> = 5 × ${n(ctx.s.tUp)} × ${n(ctx.s.tUp)} = ${n(5 * ctx.s.tUp * ctx.s.tUp)} m</span>`,
+            why: ctx => `<span class="f">h<sub>max</sub> = 5 × ${n(ctx.s.tUp)} × ${n(ctx.s.tUp)} = ${n(5 * ctx.s.tUp * ctx.s.tUp)} m</span>`
+          }
+        ]
+      },
+      {
+        title: '8. Your Rocket',
+        scene: null,
+        gen: () => ({}),
+        tasks: [
+          {
+            type: 'tool',
+            text: () => `<p>🎉 You finished! Use this to <strong>check your own rocket's math</strong> on launch day.</p>
+              <p>Work it out on paper first. Then type your team's average hang time.</p>`
+          }
+        ]
+      }
+    ];
+
+    // ------------------------------------------------------------------
+    // State
+    // ------------------------------------------------------------------
+    const state = {
+      step: 0, task: 0, s: null, status: 'ask', picked: null, fb: '', hintsShown: 0,
+      opts: [], reached: 0, done: new Set(), lastScenario: {}
+    };
+    const ctx = () => ({ s: state.s });
+    const val = (x, c) => (typeof x === 'function' ? x(c) : x);
+
+    function newScenario() {
+      const step = STEPS[state.step];
+      let s, tries = 0;
+      // Pick a different version than last time when the step has versions
+      do { s = step.gen(); tries++; }
+      while (tries < 8 && JSON.stringify(s) !== '{}' && JSON.stringify(s) === state.lastScenario[state.step]);
+      state.lastScenario[state.step] = JSON.stringify(s);
+      state.s = s;
+    }
+
+    function resetTask() {
+      state.status = 'ask'; state.picked = null; state.fb = ''; state.hintsShown = 0; state.opts = null;
+      if (window.speechSynthesis) speechSynthesis.cancel();
+    }
+
+    function goStep(i) {
+      state.step = i; state.task = 0; resetTask();
+      newScenario(); setScene(); render();
+    }
+
+    function restartStep() {
+      state.task = 0; resetTask();
+      newScenario(); setScene(); render();
+    }
+
+    function nextTask() {
+      const step = STEPS[state.step];
+      if (state.task < step.tasks.length - 1) {
+        state.task++; resetTask(); render();
+        return;
+      }
+      state.done.add(state.step);
+      if (state.step < STEPS.length - 1) {
+        state.reached = Math.max(state.reached, state.step + 1);
+        goStep(state.step + 1);
+      }
+    }
+
+    // ------------------------------------------------------------------
+    // Rendering
+    // ------------------------------------------------------------------
+    function renderSteps() {
+      $('steps').innerHTML = STEPS.map((st, i) => {
+        const cls = i === state.step ? 'now' : (state.done.has(i) ? 'done' : '');
+        const dis = i > state.reached ? 'disabled' : '';
+        return `<button class="pill ${cls}" data-step="${i}" ${dis}>${state.done.has(i) && i !== state.step ? '✓ ' : ''}${st.title}</button>`;
+      }).join('');
+    }
+
+    function hintsHtml(t, c) {
+      if (!t.hints) return '';
+      const all = t.hints(c);
+      const shown = Math.min(state.hintsShown, all.length);
+      const list = all.slice(0, shown).map((h, i) => `<li><strong>Hint ${i + 1}:</strong> ${h}</li>`).join('');
+      const more = shown < all.length && state.status === 'ask'
+        ? `<button class="btn-hint" data-hint>💡 ${shown ? 'Next hint' : 'Show a hint'} (${all.length - shown} left)</button>` : '';
+      return `<div class="hints">${list ? `<ol class="hint-list">${list}</ol>` : ''}${more}</div>`;
+    }
+
+    function render() {
+      renderSteps();
+      const step = STEPS[state.step];
+      const t = step.tasks[state.task];
+      const c = ctx();
+      let body = `<div class="task-top">
+          <div class="eyebrow">${step.title}</div>
+          <button class="btn" data-speak type="button" title="Read this out loud">🔊 Read aloud</button>
+        </div>
+        <div class="task-text">${t.text(c)}</div>`;
+
+      if (t.type === 'mc') {
+        if (!state.opts) state.opts = t.options(c);   // keep the same order while answering
+        body += `<div class="options ${t.graphs ? 'graphs' : ''}">${state.opts.map((o, i) => {
+          let cls = '';
+          if (state.status !== 'ask' && state.picked === i) cls = o.ok ? 'right' : 'wrong';
+          return `<button class="opt ${cls}" data-opt="${i}" ${state.status !== 'ask' ? 'disabled' : ''}>${o.t}</button>`;
+        }).join('')}</div>`;
+      }
+
+      if (t.type === 'num') {
+        body += `<div class="num-row">
+            <input id="numIn" type="text" inputmode="decimal" autocomplete="off" placeholder="your answer" aria-label="Your answer" ${state.status !== 'ask' ? 'disabled' : ''}>
+            <span class="unit">${t.unit}</span>
+            <button class="btn btn-go" data-check ${state.status !== 'ask' ? 'disabled' : ''}>Check</button>
+          </div>`;
+        body += hintsHtml(t, c);
+      }
+
+      if (t.type === 'tool') {
+        body += `<div class="num-row">
+            <label for="toolIn"><strong>Hang time</strong></label>
+            <input id="toolIn" type="text" inputmode="decimal" placeholder="e.g. 3.1">
+            <span class="unit">s</span>
+          </div>
+          <div class="tool-grid" id="toolOut"></div>
+          <p style="font-size:0.9rem;color:var(--muted)">Real paper rockets feel air pushing against them (air resistance). So your real height is a little less than this. It is still a good estimate.</p>`;
+      }
+
+      if (state.status === 'right') body += `<div class="fb right"><p>✅ ${val(t.right, c) || 'Correct!'}</p></div>`;
+      if (state.status === 'wrong') {
+        body += `<div class="fb wrong"><p>❌ Not quite. ${state.fb}</p><p>${val(t.why, c) || ''}</p>
+          <p>You'll get a <strong>new version</strong> of this step. Start it again.</p></div>`;
+      }
+
+      if (t.calc) body += `<div id="calcSlot"></div>`;
+
+      const total = step.tasks.length;
+      let navBtn = '';
+      if (t.type === 'info') navBtn = `<button class="btn btn-go" data-next>Continue →</button>`;
+      else if (state.status === 'right') navBtn = `<button class="btn btn-go" data-next>${state.task < total - 1 ? 'Next →' : 'Next step →'}</button>`;
+      else if (state.status === 'wrong') navBtn = `<button class="btn btn-go" data-retry>🔄 Try a new version</button>`;
+      const progress = t.type === 'tool' ? '' : `Part ${state.task + 1} of ${total}`;
+      body += `<div class="task-nav"><span class="progress">${progress}</span>${navBtn}</div>`;
+
+      $('taskCard').innerHTML = body;
+      if (t.calc) mountCalculator();
+      if (t.type === 'num' && state.status === 'ask') {
+        $('numIn').addEventListener('keydown', e => { if (e.key === 'Enter') checkNum(); });
+      }
+      if (t.type === 'tool') $('toolIn').addEventListener('input', updateTool);
+    }
+
+    function updateTool() {
+      const th = parseFloat($('toolIn').value);
+      const out = $('toolOut');
+      if (!(th > 0 && th < 20)) { out.innerHTML = ''; return; }
+      const tu = th / 2, v0 = G * tu, h = 5 * tu * tu;
+      out.innerHTML = `
+        <div class="tool-out"><div class="lbl">Time up, t<sub>up</sub></div><div class="val">${n(th)} ÷ 2 = ${n(tu, 3)} s</div></div>
+        <div class="tool-out"><div class="lbl">Launch speed, v<sub>0</sub></div><div class="val">10 × ${n(tu, 3)} = ${n(v0)} m/s</div></div>
+        <div class="tool-out"><div class="lbl">Height, h<sub>max</sub></div><div class="val">5 × ${n(tu, 3)} × ${n(tu, 3)} = ${n(h)} m</div></div>`;
+      hang = th;
+      sceneSpec = { from: 0, to: th, caption: `Your rocket: about ${n(h, 1)} m high.` };
+      simT = toSim(sceneSpec.from);
+      $('caption').textContent = sceneSpec.caption;
+      $('btnPlay').disabled = false;
+      drawScene();
+    }
+
+    function checkNum() {
+      const t = STEPS[state.step].tasks[state.task];
+      const raw = ($('numIn').value || '').replace(/,/g, '').trim();
+      if (raw === '') return;
+      const v = parseFloat(raw);
+      if (isNaN(v)) return;
+      if (near(v, t.answer(ctx()))) state.status = 'right';
+      else { state.status = 'wrong'; state.fb = `You entered ${raw} ${t.unit}.`; }
+      render();
+    }
+
+    // ------------------------------------------------------------------
+    // Desmos calculator (one instance, moved into each calculation task)
+    // ------------------------------------------------------------------
+    let desmos = null, calcHost = null;
+    function mountCalculator() {
+      const slot = $('calcSlot');
+      if (!slot) return;
+      if (!window.Desmos) {
+        slot.innerHTML = '<p class="calc-missing">The calculator did not load. Use your own calculator.</p>';
+        return;
+      }
+      if (!calcHost) {
+        calcHost = document.createElement('div');
+        calcHost.className = 'calc-host';
+        slot.appendChild(calcHost);
+        try {
+          desmos = Desmos.ScientificCalculator(calcHost, {
+            invertedColors: isDark(),
+            fontSize: Desmos.FontSizes ? Desmos.FontSizes.LARGE : undefined
+          });
+        } catch (e) {
+          slot.innerHTML = '<p class="calc-missing">The calculator did not load. Use your own calculator.</p>';
+          calcHost = null;
+        }
+      } else {
+        slot.appendChild(calcHost);
+        if (desmos && desmos.resize) desmos.resize();
+      }
+    }
+
+    // ------------------------------------------------------------------
+    // Read aloud (units and symbols said as words)
+    // ------------------------------------------------------------------
+    function speak() {
+      if (!('speechSynthesis' in window)) return;
+      const t = STEPS[state.step].tasks[state.task];
+      const c = ctx();
+      let text = t.text(c);
+      if (t.type === 'mc') text += ' ' + state.opts.map((o, i) => `Choice ${i + 1}: ${o.t}`).join('. ');
+      if (state.status === 'right') text += ' ' + (val(t.right, c) || 'Correct!');
+      if (state.status === 'wrong') text += ' Not quite. ' + state.fb + ' ' + (val(t.why, c) || '');
+      text = text.replace(/<svg[\s\S]*?<\/svg>/g, ' ').replace(/<[^>]+>/g, '')
+        .replace(/m\/s²/g, ' meters per second squared')
+        .replace(/m\/s/g, ' meters per second')
+        .replace(/(\d)\s*g\b/g, '$1 grams')
+        .replace(/(\d)\s*m\b/g, '$1 meters')
+        .replace(/(\d)\s*s\b/g, '$1 seconds')
+        .replace(/\bv0\b/g, 'v naught').replace(/tup\b/g, 't up').replace(/thang\b/g, 't hang')
+        .replace(/hmax\b/g, 'h max').replace(/Fnet\b/g, 'F net')
+        .replace(/Δy/g, 'delta y')
+        .replace(/÷/g, ' divided by ').replace(/×/g, ' times ').replace(/−/g, ' minus ')
+        .replace(/→/g, ', so ').replace(/&nbsp;/g, ' ')
+        .replace(/[✅❌🎉💡🔄▶]/g, ' ').replace(/\s+/g, ' ');
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = 0.9;
+      speechSynthesis.speak(u);
+    }
+
+    // ------------------------------------------------------------------
+    // Events
+    // ------------------------------------------------------------------
+    $('taskCard').addEventListener('click', e => {
+      const b = e.target.closest('button');
+      if (!b || b.disabled) return;
+      if (b.hasAttribute('data-speak')) return speak();
+      if (b.hasAttribute('data-next')) return nextTask();
+      if (b.hasAttribute('data-retry')) return restartStep();
+      if (b.hasAttribute('data-check')) return checkNum();
+      if (b.hasAttribute('data-hint')) { state.hintsShown++; return render(); }
+      if (b.hasAttribute('data-opt')) {
+        const o = state.opts[+b.dataset.opt];
+        state.picked = +b.dataset.opt;
+        state.status = o.ok ? 'right' : 'wrong';
+        state.fb = o.ok ? '' : (o.why || '');
+        render();
+      }
+    });
+    $('steps').addEventListener('click', e => {
+      const b = e.target.closest('button[data-step]');
+      if (!b || b.disabled) return;
+      goStep(+b.dataset.step);
+    });
+
+    // ------------------------------------------------------------------
+    // Rocket scene
+    // ------------------------------------------------------------------
+    const scene = $('scene');
+    const SLIDE = 30;        // px the rocket slides along the launch tube during the push
+    const TUBE_L = 0.40;     // m, real launch tube length (sets the push acceleration shown)
+    let hang = 3.0;
+    let simT = -0.4;
+    let sceneSpec = STEPS[0].scene;
+    let playing = false, lastStamp = null;
+
+    const tUp = () => hang / 2;
+    const v0 = () => G * tUp();
+    const hMax = () => 5 * tUp() * tUp();
+
+    // Scene layout, shared by the drawing and the push timing
+    function geometry() {
+      const w = scene.clientWidth, h = scene.clientHeight;
+      const groundY = h - 30;
+      const tubeTop = groundY - 34;
+      const scaleMax = Math.max(15, Math.ceil(hMax() / 5) * 5 + 5);
+      return { w, h, groundY, tubeTop, scaleMax, pxPerM: (tubeTop - 90) / scaleMax };
+    }
+
+    // Push inside the tube: constant acceleration from rest over SLIDE px, ending at exactly
+    // the exit speed v0 (on screen), so the motion stays smooth when the rocket leaves the tube.
+    function boostTime() {
+      const pxPerM = geometry().pxPerM || 12;
+      return 2 * SLIDE / (v0() * pxPerM);
+    }
+    // Scene times are flight times (0 = leaves the tube); null = sitting on the pad
+    const toSim = f => (f === null ? -0.4 : boostTime() + f);
+
+    function stateAt(t) {
+      if (t < 0) return { phase: 'pad', y: 0, v: 0 };
+      const bT = boostTime();
+      if (t < bT) {
+        const frac = t / bT;
+        return { phase: 'boost', y: 0, v: v0() * frac, lift: frac * frac };
+      }
+      const ft = Math.min(t - bT, hang);
+      const y = Math.max(0, v0() * ft - 0.5 * G * ft * ft);
+      const v = v0() - G * ft;
+      let phase = Math.abs(v) < 0.6 ? 'top' : (v > 0 ? 'up' : 'down');
+      if (ft >= hang) phase = 'landed';
+      return { phase, y, v };
+    }
+
+    function setScene() {
+      const step = STEPS[state.step];
+      if (step.scene) {
+        hang = 3.0;
+        sceneSpec = step.scene;
+      } else if (state.s && state.s.tHang) {
+        hang = state.s.tHang;
+        sceneSpec = { from: 0, to: hang, caption: `Press Play to watch a ${n(hang, 1)} s flight.` };
+      } else {
+        hang = 3.0;
+        sceneSpec = { from: null, to: null, caption: 'Type a hang time to see your flight.' };
+      }
+      playing = false;
+      simT = toSim(sceneSpec.from);
+      $('caption').textContent = sceneSpec.caption;
+      $('btnPlay').disabled = sceneSpec.to === null;
+      $('btnPlay').textContent = '▶ Play';
+      drawScene();
+    }
+
+    function isDark() {
+      const t = document.documentElement.getAttribute('data-theme');
+      return t ? t === 'dark' : !matchMedia('(prefers-color-scheme: light)').matches;
+    }
+
+    function drawScene() {
+      const ratio = window.devicePixelRatio || 1;
+      const w = scene.clientWidth, h = scene.clientHeight;
+      if (!w || !h) return;
+      scene.width = Math.round(w * ratio); scene.height = Math.round(h * ratio);
+      const ctx = scene.getContext('2d');
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+      const s = stateAt(simT);
+      const sky = ctx.createLinearGradient(0, 0, 0, h);
+      sky.addColorStop(0, css('--sky-top')); sky.addColorStop(1, css('--sky-bottom'));
+      ctx.fillStyle = sky; ctx.fillRect(0, 0, w, h);
+
+      const { groundY, tubeTop, scaleMax, pxPerM } = geometry();
+
+      // height marks (heights are measured from the top of the launch tube)
+      ctx.font = '12px JetBrains Mono, monospace';
+      ctx.lineWidth = 1;
+      for (let m = 0; m <= scaleMax; m += 5) {
+        const yy = tubeTop - m * pxPerM;
+        ctx.strokeStyle = css('--grid');
+        ctx.beginPath(); ctx.moveTo(40, yy); ctx.lineTo(w, yy); ctx.stroke();
+        ctx.fillStyle = css('--canvas-text');
+        ctx.fillText(m + ' m', 4, yy + 4);
+      }
+
+      const ay = tubeTop - hMax() * pxPerM;
+      ctx.setLineDash([6, 5]); ctx.strokeStyle = css('--green');
+      ctx.beginPath(); ctx.moveTo(40, ay); ctx.lineTo(w, ay); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = css('--green'); ctx.font = 'bold 13px Outfit, sans-serif';
+      ctx.fillText('apogee', 44, ay - 6);
+
+      ctx.fillStyle = css('--ground'); ctx.fillRect(0, groundY, w, h - groundY);
+      const cx = w * 0.42;
+      ctx.fillStyle = css('--axis');
+      ctx.fillRect(cx - 34, groundY - 8, 68, 8);
+      ctx.fillRect(cx - 4, tubeTop, 8, groundY - tubeTop - 8);
+      ctx.font = '12px Outfit, sans-serif'; ctx.fillStyle = css('--canvas-text');
+      ctx.fillText('launch tube', cx + 10, groundY - 14);
+
+      // rocket: on the pad its bottom sits low on the tube; it slides off during the push
+      let base = tubeTop + SLIDE - s.y * pxPerM;
+      if (s.phase === 'boost') base -= s.lift * SLIDE;
+      else if (s.phase !== 'pad') base -= SLIDE;
+      // A stable rocket flips nose-down near the apogee and falls point-first
+      let tilt = 0;
+      if (s.phase !== 'pad' && s.phase !== 'boost') {
+        const TURN = 3;                                   // m/s window around v = 0 for the flip
+        const k = Math.min(1, Math.max(0, (TURN - s.v) / (2 * TURN)));
+        tilt = Math.PI * k * k * (3 - 2 * k);             // smooth 0 → 180°
+      }
+      drawRocket(ctx, cx, base, tilt);
+
+      const midY = base - 30;
+      if (s.phase !== 'pad' && s.phase !== 'landed') {
+        const vLen = (s.v / Math.max(v0(), 1)) * 70;
+        if (Math.abs(vLen) > 4) arrow(ctx, cx + 34, midY, cx + 34, midY - vLen, css('--cyan'), 'v');
+        if (s.phase === 'boost') arrow(ctx, cx - 34, midY, cx - 34, midY - 80, css('--red'), 'a');
+        else arrow(ctx, cx - 34, midY - 15, cx - 34, midY + 20, css('--red'), 'a');
+      }
+
+      // readout box
+      const label = { pad: 'At rest', boost: 'Air push!', up: 'Going up, slowing down', top: 'At the top: v = 0', down: 'Falling, speeding up', landed: 'Landed' }[s.phase];
+      const vText = s.phase === 'landed' ? '0' : (s.v > 0.05 ? '+' : s.v < -0.05 ? '−' : '') + n(Math.abs(s.v), 1);
+      const aText = s.phase === 'pad' || s.phase === 'landed' ? '0' : s.phase === 'boost' ? '+' + Math.round(v0() * v0() / (2 * TUBE_L)) : '−10';
+      const bx = w - 200;
+      ctx.fillStyle = 'rgba(15,23,42,0.85)';
+      ctx.fillRect(bx, 10, 190, 72);
+      ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 14px Outfit, sans-serif';
+      ctx.fillText(label, bx + 10, 29);
+      ctx.font = '14px JetBrains Mono, monospace';
+      ctx.fillStyle = '#7dd3fc'; ctx.fillText('v = ' + vText + ' m/s', bx + 10, 50);
+      ctx.fillStyle = '#fda4af'; ctx.fillText('a = ' + aText + ' m/s²', bx + 10, 71);
+    }
+
+    function drawRocket(ctx, cx, baseY, tilt) {
+      const H = 52, W = 16;
+      ctx.save();
+      if (tilt) {                                         // spin about the middle of the rocket
+        const midY = baseY - (H + 20) / 2;
+        ctx.translate(cx, midY); ctx.rotate(tilt); ctx.translate(-cx, -midY);
+      }
+      ctx.lineWidth = 1.5; ctx.strokeStyle = '#334155';
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(cx - W / 2, baseY - H, W, H); ctx.strokeRect(cx - W / 2, baseY - H, W, H);
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath(); ctx.moveTo(cx - W / 2, baseY - H); ctx.lineTo(cx, baseY - H - 20); ctx.lineTo(cx + W / 2, baseY - H); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#3b82f6';
+      [-1, 1].forEach(d => {
+        ctx.beginPath(); ctx.moveTo(cx + d * W / 2, baseY - 18); ctx.lineTo(cx + d * (W / 2 + 10), baseY); ctx.lineTo(cx + d * W / 2, baseY); ctx.closePath(); ctx.fill();
+      });
+      ctx.restore();
+    }
+
+    function arrow(ctx, x1, y1, x2, y2, color, label) {
+      ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+      const ang = Math.atan2(y2 - y1, x2 - x1);
+      ctx.beginPath(); ctx.moveTo(x2 + 4 * Math.cos(ang), y2 + 4 * Math.sin(ang));
+      ctx.lineTo(x2 - 10 * Math.cos(ang - 0.5), y2 - 10 * Math.sin(ang - 0.5));
+      ctx.lineTo(x2 - 10 * Math.cos(ang + 0.5), y2 - 10 * Math.sin(ang + 0.5));
+      ctx.closePath(); ctx.fill();
+      ctx.font = 'bold 15px JetBrains Mono, monospace';
+      ctx.fillText(label, label === 'v' ? x1 + 9 : x1 - 22, (y1 + y2) / 2 + 5);
+    }
+
+    function tick(stamp) {
+      if (!playing) return;
+      if (lastStamp !== null) {
+        const dt = (stamp - lastStamp) / 1000;
+        simT += dt * (sceneSpec.rate || 0.7);         // one steady playback speed per step
+      }
+      lastStamp = stamp;
+      const end = toSim(sceneSpec.to);
+      if (simT >= end) { simT = end; playing = false; $('btnPlay').textContent = '↺ Replay'; }
+      drawScene();
+      if (playing) requestAnimationFrame(tick);
+    }
+
+    $('btnPlay').addEventListener('click', () => {
+      simT = toSim(sceneSpec.from);
+      playing = true; lastStamp = null;
+      $('btnPlay').textContent = '▶ Playing…';
+      requestAnimationFrame(tick);
+    });
+
+    // ------------------------------------------------------------------
+    // Theme
+    // ------------------------------------------------------------------
+    try { const t = localStorage.getItem('rocket-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+    $('btnTheme').addEventListener('click', () => {
+      const next = isDark() ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('rocket-theme', next); } catch (e) {}
+      if (desmos && desmos.updateSettings) desmos.updateSettings({ invertedColors: isDark() });
+      drawScene();
+    });
+    window.addEventListener('resize', drawScene);
+    matchMedia('(prefers-color-scheme: light)').addEventListener('change', drawScene);
+
+    goStep(0);
+    if (document.fonts) document.fonts.ready.then(drawScene);
+  })();
+  </script>
+</body>
+</html>
