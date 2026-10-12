@@ -3,6 +3,25 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-11 — Week 7 Preparation: Cardstock Rocketry Capstone & AVID Reading Pattern
+**Patterns Updated/Added**: `cardstock-rocketry-engineering-and-telemetry.md`.
+
+**Changes**:
+- **AVID Annotated Close Reading Worksheet (`Cardstock_Rocket_Annotated_Reading.html`, `.pdf`, and `.md`)**:
+  - Re-architected to mirror the teacher's authentic Google Doc format: continuous text with generous annotation margins, no artificial UI boxes.
+  - Exactly 5 paragraphs, 402 words in English and 462 words in Spanish, covering pneumatic seal tolerances, mass-to-thrust ratios ($a = F_{\text{net}} / m$), Center of Mass ($CM$) vs. Center of Pressure ($CP$) stability, the 20–30 g sweet spot, and inertia coasting through air drag.
+  - Page 2 concludes with AVID reading checklist and a spacious rectangular reflection write-in box for FNT Phase 4.
+  - Provided clean copy-paste markdown master and integrated the live teacher Google Doc link directly into `assets/lessons-data.js` Day 31.
+- **Cardstock Rocket Lab Guide & Telemetry Log (`Cardstock_Rocket_Lab_Guide.html` & `.pdf`)**:
+  - Designed and compiled a companion 2-page engineering lab guide.
+  - Page 1: Step-by-step fabrication protocol, mass budget log ($g \to kg$), dimensional check, and 5-point teacher pre-flight certification badge.
+  - Page 2: Launch squad roles banner, multi-timer data table (canceling human reaction time error), kinematics calculation matrix, and CER evaluation box.
+- **Curriculum & Schedule Alignment**:
+  - Updated `Unit_2/outline.md` to an 8-week (40-day) progression with Week 7 dedicated to Cardstock Rocketry and Week 8 dedicated to Newton's 3rd Law, Crash Engineering, and the Summative Assessment.
+  - Updated `assets/lessons-data.js` for Days 31–35 (Cardstock Rocketry) and Days 36–40 (Third Law and Summative Exam) with full NGSS standards (`HS-PS2-1`, `HS-ETS1-2`), DOK levels, WICOR strategies, Bell-Ringers, and links.
+  - Accounted for Wednesday's End of Quarter Minimum Day (30-min periods) by dedicating Wednesday to in-class assembly, ballast balance, and pre-flight QC, scheduling outdoor launch day for Thursday.
+  - Updated site deployment timestamp.
+
 ## 2026-10-09 — Google Classroom: "Newton's 2nd Law Quiz" Multi-Period Deployment
 **Patterns Updated**: `classroom-gradebook-sync.md`.
 

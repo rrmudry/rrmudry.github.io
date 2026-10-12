@@ -1,6 +1,6 @@
 # Unit 2: 1D Kinematics & Newton's Laws of Motion (Motion and Forces)
 
-**Pacing:** 7 Weeks (35 Instructional Days)  
+**Pacing:** 8 Weeks (40 Instructional Days)  
 **Target Audience:** High School Physics (Physics of the Universe / California NGSS)  
 **Core Disciplinary Core Ideas (DCI):** PS2.A: Forces and Motion  
 **Target Performance Expectations:** [HS-PS2-1](https://rrmudry.github.io/ngss-explorer/), [HS-ETS1-2](https://rrmudry.github.io/ngss-explorer/)  
@@ -13,8 +13,8 @@
 This unit follows the classical and cognitive progression:
 1. **Part 1: Describing Motion (1D Kinematics — Weeks 1, 2, 3 & 4 | Days 1–20):**  
    Students establish coordinate frames, measure distance and displacement, calculate uniform speed (`v = d / t`), decode position-time (`x-t`) and velocity-time (`v-t`) graphs, geometrically integrate displacement as the area under `v-t`, master uniformly accelerated motion (UAM: `v = v₀ + at`, `x = x₀ + v₀t + ½at²`), analyze free fall under gravity (`a = -10 m/s²`), verify ramp dilution with Galileo's incline lab, solve multi-vehicle intercepts, and complete a mid-unit kinematics milestone checkpoint.
-2. **Part 2: Explaining Motion (Newtonian Dynamics — Weeks 5, 6 & 7 | Days 21–35):**  
-   With the concept of acceleration firmly grounded, students investigate *why* acceleration occurs. They explore Inertia (Newton's 1st Law), quantify mass as resistance to acceleration, differentiate mass from gravitational weight, construct Free-Body Diagrams (FBDs), analyze mechanical equilibrium (F<sub>net</sub> = 0), empirically verify Newton's 2nd Law (F<sub>net</sub> = m · a) using Atwood track carts, measure static vs. kinetic friction, analyze interaction pairs (Newton's 3rd Law), resolve system boundary paradoxes, engineer vehicle crumple zones, and synthesize unit concepts in a peer gallery walk and summative examination.
+2. **Part 2: Explaining Motion & Engineering Synthesis (Newtonian Dynamics & Rocketry — Weeks 5, 6, 7 & 8 | Days 21–40):**  
+   With the concept of acceleration firmly grounded, students investigate *why* acceleration occurs. They explore Inertia (Newton's 1st Law), quantify mass as resistance to acceleration, differentiate mass from gravitational weight, construct Free-Body Diagrams (FBDs), analyze mechanical equilibrium (F<sub>net</sub> = 0), empirically verify Newton's 2nd Law (F<sub>net</sub> = m · a) using Atwood track carts, and measure static vs. kinetic friction. In **Week 7**, students synthesize kinematics and dynamics in a hands-on **Cardstock Rocketry Engineering Challenge** (AVID close reading on performance characteristics, precision fabrication, minimum-day QC inspection, outdoor launch telemetry, and apogee kinematics calculations). In **Week 8**, students analyze interaction pairs (Newton's 3rd Law), resolve system boundary paradoxes, engineer vehicle crumple zones, and synthesize unit concepts in a peer gallery walk and summative examination.
 
 ---
 
@@ -298,10 +298,55 @@ This unit follows the classical and cognitive progression:
 
 ---
 
-### Week 7: Newton's Third Law, Crash Engineering & Unit Summative Assessment
+### Week 7: Cardstock Rocket Engineering, Aerodynamic Stability & Flight Kinematics
+**Goal:** Synthesize 1D Kinematics and Newtonian Dynamics through a hands-on compressed-air cardstock rocketry engineering cycle. Dissect key aerodynamic performance characteristics via an AVID close reading (pneumatic seal vs. launch tube friction, mass budget, Center of Mass vs. Center of Pressure stability rule, fin symmetry), fabricate precision rockets, verify stability tolerances on minimum-day schedule, deploy to the field for outdoor hang-time telemetry trials, and calculate apogee flight metrics and CER synthesis.
+
+*   **Day 31 (2026-10-12): Cardstock Rocket Aerodynamics & Performance Characteristics: AVID Annotated Reading**
+    *   *Bell-Ringer:* The Mass vs. Thrust Launch Dilemma (AI Concept Chat): If Team A builds a sleek 20-gram cardstock rocket and Team B builds a heavily taped 50-gram rocket, both launched at identical 40 PSI pressure, which rocket achieves a higher launch velocity? Explain using `a = F_net / m`.
+    *   *Focus:* AVID 5-step close reading analyzing key performance characteristics: pneumatic seal (`F_thrust = P · A`) vs. launch tube kinetic friction, the mass budget (`a = F_net / m`), aerodynamic stability rule (Center of Mass `CM` forward of Center of Pressure `CP` by 1–2 body diameters), fin symmetry, and flight kinematics telemetry (`t_up = t_hang / 2`, `v₀ = 10 · t_up`, `h_max = 5 · (t_up)²`).
+    *   *Activity:* AVID 5-Step Text Annotation & Performance Predictions: (1) Number paragraphs 1–5, (2) Circle core academic & rocketry vocabulary (`Fuselage`, `Pneumatic Thrust`, `Center of Mass`, `Center of Pressure`, `Apogee`), (3) Underline governing physical rules and performance characteristics, (4) Write 3-word left-margin gist statements, (5) Formulate right-margin Costa's Level 2/3 engineering trade-off questions, and complete the Phase 4 FNT Synthesis predicting optimal rocket design specs.
+    *   *Essential Question:* How do pneumatic seal tolerances, mass budgets, and aerodynamic stability points combine to determine a rocket's flight altitude?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 2 | *Type:* Reading / AVID Literacy
+    *   *Links:* [Cardstock Rocket Annotated Reading Worksheet](Unit_2/worksheets/Cardstock_Rocket_Annotated_Reading.pdf), [Cardstock Rocket Simulator](Unit_2/cardstock_rocket/index.html), [Cardstock Rocket Physics Tie-Ins](Unit_2/Cardstock_Rocket_Physics_Tie_Ins.md)
+
+*   **Day 32 (2026-10-13): Cardstock Rocket Precision Fabrication Lab — Part 1: Fuselage Rolling & Fin Geometry**
+    *   *Bell-Ringer:* Launch Tube Tolerance & Kinetic Friction (CAST Challenge): Compare a tight fuselage with high kinetic friction against the pipe vs. a loose fuselage leaking 50% pressurized air. Which defect robs more kinetic energy from liftoff?
+    *   *Focus:* Precision fuselage rolling around calibrated 1/2-inch PVC mandrels, testing sliding tolerance to prevent pressure leakage without friction binding, measuring initial component masses on digital balances in grams and converting to kilograms, cutting and beveling 3 or 4 symmetrical stabilizing fins from cardstock, and joining seams using minimal tape.
+    *   *Activity:* Precision Fuselage & Fin Fabrication: (1) Roll cylindrical cardstock fuselages around calibrated 1/2-inch PVC mandrels, testing sliding tolerance to prevent pressure leakage without binding, (2) Measure initial component masses on digital balances in grams and convert to kilograms, (3) Cut and bevel 3 or 4 symmetrical stabilizing fins from cardstock, and (4) Join seams using minimal tape to preserve the mass budget.
+    *   *Essential Question:* How do small physical tolerances in paper construction dramatically impact pneumatic thrust and initial launch acceleration?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Engineering Design / Lab
+    *   *Links:* [Cardstock Rocket Lab Guide](Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf)
+
+*   **Day 33 (2026-10-14): Cardstock Rocket Assembly & Pre-Flight Certification *(End of Quarter Minimum Day — 30-Min Schedule)***
+    *   *Bell-Ringer:* The Tumble Trap: Aerodynamic Torque & Stability (AI Concept Chat): A student launches a rocket with no modeling clay in the nose cone. Explain why the rocket flips end-over-end in circles instead of climbing straight up.
+    *   *Focus:* Dedicated in-class construction finishing and quality control inspection day during 30-minute minimum day periods. Molding airtight nose cones with modeling clay ballast, attaching fins with 120° (3-fin) or 90° (4-fin) radial symmetry, executing string-loop balance tests to verify `CM` is forward of `CP`, and earning the teacher Pre-Flight Quality Control Certification stamp.
+    *   *Activity:* Pre-Flight Assembly & Stability Certification: (1) Shape and seal nose cones with calibrated clay ballast, (2) Attach fins with 120° or 90° radial symmetry, (3) Conduct string-loop balance test to locate and mark the physical Center of Mass (`CM`), (4) Verify `CM` is at least 1–2 body diameters forward of the Center of Pressure (`CP`), (5) Record final dry mass (`g -> kg`) and pass the teacher Pre-Flight Quality Control checklist.
+    *   *Essential Question:* Why must the Center of Mass be located forward of the Center of Pressure to prevent aerodynamic tumbling?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Engineering Design / Quality Control
+    *   *Links:* [Cardstock Rocket Lab Guide](Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf)
+
+*   **Day 34 (2026-10-15): Cardstock Rocket Pneumatic Launch Day: Outdoor Hang-Time Telemetry & Flight Trials**
+    *   *Bell-Ringer:* Mitigating Stopwatch Reaction Time Error (CAST Challenge): Why does averaging 3 independent student stopwatches significantly reduce human reaction time error (`t_react ≈ 0.20 s`) when recording rocket hang times?
+    *   *Focus:* Full-period outdoor launch operations for all physics classes at 40 PSI constant operating pressure. Squad rotation (Pad Safety, Pressurization Tech, Master Trigger, 3 independent stopwatch timers, Recovery). Recording multi-timer hang times (`t_hang`), assessing apex stability, logging flight trajectory notes.
+    *   *Activity:* Pneumatic Launch Operations & Telemetry Squads: (1) Flight squads rotate through launch pad operations: Pad Safety Officer, Pressurization Tech (charging chamber to 40 PSI), Master Countdown/Launch Trigger, and 3 Independent Stopwatch Timers positioned at field vantage points, (2) Execute launches and record hang-time (`t_hang`) to the nearest hundredth of a second, (3) Log flight anomalies (straight vertical climb vs fin flutter vs weathercocking drift), and (4) Calculate average `t_hang` across timer squad readouts to eliminate reaction-time bias.
+    *   *Essential Question:* How do synchronized telemetry measurements allow us to reconstruct a rocket's full vertical flight trajectory?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Hands-On Laboratory / Data Collection
+    *   *Links:* [Cardstock Rocket Lab Guide](Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf)
+
+*   **Day 35 (2026-10-16): Rocket Flight Kinematics Analysis, Apogee Calculations & CER Engineering Synthesis**
+    *   *Bell-Ringer:* The Apogee Acceleration Paradox (CAST Challenge): At the highest point of flight, is the rocket's acceleration positive, negative, or zero? Defend why `v = 0` while `a = -10 m/s²`.
+    *   *Focus:* Quantitative kinematics derivations from hang-time telemetry (`t_up = t_hang / 2`, exit velocity `v₀ = 10 · t_up`, apogee altitude `h_max = 5 · (t_up)²`, launch tube acceleration `a_tube = v₀² / 2L`, thrust force `F_thrust = m(a_tube + 10)`), followed by a formal Claim-Evidence-Reasoning (CER) engineering synthesis evaluating mass, tolerance, and stability trade-offs.
+    *   *Activity:* Kinematic Telemetry Masterclass & CER Synthesis: (1) Convert average flight hang time (`t_hang`) to time to apogee (`t_up = t_hang / 2`), (2) Calculate launch exit velocity (`v₀ = 10 · t_up` in m/s and mph), (3) Calculate maximum apogee altitude (`h_max = 5 · (t_up)²`), (4) Derive launch rail acceleration (`a_tube = v₀² / 2L`) and net thrust force (`F_thrust = m(a_tube + 10)`), and (5) Compose a formal Claim-Evidence-Reasoning (CER) technical evaluation defending what design trade-off was most decisive for their rocket's performance.
+    *   *Essential Question:* How do mathematical kinematic models transform a simple stopwatch measurement into a comprehensive flight telemetry profile?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Data Analysis / Engineering Synthesis
+    *   *Links:* [Cardstock Rocket Lab Guide](Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf), [Cardstock Rocket Simulator](Unit_2/cardstock_rocket/index.html), [Cardstock Rocket Physics Tie-Ins](Unit_2/Cardstock_Rocket_Physics_Tie_Ins.md)
+
+---
+
+### Week 8: Newton's Third Law, Crash Engineering & Unit Summative Assessment
 **Goal:** Explore interaction pairs (Newton's 3rd Law), resolve action-reaction paradoxes, apply impulse and impact forces to vehicle collision safety engineering, and master summative performance goals.
 
-*   **Day 31 (2026-10-12): Newton's Third Law: Action-Reaction Interaction Pairs**
+*   **Day 36 (2026-10-19): Newton's Third Law: Action-Reaction Interaction Pairs**
     *   *Bell-Ringer:* Semi-Truck vs. Mosquito Collision (AI Chat): A massive semi-truck traveling down the highway collides with a tiny mosquito hovering in midair. Which experiences the greater impact force during the collision: the truck or the mosquito? Defend your answer using physics.
     *   *Focus:* Forces as simultaneous mutual interactions between two bodies: F<sub>A on B</sub> = -F<sub>B on A</sub>. Equal magnitude, opposite direction, simultaneous in time, acting on different objects. Common misconceptions: confusing equal force with equal acceleration (`a = F / m`).
     *   *Activity:* Dual Force Sensor Collisions & Skateboard Recoil: Students pair Vernier force sensors together and record real-time force graphs during collisions, pushes, and pulls between equal and unequal cart masses. Verification of matching peak forces.
@@ -309,7 +354,7 @@ This unit follows the classical and cognitive progression:
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Inquiry
     *   *Links:* [Newton's 3rd Law Slides](Unit_2/describing-motion-presentation/index.html), Action-Reaction Collision Lab Sheet *(Planned In-Class)*
 
-*   **Day 32 (2026-10-13): Resolving the 3rd Law Paradox & System Boundaries**
+*   **Day 37 (2026-10-20): Resolving the 3rd Law Paradox & System Boundaries**
     *   *Bell-Ringer:* The Horse-Cart Paradox (CAST Challenge): A stubborn horse refuses to pull a cart, arguing: "According to Newton's 3rd Law, if I pull the cart forward with force F, the cart pulls me backward with equal force -F. The forces cancel out, so we can never accelerate!" Identify the logical flaw in the horse's argument.
     *   *Focus:* Defining physical system boundaries. Action-reaction pairs NEVER cancel because they act on *different* bodies. Net force on an object depends solely on the external forces acting *on that specific object*. Ground friction as the external forward force on the horse.
     *   *Activity:* System Boundary Mapping Workshop: Students analyze complex scenarios (walking person, flying rocket, tug-of-war match), draw dashed system boundaries around individual components, and identify internal versus external forces.
@@ -317,7 +362,7 @@ This unit follows the classical and cognitive progression:
     *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Workshop / Analysis
     *   *Links:* System Boundary Diagramming Worksheet *(Planned In-Class)*
 
-*   **Day 33 (2026-10-14): Structural Crashworthiness Engineering: Crumple Zone Impulse Optimization**
+*   **Day 38 (2026-10-21): Structural Crashworthiness Engineering: Crumple Zone Impulse Optimization**
     *   *Bell-Ringer:* Bungee Jump vs. Steel Cable (AI Chat): Why would bungee jumping with an inelastic steel cable instead of an elastic rubber cord be fatal, even though both cords stop your fall over the exact same vertical distance?
     *   *Focus:* Iterative Engineering Design: Reducing Impact Force via Deceleration Duration Extension under Physical Constraints (F<sub>avg</sub> · Δt = m · Δv).
     *   *Activity:* Operation Safe Heeler Crashworthiness Engineering Challenge (DOK 4 Engineering Design): Teams receive client design constraints for an autonomous passenger pod: vehicle crumple depth < 15 cm, bumper mass < 150 g, structural budget < $25, and zero passenger cabin intrusion. Teams: (1) construct physical/digital baseline prototype bumpers and run collision tests with accelerometer and force sensors, (2) integrate real-time impulse curves to quantify peak g-force and deceleration duration (Δt), (3) perform iterative redesigns (comparing accordion folds, progressive honeycomb cells, and composite dampening) to optimize deceleration profiles, and (4) log collision telemetry to the cloud gradebook.
@@ -325,7 +370,7 @@ This unit follows the classical and cognitive progression:
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 4 | *Type:* Engineering Design / Lab
     *   *Links:* [Operation Safe Heeler Lab](https://rrmudry.github.io/operation-safe-heeler.html), [Safe Heeler Analytics](https://rrmudry.github.io/operation_safe_heeler_results.html)
 
-*   **Day 34 (2026-10-15): Automotive Safety Symposium & Peer Defense Gallery Walk**
+*   **Day 39 (2026-10-22): Automotive Safety Symposium & Peer Defense Gallery Walk**
     *   *Bell-Ringer:* Unit 2 Grand Synthesis (CAST Matrix): An autonomous rocket launches upward, runs out of fuel, reaches apex, falls, and deploys a parachute to terminal velocity. Identify the correct FBD, `x-t` curve, `v-t` slope, and acceleration sign for each flight phase.
     *   *Focus:* Cross-Disciplinary Kinematics-Dynamics Synthesis, Model Defense, and Peer Technical Review. Uniting 1D Kinematics and Newtonian Dynamics into an integrated engineering portfolio.
     *   *Activity:* Automotive Safety Symposium & Technical Peer Defense (DOK 4 Synthesis & Critique): Teams present large technical poster portfolios that integrate the entire unit's physics: (1) Free-Body Diagrams of impact phases, (2) Piecewise kinematics curves (x-t, v-t, a-t), (3) Newton's 2nd & 3rd Law interaction pair analysis, and (4) Empirical crashworthiness trade-offs. Teams rotate through structured defense rounds, answering formal technical cross-examinations from peer audit panels and evaluating competing engineering portfolios using standardized criteria.
@@ -333,10 +378,9 @@ This unit follows the classical and cognitive progression:
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 4 | *Type:* Symposium / Model Defense
     *   *Links:* Technical Symposium Rubric & Audit Form *(Planned In-Class)*, [Unit 2 Grand Synthesis Slide Deck](Unit_2/describing-motion-presentation/index.html)
 
-
-*   **Day 35 (2026-10-16): Unit 2 Summative Assessment**
+*   **Day 40 (2026-10-23): Unit 2 Summative Assessment**
     *   *Bell-Ringer:* Exam Readiness Mindset & Formula Check: Final 5-minute formula sheet review and calculator setup.
-    *   *Focus:* Comprehensive summative evaluation across 1D Kinematics and Newtonian Dynamics (Days 1–34).
+    *   *Focus:* Comprehensive summative evaluation across 1D Kinematics and Newtonian Dynamics (Days 1–39).
     *   *Activity:* Unit 2 Summative Examination: 50-minute exam featuring conceptual multiple-choice items, graphical slope and area calculations, FBD construction and equilibrium problem solving, and multi-step F<sub>net</sub> = m · a dynamics-kinematics integration (DOK 1-3).
     *   *Essential Question:* How effectively can we measure, calculate, model, and explain the motion and interactions of physical systems?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Summative Assessment
@@ -345,6 +389,7 @@ This unit follows the classical and cognitive progression:
 ---
 
 ## Materials & Lab Equipment Checklist
+*   **Cardstock Rocketry & Pneumatics:** 1/2-inch PVC rolling mandrels, 65 lb/110 lb cardstock sheets, transparent tape, modeling clay ballast, digital mass balances (0.1 g precision), stopwatches (3 per squad), pneumatic launch station with quick-release valve and bicycle pump or compressor (calibrated to 40 PSI).
 *   **Constant Speed Buggies:** Battery-powered motorized cars, beanbags, stopwatches, 2-meter sticks or rolling tape measures.
 *   **Graphing & Software:** Chromebooks, [Distance vs Time App](https://rrmudry.github.io/distance_vs_time_graphing.html), [Motion Curve Drawer](https://rrmudry.github.io/Distance_vs_Time_Drawer.html), PhET "Forces and Motion", PhET "The Moving Man".
 *   **Acceleration & Incline:** 1.5m grooved physics tracks/ramps, steel and glass marbles, photogates / digital timers, angle protractors.
