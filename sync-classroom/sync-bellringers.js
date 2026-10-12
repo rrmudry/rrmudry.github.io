@@ -128,14 +128,22 @@ function evaluateSubmission(sub) {
 
   if (type === 'concept_chat') {
     const msgs = sub.chatMessages || [];
-    const userMsgs = msgs.filter(m => m.sender === 'user' || m.role === 'user');
-    const totalUserText = userMsgs.map(m => (m.text || '').trim()).join(' ');
+    const userMsgs = msgs.filter(m => (m.sender === 'user' || m.role === 'user') && !m.parts?.[0]?.text?.startsWith('[System:'));
+    const totalUserText = userMsgs.map(m => ((m.parts && m.parts[0] ? m.parts[0].text : m.text) || '').trim()).join(' ');
 
     if (userMsgs.length === 0) {
-      return { isGenuine: false, type, reason: 'chat_0_user_turns (bypassed to finish)' };
+      return { isGenuine: false, type, reason: 'chat_0_user_turns (no responses entered)' };
     }
-    if (userMsgs.length === 1 && totalUserText.length < 15) {
-      return { isGenuine: false, type, reason: `chat_single_terse_turn ("${totalUserText}")` };
+
+    const effort = sub.effortScore !== undefined ? parseInt(sub.effortScore, 10) : null;
+    if (effort !== null && effort < 70) {
+      return { isGenuine: false, type, reason: `chat_low_score (${effort}%)` };
+    }
+
+    const lower = totalUserText.toLowerCase();
+    const optOuts = ['idk', "i don't know", "i dont know", 'none', 'nothing', 'no', 'n/a', 'na', 'pass', 'asdf', 'qwerty'];
+    if (userMsgs.length === 1 && (optOuts.includes(lower) || totalUserText.length < 2)) {
+      return { isGenuine: false, type, reason: `chat_opt_out ("${totalUserText}")` };
     }
     return { isGenuine: true, type, reason: `chat_active (${userMsgs.length} turns)` };
   }
