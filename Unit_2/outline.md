@@ -315,7 +315,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Precision Fuselage & Fin Fabrication: (1) Roll cylindrical cardstock fuselages around calibrated 1/2-inch PVC mandrels, testing sliding tolerance to prevent pressure leakage without binding, (2) Measure initial component masses on digital balances in grams and convert to kilograms, (3) Cut and bevel 3 or 4 symmetrical stabilizing fins from cardstock, and (4) Join seams using minimal tape to preserve the mass budget.
     *   *Essential Question:* How do small physical tolerances in paper construction dramatically impact pneumatic thrust and initial launch acceleration?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Engineering Design / Lab
-    *   *Links:* [Cardstock Rocket Lab Guide](Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf)
+    *   *Links:* [Cardstock Rocket Lab Guide](Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf), [Better Paper Rockets Video Tutorial](https://www.youtube.com/watch?v=357tMdb2O5A)
 
 *   **Day 33 (2026-10-14): Cardstock Rocket Assembly & Pre-Flight Certification *(End of Quarter Minimum Day — 30-Min Schedule)***
     *   *Bell-Ringer:* The Tumble Trap: Aerodynamic Torque & Stability (AI Concept Chat): A student launches a rocket with no modeling clay in the nose cone. Explain why the rocket flips end-over-end in circles instead of climbing straight up.
