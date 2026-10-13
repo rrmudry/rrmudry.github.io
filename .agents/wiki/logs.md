@@ -3,6 +3,17 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-13 — Bell-Ringer: Period 4 Activity Excusal & Full Credit Protocol
+**Patterns Updated**: `bell-ringer-config.md`.
+
+**Changes**:
+- **Granted Full Credit to All Period 4 Students in Firestore (`bellringers/{studentId}_2026-10-13`)**:
+  - All 40 students in Period 4 were awarded 100% full credit (`effortScore: 100`, `score: 1`, `excused: true`, `isExcused: true`, `studentResponse: "Excused - In-Class Activity (Full Credit)"`) due to an in-class activity that prevented them from running the normal bell-ringer.
+- **Added Excused Activity Quality Engine Bypass (`sync-classroom/sync-bellringers.js`)**:
+  - `evaluateSubmission(sub)` immediately grants `{ isGenuine: true, type: ..., reason: 'excused_full_credit' }` when `sub.excused` or `sub.isExcused` is true, ensuring excused days count toward genuine totals for Google Classroom sync without tripping quality filters.
+- **Added One-Click Teacher Dashboard Controls (`Bell-Ringer/dashboard.html` & `Bell-Ringer/teacher.html`)**:
+  - Added single-click "✨ Excuse Period (Full Credit)" buttons and student tile badge support so any period can be excused on demand in real time.
+
 ## 2026-10-13 — Missing Work Tool: Eliminate unpkg/Babel Dependency (District Web Filter Hotfix)
 **Patterns Updated**: `dashboard-layout.md`.
 
