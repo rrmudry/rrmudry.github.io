@@ -3855,6 +3855,17 @@ const lessonsData = [
     "type": "Engineering Design / Lab",
     "semester": 1,
     "isFeatured": true,
+    "video": {
+      "title": "Better Paper Rockets Construction Video Tutorial",
+      "url": "https://www.youtube.com/watch?v=357tMdb2O5A",
+      "videoId": "357tMdb2O5A",
+      "thumbnail": "assets/images/better_paper_rockets_thumb.jpg",
+      "fallbackThumbnail": "https://img.youtube.com/vi/357tMdb2O5A/hqdefault.jpg"
+    },
+    "image": "assets/images/better_paper_rockets_thumb.jpg",
+    "imageType": "video",
+    "videoThumbnail": "assets/images/better_paper_rockets_thumb.jpg",
+    "embed": "https://www.youtube.com/embed/357tMdb2O5A",
     "summary": "Students begin precision construction of compressed-air cardstock rockets. Teams roll paper fuselages over 1/2-inch PVC mandrels, achieve an airtight sliding fit with minimal kinetic friction, measure component masses on electronic balances, and cut symmetrical aerodynamic fins.",
     "activity": "Precision Fuselage & Fin Fabrication: (1) Roll cylindrical cardstock fuselages around calibrated 1/2-inch PVC mandrels, testing gravity slide to prevent pressure leakage without binding, (2) Measure initial dry masses on digital balances in grams and convert to kilograms, (3) Cut and bevel 3 or 4 symmetrical stabilizing fins from cardstock, and (4) Join seams using minimal tape to preserve the mass budget.",
     "essentialQuestion": "How do small physical tolerances in paper construction dramatically impact pneumatic thrust and initial launch acceleration?",

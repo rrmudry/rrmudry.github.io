@@ -111,6 +111,28 @@ Future unit activities, handouts, and laboratory exercises frequently evolve bas
   - Clicking triggers `showPlannedActivityNotice(title, description, topic, dayNumber)`, opening a sleek glassmorphic modal explaining that upcoming activities are subject to pacing and official digital editions are released on the day of instruction.
 - **Missing Work Graceful Degradation**: `missing-work.html` renders planned items as non-clickable `Planned In-Class` indicators rather than dead link anchors.
 
+## Prominent Video Tutorial Card & Thumbnail Pattern
+When a daily lesson includes an instructional fabrication or companion video (e.g. Cardstock Rocket fabrication tutorial, lab walkthrough):
+- **Local Thumbnail Caching (District Filter Defense)**: External YouTube CDNs (`img.youtube.com`) are frequently filtered or slow on student Chromebooks. Save thumbnail assets locally into `assets/images/` (e.g. `assets/images/better_paper_rockets_thumb.jpg`) with an inline fallback: `onerror="this.onerror=null; this.src='https://img.youtube.com/vi/{id}/hqdefault.jpg';"`. Note that YouTube's `maxresdefault.jpg` returns 404 for standard resolution uploads; always use `hqdefault.jpg` as the fallback.
+- **Data Schema (`assets/lessons-data.js`)**:
+  ```json
+  "video": {
+    "title": "Better Paper Rockets Construction Video Tutorial",
+    "url": "https://www.youtube.com/watch?v=357tMdb2O5A",
+    "videoId": "357tMdb2O5A",
+    "thumbnail": "assets/images/better_paper_rockets_thumb.jpg",
+    "fallbackThumbnail": "https://img.youtube.com/vi/357tMdb2O5A/hqdefault.jpg"
+  },
+  "image": "assets/images/better_paper_rockets_thumb.jpg",
+  "imageType": "video",
+  "embed": "https://www.youtube.com/embed/357tMdb2O5A"
+  ```
+- **Prominent Card Rendering**:
+  - Rather than cropping as a small 24px `max-h-28` exemplar image labeled "ARTWORK", render as a full 16:9 (`aspect-video`) card preview with red borders (`border-red-500/50`), glowing red play button overlay (`▶`), "▶ YOUTUBE TUTORIAL" badge, and title bar.
+  - On the homepage (`index.html` `today-card`), render a prominent video banner with hover micro-animations and a direct "Watch Construction Video ↗" button.
+- **Dedicated Modal Video Player**:
+  - In `openLessonModal(day)`, render a full 16:9 embedded iframe player with a red header bar, description, and "Open on YouTube ↗" link rather than generic text.
+
 Clicking a lesson card opens a detail drawer/modal containing expanded details, categorized links, and a `data-ngss` container for the full NGSS banner.
 
 ## Known Pitfalls
