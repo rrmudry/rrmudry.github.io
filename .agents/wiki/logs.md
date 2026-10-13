@@ -3,6 +3,19 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-13 — Prominent Video Tutorial Card & Thumbnail Pattern
+**Patterns Updated**: `dashboard-layout.md`.
+
+**Changes**:
+- **Prominent Video Thumbnail on Today's Lesson Card (`index.html`)**:
+  - Upgraded `#today-widget-container` / `today-card` on the homepage to detect companion video tutorials in daily lesson data (`day.video` or `day.imageType === 'video'`).
+  - Renders a prominent 16:9 thumbnail preview with a glowing red play button overlay, "▶ YOUTUBE TUTORIAL" badge, video title bar, and "🎬 Watch Construction Video ↗" call to action.
+- **Unit 2 Dashboard Pacing Card & Modal Video Player (`unit2-dashboard.html`)**:
+  - Replaced the tiny `max-h-28` "🎨 EXEMPLAR" badge with a 16:9 video frame (`aspect-video`), red border glow, central play button, and title pill.
+  - Upgraded `openLessonModal(day)` to embed an interactive 16:9 YouTube iframe player with "OPEN ON YOUTUBE ↗" header link.
+- **Local Thumbnail Vendoring (`assets/images/better_paper_rockets_thumb.jpg`)**:
+  - Downloaded `hqdefault.jpg` locally to prevent district Chromebook filter blocks on `img.youtube.com`, with automated online fallback.
+
 ## 2026-10-13 — Bell-Ringer: Period 4 Activity Excusal & Full Credit Protocol
 **Patterns Updated**: `bell-ringer-config.md`.
 
