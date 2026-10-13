@@ -101,3 +101,13 @@ Never declare an interactive student assignment, lab, or webapp "ready" or deplo
   2. The validator executes an automated synthetic student write into `student_results/{id}/students/` using real roster schema, tests Period 0 Honors and standard periods, and confirms zero `undefined` values.
   3. All Firestore payloads must sanitize variables (`value !== undefined && value !== null ? value : null`) so writes never throw `Unsupported field value: undefined`.
   4. If `npm run verify` does not pass with 100% green checks, the assignment MUST NOT be deployed, posted, or marked ready.
+
+## 🛡️ Strict District Web Filter Policy: Zero unpkg.com & Zero In-Browser Babel
+Never use `unpkg.com` or in-browser Babel transpilation on student-facing pages, dashboards, or inquiry webapps.
+- **Why**: District firewalls and student Chromebook content filters (Blocksi, Securly, GoGuardian, Palo Alto Networks) routinely block or drop traffic to `unpkg.com`. Any page loading libraries or Babel from `unpkg.com` throws `Uncaught ReferenceError: [library] is not defined`, crashing execution and displaying a completely blank screen to students in class.
+- **Enforcement**:
+  1. **Zero unpkg.com**: Never write `<script src="https://unpkg.com/..."></script>` or CSS/font links to `unpkg.com`.
+  2. **Zero In-Browser Babel**: Never load `@babel/standalone` or write `<script type="text/babel">`. Write standard, native Vanilla JavaScript (or pre-bundle with Vite/PostCSS if a build tool is used).
+  3. **Local Vendoring with Safe Guards**: When libraries are required (e.g. Lucide icons, Desmos, Chart.js), vendor them locally into `assets/vendor/` or use multi-tier fallbacks (local `assets/` first, `jsdelivr.net` second), and ALWAYS wrap runtime execution inside safety guards (`typeof lucide !== 'undefined' ? lucide.createIcons() : null`).
+  4. **Automated CDN Filter Audit**: Run `node scripts/audit-web-filter-cdn.js` to scan the codebase and ensure zero filter-vulnerable scripts exist on student-facing paths.
+
