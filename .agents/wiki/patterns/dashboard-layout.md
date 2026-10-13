@@ -89,6 +89,7 @@ Lesson cards and detail modal popups (`openLessonModal`) must clearly distinguis
   3. **🧪 Practice Tools & Simulation Sandboxes**: Cyan/teal card with `OPTIONAL · UNGRADED` badge and launch button.
 - **Backwards Compatibility**: The `categorizeLessonLinks(day)` function automatically categorizes legacy flat `links: { "Label": "url" }` objects via keyword and URL regex heuristics, while supporting explicit `assignments: []`, `resources: []`, and `practice: []` data arrays.
 - **Absent Makeup Integration**: `missing-work.html` uses the same three-tier categorization so absent students instantly see what must be submitted to earn credit versus what slides to review.
+- **Zero-Babel & Zero-unpkg Resilience**: To guarantee 100% availability on school networks (where district content filters like Securly, Blocksi, and GoGuardian block `unpkg.com`), student utility pages like `missing-work.html` MUST use native Vanilla JavaScript rather than in-browser Babel Standalone or React JSX compilation. Native DOM operations eliminate external dependencies, prevent `ReferenceError: Babel is not defined` crashes, and load instantly on Chromebooks.
 
 ## Planned Activity Fallback Pattern (Lesson Plans Subject to Change)
 Future unit activities, handouts, and laboratory exercises frequently evolve based on classroom pacing, inquiry needs, and student mastery. To prevent broken links or accidental redirects to placeholder documents (e.g. copying an earlier unit Google Doc across future days):

@@ -3,6 +3,16 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-13 — Missing Work Tool: Eliminate unpkg/Babel Dependency (District Web Filter Hotfix)
+**Patterns Updated**: `dashboard-layout.md`.
+
+**Changes**:
+- **Resolved Blank Screen & `ReferenceError: Babel is not defined` (`missing-work.html`)**:
+  - Root cause: `missing-work.html` relied on React 18 and `@babel/standalone` loaded from `unpkg.com` with in-browser JSX transpilation (`<script type="text/babel">`). School district web filters and firewalls block `unpkg.com`, causing script load failures and an unhandled `ReferenceError: Babel is not defined` at line 15, leaving the page completely blank.
+  - Converted the entire recovery tool to native Vanilla JavaScript with zero external script dependencies.
+  - Retained the identical Tailwind design system, glass-panel cards, gradient animations, and 3-tier link categorization (Graded Work, Slide Decks, Practice).
+  - Added full multi-unit filter dropdown (Units 1, 2, 4, 5, 6, 7) and URL query parameter auto-fill (`?start=YYYY-MM-DD&end=YYYY-MM-DD&unit=N`).
+
 ## 2026-10-12 — Bell-Ringer Concept Chat: Grading Fairness & Inverted Incentive Hotfix
 **Patterns Updated**: `bell-ringer-config.md`.
 
