@@ -3876,7 +3876,8 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
-      "Cardstock Rocket Lab Guide (PDF)": "Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf"
+      "Cardstock Rocket Lab Guide (PDF)": "Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf",
+      "Better Paper Rockets Construction Video": "https://www.youtube.com/watch?v=357tMdb2O5A"
     },
     "assignments": [
       {
@@ -3889,6 +3890,12 @@ const lessonsData = [
       }
     ],
     "resources": [
+      {
+        "title": "Better Paper Rockets Construction Video Tutorial",
+        "url": "https://www.youtube.com/watch?v=357tMdb2O5A",
+        "typeLabel": "Video Tutorial",
+        "description": "Step-by-step visual guide demonstrating precision body tube rolling, fin attachment, and nose cone fabrication."
+      },
       {
         "title": "Cardstock Rocket Physics Curriculum Tie-Ins Guide",
         "url": "Unit_2/Cardstock_Rocket_Physics_Tie_Ins.md",
