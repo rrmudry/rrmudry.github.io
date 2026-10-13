@@ -168,6 +168,14 @@ Teachers can log in to `Bell-Ringer/index.html` with authorized accounts (`rmudr
 - **Classroom Dashboard Sync**: Test submissions automatically render on `Bell-Ringer/dashboard.html` when matching `currentPeriod`, styled with a gold `Test` indicator.
 - **One-Click Reset**: Teachers can click `↺ Reset` to wipe today's test record from Firestore and start fresh.
 
+## Excused Submissions & Whole-Period Activity Protocol
+When an entire period or individual student is unable to complete a Bell-Ringer due to an assembly, field lab, or special activity:
+- **Firestore Schema**: Mark document with `excused: true`, `isExcused: true`, `effortScore: 100`, `score: 1`, `studentResponse: "Excused - In-Class Activity (Full Credit)"`.
+- **Quality Engine Bypass**: `sync-classroom/sync-bellringers.js`'s `evaluateSubmission(sub)` includes an immediate check:
+  `if (sub.excused === true || sub.isExcused === true) return { isGenuine: true, type: sub.activityType || 'free_response', reason: 'excused_full_credit' };`
+  This guarantees excused activities bypass all length/opt-out filters and count toward the genuine weekly day requirement for Google Classroom grade exports.
+- **One-Click Teacher Dashboard Controls**: Both `Bell-Ringer/dashboard.html` and `Bell-Ringer/teacher.html` provide single-click "✨ Excuse Period (Full Credit)" buttons that batch-write full credit across the entire period's roster in Firestore.
+
 ## Evidence
 - Full system documented in `Bell-Ringer/README.md` (98 lines)
 - Grading CLI implemented in `sync-classroom/sync-bellringers.js`

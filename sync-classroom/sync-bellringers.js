@@ -111,6 +111,10 @@ function getClassroomClient() {
 // 4. Quality & Effort Evaluation Engine ("The Half-Ass Filter")
 // =====================================================================
 function evaluateSubmission(sub) {
+  if (sub.excused === true || sub.isExcused === true) {
+    return { isGenuine: true, type: sub.activityType || 'free_response', reason: 'excused_full_credit' };
+  }
+
   const type = sub.activityType || 
     (sub.solvedCategories ? 'connections' : 
     (sub.totalSteps ? 'cast_challenge' : 

@@ -519,7 +519,10 @@ CRITICAL RULES:
                         <h3 class="text-lg font-bold text-white">Live Student Submissions</h3>
                         <p class="text-xs text-slate-400 mt-0.5">Real-time submissions and good-faith AI grades.</p>
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button onclick="excuseSelectedPeriod()" class="px-3 py-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
+                            ✨ Excuse Period (Full Credit)
+                        </button>
                         <button onclick="autoGradePendingSubmissions()" class="px-3 py-1.5 rounded-lg border border-amber-500/20 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
                             ⚡ Auto-Grade Pending
                         </button>
@@ -1178,7 +1181,9 @@ CRITICAL RULES:
                         const score = resolveBellRingerScore(sub, effectiveType);
 
                         let scoreBadge = '';
-                        if (score === undefined) {
+                        if (sub.excused || sub.isExcused) {
+                            scoreBadge = `<span class="bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded text-xs font-mono font-bold whitespace-nowrap">EXCUSED (100%)</span>`;
+                        } else if (score === undefined) {
                             scoreBadge = `<span class="bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-2 py-0.5 rounded text-xs font-mono whitespace-nowrap">PENDING</span>`;
                         } else if (effectiveType === "concept_chat") {
                             const numericScore = parseInt(score);
@@ -1189,7 +1194,7 @@ CRITICAL RULES:
                                 badgeColor = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
                             }
                             scoreBadge = `<span class="${badgeColor} px-2 py-0.5 rounded text-xs font-mono font-bold whitespace-nowrap">${numericScore}%</span>`;
-                        } else if (score === "1" || score === 1) {
+                        } else if (score === "1" || score === 1 || score === 100 || score === "100" || (typeof score === 'number' && score >= 70)) {
                             scoreBadge = `<span class="bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded text-xs font-mono whitespace-nowrap">1</span>`;
                         } else if (score === "0" || score === 0) {
                             scoreBadge = `<span class="bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-0.5 rounded text-xs font-mono whitespace-nowrap">0</span>`;
@@ -1612,6 +1617,66 @@ CRITICAL RULES:
                 await docRef.update(updateData);
             } catch (err) {
                 alert("Override failed: " + err.message);
+            }
+        }
+
+        // Teacher bulk-excuse entire class period
+        async function excuseSelectedPeriod() {
+            const periodStr = prompt("Enter the class period number to grant FULL CREDIT (Excused) for today's Bell-Ringer (0 to 6):", "4");
+            if (periodStr === null) return;
+            const periodNum = parseInt(periodStr.trim(), 10);
+            if (isNaN(periodNum) || periodNum < 0 || periodNum > 6) {
+                alert("Please enter a valid period number between 0 and 6.");
+                return;
+            }
+
+            try {
+                const rosterSnap = await db.collection('roster').where('class_period', '==', periodNum).get();
+                if (rosterSnap.empty) {
+                    alert(`No students found in roster for Period ${periodNum}.`);
+                    return;
+                }
+
+                if (!confirm(`Are you sure you want to excuse and give full credit to all ${rosterSnap.size} students in Period ${periodNum}?`)) {
+                    return;
+                }
+
+                const todayStr = getTodayString();
+                const activePrompt = (activeTimerData && activeTimerData.promptQuestion) ? activeTimerData.promptQuestion : "Bell-Ringer In-Class Activity";
+                const activityType = activeActivityType || "free_response";
+
+                const batch = db.batch();
+                let count = 0;
+                rosterSnap.forEach(doc => {
+                    const student = doc.data();
+                    const sId = student.student_id || doc.id;
+                    const docId = `${sId}_${todayStr}`;
+                    const docRef = db.collection('bellringers').doc(docId);
+                    batch.set(docRef, {
+                        studentId: sId,
+                        studentName: `${student.first_name || ''} ${student.last_name || ''}`.trim() || sId,
+                        class_period: periodNum,
+                        period: periodNum,
+                        date: todayStr,
+                        activityType: activityType,
+                        promptQuestion: activePrompt,
+                        studentResponse: "Excused - In-Class Activity (Full Credit)",
+                        effortScore: 100,
+                        score: 1,
+                        excused: true,
+                        isExcused: true,
+                        reason: "In-Class Activity",
+                        aiResponse: { effortScore: 100, feedback: "Full credit granted for in-class activity." },
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                    count++;
+                });
+
+                await batch.commit();
+                alert(`✨ Full credit granted to all ${count} students in Period ${periodNum}!`);
+            } catch (err) {
+                console.error("Excuse period error:", err);
+                alert("Failed to excuse period: " + err.message);
             }
         }
 
