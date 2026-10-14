@@ -1,343 +1,325 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-ruler="on">
 
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mr. Mudry’s Physics • ArtCraft Scroll Ruler Prototype</title>
+  <title>Mr. Mudry’s Physics • ArtCraft Scroll Ruler</title>
   <link rel="icon" type="image/png" href="head.png" />
   <link rel="stylesheet" href="assets/theme.css" />
+  
+  <!-- High-end typography matching Storytold ArtCraft design spec -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
-    /* ----------------------------------------------------
-       SCROLL RULER SYSTEM (Adapted from Storytold ArtCraft)
-       ---------------------------------------------------- */
+    /* ==========================================================================
+       STORYTOLD ARTCRAFT SCROLL RULER & HEADING FLOW ARCHITECTURE
+       Direct 1:1 Implementation of storytold/artcraft-services
+       ========================================================================== */
     :root {
-      --ruler-w: 68px;
-      --ruler-side: right;
-      --ruler-tick-minor: rgba(56, 189, 248, 0.35);
-      --ruler-tick-major: rgba(56, 189, 248, 0.85);
-      --ruler-label-color: rgba(148, 163, 184, 0.85);
-      --ruler-needle-color: #f97316;
-      --ruler-needle-glow: rgba(249, 115, 22, 0.45);
-      --ruler-ghost-color: rgba(56, 189, 248, 0.6);
-      --ruler-rail-bg: rgba(10, 15, 30, 0.75);
-      --ruler-border: rgba(56, 189, 248, 0.2);
+      --bg: #070b1a;
+      --bg-alt: #0e1328;
+      --ink: #cbd5f5;
+      --ink-strong: #ffffff;
+      --accent: #38bdf8;
+      --accent-ink: #38bdf8;
+      --font-display: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
     }
 
     [data-theme="light"] {
-      --ruler-tick-minor: rgba(15, 23, 42, 0.25);
-      --ruler-tick-major: rgba(15, 23, 42, 0.8);
-      --ruler-label-color: #0f172a;
-      --ruler-needle-color: #ea580c;
-      --ruler-needle-glow: rgba(234, 88, 12, 0.3);
-      --ruler-ghost-color: rgba(2, 132, 199, 0.6);
-      --ruler-rail-bg: rgba(248, 250, 252, 0.85);
-      --ruler-border: rgba(15, 23, 42, 0.15);
+      --bg: #ffffff;
+      --bg-alt: #f8fafc;
+      --ink: #475569;
+      --ink-strong: #0f172a;
+      --accent: #0284c7;
+      --accent-ink: #0284c7;
     }
 
-    /* Reserve gutter on desktop so page content breathes and never overlaps */
-    @media (min-width: 1024px) {
-      body.has-scroll-ruler {
-        padding-right: var(--ruler-w);
-      }
-      /* Hide native browser scrollbar to promote the instrument */
-      html.ruler-active {
-        scrollbar-width: none;
-      }
-      html.ruler-active::-webkit-scrollbar {
-        display: none;
-      }
+    /* Native scrollbar hidden on capable screens (instrument takes over) */
+    html[data-ruler="on"] {
+      scrollbar-width: none;
+    }
+    html[data-ruler="on"]::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
     }
 
-    /* Fixed Ruler Rail Container */
+    /* Content flows naturally under the rail — no artificial gutter */
+    body {
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* --------------------------------------------------------------------------
+       1. THE RAIL INSTRUMENT
+       -------------------------------------------------------------------------- */
     #artcraft-scroll-ruler {
       position: fixed;
       top: 0;
       right: 0;
-      width: var(--ruler-w);
+      width: 60px;
       height: 100vh;
-      z-index: 9999;
-      pointer-events: none;
+      z-index: 50;
       user-select: none;
+      pointer-events: none;
       display: none;
     }
 
-    @media (min-width: 1024px) {
+    @media (min-width: 1024px) and (pointer: fine) {
       #artcraft-scroll-ruler {
         display: block;
       }
     }
 
-    /* Rail Backdrop & Click Surface */
     .ruler-rail {
       position: absolute;
       inset: 0;
-      background: var(--ruler-rail-bg);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-left: 1px solid var(--ruler-border);
       pointer-events: auto;
       cursor: crosshair;
-      transition: background 0.3s ease, border-color 0.3s ease;
+      overflow: hidden;
     }
 
-    /* Ruler Header Badge */
-    .ruler-masthead {
-      position: absolute;
-      top: 10px;
-      left: 6px;
-      right: 6px;
-      text-align: center;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.58rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      color: var(--accent-neon, #38bdf8);
-      text-transform: uppercase;
-      opacity: 0.8;
-      border-bottom: 1px dashed var(--ruler-border);
-      padding-bottom: 4px;
-      pointer-events: none;
-    }
-
-    /* Canvas for Dynamic Scaled Ticks */
-    #ruler-tick-canvas {
+    /* Frost underlay with mathematically feathered gradient mask */
+    .ruler-frost-pane {
       position: absolute;
       inset: 0;
-      width: 100%;
-      height: 100%;
+      backdrop-filter: blur(9px);
+      -webkit-backdrop-filter: blur(9px);
+      background-color: rgba(7, 11, 26, 0.45);
       pointer-events: none;
     }
 
-    /* Precision Indicator Needle & Carriage */
+    [data-theme="light"] .ruler-frost-pane {
+      background-color: rgba(255, 255, 255, 0.55);
+    }
+
+    /* Tick track translated 1:1 with document scroll */
+    .ruler-track {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      pointer-events: none;
+      will-change: transform;
+    }
+
+    .ruler-tick-row {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 0;
+      will-change: transform;
+    }
+
+    .ruler-tick-line {
+      position: absolute;
+      right: 0;
+      top: 0;
+      height: 1px;
+      background-color: var(--ink);
+      transform-origin: right center;
+      will-change: transform, opacity;
+    }
+
+    .ruler-tick-label {
+      position: absolute;
+      right: 24px;
+      top: 0;
+      transform: translateY(-50%);
+      font-family: var(--font-mono);
+      font-size: 9px;
+      line-height: 1;
+      letter-spacing: 0.08em;
+      color: var(--ink);
+      pointer-events: none;
+      will-change: opacity;
+    }
+
+    /* Visible-span bracket (formed during zoom minimap mode) */
+    .ruler-bracket {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      will-change: transform, height, opacity;
+    }
+
+    .ruler-bracket-fill {
+      position: absolute;
+      inset: 0;
+      background-color: var(--ink);
+      opacity: 0.08;
+    }
+
+    .ruler-bracket-border-top,
+    .ruler-bracket-border-bottom {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background-color: var(--ink);
+      opacity: 0.45;
+    }
+    .ruler-bracket-border-top { top: 0; }
+    .ruler-bracket-border-bottom { bottom: 0; }
+
+    /* The Traveling Needle */
     .ruler-needle {
       position: absolute;
       left: 0;
-      width: 100%;
-      height: 2px;
-      background: var(--ruler-needle-color);
-      box-shadow: 0 0 12px var(--ruler-needle-glow), 0 0 4px var(--ruler-needle-color);
-      pointer-events: none;
-      transform: translateY(-50%);
-      transition: opacity 0.2s ease;
-    }
-
-    .ruler-needle::before {
-      content: "";
-      position: absolute;
-      left: -6px;
-      top: -4px;
-      width: 0;
+      right: 0;
+      top: 0;
       height: 0;
-      border-top: 5px solid transparent;
-      border-bottom: 5px solid transparent;
-      border-right: 7px solid var(--ruler-needle-color);
-      filter: drop-shadow(0 0 4px var(--ruler-needle-color));
+      pointer-events: none;
+      will-change: transform, opacity;
     }
 
-    /* Readout Chip Attached to Needle */
+    .ruler-needle-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 1px;
+      background-color: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+    }
+
+    /* Mechanical Rolling Odometer Readout */
     .ruler-readout {
       position: absolute;
-      right: calc(100% + 12px);
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(15, 23, 42, 0.95);
-      border: 1px solid var(--ruler-needle-color);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 10px var(--ruler-needle-glow);
-      color: #fff;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      padding: 3px 8px;
-      border-radius: 6px;
+      right: 4px;
+      top: 4px;
       white-space: nowrap;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      color: var(--accent-ink);
+      line-height: 1;
       pointer-events: none;
+    }
+
+    .ruler-digits {
+      display: inline-flex;
+      height: 1em;
+      overflow: hidden;
+      line-height: 1;
+      vertical-align: top;
+    }
+
+    .ruler-digit-col {
       display: flex;
-      align-items: center;
-      gap: 6px;
-      backdrop-filter: blur(8px);
+      flex-direction: column;
+      transition: transform 280ms cubic-bezier(0.2, 0.9, 0.2, 1);
     }
 
-    [data-theme="light"] .ruler-readout {
-      background: #ffffff;
-      color: #0f172a;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-    }
-
-    .ruler-readout .readout-val {
-      color: var(--ruler-needle-color);
-      font-weight: 800;
+    .ruler-digit-col > span {
+      display: block;
+      height: 1em;
+      line-height: 1;
+      text-align: center;
     }
 
     /* Hover Destination Ghost Line */
     .ruler-ghost {
-      position: absolute;
-      left: 0;
-      width: 100%;
-      height: 1px;
-      background: var(--ruler-ghost-color);
-      box-shadow: 0 0 8px var(--ruler-ghost-color);
-      pointer-events: none;
-      transform: translateY(-50%);
-      opacity: 0;
-      transition: opacity 0.15s ease;
-    }
-
-    .ruler-ghost-tooltip {
-      position: absolute;
-      right: calc(100% + 10px);
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid var(--ruler-ghost-color);
-      color: #cbd5f5;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.62rem;
-      font-weight: 600;
-      padding: 2px 6px;
-      border-radius: 4px;
-      white-space: nowrap;
-    }
-
-    /* ----------------------------------------------------
-       HEADING FLOW SYSTEM (Storytold ArtCraft Architecture)
-       ---------------------------------------------------- */
-    /* Top Pinned Heading Stack */
-    #ruler-heading-top-stack {
-      position: absolute;
-      top: 48px;
-      right: calc(100% + 14px);
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 5px;
-      pointer-events: auto;
-    }
-
-    /* Bottom Queued Heading Stack */
-    #ruler-heading-bottom-queue {
-      position: absolute;
-      bottom: 24px;
-      right: calc(100% + 14px);
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 5px;
-      pointer-events: auto;
-    }
-
-    .heading-pill {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.68rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      padding: 3px 8px;
-      border-radius: 6px;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-      white-space: nowrap;
-    }
-
-    .heading-pill.stacked {
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(56, 189, 248, 0.35);
-      color: #94a3b8;
-    }
-
-    .heading-pill.stacked:hover {
-      border-color: #38bdf8;
-      color: #38bdf8;
-      transform: translateX(-4px);
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
-    }
-
-    .heading-pill.current {
-      background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(15, 23, 42, 0.95));
-      border: 1.5px solid #f97316;
-      color: #ffedd5;
-      box-shadow: 0 0 16px rgba(249, 115, 22, 0.4);
-      transform: scale(1.05);
-    }
-
-    .heading-pill.queued {
-      background: rgba(15, 23, 42, 0.7);
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      color: #64748b;
-    }
-
-    .heading-pill.queued:hover {
-      color: #cbd5f5;
-      border-color: rgba(148, 163, 184, 0.6);
-      transform: translateX(-4px);
-    }
-
-    /* Vertical Riding Wordmark */
-    #ruler-riding-word {
-      position: absolute;
-      right: calc(100% + 14px);
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      transform: rotate(180deg);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.82rem;
-      font-weight: 800;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: #f97316;
-      text-shadow: 0 0 10px rgba(249, 115, 22, 0.5);
-      pointer-events: none;
-      transition: opacity 0.2s ease, transform 0.1s linear;
-      white-space: nowrap;
-    }
-
-    /* Banner for Demo Mode */
-    .prototype-banner {
-      background: linear-gradient(90deg, #0284c7, #4f46e5);
-      color: #fff;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
-      padding: 8px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
+      position: fixed;
+      right: 0;
       top: 0;
-      z-index: 10000;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      width: 60px;
+      height: 0;
+      pointer-events: none;
+      z-index: 52;
+      opacity: 0;
+      will-change: transform, opacity;
+    }
+
+    .ruler-ghost-line {
+      position: absolute;
+      right: 0;
+      top: -1.5px;
+      width: 60px;
+      height: 3px;
+      background-color: var(--ink);
+      opacity: 0.85;
+    }
+
+    /* --------------------------------------------------------------------------
+       2. CONTRAST POOLS & HEADING FLOW CHOREOGRAPHY
+       -------------------------------------------------------------------------- */
+    .heading-flow-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 45;
+      pointer-events: none;
+    }
+
+    /* Frosted backdrop pools for top stack and bottom queue */
+    .contrast-pool {
+      position: absolute;
+      right: 0;
+      pointer-events: none;
+      backdrop-filter: blur(9px);
+      -webkit-backdrop-filter: blur(9px);
+      background-color: rgba(7, 11, 26, 0.75);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      will-change: opacity;
+    }
+
+    [data-theme="light"] .contrast-pool {
+      background-color: rgba(255, 255, 255, 0.8);
+    }
+
+    .contrast-pool.top {
+      top: 0;
+    }
+
+    .contrast-pool.bottom {
+      bottom: 0;
+    }
+
+    /* Every single heading letter is an individually positioned flight span */
+    .heading-flow-letter {
+      position: absolute;
+      top: 0;
+      left: 0;
+      font-family: var(--font-display);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      white-space: pre;
+      line-height: 1;
+      opacity: 0;
+      will-change: transform, color;
+      pointer-events: none;
+      text-shadow: 0 0 6px var(--bg), 0 0 14px var(--bg);
+    }
+
+    /* Clickable hit regions tracking each word's bounding box */
+    .heading-flow-hit {
+      position: absolute;
+      cursor: pointer;
+      pointer-events: auto;
+      z-index: 48;
     }
   </style>
 </head>
 
-<body class="has-scroll-ruler">
+<body>
 
-  <!-- Interactive Prototype Demo Control Bar -->
-  <div class="prototype-banner">
-    <div>
-      <strong>🔬 STORYTOLD ARTCRAFT SCROLL RULER INTERACTION PROTOTYPE</strong>
-      <span style="opacity: 0.8; margin-left: 10px;">• Vertical Telemetry Rail • HeadingFlow Lifecycle • Damped Scrub</span>
-    </div>
-    <div style="display: flex; gap: 10px; align-items: center;">
-      <button id="btn-toggle-units" style="background: rgba(0,0,0,0.3); border: 1px solid #93c5fd; color: #fff; font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; cursor: pointer;">
-        Toggle Units: <span id="unit-label">% Percent</span>
-      </button>
-      <a href="index.html" style="color: #fef08a; font-weight: bold; text-decoration: none;">← Back to Standard Home</a>
-    </div>
-  </div>
-
-  <!-- Real Header -->
-  <header class="site-header" role="banner">
+  <!-- Site Navigation Header -->
+  <header class="site-header" role="banner" id="site-header">
     <div class="container nav">
-      <a class="brand" href="index.html"><img src="head.png" alt="Mr. Mudry Cyber-Avatar"><span>Mr. Mudry’s Physics</span></a>
+      <a class="brand" href="index.html">
+        <img src="head.png" alt="Mr. Mudry Avatar">
+        <span>Mr. Mudry’s Physics</span>
+      </a>
       <nav class="menu" aria-label="Primary">
         <a href="index.html">Home</a>
         <a href="Bell-Ringer/index.html" style="color: #fb923c; font-weight: 700;">Bell-Ringer 🔔</a>
@@ -349,68 +331,88 @@
     </div>
   </header>
 
-  <!-- ========================================================
-       ARTCRAFT SCROLL RULER INSTRUMENT CONTAINER
-       ======================================================== -->
+  <!-- ==========================================================================
+       ARTCRAFT SCROLL RULER INSTRUMENT
+       ========================================================================== -->
   <aside id="artcraft-scroll-ruler" aria-label="Page Telemetry Scroll Ruler">
-    <div class="ruler-rail" id="ruler-rail" title="Click rail to jump scroll position">
-      <div class="ruler-masthead">RULER // 01</div>
-      <canvas id="ruler-tick-canvas"></canvas>
-      
-      <!-- Precision Indicator Needle -->
-      <div class="ruler-needle" id="ruler-needle">
-        <div class="ruler-readout" id="ruler-readout">
-          <span>POS</span>
-          <span class="readout-val" id="readout-percentage">00.0%</span>
-        </div>
+    <!-- Interactive Rail -->
+    <div class="ruler-rail" id="ruler-rail">
+      <!-- Feathered Frost Mask Pane -->
+      <div class="ruler-frost-pane" id="ruler-frost"></div>
+
+      <!-- Tick Track: 1:1 with Document Scroll -->
+      <div class="ruler-track" id="ruler-track"></div>
+
+      <!-- Visible-Span Minimap Bracket -->
+      <div class="ruler-bracket" id="ruler-bracket">
+        <div class="ruler-bracket-fill"></div>
+        <div class="ruler-bracket-border-top"></div>
+        <div class="ruler-bracket-border-bottom"></div>
       </div>
 
-      <!-- Hover Preview Ghost -->
-      <div class="ruler-ghost" id="ruler-ghost">
-        <div class="ruler-ghost-tooltip" id="ghost-tooltip">JUMP: 0%</div>
+      <!-- Traveling Needle -->
+      <div class="ruler-needle" id="ruler-needle">
+        <div class="ruler-needle-line"></div>
+        <div class="ruler-readout" id="ruler-readout">
+          <span class="ruler-digits">
+            <span class="ruler-digit-col" id="digit-col-0"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span></span>
+            <span class="ruler-digit-col" id="digit-col-1"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span></span>
+            <span class="ruler-digit-col" id="digit-col-2"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span></span>
+          </span>
+          <span style="margin-left: 1px;">%</span>
+        </div>
       </div>
     </div>
 
-    <!-- HeadingFlow UI (Top Stack, Riding Word, Bottom Queue) -->
-    <div id="ruler-heading-top-stack"></div>
-    <div id="ruler-riding-word">01 HERO</div>
-    <div id="ruler-heading-bottom-queue"></div>
+    <!-- Hover Ghost Line -->
+    <div class="ruler-ghost" id="ruler-ghost">
+      <div class="ruler-ghost-line" id="ruler-ghost-line"></div>
+    </div>
   </aside>
 
-  <!-- ========================================================
-       MAIN PAGE CONTENT WITH IDENTIFIABLE SECTION ANCHORS
-       ======================================================== -->
+  <!-- HeadingFlow Choreography Layer (Letter-by-Letter Scrub-Bound Transforms) -->
+  <div class="heading-flow-layer" id="heading-flow-layer">
+    <!-- Top & Bottom Frosted Contrast Pools -->
+    <div class="contrast-pool top" id="top-contrast-pool"></div>
+    <div class="contrast-pool bottom" id="bottom-contrast-pool"></div>
+    <!-- Individual word hit anchors and letter spans will be dynamically mounted here -->
+    <div id="heading-flow-elements"></div>
+  </div>
+
+  <!-- ==========================================================================
+       PAGE CONTENT WITH FORMAL SECTIONS
+       ========================================================================== -->
   <main role="main">
 
     <!-- Section 1: Hero -->
-    <section class="hero" id="sec-hero" data-ruler-title="HERO" data-ruler-index="01">
+    <section class="hero" id="sec-hero" data-ruler-title="HEROES">
       <div class="container">
-        <h1>Let's GO Physics HEROES!</h1>
+        <h1 style="font-family: var(--font-display); font-weight: 900; letter-spacing: -0.02em;">Let's GO Physics HEROES!</h1>
         <div class="energy-bar" aria-hidden="true"></div>
-        <p class="subtitle">Currently exploring Linear Motion &amp; Kinematics: Position, Velocity, Acceleration, and Graphs.</p>
+        <p class="subtitle">Exploring Linear Motion, Kinematics, Velocity, and Universal Gravitation.</p>
 
         <!-- Prominent Bell-Ringer Hero Launcher Banner -->
-        <div class="bellringer-hero-banner" style="width: 100%; max-width: 820px; margin: 0.5rem 0 1.25rem 0; background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(245, 158, 11, 0.2)); border: 2px solid #f59e0b; border-radius: 16px; padding: 1rem 1.5rem; box-shadow: 0 0 30px rgba(245, 158, 11, 0.3); display: flex; align-items: center; justify-content: space-between; gap: 1rem; text-align: left; backdrop-filter: blur(12px);">
-          <div style="display: flex; align-items: center; gap: 1rem;">
-            <div style="font-size: 2.2rem; line-height: 1; filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.6));">🔔</div>
+        <div class="bellringer-hero-banner" style="width: 100%; max-width: 820px; margin: 1.5rem 0; background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(245, 158, 11, 0.2)); border: 2px solid #f59e0b; border-radius: 16px; padding: 1.25rem 1.75rem; box-shadow: 0 0 35px rgba(245, 158, 11, 0.25); display: flex; align-items: center; justify-content: space-between; gap: 1rem; text-align: left; backdrop-filter: blur(12px);">
+          <div style="display: flex; align-items: center; gap: 1.25rem;">
+            <div style="font-size: 2.5rem; line-height: 1;">🔔</div>
             <div>
-              <div style="display: inline-block; background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #fef08a; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; padding: 2px 8px; border-radius: 4px; margin-bottom: 4px;">
-                ⚡ Daily Student Check-In
+              <div style="display: inline-block; background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #fef08a; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; padding: 2px 8px; border-radius: 4px; margin-bottom: 4px;">
+                ⚡ Daily Student Warm-Up
               </div>
-              <h2 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: #ffffff; font-family: var(--font-tech);">
+              <h2 style="margin: 0; font-size: 1.35rem; font-weight: 800; color: #ffffff; font-family: var(--font-display);">
                 STUDENT BELL-RINGER PORTAL
               </h2>
-              <p style="margin: 2px 0 0 0; font-size: 0.85rem; color: #cbd5f5; font-weight: 500;">
-                Sign in with your Google account to complete today's live warm-up challenge.
+              <p style="margin: 4px 0 0 0; font-size: 0.9rem; color: #cbd5f5;">
+                Sign in with your district Google account to complete today's live physics challenge.
               </p>
             </div>
           </div>
-          <a class="btn bellringer-btn-highlight" href="Bell-Ringer/index.html" style="white-space: nowrap; padding: 0.75rem 1.5rem; font-size: 0.95rem; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; border-radius: 8px;">
-            Start Bell-Ringer 🔔
+          <a class="btn" href="Bell-Ringer/index.html" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; font-weight: 800; padding: 0.85rem 1.5rem; border-radius: 8px; text-decoration: none; white-space: nowrap;">
+            Open Warm-Up ↗
           </a>
         </div>
 
-        <div class="cta-row" style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem;">
+        <div class="cta-row" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
           <a class="btn btn-entropy" href="Bell-Ringer/index.html">Bell-Ringer 🔔</a>
           <a class="btn btn-entropy" href="DIY_Photogate/index.html">Photogate Lab ⏱️</a>
           <a class="btn btn-entropy" href="Data_Analysis/index.html">CAST Data Studio 📊</a>
@@ -419,20 +421,20 @@
       </div>
     </section>
 
-    <!-- Section 2: Space Flight & Skywatch -->
-    <section class="container" id="sec-skywatch" data-ruler-title="SKYWATCH" data-ruler-index="02" style="margin-top: 2rem; margin-bottom: 2rem;">
+    <!-- Section 2: Skywatch Telemetry -->
+    <section class="container" id="sec-skywatch" data-ruler-title="SKYWATCH" style="margin-top: 2rem; margin-bottom: 2rem;">
       <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
         
         <div class="card" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(249, 115, 22, 0.25)); border: 2px solid #f97316; box-shadow: 0 0 30px rgba(249, 115, 22, 0.2); border-radius: 16px; padding: 1.5rem;">
           <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.75rem;">
-            <div style="background: #f97316; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; font-weight: 900; padding: 2px 8px; border-radius: 4px;">🚀 Space Flight</div>
+            <div style="background: #f97316; color: #fff; font-family: var(--font-mono); font-size: 0.65rem; text-transform: uppercase; font-weight: 900; padding: 2px 8px; border-radius: 4px;">🚀 Space Flight</div>
             <div style="color: #cbd5f5; font-size: 0.75rem; font-weight: 600;">Vandenberg Space Force Base</div>
           </div>
-          <h2 style="margin: 0 0 0.75rem 0; color: #fff; font-size: 1.8rem; font-family: var(--font-tech);">
+          <h2 style="margin: 0 0 0.75rem 0; color: #fff; font-size: 1.8rem; font-family: var(--font-display);">
             ROCKET LAUNCHES: <span style="color: #f97316;">CALIFORNIA SKYWATCH</span>
           </h2>
           <p style="color: #cbd5f5; font-size: 0.95rem; line-height: 1.5;">
-            Track upcoming orbital launches from <strong>Vandenberg Space Force Base</strong>. Dusk and dawn launches create breathtaking illuminated twilight plumes easily visible looking West / NW from Orange County!
+            Track upcoming orbital missions from <strong>Vandenberg Space Force Base (CA)</strong>. Twilight launches generate illuminated noctilucent plumes easily visible from Orange County looking West/NW!
           </p>
           <div style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid #f97316; margin-top: 1rem;">
             <img src="assets/images/vandenberg_rocket_launch.jpg" alt="Vandenberg rocket launch plume" style="width: 100%; aspect-ratio: 16/9; object-fit: cover;">
@@ -440,16 +442,16 @@
         </div>
 
         <!-- Section 3: Misconception Buster -->
-        <div class="card" id="sec-misconception" data-ruler-title="FREE FALL" data-ruler-index="03" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(14, 165, 233, 0.25)); border: 2px solid #38bdf8; box-shadow: 0 0 30px rgba(56, 189, 248, 0.2); border-radius: 16px; padding: 1.5rem;">
+        <div class="card" id="sec-misconception" data-ruler-title="VACUUM DROP" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(14, 165, 233, 0.25)); border: 2px solid #38bdf8; box-shadow: 0 0 30px rgba(56, 189, 248, 0.2); border-radius: 16px; padding: 1.5rem;">
           <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.75rem;">
-            <div style="background: #0284c7; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; font-weight: 900; padding: 2px 8px; border-radius: 4px;">🔬 Misconception Buster</div>
-            <div style="color: #cbd5f5; font-size: 0.75rem; font-weight: 600;">Gravity &amp; Vacuum Drop</div>
+            <div style="background: #0284c7; color: #fff; font-family: var(--font-mono); font-size: 0.65rem; text-transform: uppercase; font-weight: 900; padding: 2px 8px; border-radius: 4px;">🔬 Misconception Buster</div>
+            <div style="color: #cbd5f5; font-size: 0.75rem; font-weight: 600;">Inertia &amp; Gravitational Field</div>
           </div>
-          <h2 style="margin: 0 0 0.75rem 0; color: #fff; font-size: 1.8rem; font-family: var(--font-tech);">
+          <h2 style="margin: 0 0 0.75rem 0; color: #fff; font-size: 1.8rem; font-family: var(--font-display);">
             THE <span style="color: #38bdf8;">HEAVY FALL</span> MYTH
           </h2>
           <p style="color: #cbd5f5; font-size: 0.95rem; line-height: 1.5;">
-            Do heavy objects fall faster? <strong>No!</strong> The greater gravitational force on a heavier mass is perfectly balanced by its greater inertia resisting acceleration (a = F / m). In a vacuum, a hammer and feather fall at identical rates (g = 9.8 m/s²).
+            Do heavy objects fall faster? <strong>No!</strong> While gravity exerts a stronger pull on larger mass, its proportional inertia precisely balances the acceleration: <strong>a = F / m</strong>. In a vacuum, all objects fall together at <strong>g = 9.8 m/s²</strong>.
           </p>
           <div style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid #38bdf8; margin-top: 1rem;">
             <img src="assets/images/apollo15_feather_hammer_drop.png" alt="Apollo 15 hammer and feather drop" style="width: 100%; aspect-ratio: 16/9; object-fit: cover;">
@@ -459,60 +461,60 @@
       </div>
     </section>
 
-    <!-- Section 4: Missing Work -->
-    <section class="container" id="sec-absent" data-ruler-title="ABSENT?" data-ruler-index="04" style="margin-bottom: 2rem;">
+    <!-- Section 4: Absent Work Module -->
+    <section class="container" id="sec-absent" data-ruler-title="ABSENT?" style="margin-bottom: 2rem;">
       <div class="card" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(17, 94, 89, 0.8)); border: 1px solid rgba(20, 184, 166, 0.3); border-radius: 16px; padding: 1.5rem;">
         <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
           <div>
-            <div style="display: inline-block; margin-bottom: 0.5rem; padding: 2px 8px; border-radius: 4px; background: rgba(20, 184, 166, 0.15); border: 1px solid rgba(20, 184, 166, 0.3); color: #2dd4bf; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: bold;">CATCH UP MODULE</div>
-            <h3 style="margin: 0 0 0.5rem 0; font-size: 1.5rem; color: #fff;">Were You Absent?</h3>
-            <p style="margin: 0; color: #cbd5e1; font-size: 0.95rem;">Select missed calendar dates to automatically generate your personalized agenda and assignments.</p>
+            <div style="display: inline-block; margin-bottom: 0.5rem; padding: 2px 8px; border-radius: 4px; background: rgba(20, 184, 166, 0.15); border: 1px solid rgba(20, 184, 166, 0.3); color: #2dd4bf; font-family: var(--font-mono); font-size: 0.7rem; font-weight: bold;">CATCH UP MODULE</div>
+            <h3 style="margin: 0 0 0.5rem 0; font-size: 1.5rem; color: #fff; font-family: var(--font-display);">Were You Absent?</h3>
+            <p style="margin: 0; color: #cbd5f5; font-size: 0.95rem;">Select your missed class dates to generate an instant schedule of makeup warm-ups, handouts, and labs.</p>
           </div>
-          <a href="missing-work.html" class="btn" style="background: linear-gradient(to right, #14b8a6, #2563eb); border: none; color: white; font-weight: bold; padding: 0.8rem 1.5rem; border-radius: 8px;">Generate Missing Work ↗</a>
+          <a href="missing-work.html" class="btn" style="background: linear-gradient(to right, #14b8a6, #2563eb); border: none; color: white; font-weight: bold; padding: 0.8rem 1.5rem; border-radius: 8px; text-decoration: none;">Generate Missing Work ↗</a>
         </div>
       </div>
     </section>
 
     <!-- Section 5: Today in Class -->
-    <section class="container section" id="sec-today" data-ruler-title="AGENDA" data-ruler-index="05">
-      <h2 style="font-family: var(--font-tech); color: #fff; margin-bottom: 1rem;">Today in Class // Daily Agenda</h2>
+    <section class="container section" id="sec-today" data-ruler-title="AGENDA">
+      <h2 style="font-family: var(--font-display); font-weight: 800; color: #fff; margin-bottom: 1rem;">Today in Class // Daily Agenda</h2>
       <div class="card" style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 16px; padding: 1.5rem;">
-        <div class="today-tag" style="background: rgba(0, 243, 255, 0.15); border: 1px solid var(--accent-neon); color: var(--accent-neon); padding: 2px 8px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; display: inline-block; margin-bottom: 0.5rem;">
+        <div class="today-tag" style="background: rgba(0, 243, 255, 0.15); border: 1px solid var(--accent-neon, #00f3ff); color: var(--accent-neon, #00f3ff); padding: 2px 8px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.7rem; display: inline-block; margin-bottom: 0.5rem;">
           Day 11 • Semester 2
         </div>
-        <h3 style="color: #fff; margin: 0 0 0.5rem 0;">Unit 2: 2D Kinematics &amp; Horizontal Projectiles</h3>
-        <p style="color: #cbd5e1; line-height: 1.5;">Analyzing independent x and y motion vectors using multi-flash strobe photography and Vernier photogate measurements.</p>
+        <h3 style="color: #fff; margin: 0 0 0.5rem 0; font-family: var(--font-display);">Unit 2: 2D Kinematics &amp; Projectile Flight</h3>
+        <p style="color: #cbd5f5; line-height: 1.5;">Analyzing orthogonal x and y motion vectors with laser photogate velocity traps and strobe trajectory tracking.</p>
         <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
-          <a class="btn primary" href="lessons.html" style="background: var(--accent); color: #fff; padding: 0.5rem 1rem; border-radius: 6px;">Full Details</a>
-          <a class="btn" href="unit2-dashboard.html" style="background: rgba(255,255,255,0.08); color: #cbd5f5; padding: 0.5rem 1rem; border-radius: 6px;">Unit 2 Dashboard</a>
+          <a class="btn primary" href="lessons.html" style="background: var(--accent); color: #fff; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none;">Full Details</a>
+          <a class="btn" href="unit2-dashboard.html" style="background: rgba(255,255,255,0.08); color: #cbd5f5; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none;">Unit 2 Dashboard</a>
         </div>
       </div>
     </section>
 
-    <!-- Section 6: Quick Action Tools -->
-    <section class="container section" id="sec-tools" data-ruler-title="LAB TOOLS" data-ruler-index="06" style="margin-top: 2rem; margin-bottom: 4rem;">
-      <h2 style="font-family: var(--font-tech); color: #fff; margin-bottom: 1rem;">Physics Laboratory Instruments &amp; Tools</h2>
+    <!-- Section 6: Laboratory Workbench -->
+    <section class="container section" id="sec-workbench" data-ruler-title="WORKBENCH" style="margin-top: 2rem; margin-bottom: 6rem;">
+      <h2 style="font-family: var(--font-display); font-weight: 800; color: #fff; margin-bottom: 1rem;">Physics Laboratory Instruments &amp; Tools</h2>
       <div class="grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
         
         <article class="card" style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 14px; padding: 1.25rem;">
-          <div style="color: #38bdf8; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 700; margin-bottom: 4px;">LAB INSTRUMENT</div>
-          <h3 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 1.2rem;">⏱️ Photogate Telemetry Lab</h3>
+          <div style="color: #38bdf8; font-family: var(--font-mono); font-size: 0.65rem; font-weight: 700; margin-bottom: 4px;">LAB INSTRUMENT</div>
+          <h3 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 1.2rem; font-family: var(--font-display);">⏱️ Photogate Telemetry Lab</h3>
           <p style="color: #94a3b8; font-size: 0.88rem;">Microsecond-precision dual laser photogate web dashboard with ESP32-C3 serial telemetry.</p>
-          <a class="btn primary" href="DIY_Photogate/index.html" style="display: inline-block; margin-top: 10px; background: #0284c7; color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem;">Launch Photogate ↗</a>
+          <a class="btn primary" href="DIY_Photogate/index.html" style="display: inline-block; margin-top: 10px; background: #0284c7; color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; text-decoration: none;">Launch Photogate ↗</a>
         </article>
 
         <article class="card" style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 14px; padding: 1.25rem;">
-          <div style="color: #38bdf8; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 700; margin-bottom: 4px;">NGSS FRAMEWORK</div>
-          <h3 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 1.2rem;">📚 NGSS Standards Explorer</h3>
+          <div style="color: #38bdf8; font-family: var(--font-mono); font-size: 0.65rem; font-weight: 700; margin-bottom: 4px;">NGSS FRAMEWORK</div>
+          <h3 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 1.2rem; font-family: var(--font-display);">📚 NGSS Standards Explorer</h3>
           <p style="color: #94a3b8; font-size: 0.88rem;">Interactive high school physics standards: SEPs, DCIs, CCCs, and clarification boundaries.</p>
-          <a class="btn primary" href="ngss-explorer/index.html" style="display: inline-block; margin-top: 10px; background: #0284c7; color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem;">Explore Standards ↗</a>
+          <a class="btn primary" href="ngss-explorer/index.html" style="display: inline-block; margin-top: 10px; background: #0284c7; color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; text-decoration: none;">Explore Standards ↗</a>
         </article>
 
         <article class="card" style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 14px; padding: 1.25rem;">
-          <div style="color: #38bdf8; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 700; margin-bottom: 4px;">SIMULATION WORKBENCH</div>
-          <h3 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 1.2rem;">🚀 Speed &amp; Vector Calculator</h3>
+          <div style="color: #38bdf8; font-family: var(--font-mono); font-size: 0.65rem; font-weight: 700; margin-bottom: 4px;">SIMULATION WORKBENCH</div>
+          <h3 style="color: #fff; margin: 0 0 0.5rem 0; font-size: 1.2rem; font-family: var(--font-display);">🚀 Speed &amp; Vector Calculator</h3>
           <p style="color: #94a3b8; font-size: 0.88rem;">Solve kinematics puzzles, graph motion profiles, and calculate acceleration vectors.</p>
-          <a class="btn primary" href="physics_speed_calculator/dist/index.html" style="display: inline-block; margin-top: 10px; background: #0284c7; color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem;">Launch App ↗</a>
+          <a class="btn primary" href="physics_speed_calculator/dist/index.html" style="display: inline-block; margin-top: 10px; background: #0284c7; color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; text-decoration: none;">Launch App ↗</a>
         </article>
 
       </div>
@@ -520,256 +522,573 @@
 
   </main>
 
-  <!-- ========================================================
-       ARTCRAFT SCROLL RULER JAVASCRIPT ENGINE
-       ======================================================== -->
+  <!-- ==========================================================================
+       AUTHENTIC ARTCRAFT SCROLL RULER & HEADING FLOW CORE SCRIPT
+       ========================================================================== -->
   <script>
     (function () {
-      // Configuration & Tunables (matching ArtCraft ruler-tunables.ts)
+      // Capability Gate: Desktop with Fine Pointer Only
+      const fineMq = window.matchMedia("(pointer: fine) and (hover: hover) and (min-width: 1024px)");
+      if (!fineMq.matches) {
+        document.documentElement.removeAttribute("data-ruler");
+        return;
+      }
+      document.documentElement.setAttribute("data-ruler", "on");
+
+      // Tunables & Layout Constants (Matching ArtCraft ruler-tunables.ts)
       const NAV_H = 48;
       const EDGE_PAD = 12;
-      const MINOR_STEP_PCT = 1;  // Minor tick every 1%
-      const MAJOR_STEP_PCT = 5;  // Major tick with label every 5%
-      let useMillimeters = false;
+      const RAIL_W = 60;
+      const MINOR_PCT = 1;
+      const LABEL_PCT = 5;
+      const THRESHOLD_PCT = 12;
+      const HEADING_PX = 32;
+      const RIDING_PX = 18;
+      const QUEUE_PX = 15;
+      const TOP_PAD = 26;
+      const CURRENT_GAP = 24;
+      const QUEUE_SLOT = 20;
+      const QUEUE_PAD = 36;
+      const TEXT_PAD = 10;
+      const FLIP_ZONE = 200;
+      const DETACH_ZONE = 240;
+      const STAGGER = 0.16;
+      const ARC = 32;
+      const VEL_RADIUS = 180;
+      const VEL_MAX = 0.7;
+      const YIELD_PAD = 28;
+      const NEEDLE_FADE_PCT = 3;
 
-      // DOM Elements
-      const ruler = document.getElementById('artcraft-scroll-ruler');
-      const rail = document.getElementById('ruler-rail');
-      const canvas = document.getElementById('ruler-tick-canvas');
-      const needle = document.getElementById('ruler-needle');
-      const readoutPct = document.getElementById('readout-percentage');
-      const ghost = document.getElementById('ruler-ghost');
-      const ghostTooltip = document.getElementById('ghost-tooltip');
-      const topStack = document.getElementById('ruler-heading-top-stack');
-      const bottomQueue = document.getElementById('ruler-heading-bottom-queue');
-      const ridingWord = document.getElementById('ruler-riding-word');
-      const toggleUnitsBtn = document.getElementById('btn-toggle-units');
-      const unitLabel = document.getElementById('unit-label');
+      // Mathematical Easing Helpers
+      const clamp01 = (x) => Math.max(0, Math.min(1, x));
+      const easeInOutCubic = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      const easeOutExpo = (t) => t >= 1 ? 1 : 1 - Math.pow(2, -10 * t);
 
-      if (!ruler || !canvas) return;
+      function rulerMap(vh, pad) {
+        const base = NAV_H + pad;
+        return {
+          base,
+          span: Math.max(1, vh - NAV_H - 2 * pad),
+          drift: (p) => base - p * (NAV_H + 2 * pad)
+        };
+      }
 
-      const ctx = canvas.getContext('2d');
-      let dpr = window.devicePixelRatio || 1;
-      let vh = window.innerHeight;
-      let docH = document.documentElement.scrollHeight;
-      let scrollY = window.scrollY;
-      let targetProgress = 0;
-      let currentProgress = 0;
-      let scrollVelocity = 0;
-      let lastScrollY = window.scrollY;
-      let lastTime = performance.now();
+      // Generate Feathered Frost Mask
+      function frostMask(solid, gamma) {
+        const stops = [`black ${solid}%`];
+        const steps = 8;
+        for (let k = 1; k < steps; k++) {
+          const x = k / steps;
+          const a = Math.pow(1 - x, gamma);
+          const pos = solid + x * (100 - solid);
+          stops.push(`rgba(0,0,0,${a.toFixed(3)}) ${pos.toFixed(1)}%`);
+        }
+        stops.push("transparent 100%");
+        return `linear-gradient(to left, ${stops.join(", ")})`;
+      }
 
-      // Gather Sections for HeadingFlow
-      const sectionElements = Array.from(document.querySelectorAll('[data-ruler-title]'));
-      const sections = sectionElements.map(el => ({
+      const frostEl = document.getElementById("ruler-frost");
+      if (frostEl) {
+        const mask = frostMask(40, 1.8);
+        frostEl.style.maskImage = mask;
+        frostEl.style.webkitMaskImage = mask;
+      }
+
+      // Collect Sections from DOM
+      const sectionElements = Array.from(document.querySelectorAll("[data-ruler-title]"));
+      const sections = sectionElements.map((el, i) => ({
         id: el.id,
-        index: el.dataset.rulerIndex,
-        title: el.dataset.rulerTitle,
-        element: el
+        label: el.dataset.rulerTitle,
+        index: i,
+        element: el,
+        isHero: i === 0
       }));
 
-      // Resize Canvas with high DPR
-      function resizeCanvas() {
-        dpr = window.devicePixelRatio || 1;
-        const rect = rail.getBoundingClientRect();
-        canvas.width = rect.width * dpr;
-        canvas.height = rect.height * dpr;
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.scale(dpr, dpr);
-        vh = window.innerHeight;
+      // Elements
+      const rail = document.getElementById("ruler-rail");
+      const track = document.getElementById("ruler-track");
+      const bracket = document.getElementById("ruler-bracket");
+      const needle = document.getElementById("ruler-needle");
+      const readout = document.getElementById("ruler-readout");
+      const digitCols = [
+        document.getElementById("digit-col-0"),
+        document.getElementById("digit-col-1"),
+        document.getElementById("digit-col-2")
+      ];
+      const ghost = document.getElementById("ruler-ghost");
+      const topContrastPool = document.getElementById("top-contrast-pool");
+      const bottomContrastPool = document.getElementById("bottom-contrast-pool");
+      const flowElements = document.getElementById("heading-flow-elements");
+
+      // Shared State
+      let docH = document.documentElement.scrollHeight;
+      let vh = window.innerHeight;
+      let vw = window.innerWidth;
+      let lastScrollY = window.scrollY;
+      let scrollVel = 0;
+      let lastTime = performance.now();
+      let prevDigits = [-1, -1, -1];
+      let prevPct = -1;
+      let zoomP = 0;
+      let zoomTarget = 0;
+      let zoomTimer = null;
+      let ghostActive = false;
+      let ghostY = 0;
+      let hoverWordIdx = -1;
+      const hoverK = new Float32Array(sections.length);
+
+      // Measure character advances using a high-precision hidden probe
+      function measureLabels(labels) {
+        const probe = document.createElement("div");
+        probe.style.cssText = "position:absolute;left:-9999px;top:0;visibility:hidden;white-space:pre;font-size:100px;font-family:var(--font-display);font-weight:800;line-height:1;text-transform:uppercase;";
+        document.body.appendChild(probe);
+
+        const metrics = {};
+        for (const label of labels) {
+          probe.textContent = "";
+          const spans = label.split("").map((ch) => {
+            const sp = document.createElement("span");
+            sp.textContent = ch;
+            probe.appendChild(sp);
+            return sp;
+          });
+          const adv = spans.map((sp) => sp.getBoundingClientRect().width / 100);
+          const cum = [];
+          let total = 0;
+          for (const a of adv) {
+            cum.push(total);
+            total += a;
+          }
+          metrics[label] = { adv, cum, total };
+        }
+        probe.remove();
+        return metrics;
+      }
+
+      let metrics = measureLabels(sections.map(s => s.label));
+
+      // Build DOM Tick Track (1:1 with Document)
+      let ticks = [];
+      let tickRowEls = [];
+      let lineEls = [];
+      let labelEls = [];
+
+      function rebuildTicks() {
         docH = document.documentElement.scrollHeight;
-      }
-      window.addEventListener('resize', () => {
-        resizeCanvas();
-        updateRuler();
-      });
-      resizeCanvas();
+        vh = window.innerHeight;
+        vw = window.innerWidth;
+        track.innerHTML = "";
+        track.style.height = `${docH}px`;
+        ticks = [];
+        tickRowEls = [];
+        lineEls = [];
+        labelEls = [];
 
-      // Draw Ticks on Canvas with optional Velocity Doppler Stretch
-      function drawTicks(progress, velocity) {
-        const w = rail.clientWidth;
-        const h = rail.clientHeight;
-        ctx.clearRect(0, 0, w, h);
+        for (let p = 0; p <= 100 + 1e-5; p += MINOR_PCT) {
+          const pct = Math.round(p * 100) / 100;
+          const major = Math.abs(pct % LABEL_PCT) < 1e-5;
+          const docY = (pct / 100) * docH;
+          const alpha = major ? 0.8 : 0.35;
+          ticks.push({ pct, docY, major, alpha });
 
-        const travelStart = NAV_H + EDGE_PAD;
-        const travelSpan = h - travelStart - EDGE_PAD;
-        const needleY = travelStart + progress * travelSpan;
+          const row = document.createElement("div");
+          row.className = "ruler-tick-row";
+          row.style.top = `${docY}px`;
 
-        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-        const minorColor = isLight ? 'rgba(15, 23, 42, 0.22)' : 'rgba(56, 189, 248, 0.28)';
-        const majorColor = isLight ? 'rgba(15, 23, 42, 0.75)' : 'rgba(56, 189, 248, 0.85)';
-        const textColor = isLight ? '#0f172a' : 'rgba(148, 163, 184, 0.85)';
+          const line = document.createElement("span");
+          line.className = "ruler-tick-line";
+          line.style.width = `${major ? 20 : 10}px`;
+          line.style.opacity = `${alpha}`;
+          row.appendChild(line);
 
-        ctx.font = '600 9px "JetBrains Mono", monospace';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'middle';
-
-        // Draw 0% to 100% ticks
-        for (let pct = 0; pct <= 100; pct += MINOR_STEP_PCT) {
-          const norm = pct / 100;
-          let y = travelStart + norm * travelSpan;
-
-          // Velocity displacement effect (ticks expand/stretch around needle during fast scrolling)
-          const distToNeedle = Math.abs(y - needleY);
-          const velRadius = 140;
-          if (distToNeedle < velRadius) {
-            const factor = (1 - distToNeedle / velRadius) * velocity * 0.08;
-            y += factor;
+          let label = null;
+          if (major) {
+            label = document.createElement("span");
+            label.className = "ruler-tick-label";
+            label.textContent = String(pct);
+            label.style.opacity = "0.6";
+            row.appendChild(label);
           }
 
-          const isMajor = (pct % MAJOR_STEP_PCT === 0);
-          const tickLen = isMajor ? 16 : 8;
-
-          ctx.beginPath();
-          ctx.strokeStyle = isMajor ? majorColor : minorColor;
-          ctx.lineWidth = isMajor ? 1.5 : 1;
-          ctx.moveTo(w - tickLen, y);
-          ctx.lineTo(w, y);
-          ctx.stroke();
-
-          // Render label for major ticks
-          if (isMajor && pct % 10 === 0) {
-            ctx.fillStyle = textColor;
-            const labelStr = useMillimeters ? `${(pct * 1.5).toFixed(0)}` : `${String(pct).padStart(2, '0')}`;
-            ctx.fillText(labelStr, 8, y);
-          }
+          track.appendChild(row);
+          tickRowEls.push(row);
+          lineEls.push(line);
+          labelEls.push(label);
         }
       }
 
-      // Smooth Animation Loop
-      function updateRuler() {
-        const now = performance.now();
-        const dt = Math.max(1, now - lastTime);
-        const currentY = window.scrollY;
-        scrollVelocity = (currentY - lastScrollY) / dt * 16;
-        lastScrollY = currentY;
-        lastTime = now;
+      // Build HeadingFlow DOM (Letter Spans + Clickable Hit Targets)
+      const words = [];
+      function mountHeadingFlow() {
+        flowElements.innerHTML = "";
+        words.length = 0;
 
-        const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-        targetProgress = Math.min(1, Math.max(0, currentY / maxScroll));
-        
-        // Smooth interpolation for needle
-        currentProgress += (targetProgress - currentProgress) * 0.25;
+        sections.forEach((s, wi) => {
+          const m = metrics[s.label] || { adv: [], cum: [], total: 0 };
+          const hit = document.createElement("a");
+          hit.className = "heading-flow-hit";
+          hit.setAttribute("aria-label", `Jump to ${s.label}`);
+          hit.addEventListener("click", (e) => {
+            e.preventDefault();
+            const targetY = s.isHero ? 0 : s.element.getBoundingClientRect().top + window.scrollY - NAV_H;
+            window.scrollTo({ top: targetY, behavior: "smooth" });
+          });
+          hit.addEventListener("pointerenter", () => { hoverWordIdx = wi; });
+          hit.addEventListener("pointerleave", () => { if (hoverWordIdx === wi) hoverWordIdx = -1; });
+          flowElements.appendChild(hit);
 
-        const railH = rail.clientHeight;
-        const travelStart = NAV_H + EDGE_PAD;
-        const travelSpan = railH - travelStart - EDGE_PAD;
-        const needlePos = travelStart + currentProgress * travelSpan;
+          const letters = s.label.split("").map((ch) => {
+            const span = document.createElement("span");
+            span.className = "heading-flow-letter";
+            span.textContent = ch;
+            span.style.fontSize = `${HEADING_PX}px`;
+            flowElements.appendChild(span);
+            return span;
+          });
 
-        needle.style.top = `${needlePos}px`;
-        
-        // Digital readout update
-        if (useMillimeters) {
-          const mmVal = (currentProgress * 150).toFixed(1);
-          readoutPct.textContent = `${mmVal} mm`;
-        } else {
-          readoutPct.textContent = `${(currentProgress * 100).toFixed(1)}%`;
-        }
-
-        // HeadingFlow Logic
-        updateHeadingFlow(needlePos, currentY);
-
-        // Draw Canvas Ticks
-        drawTicks(currentProgress, scrollVelocity);
-
-        requestAnimationFrame(updateRuler);
-      }
-
-      // HeadingFlow lifecycle
-      function updateHeadingFlow(needleScreenY, scrollY) {
-        let currentSectionIdx = 0;
-        const viewportMid = scrollY + window.innerHeight * 0.4;
-
-        sections.forEach((sec, idx) => {
-          const top = sec.element.offsetTop;
-          if (viewportMid >= top) {
-            currentSectionIdx = idx;
-          }
+          words.push({ hit, letters, metrics: m });
         });
 
-        const activeSec = sections[currentSectionIdx];
-        if (activeSec) {
-          ridingWord.textContent = `${activeSec.index} ${activeSec.title}`;
-          ridingWord.style.top = `${Math.min(window.innerHeight - 120, Math.max(110, needleScreenY - 60))}px`;
-        }
+        // Configure Frosted Contrast Pools
+        const poolMask = (cornerY) =>
+          `radial-gradient(100% 100% at 100% ${cornerY}, black 38%, rgba(0,0,0,0.82) 56%, rgba(0,0,0,0.48) 72%, rgba(0,0,0,0.2) 86%, transparent 97%)`;
 
-        // Top Pinned Stack (Passed Sections)
-        let topHtml = '';
-        for (let i = 0; i <= currentSectionIdx; i++) {
-          const s = sections[i];
-          const isCurr = (i === currentSectionIdx);
-          topHtml += `
-            <a class="heading-pill ${isCurr ? 'current' : 'stacked'}" onclick="scrollToSection('${s.id}')">
-              <span>${s.index}</span> <span>${s.title}</span>
-            </a>
-          `;
-        }
-        topStack.innerHTML = topHtml;
+        topContrastPool.style.width = "260px";
+        topContrastPool.style.height = `${NAV_H + TOP_PAD + sections.length * QUEUE_SLOT + CURRENT_GAP + HEADING_PX}px`;
+        topContrastPool.style.maskImage = poolMask("0%");
+        topContrastPool.style.webkitMaskImage = poolMask("0%");
 
-        // Bottom Queued Stack (Upcoming Sections)
-        let bottomHtml = '';
-        for (let i = currentSectionIdx + 1; i < sections.length; i++) {
-          const s = sections[i];
-          bottomHtml += `
-            <a class="heading-pill queued" onclick="scrollToSection('${s.id}')">
-              <span>${s.index}</span> <span>${s.title}</span>
-            </a>
-          `;
-        }
-        bottomQueue.innerHTML = bottomHtml;
+        bottomContrastPool.style.width = "260px";
+        bottomContrastPool.style.height = `${QUEUE_PAD + sections.length * QUEUE_SLOT + 20}px`;
+        bottomContrastPool.style.maskImage = poolMask("100%");
+        bottomContrastPool.style.webkitMaskImage = poolMask("100%");
       }
 
-      // Rail Hover & Destination Ghost
-      rail.addEventListener('mousemove', (e) => {
-        const rect = rail.getBoundingClientRect();
-        const y = e.clientY - rect.top;
-        const travelStart = NAV_H + EDGE_PAD;
-        const travelSpan = rect.height - travelStart - EDGE_PAD;
-        const ghostPct = Math.min(1, Math.max(0, (y - travelStart) / travelSpan));
+      rebuildTicks();
+      mountHeadingFlow();
 
-        ghost.style.opacity = '1';
-        ghost.style.top = `${y}px`;
-        ghostTooltip.textContent = `JUMP: ${(ghostPct * 100).toFixed(0)}%`;
+      window.addEventListener("resize", () => {
+        metrics = measureLabels(sections.map(s => s.label));
+        rebuildTicks();
+        mountHeadingFlow();
       });
 
-      rail.addEventListener('mouseleave', () => {
-        ghost.style.opacity = '0';
+      // Rail Interaction & Hover Intent
+      function scheduleZoom(on) {
+        clearTimeout(zoomTimer);
+        zoomTimer = setTimeout(() => {
+          zoomTarget = on ? 1 : 0;
+        }, 150);
+      }
+
+      rail.addEventListener("pointerenter", () => scheduleZoom(true));
+      rail.addEventListener("pointerleave", () => {
+        ghostActive = false;
+        scheduleZoom(false);
+      });
+      rail.addEventListener("pointermove", (e) => {
+        const map = rulerMap(vh, EDGE_PAD);
+        ghostY = Math.max(map.base, Math.min(map.base + map.span, e.clientY));
+        ghostActive = true;
       });
 
-      // Rail Click Jump (Lenis/Damped Semantics)
-      rail.addEventListener('click', (e) => {
-        const rect = rail.getBoundingClientRect();
-        const y = e.clientY - rect.top;
-        const travelStart = NAV_H + EDGE_PAD;
-        const travelSpan = rect.height - travelStart - EDGE_PAD;
-        const targetPct = Math.min(1, Math.max(0, (y - travelStart) / travelSpan));
-        const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-
+      rail.addEventListener("click", (e) => {
+        const map = rulerMap(vh, EDGE_PAD);
+        const p = clamp01((e.clientY - map.base) / map.span);
+        const maxScroll = Math.max(1, docH - vh);
         window.scrollTo({
-          top: targetPct * maxScroll,
-          behavior: 'smooth'
+          top: p * maxScroll,
+          behavior: "smooth"
         });
       });
 
-      // Global Scroll helper for pills
-      window.scrollToSection = function (id) {
-        const el = document.getElementById(id);
-        if (el) {
-          const y = el.getBoundingClientRect().top + window.scrollY - 70;
-          window.scrollTo({ top: y, behavior: 'smooth' });
-        }
-      };
+      // Spans array for proximity yield
+      const railOccupancy = { spans: [] };
 
-      // Toggle Units Button
-      if (toggleUnitsBtn) {
-        toggleUnitsBtn.addEventListener('click', () => {
-          useMillimeters = !useMillimeters;
-          unitLabel.textContent = useMillimeters ? 'mm Millimeters' : '% Percent';
+      // Main Per-Frame RAF Animation Loop (Zero-Thrash Scrub)
+      function frameLoop(time) {
+        const dt = Math.min((time - lastTime) / 1000, 0.1) || 0.016;
+        lastTime = time;
+
+        const scrollY = window.scrollY;
+        const maxScroll = Math.max(1, docH - vh);
+        const progress = clamp01(scrollY / maxScroll);
+
+        // Velocity computation with exponential smoothing
+        const rawVel = (scrollY - lastScrollY) / dt;
+        lastScrollY = scrollY;
+        scrollVel += (rawVel - scrollVel) * (1 - Math.exp(-6 * dt));
+
+        const map = rulerMap(vh, EDGE_PAD);
+        const drift = map.drift(progress);
+
+        // Zoom morph exponential integration
+        zoomP += (zoomTarget - zoomP) * (1 - Math.exp(-10 * dt));
+        if (zoomTarget === 0 && zoomP < 0.001) zoomP = 0;
+        if (zoomTarget === 1 && zoomP > 0.999) zoomP = 1;
+        const z = zoomP;
+
+        // Needle Translation & Top Fade
+        const needleY = map.base + progress * map.span;
+        needle.style.transform = `translate3d(0, ${needleY}px, 0)`;
+        needle.style.opacity = String(clamp01(progress / (NEEDLE_FADE_PCT / 100)));
+
+        // Readout flip when reaching bottom of viewport
+        readout.style.top = needleY > vh - 26 ? "-14px" : "4px";
+
+        // Rolling Odometer Digits Update
+        const pctInt = Math.round(progress * 100);
+        if (pctInt !== prevPct) {
+          prevPct = pctInt;
+          const str = String(pctInt).padStart(3, "0");
+          for (let c = 0; c < 3; c++) {
+            const digit = str.charCodeAt(c) - 48;
+            if (digit !== prevDigits[c]) {
+              prevDigits[c] = digit;
+              digitCols[c].style.transform = `translateY(${-digit}em)`;
+            }
+          }
+        }
+
+        // Visible-Span Minimap Bracket
+        if (bracket) {
+          bracket.style.transform = `translate3d(0, ${map.base + (scrollY / docH) * map.span}px, 0)`;
+          bracket.style.height = `${(vh / docH) * map.span}px`;
+          bracket.style.opacity = String(z);
+        }
+
+        // Hover Destination Ghost
+        if (ghost) {
+          if (ghostActive) {
+            ghost.style.transform = `translate3d(0, ${ghostY}px, 0)`;
+            ghost.style.opacity = String(0.85 * (0.2 + 0.8 * z));
+          } else {
+            ghost.style.opacity = "0";
+          }
+        }
+
+        // ----------------------------------------------------------------------
+        // HEADING FLOW: Math-Driven Scrub & Letter Bézier Interpolation
+        // ----------------------------------------------------------------------
+        const T = (THRESHOLD_PCT / 100) * vh;
+        const yTopLine = NAV_H + TOP_PAD;
+        const yQueueLine = vh - QUEUE_PAD;
+        const hp = HEADING_PX;
+        const rs = RIDING_PX / hp;
+        const qs = QUEUE_PX / hp;
+        const railCenterX = vw - RAIL_W / 2;
+
+        // Poses helpers
+        const horizPose = (m, i, yLine, s, alpha) => {
+          const along = (m.cum[i] + m.adv[i] / 2) * hp * s;
+          const inward = RAIL_W + TEXT_PAD + (m.total * hp * s - along);
+          return { x: vw - inward, y: yLine, rot: 0, scale: s, alpha };
+        };
+
+        const ridePose = (m, i, top) => ({
+          x: railCenterX,
+          y: top + (m.total - m.cum[i] - m.adv[i] / 2) * hp * rs,
+          rot: -90,
+          scale: rs,
+          alpha: 0.35
         });
+
+        // Phase pass per section
+        const phases = sections.map((s, wi) => {
+          const m = metrics[s.label];
+          const rideLen = (m?.total ?? 0) * hp * rs;
+          const anchor = s.element.getBoundingClientRect().top + scrollY;
+          const v = anchor - scrollY + drift;
+          let flipP = 0;
+          let detachP = 0;
+
+          if (wi === 0) {
+            flipP = 1;
+            detachP = 1;
+          } else {
+            flipP = clamp01((T + FLIP_ZONE - v) / FLIP_ZONE);
+          }
+          return { v, rideLen, flipP, detachP, yq: yQueueLine };
+        });
+
+        // Backward queue packing pass
+        let below = 0;
+        for (let wi = sections.length - 1; wi >= 0; wi--) {
+          if (wi === 0) continue;
+          const ph = phases[wi];
+          ph.yq = yQueueLine - QUEUE_SLOT * below;
+          ph.detachP = clamp01((ph.yq + DETACH_ZONE - (ph.v + ph.rideLen)) / DETACH_ZONE);
+          below += 1 - ph.detachP;
+        }
+
+        // Count stacked words
+        let stackedCount = 0;
+        let flipShift = 0;
+        for (const ph of phases) {
+          if (ph.flipP >= 1) stackedCount++;
+          else if (ph.flipP > 0) flipShift += ph.flipP;
+        }
+
+        // Contrast Pools Opacity
+        let topK = 0, botK = 0;
+        for (let wi = 0; wi < phases.length; wi++) {
+          if (phases[wi].flipP > topK) topK = phases[wi].flipP;
+          if (wi > 0) {
+            const q = 1 - phases[wi].detachP;
+            if (q > botK) botK = q;
+          }
+        }
+        topContrastPool.style.opacity = String(0.85 * topK);
+        bottomContrastPool.style.opacity = String(0.85 * botK);
+
+        // Letter flight interpolation pass
+        railOccupancy.spans = [];
+
+        sections.forEach((s, wi) => {
+          const w = words[wi];
+          const m = w.metrics;
+          const ph = phases[wi];
+          const n = m.adv.length;
+          let p = 0;
+          let from, to;
+          let reverseStagger = false;
+
+          if (ph.flipP > 0) {
+            p = ph.flipP;
+            reverseStagger = true;
+            from = (i) => ridePose(m, i, ph.v);
+            if (ph.flipP >= 1) {
+              const demote = (wi === stackedCount - 1) ? flipShift : 1;
+              const y = yTopLine + wi * QUEUE_SLOT + CURRENT_GAP * (1 - demote);
+              const scale = 1 - (1 - qs) * demote;
+              const alpha = 1 - (1 - 0.35) * demote;
+              to = (i) => horizPose(m, i, y, scale, alpha);
+            } else {
+              to = (i) => horizPose(m, i, yTopLine + wi * QUEUE_SLOT + CURRENT_GAP, 1, 1);
+            }
+          } else if (ph.detachP < 1) {
+            p = ph.detachP;
+            reverseStagger = true;
+            const vForm = ph.yq - ph.rideLen;
+            to = (i) => ridePose(m, i, vForm);
+            from = (i) => horizPose(m, i, ph.yq, qs, 0.35);
+          } else {
+            p = 1;
+            from = to = (i) => ridePose(m, i, ph.v);
+            // Record span for tick label proximity yield
+            railOccupancy.spans.push({
+              top: ph.v,
+              bottom: ph.v + ph.rideLen,
+              k: 1
+            });
+          }
+
+          // Hover transition smoothing
+          const targetHover = (hoverWordIdx === wi) ? 1 : 0;
+          hoverK[wi] += (targetHover - hoverK[wi]) * (1 - Math.exp(-dt / 0.08));
+          const hk = hoverK[wi];
+
+          const sf = STAGGER;
+          const span = 1 + (n - 1) * sf;
+          let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+
+          for (let i = 0; i < n; i++) {
+            const el = w.letters[i];
+            const si = reverseStagger ? (n - 1 - i) : i;
+            const pi = clamp01(p * span - si * sf);
+            const e = easeInOutCubic(pi);
+            const a = from(i);
+            const b = to(i);
+            const cx = (a.x + b.x) / 2 - ARC;
+            const cy = (a.y + b.y) / 2;
+            const u = 1 - e;
+
+            const x = u * u * a.x + 2 * u * e * cx + e * e * b.x;
+            const y = u * u * a.y + 2 * u * e * cy + e * e * b.y;
+            const rot = a.rot + (b.rot - a.rot) * e;
+            const scale = a.scale + (b.scale - a.scale) * e;
+            const alpha = a.alpha + (b.alpha - a.alpha) * e;
+
+            el.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) rotate(${rot}deg) scale(${scale})`;
+            
+            // Contrast-safe solid ink blending
+            const effectiveAlpha = clamp01(alpha + (1 - alpha) * hk);
+            el.style.color = effectiveAlpha >= 0.98
+              ? "var(--ink-strong)"
+              : `color-mix(in srgb, var(--ink-strong) ${(effectiveAlpha * 100).toFixed(1)}%, var(--bg))`;
+            el.style.opacity = "1";
+
+            // Hit region bounding calculation
+            const wHalf = (m.adv[i] * hp * scale) / 2 + 2;
+            const hHalf = (hp * scale) / 2 + 2;
+            const vertical = Math.abs(rot) > 45;
+            const xHalf = vertical ? hHalf : wHalf;
+            const yHalf = vertical ? wHalf : hHalf;
+            if (x - xHalf < minX) minX = x - xHalf;
+            if (x + xHalf > maxX) maxX = x + xHalf;
+            if (y - yHalf < minY) minY = y - yHalf;
+            if (y + yHalf > maxY) maxY = y + yHalf;
+          }
+
+          // Update invisible clickable hit anchor
+          if (w.hit) {
+            w.hit.style.left = `${minX}px`;
+            w.hit.style.top = `${minY}px`;
+            w.hit.style.width = `${Math.max(20, maxX - minX)}px`;
+            w.hit.style.height = `${Math.max(16, maxY - minY)}px`;
+          }
+        });
+
+        // ----------------------------------------------------------------------
+        // TICK TRANSLATION, VELOCITY STRETCH & PROXIMITY YIELD
+        // ----------------------------------------------------------------------
+        const needleDocY = progress * docH;
+        const velNorm = clamp01(Math.abs(scrollVel) / 3000);
+        const spans = railOccupancy.spans;
+
+        for (let i = 0; i < ticks.length; i++) {
+          const t = ticks[i];
+          const liveY = t.docY - scrollY + drift;
+          const compactY = map.base + (t.pct / 100) * map.span;
+          const rowY = liveY + z * (compactY - liveY);
+
+          // Position tick row
+          tickRowEls[i].style.transform = `translate3d(0, ${rowY - t.docY}px, 0)`;
+
+          // Velocity Doppler stretch near needle
+          const distToNeedle = Math.abs(t.docY - needleDocY);
+          const line = lineEls[i];
+          if (distToNeedle < VEL_RADIUS && VEL_RADIUS > 0) {
+            const tf = 1 - distToNeedle / VEL_RADIUS;
+            const boost = velNorm * tf * tf;
+            line.style.transform = `scaleX(${1 + VEL_MAX * boost})`;
+            line.style.opacity = String(Math.min(1, t.alpha + 0.5 * boost));
+          } else {
+            line.style.transform = "scaleX(1)";
+            line.style.opacity = String(t.alpha);
+          }
+
+          // Proximity Yield: tick labels fade away under passing vertical words
+          const label = labelEls[i];
+          if (label) {
+            let fade = 1;
+            if (z < 1) {
+              for (const spn of spans) {
+                const d = rowY < spn.top ? spn.top - rowY : rowY > spn.bottom ? rowY - spn.bottom : 0;
+                if (d < YIELD_PAD) {
+                  const f = 1 - spn.k * (1 - d / YIELD_PAD);
+                  if (f < fade) fade = f;
+                }
+              }
+            }
+            label.style.opacity = String(0.6 * fade * (1 - z));
+          }
+        }
+
+        requestAnimationFrame(frameLoop);
       }
 
-      // Initialize
-      requestAnimationFrame(updateRuler);
+      requestAnimationFrame(frameLoop);
     })();
   </script>
 </body>
