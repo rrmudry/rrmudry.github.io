@@ -1860,14 +1860,9 @@
       try {
         const db = firebase.firestore();
 
-        // 1. Ensure top-level parent doc exists
-        await db.collection('student_results').doc(ASSIGNMENT_ID).set({
-          assignment_name: ASSIGNMENT_NAME,
-          assignment_id: ASSIGNMENT_ID,
-          updated_at: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-
-        // 2. Set student subdocument
+        // NOTE: The parent doc student_results/{ASSIGNMENT_ID} is admin-write-only
+        // (see firestore.rules). Students write ONLY their own subdocument.
+        // Set student subdocument
         const studentDocRef = db.collection('student_results')
           .doc(ASSIGNMENT_ID)
           .collection('students')
