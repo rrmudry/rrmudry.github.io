@@ -4009,7 +4009,7 @@ const lessonsData = [
         "typeLabel": "Launch Telemetry Log",
         "submission": "In-Class Handout / Field Data",
         "actionLabel": "View Telemetry Table ↗",
-        "description": "Multi-timer trial records at 40 PSI constant pressure, stability ratings, and trajectory notes."
+        "description": "Multi-timer trial records at 80–100 PSI constant pressure, stability ratings, and trajectory notes."
       }
     ],
     "resources": [
@@ -4052,11 +4052,21 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Rocket Autopsy & Satellite Map": "Unit_2/rocket_recovery/index.html",
+      "Rocket Autopsy Lab (PDF)": "Unit_2/worksheets/Cardstock_Rocket_Autopsy_Lab.pdf",
       "Cardstock Rocket Simulator": "Unit_2/cardstock_rocket/index.html",
       "Cardstock Rocket Lab Guide (PDF)": "Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf",
       "Physics Curriculum Tie-Ins": "Unit_2/Cardstock_Rocket_Physics_Tie_Ins.md"
     },
     "assignments": [
+      {
+        "title": "Cardstock Rocket Autopsy & Satellite Recovery Lab",
+        "url": "Unit_2/worksheets/Cardstock_Rocket_Autopsy_Lab.pdf",
+        "typeLabel": "Aerospace Forensics & Blueprint",
+        "submission": "In-Class Handout / Google Classroom",
+        "actionLabel": "Open Autopsy PDF ↗",
+        "description": "Precision rocket teardown, 1:2 scaled blueprint drafting, and satellite touchdown mapping across the Orange High School center quad."
+      },
       {
         "title": "Flight Kinematics Derivation & CER Synthesis",
         "url": "Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf",
@@ -4067,6 +4077,12 @@ const lessonsData = [
       }
     ],
     "resources": [
+      {
+        "title": "Cardstock Rocket Satellite Recovery & Blueprint Studio",
+        "url": "Unit_2/rocket_recovery/index.html",
+        "typeLabel": "Interactive Map & Blueprint",
+        "description": "Interactive satellite field telemetry on Orange High School campus, CAD-style blueprint generator, and trajectory forensics."
+      },
       {
         "title": "Cardstock Rocket Physics Simulator & Flight Visualizer",
         "url": "Unit_2/cardstock_rocket/index.html",
@@ -4081,6 +4097,12 @@ const lessonsData = [
       }
     ],
     "practice": [
+      {
+        "title": "Rocket Satellite Recovery & Blueprint Tool",
+        "url": "Unit_2/rocket_recovery/index.html",
+        "typeLabel": "Telemetry Sandbox",
+        "description": "Pinpoint your rocket touchdown point on the OHS field and draft your scaled engineering blueprint."
+      },
       {
         "title": "Cardstock Rocket Flight Simulator",
         "url": "Unit_2/cardstock_rocket/index.html",

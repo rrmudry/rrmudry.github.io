@@ -174,5 +174,5 @@ Using Newton's 2nd Law from **Days 26–28**:
    * *"At the highest peak of flight, is the rocket's acceleration positive, negative, or zero? Defend your answer using Newton's Second Law."*  
    * **Answer:** *Negative (-10 m/s² downward). Gravity is still pulling down with force F_g = mg, so by a = F_net / m, acceleration must remain -10 m/s².*
 3. **Mass vs. Altitude Prediction:**
-   * *"If Team A builds a sleek 20-gram cardstock rocket and Team B builds a heavily taped 50-gram rocket, both launched at 40 PSI, which rocket will achieve a greater launch velocity? Explain using a = F_net / m."*  
+   * *"If Team A builds a sleek 20-gram cardstock rocket and Team B builds a heavily taped 50-gram rocket, both launched at 80–100 PSI, which rocket will achieve a greater launch velocity? Explain using a = F_net / m."*  
    * **Answer:** *Team A's 20 g rocket. A smaller mass yields a larger acceleration inside the tube for the same pneumatic force, reaching a higher exit velocity v₀ and therefore higher apogee.*
