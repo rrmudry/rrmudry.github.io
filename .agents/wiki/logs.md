@@ -3,6 +3,58 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-16 — Anti-Paste Response Protection, Fin Terminology Alignment & Web Filter Hardening (`Unit_2/rocket_recovery/index.html`)
+**Patterns Updated**: `cast-aligned-webapp-design.md`, `classroom-projection-and-high-contrast-theming.md`.
+
+**Changes**:
+- **Multi-Layered Anti-Paste Response Box Protection (`initPastePrevention`)**:
+  - Implemented anti-paste listeners intercepting `paste`, `drop`, and `beforeinput` (`insertFromPaste`, `insertFromDrop`) events across student response boxes (`qMassEffect`, `qFinEffect`, `cerClaim`, `cerEvidence`, `cerReasoning`, and all `<textarea>` elements).
+  - Triggers a crimson shake border animation (`.paste-blocked`) and displays a fixed toast banner docked directly under the header: `🚫 Pasting is disabled on response boxes. Please type your response in your own words.`
+  - Programmatic input assignments (e.g. claim scaffolding from behavior dropdowns) operate without firing paste events.
+- **Fin Terminology Correction**:
+  - Replaced `"hand-drawn fins"` with **`"cardstock fins"`** across the auto-generated CER Evidence synthesizer and Firestore schema restoration.
+  - Simplified Step 1 fin group title and intro to focus on modeling rocket fin dimensions without misleading "drawn" terminology.
+- **Launch Pressure Calibration & District Filter Compliance**:
+  - Standardized launch pressure strictly to **80–100 PSI** across all telemetry HUDs, map markers, evidence generators, and worksheets.
+  - Verified 100% compliance with district web filter policy: Leaflet assets locally vendored (`assets/vendor/leaflet/`), zero `unpkg.com` dependencies, and zero in-browser Babel.
+
+## 2026-10-15 — Fin Placement Offset from Fuselage Bottom & Dynamic CP Shifting (`Unit_2/rocket_recovery/index.html`)
+**Patterns Updated**: `cast-aligned-webapp-design.md`, `classroom-projection-and-high-contrast-theming.md`.
+
+**Changes**:
+- **Fin Placement Offset Input (`finOffsetBottom` & `specOffsetBottom`)**:
+  - Added user input for distance from the bottom of the fuselage (cm) in both Step 1 Autopsy and the Fullscreen Fin CAD Studio modal.
+  - Default `0.0 cm` corresponds to fins aligned flush with the fuselage bottom / tail; allows positive entries when students taped fins higher up the body tube.
+- **Dynamic 1:1 Scaled Fin Projection on Blueprint**:
+  - The SVG blueprint immediately slides the fins forward along the fuselage tube by the exact offset distance.
+  - Displays a high-contrast gold dimension line (`+X.X cm from bottom`) with extension arrows and dashed guidelines whenever fins are not flush with the tail.
+- **Authentic Center of Pressure (CP) Recalibration**:
+  - Moving fins forward along the fuselage shifts the fin aerodynamic restoring force forward toward the nose ($\Delta CP = -0.75 \times \text{finOffset}$).
+  - Live stability margin ($\text{Margin} = CP - CM$) updates in real time, demonstrating directly to students how attaching fins higher up shrinks the stability margin and induces tumble or corkscrew wobble.
+- **Worksheet & Report Alignment**:
+  - Added fin alignment checkboxes (`[ ] Flush with tail  [ ] Shifted _____ cm up from tail`) to Table 1 of `Cardstock_Rocket_Autopsy_Lab.html` and recompiled the print PDF.
+  - Linked fin alignment to Step 2 Forensics explanations and Google Classroom clipboard synthesis.
+
+## 2026-10-15 — Fullscreen Fin CAD Studio, Height/Width Terminology, 1cm x 1cm Blueprint Grid & Realistic Flight Forensics (`Unit_2/rocket_recovery/index.html`)
+**Patterns Updated**: `cast-aligned-webapp-design.md`, `classroom-projection-and-high-contrast-theming.md`.
+
+**Changes**:
+- **Adopted 1 cm × 1 cm True-to-Scale Technical Engineering Blueprint Grid**:
+  - Replaced the disconnected background CSS grid overlay with an authentic, SVG-native 1cm × 1cm coordinate grid pattern (`#bpGrid1cm`) locked directly to the rocket's longitudinal centerline and nose tip origin (`originX = 50`, `centerY = 120`).
+  - Added major 5cm bold grid pattern (`#bpGrid5cm`) and an integrated bottom centimeter ruler axis with tick marks every 1cm and numeric labels at `0, 5, 10, 15, 20, 25, 30, 35, 40 cm`.
+  - Every centimeter of drawn fin height, fin width, nose height, and fuselage length spans exactly 1 grid square (1 square = 1 cm × 1 cm).
+  - Updated Section B of companion worksheet `Cardstock_Rocket_Autopsy_Lab.html` to physical `1cm 1cm` CSS grid paper (`background-size: 1cm 1cm`), allowing students to use standard classroom metric rulers directly on the printed paper.
+- **Adopted Student-Accessible Fin Terminology (Zero Aerospace Jargon)**:
+  - Eliminated unfamiliar aerospace jargon ("Root Chord", "Semi-Span", "Tip Chord", "Leading Sweep") across both the webapp and printable lab worksheet.
+  - Replaced with high-school accessible terminology: **Fin Height (along body)**, **Fin Width (sticking out)**, **Outer Flat Edge**, and **Front Slant Offset**.
+  - Updated CAD dimension callout tags to clean badges (`Height 4.0cm`, `Front 5.7cm`, `Back 4.0cm`, `Outer 2.0cm`).
+- **Realized Authentic Flight Behavior Options**:
+  - Replaced artificial flight behaviors with 6 typical cardstock rocket launch observations: High vertical climb with wind drift, Long arching flight across campus (boosted glide), Tight spiral / corkscrew spin, Hard banking curve / turn, End-over-end tumbling somersault, and Structural blowout (nose cone or fin ripped off at 40 PSI).
+- **Replaced Irrelevant Mass & Balance Forensics**:
+  - Replaced mass & ballast forensics with **Fuselage Fit & Pressure Seal Forensics** (Snug airtight seal vs. loose wobbly fit with air leakage vs. high pipe friction).
+- **Removed Automatic Touchdown Zone Guessing**:
+  - Replaced automated zone guessing with live, authentic **Touchdown GPS Coordinates** derived from the student's satellite map touchdown pin.
+
 ## 2026-10-13 — Prominent Video Tutorial Card & Thumbnail Pattern
 **Patterns Updated**: `dashboard-layout.md`.
 
@@ -26,6 +78,22 @@ Append-only log tracking pattern changes across recent sessions.
   - `evaluateSubmission(sub)` immediately grants `{ isGenuine: true, type: ..., reason: 'excused_full_credit' }` when `sub.excused` or `sub.isExcused` is true, ensuring excused days count toward genuine totals for Google Classroom sync without tripping quality filters.
 - **Added One-Click Teacher Dashboard Controls (`Bell-Ringer/dashboard.html` & `Bell-Ringer/teacher.html`)**:
   - Added single-click "✨ Excuse Period (Full Credit)" buttons and student tile badge support so any period can be excused on demand in real time.
+
+## 2026-10-15 — Cardstock Rocket Recovery & Flight Forensics: Student Google Auth & Firestore Sync
+**Patterns Updated**: `cardstock-rocketry-engineering-and-telemetry.md`, `cast-aligned-webapp-design.md`.
+
+**Changes**:
+- **Interactive Student Google Auth & School Domain Enforcement (`Unit_2/rocket_recovery/index.html`)**:
+  - Integrated official Firebase Auth SDK loaded from `gstatic.com` (100% compliant with District Web Filter policy, zero unpkg/Babel).
+  - Enforced `@orangeusd.org` Google Workspace authentication with teacher bypass for `rmudry@orangeusd.org` and `ryan.mudry@gmail.com`.
+  - Added user profile chip in header showing student name, period, and ID with sign-out support.
+- **Bi-Directional Firestore Persistence (`student_results/unit2_day35_rocket_recovery`)**:
+  - Implemented automatic roster lookup checking `class_period ?? period` to auto-resolve student period (Period 0 Honors vs Periods 4–6 Physics) and dynamically relocate the launch pad marker to Period 0 coordinates (`33°47'50.6"N 117°50'48.7"W`) or Quad center (`33°47'48.8"N 117°50'48.4"W`).
+  - Implemented debounced auto-saving (1.5s delay) capturing teardown measurements, fin geometry coordinates, satellite touchdown pin, trajectory style diagnostics, and CER scientific synthesis.
+  - Added explicit "🚀 Submit to Google Classroom" button with high-contrast confirmation modal and grade recording.
+  - Sanitized all Firestore payload properties to guarantee zero `undefined` values.
+- **Launcher Pressure Calibration Update (80–100 PSI)**:
+  - Corrected all occurrences of launcher pressure across the interactive studio (`rocket_recovery/index.html`), printable worksheet (`Cardstock_Rocket_Autopsy_Lab.html` & `.pdf`), curriculum outline (`outline.md`), lesson store (`lessons-data.js`), and tie-in references from 40 PSI to the actual operating pressure of 80–100 PSI.
 
 ## 2026-10-13 — Missing Work Tool: Eliminate unpkg/Babel Dependency (District Web Filter Hotfix)
 **Patterns Updated**: `dashboard-layout.md`.
