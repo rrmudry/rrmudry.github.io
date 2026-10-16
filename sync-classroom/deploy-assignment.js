@@ -212,6 +212,9 @@ function parseConfig() {
     process.exit(1);
   }
 
+  const periodsArg = getArg('periods');
+  const targetPeriods = periodsArg ? periodsArg.split(',').map(p => parseInt(p.trim(), 10)) : null;
+
   return {
     assignmentId: id,
     title: title,
@@ -222,6 +225,7 @@ function parseConfig() {
     dueDate: getArg('due') || null,
     unit: getArg('unit') || null,
     standards: getArg('standards') ? getArg('standards').split(',').map(s => s.trim()) : [],
+    periods: targetPeriods,
     isDryRun: isDryRun
   };
 }
@@ -231,8 +235,9 @@ function parseConfig() {
 // =====================================================================
 async function deploy() {
   const config = parseConfig();
-  const { assignmentId, title, description, maxPoints, topic, activityUrl, dueDate, unit, standards, isDryRun } = config;
+  const { assignmentId, title, description, maxPoints, topic, activityUrl, dueDate, unit, standards, periods, isDryRun } = config;
 
+  const coursesToDeploy = periods ? COURSES.filter(c => periods.includes(c.period)) : COURSES;
   const { dueDate: parsedDueDate, dueTime: parsedDueTime } = parseDueDate(dueDate);
 
   console.log('\n' + '='.repeat(72));
@@ -246,12 +251,13 @@ async function deploy() {
   console.log(`  Due Date:       ${dueDate || '(none)'}`);
   console.log(`  Unit:           ${unit || '(none)'}`);
   console.log(`  Standards:      ${standards.length > 0 ? standards.join(', ') : '(none)'}`);
+  console.log(`  Target Periods: ${periods ? periods.join(', ') : 'All Periods (0–6)'}`);
   console.log(`  Mode:           ${isDryRun ? '🧪 DRY-RUN (preview only)' : '🚀 LIVE DEPLOYMENT'}`);
   console.log('='.repeat(72) + '\n');
 
   if (isDryRun) {
     console.log('🧪 DRY-RUN: Would create coursework in the following courses:');
-    COURSES.forEach(c => console.log(`   Period ${c.period}: ${c.name} (${c.courseId})`));
+    coursesToDeploy.forEach(c => console.log(`   Period ${c.period}: ${c.name} (${c.courseId})`));
     console.log('\n🧪 DRY-RUN: Would write assignment_registry doc:', assignmentId);
     console.log('🧪 DRY-RUN complete. No changes made.\n');
     return;
@@ -260,14 +266,14 @@ async function deploy() {
   const classroom = getClassroomClient();
 
   // ---------------------------------------------------------------
-  // Phase 1: Create CourseWork in Google Classroom (all periods)
+  // Phase 1: Create CourseWork in Google Classroom (targeted periods)
   // ---------------------------------------------------------------
   console.log('📤 Phase 1: Creating coursework in Google Classroom...\n');
 
   const courseworkMap = {};   // courseId → courseworkId
   const deployments = [];     // Full deployment records for backwards compat
 
-  for (const course of COURSES) {
+  for (const course of coursesToDeploy) {
     process.stdout.write(`  ⏳ [Period ${course.period}] ${course.name}...`);
 
     try {
@@ -346,7 +352,7 @@ async function deploy() {
   }
 
   const successCount = deployments.filter(d => d.success).length;
-  console.log(`\n  📊 Deployed to ${successCount}/${COURSES.length} periods.\n`);
+  console.log(`\n  📊 Deployed to ${successCount}/${coursesToDeploy.length} periods.\n`);
 
   if (successCount === 0) {
     console.error('❌ No coursework was created. Aborting registry write.');

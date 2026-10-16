@@ -4052,13 +4052,22 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
-      "Rocket Autopsy & Satellite Map": "Unit_2/rocket_recovery/index.html",
+      "Rocket Flight Forensics (Periods 0, 4, 5, 6)": "Unit_2/rocket_recovery/index.html",
       "Rocket Autopsy Lab (PDF)": "Unit_2/worksheets/Cardstock_Rocket_Autopsy_Lab.pdf",
       "Cardstock Rocket Simulator": "Unit_2/cardstock_rocket/index.html",
       "Cardstock Rocket Lab Guide (PDF)": "Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf",
       "Physics Curriculum Tie-Ins": "Unit_2/Cardstock_Rocket_Physics_Tie_Ins.md"
     },
     "assignments": [
+      {
+        "title": "Rocket Flight Forensics (Periods 0, 4, 5, 6)",
+        "url": "Unit_2/rocket_recovery/index.html",
+        "typeLabel": "Interactive Physics Webapp",
+        "submission": "Auto-Saved on Google Sign-In (10 pts) / Turn In in Classroom",
+        "actionLabel": "Launch Forensics Webapp ↗",
+        "description": "Periods 0, 4, 5, 6: Dissect flown cardstock rocket specs, 1cm × 1cm technical engineering blueprint with fin offset, and satellite touchdown GPS telemetry correlation.",
+        "status": "active"
+      },
       {
         "title": "Cardstock Rocket Autopsy & Satellite Recovery Lab",
         "url": "Unit_2/worksheets/Cardstock_Rocket_Autopsy_Lab.pdf",
@@ -4078,10 +4087,10 @@ const lessonsData = [
     ],
     "resources": [
       {
-        "title": "Cardstock Rocket Satellite Recovery & Blueprint Studio",
+        "title": "Cardstock Rocket Satellite Recovery & Blueprint Studio (Periods 0, 4, 5, 6)",
         "url": "Unit_2/rocket_recovery/index.html",
         "typeLabel": "Interactive Map & Blueprint",
-        "description": "Interactive satellite field telemetry on Orange High School campus, CAD-style blueprint generator, and trajectory forensics."
+        "description": "Periods 0, 4, 5, 6: Interactive satellite field telemetry on Orange High School campus, CAD-style blueprint generator, and trajectory forensics."
       },
       {
         "title": "Cardstock Rocket Physics Simulator & Flight Visualizer",
@@ -4098,10 +4107,10 @@ const lessonsData = [
     ],
     "practice": [
       {
-        "title": "Rocket Satellite Recovery & Blueprint Tool",
+        "title": "Rocket Satellite Recovery & Blueprint Tool (Periods 0, 4, 5, 6)",
         "url": "Unit_2/rocket_recovery/index.html",
         "typeLabel": "Telemetry Sandbox",
-        "description": "Pinpoint your rocket touchdown point on the OHS field and draft your scaled engineering blueprint."
+        "description": "Periods 0, 4, 5, 6: Pinpoint your rocket touchdown point on the OHS field and draft your scaled engineering blueprint."
       },
       {
         "title": "Cardstock Rocket Flight Simulator",
