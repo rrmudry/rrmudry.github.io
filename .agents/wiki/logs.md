@@ -3,6 +3,15 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-16 — Firestore Security Rules: Drop Client-Side Parent Doc Writes (`Unit_2/rocket_recovery/index.html`)
+**Patterns Updated**: `cast-aligned-webapp-design.md`, `proctor-assessment-question-bank.md`.
+
+**Changes**:
+- **Eliminated Client-Side Parent Document Write in Student Submit Flow**:
+  - In `firestore.rules`, the top-level parent document `student_results/{ASSIGNMENT_ID}` is admin-write-only (`allow write: if isAdmin()`), while students only have permission to write their own subcollection document `student_results/{ASSIGNMENT_ID}/students/{student_id}`.
+  - Removed client-side `db.collection('student_results').doc(ASSIGNMENT_ID).set(...)` from the student submission workflow in `Unit_2/rocket_recovery/index.html`.
+  - Parent document creation is handled ahead of time during automated deployment via `sync-classroom/deploy-assignment.js` (running with Firebase Admin credentials). This ensures students never encounter `permission-denied` exceptions upon final score submission.
+
 ## 2026-10-16 — Anti-Paste Response Protection, Fin Terminology Alignment & Web Filter Hardening (`Unit_2/rocket_recovery/index.html`)
 **Patterns Updated**: `cast-aligned-webapp-design.md`, `classroom-projection-and-high-contrast-theming.md`.
 
