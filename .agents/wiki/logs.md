@@ -2,6 +2,25 @@
 
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
+## 2026-10-18 — Cardstock Rocket Phase 2: Controlled Variable Forensics Webapp & Deployment (`Unit_2/rocket_phase2/index.html`)
+**Patterns Added**: `cardstock-rocket-phase2-forensics.md`.
+**Patterns Updated**: `cardstock-rocketry-engineering-and-telemetry.md`, `assignment-registry.md`.
+
+**Changes**:
+- **Built Cardstock Rocket Phase 2 Web Application (`Unit_2/rocket_phase2/index.html`)**:
+  - Implemented 4-stage engineering workflow: (1) Squad Formation (max 3) & Single-Variable Selection, (2) Dual Rocket Physical Teardown & CAD Specifications, (3) Launch Operations & Dual Touchdown Satellite Recovery Map, (4) Head-to-Head Comparative CER Synthesis.
+  - **Single-Variable Control Isolation**: Rocket A acts as the baseline/control; modifying Rocket A parameters propagates automatically to Rocket B unless the property is the actively selected independent variable (highlighted with gold border and badge).
+  - **Dual-Rocket Scaled 1cm × 1cm CAD Blueprint**: Real-time SVG rendering of Rocket A and B simultaneously (or focus-toggled), showing live Center of Mass (CM), Center of Pressure (CP), stability calibers, and gold variable callout tags.
+  - **Dual-Pin Campus Recovery Map**: Leaflet satellite map of Orange High School quad with Green Launch Pad, Red Pin (Rocket A), Blue Pin (Rocket B), flight vector lines, ground range ($d_A, d_B$), flight azimuths, performance delta ($\Delta d$), and apogee altitudes.
+  - **District Web Filter Compliance**: Zero `unpkg.com`, zero in-browser Babel, local vendored Leaflet, and inline SVG data URI layer switcher icons to eliminate 404s on missing PNGs.
+  - **Security & Integrity**: Multi-event anti-paste blocking (`paste`, `drop`, `beforeinput`), client writes restricted to subdocument `students/{student_id}` to comply with Firestore rules.
+- **Unified Classroom Deployment & Verification**:
+  - Successfully deployed assignment `unit2_day36_rocket_phase2` to Periods 0, 4, 5, and 6 in Google Classroom with 10 max points and due date Oct 23.
+  - Verified pre-flight student auth and synthetic student writes via `npm run verify -- --id unit2_day36_rocket_phase2` with 100% passing checks.
+- **Curriculum Stores & Course Outline**:
+  - Updated `assets/lessons-data.js` for Days 36, 37, and 38 with Phase 2 assignments, resources, practice tools, and NGSS standards (`HS-PS2-1`, `HS-ETS1-2`, `HS-ETS1-3`).
+  - Updated `Unit_2/outline.md` documenting the 3-day Phase 2 project schedule, rain contingency notes for Wednesday, and links.
+  - Refreshed site footer timestamp via `node scripts/update-timestamp.js`.
 
 ## 2026-10-16 — Firestore Security Rules: Drop Client-Side Parent Doc Writes (`Unit_2/rocket_recovery/index.html`)
 **Patterns Updated**: `cast-aligned-webapp-design.md`, `proctor-assessment-question-bank.md`.
