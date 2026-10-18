@@ -4130,11 +4130,13 @@ const lessonsData = [
     "type": "Activity / Inquiry",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Investigate interaction force pairs: whenever one object exerts a force on a second, the second exerts an equal and opposite force back on the first (F<sub>A on B</sub> = -F<sub>B on A</sub>).",
-    "activity": "Dual Force Sensor Collisions & Skateboard Push-Offs: Students collide equal and unequal mass dynamics carts equipped with wireless force sensors to observe identical opposing force spikes in real time, followed by skateboard push-off demonstrations.",
+    "summary": "Investigate interaction force pairs: whenever one object exerts a force on a second, the second exerts an equal and opposite force back on the first (F<sub>A on B</sub> = -F<sub>B on A</sub>). (Pacing Note: Periods 0, 4, 5, and 6 kick off their 3-day Cardstock Rocket Phase 2 Project: Controlled Variable Forensics, forming squads of up to 3 to construct two rockets identical in all aspects except exactly ONE isolated independent variable.)",
+    "activity": "Dual Force Sensor Collisions & Skateboard Push-Offs: Students collide equal and unequal mass dynamics carts equipped with wireless force sensors to observe identical opposing force spikes in real time. (Periods 0, 4, 5, 6 Project Studio): Rocket squads select their single isolated variable, formulate pre-flight CER hypotheses, input baseline Rocket A specs, and draft scaled CAD blueprints in the Phase 2 Webapp.",
     "essentialQuestion": "When a massive Mack truck hits a tiny mosquito on the highway, which object experiences the greater impact force?",
     "standards": [
-      "HS-PS2-1"
+      "HS-PS2-1",
+      "HS-ETS1-2",
+      "HS-ETS1-3"
     ],
     "wicor": {
       "Writing": "Formulating Third Law interaction statements: 'Object A exerts a force on Object B, and Object B exerts an equal and opposite force on Object A.'",
@@ -4150,9 +4152,20 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Cardstock Rocket Phase 2 (Periods 0, 4, 5, 6)": "Unit_2/rocket_phase2/index.html",
+      "Rocket Flight Forensics (Phase 1)": "Unit_2/rocket_recovery/index.html",
       "Newton's 3rd Law Slides": "Unit_2/describing-motion-presentation/index.html"
     },
     "assignments": [
+      {
+        "title": "Cardstock Rocket Phase 2: Controlled Variable Forensics (Periods 0, 4, 5, 6)",
+        "url": "Unit_2/rocket_phase2/index.html",
+        "typeLabel": "Aerospace Engineering Webapp",
+        "submission": "Auto-Saved on Google Sign-In (10 pts) / Turn In in Classroom",
+        "actionLabel": "Launch Phase 2 Webapp ↗",
+        "description": "Periods 0, 4, 5, 6: Work in squads of no more than 3 to design and build two rockets identical in all ways except ONE isolated variable. Log dual CAD blueprints, launch telemetry, satellite touchdown coordinates, and comparative CER.",
+        "status": "active"
+      },
       {
         "title": "Action-Reaction Collision Investigation Sheet",
         "typeLabel": "Lab Activity",
@@ -4164,10 +4177,24 @@ const lessonsData = [
     ],
     "resources": [
       {
+        "title": "Cardstock Rocket Phase 2 Studio (Periods 0, 4, 5, 6)",
+        "url": "Unit_2/rocket_phase2/index.html",
+        "typeLabel": "Interactive CAD & Satellite Map",
+        "description": "Periods 0, 4, 5, 6: Dual 1cm × 1cm technical blueprint, variable isolation tracker, and campus touchdown coordinates."
+      },
+      {
         "title": "Newton's Third Law Presentation",
         "url": "Unit_2/describing-motion-presentation/index.html",
         "typeLabel": "Classroom Slides",
         "description": "Mutual interaction pairs, equal force vs unequal acceleration, and recoil physics."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Rocket Phase 2 Telemetry & Blueprint (Periods 0, 4, 5, 6)",
+        "url": "Unit_2/rocket_phase2/index.html",
+        "typeLabel": "Aerospace Sandbox",
+        "description": "Periods 0, 4, 5, 6: Compare stability margins (CM vs CP) and predict flight performance delta."
       }
     ]
   },
@@ -4181,11 +4208,13 @@ const lessonsData = [
     "type": "Activity / Discussion",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Resolve the classic Third Law paradox: Action-reaction pairs NEVER cancel each other out to prevent motion because they act on DIFFERENT objects; identify system boundaries to determine net external force.",
-    "activity": "System Boundary Diagramming Workshop: Students draw system boundaries around a walker, the ground, and the Earth, proving why the forward friction force from the ground on the person's feet is an unbalanced external force that accelerates the person forward.",
+    "summary": "Resolve the classic Third Law paradox: Action-reaction pairs NEVER cancel each other out to prevent motion because they act on DIFFERENT objects; identify system boundaries to determine net external force. (Pacing Note: Periods 0, 4, 5, and 6 continue Day 2 of Cardstock Rocket Phase 2 Project: Controlled Variable Forensics, completing identical fabrication of Rocket A and B, verifying their isolated variable, and checking CM vs CP aerodynamic stability.)",
+    "activity": "System Boundary Diagramming Workshop: Students draw system boundaries around a walker, the ground, and the Earth, proving why the forward friction force from the ground on the person's feet is an unbalanced external force that accelerates the person forward. (Periods 0, 4, 5, 6 Project Studio): Rocket squads finalize fin attachment, nose ballast, and mass measurements, confirming stability calibers on the Phase 2 CAD blueprint in preparation for tomorrow's launch.",
     "essentialQuestion": "Why can't action-reaction force pairs ever cancel each other out to prevent motion?",
     "standards": [
-      "HS-PS2-1"
+      "HS-PS2-1",
+      "HS-ETS1-2",
+      "HS-ETS1-3"
     ],
     "wicor": {
       "Writing": "Writing a formal logical refutation of the horse's argument in the Horse-Cart dilemma.",
@@ -4200,8 +4229,20 @@ const lessonsData = [
       "explanation": "Action-reaction pairs act on DIFFERENT objects, so they never cancel! The force on the cart determines whether the cart accelerates (cart FBD), while the forward push from the ground on the horse's hooves determines whether the horse accelerates (horse FBD). The horse accelerates because its forward push against the ground exceeds the backward pull from the cart.",
       "defaultDuration": 3
     },
-    "links": {},
+    "links": {
+      "Cardstock Rocket Phase 2 (Periods 0, 4, 5, 6)": "Unit_2/rocket_phase2/index.html",
+      "System Boundaries Guide": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing"
+    },
     "assignments": [
+      {
+        "title": "Cardstock Rocket Phase 2: Controlled Variable Forensics (Periods 0, 4, 5, 6)",
+        "url": "Unit_2/rocket_phase2/index.html",
+        "typeLabel": "Aerospace Engineering Webapp",
+        "submission": "Auto-Saved on Google Sign-In (10 pts) / Turn In in Classroom",
+        "actionLabel": "Launch Phase 2 Webapp ↗",
+        "description": "Periods 0, 4, 5, 6: Finalize precision fabrication of Rocket A and B. Ensure all parameters match except your 1 chosen variable. Check stability calibers on the interactive blueprint.",
+        "status": "active"
+      },
       {
         "title": "Resolving the Third Law Paradox Worksheet",
         "typeLabel": "Analysis Worksheet",
@@ -4213,10 +4254,24 @@ const lessonsData = [
     ],
     "resources": [
       {
+        "title": "Cardstock Rocket Phase 2 Studio (Periods 0, 4, 5, 6)",
+        "url": "Unit_2/rocket_phase2/index.html",
+        "typeLabel": "Interactive CAD & Satellite Map",
+        "description": "Periods 0, 4, 5, 6: Dual 1cm × 1cm technical blueprint, variable isolation tracker, and campus touchdown coordinates."
+      },
+      {
         "title": "System Boundaries & The Horse-Cart Paradox Guide",
         "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
         "typeLabel": "Concept Guide",
         "description": "Detailed explanation of internal forces vs external unbalanced forces."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Rocket Phase 2 Telemetry & Blueprint (Periods 0, 4, 5, 6)",
+        "url": "Unit_2/rocket_phase2/index.html",
+        "typeLabel": "Aerospace Sandbox",
+        "description": "Periods 0, 4, 5, 6: Compare stability margins (CM vs CP) and predict flight performance delta."
       }
     ]
   },
@@ -4230,12 +4285,13 @@ const lessonsData = [
     "type": "Engineering Design / Lab",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Execute a multi-iteration engineering design cycle optimizing vehicle crumple zone structures. Teams prototype and test physical and simulated bumpers to minimize peak impact force (F · Δt = m · Δv) under strict mass and dimension constraints.",
-    "activity": "Operation Safe Heeler Crashworthiness Engineering Challenge (DOK 4 Engineering Design): Teams receive client design constraints for an autonomous passenger pod: vehicle crumple depth < 15 cm, bumper mass < 150 g, structural budget < $25, and zero passenger cabin intrusion. Teams: (1) construct physical/digital baseline prototype bumpers and run collision tests with accelerometer and force sensors, (2) integrate real-time impulse curves to quantify peak g-force and deceleration duration (Δt), (3) perform iterative redesigns (comparing accordion folds, progressive honeycomb cells, and composite dampening) to optimize deceleration profiles, and (4) log collision telemetry to the cloud gradebook.",
+    "summary": "Execute a multi-iteration engineering design cycle optimizing vehicle crumple zone structures. (Pacing & Weather Note: Periods 0, 4, 5, and 6 conduct outdoor launch operations for Cardstock Rocket Phase 2 from the 80–100 PSI pneumatic launcher. In the event of Wednesday rain, launch operations shift to the Thursday/Friday dry weather window while teams finalize CAD blueprints and pre-flight hypotheses.)",
+    "activity": "Operation Safe Heeler Crashworthiness Engineering Challenge (DOK 4 Engineering Design): Teams receive client design constraints for an autonomous passenger pod. (Periods 0, 4, 5, 6 Project Studio): Rocket squads execute outdoor launch operations from the 80–100 PSI pneumatic pad, log flight hang-times, pinpoint touchdown coordinates on the satellite campus map, and compose their head-to-head comparative CER evaluations.",
     "essentialQuestion": "How do automotive engineers manipulate structural deformation and material failure modes to minimize lethal deceleration forces within strict mass and space constraints?",
     "standards": [
       "HS-PS2-1",
-      "HS-ETS1-2"
+      "HS-ETS1-2",
+      "HS-ETS1-3"
     ],
     "wicor": {
       "Writing": "Documenting iterative design logs, recording structural modifications and telemetry delta readouts.",
@@ -4251,10 +4307,20 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Cardstock Rocket Phase 2 (Periods 0, 4, 5, 6)": "Unit_2/rocket_phase2/index.html",
       "Operation Safe Heeler": "operation-safe-heeler.html",
       "Safe Heeler Results": "operation_safe_heeler_results.html"
     },
     "assignments": [
+      {
+        "title": "Cardstock Rocket Phase 2: Controlled Variable Forensics (Periods 0, 4, 5, 6)",
+        "url": "Unit_2/rocket_phase2/index.html",
+        "typeLabel": "Aerospace Engineering Webapp",
+        "submission": "Auto-Saved on Google Sign-In (10 pts) / Turn In in Classroom",
+        "actionLabel": "Launch Phase 2 Webapp ↗",
+        "description": "Periods 0, 4, 5, 6: Launch both rockets at 80–100 PSI. Drag Red Pin (A) and Blue Pin (B) to touchdown spots, record hang times, and submit your comparative CER flight synthesis.",
+        "status": "active"
+      },
       {
         "title": "Operation Safe Heeler Crash Engineering Portfolio",
         "url": "operation-safe-heeler.html",
@@ -4266,6 +4332,12 @@ const lessonsData = [
     ],
     "resources": [
       {
+        "title": "Cardstock Rocket Phase 2 Studio (Periods 0, 4, 5, 6)",
+        "url": "Unit_2/rocket_phase2/index.html",
+        "typeLabel": "Interactive CAD & Satellite Map",
+        "description": "Periods 0, 4, 5, 6: Dual 1cm × 1cm technical blueprint, variable isolation tracker, and campus touchdown coordinates."
+      },
+      {
         "title": "Safe Heeler Telemetry & Crash Analytics Platform",
         "url": "operation_safe_heeler_results.html",
         "typeLabel": "Telemetry Analytics",
@@ -4273,6 +4345,12 @@ const lessonsData = [
       }
     ],
     "practice": [
+      {
+        "title": "Rocket Phase 2 Telemetry & Blueprint (Periods 0, 4, 5, 6)",
+        "url": "Unit_2/rocket_phase2/index.html",
+        "typeLabel": "Aerospace Sandbox",
+        "description": "Periods 0, 4, 5, 6: Compare stability margins (CM vs CP) and predict flight performance delta."
+      },
       {
         "title": "Operation Safe Heeler Simulator",
         "url": "operation-safe-heeler.html",

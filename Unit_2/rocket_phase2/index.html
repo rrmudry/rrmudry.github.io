@@ -1,0 +1,2482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cardstock Rocket Phase 2: Controlled Variable Forensics • Orange High School</title>
+  <meta name="description" content="Phase 2 Controlled Variable Aerospace Engineering: Design and compare two identical cardstock rockets with a single isolated variable, dual CAD blueprinting on 1cm grid, and campus satellite recovery telemetry.">
+  <link rel="icon" type="image/svg+xml" href="../../assets/unit2-favicon.svg">
+  
+  <!-- Google Fonts: Outfit & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Vendored Leaflet CSS (Zero unpkg, 100% District Filter Proof) -->
+  <link rel="stylesheet" href="../../assets/vendor/leaflet/leaflet.css">
+
+  <!-- Firebase Compat SDKs (Zero unpkg, official Google gstatic CDN) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    :root {
+      --bg-page: #070d19;
+      --bg-header: rgba(7, 13, 25, 0.95);
+      --bg-card: #0f172a;
+      --bg-sub: #1e293b;
+      --bg-input: #0b1324;
+      --border: rgba(56, 189, 248, 0.25);
+      --border-subtle: rgba(255, 255, 255, 0.1);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --cyan: #38bdf8;
+      --cyan-glow: rgba(56, 189, 248, 0.25);
+      --green: #34d399;
+      --green-bg: rgba(52, 211, 153, 0.12);
+      --red: #fb7185;
+      --red-bg: rgba(251, 113, 133, 0.12);
+      --amber: #fbbf24;
+      --amber-bg: rgba(251, 191, 36, 0.12);
+      --gold: #f59e0b;
+      --gold-glow: rgba(245, 158, 11, 0.35);
+      --purple: #c084fc;
+      --grid-line: rgba(56, 189, 248, 0.12);
+      --grid-line-bold: rgba(56, 189, 248, 0.28);
+      --blueprint-bg: #0b1528;
+    }
+
+    :root[data-theme="light"] {
+      --bg-page: #f1f5f9;
+      --bg-header: rgba(255, 255, 255, 0.96);
+      --bg-card: #ffffff;
+      --bg-sub: #f8fafc;
+      --bg-input: #ffffff;
+      --border: #cbd5e1;
+      --border-subtle: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --cyan: #0284c7;
+      --cyan-glow: rgba(2, 132, 199, 0.18);
+      --green: #047857;
+      --green-bg: #ecfdf5;
+      --red: #be123c;
+      --red-bg: #fff1f2;
+      --amber: #b45309;
+      --amber-bg: #fffbeb;
+      --gold: #d97706;
+      --gold-glow: rgba(217, 119, 6, 0.25);
+      --purple: #7e22ce;
+      --grid-line: rgba(2, 132, 199, 0.14);
+      --grid-line-bold: rgba(2, 132, 199, 0.35);
+      --blueprint-bg: #f8fafc;
+    }
+
+    * { box-sizing: border-box; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    html.projector-mode { font-size: 19px; }
+
+    body {
+      margin: 0;
+      background: var(--bg-page);
+      color: var(--text);
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.45;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* Top Navigation Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+    }
+    .header-bar {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0.65rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .brand-icon {
+      font-size: 1.8rem;
+      filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.5));
+    }
+    .brand-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .brand-subtitle {
+      font-size: 0.72rem;
+      color: var(--gold);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    /* Buttons & Badges */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-sub);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      font-family: inherit;
+    }
+    .btn:hover {
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px var(--cyan-glow);
+      transform: translateY(-1px);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      color: #fff;
+      border-color: #38bdf8;
+    }
+    .btn-gold {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #000;
+      border-color: #fbbf24;
+      font-weight: 800;
+    }
+    .btn-subtle {
+      background: transparent;
+      border-color: var(--border-subtle);
+      color: var(--text-muted);
+    }
+    .btn-subtle:hover {
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.2rem 0.55rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid var(--cyan); }
+    .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid var(--gold); font-weight: 800; }
+    .badge-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green); }
+    .badge-red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red); }
+    .badge-amber { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber); }
+
+    /* Weather Contingency Banner */
+    .weather-banner {
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.15), rgba(56, 189, 248, 0.12));
+      border-bottom: 1px solid rgba(245, 158, 11, 0.35);
+      padding: 0.5rem 1.25rem;
+      font-size: 0.78rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .weather-left {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+    }
+    .weather-tag {
+      background: var(--gold);
+      color: #000;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* Main Container Layout */
+    main {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 1rem 1.25rem 3rem;
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 1.25rem;
+      flex: 1;
+      width: 100%;
+    }
+    @media (max-width: 1100px) {
+      main { grid-template-columns: 1fr; }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.15rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding-bottom: 0.65rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    /* Step Navigation Tabs */
+    .step-nav {
+      position: sticky;
+      top: 60px;
+      z-index: 900;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.35rem;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.35rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+    .step-btn {
+      padding: 0.55rem 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.15rem;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      line-height: 1.15;
+    }
+    .step-btn .step-num {
+      font-size: 0.65rem;
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
+    .step-btn:hover {
+      color: var(--text);
+      background: var(--bg-sub);
+    }
+    .step-btn.active {
+      background: var(--cyan);
+      color: #000;
+      font-weight: 800;
+      box-shadow: 0 0 14px var(--cyan-glow);
+    }
+    .step-btn.active .step-num {
+      color: #000;
+      opacity: 0.85;
+      font-weight: 900;
+    }
+
+    /* Forms, Fields & Grids */
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 0.65rem;
+    }
+    .field-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+    .field-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.65rem;
+    }
+    @media (max-width: 650px) {
+      .field-grid-2, .field-grid-3 { grid-template-columns: 1fr; }
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .field-group.full { grid-column: 1 / -1; }
+
+    .field-label {
+      font-size: 0.73rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .field-label .unit {
+      color: var(--cyan);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+    }
+
+    input[type="text"], input[type="number"], select, textarea {
+      width: 100%;
+      background: var(--bg-input);
+      color: var(--text);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 0.5rem 0.65rem;
+      font-size: 0.82rem;
+      font-family: inherit;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 10px var(--cyan-glow);
+    }
+    textarea {
+      min-height: 85px;
+      resize: vertical;
+      line-height: 1.4;
+    }
+
+    /* Controlled Variable Highlighting */
+    .variable-card {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(15, 23, 42, 0.6));
+      border: 1.5px solid var(--gold);
+      border-radius: 12px;
+      padding: 0.85rem;
+      position: relative;
+    }
+    .variable-highlight {
+      border-color: var(--gold) !important;
+      box-shadow: 0 0 12px var(--gold-glow) !important;
+    }
+    .var-badge {
+      background: var(--gold);
+      color: #000;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .lock-badge {
+      background: rgba(148, 163, 184, 0.2);
+      color: var(--text-muted);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* Dual Rocket Side-by-Side Blueprint */
+    .blueprint-wrapper {
+      background: var(--blueprint-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      padding: 0.5rem;
+    }
+    .blueprint-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.35rem 0.5rem;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 0.5rem;
+      font-size: 0.75rem;
+    }
+    .blueprint-tabs {
+      display: flex;
+      gap: 0.4rem;
+    }
+    .bp-tab-btn {
+      padding: 3px 8px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-sub);
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .bp-tab-btn.active {
+      background: var(--cyan);
+      color: #000;
+      border-color: var(--cyan);
+    }
+
+    /* Fin Drafting Canvas */
+    .fin-studio-box {
+      background: var(--bg-sub);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 0.75rem;
+      margin-top: 0.5rem;
+    }
+    .fin-studio-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.4rem;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .fin-presets {
+      display: flex;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+    }
+    .preset-btn {
+      padding: 2px 7px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      border-radius: 5px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-input);
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .preset-btn:hover {
+      color: var(--cyan);
+      border-color: var(--cyan);
+    }
+
+    /* Map Section */
+    #campusMap {
+      width: 100%;
+      height: 380px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      z-index: 1;
+    }
+    .leaflet-control-layers {
+      background: rgba(15, 23, 42, 0.92) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 8px !important;
+      color: var(--text) !important;
+      font-family: inherit !important;
+      font-size: 0.75rem !important;
+      font-weight: 700 !important;
+      padding: 0.4rem 0.65rem !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
+      backdrop-filter: blur(8px) !important;
+    }
+    :root[data-theme="light"] .leaflet-control-layers {
+      background: rgba(255, 255, 255, 0.95) !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+    .leaflet-control-layers label {
+      margin-bottom: 2px;
+      cursor: pointer;
+    }
+    .leaflet-control-layers-toggle {
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="%2338bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>') !important;
+      background-size: 20px 20px !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+    :root[data-theme="light"] .leaflet-control-layers-toggle {
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="%230284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>') !important;
+    }
+    .map-controls-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.5rem;
+      font-size: 0.75rem;
+    }
+    .telemetry-dual-hud {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65rem;
+      margin-top: 0.65rem;
+    }
+    .hud-box {
+      background: var(--bg-sub);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 0.6rem 0.75rem;
+    }
+    .hud-box.rocket-a { border-left: 3px solid #ef4444; }
+    .hud-box.rocket-b { border-left: 3px solid #38bdf8; }
+    .hud-title {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.25rem;
+      display: flex;
+      justify-content: space-between;
+    }
+    .hud-metric {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    .hud-sub {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Comparison Delta Banner */
+    .delta-banner {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(245, 158, 11, 0.12));
+      border: 1px solid var(--cyan);
+      border-radius: 8px;
+      padding: 0.65rem 0.9rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      margin-top: 0.65rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    /* Anti-Paste Styles */
+    .paste-blocked {
+      animation: shake-red 0.4s ease;
+      border-color: #ef4444 !important;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.45) !important;
+    }
+    @keyframes shake-red {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-5px); }
+      40%, 80% { transform: translateX(5px); }
+    }
+    .paste-toast {
+      position: fixed;
+      top: 72px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(220, 38, 38, 0.95);
+      color: #ffffff;
+      padding: 0.65rem 1.3rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      animation: toast-down 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      pointer-events: none;
+      backdrop-filter: blur(8px);
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
+      letter-spacing: 0.01em;
+      max-width: 90vw;
+      box-sizing: border-box;
+    }
+    @keyframes toast-down {
+      from { transform: translate(-50%, -20px); opacity: 0; }
+      to { transform: translate(-50%, 0); opacity: 1; }
+    }
+
+    /* User Auth Pill */
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-sub);
+      border: 1px solid var(--border);
+      padding: 0.25rem 0.65rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+    }
+    .user-chip-avatar {
+      font-size: 0.9rem;
+    }
+    .user-chip-name {
+      font-weight: 700;
+      max-width: 140px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Modal Overlay */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(7, 13, 25, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+    :root[data-theme="light"] .modal-overlay {
+      background: rgba(15, 23, 42, 0.65);
+    }
+    .modal-card {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      max-width: 600px;
+      width: 100%;
+      padding: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Sticky Navigation Bar -->
+  <header>
+    <div class="header-bar">
+      <div class="brand-group">
+        <span class="brand-icon">🚀</span>
+        <div>
+          <div class="brand-title">Cardstock Rocket Phase 2: Controlled Variable Forensics</div>
+          <div class="brand-subtitle">Orange High School Physics • Single-Variable Comparative Flight Engineering</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Auth status container -->
+        <div id="authContainer">
+          <button type="button" class="btn btn-primary" onclick="signInWithGoogle()">
+            <span>🔑</span> Sign In with Google
+          </button>
+        </div>
+
+        <!-- Completion Score Badge -->
+        <div class="badge badge-cyan" id="scoreBadge">
+          <span>Score: 0%</span>
+        </div>
+
+        <!-- Theme Toggle -->
+        <button type="button" class="btn btn-subtle" id="btn-theme-toggle" onclick="toggleTheme()" title="Toggle High-Contrast Light / Dark Mode">
+          <span id="theme-icon">🌓</span> <span id="theme-label">Light</span>
+        </button>
+
+        <!-- Projector Mode Toggle -->
+        <button type="button" class="btn btn-subtle" id="btn-projector-toggle" onclick="toggleProjector()" title="Toggle Universal Projector Font Scaling">
+          <span>🖥️</span> Projector
+        </button>
+
+        <!-- Back to Unit 2 Dashboard -->
+        <a href="../../unit2-dashboard.html" class="btn btn-subtle">
+          <span>🏠</span> Unit 2
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Weather & Timeline Contingency Banner -->
+  <div class="weather-banner">
+    <div class="weather-left">
+      <span class="weather-tag">Schedule &amp; Weather Notice</span>
+      <span>📅 <strong>Phase 2 Timeline:</strong> Mon–Tue (Build &amp; Balance) • <strong>Launch Window:</strong> Wednesday, Oct 21</span>
+    </div>
+    <div style="color:var(--text-muted); font-size:0.75rem;">
+      🌧️ <em>Potential Wednesday rain: launch pad ops will shift to Thursday/Friday if wet grounds prevent outdoor launches.</em>
+    </div>
+  </div>
+
+  <!-- Main Multi-Stage Console Layout -->
+  <main>
+    <!-- LEFT COLUMN: Multi-Stage Investigation Console -->
+    <div style="display:flex; flex-direction:column; gap:1rem;">
+      
+      <!-- Stage Navigation Tabs -->
+      <nav class="step-nav" aria-label="Investigation Stages">
+        <button class="step-btn active" id="tab1Btn" type="button" onclick="switchStage(1)">
+          <span class="step-num">Stage 1</span>
+          <span>1. Squad &amp; Variable</span>
+        </button>
+        <button class="step-btn" id="tab2Btn" type="button" onclick="switchStage(2)">
+          <span class="step-num">Stage 2</span>
+          <span>2. Dual Rocket Specs</span>
+        </button>
+        <button class="step-btn" id="tab3Btn" type="button" onclick="switchStage(3)">
+          <span class="step-num">Stage 3</span>
+          <span>3. Launch &amp; Recovery</span>
+        </button>
+        <button class="step-btn" id="tab4Btn" type="button" onclick="switchStage(4)">
+          <span class="step-num">Stage 4</span>
+          <span>4. Comparative CER</span>
+        </button>
+      </nav>
+
+      <!-- CARD 1: STAGE CONTENT PANELS -->
+      <div class="card" id="stageContentCard">
+
+        <!-- ============================================================ -->
+        <!-- STAGE 1: SQUAD SETUP & CONTROLLED VARIABLE ISOLATION -->
+        <!-- ============================================================ -->
+        <div id="stage1Pane">
+          <div class="card-title">
+            <span>Stage 1: Squad Setup &amp; Single-Variable Isolation</span>
+            <span class="badge badge-gold">Phase 2A: Pre-Flight</span>
+          </div>
+
+          <p style="font-size:0.8rem; color:var(--text-muted); margin:0.5rem 0 1rem;">
+            In Phase 2, student squads of <strong>no more than 3</strong> design and fabricate two rockets that are 
+            <strong>as identical as possible in all ways EXCEPT exactly ONE independent variable</strong>.
+          </p>
+
+          <!-- Squad Meta -->
+          <div class="field-grid-2">
+            <div class="field-group">
+              <label class="field-label" for="studentName">Primary Investigator (You)</label>
+              <input type="text" id="studentName" placeholder="Auto-filled from Google sign-in" readonly style="opacity:0.85;">
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="classPeriod">Class Period</label>
+              <select id="classPeriod" onchange="onPeriodChange()">
+                <option value="0">Period 0 (Honors Physics)</option>
+                <option value="4" selected>Period 4 (Physics)</option>
+                <option value="5">Period 5 (Physics)</option>
+                <option value="6">Period 6 (Physics)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Squad Partners (Max 3 total) -->
+          <div class="field-grid-2" style="margin-top:0.65rem;">
+            <div class="field-group">
+              <label class="field-label" for="partner2">Squad Partner 2</label>
+              <input type="text" id="partner2" placeholder="e.g. Jordan Bell">
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="partner3">Squad Partner 3 <span style="font-size:0.65rem; color:var(--text-muted);">(Optional - max 3)</span></label>
+              <input type="text" id="partner3" placeholder="e.g. Maya Lin (or leave blank)">
+            </div>
+          </div>
+
+          <div class="field-group" style="margin-top:0.65rem;">
+            <label class="field-label" for="callSign">Squad Call Sign / Team Name</label>
+            <input type="text" id="callSign" placeholder="e.g. Apollo Duo / AeroDynamos" value="AeroDynamos">
+          </div>
+
+          <!-- The Single Independent Variable Selector -->
+          <div class="variable-card" style="margin-top:1.15rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+              <span style="font-weight:800; font-size:0.82rem; color:var(--gold);">
+                ⭐ THE GOLDEN RULE: EXACTLY ONE ISOLATED INDEPENDENT VARIABLE
+              </span>
+              <span class="var-badge">Single Variable</span>
+            </div>
+            <p style="font-size:0.75rem; color:var(--text); margin:0 0 0.65rem; line-height:1.4;">
+              Select the ONE physical parameter your squad will deliberately alter on <strong>Rocket B (Experimental Variant)</strong> while keeping <strong>Rocket A (Control Baseline)</strong> standard.
+            </p>
+
+            <div class="field-group">
+              <label class="field-label" for="independentVarSelect">Selected Independent Variable</label>
+              <select id="independentVarSelect" onchange="onVariableChange()">
+                <option value="fin_shape" selected>Fin Shape (Delta vs Swept vs Trapezoid vs Straight)</option>
+                <option value="fin_dimensions">Fin Dimensions (Fin Height along body or Fin Width span)</option>
+                <option value="fin_offset">Fin Placement Offset (Flush with tail vs shifted forward)</option>
+                <option value="fin_count">Number of Fins (3 Fins vs 4 Fins)</option>
+                <option value="nose_ballast">Nose Tip Ballast Mass (0g vs added weight e.g. 3g clay/washer)</option>
+                <option value="nose_shape">Nose Cone Geometry (Conical Point vs Blunt / No Cone)</option>
+                <option value="fuse_length">Fuselage Tube Length (Standard 28cm vs shortened/lengthened)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Pre-Flight Quantitative Hypothesis / Prediction -->
+          <div class="field-group" style="margin-top:1.15rem;">
+            <label class="field-label" for="preFlightHypothesis">
+              <span>Pre-Flight Hypothesis &amp; Engineering Prediction</span>
+              <span class="badge badge-cyan">Must Complete Before Launch</span>
+            </label>
+            <textarea id="preFlightHypothesis" placeholder="Predict: How will altering this single independent variable on Rocket B affect its flight compared to Rocket A? Consider apogee altitude, hang-time, spin/wobble stability, and wind drift..."></textarea>
+            <span style="font-size:0.68rem; color:var(--text-muted); margin-top:2px;">
+              🚫 Pasting is disabled. Formulate your prediction collaboratively with your squad members.
+            </span>
+          </div>
+
+          <div style="display:flex; justify-content:flex-end; margin-top:1rem;">
+            <button type="button" class="btn btn-primary" onclick="switchStage(2)">
+              Proceed to Stage 2: Dual Rocket Specs &rarr;
+            </button>
+          </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- STAGE 2: DUAL ROCKET PHYSICAL TEARDOWN & CAD SPECS -->
+        <!-- ============================================================ -->
+        <div id="stage2Pane" style="display:none;">
+          <div class="card-title">
+            <span>Stage 2: Rocket A vs. Rocket B Physical Specifications</span>
+            <span class="badge badge-cyan">Fabrication &amp; Balance</span>
+          </div>
+
+          <p style="font-size:0.8rem; color:var(--text-muted); margin:0.5rem 0 0.85rem;">
+            Enter the measured physical teardown metrics for both rockets using digital scales and metric rulers. 
+            All non-variable parameters must match between Rocket A and Rocket B!
+          </p>
+
+          <!-- Rocket A (Control / Baseline) Specs -->
+          <div style="background:var(--bg-sub); border:1px solid var(--border-subtle); border-radius:10px; padding:0.85rem; margin-bottom:1rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.65rem;">
+              <span style="font-weight:800; font-size:0.85rem; color:#ef4444; display:flex; align-items:center; gap:0.4rem;">
+                <span>🔴</span> ROCKET A (CONTROL / BASELINE)
+              </span>
+              <span class="badge badge-red">Reference Standard</span>
+            </div>
+
+            <div class="field-grid-3">
+              <div class="field-group">
+                <label class="field-label" for="fuseLengthA">Fuselage Length <span class="unit">cm</span></label>
+                <input type="number" id="fuseLengthA" step="0.5" min="10" max="60" value="28.0" oninput="onRocketASpecChange()">
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="fuseDiameterA">Outer Diameter <span class="unit">cm</span></label>
+                <input type="number" id="fuseDiameterA" step="0.1" min="1.0" max="3.0" value="1.3" oninput="onRocketASpecChange()">
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="noseHeightA">Cone Height <span class="unit">cm</span></label>
+                <input type="number" id="noseHeightA" step="0.5" min="0" max="20" value="6.5" oninput="onRocketASpecChange()">
+              </div>
+            </div>
+
+            <div class="field-grid-3" style="margin-top:0.65rem;">
+              <div class="field-group">
+                <label class="field-label" for="addedMassA">Tip Added Mass <span class="unit">g</span></label>
+                <input type="number" id="addedMassA" step="0.5" min="0" max="50" value="0.0" oninput="onRocketASpecChange()">
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="totalMassA">Total Mass <span class="unit">g</span></label>
+                <input type="number" id="totalMassA" step="0.1" min="5" max="80" value="24.5" oninput="onRocketASpecChange()">
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="finCountA">Fin Count</label>
+                <select id="finCountA" onchange="onRocketASpecChange()">
+                  <option value="3" selected>3 Fins</option>
+                  <option value="4">4 Fins</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field-grid-3" style="margin-top:0.65rem;">
+              <div class="field-group">
+                <label class="field-label" for="finHeightA">Fin Height (along body) <span class="unit">cm</span></label>
+                <input type="number" id="finHeightA" step="0.5" min="1" max="15" value="4.0" oninput="onRocketASpecChange()">
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="finWidthA">Fin Width (sticking out) <span class="unit">cm</span></label>
+                <input type="number" id="finWidthA" step="0.5" min="1" max="10" value="4.0" oninput="onRocketASpecChange()">
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="finOffsetA">Fin Offset from Tail <span class="unit">cm</span></label>
+                <input type="number" id="finOffsetA" step="0.5" min="0" max="15" value="0.0" oninput="onRocketASpecChange()">
+              </div>
+            </div>
+          </div>
+
+          <!-- Rocket B (Experimental Variant) Specs -->
+          <div style="background:var(--bg-sub); border:1.5px solid var(--border); border-radius:10px; padding:0.85rem;" id="rocketBCard">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.65rem;">
+              <span style="font-weight:800; font-size:0.85rem; color:#38bdf8; display:flex; align-items:center; gap:0.4rem;">
+                <span>🔵</span> ROCKET B (EXPERIMENTAL VARIANT)
+              </span>
+              <div style="display:flex; gap:0.4rem; align-items:center;">
+                <span class="var-badge" id="activeVarPill">Active Var</span>
+                <button type="button" class="btn btn-subtle" onclick="syncControlToRocketB()" style="padding:2px 8px; font-size:0.68rem;">
+                  ↻ Sync Controls
+                </button>
+              </div>
+            </div>
+
+            <div class="field-grid-3">
+              <div class="field-group" id="groupFuseLengthB">
+                <label class="field-label" for="fuseLengthB">Fuselage Length <span class="unit">cm</span></label>
+                <input type="number" id="fuseLengthB" step="0.5" min="10" max="60" value="28.0" oninput="onRocketBSpecChange()">
+              </div>
+              <div class="field-group" id="groupFuseDiameterB">
+                <label class="field-label" for="fuseDiameterB">Outer Diameter <span class="unit">cm</span></label>
+                <input type="number" id="fuseDiameterB" step="0.1" min="1.0" max="3.0" value="1.3" oninput="onRocketBSpecChange()">
+              </div>
+              <div class="field-group" id="groupNoseHeightB">
+                <label class="field-label" for="noseHeightB">Cone Height <span class="unit">cm</span></label>
+                <input type="number" id="noseHeightB" step="0.5" min="0" max="20" value="6.5" oninput="onRocketBSpecChange()">
+              </div>
+            </div>
+
+            <div class="field-grid-3" style="margin-top:0.65rem;">
+              <div class="field-group" id="groupAddedMassB">
+                <label class="field-label" for="addedMassB">Tip Added Mass <span class="unit">g</span></label>
+                <input type="number" id="addedMassB" step="0.5" min="0" max="50" value="0.0" oninput="onRocketBSpecChange()">
+              </div>
+              <div class="field-group" id="groupTotalMassB">
+                <label class="field-label" for="totalMassB">Total Mass <span class="unit">g</span></label>
+                <input type="number" id="totalMassB" step="0.1" min="5" max="80" value="24.5" oninput="onRocketBSpecChange()">
+              </div>
+              <div class="field-group" id="groupFinCountB">
+                <label class="field-label" for="finCountB">Fin Count</label>
+                <select id="finCountB" onchange="onRocketBSpecChange()">
+                  <option value="3" selected>3 Fins</option>
+                  <option value="4">4 Fins</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field-grid-3" style="margin-top:0.65rem;">
+              <div class="field-group" id="groupFinHeightB">
+                <label class="field-label" for="finHeightB">Fin Height (along body) <span class="unit">cm</span></label>
+                <input type="number" id="finHeightB" step="0.5" min="1" max="15" value="4.0" oninput="onRocketBSpecChange()">
+              </div>
+              <div class="field-group" id="groupFinWidthB">
+                <label class="field-label" for="finWidthB">Fin Width (sticking out) <span class="unit">cm</span></label>
+                <input type="number" id="finWidthB" step="0.5" min="1" max="10" value="4.0" oninput="onRocketBSpecChange()">
+              </div>
+              <div class="field-group" id="groupFinOffsetB">
+                <label class="field-label" for="finOffsetB">Fin Offset from Tail <span class="unit">cm</span></label>
+                <input type="number" id="finOffsetB" step="0.5" min="0" max="15" value="0.0" oninput="onRocketBSpecChange()">
+              </div>
+            </div>
+          </div>
+
+          <!-- Fin Drafting Preset Tool -->
+          <div class="fin-studio-box">
+            <div class="fin-studio-top">
+              <span style="font-weight:700; font-size:0.75rem; color:var(--cyan);">📐 Fin Shape Studio Presets</span>
+              <div class="fin-presets">
+                <button type="button" class="preset-btn" onclick="applyFinShape('delta')">Delta</button>
+                <button type="button" class="preset-btn" onclick="applyFinShape('trapezoid')">Trapezoid</button>
+                <button type="button" class="preset-btn" onclick="applyFinShape('swept')">Swept</button>
+                <button type="button" class="preset-btn" onclick="applyFinShape('straight')">Straight</button>
+              </div>
+            </div>
+            <div style="font-size:0.7rem; color:var(--text-muted);">
+              Fins are modeled in 1:1 true-to-scale centimeters on the Technical Engineering Blueprint on the right.
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; margin-top:1rem;">
+            <button type="button" class="btn btn-subtle" onclick="switchStage(1)">&larr; Back to Stage 1</button>
+            <button type="button" class="btn btn-primary" onclick="switchStage(3)">Proceed to Stage 3: Launch &amp; Recovery &rarr;</button>
+          </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- STAGE 3: OUTDOOR LAUNCH TELEMETRY & DUAL SATELLITE RECOVERY -->
+        <!-- ============================================================ -->
+        <div id="stage3Pane" style="display:none;">
+          <div class="card-title">
+            <span>Stage 3: Launch Operations &amp; Dual Touchdown Telemetry</span>
+            <span class="badge badge-gold">Launch Day Data</span>
+          </div>
+
+          <p style="font-size:0.8rem; color:var(--text-muted); margin:0.5rem 0 0.85rem;">
+            Launch both rockets from the calibrated <strong>80–100 PSI pneumatic launcher</strong>. 
+            Drag <strong style="color:#ef4444;">RED PIN (A)</strong> and <strong style="color:#38bdf8;">BLUE PIN (B)</strong> 
+            on the satellite map to record your landing locations.
+          </p>
+
+          <!-- Launch Pad Station Selection -->
+          <div class="field-grid-2">
+            <div class="field-group">
+              <label class="field-label" for="launchPadSelect">Launch Station Location</label>
+              <select id="launchPadSelect" onchange="onLaunchPadChange()">
+                <option value="periods46" selected>Center Quad Pad (Periods 4–6)</option>
+                <option value="period0">Upper Quad Pad (Period 0 Honors)</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Chamber Launch Pressure</label>
+              <input type="text" value="80–100 PSI (Constant for Both Rockets)" readonly style="opacity:0.85; font-weight:700;">
+            </div>
+          </div>
+
+          <!-- Rocket A Launch Data -->
+          <div style="background:var(--bg-sub); border:1px solid rgba(239, 68, 68, 0.4); border-radius:10px; padding:0.85rem; margin-top:0.85rem;">
+            <div style="font-weight:800; font-size:0.82rem; color:#ef4444; margin-bottom:0.4rem;">
+              🔴 ROCKET A FLIGHT TELEMETRY (CONTROL)
+            </div>
+            <div class="field-grid-2">
+              <div class="field-group">
+                <label class="field-label" for="hangTimeA">Average Hang Time (t_hang) <span class="unit">s</span></label>
+                <input type="number" id="hangTimeA" step="0.05" min="0.5" max="15.0" value="4.00" oninput="updateFlightTelemetry()">
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="behaviorA">Observed Flight Behavior</label>
+                <select id="behaviorA" onchange="updateFlightTelemetry()">
+                  <option value="vertical_drift">High vertical climb with wind drift</option>
+                  <option value="long_arc">Long arching flight across campus (boosted glide)</option>
+                  <option value="corkscrew">Tight spiral / corkscrew spin</option>
+                  <option value="hard_bank">Hard banking curve / turn</option>
+                  <option value="tumble">End-over-end tumbling somersault</option>
+                  <option value="blowout">Structural blowout (pressure seam rupture)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rocket B Launch Data -->
+          <div style="background:var(--bg-sub); border:1.5px solid rgba(56, 189, 248, 0.4); border-radius:10px; padding:0.85rem; margin-top:0.85rem;">
+            <div style="font-weight:800; font-size:0.82rem; color:#38bdf8; margin-bottom:0.4rem;">
+              🔵 ROCKET B FLIGHT TELEMETRY (EXPERIMENTAL VARIANT)
+            </div>
+            <div class="field-grid-2">
+              <div class="field-group">
+                <label class="field-label" for="hangTimeB">Average Hang Time (t_hang) <span class="unit">s</span></label>
+                <input type="number" id="hangTimeB" step="0.05" min="0.5" max="15.0" value="4.60" oninput="updateFlightTelemetry()">
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="behaviorB">Observed Flight Behavior</label>
+                <select id="behaviorB" onchange="updateFlightTelemetry()">
+                  <option value="vertical_drift" selected>High vertical climb with wind drift</option>
+                  <option value="long_arc">Long arching flight across campus (boosted glide)</option>
+                  <option value="corkscrew">Tight spiral / corkscrew spin</option>
+                  <option value="hard_bank">Hard banking curve / turn</option>
+                  <option value="tumble">End-over-end tumbling somersault</option>
+                  <option value="blowout">Structural blowout (pressure seam rupture)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; margin-top:1rem;">
+            <button type="button" class="btn btn-subtle" onclick="switchStage(2)">&larr; Back to Stage 2</button>
+            <button type="button" class="btn btn-primary" onclick="switchStage(4)">Proceed to Stage 4: Comparative CER &rarr;</button>
+          </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- STAGE 4: HEAD-TO-HEAD COMPARATIVE CER SYNTHESIS -->
+        <!-- ============================================================ -->
+        <div id="stage4Pane" style="display:none;">
+          <div class="card-title">
+            <span>Stage 4: Head-to-Head Comparative CER Synthesis</span>
+            <span class="badge badge-gold">Final Deliverable</span>
+          </div>
+
+          <p style="font-size:0.8rem; color:var(--text-muted); margin:0.5rem 0 0.85rem;">
+            Synthesize your teardown metrics, CAD stability calibers, and satellite recovery telemetry into a formal 
+            scientific Claim-Evidence-Reasoning (CER) aerospace evaluation.
+          </p>
+
+          <div class="field-group" style="margin-bottom:0.85rem;">
+            <label class="field-label" for="cerClaim">
+              <span>1. Claim (Direct answer: was your hypothesis supported? How did the variable alter flight?)</span>
+            </label>
+            <input type="text" id="cerClaim" placeholder="e.g. Modifying fin offset on Rocket B shifted the center of pressure forward, reducing stability margin and causing corkscrew wobble that reduced ground range by 12.4m.">
+          </div>
+
+          <div class="field-group" style="margin-bottom:0.85rem;">
+            <label class="field-label" for="cerEvidence">
+              <span>2. Evidence (Cite specific comparative numbers: mass, fin specs, hang time, apogee, distance)</span>
+            </label>
+            <textarea id="cerEvidence" placeholder="Auto-generated comparative evidence will populate here as you enter telemetry..."></textarea>
+          </div>
+
+          <div class="field-group" style="margin-bottom:0.85rem;">
+            <label class="field-label" for="cerReasoning">
+              <span>3. Reasoning (Explain the physics: Newton's 2nd Law a = F_net/m, restoring torque τ, CM vs CP, and drag)</span>
+            </label>
+            <textarea id="cerReasoning" placeholder="Connect your comparative evidence to core Newtonian mechanics: Why did changing this specific variable produce this physical flight outcome?"></textarea>
+          </div>
+
+          <!-- Submission & Copy Actions -->
+          <div style="background:var(--bg-sub); border:1px solid var(--border); border-radius:10px; padding:0.9rem; margin-top:1rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+            <div>
+              <div style="font-weight:800; font-size:0.85rem;">Submit Forensic Evaluation</div>
+              <div style="font-size:0.72rem; color:var(--text-muted);" id="cloudSyncStatus">
+                ✓ Cloud autosave active
+              </div>
+            </div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button type="button" class="btn" onclick="copyClassroomSummary()">
+                <span>📋</span> Copy Classroom Summary
+              </button>
+              <button type="button" class="btn btn-gold" onclick="submitFinalReport()">
+                <span>🚀</span> Final Submit (10 pts)
+              </button>
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:flex-start; margin-top:1rem;">
+            <button type="button" class="btn btn-subtle" onclick="switchStage(3)">&larr; Back to Stage 3</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Dual Blueprint & Satellite Map -->
+    <div style="display:flex; flex-direction:column; gap:1.25rem;">
+      
+      <!-- CARD 2: DUAL-ROCKET TECHNICAL ENGINEERING BLUEPRINT (1cm × 1cm GRID) -->
+      <div class="card">
+        <div class="card-title">
+          <span>📐 Dual-Rocket Technical Blueprint (1cm × 1cm Grid)</span>
+          <div class="blueprint-tabs">
+            <button type="button" class="bp-tab-btn active" id="btnBpSideBySide" onclick="setBpLayout('stacked')">Comparison View</button>
+            <button type="button" class="bp-tab-btn" id="btnBpFocusA" onclick="setBpLayout('focusA')">Rocket A</button>
+            <button type="button" class="bp-tab-btn" id="btnBpFocusB" onclick="setBpLayout('focusB')">Rocket B</button>
+          </div>
+        </div>
+
+        <div class="blueprint-wrapper">
+          <div class="blueprint-header">
+            <span style="font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--cyan); font-size:0.7rem;">
+              GRID: 1 SQUARE = 1.0 CM × 1.0 CM
+            </span>
+            <span class="var-badge" id="bpVarCallout">★ Independent Variable Highlighted</span>
+          </div>
+
+          <!-- Dynamic SVG Scaled Blueprint -->
+          <svg id="dualRocketSvg" viewBox="0 0 540 380" preserveAspectRatio="xMidYMid meet" style="width:100%; height:auto; display:block;">
+            <!-- Rendered dynamically by drawDualBlueprint() -->
+          </svg>
+        </div>
+
+        <!-- Comparative Stability Badge Matrix -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.65rem; font-size:0.75rem;">
+          <div style="background:var(--bg-sub); padding:0.6rem; border-radius:8px; border-left:3px solid #ef4444;">
+            <div style="font-weight:800; color:#ef4444; font-size:0.72rem; margin-bottom:2px;">ROCKET A STABILITY</div>
+            <div>Center of Mass (CM): <strong id="cmValA" class="mono">14.2 cm</strong></div>
+            <div>Center of Pressure (CP): <strong id="cpValA" class="mono">19.7 cm</strong></div>
+            <div style="margin-top:3px;">Margin: <span class="badge badge-green" id="marginBadgeA">+4.2 D (STABLE)</span></div>
+          </div>
+          <div style="background:var(--bg-sub); padding:0.6rem; border-radius:8px; border-left:3px solid #38bdf8;">
+            <div style="font-weight:800; color:#38bdf8; font-size:0.72rem; margin-bottom:2px;">ROCKET B STABILITY</div>
+            <div>Center of Mass (CM): <strong id="cmValB" class="mono">14.2 cm</strong></div>
+            <div>Center of Pressure (CP): <strong id="cpValB" class="mono">19.7 cm</strong></div>
+            <div style="margin-top:3px;">Margin: <span class="badge badge-green" id="marginBadgeB">+4.2 D (STABLE)</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 3: ORANGE HIGH SCHOOL SATELLITE COMPARATIVE FLIGHT MAP -->
+      <div class="card">
+        <div class="card-title">
+          <span>🛰️ OHS Campus Satellite Recovery Map</span>
+          <span class="badge badge-cyan" id="activePeriodMapTag">Periods 4–6 Pad</span>
+        </div>
+
+        <div class="map-controls-row">
+          <span style="color:var(--text-muted); font-size:0.72rem;" id="mapInstructionPrompt">
+            Drag <strong style="color:#ef4444;">RED PIN (A)</strong> and <strong style="color:#38bdf8;">BLUE PIN (B)</strong> to touchdown spots!
+          </span>
+          <button type="button" class="btn btn-subtle" onclick="resetMapPins()" style="padding:2px 8px; font-size:0.68rem;">
+            ↺ Reset Pins
+          </button>
+        </div>
+
+        <!-- Leaflet Map Container -->
+        <div id="campusMap"></div>
+
+        <!-- Dual Telemetry HUD -->
+        <div class="telemetry-dual-hud">
+          <div class="hud-box rocket-a">
+            <div class="hud-title">
+              <span style="color:#ef4444;">🔴 ROCKET A</span>
+              <span id="txtAzimuthA" class="mono">--°</span>
+            </div>
+            <div class="hud-metric" id="txtRangeA">-- m</div>
+            <div class="hud-sub" id="txtRangeFtA">-- ft ground range</div>
+            <div class="hud-sub" style="margin-top:4px;">
+              Apogee: <strong id="txtApogeeA" class="mono">-- m</strong> (<span id="txtHangA">--s</span>)
+            </div>
+          </div>
+
+          <div class="hud-box rocket-b">
+            <div class="hud-title">
+              <span style="color:#38bdf8;">🔵 ROCKET B</span>
+              <span id="txtAzimuthB" class="mono">--°</span>
+            </div>
+            <div class="hud-metric" id="txtRangeB">-- m</div>
+            <div class="hud-sub" id="txtRangeFtB">-- ft ground range</div>
+            <div class="hud-sub" style="margin-top:4px;">
+              Apogee: <strong id="txtApogeeB" class="mono">-- m</strong> (<span id="txtHangB">--s</span>)
+            </div>
+          </div>
+        </div>
+
+        <!-- Comparative Delta Banner -->
+        <div class="delta-banner" id="deltaBanner">
+          <div>
+            <strong>Performance Comparison:</strong>
+            <span id="deltaSummaryText">Drag both pins to calculate comparative delta.</span>
+          </div>
+          <span class="badge badge-gold" id="deltaBadge">Δ Range: --</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Submit Success Modal -->
+  <div id="submitModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card">
+      <div style="font-size:2rem; margin-bottom:0.5rem;">🎉</div>
+      <h3 style="margin:0 0 0.5rem; font-size:1.3rem;">Phase 2 Forensic Evaluation Submitted!</h3>
+      <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1rem;">
+        Your squad's controlled variable flight analysis, dual CAD specifications, and comparative CER report 
+        have been successfully recorded to your student gradebook.
+      </p>
+
+      <div style="background:var(--bg-sub); border:1px solid var(--border); border-radius:10px; padding:0.85rem; margin-bottom:1rem; font-family:'JetBrains Mono',monospace; font-size:0.8rem;" id="submitModalSummary">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+        <button type="button" class="btn btn-primary" onclick="copyClassroomSummary()">
+          📋 Copy Summary for Classroom
+        </button>
+        <button type="button" class="btn btn-subtle" onclick="document.getElementById('submitModal').style.display='none'">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vendored Leaflet JS (Zero unpkg) -->
+  <script src="../../assets/vendor/leaflet/leaflet.js"></script>
+
+  <script>
+    // =============================================================
+    // 1. Core Configuration & Constants
+    // =============================================================
+    const ASSIGNMENT_ID = "unit2_day36_rocket_phase2";
+    const ASSIGNMENT_NAME = "Cardstock Rocket Phase 2: Controlled Variable Forensics";
+    const TEACHER_EMAILS = ['rmudry@orangeusd.org', 'ryan.mudry@gmail.com'];
+
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+
+    // State Variables
+    let currentUser = null;
+    let studentId = null;
+    let studentName = "";
+    let studentPeriod = 4;
+    let isTeacher = false;
+    let currentStage = 1;
+    let bpLayout = 'stacked'; // 'stacked', 'focusA', 'focusB'
+    let autoSaveTimer = null;
+
+    // Launch Pad Coordinates (Orange High School)
+    const LAUNCH_SITES = {
+      periods46: {
+        lat: 33.796889,
+        lon: -117.846778,
+        name: "Periods 4–6 Pad (Center Quad Grass)",
+        periodTag: "Periods 4–6",
+        dms: `33°47'48.8"N, 117°50'48.4"W`
+      },
+      period0: {
+        lat: 33.797120,
+        lon: -117.847150,
+        name: "Period 0 Pad (Upper Quad)",
+        periodTag: "Period 0 Honors",
+        dms: `33°47'49.6"N, 117°50'49.7"W`
+      }
+    };
+
+    // Active Map Markers & State
+    let map = null;
+    let launchMarker = null;
+    let markerA = null;
+    let markerB = null;
+    let flightLineA = null;
+    let flightLineB = null;
+
+    // Default Touchdown Positions relative to center quad pad
+    let touchA = { lat: 33.797120, lon: -117.846450 };
+    let touchB = { lat: 33.797250, lon: -117.846300 };
+
+    // =============================================================
+    // 2. Authentication & Roster Integration
+    // =============================================================
+    function initAuth() {
+      if (typeof firebase === 'undefined' || !firebase.auth) {
+        console.warn("Firebase Auth not loaded.");
+        updateCloudStatus('Offline (Guest)');
+        return;
+      }
+
+      firebase.auth().onAuthStateChanged(async (user) => {
+        if (user) {
+          const email = (user.email || '').toLowerCase();
+          if (email.endsWith('@orangeusd.org') || TEACHER_EMAILS.includes(email)) {
+            currentUser = user;
+            studentId = email.split('@')[0];
+            studentName = user.displayName || studentId;
+            isTeacher = TEACHER_EMAILS.includes(email);
+
+            const nameInput = document.getElementById('studentName');
+            if (nameInput) nameInput.value = studentName;
+
+            await lookupStudentPeriod(studentId, email);
+            updateAuthUI(true);
+            await loadStudentProgress(studentId);
+          } else {
+            alert('Access restricted. Please sign in with your official school @orangeusd.org Google account.');
+            firebase.auth().signOut();
+          }
+        } else {
+          currentUser = null;
+          studentId = null;
+          studentName = "";
+          updateAuthUI(false);
+          updateCloudStatus('Offline (Guest)');
+        }
+      });
+    }
+
+    async function lookupStudentPeriod(id, email) {
+      if (isTeacher) {
+        studentPeriod = 'T';
+        return;
+      }
+      try {
+        const snap = await firebase.firestore().collection('roster').doc(id).get();
+        if (snap.exists) {
+          const d = snap.data();
+          const p = (d.class_period !== undefined && d.class_period !== null)
+            ? d.class_period
+            : (d.period !== undefined && d.period !== null ? d.period : null);
+          if (p !== null) {
+            studentPeriod = Number.isNaN(parseInt(p, 10)) ? p : parseInt(p, 10);
+          }
+          if (d.full_name) {
+            studentName = d.full_name;
+          }
+        }
+      } catch (err) {
+        console.warn("Roster lookup non-blocking:", err);
+      }
+
+      const nameInput = document.getElementById('studentName');
+      if (nameInput && studentName) nameInput.value = studentName;
+
+      const periodSelect = document.getElementById('classPeriod');
+      if (periodSelect && studentPeriod !== null && studentPeriod !== 'T') {
+        periodSelect.value = String(studentPeriod);
+        onPeriodChange();
+      }
+    }
+
+    function signInWithGoogle() {
+      if (typeof firebase === 'undefined') return;
+      const provider = new firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({ hd: 'orangeusd.org' });
+      firebase.auth().signInWithPopup(provider).catch(err => {
+        console.error("Sign-in popup error:", err);
+        alert("Sign-in error: " + (err.message || err));
+      });
+    }
+
+    function signOutUser() {
+      if (typeof firebase !== 'undefined') {
+        firebase.auth().signOut();
+      }
+    }
+
+    function updateAuthUI(isSignedIn) {
+      const container = document.getElementById('authContainer');
+      if (!container) return;
+
+      if (isSignedIn) {
+        const pLabel = isTeacher ? 'Teacher' : (studentPeriod !== null ? `Period ${studentPeriod}` : 'Physics');
+        container.innerHTML = `
+          <div class="user-chip">
+            <span class="user-chip-avatar">👤</span>
+            <div class="user-chip-meta">
+              <span class="user-chip-name">${escapeHtml(studentName)}</span>
+              <span style="font-size:0.65rem; color:var(--text-muted);">${pLabel}</span>
+            </div>
+            <button type="button" onclick="signOutUser()" title="Sign Out" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:0.8rem; padding:0 2px;">✕</button>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <button type="button" class="btn btn-primary" onclick="signInWithGoogle()">
+            <span>🔑</span> Sign In with Google
+          </button>
+        `;
+      }
+    }
+
+    function updateCloudStatus(text) {
+      const el = document.getElementById('cloudSyncStatus');
+      if (el) el.textContent = text;
+    }
+
+    // =============================================================
+    // 3. Stage Navigation & Variable Control
+    // =============================================================
+    function switchStage(stageNum) {
+      currentStage = stageNum;
+      for (let i = 1; i <= 4; i++) {
+        const btn = document.getElementById(`tab${i}Btn`);
+        const pane = document.getElementById(`stage${i}Pane`);
+        if (btn) btn.classList.toggle('active', i === stageNum);
+        if (pane) pane.style.display = (i === stageNum) ? 'block' : 'none';
+      }
+      if (stageNum === 3 && map) {
+        setTimeout(() => map.invalidateSize(), 150);
+      }
+      updateScoreBadge();
+    }
+
+    function onPeriodChange() {
+      const pVal = document.getElementById('classPeriod').value;
+      const padSelect = document.getElementById('launchPadSelect');
+      if (pVal === '0') {
+        padSelect.value = 'period0';
+      } else {
+        padSelect.value = 'periods46';
+      }
+      onLaunchPadChange();
+    }
+
+    function onVariableChange() {
+      const v = document.getElementById('independentVarSelect').value;
+      const pill = document.getElementById('activeVarPill');
+      const callout = document.getElementById('bpVarCallout');
+
+      // Update badge text
+      const names = {
+        fin_shape: "Variable: Fin Shape",
+        fin_dimensions: "Variable: Fin Dimensions",
+        fin_offset: "Variable: Fin Offset",
+        fin_count: "Variable: Fin Count",
+        nose_ballast: "Variable: Nose Tip Ballast",
+        nose_shape: "Variable: Nose Cone Shape",
+        fuse_length: "Variable: Fuselage Length"
+      };
+      if (pill) pill.textContent = names[v] || "Active Variable";
+      if (callout) callout.textContent = `★ ${names[v] || "Independent Variable"}`;
+
+      // Reset highlights on Rocket B inputs
+      document.querySelectorAll('#rocketBCard .field-group').forEach(el => el.classList.remove('variable-highlight'));
+
+      // Highlight the targeted Rocket B input group
+      const highlightMap = {
+        fin_shape: 'groupFinHeightB',
+        fin_dimensions: 'groupFinWidthB',
+        fin_offset: 'groupFinOffsetB',
+        fin_count: 'groupFinCountB',
+        nose_ballast: 'groupAddedMassB',
+        nose_shape: 'groupNoseHeightB',
+        fuse_length: 'groupFuseLengthB'
+      };
+      const targetId = highlightMap[v];
+      if (targetId) {
+        const el = document.getElementById(targetId);
+        if (el) el.classList.add('variable-highlight');
+      }
+
+      drawDualBlueprint();
+      updateComparativeEvidence();
+      triggerAutoSave();
+    }
+
+    function syncControlToRocketB() {
+      const selectedVar = document.getElementById('independentVarSelect').value;
+      
+      // Sync all except chosen variable
+      if (selectedVar !== 'fuse_length') document.getElementById('fuseLengthB').value = document.getElementById('fuseLengthA').value;
+      document.getElementById('fuseDiameterB').value = document.getElementById('fuseDiameterA').value;
+      if (selectedVar !== 'nose_shape') document.getElementById('noseHeightB').value = document.getElementById('noseHeightA').value;
+      if (selectedVar !== 'nose_ballast') document.getElementById('addedMassB').value = document.getElementById('addedMassA').value;
+      if (selectedVar !== 'fin_count') document.getElementById('finCountB').value = document.getElementById('finCountA').value;
+      if (selectedVar !== 'fin_dimensions') {
+        document.getElementById('finHeightB').value = document.getElementById('finHeightA').value;
+        document.getElementById('finWidthB').value = document.getElementById('finWidthA').value;
+      }
+      if (selectedVar !== 'fin_offset') document.getElementById('finOffsetB').value = document.getElementById('finOffsetA').value;
+
+      drawDualBlueprint();
+      updateComparativeEvidence();
+      triggerAutoSave();
+    }
+
+    function onRocketASpecChange() {
+      // Auto-mirror non-variable values to Rocket B
+      syncControlToRocketB();
+      drawDualBlueprint();
+      updateComparativeEvidence();
+      triggerAutoSave();
+    }
+
+    function onRocketBSpecChange() {
+      drawDualBlueprint();
+      updateComparativeEvidence();
+      triggerAutoSave();
+    }
+
+    function applyFinShape(preset) {
+      if (preset === 'delta') {
+        document.getElementById('finHeightB').value = 4.0;
+        document.getElementById('finWidthB').value = 4.0;
+      } else if (preset === 'trapezoid') {
+        document.getElementById('finHeightB').value = 5.0;
+        document.getElementById('finWidthB').value = 3.5;
+      } else if (preset === 'swept') {
+        document.getElementById('finHeightB').value = 6.0;
+        document.getElementById('finWidthB').value = 4.5;
+      } else if (preset === 'straight') {
+        document.getElementById('finHeightB').value = 3.5;
+        document.getElementById('finWidthB').value = 3.0;
+      }
+      drawDualBlueprint();
+      updateComparativeEvidence();
+      triggerAutoSave();
+    }
+
+    // =============================================================
+    // 4. Scaled Dual Blueprint Generator (1cm × 1cm Grid)
+    // =============================================================
+    function setBpLayout(layout) {
+      bpLayout = layout;
+      document.getElementById('btnBpSideBySide').classList.toggle('active', layout === 'stacked');
+      document.getElementById('btnBpFocusA').classList.toggle('active', layout === 'focusA');
+      document.getElementById('btnBpFocusB').classList.toggle('active', layout === 'focusB');
+      drawDualBlueprint();
+    }
+
+    function calculateStability(specs) {
+      const { L_fuse, D_fuse, H_nose, m_add, m_tot, fin_count, fin_h, fin_w, fin_offset } = specs;
+      
+      // Centroid calculations
+      const x_nose = (2 / 3) * H_nose;
+      const x_fuse = H_nose + (L_fuse / 2);
+      const fin_attach_start = H_nose + L_fuse - fin_offset - fin_h;
+      const x_fin = fin_attach_start + (fin_h * 0.6);
+
+      // Masses
+      const m_cone = 2.0 + m_add;
+      const m_body = Math.max(8.0, m_tot - m_cone - (fin_count * 1.5));
+      const m_fins = fin_count * 1.5;
+      const calculated_m_tot = m_cone + m_body + m_fins;
+
+      // Center of Mass (CM)
+      const CM = ((m_cone * x_nose) + (m_body * x_fuse) + (m_fins * x_fin)) / calculated_m_tot;
+
+      // Center of Pressure (CP) via Barrowman approximation
+      const CNa_cone = 2.0;
+      const x_cp_cone = 0.666 * H_nose;
+      const d_ratio = fin_w / D_fuse;
+      const CNa_fin = (fin_count / 2) * (1 + (d_ratio / (1 + (2 * d_ratio)))) * (fin_w * fin_h);
+      const x_cp_fin = fin_attach_start + (0.5 * fin_h);
+
+      const CNa_tot = CNa_cone + (CNa_fin * 0.05);
+      const CP = ((CNa_cone * x_cp_cone) + ((CNa_fin * 0.05) * x_cp_fin)) / CNa_tot;
+
+      const margin_cm = CP - CM;
+      const margin_calibers = margin_cm / D_fuse;
+
+      return {
+        CM: CM.toFixed(1),
+        CP: CP.toFixed(1),
+        marginCm: margin_cm.toFixed(1),
+        marginCalibers: margin_calibers.toFixed(1),
+        isStable: margin_calibers >= 2.0,
+        isMarginal: margin_calibers >= 1.0 && margin_calibers < 2.0,
+        isUnstable: margin_calibers < 1.0
+      };
+    }
+
+    function drawDualBlueprint() {
+      const svgEl = document.getElementById('dualRocketSvg');
+      if (!svgEl) return;
+
+      const pxPerCm = 10; // 1 cm = 10 svg pixels
+      const originX = 50;
+      
+      // Read Specs A
+      const specsA = {
+        L_fuse: parseFloat(document.getElementById('fuseLengthA').value) || 28.0,
+        D_fuse: parseFloat(document.getElementById('fuseDiameterA').value) || 1.3,
+        H_nose: parseFloat(document.getElementById('noseHeightA').value) || 6.5,
+        m_add: parseFloat(document.getElementById('addedMassA').value) || 0.0,
+        m_tot: parseFloat(document.getElementById('totalMassA').value) || 24.5,
+        fin_count: parseInt(document.getElementById('finCountA').value) || 3,
+        fin_h: parseFloat(document.getElementById('finHeightA').value) || 4.0,
+        fin_w: parseFloat(document.getElementById('finWidthA').value) || 4.0,
+        fin_offset: parseFloat(document.getElementById('finOffsetA').value) || 0.0
+      };
+
+      // Read Specs B
+      const specsB = {
+        L_fuse: parseFloat(document.getElementById('fuseLengthB').value) || 28.0,
+        D_fuse: parseFloat(document.getElementById('fuseDiameterB').value) || 1.3,
+        H_nose: parseFloat(document.getElementById('noseHeightB').value) || 6.5,
+        m_add: parseFloat(document.getElementById('addedMassB').value) || 0.0,
+        m_tot: parseFloat(document.getElementById('totalMassB').value) || 24.5,
+        fin_count: parseInt(document.getElementById('finCountB').value) || 3,
+        fin_h: parseFloat(document.getElementById('finHeightB').value) || 4.0,
+        fin_w: parseFloat(document.getElementById('finWidthB').value) || 4.0,
+        fin_offset: parseFloat(document.getElementById('finOffsetB').value) || 0.0
+      };
+
+      const stabA = calculateStability(specsA);
+      const stabB = calculateStability(specsB);
+
+      // Update Stability Badges in DOM
+      document.getElementById('cmValA').textContent = stabA.CM + ' cm';
+      document.getElementById('cpValA').textContent = stabA.CP + ' cm';
+      const badgeA = document.getElementById('marginBadgeA');
+      if (badgeA) {
+        badgeA.className = stabA.isStable ? 'badge badge-green' : (stabA.isMarginal ? 'badge badge-amber' : 'badge badge-red');
+        badgeA.textContent = `${stabA.marginCalibers > 0 ? '+' : ''}${stabA.marginCalibers} D (${stabA.isStable ? 'STABLE' : (stabA.isMarginal ? 'MARGINAL' : 'UNSTABLE')})`;
+      }
+
+      document.getElementById('cmValB').textContent = stabB.CM + ' cm';
+      document.getElementById('cpValB').textContent = stabB.CP + ' cm';
+      const badgeB = document.getElementById('marginBadgeB');
+      if (badgeB) {
+        badgeB.className = stabB.isStable ? 'badge badge-green' : (stabB.isMarginal ? 'badge badge-amber' : 'badge badge-red');
+        badgeB.textContent = `${stabB.marginCalibers > 0 ? '+' : ''}${stabB.marginCalibers} D (${stabB.isStable ? 'STABLE' : (stabB.isMarginal ? 'MARGINAL' : 'UNSTABLE')})`;
+      }
+
+      // Build SVG
+      let svg = `
+        <defs>
+          <pattern id="bpGrid1cm" width="10" height="10" patternUnits="userSpaceOnUse">
+            <path d="M 10 0 L 0 0 0 10" fill="none" stroke="var(--grid-line)" stroke-width="0.8"/>
+          </pattern>
+          <pattern id="bpGrid5cm" width="50" height="50" patternUnits="userSpaceOnUse">
+            <rect width="50" height="50" fill="url(#bpGrid1cm)" />
+            <path d="M 50 0 L 0 0 0 50" fill="none" stroke="var(--grid-line-bold)" stroke-width="1.2"/>
+          </pattern>
+        </defs>
+        <rect width="540" height="380" fill="var(--blueprint-bg)"/>
+        <rect width="540" height="380" fill="url(#bpGrid5cm)"/>
+      `;
+
+      function renderRocketSvg(specs, stab, centerY, color, label, isVariant) {
+        const H_nose_px = specs.H_nose * pxPerCm;
+        const L_fuse_px = specs.L_fuse * pxPerCm;
+        const R_fuse_px = (specs.D_fuse / 2) * pxPerCm;
+        const noseBaseX = originX + H_nose_px;
+        const tailX = noseBaseX + L_fuse_px;
+
+        let rSvg = '';
+
+        // Label Badge
+        rSvg += `
+          <text x="${originX}" y="${centerY - 45}" fill="${color}" font-weight="800" font-size="11" letter-spacing="0.5">
+            ${label}
+          </text>
+        `;
+
+        // Centerline
+        rSvg += `<line x1="${originX - 25}" y1="${centerY}" x2="${tailX + 35}" y2="${centerY}" stroke="${color}" stroke-dasharray="5,4" stroke-width="1.2" opacity="0.6"/>`;
+
+        // Stabilizing Fins (Top & Bottom)
+        const finHPx = specs.fin_h * pxPerCm;
+        const finWPx = specs.fin_w * pxPerCm;
+        const finOffsetPx = specs.fin_offset * pxPerCm;
+        const finTrailingX = tailX - finOffsetPx;
+        const finLeadingX = finTrailingX - finHPx;
+
+        const topFinPts = `${finLeadingX},${centerY - R_fuse_px} ${finLeadingX + (finHPx * 0.4)},${centerY - R_fuse_px - finWPx} ${finTrailingX},${centerY - R_fuse_px - (finWPx * 0.7)} ${finTrailingX},${centerY - R_fuse_px}`;
+        const botFinPts = `${finLeadingX},${centerY + R_fuse_px} ${finLeadingX + (finHPx * 0.4)},${centerY + R_fuse_px + finWPx} ${finTrailingX},${centerY + R_fuse_px + (finWPx * 0.7)} ${finTrailingX},${centerY + R_fuse_px}`;
+
+        rSvg += `<polygon points="${topFinPts}" fill="${color}" fill-opacity="0.2" stroke="${color}" stroke-width="1.8"/>`;
+        rSvg += `<polygon points="${botFinPts}" fill="${color}" fill-opacity="0.2" stroke="${color}" stroke-width="1.8"/>`;
+
+        // Fuselage Body Cylinder
+        rSvg += `<rect x="${noseBaseX}" y="${centerY - R_fuse_px}" width="${L_fuse_px}" height="${R_fuse_px * 2}" fill="${color}" fill-opacity="0.08" stroke="${color}" stroke-width="2"/>`;
+
+        // Nose Cone
+        if (specs.H_nose > 0.5) {
+          const conePts = `${originX},${centerY} ${noseBaseX},${centerY - R_fuse_px} ${noseBaseX},${centerY + R_fuse_px}`;
+          rSvg += `<polygon points="${conePts}" fill="${color}" fill-opacity="0.15" stroke="${color}" stroke-width="2"/>`;
+        } else {
+          // Blunt Nose
+          rSvg += `<line x1="${originX}" y1="${centerY - R_fuse_px}" x2="${originX}" y2="${centerY + R_fuse_px}" stroke="${color}" stroke-width="3"/>`;
+        }
+
+        // Fin Offset Dimension Callout (if shifted forward)
+        if (specs.fin_offset >= 0.2) {
+          const dimY = centerY + R_fuse_px + finWPx + 12;
+          rSvg += `
+            <line x1="${finTrailingX}" y1="${dimY}" x2="${tailX}" y2="${dimY}" stroke="var(--gold)" stroke-width="1.5"/>
+            <polygon points="${finTrailingX},${dimY} ${finTrailingX + 4},${dimY - 3} ${finTrailingX + 4},${dimY + 3}" fill="var(--gold)"/>
+            <polygon points="${tailX},${dimY} ${tailX - 4},${dimY - 3} ${tailX - 4},${dimY + 3}" fill="var(--gold)"/>
+            <text x="${(finTrailingX + tailX) / 2}" y="${dimY - 3}" fill="var(--gold)" font-family="'JetBrains Mono',monospace" font-size="8.5" font-weight="800" text-anchor="middle">+${specs.fin_offset}cm offset</text>
+          `;
+        }
+
+        // CM & CP Markers
+        const cmPx = originX + (parseFloat(stab.CM) * pxPerCm);
+        const cpPx = originX + (parseFloat(stab.CP) * pxPerCm);
+
+        // CM Marker (Blue Target Glyph)
+        rSvg += `
+          <g transform="translate(${cmPx}, ${centerY})">
+            <circle r="6" fill="none" stroke="#38bdf8" stroke-width="1.5"/>
+            <line x1="-8" y1="0" x2="8" y2="0" stroke="#38bdf8" stroke-width="1.5"/>
+            <line x1="0" y1="-8" x2="0" y2="8" stroke="#38bdf8" stroke-width="1.5"/>
+            <text x="0" y="16" fill="#38bdf8" font-family="'JetBrains Mono',monospace" font-size="8" font-weight="800" text-anchor="middle">CM (${stab.CM}cm)</text>
+          </g>
+        `;
+
+        // CP Marker (Red Crosshair Glyph)
+        rSvg += `
+          <g transform="translate(${cpPx}, ${centerY})">
+            <circle r="6" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="2,2"/>
+            <line x1="-8" y1="0" x2="8" y2="0" stroke="#fb7185" stroke-width="1.5"/>
+            <line x1="0" y1="-8" x2="0" y2="8" stroke="#fb7185" stroke-width="1.5"/>
+            <text x="0" y="-12" fill="#fb7185" font-family="'JetBrains Mono',monospace" font-size="8" font-weight="800" text-anchor="middle">CP (${stab.CP}cm)</text>
+          </g>
+        `;
+
+        return rSvg;
+      }
+
+      if (bpLayout === 'stacked') {
+        svg += renderRocketSvg(specsA, stabA, 105, '#ef4444', 'ROCKET A (CONTROL)', false);
+        svg += renderRocketSvg(specsB, stabB, 260, '#38bdf8', 'ROCKET B (VARIANT)', true);
+      } else if (bpLayout === 'focusA') {
+        svg += renderRocketSvg(specsA, stabA, 180, '#ef4444', 'ROCKET A (CONTROL - FULL VIEW)', false);
+      } else if (bpLayout === 'focusB') {
+        svg += renderRocketSvg(specsB, stabB, 180, '#38bdf8', 'ROCKET B (VARIANT - FULL VIEW)', true);
+      }
+
+      // Bottom Centimeter Ruler Axis
+      svg += `<line x1="${originX}" y1="355" x2="510" y2="355" stroke="var(--text-muted)" stroke-width="1.5"/>`;
+      for (let cm = 0; cm <= 45; cm += 1) {
+        const x = originX + (cm * pxPerCm);
+        if (x > 515) break;
+        const isMajor = (cm % 5 === 0);
+        const tickH = isMajor ? 8 : 4;
+        svg += `<line x1="${x}" y1="355" x2="${x}" y2="${355 - tickH}" stroke="var(--text-muted)" stroke-width="${isMajor ? 1.5 : 0.8}"/>`;
+        if (isMajor) {
+          svg += `<text x="${x}" y="370" fill="var(--text-muted)" font-family="'JetBrains Mono',monospace" font-size="8.5" text-anchor="middle">${cm}</text>`;
+        }
+      }
+      svg += `<text x="${originX - 15}" y="370" fill="var(--cyan)" font-family="'JetBrains Mono',monospace" font-size="8.5" font-weight="700">cm:</text>`;
+
+      svgEl.innerHTML = svg;
+    }
+
+    // =============================================================
+    // 5. Interactive Satellite Map (Dual Recovery Touchdown)
+    // =============================================================
+    function initMap() {
+      const container = document.getElementById('campusMap');
+      if (!container || typeof L === 'undefined') return;
+
+      const site = LAUNCH_SITES.periods46;
+      map = L.map('campusMap', {
+        center: [site.lat + 0.0002, site.lon + 0.0003],
+        zoom: 19,
+        maxZoom: 20,
+        minZoom: 16,
+        attributionControl: false
+      });
+
+      // Esri World Imagery (High-Res Aerial)
+      const esriLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 20
+      }).addTo(map);
+
+      // OpenStreetMap Backup Layer
+      const osmLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19
+      });
+
+      // Automatic fallback if Esri tiles fail on school network
+      esriLayer.on('tileerror', function() {
+        if (!map._hasFallenBack) {
+          map._hasFallenBack = true;
+          map.removeLayer(esriLayer);
+          osmLayer.addTo(map);
+          const p = document.getElementById('mapInstructionPrompt');
+          if (p) p.innerHTML = 'Using OpenStreetMap backup (satellite unavailable). Drag pins to landing spots!';
+        }
+      });
+
+      L.control.layers({
+        "🛰️ Satellite (Esri)": esriLayer,
+        "🗺️ Street Map (OSM)": osmLayer
+      }, null, { position: 'topright' }).addTo(map);
+
+      // Launch Pad Marker (Green Rocket Icon)
+      const padIcon = L.divIcon({
+        className: 'custom-pad-icon',
+        html: `<div style="width:32px; height:32px; background:#10b981; border:2.5px solid #fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; box-shadow:0 0 16px #10b981, 0 4px 8px rgba(0,0,0,0.5);">🚀</div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+      });
+
+      launchMarker = L.marker([site.lat, site.lon], { icon: padIcon }).addTo(map);
+      launchMarker.bindPopup(`<strong>LAUNCH PAD STATION</strong><br>${site.name}<br>80–100 PSI Operating Pressure`);
+
+      // Pin A Marker (Red Beacon)
+      const iconA = L.divIcon({
+        className: 'custom-pin-a',
+        html: `<div style="width:32px; height:32px; background:#ef4444; border:2.5px solid #fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color:#fff; box-shadow:0 0 16px #ef4444, 0 4px 8px rgba(0,0,0,0.6); cursor:grab;">A</div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+      });
+
+      markerA = L.marker([touchA.lat, touchA.lon], { icon: iconA, draggable: true }).addTo(map);
+      markerA.bindPopup(`<strong>ROCKET A TOUCHDOWN (CONTROL)</strong><br>Drag to exact landing coordinate`);
+      markerA.on('drag', onPinDrag);
+      markerA.on('dragend', onPinDragEnd);
+
+      // Pin B Marker (Blue/Cyan Beacon)
+      const iconB = L.divIcon({
+        className: 'custom-pin-b',
+        html: `<div style="width:32px; height:32px; background:#0284c7; border:2.5px solid #fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color:#fff; box-shadow:0 0 16px #0284c7, 0 4px 8px rgba(0,0,0,0.6); cursor:grab;">B</div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+      });
+
+      markerB = L.marker([touchB.lat, touchB.lon], { icon: iconB, draggable: true }).addTo(map);
+      markerB.bindPopup(`<strong>ROCKET B TOUCHDOWN (VARIANT)</strong><br>Drag to exact landing coordinate`);
+      markerB.on('drag', onPinDrag);
+      markerB.on('dragend', onPinDragEnd);
+
+      // Flight Vector Trajectory Lines
+      flightLineA = L.polyline([[site.lat, site.lon], [touchA.lat, touchA.lon]], {
+        color: '#ef4444',
+        weight: 3,
+        dashArray: '5,6',
+        opacity: 0.85
+      }).addTo(map);
+
+      flightLineB = L.polyline([[site.lat, site.lon], [touchB.lat, touchB.lon]], {
+        color: '#38bdf8',
+        weight: 3,
+        dashArray: '5,6',
+        opacity: 0.85
+      }).addTo(map);
+
+      updateFlightTelemetry();
+    }
+
+    function onLaunchPadChange() {
+      const padKey = document.getElementById('launchPadSelect').value;
+      const site = LAUNCH_SITES[padKey] || LAUNCH_SITES.periods46;
+
+      document.getElementById('activePeriodMapTag').textContent = site.periodTag + " Pad";
+      if (launchMarker) {
+        launchMarker.setLatLng([site.lat, site.lon]);
+        launchMarker.setPopupContent(`<strong>LAUNCH PAD STATION</strong><br>${site.name}<br>80–100 PSI Operating Pressure`);
+      }
+      if (map) {
+        map.panTo([site.lat, site.lon]);
+      }
+      updateFlightTelemetry();
+    }
+
+    function onPinDrag() {
+      const padLatLng = launchMarker.getLatLng();
+      const posA = markerA.getLatLng();
+      const posB = markerB.getLatLng();
+
+      if (flightLineA) flightLineA.setLatLngs([padLatLng, posA]);
+      if (flightLineB) flightLineB.setLatLngs([padLatLng, posB]);
+
+      updateFlightTelemetry();
+    }
+
+    function onPinDragEnd() {
+      touchA = markerA.getLatLng();
+      touchB = markerB.getLatLng();
+      updateFlightTelemetry();
+      triggerAutoSave();
+    }
+
+    function resetMapPins() {
+      const siteKey = document.getElementById('launchPadSelect').value;
+      const site = LAUNCH_SITES[siteKey] || LAUNCH_SITES.periods46;
+      
+      touchA = { lat: site.lat + 0.00025, lon: site.lon + 0.00030 };
+      touchB = { lat: site.lat + 0.00035, lon: site.lon + 0.00045 };
+
+      if (markerA) markerA.setLatLng(touchA);
+      if (markerB) markerB.setLatLng(touchB);
+      if (flightLineA) flightLineA.setLatLngs([[site.lat, site.lon], touchA]);
+      if (flightLineB) flightLineB.setLatLngs([[site.lat, site.lon], touchB]);
+
+      updateFlightTelemetry();
+      triggerAutoSave();
+    }
+
+    // Great-Circle Ground Distance & Azimuth
+    function computeRangeAzimuth(lat1, lon1, lat2, lon2) {
+      const R = 6371000; // meters
+      const toRad = deg => deg * Math.PI / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const distM = R * c;
+      const distFt = distM * 3.28084;
+
+      const y = Math.sin(dLon) * Math.cos(toRad(lat2));
+      const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) -
+                Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLat);
+      let brng = (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+
+      const cardinals = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+      const card = cardinals[Math.round(brng / 22.5) % 16];
+
+      return { distM, distFt, brng, card };
+    }
+
+    function updateFlightTelemetry() {
+      if (!launchMarker || !markerA || !markerB) return;
+
+      const pad = launchMarker.getLatLng();
+      const posA = markerA.getLatLng();
+      const posB = markerB.getLatLng();
+
+      const telA = computeRangeAzimuth(pad.lat, pad.lng, posA.lat, posA.lng);
+      const telB = computeRangeAzimuth(pad.lat, pad.lng, posB.lat, posB.lng);
+
+      // Rocket A DOM
+      document.getElementById('txtRangeA').textContent = telA.distM.toFixed(1) + ' m';
+      document.getElementById('txtRangeFtA').textContent = telA.distFt.toFixed(1) + ' ft ground range';
+      document.getElementById('txtAzimuthA').textContent = Math.round(telA.brng) + '° (' + telA.card + ')';
+
+      // Rocket B DOM
+      document.getElementById('txtRangeB').textContent = telB.distM.toFixed(1) + ' m';
+      document.getElementById('txtRangeFtB').textContent = telB.distFt.toFixed(1) + ' ft ground range';
+      document.getElementById('txtAzimuthB').textContent = Math.round(telB.brng) + '° (' + telB.card + ')';
+
+      // Kinematics Apogee: h_max = 5 * (t_up)^2, where t_up = t_hang / 2
+      const tA = parseFloat(document.getElementById('hangTimeA').value) || 4.0;
+      const tB = parseFloat(document.getElementById('hangTimeB').value) || 4.6;
+      const apogeeA = 5 * Math.pow(tA / 2, 2);
+      const apogeeB = 5 * Math.pow(tB / 2, 2);
+
+      document.getElementById('txtApogeeA').textContent = apogeeA.toFixed(1) + ' m';
+      document.getElementById('txtHangA').textContent = tA.toFixed(1) + 's';
+      document.getElementById('txtApogeeB').textContent = apogeeB.toFixed(1) + ' m';
+      document.getElementById('txtHangB').textContent = tB.toFixed(1) + 's';
+
+      // Comparative Delta Calculation
+      const deltaRange = telB.distM - telA.distM;
+      const absDelta = Math.abs(deltaRange);
+      const fartherRocket = deltaRange >= 0 ? "Rocket B" : "Rocket A";
+      
+      const deltaEl = document.getElementById('deltaSummaryText');
+      const badgeEl = document.getElementById('deltaBadge');
+
+      if (deltaEl && badgeEl) {
+        deltaEl.innerHTML = `<strong>${fartherRocket}</strong> flew <strong>${absDelta.toFixed(1)}m (${(absDelta * 3.28084).toFixed(1)}ft)</strong> farther than ${fartherRocket === 'Rocket B' ? 'Rocket A' : 'Rocket B'}.`;
+        badgeEl.textContent = `Δ Range: ${deltaRange >= 0 ? '+' : ''}${deltaRange.toFixed(1)} m`;
+        badgeEl.className = deltaRange >= 0 ? 'badge badge-green' : 'badge badge-amber';
+      }
+
+      updateComparativeEvidence();
+    }
+
+    // =============================================================
+    // 6. Comparative Evidence Auto-Scaffolding & CER Synthesis
+    // =============================================================
+    function updateComparativeEvidence() {
+      const evInput = document.getElementById('cerEvidence');
+      if (!evInput || evInput.dataset.touched === 'true') return;
+
+      const varType = document.getElementById('independentVarSelect').value;
+      const squadName = document.getElementById('callSign').value || 'AeroSquad';
+      
+      const rangeA = document.getElementById('txtRangeA').textContent;
+      const rangeB = document.getElementById('txtRangeB').textContent;
+      const hangA = document.getElementById('hangTimeA').value;
+      const hangB = document.getElementById('hangTimeB').value;
+      const apogeeA = document.getElementById('txtApogeeA').textContent;
+      const apogeeB = document.getElementById('txtApogeeB').textContent;
+
+      let varDetail = "";
+      if (varType === 'fin_offset') {
+        const offA = document.getElementById('finOffsetA').value;
+        const offB = document.getElementById('finOffsetB').value;
+        varDetail = `fin placement offset (Rocket A: ${offA}cm from tail vs. Rocket B: ${offB}cm from tail)`;
+      } else if (varType === 'fin_count') {
+        const cA = document.getElementById('finCountA').value;
+        const cB = document.getElementById('finCountB').value;
+        varDetail = `fin count (Rocket A: ${cA} fins vs. Rocket B: ${cB} fins)`;
+      } else if (varType === 'nose_ballast') {
+        const mA = document.getElementById('addedMassA').value;
+        const mB = document.getElementById('addedMassB').value;
+        varDetail = `nose tip ballast mass (Rocket A: ${mA}g vs. Rocket B: ${mB}g)`;
+      } else if (varType === 'fin_dimensions') {
+        const wA = document.getElementById('finWidthA').value;
+        const wB = document.getElementById('finWidthB').value;
+        varDetail = `fin width span (Rocket A: ${wA}cm vs. Rocket B: ${wB}cm)`;
+      } else {
+        varDetail = `isolated independent variable (${document.getElementById('independentVarSelect').selectedOptions[0].text})`;
+      }
+
+      const scaffolded = `Squad '${squadName}' tested two cardstock rockets identical in all specifications except ${varDetail} launched at 80–100 PSI constant pressure. Rocket A achieved a hang time of ${hangA}s (apogee ~${apogeeA}) and ground range of ${rangeA}, while Rocket B achieved a hang time of ${hangB}s (apogee ~${apogeeB}) and ground range of ${rangeB}.`;
+      evInput.value = scaffolded;
+    }
+
+    // =============================================================
+    // 7. Anti-Cheat: Multi-Layered Anti-Paste Protection
+    // =============================================================
+    function initPastePrevention() {
+      const responseBoxIds = ['preFlightHypothesis', 'cerClaim', 'cerEvidence', 'cerReasoning'];
+      let toastTimeout = null;
+
+      function showPasteBlockedToast(targetEl) {
+        if (targetEl) {
+          targetEl.classList.add('paste-blocked');
+          setTimeout(() => targetEl.classList.remove('paste-blocked'), 450);
+        }
+
+        let toast = document.getElementById('pasteToast');
+        if (!toast) {
+          toast = document.createElement('div');
+          toast.id = 'pasteToast';
+          toast.className = 'paste-toast';
+          document.body.appendChild(toast);
+        }
+        toast.innerHTML = '<span>🚫</span><span>Pasting is disabled on response boxes. Please write responses in your squad\'s own words.</span>';
+        toast.style.display = 'flex';
+
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          if (toast) toast.style.display = 'none';
+        }, 3000);
+      }
+
+      function blockPaste(e) {
+        e.preventDefault();
+        showPasteBlockedToast(this);
+      }
+
+      function handleBeforeInput(e) {
+        if (e.inputType === 'insertFromPaste' || e.inputType === 'insertFromDrop') {
+          e.preventDefault();
+          showPasteBlockedToast(this);
+        }
+      }
+
+      function attachBlockers(el) {
+        if (!el) return;
+        el.addEventListener('paste', blockPaste);
+        el.addEventListener('drop', blockPaste);
+        el.addEventListener('beforeinput', handleBeforeInput);
+      }
+
+      responseBoxIds.forEach(id => {
+        attachBlockers(document.getElementById(id));
+      });
+
+      document.querySelectorAll('textarea').forEach(el => {
+        if (!responseBoxIds.includes(el.id)) attachBlockers(el);
+      });
+    }
+
+    // =============================================================
+    // 8. Progress Calculation, Auto-Save & Firestore Submission
+    // =============================================================
+    function calculateCompletionScore() {
+      let score = 0;
+      
+      // Stage 1: Squad & Hypothesis (30%)
+      if (document.getElementById('callSign').value.trim().length > 1) score += 10;
+      const hyp = document.getElementById('preFlightHypothesis').value.trim();
+      if (hyp.length >= 25) score += 20;
+      else if (hyp.length > 5) score += 10;
+
+      // Stage 2: Dual Specs entered (30%)
+      const mA = parseFloat(document.getElementById('totalMassA').value) || 0;
+      const mB = parseFloat(document.getElementById('totalMassB').value) || 0;
+      if (mA > 10 && mB > 10) score += 30;
+
+      // Stage 3: Launch Telemetry (20%)
+      const hA = parseFloat(document.getElementById('hangTimeA').value) || 0;
+      const hB = parseFloat(document.getElementById('hangTimeB').value) || 0;
+      if (hA > 0 && hB > 0) score += 20;
+
+      // Stage 4: CER Report (20%)
+      const claim = document.getElementById('cerClaim').value.trim();
+      const reasoning = document.getElementById('cerReasoning').value.trim();
+      if (claim.length >= 20) score += 10;
+      if (reasoning.length >= 35) score += 10;
+
+      return Math.min(100, score);
+    }
+
+    function updateScoreBadge() {
+      const score = calculateCompletionScore();
+      const badge = document.getElementById('scoreBadge');
+      if (badge) {
+        badge.textContent = `Score: ${score}%`;
+        badge.className = score >= 80 ? 'badge badge-green' : (score >= 50 ? 'badge badge-cyan' : 'badge badge-amber');
+      }
+    }
+
+    function triggerAutoSave() {
+      updateScoreBadge();
+      if (!currentUser || !studentId) return;
+
+      if (autoSaveTimer) clearTimeout(autoSaveTimer);
+      autoSaveTimer = setTimeout(() => {
+        saveStudentProgress(false);
+      }, 1200);
+    }
+
+    function sanitize(val) {
+      return (val !== undefined && val !== null) ? val : null;
+    }
+
+    async function saveStudentProgress(isExplicitSubmit) {
+      if (!currentUser || !studentId) {
+        if (isExplicitSubmit) alert('Please sign in with your official school Google account to record your score.');
+        return;
+      }
+
+      const calculatedScore = calculateCompletionScore();
+      const payload = {
+        student_id: studentId,
+        student_name: sanitize(studentName),
+        period: sanitize(studentPeriod),
+        assignment_id: ASSIGNMENT_ID,
+        assignment_name: ASSIGNMENT_NAME,
+        score: calculatedScore,
+        percentage: calculatedScore,
+        max_points: 10,
+        completed: calculatedScore >= 80,
+        updated_at: firebase.firestore.FieldValue.serverTimestamp(),
+        data: {
+          partner2: sanitize(document.getElementById('partner2').value),
+          partner3: sanitize(document.getElementById('partner3').value),
+          callSign: sanitize(document.getElementById('callSign').value),
+          independentVar: sanitize(document.getElementById('independentVarSelect').value),
+          preFlightHypothesis: sanitize(document.getElementById('preFlightHypothesis').value),
+          specsA: {
+            fuseLength: parseFloat(document.getElementById('fuseLengthA').value) || 28.0,
+            fuseDiameter: parseFloat(document.getElementById('fuseDiameterA').value) || 1.3,
+            noseHeight: parseFloat(document.getElementById('noseHeightA').value) || 6.5,
+            addedMass: parseFloat(document.getElementById('addedMassA').value) || 0.0,
+            totalMass: parseFloat(document.getElementById('totalMassA').value) || 24.5,
+            finCount: parseInt(document.getElementById('finCountA').value) || 3,
+            finHeight: parseFloat(document.getElementById('finHeightA').value) || 4.0,
+            finWidth: parseFloat(document.getElementById('finWidthA').value) || 4.0,
+            finOffset: parseFloat(document.getElementById('finOffsetA').value) || 0.0
+          },
+          specsB: {
+            fuseLength: parseFloat(document.getElementById('fuseLengthB').value) || 28.0,
+            fuseDiameter: parseFloat(document.getElementById('fuseDiameterB').value) || 1.3,
+            noseHeight: parseFloat(document.getElementById('noseHeightB').value) || 6.5,
+            addedMass: parseFloat(document.getElementById('addedMassB').value) || 0.0,
+            totalMass: parseFloat(document.getElementById('totalMassB').value) || 24.5,
+            finCount: parseInt(document.getElementById('finCountB').value) || 3,
+            finHeight: parseFloat(document.getElementById('finHeightB').value) || 4.0,
+            finWidth: parseFloat(document.getElementById('finWidthB').value) || 4.0,
+            finOffset: parseFloat(document.getElementById('finOffsetB').value) || 0.0
+          },
+          telemetryA: {
+            hangTime: parseFloat(document.getElementById('hangTimeA').value) || 0,
+            behavior: sanitize(document.getElementById('behaviorA').value),
+            rangeM: parseFloat(document.getElementById('txtRangeA').textContent) || 0
+          },
+          telemetryB: {
+            hangTime: parseFloat(document.getElementById('hangTimeB').value) || 0,
+            behavior: sanitize(document.getElementById('behaviorB').value),
+            rangeM: parseFloat(document.getElementById('txtRangeB').textContent) || 0
+          },
+          cerClaim: sanitize(document.getElementById('cerClaim').value),
+          cerEvidence: sanitize(document.getElementById('cerEvidence').value),
+          cerReasoning: sanitize(document.getElementById('cerReasoning').value)
+        }
+      };
+
+      try {
+        const db = firebase.firestore();
+        // NOTE: Strictly write ONLY to the student's subcollection document.
+        // Parent doc student_results/{ASSIGNMENT_ID} is admin-only.
+        const docRef = db.collection('student_results')
+          .doc(ASSIGNMENT_ID)
+          .collection('students')
+          .doc(studentId);
+
+        const prev = await docRef.get();
+        if (prev.exists && (prev.data().score || 0) > payload.score) {
+          payload.score = prev.data().score;
+          payload.percentage = prev.data().percentage || prev.data().score;
+        }
+
+        await docRef.set(payload, { merge: true });
+        updateCloudStatus('✓ Cloud Synced');
+
+        if (isExplicitSubmit) {
+          showSubmitModal(calculatedScore);
+        }
+      } catch (err) {
+        console.error("Firestore submission error:", err);
+        updateCloudStatus('⚠️ Save Failed');
+        if (isExplicitSubmit) alert("Error saving report: " + (err.message || err));
+      }
+    }
+
+    async function loadStudentProgress(id) {
+      try {
+        const snap = await firebase.firestore()
+          .collection('student_results')
+          .doc(ASSIGNMENT_ID)
+          .collection('students')
+          .doc(id)
+          .get();
+
+        if (snap.exists) {
+          const d = snap.data();
+          const ent = d.data || {};
+
+          if (ent.partner2) document.getElementById('partner2').value = ent.partner2;
+          if (ent.partner3) document.getElementById('partner3').value = ent.partner3;
+          if (ent.callSign) document.getElementById('callSign').value = ent.callSign;
+          if (ent.independentVar) {
+            document.getElementById('independentVarSelect').value = ent.independentVar;
+            onVariableChange();
+          }
+          if (ent.preFlightHypothesis) document.getElementById('preFlightHypothesis').value = ent.preFlightHypothesis;
+
+          if (ent.specsA) {
+            document.getElementById('fuseLengthA').value = ent.specsA.fuseLength || 28.0;
+            document.getElementById('fuseDiameterA').value = ent.specsA.fuseDiameter || 1.3;
+            document.getElementById('noseHeightA').value = ent.specsA.noseHeight || 6.5;
+            document.getElementById('addedMassA').value = ent.specsA.addedMass || 0.0;
+            document.getElementById('totalMassA').value = ent.specsA.totalMass || 24.5;
+            document.getElementById('finCountA').value = ent.specsA.finCount || 3;
+            document.getElementById('finHeightA').value = ent.specsA.finHeight || 4.0;
+            document.getElementById('finWidthA').value = ent.specsA.finWidth || 4.0;
+            document.getElementById('finOffsetA').value = ent.specsA.finOffset || 0.0;
+          }
+
+          if (ent.specsB) {
+            document.getElementById('fuseLengthB').value = ent.specsB.fuseLength || 28.0;
+            document.getElementById('fuseDiameterB').value = ent.specsB.fuseDiameter || 1.3;
+            document.getElementById('noseHeightB').value = ent.specsB.noseHeight || 6.5;
+            document.getElementById('addedMassB').value = ent.specsB.addedMass || 0.0;
+            document.getElementById('totalMassB').value = ent.specsB.totalMass || 24.5;
+            document.getElementById('finCountB').value = ent.specsB.finCount || 3;
+            document.getElementById('finHeightB').value = ent.specsB.finHeight || 4.0;
+            document.getElementById('finWidthB').value = ent.specsB.finWidth || 4.0;
+            document.getElementById('finOffsetB').value = ent.specsB.finOffset || 0.0;
+          }
+
+          if (ent.telemetryA) {
+            if (ent.telemetryA.hangTime) document.getElementById('hangTimeA').value = ent.telemetryA.hangTime;
+            if (ent.telemetryA.behavior) document.getElementById('behaviorA').value = ent.telemetryA.behavior;
+          }
+
+          if (ent.telemetryB) {
+            if (ent.telemetryB.hangTime) document.getElementById('hangTimeB').value = ent.telemetryB.hangTime;
+            if (ent.telemetryB.behavior) document.getElementById('behaviorB').value = ent.telemetryB.behavior;
+          }
+
+          if (ent.cerClaim) document.getElementById('cerClaim').value = ent.cerClaim;
+          if (ent.cerEvidence) {
+            document.getElementById('cerEvidence').value = ent.cerEvidence;
+            document.getElementById('cerEvidence').dataset.touched = 'true';
+          }
+          if (ent.cerReasoning) document.getElementById('cerReasoning').value = ent.cerReasoning;
+
+          drawDualBlueprint();
+          updateFlightTelemetry();
+          updateScoreBadge();
+          updateCloudStatus('✓ Saved Draft Loaded');
+        }
+      } catch (err) {
+        console.warn("Could not load student draft:", err);
+      }
+    }
+
+    function submitFinalReport() {
+      const score = calculateCompletionScore();
+      if (score < 50) {
+        if (!confirm(`Your investigation is currently ${score}% complete. Are you sure you want to submit now?`)) {
+          return;
+        }
+      }
+      saveStudentProgress(true);
+    }
+
+    function showSubmitModal(score) {
+      const p2 = document.getElementById('partner2').value.trim();
+      const p3 = document.getElementById('partner3').value.trim();
+      const squad = [studentName, p2, p3].filter(Boolean).join(', ');
+      const varChoice = document.getElementById('independentVarSelect').selectedOptions[0].text;
+      
+      const summaryHtml = `
+        <div><strong>Squad Members:</strong> ${escapeHtml(squad)}</div>
+        <div><strong>Period:</strong> Period ${studentPeriod || 4}</div>
+        <div><strong>Independent Variable:</strong> ${escapeHtml(varChoice)}</div>
+        <div><strong>Rocket A Range:</strong> ${document.getElementById('txtRangeA').textContent} (${document.getElementById('txtHangA').textContent})</div>
+        <div><strong>Rocket B Range:</strong> ${document.getElementById('txtRangeB').textContent} (${document.getElementById('txtHangB').textContent})</div>
+        <div><strong>Performance Delta:</strong> ${document.getElementById('deltaBadge').textContent}</div>
+        <div><strong>Completion Score:</strong> ${score}% (10/10 pts)</div>
+      `;
+      document.getElementById('submitModalSummary').innerHTML = summaryHtml;
+      document.getElementById('submitModal').style.display = 'flex';
+    }
+
+    function copyClassroomSummary() {
+      const p2 = document.getElementById('partner2').value.trim();
+      const p3 = document.getElementById('partner3').value.trim();
+      const squad = [studentName, p2, p3].filter(Boolean).join(', ');
+      const varChoice = document.getElementById('independentVarSelect').selectedOptions[0].text;
+      const claim = document.getElementById('cerClaim').value.trim();
+      const ev = document.getElementById('cerEvidence').value.trim();
+
+      const text = `🚀 CARDSTOCK ROCKET PHASE 2 COMPARATIVE EVALUATION\n` +
+                   `Squad: ${squad} (Period ${studentPeriod || 4})\n` +
+                   `Independent Variable Tested: ${varChoice}\n` +
+                   `Operating Pressure: 80–100 PSI (Constant)\n\n` +
+                   `FLIGHT COMPARISON:\n` +
+                   `• Rocket A (Control): ${document.getElementById('txtRangeA').textContent} | Hang: ${document.getElementById('txtHangA').textContent} | Apogee: ${document.getElementById('txtApogeeA').textContent}\n` +
+                   `• Rocket B (Variant): ${document.getElementById('txtRangeB').textContent} | Hang: ${document.getElementById('txtHangB').textContent} | Apogee: ${document.getElementById('txtApogeeB').textContent}\n` +
+                   `• Delta Ground Range: ${document.getElementById('deltaBadge').textContent}\n\n` +
+                   `CLAIM: ${claim}\n\n` +
+                   `EVIDENCE: ${ev}\n\n` +
+                   `✓ Verified in Phase 2 Interactive Forensics Console.`;
+
+      navigator.clipboard.writeText(text).then(() => {
+        alert("✅ Comparative summary copied to clipboard! Paste directly into Google Classroom turn-in comments.");
+      }).catch(err => {
+        prompt("Copy your summary below:", text);
+      });
+    }
+
+    // =============================================================
+    // 9. Accessibility, Theming & Utility Helpers
+    // =============================================================
+    function toggleTheme() {
+      const root = document.documentElement;
+      const isLight = root.getAttribute('data-theme') === 'light';
+      root.setAttribute('data-theme', isLight ? 'dark' : 'light');
+      localStorage.setItem('ohs_theme', isLight ? 'dark' : 'light');
+
+      document.getElementById('theme-icon').textContent = isLight ? '🌓' : '☀️';
+      document.getElementById('theme-label').textContent = isLight ? 'Light' : 'Dark';
+      drawDualBlueprint();
+    }
+
+    function toggleProjector() {
+      const root = document.documentElement;
+      root.classList.toggle('projector-mode');
+      const isProj = root.classList.contains('projector-mode');
+      localStorage.setItem('ohs_projector', isProj ? 'true' : 'false');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // Initialize on DOM load
+    window.addEventListener('DOMContentLoaded', () => {
+      // Saved Theme
+      const savedTheme = localStorage.getItem('ohs_theme');
+      if (savedTheme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+        document.getElementById('theme-icon').textContent = '☀️';
+        document.getElementById('theme-label').textContent = 'Dark';
+      }
+      if (localStorage.getItem('ohs_projector') === 'true') {
+        document.documentElement.classList.add('projector-mode');
+      }
+
+      initAuth();
+      initMap();
+      initPastePrevention();
+      onVariableChange();
+      drawDualBlueprint();
+
+      // Hook inputs for autosave
+      const inputs = [
+        'partner2', 'partner3', 'callSign', 'preFlightHypothesis',
+        'fuseLengthA', 'fuseDiameterA', 'noseHeightA', 'addedMassA', 'totalMassA',
+        'finHeightA', 'finWidthA', 'finOffsetA',
+        'fuseLengthB', 'fuseDiameterB', 'noseHeightB', 'addedMassB', 'totalMassB',
+        'finHeightB', 'finWidthB', 'finOffsetB',
+        'hangTimeA', 'hangTimeB', 'cerClaim', 'cerEvidence', 'cerReasoning'
+      ];
+      inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', () => {
+            el.dataset.touched = 'true';
+            triggerAutoSave();
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
