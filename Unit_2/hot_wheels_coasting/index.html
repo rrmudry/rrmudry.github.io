@@ -1,0 +1,2545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hot Wheels Coasting Baseline: Deceleration &amp; Friction Lab • Periods 1, 2, 3</title>
+  <meta name="description" content="Hot Wheels Coasting Baseline: Explore deceleration, rolling friction, and momentum on an 8-foot track. The 3-car shootout, the weight challenge, and Newton's Second Law.">
+  <link rel="icon" type="image/svg+xml" href="../../assets/unit2-favicon.svg">
+
+  <!-- Google Fonts: Space Grotesk, Outfit, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Desmos Scientific Calculator API -->
+  <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+
+  <!-- Confetti Effects (Zero unpkg, official jsdelivr CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Firebase Compat SDKs (Zero unpkg, official Google gstatic CDN) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    /* =====================================================================
+       1. COLOR PALETTES & THEME TOKENS
+       ===================================================================== */
+    :root {
+      --bg-page: #070d19;
+      --bg-header: rgba(7, 13, 25, 0.95);
+      --bg-card: #0f172a;
+      --bg-card-hover: #17233d;
+      --bg-subcard: rgba(30, 41, 59, 0.7);
+      --bg-input: #0b1324;
+      --border: rgba(56, 189, 248, 0.25);
+      --border-strong: rgba(56, 189, 248, 0.6);
+      --border-subtle: rgba(255, 255, 255, 0.1);
+
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      /* Hot Wheels Racing Palette */
+      --orange: #f97316;
+      --orange-glow: rgba(249, 115, 22, 0.3);
+      --flame-yellow: #facc15;
+      --cyan: #38bdf8;
+      --cyan-glow: rgba(56, 189, 248, 0.25);
+      --green: #34d399;
+      --green-bg: rgba(52, 211, 153, 0.12);
+      --red: #fb7185;
+      --red-bg: rgba(251, 113, 133, 0.12);
+      --amber: #fbbf24;
+      --amber-bg: rgba(251, 191, 36, 0.12);
+      --purple: #c084fc;
+
+      --canvas-bg: #0b1426;
+      --canvas-track: #1e293b;
+      --canvas-grid: rgba(255, 255, 255, 0.08);
+      --canvas-text: #e2e8f0;
+      --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.35);
+    }
+
+    /* HIGH-CONTRAST LIGHT THEME (WCAG AAA Compliance >14:1) */
+    html.theme-light {
+      --bg-page: #f1f5f9;
+      --bg-header: rgba(255, 255, 255, 0.97);
+      --bg-card: #ffffff;
+      --bg-card-hover: #f8fafc;
+      --bg-subcard: #f8fafc;
+      --bg-input: #ffffff;
+      --border: #cbd5e1;
+      --border-strong: #0284c7;
+      --border-subtle: #e2e8f0;
+
+      /* Near-black ink slate text */
+      --text: #0f172a;
+      --text-muted: #334155;
+      --text-dim: #64748b;
+
+      /* Deep saturated accents */
+      --orange: #ea580c;
+      --orange-glow: rgba(234, 88, 12, 0.2);
+      --flame-yellow: #ca8a04;
+      --cyan: #0284c7;
+      --cyan-glow: rgba(2, 132, 199, 0.18);
+      --green: #047857;
+      --green-bg: #ecfdf5;
+      --red: #be123c;
+      --red-bg: #fff1f2;
+      --amber: #b45309;
+      --amber-bg: #fffbeb;
+      --purple: #7e22ce;
+
+      --canvas-bg: #ffffff;
+      --canvas-track: #cbd5e1;
+      --canvas-grid: rgba(0, 0, 0, 0.08);
+      --canvas-text: #0f172a;
+      --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Universal Root Font Scaling (Projector Mode) */
+    * { box-sizing: border-box; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    html.font-large { font-size: 19px; }
+    html.font-huge { font-size: 23px; }
+
+    body {
+      margin: 0;
+      background: var(--bg-page);
+      color: var(--text);
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.45;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .font-display { font-family: 'Space Grotesk', sans-serif; }
+
+    /* =====================================================================
+       2. HEADER & STICKY CONTROLS
+       ===================================================================== */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+    }
+
+    .header-bar {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.65rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-logo-icon {
+      font-size: 1.8rem;
+      filter: drop-shadow(0 0 10px var(--orange-glow));
+    }
+
+    .brand-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+
+    .brand-subtitle {
+      font-size: 0.72rem;
+      color: var(--orange);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-header {
+      padding: 0.4rem 0.75rem;
+      border-radius: 0.65rem;
+      background: var(--bg-subcard);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .btn-header:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--cyan);
+      transform: translateY(-1px);
+    }
+
+    .btn-header:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--orange), #d97706);
+      color: #ffffff;
+      border: none;
+      box-shadow: 0 4px 14px var(--orange-glow);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.1);
+      border: none;
+    }
+
+    /* Save Indicator */
+    .save-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 0.65rem;
+      background: var(--bg-subcard);
+      border: 1px solid var(--border);
+      font-size: 0.7rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-muted);
+    }
+
+    .save-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+    }
+
+    .save-dot.syncing {
+      background: var(--amber);
+      box-shadow: 0 0 8px var(--amber);
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+    }
+
+    /* =====================================================================
+       3. STEPPER PROGRESS BAR (Zero-Scroll Sticky Navigation)
+       ===================================================================== */
+    .nav-stepper-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.45rem 1rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .nav-stepper {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 0.4rem;
+    }
+
+    .step-btn {
+      padding: 0.5rem 0.4rem;
+      border-radius: 0.6rem;
+      background: var(--bg-subcard);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .step-btn span.step-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+    }
+
+    .step-btn.active {
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.25), rgba(56, 189, 248, 0.2));
+      border-color: var(--orange);
+      color: var(--text);
+      box-shadow: 0 0 12px var(--orange-glow);
+    }
+
+    .step-btn.completed {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    /* =====================================================================
+       4. MAIN CONTAINER & GLASS CARDS
+       ===================================================================== */
+    main {
+      flex: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+      width: 100%;
+    }
+
+    .glass-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 1.5rem;
+      transition: border-color 0.2s ease;
+    }
+
+    .glass-card:hover {
+      border-color: var(--border-strong);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 0.5rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      border: 1px solid transparent;
+    }
+
+    .badge-orange {
+      background: rgba(249, 115, 22, 0.15);
+      color: var(--orange);
+      border-color: rgba(249, 115, 22, 0.35);
+    }
+
+    .badge-cyan {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--cyan);
+      border-color: rgba(56, 189, 248, 0.35);
+    }
+
+    .badge-green {
+      background: var(--green-bg);
+      color: var(--green);
+      border-color: rgba(52, 211, 153, 0.35);
+    }
+
+    .badge-gold {
+      background: rgba(250, 204, 21, 0.15);
+      color: var(--flame-yellow);
+      border-color: rgba(250, 204, 21, 0.35);
+    }
+
+    /* Grid Layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+    }
+
+    @media (max-width: 768px) {
+      .grid-2, .grid-3, .grid-4 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Form Inputs */
+    .input-box {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 0.65rem;
+      padding: 0.6rem 0.85rem;
+      color: var(--text);
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .input-box:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px var(--orange-glow);
+    }
+
+    .input-box.text-center {
+      text-align: center;
+    }
+
+    .input-box.font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .label-meta {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Callout Card */
+    .callout {
+      padding: 1rem;
+      border-radius: 0.75rem;
+      background: var(--bg-subcard);
+      border-left: 4px solid var(--orange);
+      margin: 1rem 0;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .callout-pro-tip {
+      border-left-color: var(--cyan);
+      background: rgba(56, 189, 248, 0.08);
+    }
+
+    .callout-tuesday {
+      border-left-color: var(--green);
+      background: var(--green-bg);
+      border-width: 2px 2px 2px 6px;
+      border-color: rgba(52, 211, 153, 0.4) rgba(52, 211, 153, 0.4) rgba(52, 211, 153, 0.4) var(--green);
+    }
+
+    /* Simulation Canvas Container */
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      height: 260px;
+      background: var(--canvas-bg);
+      border: 1px solid var(--border);
+      border-radius: 0.85rem;
+      overflow: hidden;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Podiums and Champion Card */
+    .champion-banner {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(249, 115, 22, 0.15));
+      border: 2px solid var(--flame-yellow);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      text-align: center;
+      box-shadow: 0 0 24px rgba(250, 204, 21, 0.25);
+    }
+
+    /* Desmos Drawer Modal */
+    #desmos-drawer {
+      position: fixed;
+      bottom: 0;
+      right: 1.5rem;
+      width: 480px;
+      height: 380px;
+      background: var(--bg-card);
+      border: 2px solid var(--cyan);
+      border-bottom: none;
+      border-radius: 1rem 1rem 0 0;
+      box-shadow: 0 -8px 30px rgba(0,0,0,0.5);
+      z-index: 2000;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #desmos-drawer.open {
+      display: flex;
+    }
+
+    .drawer-bar {
+      padding: 0.5rem 1rem;
+      background: var(--bg-subcard);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Buttons */
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.25rem;
+      border-radius: 0.75rem;
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .btn-action:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-action:active {
+      transform: translateY(0);
+    }
+
+    .btn-launch {
+      background: linear-gradient(135deg, var(--orange), #ef4444);
+      color: #ffffff;
+      box-shadow: 0 4px 16px var(--orange-glow);
+    }
+
+    .btn-calc {
+      background: linear-gradient(135deg, var(--cyan), #3b82f6);
+      color: #ffffff;
+    }
+
+    .btn-next {
+      background: linear-gradient(135deg, var(--green), #059669);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(52, 211, 153, 0.25);
+    }
+
+    /* Radio Cards */
+    .radio-card {
+      padding: 1rem;
+      border-radius: 0.75rem;
+      background: var(--bg-subcard);
+      border: 2px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .radio-card:hover {
+      border-color: var(--cyan);
+      background: var(--bg-card-hover);
+    }
+
+    .radio-card.selected {
+      border-color: var(--orange);
+      background: rgba(249, 115, 22, 0.1);
+      box-shadow: 0 0 12px var(--orange-glow);
+    }
+
+    .radio-indicator {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid var(--text-muted);
+      margin-top: 2px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .radio-card.selected .radio-indicator {
+      border-color: var(--orange);
+    }
+
+    .radio-card.selected .radio-indicator::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--orange);
+    }
+
+    /* Scoreboard Footer */
+    .score-summary-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.25rem;
+      border-radius: 1rem;
+      background: var(--bg-subcard);
+      border: 1px solid var(--border);
+      margin-top: 1rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    /* Ticker tape visualizer */
+    .ticker-tape-container {
+      background: #fef08a;
+      color: #0f172a;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      border: 2px dashed #ca8a04;
+      font-family: 'JetBrains Mono', monospace;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 1rem;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      background: var(--bg-header);
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =====================================================================
+       HEADER: HOT WHEELS LAB BRAND & LIVE UTILITIES
+       ===================================================================== -->
+  <header>
+    <div class="header-bar">
+      
+      <!-- Brand & Standard Alignment -->
+      <div class="brand-group">
+        <span class="brand-logo-icon">🏎️</span>
+        <div>
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <h1 class="brand-title">Hot Wheels Coasting Baseline</h1>
+            <span class="badge badge-orange font-mono">Periods 1, 2, 3</span>
+            <span data-ngss-code="HS-PS2-1" class="badge badge-cyan font-mono">HS-PS2-1</span>
+          </div>
+          <div class="brand-subtitle">Deceleration &bull; Rolling Friction &bull; The Weight Challenge</div>
+        </div>
+      </div>
+
+      <!-- Action Utilities & Auth -->
+      <div class="header-actions">
+        <!-- Desmos Calculator Drawer Toggle -->
+        <button id="btn-toggle-calculator" class="btn-header" title="Toggle Desmos Scientific Calculator">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
+          <span>Calculator</span>
+        </button>
+
+        <!-- Sound FX Toggle -->
+        <button id="btn-sound-toggle" class="btn-header" title="Toggle Sound FX">
+          🔊 <span id="sound-label">Sound ON</span>
+        </button>
+
+        <!-- Font Scaling (Projector Mode) -->
+        <button id="btn-font-toggle" class="btn-header" title="Toggle Font Size: Normal / Large / Projector">
+          🖥️ <span id="font-size-label">Normal</span>
+        </button>
+
+        <!-- Theme Toggle (Dark / High-Contrast Light) -->
+        <button id="btn-theme-toggle" class="btn-header" title="Toggle High-Contrast Light / Dark Mode">
+          ☀️ <span id="theme-label">Light Mode</span>
+        </button>
+
+        <!-- Cloud Save Status -->
+        <div class="save-indicator" title="Firestore Auto-Save Status">
+          <span id="save-status-dot" class="save-dot"></span>
+          <span id="save-status-text">Cloud Ready</span>
+        </div>
+
+        <!-- Google Sign-in / User Profile -->
+        <div id="auth-user-status">
+          <button id="btn-google-login" class="btn-header btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24"><path fill="#ffffff" d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/></svg>
+            <span>Sign In</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Sticky Navigation Stepper (5 Structured Stages) -->
+    <div class="nav-stepper-wrap">
+      <div class="nav-stepper">
+        <button class="step-btn active" data-step="1">
+          <span class="font-mono">STAGE 1</span>
+          <span class="step-title">Track Setup</span>
+        </button>
+        <button class="step-btn" data-step="2">
+          <span class="font-mono">STAGE 2</span>
+          <span class="step-title">Car Shootout</span>
+        </button>
+        <button class="step-btn" data-step="3">
+          <span class="font-mono">STAGE 3</span>
+          <span class="step-title">Weight Hook</span>
+        </button>
+        <button class="step-btn" data-step="4">
+          <span class="font-mono">STAGE 4</span>
+          <span class="step-title">Deceleration</span>
+        </button>
+        <button class="step-btn" data-step="5">
+          <span class="font-mono">STAGE 5</span>
+          <span class="step-title">Tuesday Wrap-Up</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- =====================================================================
+       MAIN WORKBENCH
+       ===================================================================== -->
+  <main>
+
+    <!-- ===================================================================
+         STAGE 1: 4-TRACK RAMP SETUP & TEAM CALIBRATION
+         =================================================================== -->
+    <section id="stage-1" class="stage-section">
+      <div class="glass-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>📐</span> Stage 1: Track Setup &amp; Group Calibration
+          </div>
+          <span class="badge badge-orange font-mono">Setup Once on Monday</span>
+        </div>
+
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Welcome Periods 1, 2, and 3! Today we investigate why moving cars coast to a stop. Each group gets <strong>4 pieces of Hot Wheels track</strong> to create a launch ramp propped against a chair or stack of books. The cars roll down the ramp and run out across the classroom floor, where you will measure their coasting stopping distance.
+        </p>
+
+        <!-- Team Identification (Class Period & Partners) -->
+        <div class="grid-2" style="margin-bottom: 1.25rem;">
+          <div>
+            <label class="label-meta">Class Period</label>
+            <select id="station-period" class="input-box font-mono" style="font-weight:700;">
+              <option value="1">Period 1 (Conceptual Physics)</option>
+              <option value="2">Period 2 (Conceptual Physics)</option>
+              <option value="3">Period 3 (Conceptual Physics)</option>
+              <option value="4">Period 4 (Physics)</option>
+              <option value="5">Period 5 (Physics)</option>
+              <option value="6">Period 6 (Physics)</option>
+              <option value="0">Period 0 (Honors)</option>
+            </select>
+          </div>
+          <div>
+            <label class="label-meta">Team Partners</label>
+            <input type="text" id="station-partners" class="input-box" placeholder="e.g. Maya, Jordan, Alex" />
+          </div>
+        </div>
+
+        <!-- Apparatus Schematic SVG Diagram -->
+        <div style="background: var(--bg-subcard); border: 1px solid var(--border); border-radius: 0.85rem; padding: 1rem; margin-bottom: 1.25rem;">
+          <div style="font-size: 0.8rem; font-weight: 700; color: var(--orange); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.05em;">
+            Apparatus Architecture (4 Track Pieces Connected into Launch Ramp)
+          </div>
+          
+          <svg viewBox="0 0 900 240" style="width: 100%; height: auto; display: block;">
+            <defs>
+              <linearGradient id="rampGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#f97316" />
+                <stop offset="100%" stop-color="#ea580c" />
+              </linearGradient>
+            </defs>
+
+            <!-- Floor Line (Full Width) -->
+            <rect x="40" y="190" width="820" height="8" rx="3" fill="#334155" />
+            <text x="50" y="215" font-family="'JetBrains Mono', monospace" font-size="11" fill="var(--text-muted)">Classroom Floor (Tile / Linoleum)</text>
+
+            <!-- Chair / Book Stack Support -->
+            <rect x="60" y="90" width="90" height="100" rx="4" fill="#1e293b" stroke="var(--border)" stroke-width="2" />
+            <text x="105" y="140" font-family="'Outfit', sans-serif" font-weight="700" font-size="11" fill="#cbd5e1" text-anchor="middle">Chair or Books</text>
+            <text x="105" y="158" font-family="'JetBrains Mono', monospace" font-size="10" fill="var(--orange)" text-anchor="middle">20–30 cm</text>
+
+            <!-- Height Dimension Arrow -->
+            <line x1="45" y1="90" x2="45" y2="190" stroke="var(--orange)" stroke-width="2" />
+            <polygon points="45,86 41,94 49,94" fill="var(--orange)" />
+            <polygon points="45,194 41,186 49,186" fill="var(--orange)" />
+            <text x="35" y="145" font-family="'JetBrains Mono', monospace" font-size="11" fill="var(--orange)" text-anchor="end" font-weight="700">h ≈ 25 cm</text>
+
+            <!-- 4 Connected Track Pieces (Curving down to floor) -->
+            <path d="M 120 90 Q 230 185 290 190" fill="none" stroke="url(#rampGrad)" stroke-width="8" stroke-linecap="round" />
+            <text x="180" y="112" font-family="'Outfit', sans-serif" font-weight="700" font-size="12" fill="var(--orange)">4 Track Pieces Connected</text>
+
+            <!-- Mandatory Starting Line Masking Tape -->
+            <rect x="135" y="92" width="16" height="14" rx="2" fill="#fef08a" stroke="#ca8a04" stroke-width="1.5" transform="rotate(35 143 99)" />
+            <line x1="160" y1="75" x2="148" y2="92" stroke="#facc15" stroke-width="1.5" />
+            <text x="170" y="70" font-family="'JetBrains Mono', monospace" font-weight="700" font-size="11" fill="#facc15">Mandatory STARTING TAPE</text>
+
+            <!-- Transition Point (0 cm) -->
+            <line x1="290" y1="175" x2="290" y2="205" stroke="var(--cyan)" stroke-width="3" stroke-dasharray="3,3" />
+            <text x="290" y="168" font-family="'JetBrains Mono', monospace" font-weight="700" font-size="11" fill="var(--cyan)" text-anchor="middle">0 cm (Bottom of Ramp)</text>
+
+            <!-- Open Floor Coasting Runway -->
+            <line x1="290" y1="190" x2="840" y2="190" stroke="#38bdf8" stroke-width="2" stroke-dasharray="6,4" />
+            <text x="560" y="175" font-family="'Outfit', sans-serif" font-weight="700" font-size="12" fill="var(--cyan)" text-anchor="middle">Open Classroom Floor Runway (Cars Coast Here)</text>
+
+            <!-- Sample Car Coasting Vector -->
+            <circle cx="500" cy="180" r="10" fill="#f97316" stroke="#ffffff" stroke-width="2" />
+            <!-- Velocity Vector (Forward) -->
+            <line x1="500" y1="165" x2="550" y2="165" stroke="var(--green)" stroke-width="3" />
+            <polygon points="555,165 547,161 547,169" fill="var(--green)" />
+            <text x="525" y="155" font-family="'JetBrains Mono', monospace" font-weight="700" font-size="11" fill="var(--green)">Speed v (Forward →)</text>
+
+            <!-- Friction Vector (Backward) -->
+            <line x1="500" y1="198" x2="450" y2="198" stroke="var(--red)" stroke-width="3" />
+            <polygon points="445,198 453,194 453,202" fill="var(--red)" />
+            <text x="475" y="215" font-family="'JetBrains Mono', monospace" font-weight="700" font-size="11" fill="var(--red)">← Friction from Floor</text>
+
+            <!-- Baseline Tape Mark Sample -->
+            <rect x="720" y="184" width="12" height="18" fill="#fef08a" stroke="#ca8a04" stroke-width="1.5" />
+            <text x="726" y="155" font-family="'JetBrains Mono', monospace" font-weight="700" font-size="10" fill="#fef08a" text-anchor="middle">Bumper Tape</text>
+            <text x="726" y="168" font-family="'JetBrains Mono', monospace" font-weight="700" font-size="10" fill="var(--flame-yellow)" text-anchor="middle">Mark</text>
+          </svg>
+        </div>
+
+        <!-- Pro-Tip Callout Banner -->
+        <div class="callout callout-pro-tip">
+          <strong style="color: var(--cyan); display: flex; align-items: center; gap: 0.35rem; margin-bottom: 0.25rem;">
+            <span>💡</span> Pro-Tip: Keep Launch Ramp Low (20 to 30 cm)
+          </strong>
+          Keep your launch ramp relatively low (around 20 to 30 cm off the ground). If the angle is too steep, cars bottom out and bounce at the transition curve onto the floor, ruining the data! Put a piece of masking tape on the ramp as your group's mandatory <strong>Starting Line</strong>.
+        </div>
+
+        <!-- Verification Checklist -->
+        <div style="background: var(--bg-subcard); border: 1px solid var(--border); border-radius: 0.85rem; padding: 1.25rem; margin-bottom: 1.5rem;">
+          <div style="font-weight: 800; font-size: 0.9rem; margin-bottom: 0.75rem;">
+            Track Setup Checklist (Verify with Group):
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.85rem;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" id="check-4-track" style="accent-color: var(--orange); width: 18px; height: 18px;" />
+              <span>Connected <strong>4 pieces of track</strong> securely together to create your ramp.</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" id="check-ramp-height" style="accent-color: var(--orange); width: 18px; height: 18px;" />
+              <span>Ramp top propped on chair or books at a low height (around <strong>20 to 30 cm</strong> off the floor).</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" id="check-starting-tape" style="accent-color: var(--orange); width: 18px; height: 18px;" />
+              <span>Masking tape applied to the ramp as the mandatory <strong>Starting Line</strong>.</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" id="check-floor-runway" style="accent-color: var(--orange); width: 18px; height: 18px;" />
+              <span>Clear open floor runway ahead and tape ready to mark where cars stop.</span>
+            </label>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end;">
+          <button id="btn-to-stage-2" class="btn-action btn-next">
+            <span>Proceed to Stage 2: Car Shootout</span>
+            <span>&rarr;</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         STAGE 2: THE CAR SHOOTOUT (15 MINS)
+         =================================================================== -->
+    <section id="stage-2" class="stage-section" style="display: none;">
+      <div class="glass-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🏎️</span> Stage 2: The Car Shootout (15 Mins)
+          </div>
+          <span class="badge badge-orange font-mono">3 Different Cars &bull; 3 Releases Each</span>
+        </div>
+
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Give each group 3 very different cars (e.g. a heavy metal muscle car, a light plastic racer, and a tall/boxy truck). Release each car from the ramp tape mark <strong>3 times</strong> (without pushing!). Cars roll down the 4-track ramp and coast across the classroom floor. Put a labeled piece of masking tape beside the floor where the front bumper stops, and record the coasting distance (in cm measured from the bottom of the ramp).
+        </p>
+
+        <!-- 3 Car Input Cards -->
+        <div class="grid-3" style="margin-bottom: 1.5rem;">
+          
+          <!-- Car 1: Heavy Metal Muscle Car -->
+          <div class="glass-card" style="padding: 1rem; margin: 0; background: var(--bg-subcard);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+              <span style="font-size: 1.3rem;">🚗</span>
+              <span class="badge badge-orange font-mono">Car 1: Heavy Metal</span>
+            </div>
+            <label class="label-meta">Car Name / Model</label>
+            <input type="text" id="car1-name" class="input-box" value="Die-Cast Muscle Car" style="margin-bottom: 0.75rem;" />
+
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.75rem;">
+              <div>
+                <label class="label-meta">Trial 1 Distance (cm)</label>
+                <input type="number" id="car1-t1" class="input-box font-mono car-dist-input" placeholder="e.g. 142.5" step="0.5" />
+              </div>
+              <div>
+                <label class="label-meta">Trial 2 Distance (cm)</label>
+                <input type="number" id="car1-t2" class="input-box font-mono car-dist-input" placeholder="e.g. 145.0" step="0.5" />
+              </div>
+              <div>
+                <label class="label-meta">Trial 3 Distance (cm)</label>
+                <input type="number" id="car1-t3" class="input-box font-mono car-dist-input" placeholder="e.g. 143.5" step="0.5" />
+              </div>
+            </div>
+
+            <div style="padding: 0.6rem; border-radius: 0.5rem; background: var(--bg-card); border: 1px solid var(--border); text-align: center;">
+              <div class="label-meta">Average Stopping Distance</div>
+              <div id="car1-avg" class="font-mono" style="font-size: 1.25rem; font-weight: 800; color: var(--orange);">-- cm</div>
+            </div>
+          </div>
+
+          <!-- Car 2: Light Plastic Racer -->
+          <div class="glass-card" style="padding: 1rem; margin: 0; background: var(--bg-subcard);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+              <span style="font-size: 1.3rem;">🏎️</span>
+              <span class="badge badge-cyan font-mono">Car 2: Light Plastic</span>
+            </div>
+            <label class="label-meta">Car Name / Model</label>
+            <input type="text" id="car2-name" class="input-box" value="Lightweight Plastic Racer" style="margin-bottom: 0.75rem;" />
+
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.75rem;">
+              <div>
+                <label class="label-meta">Trial 1 Distance (cm)</label>
+                <input type="number" id="car2-t1" class="input-box font-mono car-dist-input" placeholder="e.g. 98.0" step="0.5" />
+              </div>
+              <div>
+                <label class="label-meta">Trial 2 Distance (cm)</label>
+                <input type="number" id="car2-t2" class="input-box font-mono car-dist-input" placeholder="e.g. 102.5" step="0.5" />
+              </div>
+              <div>
+                <label class="label-meta">Trial 3 Distance (cm)</label>
+                <input type="number" id="car2-t3" class="input-box font-mono car-dist-input" placeholder="e.g. 100.0" step="0.5" />
+              </div>
+            </div>
+
+            <div style="padding: 0.6rem; border-radius: 0.5rem; background: var(--bg-card); border: 1px solid var(--border); text-align: center;">
+              <div class="label-meta">Average Stopping Distance</div>
+              <div id="car2-avg" class="font-mono" style="font-size: 1.25rem; font-weight: 800; color: var(--cyan);">-- cm</div>
+            </div>
+          </div>
+
+          <!-- Car 3: Tall / Boxy Truck -->
+          <div class="glass-card" style="padding: 1rem; margin: 0; background: var(--bg-subcard);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+              <span style="font-size: 1.3rem;">🚚</span>
+              <span class="badge badge-gold font-mono">Car 3: Boxy Truck</span>
+            </div>
+            <label class="label-meta">Car Name / Model</label>
+            <input type="text" id="car3-name" class="input-box" value="Tall Delivery Truck" style="margin-bottom: 0.75rem;" />
+
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.75rem;">
+              <div>
+                <label class="label-meta">Trial 1 Distance (cm)</label>
+                <input type="number" id="car3-t1" class="input-box font-mono car-dist-input" placeholder="e.g. 84.0" step="0.5" />
+              </div>
+              <div>
+                <label class="label-meta">Trial 2 Distance (cm)</label>
+                <input type="number" id="car3-t2" class="input-box font-mono car-dist-input" placeholder="e.g. 88.5" step="0.5" />
+              </div>
+              <div>
+                <label class="label-meta">Trial 3 Distance (cm)</label>
+                <input type="number" id="car3-t3" class="input-box font-mono car-dist-input" placeholder="e.g. 86.0" step="0.5" />
+              </div>
+            </div>
+
+            <div style="padding: 0.6rem; border-radius: 0.5rem; background: var(--bg-card); border: 1px solid var(--border); text-align: center;">
+              <div class="label-meta">Average Stopping Distance</div>
+              <div id="car3-avg" class="font-mono" style="font-size: 1.25rem; font-weight: 800; color: var(--flame-yellow);">-- cm</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Interactive Animated Shootout Track Simulation -->
+        <div style="margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <div style="font-weight: 800; font-size: 0.95rem; display: flex; align-items: center; gap: 0.4rem;">
+              <span>🏁</span> Live Track Visualizer &bull; Comparative Shootout
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button id="btn-animate-shootout" class="btn-action btn-launch" style="padding: 0.45rem 0.85rem; font-size: 0.78rem;">
+                <span>▶ Run Visual Shootout</span>
+              </button>
+              <button id="btn-reset-shootout" class="btn-header" style="font-size: 0.78rem;">
+                <span>↺ Reset</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="canvas-container">
+            <canvas id="canvas-shootout"></canvas>
+          </div>
+          <div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 0.35rem; display: flex; justify-content: space-between;">
+            <span>Release Ramp (0–60 cm)</span>
+            <span>Coast Line (0 cm)</span>
+            <span>Tape Marks along Floor Runway (up to 200+ cm)</span>
+          </div>
+        </div>
+
+        <!-- Station Champion Banner (Auto-Revealed when data entered) -->
+        <div id="champion-reveal-card" class="champion-banner" style="display: none; margin-bottom: 1.5rem;">
+          <div style="font-size: 2rem; margin-bottom: 0.25rem;">🏆</div>
+          <div style="font-size: 1.2rem; font-weight: 800; color: var(--flame-yellow); letter-spacing: -0.01em;">
+            Station Champion: <span id="champion-name">--</span>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text); margin-top: 0.25rem;">
+            Longest coasting distance achieved: <strong id="champion-distance" class="font-mono" style="color: var(--flame-yellow);">-- cm</strong>!
+            <br>Keep this exact car on your station table for the weight challenge in Stage 3!
+          </p>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <button id="btn-back-to-stage-1" class="btn-header">
+            <span>&larr; Back to Setup</span>
+          </button>
+          <button id="btn-to-stage-3" class="btn-action btn-next">
+            <span>Proceed to Stage 3: The Weight Hook</span>
+            <span>&rarr;</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         STAGE 3: THE CONCEPTUAL HOOK & WEIGHT TEST (15 MINS)
+         =================================================================== -->
+    <section id="stage-3" class="stage-section" style="display: none;">
+      <div class="glass-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>⚖️</span> Stage 3: The "Wait, Does Weight Help or Hurt?" Challenge
+          </div>
+          <span class="badge badge-gold font-mono">15 Mins &bull; Conceptual Hook</span>
+        </div>
+
+        <!-- Conceptual Hook Prompt -->
+        <div style="background: linear-gradient(135deg, rgba(249, 115, 22, 0.12), rgba(56, 189, 248, 0.08)); border: 2px solid var(--orange); border-radius: 0.85rem; padding: 1.25rem; margin-bottom: 1.5rem;">
+          <div style="font-size: 1.1rem; font-weight: 800; color: var(--orange); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+            <span>🤔</span> The Big Conceptual Question (Choose BEFORE testing!):
+          </div>
+          <p style="font-size: 0.95rem; line-height: 1.5; color: var(--text); margin: 0 0 1rem 0;">
+            <em>"If I take our best-rolling car (<strong id="hook-champion-label" style="color:var(--flame-yellow);">Champion Car</strong>) and tape pennies to its roof, it presses down harder on the floor (more downward force). 
+            <br><br>
+            Will it stop sooner? Or will its extra momentum keep it rolling farther?"</em>
+          </p>
+
+          <!-- Prediction Selection Radios (Only A and B) -->
+          <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem;">
+            <div class="radio-card" data-hypo="A">
+              <div class="radio-indicator"></div>
+              <div>
+                <strong style="color: var(--red);">Hypothesis A: It will stop SOONER (shorter distance).</strong>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.2rem 0 0 0;">
+                  Heavier car = presses down harder = more friction forces opposing motion, slowing the car down faster.
+                </p>
+              </div>
+            </div>
+
+            <div class="radio-card" data-hypo="B">
+              <div class="radio-indicator"></div>
+              <div>
+                <strong style="color: var(--green);">Hypothesis B: It will roll FARTHER (greater distance).</strong>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.2rem 0 0 0;">
+                  Heavier car = more mass = more momentum and kinetic energy to plow through rolling resistance.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Written Student Reasoning -->
+          <div>
+            <label class="label-meta">Why did your group choose this hypothesis? (1–2 sentences):</label>
+            <textarea id="prediction-reasoning" class="input-box" rows="2" placeholder="We predict this because..." style="resize: vertical;"></textarea>
+            <div id="prediction-char-hint" style="font-size: 0.72rem; color: var(--text-dim); margin-top: 0.25rem;">
+              Minimum 20 characters required. (Current: 0)
+            </div>
+          </div>
+        </div>
+
+        <!-- Empirical Weight Trials Table -->
+        <div class="glass-card" style="padding: 1.25rem; background: var(--bg-subcard); margin-bottom: 1.5rem;">
+          <div style="font-size: 1rem; font-weight: 800; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between;">
+            <span>🪙 Empirical Testing: Taping Pennies to Roof</span>
+            <span class="badge badge-cyan font-mono">1 Penny &approx; 2.5 g</span>
+          </div>
+
+          <div class="grid-4" style="margin-bottom: 1rem;">
+            
+            <!-- Tier 0: +0 Pennies (Baseline) -->
+            <div style="background: var(--bg-card); padding: 0.85rem; border-radius: 0.75rem; border: 1px solid var(--border);">
+              <div style="font-weight: 800; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.35rem;">
+                +0 Pennies (Baseline)
+              </div>
+              <p style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 0.5rem;">Auto-carried from Stage 2 Champion</p>
+              <input type="number" id="weight-tier0-dist" class="input-box font-mono" placeholder="Baseline avg" readonly style="opacity: 0.9; background: var(--bg-subcard);" />
+            </div>
+
+            <!-- Tier 1: +2 Pennies (~5g) -->
+            <div style="background: var(--bg-card); padding: 0.85rem; border-radius: 0.75rem; border: 1px solid var(--border);">
+              <div style="font-weight: 800; font-size: 0.85rem; color: var(--orange); margin-bottom: 0.35rem;">
+                +2 Pennies (+5.0 g)
+              </div>
+              <p style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 0.5rem;">Tape 2 pennies flat to roof</p>
+              <input type="number" id="weight-tier1-dist" class="input-box font-mono weight-input" placeholder="Distance (cm)" step="0.5" />
+            </div>
+
+            <!-- Tier 2: +4 Pennies (~10g) -->
+            <div style="background: var(--bg-card); padding: 0.85rem; border-radius: 0.75rem; border: 1px solid var(--border);">
+              <div style="font-weight: 800; font-size: 0.85rem; color: var(--cyan); margin-bottom: 0.35rem;">
+                +4 Pennies (+10.0 g)
+              </div>
+              <p style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 0.5rem;">Tape 4 pennies securely</p>
+              <input type="number" id="weight-tier2-dist" class="input-box font-mono weight-input" placeholder="Distance (cm)" step="0.5" />
+            </div>
+
+            <!-- Tier 3: +6 Pennies (~15g) -->
+            <div style="background: var(--bg-card); padding: 0.85rem; border-radius: 0.75rem; border: 1px solid var(--border);">
+              <div style="font-weight: 800; font-size: 0.85rem; color: var(--flame-yellow); margin-bottom: 0.35rem;">
+                +6 Pennies (+15.0 g)
+              </div>
+              <p style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 0.5rem;">Heavy load test</p>
+              <input type="number" id="weight-tier3-dist" class="input-box font-mono weight-input" placeholder="Distance (cm)" step="0.5" />
+            </div>
+
+          </div>
+
+          <!-- Weight vs Coasting Distance Dynamic Graph -->
+          <div style="margin-top: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span class="label-meta" style="margin: 0;">Coasting Distance vs. Added Pennies</span>
+              <span id="weight-trend-label" class="badge badge-green font-mono">Trend: Enter Data Above</span>
+            </div>
+            <div style="height: 180px; width: 100%; background: var(--canvas-bg); border-radius: 0.75rem; border: 1px solid var(--border); overflow: hidden;">
+              <canvas id="canvas-weight-graph"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- The Real-World Mechanical Friction Discovery Callout -->
+        <div class="callout" style="border-left-color: var(--flame-yellow); background: rgba(250, 204, 21, 0.08);">
+          <strong style="color: var(--flame-yellow); display: flex; align-items: center; gap: 0.35rem; margin-bottom: 0.25rem;">
+            <span>🔍</span> Physics Reflection: Mass, Momentum &amp; Friction
+          </strong>
+          <p style="margin: 0; line-height: 1.5; font-size: 0.85rem;">
+            Look at your group's data! For many cars, adding a small amount of weight gives the car more momentum and kinetic energy, helping it roll farther across the smooth floor tiles. For other cars, the extra downward force increases friction on the wheels and slows it down. What did you observe with your car?
+          </p>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <button id="btn-back-to-stage-2" class="btn-header">
+            <span>&larr; Back to Shootout</span>
+          </button>
+          <button id="btn-to-stage-4" class="btn-action btn-next">
+            <span>Proceed to Stage 4: Deceleration</span>
+            <span>&rarr;</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         STAGE 4: UNDERSTANDING DECELERATION (SLOWING DOWN)
+         =================================================================== -->
+    <section id="stage-4" class="stage-section" style="display: none;">
+      <div class="glass-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>📉</span> Stage 4: Understanding Deceleration (Slowing Down)
+          </div>
+          <span class="badge badge-cyan font-mono">Conceptual Physics &bull; Why Do Cars Stop?</span>
+        </div>
+
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Why do Hot Wheels cars slow down and stop across the floor? As your car rolls along the flat floor, <strong>no engine or hand is pushing it forward</strong>. The floor pushes <strong>backward</strong> with friction against the spinning wheels!
+        </p>
+
+        <!-- 2 Simple Conceptual Cards -->
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          
+          <!-- Concept Card 1: Forward Motion vs Backward Friction -->
+          <div class="glass-card" style="padding: 1.25rem; background: var(--bg-subcard); margin: 0;">
+            <div style="font-weight: 800; font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--orange);">
+              1. Moving Forward vs. Pushing Backward
+            </div>
+
+            <svg viewBox="0 0 400 170" style="width: 100%; height: auto; display: block;">
+              <!-- Floor Line -->
+              <line x1="20" y1="140" x2="380" y2="140" stroke="#475569" stroke-width="3" />
+              <!-- Car Body -->
+              <rect x="150" y="80" width="100" height="40" rx="6" fill="#f97316" stroke="#ffffff" stroke-width="2" />
+              <!-- Wheels -->
+              <circle cx="170" cy="125" r="12" fill="#0f172a" stroke="#94a3b8" stroke-width="3" />
+              <circle cx="230" cy="125" r="12" fill="#0f172a" stroke="#94a3b8" stroke-width="3" />
+              <text x="200" y="105" font-family="'Outfit', sans-serif" font-weight="800" font-size="12" fill="#ffffff" text-anchor="middle">Hot Wheels Car</text>
+
+              <!-- Forward Motion Velocity Arrow (Green) -->
+              <line x1="200" y1="55" x2="270" y2="55" stroke="var(--green)" stroke-width="3" />
+              <polygon points="275,55 267,51 267,59" fill="var(--green)" />
+              <text x="235" y="45" font-family="'Outfit', sans-serif" font-weight="700" font-size="11" fill="var(--green)">Motion (Forward →)</text>
+
+              <!-- Backward Net Force Friction (Red) -->
+              <line x1="150" y1="100" x2="70" y2="100" stroke="var(--red)" stroke-width="3.5" />
+              <polygon points="65,100 73,96 73,104" fill="var(--red)" />
+              <text x="110" y="90" font-family="'Outfit', sans-serif" font-weight="700" font-size="11" fill="var(--red)">Friction (← Backward)</text>
+
+              <!-- Zero Forward Push -->
+              <text x="270" y="105" font-family="'Outfit', sans-serif" font-style="italic" font-size="11" fill="var(--text-dim)">Forward push = ZERO!</text>
+            </svg>
+
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.4;">
+              Because friction pushes in the opposite direction of the car's motion, it acts like an invisible brake, stealing speed every second until the car stops.
+            </p>
+          </div>
+
+          <!-- Concept Card 2: What Deceleration Means -->
+          <div class="glass-card" style="padding: 1.25rem; background: var(--bg-subcard); margin: 0;">
+            <div style="font-weight: 800; font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--cyan);">
+              2. Why Physicists Call This "Negative Acceleration"
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.85rem; margin-top: 0.5rem;">
+              <div style="background: var(--bg-card); padding: 0.75rem; border-radius: 0.65rem; border-left: 4px solid var(--green);">
+                <strong style="color: var(--green);">Positive Acceleration (+):</strong>
+                <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.2rem;">
+                  Speeding up in the forward direction (like when rolling down the launch ramp!).
+                </div>
+              </div>
+
+              <div style="background: var(--bg-card); padding: 0.75rem; border-radius: 0.65rem; border-left: 4px solid var(--red);">
+                <strong style="color: var(--red);">Negative Acceleration (−) / Deceleration:</strong>
+                <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.2rem;">
+                  Slowing down while moving forward. The backward push makes the speed decrease toward zero.
+                </div>
+              </div>
+            </div>
+
+            <div style="font-size: 0.8rem; color: var(--text-dim); margin-top: 0.75rem;">
+              💡 <em>Key takeaway: You don't have to be moving backwards to have negative acceleration! Whenever you are slowing down in a forward direction, your acceleration is negative.</em>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Ticker Tape / Strobe Trail Visualization -->
+        <div style="margin-bottom: 1.5rem;">
+          <div style="font-weight: 800; font-size: 0.95rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+            <span>🎞️</span> Visualizing Slowing Down: Strobe Dot Trail
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+            Imagine a dripping paint dropper attached to your car dropping 1 dot every 0.1 seconds onto the floor. Notice the spacing between the dots:
+          </p>
+
+          <div class="ticker-tape-container">
+            <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 0.75rem;">
+              <span>[0 cm Bottom of Ramp]</span>
+              <span style="letter-spacing: 28px;">●●●●</span>
+              <span style="color: #b45309; font-size: 0.7rem;">(Fast: Dots Far Apart)</span>
+              <span style="letter-spacing: 18px;">●●●</span>
+              <span style="letter-spacing: 10px;">●●</span>
+              <span style="letter-spacing: 4px;">●●●</span>
+              <span style="color: #dc2626; font-size: 0.7rem;">(Slowing Down: Dots Crowd Closer)</span>
+              <span>[CAR STOPS ●]</span>
+            </div>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 0.35rem;">
+            Because the car covers less distance each second as it slows down, the dots get closer and closer together until it stops.
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <button id="btn-back-to-stage-3" class="btn-header">
+            <span>&larr; Back to Weight Challenge</span>
+          </button>
+          <button id="btn-to-stage-5" class="btn-action btn-next">
+            <span>Proceed to Stage 5: Tuesday Wrap-Up</span>
+            <span>&rarr;</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         STAGE 5: SYNTHESIS & TUESDAY BASELINE RETENTION
+         =================================================================== -->
+    <section id="stage-5" class="stage-section" style="display: none;">
+      <div class="glass-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🏁</span> Stage 5: Wrap-Up &amp; Tuesday Baseline Retention
+          </div>
+          <span class="badge badge-green font-mono">10 Mins &bull; Final Submission (10 Pts)</span>
+        </div>
+
+        <!-- MANDATORY TUESDAY TAPE RETENTION WARNING BANNER -->
+        <div class="callout callout-tuesday" style="margin-bottom: 1.5rem;">
+          <div style="font-size: 1.15rem; font-weight: 900; color: var(--green); display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+            <span>🛑</span> CRITICAL WRAP-UP DIRECTIVE: LEAVE TAPE ON THE FLOOR!
+          </div>
+          <p style="font-size: 0.95rem; line-height: 1.5; color: var(--text); margin: 0 0 0.5rem 0;">
+            <strong>DO NOT peel off your baseline tape mark!</strong> Leave your group's <strong>"Baseline Stopping Mark"</strong> firmly taped to the classroom floor for Tuesday!
+          </p>
+          <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.85rem; color: var(--text-muted); flex-wrap: wrap;">
+            <span>Your Group Baseline Distance: <strong id="tuesday-record-dist" class="font-mono" style="color: var(--flame-yellow); font-size: 1.1rem;">-- cm</strong></span>
+            <span>&bull;</span>
+            <span>Champion Car: <strong id="tuesday-record-car" style="color: var(--cyan);">--</strong></span>
+            <span>&bull;</span>
+            <span>Period: <strong id="tuesday-record-period" style="color: var(--orange);">Period 1</strong></span>
+          </div>
+        </div>
+
+        <!-- 3 Targeted Synthesis Questions -->
+        <div style="margin-bottom: 1.5rem;">
+          <div style="font-weight: 800; font-size: 1.05rem; margin-bottom: 1rem;">
+            Three-Question Physics Synthesis Ticket (Checked for Credit):
+          </div>
+
+          <!-- Question 1: Short & Direct -->
+          <div class="glass-card" style="padding: 1rem; background: var(--bg-subcard); margin-bottom: 1rem;">
+            <label class="label-meta" style="color: var(--orange);">Question 1: Why Does the Car Stop?</label>
+            <p style="font-size: 0.88rem; margin: 0 0 0.5rem 0;">
+              What specific force pushes backward on your car to make it slow down and stop on the classroom floor?
+            </p>
+            <textarea id="synth-q1" class="input-box" rows="2" placeholder="The force that pushes backward on the car is..."></textarea>
+            <div id="q1-feedback" style="font-size: 0.75rem; margin-top: 0.25rem;"></div>
+          </div>
+
+          <!-- Question 2: Open to observations, does not assume 6 pennies is too much -->
+          <div class="glass-card" style="padding: 1rem; background: var(--bg-subcard); margin-bottom: 1rem;">
+            <label class="label-meta" style="color: var(--cyan);">Question 2: Did Adding Pennies Help or Hurt?</label>
+            <p style="font-size: 0.88rem; margin: 0 0 0.5rem 0;">
+              Look at your penny data: Did adding pennies make your car roll farther or stop sooner? Why do you think that happened?
+            </p>
+            <textarea id="synth-q2" class="input-box" rows="2" placeholder="When we added pennies, our car rolled... because..."></textarea>
+            <div id="q2-feedback" style="font-size: 0.75rem; margin-top: 0.25rem;"></div>
+          </div>
+
+          <!-- Question 3: Controlled variables / Fair testing -->
+          <div class="glass-card" style="padding: 1rem; background: var(--bg-subcard); margin-bottom: 1rem;">
+            <label class="label-meta" style="color: var(--green);">Question 3: Fair Testing &amp; Controlled Variables</label>
+            <p style="font-size: 0.88rem; margin: 0 0 0.5rem 0;">
+              Why was it important that every car was released from the exact same tape line on the ramp without being pushed?
+            </p>
+            <textarea id="synth-q3" class="input-box" rows="2" placeholder="Releasing from the same line without pushing was important because..."></textarea>
+            <div id="q3-feedback" style="font-size: 0.75rem; margin-top: 0.25rem;"></div>
+          </div>
+        </div>
+
+        <!-- Gradebook Scoring Bar & Firestore Sync -->
+        <div class="score-summary-bar">
+          <div>
+            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700;">
+              Assignment Grade (Highest Score Retained)
+            </div>
+            <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-top: 0.25rem;">
+              <span id="final-score-display" class="font-mono" style="font-size: 2rem; font-weight: 900; color: var(--orange);">0 / 10</span>
+              <span id="final-pct-display" class="badge badge-orange font-mono">0% Complete</span>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <button id="btn-validate-grade" class="btn-action btn-calc">
+              <span>✓ Verify Answers</span>
+            </button>
+            <button id="btn-submit-grade" class="btn-action btn-primary" style="padding: 0.75rem 1.5rem; font-size: 0.95rem;">
+              <span>🚀 Submit Score (10 Pts)</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="submit-status-msg" style="margin-top: 0.75rem; font-size: 0.85rem; text-align: right; color: var(--text-muted);"></div>
+
+        <div style="display: flex; justify-content: flex-start; margin-top: 1.5rem;">
+          <button id="btn-back-to-stage-4" class="btn-header">
+            <span>&larr; Back to Deceleration</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =====================================================================
+       DESMOS SCIENTIFIC CALCULATOR DRAWER
+       ===================================================================== -->
+  <div id="desmos-drawer">
+    <div class="drawer-bar">
+      <div style="display: flex; align-items: center; gap: 0.4rem; font-weight: 800; font-size: 0.85rem;">
+        <span>🧮</span> Desmos Scientific Calculator
+      </div>
+      <button id="btn-close-calculator" class="btn-header" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">✕ Close</button>
+    </div>
+    <div id="desmos-calculator-container" style="flex: 1; width: 100%; height: 100%;"></div>
+  </div>
+
+  <!-- =====================================================================
+       FOOTER
+       ===================================================================== -->
+  <footer>
+    <div style="max-w: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+      <div>
+        <strong>Orange High School &bull; Science Department</strong> &bull; Conceptual Physics (Periods 1, 2, 3)
+      </div>
+      <div>
+        Unit 2: Kinematics &bull; <span data-ngss-code="HS-PS2-1">HS-PS2-1</span> &bull; 🏎️ Hot Wheels Deceleration Investigation
+      </div>
+    </div>
+  </footer>
+
+  <!-- =====================================================================
+       JAVASCRIPT APPLICATION LOGIC
+       ===================================================================== -->
+  <script>
+    // Configuration & Assignment ID
+    const ASSIGNMENT_ID = 'unit2_day36_hot_wheels_coasting';
+    const FIREBASE_CONFIG = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+
+    // Global State
+    const AppState = {
+      user: null,
+      studentId: null,
+      studentName: 'Guest Student',
+      studentEmail: '',
+      classPeriod: 1,
+      currentStep: 1,
+      soundEnabled: true,
+      audioCtx: null,
+      desmosCalc: null,
+      cars: {
+        car1: { name: 'Die-Cast Muscle Car', t1: null, t2: null, t3: null, avg: null },
+        car2: { name: 'Lightweight Plastic Racer', t1: null, t2: null, t3: null, avg: null },
+        car3: { name: 'Tall Delivery Truck', t1: null, t2: null, t3: null, avg: null }
+      },
+      champion: null,
+      prediction: null,
+      predictionText: '',
+      weightTiers: {
+        t0: null, // baseline
+        t1: null, // +2 pennies
+        t2: null, // +4 pennies
+        t3: null  // +6 pennies
+      },
+      synthesis: {
+        q1: '',
+        q2: '',
+        q3: ''
+      },
+      score: 0,
+      isSubmitting: false
+    };
+
+    // =========================================================================
+    // 1. FIREBASE AUTH & FIRESTORE INITIALIZATION
+    // =========================================================================
+    let db = null;
+    try {
+      if (typeof firebase !== 'undefined') {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(FIREBASE_CONFIG);
+        }
+        db = firebase.firestore();
+        initFirebaseAuth();
+      }
+    } catch (e) {
+      console.warn('Firebase init warning:', e);
+    }
+
+    function initFirebaseAuth() {
+      firebase.auth().onAuthStateChanged(async (user) => {
+        const authStatusEl = document.getElementById('auth-user-status');
+        const saveStatusDot = document.getElementById('save-status-dot');
+        const saveStatusText = document.getElementById('save-status-text');
+
+        if (user) {
+          const email = (user.email || '').toLowerCase();
+          if (email.endsWith('@orangeusd.org') || email === 'ryan.mudry@gmail.com') {
+            AppState.user = user;
+            AppState.studentId = email.split('@')[0];
+            AppState.studentName = user.displayName || AppState.studentId;
+            AppState.studentEmail = email;
+
+            // Update Header Profile Badge
+            authStatusEl.innerHTML = `
+              <div style="display: flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.65rem; border-radius: 0.65rem; background: var(--bg-subcard); border: 1px solid var(--border); font-size: 0.75rem;">
+                <span style="color: var(--green);">●</span>
+                <span style="font-weight: 700; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${AppState.studentName}</span>
+                <span class="badge badge-orange font-mono" id="user-badge-period">P?</span>
+                <button id="btn-sign-out" style="background: none; border: none; color: var(--text-dim); cursor: pointer; padding: 0 0.2rem;" title="Sign Out">✕</button>
+              </div>
+            `;
+            document.getElementById('btn-sign-out').addEventListener('click', () => firebase.auth().signOut());
+
+            // Query Student Roster for Class Period
+            await resolveStudentRosterPeriod(AppState.studentId, email);
+
+            // Fetch any prior saved submission
+            await loadExistingSubmission();
+          } else {
+            alert('Access restricted: Please sign in using your official school @orangeusd.org account.');
+            firebase.auth().signOut();
+          }
+        } else {
+          AppState.user = null;
+          AppState.studentId = null;
+          authStatusEl.innerHTML = `
+            <button id="btn-google-login" class="btn-header btn-primary">
+              <svg width="14" height="14" viewBox="0 0 24 24"><path fill="#ffffff" d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/></svg>
+              <span>Sign In</span>
+            </button>
+          `;
+          document.getElementById('btn-google-login').addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            provider.setCustomParameters({ hd: 'orangeusd.org' });
+            firebase.auth().signInWithPopup(provider);
+          });
+        }
+      });
+    }
+
+    async function resolveStudentRosterPeriod(studentId, email) {
+      if (!db) return;
+      try {
+        let snap = await db.collection('roster').doc(studentId).get();
+        if (!snap.exists) {
+          const qSnap = await db.collection('roster').where('email', '==', email).limit(1).get();
+          if (!qSnap.empty) snap = qSnap.docs[0];
+        }
+        if (snap.exists) {
+          const data = snap.data();
+          const periodVal = data.class_period !== undefined ? data.class_period : (data.period !== undefined ? data.period : null);
+          if (periodVal !== null && periodVal !== undefined) {
+            AppState.classPeriod = periodVal;
+            const periodSelect = document.getElementById('station-period');
+            if (periodSelect) periodSelect.value = String(periodVal);
+            const badge = document.getElementById('user-badge-period');
+            if (badge) badge.textContent = `P${periodVal}`;
+          }
+        }
+      } catch (err) {
+        console.warn('Roster lookup note:', err.message);
+      }
+    }
+
+    async function loadExistingSubmission() {
+      if (!db || !AppState.studentId) return;
+      try {
+        const docRef = db.collection('student_results').doc(ASSIGNMENT_ID).collection('students').doc(AppState.studentId);
+        const docSnap = await docRef.get();
+        if (docSnap.exists) {
+          const data = docSnap.data();
+          if (data.score !== undefined) {
+            updateScoreDisplay(data.score, 10);
+            const msg = document.getElementById('submit-status-msg');
+            if (msg) msg.innerHTML = `Prior high score on file: <strong style="color:var(--green);">${data.score}/10 (${data.percentage || data.score * 10}%)</strong>. Merging enabled.`;
+          }
+          // Restore form fields if present
+          if (data.partners) document.getElementById('station-partners').value = data.partners;
+          if (data.class_period !== undefined) document.getElementById('station-period').value = data.class_period;
+          if (data.cars_data) {
+            if (data.cars_data.car1) {
+              document.getElementById('car1-t1').value = data.cars_data.car1.t1 || '';
+              document.getElementById('car1-t2').value = data.cars_data.car1.t2 || '';
+              document.getElementById('car1-t3').value = data.cars_data.car1.t3 || '';
+            }
+            if (data.cars_data.car2) {
+              document.getElementById('car2-t1').value = data.cars_data.car2.t1 || '';
+              document.getElementById('car2-t2').value = data.cars_data.car2.t2 || '';
+              document.getElementById('car2-t3').value = data.cars_data.car2.t3 || '';
+            }
+            if (data.cars_data.car3) {
+              document.getElementById('car3-t1').value = data.cars_data.car3.t1 || '';
+              document.getElementById('car3-t2').value = data.cars_data.car3.t2 || '';
+              document.getElementById('car3-t3').value = data.cars_data.car3.t3 || '';
+            }
+            recalcCarAverages();
+          }
+          if (data.prediction) {
+            selectPrediction(data.prediction);
+          }
+          if (data.prediction_text) {
+            document.getElementById('prediction-reasoning').value = data.prediction_text;
+            updatePredictionCharCount();
+          }
+          if (data.weight_data) {
+            if (data.weight_data.t1) document.getElementById('weight-tier1-dist').value = data.weight_data.t1;
+            if (data.weight_data.t2) document.getElementById('weight-tier2-dist').value = data.weight_data.t2;
+            if (data.weight_data.t3) document.getElementById('weight-tier3-dist').value = data.weight_data.t3;
+            recalcWeightTiers();
+          }
+          if (data.synthesis_answers) {
+            if (data.synthesis_answers.q1) document.getElementById('synth-q1').value = data.synthesis_answers.q1;
+            if (data.synthesis_answers.q2) document.getElementById('synth-q2').value = data.synthesis_answers.q2;
+            if (data.synthesis_answers.q3) document.getElementById('synth-q3').value = data.synthesis_answers.q3;
+          }
+        }
+      } catch (e) {
+        console.warn('Load existing submission error:', e);
+      }
+    }
+
+    // =========================================================================
+    // 2. SYNTHESIZED WEB AUDIO (Zero External Files)
+    // =========================================================================
+    function getAudioContext() {
+      if (!AppState.audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+          AppState.audioCtx = new AudioContext();
+        }
+      }
+      if (AppState.audioCtx && AppState.audioCtx.state === 'suspended') {
+        AppState.audioCtx.resume();
+      }
+      return AppState.audioCtx;
+    }
+
+    function playSound(type) {
+      if (!AppState.soundEnabled) return;
+      const ctx = getAudioContext();
+      if (!ctx) return;
+
+      const now = ctx.currentTime;
+      if (type === 'click') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(600, now);
+        osc.frequency.exponentialRampToValueAtTime(120, now + 0.05);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      } else if (type === 'rev') {
+        // Engine Rev
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.exponentialRampToValueAtTime(380, now + 0.25);
+        osc.frequency.exponentialRampToValueAtTime(220, now + 0.5);
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.5);
+      } else if (type === 'fanfare') {
+        // Victory chime
+        const notes = [440, 554.37, 659.25, 880];
+        notes.forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + i * 0.1);
+          gain.gain.setValueAtTime(0, now + i * 0.1);
+          gain.gain.linearRampToValueAtTime(0.2, now + i * 0.1 + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.1 + 0.4);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + i * 0.1);
+          osc.stop(now + i * 0.1 + 0.4);
+        });
+      } else if (type === 'ding') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, now);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.35);
+      }
+    }
+
+    // =========================================================================
+    // 3. STEPPER & STAGE NAVIGATION
+    // =========================================================================
+    function initNavigation() {
+      const stepButtons = document.querySelectorAll('.step-btn');
+      stepButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const stepNum = parseInt(btn.dataset.step, 10);
+          switchStep(stepNum);
+        });
+      });
+
+      document.getElementById('btn-to-stage-2').addEventListener('click', () => switchStep(2));
+      document.getElementById('btn-back-to-stage-1').addEventListener('click', () => switchStep(1));
+      document.getElementById('btn-to-stage-3').addEventListener('click', () => switchStep(3));
+      document.getElementById('btn-back-to-stage-2').addEventListener('click', () => switchStep(2));
+      document.getElementById('btn-to-stage-4').addEventListener('click', () => switchStep(4));
+      document.getElementById('btn-back-to-stage-3').addEventListener('click', () => switchStep(3));
+      document.getElementById('btn-to-stage-5').addEventListener('click', () => switchStep(5));
+      document.getElementById('btn-back-to-stage-4').addEventListener('click', () => switchStep(4));
+    }
+
+    function switchStep(stepNum) {
+      playSound('click');
+      AppState.currentStep = stepNum;
+
+      // Update Stepper Buttons
+      document.querySelectorAll('.step-btn').forEach(btn => {
+        const s = parseInt(btn.dataset.step, 10);
+        btn.classList.toggle('active', s === stepNum);
+      });
+
+      // Show/Hide Sections
+      document.querySelectorAll('.stage-section').forEach(sec => {
+        sec.style.display = 'none';
+      });
+      const targetSec = document.getElementById(`stage-${stepNum}`);
+      if (targetSec) {
+        targetSec.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      // Stage-specific initializations
+      if (stepNum === 2) {
+        renderShootoutCanvas();
+      } else if (stepNum === 3) {
+        updateChampionInStage3();
+        renderWeightGraph();
+      } else if (stepNum === 4) {
+        updateDecelStage();
+      } else if (stepNum === 5) {
+        updateTuesdayRetentionCard();
+      }
+    }
+
+    // =========================================================================
+    // 4. THEME & FONT SCALING (Projector Mode)
+    // =========================================================================
+    function initTheming() {
+      const themeBtn = document.getElementById('btn-theme-toggle');
+      const themeLabel = document.getElementById('theme-label');
+      const fontBtn = document.getElementById('btn-font-toggle');
+      const fontLabel = document.getElementById('font-size-label');
+
+      // Theme toggle
+      const savedTheme = localStorage.getItem('hw_lab_theme') || 'dark';
+      if (savedTheme === 'light') {
+        document.documentElement.classList.add('theme-light');
+        themeLabel.textContent = 'Dark Mode';
+      } else {
+        document.documentElement.classList.remove('theme-light');
+        themeLabel.textContent = 'Light Mode';
+      }
+
+      themeBtn.addEventListener('click', () => {
+        playSound('click');
+        const isLight = document.documentElement.classList.toggle('theme-light');
+        localStorage.setItem('hw_lab_theme', isLight ? 'light' : 'dark');
+        themeLabel.textContent = isLight ? 'Dark Mode' : 'Light Mode';
+
+        // Re-render Canvases for contrast alignment
+        renderShootoutCanvas();
+        renderWeightGraph();
+      });
+
+      // Font size scaling
+      const fontLevels = ['font-normal', 'font-large', 'font-huge'];
+      const fontNames = ['Normal', 'Large', '🖥️ Projector'];
+      let currentFontIdx = 0;
+
+      fontBtn.addEventListener('click', () => {
+        playSound('click');
+        document.documentElement.classList.remove(fontLevels[currentFontIdx]);
+        currentFontIdx = (currentFontIdx + 1) % fontLevels.length;
+        if (fontLevels[currentFontIdx] !== 'font-normal') {
+          document.documentElement.classList.add(fontLevels[currentFontIdx]);
+        }
+        fontLabel.textContent = fontNames[currentFontIdx];
+      });
+
+      // Sound FX Toggle
+      const soundBtn = document.getElementById('btn-sound-toggle');
+      const soundLabel = document.getElementById('sound-label');
+      soundBtn.addEventListener('click', () => {
+        AppState.soundEnabled = !AppState.soundEnabled;
+        soundLabel.textContent = AppState.soundEnabled ? 'Sound ON' : 'Muted';
+        soundBtn.style.opacity = AppState.soundEnabled ? '1' : '0.6';
+        if (AppState.soundEnabled) playSound('click');
+      });
+    }
+
+    // =========================================================================
+    // 5. DESMOS SCIENTIFIC CALCULATOR DRAWER
+    // =========================================================================
+    function initDesmos() {
+      const toggleBtn = document.getElementById('btn-toggle-calculator');
+      const closeBtn = document.getElementById('btn-close-calculator');
+      const drawer = document.getElementById('desmos-drawer');
+      const container = document.getElementById('desmos-calculator-container');
+
+      toggleBtn.addEventListener('click', () => {
+        playSound('click');
+        const isOpen = drawer.classList.toggle('open');
+        if (isOpen && !AppState.desmosCalc && typeof Desmos !== 'undefined') {
+          AppState.desmosCalc = Desmos.ScientificCalculator(container, {
+            fontSize: Desmos.FontSizes.VERY_LARGE
+          });
+        }
+      });
+
+      closeBtn.addEventListener('click', () => {
+        playSound('click');
+        drawer.classList.remove('open');
+      });
+    }
+
+    // =========================================================================
+    // 6. STAGE 2: CAR SHOOTOUT CALCULATIONS & CANVAS SIMULATION
+    // =========================================================================
+    function initStage2Inputs() {
+      const inputs = document.querySelectorAll('.car-dist-input');
+      inputs.forEach(inp => {
+        inp.addEventListener('input', () => {
+          recalcCarAverages();
+        });
+      });
+
+      document.getElementById('btn-animate-shootout').addEventListener('click', () => {
+        runShootoutAnimation();
+      });
+
+      document.getElementById('btn-reset-shootout').addEventListener('click', () => {
+        renderShootoutCanvas();
+      });
+    }
+
+    function parseVal(id) {
+      const el = document.getElementById(id);
+      if (!el || el.value === '') return null;
+      const v = parseFloat(el.value);
+      return isNaN(v) ? null : v;
+    }
+
+    function recalcCarAverages() {
+      // Car 1
+      const c1t1 = parseVal('car1-t1'), c1t2 = parseVal('car1-t2'), c1t3 = parseVal('car1-t3');
+      const c1Vals = [c1t1, c1t2, c1t3].filter(v => v !== null);
+      AppState.cars.car1.t1 = c1t1; AppState.cars.car1.t2 = c1t2; AppState.cars.car1.t3 = c1t3;
+      AppState.cars.car1.name = document.getElementById('car1-name').value || 'Die-Cast Muscle Car';
+      if (c1Vals.length > 0) {
+        const avg = c1Vals.reduce((a, b) => a + b, 0) / c1Vals.length;
+        AppState.cars.car1.avg = Math.round(avg * 10) / 10;
+        document.getElementById('car1-avg').textContent = `${AppState.cars.car1.avg} cm`;
+      } else {
+        AppState.cars.car1.avg = null;
+        document.getElementById('car1-avg').textContent = '-- cm';
+      }
+
+      // Car 2
+      const c2t1 = parseVal('car2-t1'), c2t2 = parseVal('car2-t2'), c2t3 = parseVal('car2-t3');
+      const c2Vals = [c2t1, c2t2, c2t3].filter(v => v !== null);
+      AppState.cars.car2.t1 = c2t1; AppState.cars.car2.t2 = c2t2; AppState.cars.car2.t3 = c2t3;
+      AppState.cars.car2.name = document.getElementById('car2-name').value || 'Lightweight Plastic Racer';
+      if (c2Vals.length > 0) {
+        const avg = c2Vals.reduce((a, b) => a + b, 0) / c2Vals.length;
+        AppState.cars.car2.avg = Math.round(avg * 10) / 10;
+        document.getElementById('car2-avg').textContent = `${AppState.cars.car2.avg} cm`;
+      } else {
+        AppState.cars.car2.avg = null;
+        document.getElementById('car2-avg').textContent = '-- cm';
+      }
+
+      // Car 3
+      const c3t1 = parseVal('car3-t1'), c3t2 = parseVal('car3-t2'), c3t3 = parseVal('car3-t3');
+      const c3Vals = [c3t1, c3t2, c3t3].filter(v => v !== null);
+      AppState.cars.car3.t1 = c3t1; AppState.cars.car3.t2 = c3t2; AppState.cars.car3.t3 = c3t3;
+      AppState.cars.car3.name = document.getElementById('car3-name').value || 'Tall Delivery Truck';
+      if (c3Vals.length > 0) {
+        const avg = c3Vals.reduce((a, b) => a + b, 0) / c3Vals.length;
+        AppState.cars.car3.avg = Math.round(avg * 10) / 10;
+        document.getElementById('car3-avg').textContent = `${AppState.cars.car3.avg} cm`;
+      } else {
+        AppState.cars.car3.avg = null;
+        document.getElementById('car3-avg').textContent = '-- cm';
+      }
+
+      // Determine Champion
+      let bestKey = null, maxDist = -1;
+      ['car1', 'car2', 'car3'].forEach(k => {
+        if (AppState.cars[k].avg !== null && AppState.cars[k].avg > maxDist) {
+          maxDist = AppState.cars[k].avg;
+          bestKey = k;
+        }
+      });
+
+      const championCard = document.getElementById('champion-reveal-card');
+      if (bestKey && maxDist > 0) {
+        AppState.champion = {
+          key: bestKey,
+          name: AppState.cars[bestKey].name,
+          distance: maxDist
+        };
+        document.getElementById('champion-name').textContent = AppState.champion.name;
+        document.getElementById('champion-distance').textContent = `${maxDist} cm`;
+        championCard.style.display = 'block';
+
+        // Auto sync into Stage 3 baseline input
+        const t0Input = document.getElementById('weight-tier0-dist');
+        if (t0Input) t0Input.value = maxDist;
+        AppState.weightTiers.t0 = maxDist;
+      } else {
+        championCard.style.display = 'none';
+        AppState.champion = null;
+      }
+
+      renderShootoutCanvas();
+    }
+
+    // HTML5 Canvas Track Simulation
+    let shootoutAnimFrame = null;
+    function renderShootoutCanvas(progress = 0) {
+      const canvas = document.getElementById('canvas-shootout');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+
+      const isLight = document.documentElement.classList.contains('theme-light');
+      const bg = isLight ? '#ffffff' : '#0b1426';
+      const trackFloor = isLight ? '#e2e8f0' : '#1e293b';
+      const textColor = isLight ? '#0f172a' : '#f8fafc';
+      const subtleText = isLight ? '#64748b' : '#94a3b8';
+
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, rect.width, rect.height);
+
+      // Track Dimensions
+      const rampW = rect.width * 0.22;
+      const flatW = rect.width - rampW - 20;
+      const groundY = rect.height - 40;
+      const rampTopY = 40;
+
+      // Draw Floor Level
+      ctx.fillStyle = trackFloor;
+      ctx.fillRect(10, groundY + 12, rect.width - 20, 6);
+
+      // Draw Grid Ticks every 50 cm
+      const maxCmScale = 220; // scale flat track up to 220 cm
+      ctx.font = '10px "JetBrains Mono", monospace';
+      ctx.fillStyle = subtleText;
+      for (let cm = 0; cm <= 200; cm += 50) {
+        const x = rampW + (cm / maxCmScale) * flatW;
+        ctx.fillRect(x, groundY + 8, 1, 10);
+        ctx.fillText(`${cm} cm`, x - 14, groundY + 30);
+      }
+
+      // Draw Launch Ramp (Curved Bezier)
+      ctx.beginPath();
+      ctx.moveTo(25, rampTopY);
+      ctx.quadraticCurveTo(rampW * 0.7, groundY + 12, rampW, groundY + 12);
+      ctx.strokeStyle = '#f97316';
+      ctx.lineWidth = 5;
+      ctx.stroke();
+
+      // Ramp Starting Tape
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(35, rampTopY + 15, 12, 10);
+
+      // Transition Line (0 cm)
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(rampW, 20);
+      ctx.lineTo(rampW, groundY + 15);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillText('0 cm', rampW - 12, 18);
+
+      // Flat Coast Track
+      ctx.beginPath();
+      ctx.moveTo(rampW, groundY + 12);
+      ctx.lineTo(rect.width - 15, groundY + 12);
+      ctx.strokeStyle = isLight ? '#0284c7' : '#38bdf8';
+      ctx.lineWidth = 5;
+      ctx.stroke();
+
+      // Render Cars & Bumper Marks
+      const cars = [
+        { key: 'car1', color: '#f97316', label: 'Car 1 (Muscle)', yOffset: -8 },
+        { key: 'car2', color: '#0284c7', label: 'Car 2 (Plastic)', yOffset: 4 },
+        { key: 'car3', color: '#ca8a04', label: 'Car 3 (Truck)', yOffset: 16 }
+      ];
+
+      cars.forEach((car, idx) => {
+        const avg = AppState.cars[car.key].avg;
+        if (avg !== null && avg > 0) {
+          const finalFlatX = rampW + (Math.min(avg, maxCmScale) / maxCmScale) * flatW;
+          // Current animated position
+          const curFlatX = rampW + (finalFlatX - rampW) * Math.min(progress, 1);
+
+          // Draw Bumper Tape Mark
+          ctx.fillStyle = '#fef08a';
+          ctx.strokeStyle = '#ca8a04';
+          ctx.lineWidth = 1.5;
+          ctx.fillRect(finalFlatX - 4, groundY - 14 + car.yOffset, 8, 14);
+          ctx.strokeRect(finalFlatX - 4, groundY - 14 + car.yOffset, 8, 14);
+
+          // Tape Tag Label
+          ctx.font = 'bold 9px "JetBrains Mono", monospace';
+          ctx.fillStyle = car.color;
+          ctx.fillText(`${avg}cm`, finalFlatX - 10, groundY - 18 + car.yOffset);
+
+          // Animated Car Icon
+          ctx.fillStyle = car.color;
+          ctx.beginPath();
+          ctx.arc(curFlatX, groundY + car.yOffset, 7, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+      });
+    }
+
+    function runShootoutAnimation() {
+      if (shootoutAnimFrame) cancelAnimationFrame(shootoutAnimFrame);
+      playSound('rev');
+      let start = null;
+      const duration = 2000; // 2 seconds
+
+      function step(timestamp) {
+        if (!start) start = timestamp;
+        const elapsed = timestamp - start;
+        const p = Math.min(elapsed / duration, 1);
+        // Easing out quadratic (deceleration)
+        const easeOut = 1 - (1 - p) * (1 - p);
+        renderShootoutCanvas(easeOut);
+
+        if (p < 1) {
+          shootoutAnimFrame = requestAnimationFrame(step);
+        } else {
+          playSound('ding');
+          if (AppState.champion && typeof confetti === 'function') {
+            confetti({
+              particleCount: 50,
+              spread: 60,
+              origin: { y: 0.6 }
+            });
+          }
+        }
+      }
+      shootoutAnimFrame = requestAnimationFrame(step);
+    }
+
+    // =========================================================================
+    // 7. STAGE 3: THE WEIGHT HOOK & TEST
+    // =========================================================================
+    function initStage3Inputs() {
+      // Prediction radio selections
+      const radioCards = document.querySelectorAll('.radio-card');
+      radioCards.forEach(card => {
+        card.addEventListener('click', () => {
+          selectPrediction(card.dataset.hypo);
+        });
+      });
+
+      // Prediction text area
+      const reasonArea = document.getElementById('prediction-reasoning');
+      reasonArea.addEventListener('input', () => {
+        AppState.predictionText = reasonArea.value;
+        updatePredictionCharCount();
+      });
+
+      // Weight tier inputs
+      const weightInputs = document.querySelectorAll('.weight-input');
+      weightInputs.forEach(inp => {
+        inp.addEventListener('input', () => {
+          recalcWeightTiers();
+        });
+      });
+    }
+
+    function selectPrediction(hypo) {
+      playSound('click');
+      AppState.prediction = hypo;
+      document.querySelectorAll('.radio-card').forEach(c => {
+        c.classList.toggle('selected', c.dataset.hypo === hypo);
+      });
+    }
+
+    function updatePredictionCharCount() {
+      const len = (AppState.predictionText || '').trim().length;
+      const hint = document.getElementById('prediction-char-hint');
+      if (hint) {
+        if (len >= 20) {
+          hint.textContent = `✓ Prediction recorded (${len} characters).`;
+          hint.style.color = 'var(--green)';
+        } else {
+          hint.textContent = `Minimum 20 characters required. (Current: ${len})`;
+          hint.style.color = 'var(--text-dim)';
+        }
+      }
+    }
+
+    function updateChampionInStage3() {
+      const label = document.getElementById('hook-champion-label');
+      const t0 = document.getElementById('weight-tier0-dist');
+      if (AppState.champion) {
+        if (label) label.textContent = `${AppState.champion.name} (${AppState.champion.distance} cm)`;
+        if (t0) t0.value = AppState.champion.distance;
+        AppState.weightTiers.t0 = AppState.champion.distance;
+      } else {
+        if (label) label.textContent = 'Car 1 / Best Car';
+      }
+    }
+
+    function recalcWeightTiers() {
+      AppState.weightTiers.t0 = parseVal('weight-tier0-dist') || (AppState.champion ? AppState.champion.distance : null);
+      AppState.weightTiers.t1 = parseVal('weight-tier1-dist');
+      AppState.weightTiers.t2 = parseVal('weight-tier2-dist');
+      AppState.weightTiers.t3 = parseVal('weight-tier3-dist');
+
+      renderWeightGraph();
+    }
+
+    function renderWeightGraph() {
+      const canvas = document.getElementById('canvas-weight-graph');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+
+      const isLight = document.documentElement.classList.contains('theme-light');
+      const bg = isLight ? '#ffffff' : '#0b1426';
+      const textColor = isLight ? '#0f172a' : '#f8fafc';
+      const gridColor = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)';
+      const lineColor = isLight ? '#ea580c' : '#f97316';
+
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, rect.width, rect.height);
+
+      const padX = 50;
+      const padY = 25;
+      const plotW = rect.width - padX - 25;
+      const plotH = rect.height - padY - 30;
+
+      // Draw Axes
+      ctx.strokeStyle = gridColor;
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const y = padY + (i / 4) * plotH;
+        ctx.beginPath();
+        ctx.moveTo(padX, y);
+        ctx.lineTo(padX + plotW, y);
+        ctx.stroke();
+      }
+
+      ctx.font = '10px "JetBrains Mono", monospace';
+      ctx.fillStyle = isLight ? '#64748b' : '#94a3b8';
+      ctx.fillText('Dist (cm)', 5, padY - 8);
+
+      // Data points: +0, +2, +4, +6
+      const tiers = [
+        { label: '+0', mass: 0, val: AppState.weightTiers.t0 },
+        { label: '+2', mass: 2, val: AppState.weightTiers.t1 },
+        { label: '+4', mass: 4, val: AppState.weightTiers.t2 },
+        { label: '+6', mass: 6, val: AppState.weightTiers.t3 }
+      ];
+
+      const validVals = tiers.map(t => t.val).filter(v => v !== null && !isNaN(v));
+      const maxVal = validVals.length > 0 ? Math.max(...validVals, 160) : 180;
+      const minVal = 0;
+
+      // Plot Points & Line
+      const pts = [];
+      tiers.forEach((t, i) => {
+        const x = padX + (i / 3) * plotW;
+        ctx.fillStyle = textColor;
+        ctx.fillText(t.label, x - 6, padY + plotH + 18);
+
+        if (t.val !== null && !isNaN(t.val)) {
+          const normY = (t.val - minVal) / (maxVal - minVal);
+          const y = padY + plotH - normY * plotH;
+          pts.push({ x, y, val: t.val, label: t.label });
+        }
+      });
+
+      if (pts.length > 1) {
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, pts[0].y);
+        for (let i = 1; i < pts.length; i++) {
+          ctx.lineTo(pts[i].x, pts[i].y);
+        }
+        ctx.strokeStyle = lineColor;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      }
+
+      pts.forEach(p => {
+        ctx.fillStyle = '#facc15';
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = textColor;
+        ctx.font = 'bold 10px "JetBrains Mono", monospace';
+        ctx.fillText(`${p.val}cm`, p.x - 12, p.y - 10);
+      });
+
+      // Update Trend Label
+      const trendEl = document.getElementById('weight-trend-label');
+      if (trendEl) {
+        if (pts.length >= 3) {
+          const first = pts[0].val;
+          const second = pts[1].val;
+          const last = pts[pts.length - 1].val;
+          if (second > first && last <= second) {
+            trendEl.textContent = 'Trend: Optimal Peak Then Axle Rub!';
+            trendEl.className = 'badge badge-gold font-mono';
+          } else if (last > first) {
+            trendEl.textContent = 'Trend: Extra Momentum Helped Roll Farther';
+            trendEl.className = 'badge badge-green font-mono';
+          } else {
+            trendEl.textContent = 'Trend: Friction Exceeded Momentum';
+            trendEl.className = 'badge badge-orange font-mono';
+          }
+        }
+      }
+    }
+
+    // =========================================================================
+    // 8. STAGE 4: SNEAKING IN DECELERATION
+    // =========================================================================
+    function updateDecelStage() {
+      // Stage 4 is purely conceptual (motion vs backward friction, positive vs negative acceleration)
+    }
+
+    // =========================================================================
+    // 9. STAGE 5: TUESDAY RETENTION CARD & GRADING
+    // =========================================================================
+    function updateTuesdayRetentionCard() {
+      const bestDist = AppState.champion ? AppState.champion.distance : (AppState.weightTiers.t0 || '--');
+      const bestCar = AppState.champion ? AppState.champion.name : 'Champion Car';
+      const periodSelect = document.getElementById('station-period');
+      const periodVal = periodSelect ? periodSelect.value : (AppState.classPeriod || 1);
+
+      const distEl = document.getElementById('tuesday-record-dist');
+      const carEl = document.getElementById('tuesday-record-car');
+      const periodEl = document.getElementById('tuesday-record-period');
+
+      if (distEl) distEl.textContent = `${bestDist} cm`;
+      if (carEl) carEl.textContent = bestCar;
+      if (periodEl) periodEl.textContent = `Period ${periodVal}`;
+    }
+
+    function calculateScore() {
+      let points = 0;
+      const feedback = { q1: '', q2: '', q3: '' };
+
+      // 1. Setup Checklist & Calibration (2 pts)
+      const chk1 = document.getElementById('check-4-track')?.checked;
+      const chk2 = document.getElementById('check-ramp-height')?.checked;
+      const chk3 = document.getElementById('check-starting-tape')?.checked;
+      const chk4 = document.getElementById('check-floor-runway')?.checked;
+      if (chk1 && chk2 && chk3 && chk4) {
+        points += 2;
+      } else if (chk1 || chk2 || chk3 || chk4) {
+        points += 1;
+      }
+
+      // 2. Stage 2: Shootout Data Recorded (3 cars entered, >=2 trials each) (2 pts)
+      const c1Count = [AppState.cars.car1.t1, AppState.cars.car1.t2, AppState.cars.car1.t3].filter(v => v !== null).length;
+      const c2Count = [AppState.cars.car2.t1, AppState.cars.car2.t2, AppState.cars.car2.t3].filter(v => v !== null).length;
+      const c3Count = [AppState.cars.car3.t1, AppState.cars.car3.t2, AppState.cars.car3.t3].filter(v => v !== null).length;
+      if (c1Count >= 2 && c2Count >= 2 && c3Count >= 2) points += 2;
+
+      // 3. Stage 3: Prediction + Weight Data (2 pts)
+      const predReason = (AppState.predictionText || '').trim();
+      const hasPred = AppState.prediction !== null && predReason.length >= 15;
+      const hasWeightData = AppState.weightTiers.t1 !== null || AppState.weightTiers.t2 !== null || AppState.weightTiers.t3 !== null;
+      if (hasPred && hasWeightData) points += 2;
+
+      // 4. Stage 5 Synthesis Q1: Friction Identified as Backward Force (1.5 pts)
+      const q1Text = (document.getElementById('synth-q1')?.value || '').toLowerCase().trim();
+      if (q1Text.includes('friction') || q1Text.includes('drag') || q1Text.includes('resistance')) {
+        points += 1.5;
+        feedback.q1 = '✓ Excellent! Friction is the contact force pushing backward from the floor to slow and stop the car.';
+        const q1El = document.getElementById('q1-feedback');
+        if (q1El) q1El.style.color = 'var(--green)';
+      } else if (q1Text.length > 5) {
+        points += 0.5;
+        feedback.q1 = '⚠️ What is the name of the contact force between the wheels and floor that pushes backward against motion? (Hint: starts with F)';
+        const q1El = document.getElementById('q1-feedback');
+        if (q1El) q1El.style.color = 'var(--amber)';
+      } else {
+        feedback.q1 = '❌ Please identify the backward force.';
+        const q1El = document.getElementById('q1-feedback');
+        if (q1El) q1El.style.color = 'var(--red)';
+      }
+      const q1El = document.getElementById('q1-feedback');
+      if (q1El) q1El.textContent = feedback.q1;
+
+      // 5. Stage 5 Synthesis Q2: Penny Observations & Reasoning (1.5 pts)
+      const q2Text = (document.getElementById('synth-q2')?.value || '').toLowerCase().trim();
+      const hasOutcome = q2Text.includes('far') || q2Text.includes('soon') || q2Text.includes('short') || q2Text.includes('less') || q2Text.includes('more') || q2Text.includes('same');
+      const hasReasoning = q2Text.includes('because') || q2Text.includes('weight') || q2Text.includes('mass') || q2Text.includes('heavy') || q2Text.includes('momentum') || q2Text.includes('friction') || q2Text.includes('press') || q2Text.includes('penny') || q2Text.includes('pennies') || q2Text.includes('axle') || q2Text.includes('energy');
+      if (hasOutcome && hasReasoning && q2Text.length >= 15) {
+        points += 1.5;
+        feedback.q2 = '✓ Great scientific observation! You clearly explained your car\'s stopping distance and the reason for the trend.';
+        const q2El = document.getElementById('q2-feedback');
+        if (q2El) q2El.style.color = 'var(--green)';
+      } else if (q2Text.length >= 8) {
+        points += 0.5;
+        feedback.q2 = '⚠️ Make sure to state whether your car went farther or stopped sooner AND explain why you think that happened.';
+        const q2El = document.getElementById('q2-feedback');
+        if (q2El) q2El.style.color = 'var(--amber)';
+      } else {
+        feedback.q2 = '❌ Please describe what happened when you added pennies to your car.';
+        const q2El = document.getElementById('q2-feedback');
+        if (q2El) q2El.style.color = 'var(--red)';
+      }
+      const q2El = document.getElementById('q2-feedback');
+      if (q2El) q2El.textContent = feedback.q2;
+
+      // 6. Stage 5 Synthesis Q3: Fair Testing & Controlled Variables (1.0 pt)
+      const q3Text = (document.getElementById('synth-q3')?.value || '').toLowerCase().trim();
+      const fairKeywords = ['fair', 'same', 'push', 'control', 'speed', 'velocity', 'start', 'force', 'gravity', 'ramp', 'equal', 'differ', 'accurate', 'test', 'compare', 'constant'];
+      const matchedFair = fairKeywords.filter(k => q3Text.includes(k)).length;
+      if (matchedFair >= 2 && q3Text.length >= 15) {
+        points += 1.0;
+        feedback.q3 = '✓ Exactly right! Keeping the release position and starting speed constant ensures a fair scientific test.';
+        const q3El = document.getElementById('q3-feedback');
+        if (q3El) q3El.style.color = 'var(--green)';
+      } else if (q3Text.length >= 8) {
+        points += 0.5;
+        feedback.q3 = '⚠️ Think about controlled variables: What would happen to the test if a car was released higher up or pushed?';
+        const q3El = document.getElementById('q3-feedback');
+        if (q3El) q3El.style.color = 'var(--amber)';
+      } else {
+        feedback.q3 = '❌ Please explain why releasing from the same spot without pushing was necessary.';
+        const q3El = document.getElementById('q3-feedback');
+        if (q3El) q3El.textContent = feedback.q3;
+      }
+
+      const finalPts = Math.min(Math.round(points), 10);
+      updateScoreDisplay(finalPts, 10);
+      return finalPts;
+    }
+
+    function updateScoreDisplay(pts, max) {
+      AppState.score = pts;
+      const pct = Math.round((pts / max) * 100);
+      const scoreEl = document.getElementById('final-score-display');
+      const pctEl = document.getElementById('final-pct-display');
+      if (scoreEl) scoreEl.textContent = `${pts} / ${max}`;
+      if (pctEl) {
+        pctEl.textContent = `${pct}% Complete`;
+        pctEl.className = pct >= 80 ? 'badge badge-green font-mono' : 'badge badge-orange font-mono';
+      }
+    }
+
+    async function submitGradeToFirestore() {
+      if (AppState.isSubmitting) return;
+
+      const points = calculateScore();
+      const pct = Math.round((points / 10) * 100);
+      const statusMsg = document.getElementById('submit-status-msg');
+
+      if (!AppState.user || !AppState.studentId) {
+        playSound('ding');
+        alert('Please click the "Sign In" button in the top right with your school Google account before submitting your score.');
+        return;
+      }
+
+      AppState.isSubmitting = true;
+      const saveDot = document.getElementById('save-status-dot');
+      const saveText = document.getElementById('save-status-text');
+      if (saveDot) saveDot.className = 'save-dot syncing';
+      if (saveText) saveText.textContent = 'Saving Grade...';
+      if (statusMsg) statusMsg.textContent = 'Syncing score to Firestore gradebook...';
+
+      try {
+        // Reference student subcollection document (Parent doc created via deploy-assignment.js)
+        const studentRef = db.collection('student_results').doc(ASSIGNMENT_ID).collection('students').doc(AppState.studentId);
+        const docSnap = await studentRef.get();
+        const existingScore = docSnap.exists ? (docSnap.data().score || 0) : 0;
+
+        if (!docSnap.exists || points >= existingScore) {
+          const periodVal = parseInt(document.getElementById('station-period')?.value, 10) || AppState.classPeriod || 1;
+          const payload = {
+            student_id: AppState.studentId,
+            student_name: AppState.studentName || 'Student',
+            email: AppState.studentEmail || `${AppState.studentId}@orangeusd.org`,
+            score: points,
+            maxScore: 10,
+            maxPoints: 10,
+            percentage: pct,
+            class_period: periodVal,
+            isCompleted: points >= 8,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            // Lab Forensic Telemetry
+            partners: document.getElementById('station-partners')?.value || '',
+            cars_data: {
+              car1: { name: AppState.cars.car1.name, avg: AppState.cars.car1.avg, t1: AppState.cars.car1.t1, t2: AppState.cars.car1.t2, t3: AppState.cars.car1.t3 },
+              car2: { name: AppState.cars.car2.name, avg: AppState.cars.car2.avg, t1: AppState.cars.car2.t1, t2: AppState.cars.car2.t2, t3: AppState.cars.car2.t3 },
+              car3: { name: AppState.cars.car3.name, avg: AppState.cars.car3.avg, t1: AppState.cars.car3.t1, t2: AppState.cars.car3.t2, t3: AppState.cars.car3.t3 }
+            },
+            champion: AppState.champion ? { name: AppState.champion.name, distance: AppState.champion.distance } : null,
+            prediction: AppState.prediction || null,
+            prediction_text: AppState.predictionText || null,
+            weight_data: {
+              t0: AppState.weightTiers.t0,
+              t1: AppState.weightTiers.t1,
+              t2: AppState.weightTiers.t2,
+              t3: AppState.weightTiers.t3
+            },
+            synthesis_answers: {
+              q1: document.getElementById('synth-q1')?.value || '',
+              q2: document.getElementById('synth-q2')?.value || '',
+              q3: document.getElementById('synth-q3')?.value || ''
+            }
+          };
+
+          // Sanitize any potential undefined values
+          Object.keys(payload).forEach(k => {
+            if (payload[k] === undefined) payload[k] = null;
+          });
+
+          await studentRef.set(payload, { merge: true });
+
+          playSound('fanfare');
+          if (typeof confetti === 'function') {
+            confetti({ particleCount: 80, spread: 70, origin: { y: 0.7 } });
+          }
+          if (saveDot) saveDot.className = 'save-dot';
+          if (saveText) saveText.textContent = 'Grade Synced';
+          if (statusMsg) {
+            statusMsg.innerHTML = `🎉 Grade of <strong style="color:var(--green);">${points}/10 (${pct}%)</strong> recorded in Google Classroom queue!`;
+          }
+        } else {
+          playSound('ding');
+          if (saveDot) saveDot.className = 'save-dot';
+          if (saveText) saveText.textContent = 'Prior High Maintained';
+          if (statusMsg) {
+            statusMsg.innerHTML = `Attempt verified (${points}/10). Your previous high score of <strong style="color:var(--green);">${existingScore}/10</strong> was retained.`;
+          }
+        }
+      } catch (err) {
+        console.error('Submission error:', err);
+        if (saveDot) saveDot.className = 'save-dot';
+        if (saveText) saveText.textContent = 'Save Error';
+        if (statusMsg) statusMsg.innerHTML = `<span style="color:var(--red);">Error saving grade: ${err.message}</span>`;
+      } finally {
+        AppState.isSubmitting = false;
+      }
+    }
+
+    // =========================================================================
+    // 10. INITIALIZATION ON DOM READY
+    // =========================================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      initTheming();
+      initNavigation();
+      initDesmos();
+      initStage2Inputs();
+      initStage3Inputs();
+
+      const periodSelect = document.getElementById('station-period');
+      if (periodSelect) {
+        periodSelect.addEventListener('change', () => {
+          AppState.classPeriod = parseInt(periodSelect.value, 10) || 1;
+          updateTuesdayRetentionCard();
+        });
+      }
+
+      document.getElementById('btn-validate-grade').addEventListener('click', () => {
+        playSound('click');
+        calculateScore();
+      });
+
+      document.getElementById('btn-submit-grade').addEventListener('click', () => {
+        submitGradeToFirestore();
+      });
+
+      // Canvas window resize listener
+      window.addEventListener('resize', () => {
+        renderShootoutCanvas();
+        renderWeightGraph();
+      });
+
+      // Initial canvas renders
+      setTimeout(() => {
+        renderShootoutCanvas();
+        renderWeightGraph();
+      }, 100);
+    });
+  </script>
+</body>
+</html>
