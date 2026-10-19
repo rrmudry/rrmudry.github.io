@@ -2,6 +2,20 @@
 
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
+## 2026-10-18 — Cardstock Rocket Phase 2: Restored Desktop 2-Column Layout & Integrated Fullscreen Fin CAD Studio (`Unit_2/rocket_phase2/index.html`)
+**Patterns Updated**: `cardstock-rocket-phase2-forensics.md`, `cardstock-rocketry-engineering-and-telemetry.md`.
+
+**Changes**:
+- **Restored Desktop 2-Column Side-by-Side Layout**:
+  - Resolved nesting defect at line 906 where an unclosed `<div>` in Rocket A specs caused the entire Right Column (Dual Blueprint & Satellite Map) to be swallowed inside the Left Column, collapsing the interface into a single vertical column.
+  - Adjusted the grid media query breakpoint from `@media (max-width: 1100px)` to `@media (max-width: 960px)` so standard Chromebook screens ($1024\text{px}-1366\text{px}$) cleanly preserve the side-by-side console.
+- **Ported Fullscreen Fin CAD Studio & Dimensional Specifier Modal from Phase 1 (`Unit_2/rocket_recovery/index.html`)**:
+  - Reused the interactive modal architecture with live millimeter drag handles, grid dimension callouts (Root chord, Leading edge cut line, Trailing edge cut line, Outer flat edge), and manual centimeter input fields (`specRootChord`, `specSpan`, `specTipChord`, `specSweepOffset`, `specOffsetBottom`).
+  - Added dedicated target toggle (`🔴 Rocket A` vs `🔵 Rocket B`) so students can shape fins individually when fin shape/dimensions is the isolated variable, or automatically synchronize both rockets when testing non-fin variables.
+- **Connected Custom Fin Geometry Directly to Technical Engineering Blueprint**:
+  - Implemented 1:1 true-to-scale mathematical fin projection in `drawDualBlueprint()` (`renderRocketSvg`), mapping the active polygon coordinates from `phase2FinPointsA` and `phase2FinPointsB` directly onto the fuselage tube on the 1cm × 1cm grid.
+  - Custom swept, trapezoid, delta, straight, or hand-dragged fin profiles now render in real time on Rocket A and Rocket B blueprints.
+
 ## 2026-10-18 — Cardstock Rocket Phase 2: Controlled Variable Forensics Webapp & Deployment (`Unit_2/rocket_phase2/index.html`)
 **Patterns Added**: `cardstock-rocket-phase2-forensics.md`.
 **Patterns Updated**: `cardstock-rocketry-engineering-and-telemetry.md`, `assignment-registry.md`.
