@@ -239,6 +239,10 @@
       flex: 1;
       width: 100%;
     }
+    main.single-col-stage {
+      grid-template-columns: 1fr;
+      max-width: 980px;
+    }
     @media (max-width: 960px) {
       main { grid-template-columns: 1fr; }
     }
@@ -907,7 +911,7 @@
   </div>
 
   <!-- Main Multi-Stage Console Layout -->
-  <main>
+  <main id="mainConsole">
     <!-- LEFT COLUMN: Multi-Stage Investigation Console -->
     <div style="display:flex; flex-direction:column; gap:1rem;">
       
@@ -1360,7 +1364,29 @@
                 Cite your measured data for both rockets: mass (g), fin size (cm), hang time (s), apogee height (m), and landing distance (m).
               </span>
             </label>
-            <textarea id="cerEvidence" placeholder="Your flight numbers will auto-populate here as you enter data..."></textarea>
+
+            <!-- Live Data Quick-Reference for Student Evidence Writing -->
+            <div id="cerDataRefBox" style="background:var(--bg-sub); border:1px solid var(--border-subtle); border-radius:10px; padding:0.75rem 0.9rem; margin-bottom:0.75rem; font-size:0.75rem;">
+              <div style="font-weight:800; color:var(--cyan); margin-bottom:0.4rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.25rem;">
+                <span>📊 Live Investigation Data Reference (Cite These Below):</span>
+                <span id="cerRefVarBadge" class="badge badge-gold" style="font-size:0.65rem;">★ Independent Variable</span>
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.6rem;">
+                <div style="background:var(--bg-card); padding:0.5rem 0.65rem; border-radius:6px; border-left:3px solid #ef4444;">
+                  <strong style="color:#ef4444; font-size:0.72rem;">Rocket A (Control):</strong>
+                  <div id="cerRefDataA" style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; margin-top:3px; color:var(--text);">--</div>
+                </div>
+                <div style="background:var(--bg-card); padding:0.5rem 0.65rem; border-radius:6px; border-left:3px solid #38bdf8;">
+                  <strong style="color:#38bdf8; font-size:0.72rem;">Rocket B (Variant):</strong>
+                  <div id="cerRefDataB" style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; margin-top:3px; color:var(--text);">--</div>
+                </div>
+              </div>
+              <div id="cerRefDelta" style="margin-top:0.45rem; font-weight:700; color:var(--gold); font-size:0.72rem;">
+                Performance Delta: --
+              </div>
+            </div>
+
+            <textarea id="cerEvidence" placeholder="Write your quantitative evidence in your squad's own words. Cite specific numbers comparing Rocket A and Rocket B (e.g. Rocket A had a mass of 24.5g and achieved a hang time of 4.2s reaching 38.5m, while Rocket B...)"></textarea>
           </div>
 
           <div class="field-group" style="margin-bottom:0.85rem;">
@@ -1400,10 +1426,10 @@
     </div>
 
     <!-- RIGHT COLUMN: Dual Blueprint & Satellite Map -->
-    <div style="display:flex; flex-direction:column; gap:1.25rem;">
+    <div id="rightColumnPanel" style="display:flex; flex-direction:column; gap:1.25rem;">
       
       <!-- CARD 2: DUAL-ROCKET TECHNICAL ENGINEERING BLUEPRINT (1cm × 1cm GRID) -->
-      <div class="card">
+      <div class="card" id="dualBlueprintCard">
         <div class="card-title">
           <span>📐 Dual-Rocket Technical Blueprint (1cm × 1cm Grid)</span>
           <div class="blueprint-tabs">
@@ -1445,7 +1471,7 @@
       </div>
 
       <!-- CARD 3: ORANGE HIGH SCHOOL SATELLITE COMPARATIVE FLIGHT MAP -->
-      <div class="card">
+      <div class="card" id="campusMapCard">
         <div class="card-title">
           <span>🛰️ OHS Campus Satellite Recovery Map</span>
           <span class="badge badge-cyan" id="activePeriodMapTag">Science Building Pad</span>
@@ -1911,9 +1937,42 @@
         if (btn) btn.classList.toggle('active', i === stageNum);
         if (pane) pane.style.display = (i === stageNum) ? 'block' : 'none';
       }
-      if (stageNum === 3 && map) {
-        setTimeout(() => map.invalidateSize(), 150);
+
+      const bpCard = document.getElementById('dualBlueprintCard');
+      const mapCard = document.getElementById('campusMapCard');
+      const rightCol = document.getElementById('rightColumnPanel');
+      const mainEl = document.getElementById('mainConsole');
+
+      // Blueprint visibility: Stage 2 and Stage 4 (Hidden on Stage 1 and Stage 3)
+      const showBp = (stageNum === 2 || stageNum === 4);
+      if (bpCard) bpCard.style.display = showBp ? 'flex' : 'none';
+
+      // Satellite map visibility: Stage 3 and Stage 4 (Hidden on Stage 1 and Stage 2)
+      const showMap = (stageNum === 3 || stageNum === 4);
+      if (mapCard) mapCard.style.display = showMap ? 'flex' : 'none';
+
+      // Right column visible only if at least one card is visible
+      const showRightCol = showBp || showMap;
+      if (rightCol) rightCol.style.display = showRightCol ? 'flex' : 'none';
+
+      // When Stage 1 (neither card shown), switch main to focused single-column layout
+      if (mainEl) {
+        mainEl.classList.toggle('single-col-stage', !showRightCol);
       }
+
+      // If map is shown (Stage 3 or 4), recalculate Leaflet map dimensions
+      if (showMap && map) {
+        setTimeout(() => {
+          map.invalidateSize();
+        }, 200);
+      }
+
+      // If blueprint is shown (Stage 2 or 4), redraw blueprint
+      if (showBp) {
+        drawDualBlueprint();
+      }
+
+      updateComparativeEvidence();
       updateScoreBadge();
     }
 
@@ -3238,48 +3297,52 @@
     // 6. Comparative Evidence Auto-Scaffolding & CER Synthesis
     // =============================================================
     function updateComparativeEvidence() {
-      const evInput = document.getElementById('cerEvidence');
-      if (!evInput || evInput.dataset.touched === 'true') return;
+      const refBox = document.getElementById('cerDataRefBox');
+      if (!refBox) return;
 
       const varType = document.getElementById('independentVarSelect').value;
-      const squadName = document.getElementById('callSign').value || 'AeroSquad';
-      
-      const rangeA = document.getElementById('txtRangeA').textContent;
-      const rangeB = document.getElementById('txtRangeB').textContent;
-      const hangA = document.getElementById('hangTimeA').value;
-      const hangB = document.getElementById('hangTimeB').value;
-      const apogeeA = document.getElementById('txtApogeeA').textContent;
-      const apogeeB = document.getElementById('txtApogeeB').textContent;
+      const names = {
+        fin_shape: "Fin Shape",
+        fin_dimensions: "Fin Dimensions",
+        fin_offset: "Fin Offset",
+        fin_count: "Fin Count",
+        nose_ballast: "Nose Tip Ballast",
+        nose_shape: "Nose Cone Shape",
+        fuse_length: "Fuselage Length"
+      };
+      const varName = names[varType] || "Chosen Variable";
 
-      let varDetail = "";
-      if (varType === 'fin_offset') {
-        const offA = document.getElementById('finOffsetA').value;
-        const offB = document.getElementById('finOffsetB').value;
-        varDetail = `fin placement offset (Rocket A: ${offA}cm from tail vs. Rocket B: ${offB}cm from tail)`;
-      } else if (varType === 'fin_count') {
-        const cA = document.getElementById('finCountA').value;
-        const cB = document.getElementById('finCountB').value;
-        varDetail = `fin count (Rocket A: ${cA} fins vs. Rocket B: ${cB} fins)`;
-      } else if (varType === 'nose_ballast') {
-        const mA = document.getElementById('addedMassA').value;
-        const mB = document.getElementById('addedMassB').value;
-        varDetail = `nose tip ballast mass (Rocket A: ${mA}g vs. Rocket B: ${mB}g)`;
-      } else if (varType === 'fin_dimensions') {
-        const wA = document.getElementById('finWidthA').value;
-        const wB = document.getElementById('finWidthB').value;
-        varDetail = `fin width span (Rocket A: ${wA}cm vs. Rocket B: ${wB}cm)`;
-      } else if (varType === 'nose_shape') {
-        const hA = parseNumWithDefault('noseHeightA', 6.5);
-        const hB = parseNumWithDefault('noseHeightB', 6.5);
-        const descA = hA <= 0.5 ? 'blunt flat nose (0 cm)' : `pointed cone (${hA} cm)`;
-        const descB = hB <= 0.5 ? 'blunt flat nose (0 cm)' : `pointed cone (${hB} cm)`;
-        varDetail = `nose cone profile (${descA} on Rocket A vs. ${descB} on Rocket B)`;
-      } else {
-        varDetail = `isolated independent variable (${document.getElementById('independentVarSelect').selectedOptions[0].text})`;
+      const rangeA = document.getElementById('txtRangeA') ? document.getElementById('txtRangeA').textContent : '--';
+      const rangeB = document.getElementById('txtRangeB') ? document.getElementById('txtRangeB').textContent : '--';
+      const hangA = document.getElementById('hangTimeA') ? (document.getElementById('hangTimeA').value || '--') : '--';
+      const hangB = document.getElementById('hangTimeB') ? (document.getElementById('hangTimeB').value || '--') : '--';
+      const apogeeA = document.getElementById('txtApogeeA') ? document.getElementById('txtApogeeA').textContent : '--';
+      const apogeeB = document.getElementById('txtApogeeB') ? document.getElementById('txtApogeeB').textContent : '--';
+      const massA = document.getElementById('totalMassA') ? (document.getElementById('totalMassA').value || '--') : '--';
+      const massB = document.getElementById('totalMassB') ? (document.getElementById('totalMassB').value || '--') : '--';
+      const cmA = document.getElementById('cmValA') ? document.getElementById('cmValA').textContent : '--';
+      const cpA = document.getElementById('cpValA') ? document.getElementById('cpValA').textContent : '--';
+      const cmB = document.getElementById('cmValB') ? document.getElementById('cmValB').textContent : '--';
+      const cpB = document.getElementById('cpValB') ? document.getElementById('cpValB').textContent : '--';
+      const deltaText = document.getElementById('deltaBadge') ? document.getElementById('deltaBadge').textContent : '--';
+
+      const badgeEl = document.getElementById('cerRefVarBadge');
+      if (badgeEl) badgeEl.textContent = `★ Variable: ${varName}`;
+
+      const dataAEl = document.getElementById('cerRefDataA');
+      if (dataAEl) {
+        dataAEl.innerHTML = `Mass: <strong>${massA}g</strong> | Hang: <strong>${hangA}s</strong> | Range: <strong>${rangeA}</strong> | Apogee: ~<strong>${apogeeA}</strong> | CM: <strong>${cmA}</strong> / CP: <strong>${cpA}</strong>`;
       }
 
-      const scaffolded = `Squad '${squadName}' tested two cardstock rockets identical in all specifications except ${varDetail} launched at 80–100 PSI constant pressure. Rocket A achieved a hang time of ${hangA}s (apogee ~${apogeeA}) and ground range of ${rangeA}, while Rocket B achieved a hang time of ${hangB}s (apogee ~${apogeeB}) and ground range of ${rangeB}.`;
-      evInput.value = scaffolded;
+      const dataBEl = document.getElementById('cerRefDataB');
+      if (dataBEl) {
+        dataBEl.innerHTML = `Mass: <strong>${massB}g</strong> | Hang: <strong>${hangB}s</strong> | Range: <strong>${rangeB}</strong> | Apogee: ~<strong>${apogeeB}</strong> | CM: <strong>${cmB}</strong> / CP: <strong>${cpB}</strong>`;
+      }
+
+      const deltaEl = document.getElementById('cerRefDelta');
+      if (deltaEl) {
+        deltaEl.textContent = `Performance Delta: ${deltaText}`;
+      }
     }
 
     // =============================================================
@@ -3363,9 +3426,11 @@
 
       // Stage 4: CER Report (20%)
       const claim = document.getElementById('cerClaim').value.trim();
+      const evidence = document.getElementById('cerEvidence').value.trim();
       const reasoning = document.getElementById('cerReasoning').value.trim();
-      if (claim.length >= 20) score += 10;
-      if (reasoning.length >= 35) score += 10;
+      if (claim.length >= 15) score += 6;
+      if (evidence.length >= 25) score += 7;
+      if (reasoning.length >= 30) score += 7;
 
       return Math.min(100, score);
     }
@@ -3662,7 +3727,7 @@
       initPhase2FinStudio();
       initPhase2FinModal();
       onVariableChange();
-      drawDualBlueprint();
+      switchStage(1);
 
       // Hook inputs for autosave
       const inputs = [

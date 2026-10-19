@@ -2,6 +2,20 @@
 
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
+## 2026-10-18 — Cardstock Rocket Phase 2: Stage-Gated Tool Visibility & Student-Authored CER Evidence (`Unit_2/rocket_phase2/index.html`)
+**Patterns Updated**: `cardstock-rocket-phase2-forensics.md`.
+
+**Changes**:
+- **Stage-Gated Right Column Tool Visibility (`switchStage`)**:
+  - **Stage 1 (Squad & Variable)**: Both Technical Blueprint and Satellite Recovery Map hidden. Layout switches to focused single-column centered container (`main.single-col-stage`, `max-width: 980px`).
+  - **Stage 2 (Measurements)**: Shows **Technical Blueprint ONLY** (Satellite map hidden) so students focus on metric teardown and CAD stability calibers.
+  - **Stage 3 (Launch Operations)**: Shows **Satellite Recovery Map ONLY** (Blueprint hidden) so students focus on stopwatch timers, azimuths, and touchdown pins.
+  - **Stage 4 (CER Conclusion)**: Shows **BOTH Technical Blueprint AND Satellite Map** stacked on the right column next to the CER response questions.
+- **Student-Authored Evidence (Zero Pre-Filled Text)**:
+  - Removed auto-populated prewritten paragraph from `cerEvidence` textarea. The textarea now starts empty so students write their own evaluation.
+  - Added a read-only `cerDataRefBox` directly above the Evidence box showing live numbers (Mass A/B, Hang A/B, Range A/B, Apogee A/B, Stability Margins, Delta Range) for students to cite in their response.
+  - Balanced Stage 4 completion scoring across Claim (6%), Evidence (7%), and Reasoning (7%).
+
 ## 2026-10-18 — Cardstock Rocket: 0 cm Cone Height & Blunt Nose Blueprint Rendering (`rocket_phase2` & `rocket_recovery`)
 **Patterns Updated**: `cardstock-rocket-phase2-forensics.md`.
 

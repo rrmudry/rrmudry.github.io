@@ -38,7 +38,17 @@ To prevent students from inadvertently changing multiple variables:
 - Dynamic flight vector lines connecting the Launch Pad to each pin.
 - Live Telemetry HUD displaying ground range ($d$), flight azimuth (°), hang time ($t_{\text{hang}}$), apogee altitude ($h_{\max} = 5 \cdot (t_{\text{up}})^2$), and performance delta ($\Delta d = |d_B - d_A|$).
 
-### 4. District Web Filter & Security Hardening
+### 4. Stage-Gated Tool Visibility & CER Evidence Synthesis
+To eliminate visual clutter and align tools directly to each stage's cognitive objective:
+- **Stage 1 (Squad & Variable)**: Neither blueprint nor satellite map is displayed. Layout shifts to a focused, centered single column (`max-width: 980px`).
+- **Stage 2 (Measurements)**: Shows **Technical Blueprint ONLY** on the right column (satellite map hidden) so students focus exclusively on metric teardown and CAD stability margins.
+- **Stage 3 (Launch Operations)**: Shows **Satellite Recovery Map ONLY** on the right column (blueprint hidden) so students focus on stopwatch timers, azimuth vectors, and touchdown pins.
+- **Stage 4 (CER Conclusion)**: Displays **BOTH Technical Blueprint AND Satellite Map** stacked on the right column, placing all physical dimensions, stability calibers, and recovery telemetry directly beside the CER writing prompts.
+- **Student-Authored Evidence (Zero Pre-Filled Text)**:
+  - The `cerEvidence` textarea is intentionally kept EMPTY so students write their own quantitative evaluation rather than accepting a prewritten robot sentence.
+  - A compact read-only "📊 Live Data Reference" box sits above the textbox displaying live numbers (Mass A/B, Hang A/B, Range A/B, Apogee A/B, Stability Margins, and $\Delta$ Range) for students to cite.
+
+### 5. District Web Filter & Security Hardening
 - **Zero unpkg.com & Zero In-Browser Babel**: Uses native vanilla JavaScript and vendored Leaflet (`assets/vendor/leaflet/`).
 - **Elimination of Leaflet Asset 404s**: Leaflet layer switcher default PNGs (`layers.png`) are replaced via CSS with inline data URI SVGs for both Dark and High-Contrast Light themes.
 - **Anti-Paste Enforcement**: Prevents copy-pasting into hypothesis and CER response fields via multi-event interceptors (`paste`, `drop`, `beforeinput`).
