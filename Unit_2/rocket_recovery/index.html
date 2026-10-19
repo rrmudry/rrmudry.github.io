@@ -1066,7 +1066,7 @@
         <div class="field-grid">
           <div class="field-group">
             <label class="field-label" for="noseHeight">Cone Height <span class="unit">cm</span></label>
-            <input type="number" id="noseHeight" step="0.1" min="2" max="15" placeholder="Measure with ruler (e.g. 6.5)" value="" oninput="updateAll()">
+            <input type="number" id="noseHeight" step="0.1" min="0" max="15" placeholder="Measure with ruler (e.g. 6.5)" value="" oninput="updateAll()">
           </div>
           <div class="field-group">
             <label class="field-label" for="addedMass">Added Tip Mass (If Any) <span class="unit">g</span></label>
@@ -1762,7 +1762,7 @@
       const h = parseFloat(document.getElementById('noseHeight') ? document.getElementById('noseHeight').value : 0) || 0;
       const cm = parseFloat(document.getElementById('cmMeasured') ? document.getElementById('cmMeasured').value : 0) || 0;
       const m = parseFloat(document.getElementById('totalMass') ? document.getElementById('totalMass').value : 0) || 0;
-      if (l >= 10 && d >= 0.8 && h >= 2 && cm >= 2 && m >= 5) score += 30;
+      if (l >= 10 && d >= 0.8 && h >= 0 && cm >= 2 && m >= 5) score += 30;
       else if (l > 0) score += 15;
 
       // 2. Map Telemetry Pin (max 25 pts)
@@ -2868,7 +2868,8 @@
       // Read Inputs
       const L_fuse = parseFloat(document.getElementById('fuseLength').value) || 28.0;
       const D_fuse = parseFloat(document.getElementById('fuseDiameter').value) || 1.3;
-      const H_nose = parseFloat(document.getElementById('noseHeight').value) || 6.5;
+      const rawNose = document.getElementById('noseHeight') ? document.getElementById('noseHeight').value.trim() : '';
+      const H_nose = rawNose === '' ? 6.5 : (parseFloat(rawNose) || 0);
       const m_add = parseFloat(document.getElementById('addedMass').value) || 0.0;
       const fin_count = parseInt(document.getElementById('finCount').value) || 3;
       const cm_meas = parseFloat(document.getElementById('cmMeasured').value) || 14.2;
@@ -2982,11 +2983,15 @@
       svg += `<line x1="${noseBaseX}" y1="${centerY - pxFuseR * 0.65}" x2="${tailX}" y2="${centerY - pxFuseR * 0.65}" stroke="rgba(255,255,255,0.12)" stroke-dasharray="4,4" />`;
       svg += `<line x1="${noseBaseX}" y1="${centerY + pxFuseR * 0.65}" x2="${tailX}" y2="${centerY + pxFuseR * 0.65}" stroke="rgba(255,255,255,0.12)" stroke-dasharray="4,4" />`;
 
-      // 4. Conical Nose Cone (Always Conical)
-      svg += `<polygon points="${noseTipX},${centerY} ${noseBaseX},${centerY - pxFuseR} ${noseBaseX},${centerY + pxFuseR}" fill="rgba(2, 132, 199, 0.25)" stroke="#38bdf8" stroke-width="2" />`;
+      // 4. Conical Nose Cone (or Blunt Cap if <= 0.5 cm)
+      if (H_nose > 0.5) {
+        svg += `<polygon points="${noseTipX},${centerY} ${noseBaseX},${centerY - pxFuseR} ${noseBaseX},${centerY + pxFuseR}" fill="rgba(2, 132, 199, 0.25)" stroke="#38bdf8" stroke-width="2" />`;
+      } else {
+        svg += `<line x1="${originX}" y1="${centerY - pxFuseR}" x2="${originX}" y2="${centerY + pxFuseR}" stroke="#38bdf8" stroke-width="3" />`;
+      }
 
-      // Extra Ballast Mass in Tip (Only if added mass > 0)
-      if (m_add > 0) {
+      // Extra Ballast Mass in Tip (Only if added mass > 0 and H_nose > 0.5)
+      if (m_add > 0 && H_nose > 0.5) {
         const pxBallastW = Math.min(pxNoseH * 0.45, (m_add / 15) * pxNoseH * 0.4 + 10);
         svg += `<polygon points="${noseTipX},${centerY} ${noseTipX + pxBallastW},${centerY - pxFuseR * 0.45} ${noseTipX + pxBallastW},${centerY + pxFuseR * 0.45}" fill="url(#ballastPattern)" stroke="#fbbf24" stroke-width="1.4" />`;
         svg += `<text x="${noseTipX + pxBallastW + 4}" y="${centerY - 8}" fill="#fbbf24" font-size="9" font-family="'JetBrains Mono', monospace" font-weight="700">+${m_add}g Ballast</text>`;
@@ -3027,9 +3032,11 @@
       svg += `<line x1="${noseBaseX}" y1="${centerY + pxFuseR}" x2="${noseBaseX}" y2="${dimY1 + 5}" stroke="rgba(255,255,255,0.2)" stroke-dasharray="2,2" />`;
       svg += `<line x1="${tailX}" y1="${centerY + pxFuseR}" x2="${tailX}" y2="${dimY1 + 5}" stroke="rgba(255,255,255,0.2)" stroke-dasharray="2,2" />`;
 
-      const dimY2 = centerY - pxFuseR - pxMaxFinSpan - 14;
-      svg += `<line x1="${noseTipX}" y1="${dimY2}" x2="${noseBaseX}" y2="${dimY2}" stroke="var(--cyan)" stroke-width="1.2" marker-start="url(#arrow)" marker-end="url(#arrow)" />`;
-      svg += `<text x="${(noseTipX + noseBaseX) / 2}" y="${dimY2 - 4}" text-anchor="middle" fill="var(--text)" font-size="9" font-family="'JetBrains Mono', monospace">Cone = ${H_nose} cm</text>`;
+      if (H_nose > 0.5) {
+        const dimY2 = centerY - pxFuseR - pxMaxFinSpan - 14;
+        svg += `<line x1="${noseTipX}" y1="${dimY2}" x2="${noseBaseX}" y2="${dimY2}" stroke="var(--cyan)" stroke-width="1.2" marker-start="url(#arrow)" marker-end="url(#arrow)" />`;
+        svg += `<text x="${(noseTipX + noseBaseX) / 2}" y="${dimY2 - 4}" text-anchor="middle" fill="var(--text)" font-size="9" font-family="'JetBrains Mono', monospace">Cone = ${H_nose} cm</text>`;
+      }
 
       document.getElementById('svgContent').innerHTML = svg;
 

@@ -2802,6 +2802,24 @@
       };
     }
 
+    function parseNumWithDefault(elId, fallback) {
+      const el = document.getElementById(elId);
+      if (!el) return fallback;
+      const valStr = el.value !== null && el.value !== undefined ? String(el.value).trim() : '';
+      if (valStr === '') return fallback;
+      const val = parseFloat(valStr);
+      return isNaN(val) ? fallback : val;
+    }
+
+    function parseIntWithDefault(elId, fallback) {
+      const el = document.getElementById(elId);
+      if (!el) return fallback;
+      const valStr = el.value !== null && el.value !== undefined ? String(el.value).trim() : '';
+      if (valStr === '') return fallback;
+      const val = parseInt(valStr, 10);
+      return isNaN(val) ? fallback : val;
+    }
+
     function drawDualBlueprint() {
       const svgEl = document.getElementById('dualRocketSvg');
       if (!svgEl) return;
@@ -2811,28 +2829,28 @@
       
       // Read Specs A
       const specsA = {
-        L_fuse: parseFloat(document.getElementById('fuseLengthA').value) || 28.0,
-        D_fuse: parseFloat(document.getElementById('fuseDiameterA').value) || 1.3,
-        H_nose: parseFloat(document.getElementById('noseHeightA').value) || 6.5,
-        m_add: parseFloat(document.getElementById('addedMassA').value) || 0.0,
-        m_tot: parseFloat(document.getElementById('totalMassA').value) || 24.5,
-        fin_count: parseInt(document.getElementById('finCountA').value) || 3,
-        fin_h: parseFloat(document.getElementById('finHeightA').value) || 4.0,
-        fin_w: parseFloat(document.getElementById('finWidthA').value) || 4.0,
-        fin_offset: parseFloat(document.getElementById('finOffsetA').value) || 0.0
+        L_fuse: parseNumWithDefault('fuseLengthA', 28.0),
+        D_fuse: parseNumWithDefault('fuseDiameterA', 1.3),
+        H_nose: parseNumWithDefault('noseHeightA', 6.5),
+        m_add: parseNumWithDefault('addedMassA', 0.0),
+        m_tot: parseNumWithDefault('totalMassA', 24.5),
+        fin_count: parseIntWithDefault('finCountA', 3),
+        fin_h: parseNumWithDefault('finHeightA', 4.0),
+        fin_w: parseNumWithDefault('finWidthA', 4.0),
+        fin_offset: parseNumWithDefault('finOffsetA', 0.0)
       };
 
       // Read Specs B
       const specsB = {
-        L_fuse: parseFloat(document.getElementById('fuseLengthB').value) || 28.0,
-        D_fuse: parseFloat(document.getElementById('fuseDiameterB').value) || 1.3,
-        H_nose: parseFloat(document.getElementById('noseHeightB').value) || 6.5,
-        m_add: parseFloat(document.getElementById('addedMassB').value) || 0.0,
-        m_tot: parseFloat(document.getElementById('totalMassB').value) || 24.5,
-        fin_count: parseInt(document.getElementById('finCountB').value) || 3,
-        fin_h: parseFloat(document.getElementById('finHeightB').value) || 4.0,
-        fin_w: parseFloat(document.getElementById('finWidthB').value) || 4.0,
-        fin_offset: parseFloat(document.getElementById('finOffsetB').value) || 0.0
+        L_fuse: parseNumWithDefault('fuseLengthB', 28.0),
+        D_fuse: parseNumWithDefault('fuseDiameterB', 1.3),
+        H_nose: parseNumWithDefault('noseHeightB', 6.5),
+        m_add: parseNumWithDefault('addedMassB', 0.0),
+        m_tot: parseNumWithDefault('totalMassB', 24.5),
+        fin_count: parseIntWithDefault('finCountB', 3),
+        fin_h: parseNumWithDefault('finHeightB', 4.0),
+        fin_w: parseNumWithDefault('finWidthB', 4.0),
+        fin_offset: parseNumWithDefault('finOffsetB', 0.0)
       };
 
       const stabA = calculateStability(specsA);
@@ -2880,9 +2898,10 @@
         let rSvg = '';
 
         // Label Badge
+        const noseSubLabel = specs.H_nose <= 0.5 ? ' • BLUNT NOSE (0 cm)' : '';
         rSvg += `
           <text x="${originX}" y="${centerY - 45}" fill="${color}" font-weight="800" font-size="11" letter-spacing="0.5">
-            ${label}
+            ${label}${noseSubLabel}
           </text>
         `;
 
@@ -3249,6 +3268,12 @@
         const wA = document.getElementById('finWidthA').value;
         const wB = document.getElementById('finWidthB').value;
         varDetail = `fin width span (Rocket A: ${wA}cm vs. Rocket B: ${wB}cm)`;
+      } else if (varType === 'nose_shape') {
+        const hA = parseNumWithDefault('noseHeightA', 6.5);
+        const hB = parseNumWithDefault('noseHeightB', 6.5);
+        const descA = hA <= 0.5 ? 'blunt flat nose (0 cm)' : `pointed cone (${hA} cm)`;
+        const descB = hB <= 0.5 ? 'blunt flat nose (0 cm)' : `pointed cone (${hB} cm)`;
+        varDetail = `nose cone profile (${descA} on Rocket A vs. ${descB} on Rocket B)`;
       } else {
         varDetail = `isolated independent variable (${document.getElementById('independentVarSelect').selectedOptions[0].text})`;
       }
@@ -3393,26 +3418,26 @@
           independentVar: sanitize(document.getElementById('independentVarSelect').value),
           preFlightHypothesis: sanitize(document.getElementById('preFlightHypothesis').value),
           specsA: {
-            fuseLength: parseFloat(document.getElementById('fuseLengthA').value) || 28.0,
-            fuseDiameter: parseFloat(document.getElementById('fuseDiameterA').value) || 1.3,
-            noseHeight: parseFloat(document.getElementById('noseHeightA').value) || 6.5,
-            addedMass: parseFloat(document.getElementById('addedMassA').value) || 0.0,
-            totalMass: parseFloat(document.getElementById('totalMassA').value) || 24.5,
-            finCount: parseInt(document.getElementById('finCountA').value) || 3,
-            finHeight: parseFloat(document.getElementById('finHeightA').value) || 4.0,
-            finWidth: parseFloat(document.getElementById('finWidthA').value) || 4.0,
-            finOffset: parseFloat(document.getElementById('finOffsetA').value) || 0.0
+            fuseLength: parseNumWithDefault('fuseLengthA', 28.0),
+            fuseDiameter: parseNumWithDefault('fuseDiameterA', 1.3),
+            noseHeight: parseNumWithDefault('noseHeightA', 6.5),
+            addedMass: parseNumWithDefault('addedMassA', 0.0),
+            totalMass: parseNumWithDefault('totalMassA', 24.5),
+            finCount: parseIntWithDefault('finCountA', 3),
+            finHeight: parseNumWithDefault('finHeightA', 4.0),
+            finWidth: parseNumWithDefault('finWidthA', 4.0),
+            finOffset: parseNumWithDefault('finOffsetA', 0.0)
           },
           specsB: {
-            fuseLength: parseFloat(document.getElementById('fuseLengthB').value) || 28.0,
-            fuseDiameter: parseFloat(document.getElementById('fuseDiameterB').value) || 1.3,
-            noseHeight: parseFloat(document.getElementById('noseHeightB').value) || 6.5,
-            addedMass: parseFloat(document.getElementById('addedMassB').value) || 0.0,
-            totalMass: parseFloat(document.getElementById('totalMassB').value) || 24.5,
-            finCount: parseInt(document.getElementById('finCountB').value) || 3,
-            finHeight: parseFloat(document.getElementById('finHeightB').value) || 4.0,
-            finWidth: parseFloat(document.getElementById('finWidthB').value) || 4.0,
-            finOffset: parseFloat(document.getElementById('finOffsetB').value) || 0.0
+            fuseLength: parseNumWithDefault('fuseLengthB', 28.0),
+            fuseDiameter: parseNumWithDefault('fuseDiameterB', 1.3),
+            noseHeight: parseNumWithDefault('noseHeightB', 6.5),
+            addedMass: parseNumWithDefault('addedMassB', 0.0),
+            totalMass: parseNumWithDefault('totalMassB', 24.5),
+            finCount: parseIntWithDefault('finCountB', 3),
+            finHeight: parseNumWithDefault('finHeightB', 4.0),
+            finWidth: parseNumWithDefault('finWidthB', 4.0),
+            finOffset: parseNumWithDefault('finOffsetB', 0.0)
           },
           telemetryA: {
             hangTime: parseFloat(document.getElementById('hangTimeA').value) || 0,
@@ -3481,27 +3506,27 @@
           if (ent.preFlightHypothesis) document.getElementById('preFlightHypothesis').value = ent.preFlightHypothesis;
 
           if (ent.specsA) {
-            document.getElementById('fuseLengthA').value = ent.specsA.fuseLength || 28.0;
-            document.getElementById('fuseDiameterA').value = ent.specsA.fuseDiameter || 1.3;
-            document.getElementById('noseHeightA').value = ent.specsA.noseHeight || 6.5;
-            document.getElementById('addedMassA').value = ent.specsA.addedMass || 0.0;
-            document.getElementById('totalMassA').value = ent.specsA.totalMass || 24.5;
-            document.getElementById('finCountA').value = ent.specsA.finCount || 3;
-            document.getElementById('finHeightA').value = ent.specsA.finHeight || 4.0;
-            document.getElementById('finWidthA').value = ent.specsA.finWidth || 4.0;
-            document.getElementById('finOffsetA').value = ent.specsA.finOffset || 0.0;
+            document.getElementById('fuseLengthA').value = (ent.specsA.fuseLength !== undefined && ent.specsA.fuseLength !== null) ? ent.specsA.fuseLength : 28.0;
+            document.getElementById('fuseDiameterA').value = (ent.specsA.fuseDiameter !== undefined && ent.specsA.fuseDiameter !== null) ? ent.specsA.fuseDiameter : 1.3;
+            document.getElementById('noseHeightA').value = (ent.specsA.noseHeight !== undefined && ent.specsA.noseHeight !== null) ? ent.specsA.noseHeight : 6.5;
+            document.getElementById('addedMassA').value = (ent.specsA.addedMass !== undefined && ent.specsA.addedMass !== null) ? ent.specsA.addedMass : 0.0;
+            document.getElementById('totalMassA').value = (ent.specsA.totalMass !== undefined && ent.specsA.totalMass !== null) ? ent.specsA.totalMass : 24.5;
+            document.getElementById('finCountA').value = (ent.specsA.finCount !== undefined && ent.specsA.finCount !== null) ? ent.specsA.finCount : 3;
+            document.getElementById('finHeightA').value = (ent.specsA.finHeight !== undefined && ent.specsA.finHeight !== null) ? ent.specsA.finHeight : 4.0;
+            document.getElementById('finWidthA').value = (ent.specsA.finWidth !== undefined && ent.specsA.finWidth !== null) ? ent.specsA.finWidth : 4.0;
+            document.getElementById('finOffsetA').value = (ent.specsA.finOffset !== undefined && ent.specsA.finOffset !== null) ? ent.specsA.finOffset : 0.0;
           }
 
           if (ent.specsB) {
-            document.getElementById('fuseLengthB').value = ent.specsB.fuseLength || 28.0;
-            document.getElementById('fuseDiameterB').value = ent.specsB.fuseDiameter || 1.3;
-            document.getElementById('noseHeightB').value = ent.specsB.noseHeight || 6.5;
-            document.getElementById('addedMassB').value = ent.specsB.addedMass || 0.0;
-            document.getElementById('totalMassB').value = ent.specsB.totalMass || 24.5;
-            document.getElementById('finCountB').value = ent.specsB.finCount || 3;
-            document.getElementById('finHeightB').value = ent.specsB.finHeight || 4.0;
-            document.getElementById('finWidthB').value = ent.specsB.finWidth || 4.0;
-            document.getElementById('finOffsetB').value = ent.specsB.finOffset || 0.0;
+            document.getElementById('fuseLengthB').value = (ent.specsB.fuseLength !== undefined && ent.specsB.fuseLength !== null) ? ent.specsB.fuseLength : 28.0;
+            document.getElementById('fuseDiameterB').value = (ent.specsB.fuseDiameter !== undefined && ent.specsB.fuseDiameter !== null) ? ent.specsB.fuseDiameter : 1.3;
+            document.getElementById('noseHeightB').value = (ent.specsB.noseHeight !== undefined && ent.specsB.noseHeight !== null) ? ent.specsB.noseHeight : 6.5;
+            document.getElementById('addedMassB').value = (ent.specsB.addedMass !== undefined && ent.specsB.addedMass !== null) ? ent.specsB.addedMass : 0.0;
+            document.getElementById('totalMassB').value = (ent.specsB.totalMass !== undefined && ent.specsB.totalMass !== null) ? ent.specsB.totalMass : 24.5;
+            document.getElementById('finCountB').value = (ent.specsB.finCount !== undefined && ent.specsB.finCount !== null) ? ent.specsB.finCount : 3;
+            document.getElementById('finHeightB').value = (ent.specsB.finHeight !== undefined && ent.specsB.finHeight !== null) ? ent.specsB.finHeight : 4.0;
+            document.getElementById('finWidthB').value = (ent.specsB.finWidth !== undefined && ent.specsB.finWidth !== null) ? ent.specsB.finWidth : 4.0;
+            document.getElementById('finOffsetB').value = (ent.specsB.finOffset !== undefined && ent.specsB.finOffset !== null) ? ent.specsB.finOffset : 0.0;
           }
 
           if (ent.telemetryA) {
