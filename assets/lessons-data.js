@@ -4209,7 +4209,7 @@ const lessonsData = [
     "semester": 1,
     "isFeatured": true,
     "summary": "Resolve the classic Third Law paradox: Action-reaction pairs NEVER cancel each other out to prevent motion because they act on DIFFERENT objects; identify system boundaries to determine net external force. (Pacing Note: Periods 0, 4, 5, and 6 continue Day 2 of Cardstock Rocket Phase 2 Project: Controlled Variable Forensics, completing identical fabrication of Rocket A and B, verifying their isolated variable, and checking CM vs CP aerodynamic stability.)",
-    "activity": "System Boundary Diagramming Workshop: Students draw system boundaries around a walker, the ground, and the Earth, proving why the forward friction force from the ground on the person's feet is an unbalanced external force that accelerates the person forward. (Periods 0, 4, 5, 6 Project Studio): Rocket squads finalize fin attachment, nose ballast, and mass measurements, confirming stability calibers on the Phase 2 CAD blueprint in preparation for tomorrow's launch.",
+    "activity": "System Boundary Diagramming Workshop: Students draw system boundaries around a walker, the ground, and the Earth, proving why the forward friction force from the ground on the person's feet is an unbalanced external force that accelerates the person forward. (Periods 0, 4, 5, 6 Project Studio): Rocket squads finalize fin attachment, nose ballast, and mass measurements, confirming aerodynamic stability (Center of Pressure behind Center of Mass) on the Phase 2 blueprint in preparation for tomorrow's launch.",
     "essentialQuestion": "Why can't action-reaction force pairs ever cancel each other out to prevent motion?",
     "standards": [
       "HS-PS2-1",
@@ -4240,7 +4240,7 @@ const lessonsData = [
         "typeLabel": "Aerospace Engineering Webapp",
         "submission": "Auto-Saved on Google Sign-In (10 pts) / Turn In in Classroom",
         "actionLabel": "Launch Phase 2 Webapp ↗",
-        "description": "Periods 0, 4, 5, 6: Finalize precision fabrication of Rocket A and B. Ensure all parameters match except your 1 chosen variable. Check stability calibers on the interactive blueprint.",
+        "description": "Periods 0, 4, 5, 6: Finalize precision fabrication of Rocket A and B. Ensure all parameters match except your 1 chosen variable. Check stability balance on the interactive blueprint.",
         "status": "active"
       },
       {
