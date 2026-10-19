@@ -1029,7 +1029,7 @@
             <div class="field-group">
               <label class="field-label" for="launchPadSelect">Launch Station Location</label>
               <select id="launchPadSelect" onchange="onLaunchPadChange()">
-                <option value="periods46" selected>Center Quad Pad (Periods 4–6)</option>
+                <option value="periods46" selected>Science Building Pad (Periods 4–6)</option>
                 <option value="period0">Basketball Courts Pad (Period 0 Honors)</option>
               </select>
             </div>
@@ -1203,7 +1203,7 @@
       <div class="card">
         <div class="card-title">
           <span>🛰️ OHS Campus Satellite Recovery Map</span>
-          <span class="badge badge-cyan" id="activePeriodMapTag">Periods 4–6 Pad</span>
+          <span class="badge badge-cyan" id="activePeriodMapTag">Science Building Pad</span>
         </div>
 
         <div class="map-controls-row">
@@ -1322,7 +1322,8 @@
       periods46: {
         lat: 33.796889,
         lon: -117.846778,
-        name: "Periods 4–6 Pad (Center Quad Grass)",
+        name: "Periods 4–6 Pad (Science Building)",
+        siteName: "Science Building",
         periodTag: "Periods 4–6",
         dms: `33°47'48.8"N, 117°50'48.4"W`
       },
@@ -1330,6 +1331,7 @@
         lat: 33.797361,
         lon: -117.846861,
         name: "Period 0 Pad (Basketball Courts)",
+        siteName: "Basketball Courts",
         periodTag: "Period 0 Honors",
         dms: `33°47'50.5"N, 117°50'48.7"W`
       }
@@ -1918,7 +1920,7 @@
       const padKey = document.getElementById('launchPadSelect').value;
       const site = LAUNCH_SITES[padKey] || LAUNCH_SITES.periods46;
 
-      document.getElementById('activePeriodMapTag').textContent = site.periodTag + " Pad";
+      document.getElementById('activePeriodMapTag').textContent = (site.siteName || site.periodTag) + " Pad";
       if (launchMarker) {
         launchMarker.setLatLng([site.lat, site.lon]);
         launchMarker.setPopupContent(`<strong>LAUNCH PAD STATION</strong><br>${site.name}<br>80–100 PSI Operating Pressure`);
