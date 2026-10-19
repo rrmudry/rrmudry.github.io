@@ -2,6 +2,18 @@
 
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
+## 2026-10-18 — Cardstock Rocket Phase 2: One-Click Fin Matching for Non-Fin Variables (`Unit_2/rocket_phase2/index.html`)
+**Patterns Updated**: `cardstock-rocket-phase2-forensics.md`.
+
+**Changes**:
+- **Automatic & One-Click Fin Synchronization for Non-Fin Variables**:
+  - Implemented `copyRocketAFinsToB()` to copy fin polygon coordinates (`phase2FinPointsA` to `phase2FinPointsB`), numeric dimensions (`finHeight`, `finWidth`), offset from tail (`finOffset`), and fin count from Rocket A to Rocket B in one click.
+  - Added dedicated action buttons:
+    - **In-page Stage 2 Fin Studio**: Displays `[🔄 Match Rocket B Fins to A]` inside a prominent `🔗 Matched Fin Rule` banner whenever the squad isolates a non-fin variable (e.g. Fuselage Length, Mass, Nose Cone).
+    - **Fullscreen Fin CAD Studio Modal**: Added `[🔄 Match B to A]` in both the modal header actions and in the modal notice banner.
+    - **Fin Target Toggle**: Added `[🔄 Reset B to Match A]` so squads testing fin shape/dimensions can quickly reset Rocket B to baseline before making variations.
+  - Automatically mirrors Rocket A fins to Rocket B whenever the squad switches to a non-fin independent variable in Stage 1 or clicks `🔄 Sync Controls`.
+
 ## 2026-10-18 — Cardstock Rocket Phase 2: Restored Desktop 2-Column Layout & Integrated Fullscreen Fin CAD Studio (`Unit_2/rocket_phase2/index.html`)
 **Patterns Updated**: `cardstock-rocket-phase2-forensics.md`, `cardstock-rocketry-engineering-and-telemetry.md`.
 
