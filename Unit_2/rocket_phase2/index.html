@@ -476,18 +476,47 @@
       flex-wrap: wrap;
     }
     .preset-btn {
-      padding: 2px 7px;
-      font-size: 0.68rem;
+      padding: 3px 8px;
+      font-size: 0.7rem;
       font-weight: 700;
       border-radius: 5px;
       border: 1px solid var(--border-subtle);
       background: var(--bg-input);
-      color: var(--text-muted);
+      color: var(--text);
       cursor: pointer;
+      transition: all 0.15s ease;
     }
     .preset-btn:hover {
       color: var(--cyan);
       border-color: var(--cyan);
+    }
+    .fin-canvas-wrap {
+      position: relative;
+      background: var(--blueprint-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      overflow: hidden;
+      touch-action: none;
+      margin-top: 0.4rem;
+    }
+    #finDrawSvg {
+      display: block;
+      width: 100%;
+      height: 180px;
+      user-select: none;
+    }
+    .fin-metrics-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.45rem;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .fin-metrics-bar strong {
+      color: var(--text);
     }
 
     /* Map Section */
@@ -782,8 +811,9 @@
             <div class="field-group">
               <label class="field-label" for="classPeriod">Class Period</label>
               <select id="classPeriod" onchange="onPeriodChange()">
+                <option value="" disabled selected>-- Select Your Period (0, 4, 5, or 6) --</option>
                 <option value="0">Period 0 (Honors Physics)</option>
-                <option value="4" selected>Period 4 (Physics)</option>
+                <option value="4">Period 4 (Physics)</option>
                 <option value="5">Period 5 (Physics)</option>
                 <option value="6">Period 6 (Physics)</option>
               </select>
@@ -804,7 +834,7 @@
 
           <div class="field-group" style="margin-top:0.65rem;">
             <label class="field-label" for="callSign">Squad Call Sign / Team Name</label>
-            <input type="text" id="callSign" placeholder="e.g. Apollo Duo / AeroDynamos" value="AeroDynamos">
+            <input type="text" id="callSign" placeholder="e.g. Apollo Duo / AeroDynamos / SkyHawks" value="">
           </div>
 
           <!-- The Single Independent Variable Selector -->
@@ -822,7 +852,8 @@
             <div class="field-group">
               <label class="field-label" for="independentVarSelect">Selected Independent Variable</label>
               <select id="independentVarSelect" onchange="onVariableChange()">
-                <option value="fin_shape" selected>Fin Shape (Delta vs Swept vs Trapezoid vs Straight)</option>
+                <option value="" disabled selected>-- Choose Exactly 1 Changed Variable --</option>
+                <option value="fin_shape">Fin Shape (Delta vs Swept vs Trapezoid vs Straight)</option>
                 <option value="fin_dimensions">Fin Dimensions (Fin Height along body or Fin Width span)</option>
                 <option value="fin_offset">Fin Placement Offset (Flush with tail vs shifted forward)</option>
                 <option value="fin_count">Number of Fins (3 Fins vs 4 Fins)</option>
@@ -872,38 +903,36 @@
               <span style="font-weight:800; font-size:0.85rem; color:#ef4444; display:flex; align-items:center; gap:0.4rem;">
                 <span>🔴</span> ROCKET A (CONTROL / BASELINE)
               </span>
-              <span class="badge badge-red">Reference Standard</span>
-            </div>
-
-            <div class="field-grid-3">
+              <span class="badge badge-red">Refer            <div class="field-grid-3">
               <div class="field-group">
                 <label class="field-label" for="fuseLengthA">Fuselage Length <span class="unit">cm</span></label>
-                <input type="number" id="fuseLengthA" step="0.5" min="10" max="60" value="28.0" oninput="onRocketASpecChange()">
+                <input type="number" id="fuseLengthA" step="0.5" min="10" max="60" placeholder="e.g. 28.0" value="" oninput="onRocketASpecChange()">
               </div>
               <div class="field-group">
                 <label class="field-label" for="fuseDiameterA">Outer Diameter <span class="unit">cm</span></label>
-                <input type="number" id="fuseDiameterA" step="0.1" min="1.0" max="3.0" value="1.3" oninput="onRocketASpecChange()">
+                <input type="number" id="fuseDiameterA" step="0.1" min="1.0" max="3.0" placeholder="e.g. 1.3" value="" oninput="onRocketASpecChange()">
               </div>
               <div class="field-group">
                 <label class="field-label" for="noseHeightA">Cone Height <span class="unit">cm</span></label>
-                <input type="number" id="noseHeightA" step="0.5" min="0" max="20" value="6.5" oninput="onRocketASpecChange()">
+                <input type="number" id="noseHeightA" step="0.5" min="0" max="20" placeholder="e.g. 6.5" value="" oninput="onRocketASpecChange()">
               </div>
             </div>
 
             <div class="field-grid-3" style="margin-top:0.65rem;">
               <div class="field-group">
                 <label class="field-label" for="addedMassA">Tip Added Mass <span class="unit">g</span></label>
-                <input type="number" id="addedMassA" step="0.5" min="0" max="50" value="0.0" oninput="onRocketASpecChange()">
+                <input type="number" id="addedMassA" step="0.5" min="0" max="50" placeholder="0.0 if none" value="" oninput="onRocketASpecChange()">
               </div>
               <div class="field-group">
                 <label class="field-label" for="totalMassA">Total Mass <span class="unit">g</span></label>
-                <input type="number" id="totalMassA" step="0.1" min="5" max="80" value="24.5" oninput="onRocketASpecChange()">
+                <input type="number" id="totalMassA" step="0.1" min="5" max="80" placeholder="e.g. 24.5" value="" oninput="onRocketASpecChange()">
               </div>
               <div class="field-group">
                 <label class="field-label" for="finCountA">Fin Count</label>
                 <select id="finCountA" onchange="onRocketASpecChange()">
-                  <option value="3" selected>3 Fins</option>
-                  <option value="4">4 Fins</option>
+                  <option value="" disabled selected>-- Select Fin Count --</option>
+                  <option value="3">3 Fins (120°)</option>
+                  <option value="4">4 Fins (90°)</option>
                 </select>
               </div>
             </div>
@@ -911,15 +940,15 @@
             <div class="field-grid-3" style="margin-top:0.65rem;">
               <div class="field-group">
                 <label class="field-label" for="finHeightA">Fin Height (along body) <span class="unit">cm</span></label>
-                <input type="number" id="finHeightA" step="0.5" min="1" max="15" value="4.0" oninput="onRocketASpecChange()">
+                <input type="number" id="finHeightA" step="0.5" min="1" max="15" placeholder="e.g. 4.0" value="" oninput="onRocketASpecChange()">
               </div>
               <div class="field-group">
                 <label class="field-label" for="finWidthA">Fin Width (sticking out) <span class="unit">cm</span></label>
-                <input type="number" id="finWidthA" step="0.5" min="1" max="10" value="4.0" oninput="onRocketASpecChange()">
+                <input type="number" id="finWidthA" step="0.5" min="1" max="10" placeholder="e.g. 4.0" value="" oninput="onRocketASpecChange()">
               </div>
               <div class="field-group">
                 <label class="field-label" for="finOffsetA">Fin Offset from Tail <span class="unit">cm</span></label>
-                <input type="number" id="finOffsetA" step="0.5" min="0" max="15" value="0.0" oninput="onRocketASpecChange()">
+                <input type="number" id="finOffsetA" step="0.5" min="0" max="15" placeholder="0.0 (flush with tail)" value="" oninput="onRocketASpecChange()">
               </div>
             </div>
           </div>
@@ -941,32 +970,33 @@
             <div class="field-grid-3">
               <div class="field-group" id="groupFuseLengthB">
                 <label class="field-label" for="fuseLengthB">Fuselage Length <span class="unit">cm</span></label>
-                <input type="number" id="fuseLengthB" step="0.5" min="10" max="60" value="28.0" oninput="onRocketBSpecChange()">
+                <input type="number" id="fuseLengthB" step="0.5" min="10" max="60" placeholder="Matches Rocket A unless variable" value="" oninput="onRocketBSpecChange()">
               </div>
               <div class="field-group" id="groupFuseDiameterB">
                 <label class="field-label" for="fuseDiameterB">Outer Diameter <span class="unit">cm</span></label>
-                <input type="number" id="fuseDiameterB" step="0.1" min="1.0" max="3.0" value="1.3" oninput="onRocketBSpecChange()">
+                <input type="number" id="fuseDiameterB" step="0.1" min="1.0" max="3.0" placeholder="Matches Rocket A" value="" oninput="onRocketBSpecChange()">
               </div>
               <div class="field-group" id="groupNoseHeightB">
                 <label class="field-label" for="noseHeightB">Cone Height <span class="unit">cm</span></label>
-                <input type="number" id="noseHeightB" step="0.5" min="0" max="20" value="6.5" oninput="onRocketBSpecChange()">
+                <input type="number" id="noseHeightB" step="0.5" min="0" max="20" placeholder="Matches Rocket A unless variable" value="" oninput="onRocketBSpecChange()">
               </div>
             </div>
 
             <div class="field-grid-3" style="margin-top:0.65rem;">
               <div class="field-group" id="groupAddedMassB">
                 <label class="field-label" for="addedMassB">Tip Added Mass <span class="unit">g</span></label>
-                <input type="number" id="addedMassB" step="0.5" min="0" max="50" value="0.0" oninput="onRocketBSpecChange()">
+                <input type="number" id="addedMassB" step="0.5" min="0" max="50" placeholder="Matches Rocket A unless variable" value="" oninput="onRocketBSpecChange()">
               </div>
               <div class="field-group" id="groupTotalMassB">
                 <label class="field-label" for="totalMassB">Total Mass <span class="unit">g</span></label>
-                <input type="number" id="totalMassB" step="0.1" min="5" max="80" value="24.5" oninput="onRocketBSpecChange()">
+                <input type="number" id="totalMassB" step="0.1" min="5" max="80" placeholder="Matches Rocket A unless variable" value="" oninput="onRocketBSpecChange()">
               </div>
               <div class="field-group" id="groupFinCountB">
                 <label class="field-label" for="finCountB">Fin Count</label>
                 <select id="finCountB" onchange="onRocketBSpecChange()">
-                  <option value="3" selected>3 Fins</option>
-                  <option value="4">4 Fins</option>
+                  <option value="" disabled selected>-- Select Fin Count --</option>
+                  <option value="3">3 Fins (120°)</option>
+                  <option value="4">4 Fins (90°)</option>
                 </select>
               </div>
             </div>
@@ -974,32 +1004,75 @@
             <div class="field-grid-3" style="margin-top:0.65rem;">
               <div class="field-group" id="groupFinHeightB">
                 <label class="field-label" for="finHeightB">Fin Height (along body) <span class="unit">cm</span></label>
-                <input type="number" id="finHeightB" step="0.5" min="1" max="15" value="4.0" oninput="onRocketBSpecChange()">
+                <input type="number" id="finHeightB" step="0.5" min="1" max="15" placeholder="Matches Rocket A unless variable" value="" oninput="onRocketBSpecChange()">
               </div>
               <div class="field-group" id="groupFinWidthB">
                 <label class="field-label" for="finWidthB">Fin Width (sticking out) <span class="unit">cm</span></label>
-                <input type="number" id="finWidthB" step="0.5" min="1" max="10" value="4.0" oninput="onRocketBSpecChange()">
+                <input type="number" id="finWidthB" step="0.5" min="1" max="10" placeholder="Matches Rocket A unless variable" value="" oninput="onRocketBSpecChange()">
               </div>
               <div class="field-group" id="groupFinOffsetB">
                 <label class="field-label" for="finOffsetB">Fin Offset from Tail <span class="unit">cm</span></label>
-                <input type="number" id="finOffsetB" step="0.5" min="0" max="15" value="0.0" oninput="onRocketBSpecChange()">
+                <input type="number" id="finOffsetB" step="0.5" min="0" max="15" placeholder="Matches Rocket A unless variable" value="" oninput="onRocketBSpecChange()">
               </div>
             </div>
           </div>
 
-          <!-- Fin Drafting Preset Tool -->
-          <div class="fin-studio-box">
+          <!-- Dedicated Interactive Fin Drafting Studio -->
+          <div class="fin-studio-box" style="margin-top:1rem;">
             <div class="fin-studio-top">
-              <span style="font-weight:700; font-size:0.75rem; color:var(--cyan);">📐 Fin Shape Studio Presets</span>
+              <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                <span style="font-weight:800; font-size:0.78rem; color:var(--cyan);">📐 Interactive Fin Drafting Studio</span>
+                <span class="badge badge-amber" id="finStudioStatus">⚠️ Action Required: Draw/Shape Real Fins</span>
+              </div>
               <div class="fin-presets">
-                <button type="button" class="preset-btn" onclick="applyFinShape('delta')">Delta</button>
-                <button type="button" class="preset-btn" onclick="applyFinShape('trapezoid')">Trapezoid</button>
-                <button type="button" class="preset-btn" onclick="applyFinShape('swept')">Swept</button>
-                <button type="button" class="preset-btn" onclick="applyFinShape('straight')">Straight</button>
+                <button type="button" class="preset-btn" onclick="applyPhase2FinPreset('delta')">Delta</button>
+                <button type="button" class="preset-btn" onclick="applyPhase2FinPreset('trapezoid')">Trapezoid</button>
+                <button type="button" class="preset-btn" onclick="applyPhase2FinPreset('swept')">Swept</button>
+                <button type="button" class="preset-btn" onclick="applyPhase2FinPreset('straight')">Straight</button>
               </div>
             </div>
-            <div style="font-size:0.7rem; color:var(--text-muted);">
-              Fins are modeled in 1:1 true-to-scale centimeters on the Technical Engineering Blueprint on the right.
+
+            <!-- Target Fin Selector when Fin Dimensions or Shape is the Independent Variable -->
+            <div id="finTargetToggleWrap" style="display:none; margin:0.4rem 0; padding:0.4rem 0.6rem; background:var(--bg-card); border-radius:6px; font-size:0.72rem; align-items:center; justify-content:space-between; border:1px solid var(--border-subtle);">
+              <span style="color:var(--gold); font-weight:700;">★ Fin Variable Active — Which rocket fins are you modeling?</span>
+              <div style="display:flex; gap:0.4rem;">
+                <button type="button" class="preset-btn" id="btnEditFinA" onclick="setFinTarget('A')" style="border-color:#ef4444; color:#ef4444; font-weight:800;">🔴 Rocket A Fins</button>
+                <button type="button" class="preset-btn" id="btnEditFinB" onclick="setFinTarget('B')" style="border-color:#38bdf8; color:#38bdf8; font-weight:800;">🔵 Rocket B Fins</button>
+              </div>
+            </div>
+
+            <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:0.4rem;">
+              Drag the 4 corner handles (<strong style="color:var(--cyan);">●</strong>) or choose a preset to match the exact size and shape of your hand-cut cardstock fins!
+            </div>
+
+            <div class="fin-canvas-wrap">
+              <svg id="finDrawSvg" viewBox="0 0 320 180">
+                <defs>
+                  <pattern id="p2FinGrid" x="50" y="15" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="var(--grid-line)" stroke-width="1"/>
+                  </pattern>
+                </defs>
+                <rect width="320" height="180" fill="var(--bg-input)" />
+                <rect width="320" height="180" fill="url(#p2FinGrid)" />
+                
+                <!-- Fuselage Attachment Reference Line on left -->
+                <line x1="50" y1="12" x2="50" y2="168" stroke="var(--cyan)" stroke-width="2.5" stroke-dasharray="4,3"/>
+                <text x="44" y="24" text-anchor="end" fill="var(--text-muted)" font-size="8" font-family="'JetBrains Mono', monospace">Fuselage Seam</text>
+                <text x="56" y="172" fill="var(--cyan)" font-size="7.5" font-family="'JetBrains Mono', monospace">➔ Tail Seam</text>
+
+                <!-- Polygon Fin Shape -->
+                <polygon id="phase2FinPolygon" points="" fill="rgba(56, 189, 248, 0.25)" stroke="var(--cyan)" stroke-width="2" />
+                
+                <!-- Draggable Handle Nodes -->
+                <g id="phase2FinHandlesGroup"></g>
+              </svg>
+            </div>
+
+            <div class="fin-metrics-bar">
+              <span>Height along body: <strong id="p2MetricRoot" class="mono">-- cm</strong></span>
+              <span>Width span: <strong id="p2MetricSpan" class="mono">-- cm</strong></span>
+              <span>Outer Tip: <strong id="p2MetricTip" class="mono">-- cm</strong></span>
+              <span>Surface Area: <strong id="p2MetricArea" class="mono" style="color:var(--cyan);">-- cm²</strong></span>
             </div>
           </div>
 
@@ -1047,11 +1120,12 @@
             <div class="field-grid-2">
               <div class="field-group">
                 <label class="field-label" for="hangTimeA">Average Hang Time (t_hang) <span class="unit">s</span></label>
-                <input type="number" id="hangTimeA" step="0.05" min="0.5" max="15.0" value="4.00" oninput="updateFlightTelemetry()">
+                <input type="number" id="hangTimeA" step="0.05" min="0.5" max="15.0" placeholder="Measure hang time (e.g. 4.00)" value="" oninput="updateFlightTelemetry()">
               </div>
               <div class="field-group">
                 <label class="field-label" for="behaviorA">Observed Flight Behavior</label>
                 <select id="behaviorA" onchange="updateFlightTelemetry()">
+                  <option value="" disabled selected>-- Select Observed Flight Path (A) --</option>
                   <option value="vertical_drift">High vertical climb with wind drift</option>
                   <option value="long_arc">Long arching flight across campus (boosted glide)</option>
                   <option value="corkscrew">Tight spiral / corkscrew spin</option>
@@ -1071,12 +1145,13 @@
             <div class="field-grid-2">
               <div class="field-group">
                 <label class="field-label" for="hangTimeB">Average Hang Time (t_hang) <span class="unit">s</span></label>
-                <input type="number" id="hangTimeB" step="0.05" min="0.5" max="15.0" value="4.60" oninput="updateFlightTelemetry()">
+                <input type="number" id="hangTimeB" step="0.05" min="0.5" max="15.0" placeholder="Measure hang time (e.g. 4.50)" value="" oninput="updateFlightTelemetry()">
               </div>
               <div class="field-group">
                 <label class="field-label" for="behaviorB">Observed Flight Behavior</label>
                 <select id="behaviorB" onchange="updateFlightTelemetry()">
-                  <option value="vertical_drift" selected>High vertical climb with wind drift</option>
+                  <option value="" disabled selected>-- Select Observed Flight Path (B) --</option>
+                  <option value="vertical_drift">High vertical climb with wind drift</option>
                   <option value="long_arc">Long arching flight across campus (boosted glide)</option>
                   <option value="corkscrew">Tight spiral / corkscrew spin</option>
                   <option value="hard_bank">Hard banking curve / turn</option>
@@ -1541,6 +1616,13 @@
         if (el) el.classList.add('variable-highlight');
       }
 
+      // Show Fin Target Selector if Fin Shape or Dimensions is the variable
+      const isFinVar = (v === 'fin_shape' || v === 'fin_dimensions');
+      const finToggleWrap = document.getElementById('finTargetToggleWrap');
+      if (finToggleWrap) {
+        finToggleWrap.style.display = isFinVar ? 'flex' : 'none';
+      }
+
       drawDualBlueprint();
       updateComparativeEvidence();
       triggerAutoSave();
@@ -1580,23 +1662,256 @@
       triggerAutoSave();
     }
 
-    function applyFinShape(preset) {
-      if (preset === 'delta') {
-        document.getElementById('finHeightB').value = 4.0;
-        document.getElementById('finWidthB').value = 4.0;
-      } else if (preset === 'trapezoid') {
-        document.getElementById('finHeightB').value = 5.0;
-        document.getElementById('finWidthB').value = 3.5;
-      } else if (preset === 'swept') {
-        document.getElementById('finHeightB').value = 6.0;
-        document.getElementById('finWidthB').value = 4.5;
-      } else if (preset === 'straight') {
-        document.getElementById('finHeightB').value = 3.5;
-        document.getElementById('finWidthB').value = 3.0;
+    // =============================================================
+    // 3B. Phase 2 Interactive Fin Drafting Studio
+    // =============================================================
+    const P2_FIN_PIXELS_PER_CM = 20;
+    const P2_FIN_ROOT_X = 50;
+
+    let phase2FinPointsA = [
+      { x: 50, y: 75 },  // P0 (Root Top / Leading: 4cm root)
+      { x: 130, y: 155 }, // P1 (Tip Leading: 4cm span)
+      { x: 130, y: 155 }, // P2 (Tip Trailing)
+      { x: 50, y: 155 }  // P3 (Root Bottom / Trailing at tail)
+    ];
+
+    let phase2FinPointsB = [
+      { x: 50, y: 75 },
+      { x: 130, y: 155 },
+      { x: 130, y: 155 },
+      { x: 50, y: 155 }
+    ];
+
+    let editingFinTarget = 'A';
+    let p2ActiveDragIdx = -1;
+    let userHasDrawnPhase2Fin = false;
+
+    const P2_FIN_PRESETS = {
+      delta: [
+        { x: 50, y: 75 },
+        { x: 130, y: 155 },
+        { x: 130, y: 155 },
+        { x: 50, y: 155 }
+      ],
+      trapezoid: [
+        { x: 50, y: 45 },
+        { x: 130, y: 65 },
+        { x: 130, y: 125 },
+        { x: 50, y: 155 }
+      ],
+      swept: [
+        { x: 50, y: 55 },
+        { x: 140, y: 105 },
+        { x: 130, y: 155 },
+        { x: 50, y: 155 }
+      ],
+      straight: [
+        { x: 50, y: 75 },
+        { x: 130, y: 75 },
+        { x: 130, y: 155 },
+        { x: 50, y: 155 }
+      ]
+    };
+
+    function markPhase2FinDrawn() {
+      userHasDrawnPhase2Fin = true;
+      const badge = document.getElementById('finStudioStatus');
+      if (badge) {
+        badge.className = 'badge badge-green';
+        badge.textContent = '✓ Custom Fin Dimensions Active';
       }
-      drawDualBlueprint();
-      updateComparativeEvidence();
-      triggerAutoSave();
+    }
+
+    function setFinTarget(target) {
+      editingFinTarget = target;
+      const btnA = document.getElementById('btnEditFinA');
+      const btnB = document.getElementById('btnEditFinB');
+      if (btnA) {
+        btnA.classList.toggle('active', target === 'A');
+        btnA.style.background = target === 'A' ? '#ef4444' : 'var(--bg-input)';
+        btnA.style.color = target === 'A' ? '#fff' : '#ef4444';
+      }
+      if (btnB) {
+        btnB.classList.toggle('active', target === 'B');
+        btnB.style.background = target === 'B' ? '#38bdf8' : 'var(--bg-input)';
+        btnB.style.color = target === 'B' ? '#070d19' : '#38bdf8';
+      }
+      renderPhase2FinStudio();
+    }
+
+    function applyPhase2FinPreset(presetKey) {
+      if (P2_FIN_PRESETS[presetKey]) {
+        const pts = JSON.parse(JSON.stringify(P2_FIN_PRESETS[presetKey]));
+        if (editingFinTarget === 'A') {
+          phase2FinPointsA = pts;
+          const selectedVar = document.getElementById('independentVarSelect').value;
+          if (selectedVar !== 'fin_dimensions' && selectedVar !== 'fin_shape') {
+            phase2FinPointsB = JSON.parse(JSON.stringify(pts));
+          }
+        } else {
+          phase2FinPointsB = pts;
+        }
+        markPhase2FinDrawn();
+        syncInputsFromPhase2Fin();
+        renderPhase2FinStudio();
+        drawDualBlueprint();
+        updateComparativeEvidence();
+        triggerAutoSave();
+      }
+    }
+
+    function syncInputsFromPhase2Fin() {
+      const activePts = editingFinTarget === 'A' ? phase2FinPointsA : phase2FinPointsB;
+      const rootChordCm = Math.abs(activePts[3].y - activePts[0].y) / P2_FIN_PIXELS_PER_CM;
+      const spanCm = (Math.max(activePts[1].x, activePts[2].x) - P2_FIN_ROOT_X) / P2_FIN_PIXELS_PER_CM;
+      const selectedVar = document.getElementById('independentVarSelect').value;
+
+      if (editingFinTarget === 'A') {
+        const elH = document.getElementById('finHeightA');
+        const elW = document.getElementById('finWidthA');
+        if (elH) elH.value = rootChordCm.toFixed(1);
+        if (elW) elW.value = spanCm.toFixed(1);
+
+        if (selectedVar !== 'fin_dimensions' && selectedVar !== 'fin_shape') {
+          const elHB = document.getElementById('finHeightB');
+          const elWB = document.getElementById('finWidthB');
+          if (elHB) elHB.value = rootChordCm.toFixed(1);
+          if (elWB) elWB.value = spanCm.toFixed(1);
+        }
+      } else {
+        const elHB = document.getElementById('finHeightB');
+        const elWB = document.getElementById('finWidthB');
+        if (elHB) elHB.value = rootChordCm.toFixed(1);
+        if (elWB) elWB.value = spanCm.toFixed(1);
+      }
+    }
+
+    function renderPhase2FinStudio() {
+      const svg = document.getElementById('finDrawSvg');
+      if (!svg) return;
+
+      const activePts = editingFinTarget === 'A' ? phase2FinPointsA : phase2FinPointsB;
+      const ptsStr = activePts.map(p => `${p.x},${p.y}`).join(' ');
+      const poly = document.getElementById('phase2FinPolygon');
+      if (poly) {
+        poly.setAttribute('points', ptsStr);
+        poly.setAttribute('fill', editingFinTarget === 'A' ? 'rgba(239, 68, 68, 0.25)' : 'rgba(56, 189, 248, 0.25)');
+        poly.setAttribute('stroke', editingFinTarget === 'A' ? '#ef4444' : 'var(--cyan)');
+      }
+
+      // Render Handles
+      let handlesHtml = '';
+      activePts.forEach((p, idx) => {
+        handlesHtml += `
+          <g transform="translate(${p.x}, ${p.y})">
+            <circle r="8" fill="${editingFinTarget === 'A' ? '#ef4444' : 'var(--cyan)'}" stroke="#ffffff" stroke-width="2" style="cursor: grab;" />
+            <circle r="3" fill="#070d19" />
+          </g>
+        `;
+      });
+      const hGroup = document.getElementById('phase2FinHandlesGroup');
+      if (hGroup) hGroup.innerHTML = handlesHtml;
+
+      // Metrics
+      const p0 = activePts[0];
+      const p1 = activePts[1];
+      const p2 = activePts[2];
+      const p3 = activePts[3];
+
+      const lenRootCm = Math.abs(p3.y - p0.y) / P2_FIN_PIXELS_PER_CM;
+      const spanCm = (Math.max(p1.x, p2.x) - P2_FIN_ROOT_X) / P2_FIN_PIXELS_PER_CM;
+      const lenTipCm = Math.hypot(p2.x - p1.x, p2.y - p1.y) / P2_FIN_PIXELS_PER_CM;
+
+      let areaPx = 0;
+      for (let i = 0; i < activePts.length; i++) {
+        const j = (i + 1) % activePts.length;
+        areaPx += activePts[i].x * activePts[j].y;
+        areaPx -= activePts[j].x * activePts[i].y;
+      }
+      const areaCm2 = Math.abs(areaPx) / (2 * P2_FIN_PIXELS_PER_CM * P2_FIN_PIXELS_PER_CM);
+
+      const mRoot = document.getElementById('p2MetricRoot');
+      const mSpan = document.getElementById('p2MetricSpan');
+      const mTip = document.getElementById('p2MetricTip');
+      const mArea = document.getElementById('p2MetricArea');
+
+      if (mRoot) mRoot.textContent = lenRootCm.toFixed(1) + ' cm';
+      if (mSpan) mSpan.textContent = spanCm.toFixed(1) + ' cm';
+      if (mTip) mTip.textContent = lenTipCm.toFixed(1) + ' cm';
+      if (mArea) mArea.textContent = areaCm2.toFixed(1) + ' cm²';
+    }
+
+    function initPhase2FinStudio() {
+      const svg = document.getElementById('finDrawSvg');
+      if (!svg) return;
+
+      function getSvgPoint(e) {
+        const pt = svg.createSVGPoint();
+        if (e.touches && e.touches.length > 0) {
+          pt.x = e.touches[0].clientX;
+          pt.y = e.touches[0].clientY;
+        } else {
+          pt.x = e.clientX;
+          pt.y = e.clientY;
+        }
+        return pt.matrixTransform(svg.getScreenCTM().inverse());
+      }
+
+      function onPointerDown(e) {
+        const pt = getSvgPoint(e);
+        const activePts = editingFinTarget === 'A' ? phase2FinPointsA : phase2FinPointsB;
+        for (let i = 0; i < activePts.length; i++) {
+          const dx = pt.x - activePts[i].x;
+          const dy = pt.y - activePts[i].y;
+          if (Math.hypot(dx, dy) < 22) {
+            p2ActiveDragIdx = i;
+            e.preventDefault();
+            break;
+          }
+        }
+      }
+
+      function onPointerMove(e) {
+        if (p2ActiveDragIdx < 0) return;
+        const pt = getSvgPoint(e);
+        const activePts = editingFinTarget === 'A' ? phase2FinPointsA : phase2FinPointsB;
+
+        if (p2ActiveDragIdx === 0) {
+          activePts[0].y = Math.max(15, Math.min(activePts[3].y - 15, pt.y));
+        } else if (p2ActiveDragIdx === 3) {
+          activePts[3].y = Math.max(activePts[0].y + 15, Math.min(165, pt.y));
+        } else if (p2ActiveDragIdx === 1) {
+          activePts[1].x = Math.max(P2_FIN_ROOT_X + 15, Math.min(295, pt.x));
+          activePts[1].y = Math.max(15, Math.min(165, pt.y));
+        } else if (p2ActiveDragIdx === 2) {
+          activePts[2].x = Math.max(P2_FIN_ROOT_X + 15, Math.min(295, pt.x));
+          activePts[2].y = Math.max(15, Math.min(165, pt.y));
+        }
+
+        markPhase2FinDrawn();
+        syncInputsFromPhase2Fin();
+        renderPhase2FinStudio();
+        drawDualBlueprint();
+        updateComparativeEvidence();
+        e.preventDefault();
+      }
+
+      function onPointerUp() {
+        if (p2ActiveDragIdx !== -1) {
+          p2ActiveDragIdx = -1;
+          triggerAutoSave();
+        }
+      }
+
+      svg.addEventListener('mousedown', onPointerDown);
+      window.addEventListener('mousemove', onPointerMove);
+      window.addEventListener('mouseup', onPointerUp);
+
+      svg.addEventListener('touchstart', onPointerDown, { passive: false });
+      window.addEventListener('touchmove', onPointerMove, { passive: false });
+      window.addEventListener('touchend', onPointerUp);
+
+      renderPhase2FinStudio();
     }
 
     // =============================================================
@@ -2464,6 +2779,7 @@
       initAuth();
       initMap();
       initPastePrevention();
+      initPhase2FinStudio();
       onVariableChange();
       drawDualBlueprint();
 
