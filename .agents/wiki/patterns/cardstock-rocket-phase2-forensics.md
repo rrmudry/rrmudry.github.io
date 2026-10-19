@@ -23,7 +23,7 @@ To prevent students from inadvertently changing multiple variables:
 - Dynamic aerodynamic stability calculations:
   - **Center of Mass (CM)**: Weighted balance point factoring fuselage length, nose cone, and tip ballast clay.
   - **Center of Pressure (CP)**: Barrowman approximation based on fuselage surface area and fin root/tip dimensions and offset.
-  - **Stability Calibers**: $(CP - CM) / D_{\text{fuselage}}$. Positive values (1.5 to 5.0 D) flagged as STABLE; negative or low values (<1.0 D) flagged with aerodynamic tumble warnings.
+  - **Stability Margin**: $CP - CM$ in centimeters. Positive values (e.g. +3.0 to +8.0 cm) indicate the Center of Pressure is comfortably behind the Center of Mass (STABLE); negative or small values indicate instability/tumble hazard. Displayed in intuitive centimeters and plain-English tags rather than abstract body calibers.
 
 ### 3. Dual-Pin Campus Satellite Recovery Map
 - Leaflet map initialized with Orange High School center coordinates (`33.79688, -117.84678`).
