@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en" class="font-normal">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAST Data Analysis & Graphing Practice | Science Department</title>
+  <meta name="description" content="Science department practice and evaluation suite for CAST data analysis, graphing trends, and Claim-Evidence-Reasoning free response questions.">
+  
+  <!-- Design System CSS -->
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- Chart.js (Fast, Filter-Safe CDN from jsdelivr) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- Firebase 8 SDKs for Student Authentication & Firestore Gradebook Sync -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+<body>
+
+
+  <!-- ==========================================================================
+       Sticky Zero-Scroll Application Header
+       ========================================================================== -->
+  <header class="app-header no-print">
+    <div class="brand-group">
+      <span class="brand-icon">📈</span>
+      <div>
+        <div class="brand-title">
+          CAST Data Studio
+          <span class="badge badge-physics" style="font-size:0.65rem;">NGSS SEP-4 / SEP-7</span>
+        </div>
+        <div class="brand-subtitle">Data Analysis, Graphing Trends & Evidence Evaluation</div>
+      </div>
+    </div>
+
+    <!-- Header Controls: Text Scaling, Theme, Teacher Mode, Print & Auth -->
+    <div class="header-controls">
+      <!-- Universal Root Font Scaling (Classroom Projector Mode) -->
+      <div style="display:flex; align-items:center; gap:0.25rem; background:var(--bg-card-subtle); padding:0.2rem 0.4rem; border-radius:0.5rem; border:1px solid var(--border-color);">
+        <span style="font-size:0.75rem; font-weight:800; color:var(--text-muted); margin-right:0.2rem;">Text:</span>
+        <button class="btn btn-sm font-size-btn active" data-size="normal" onclick="setFontSize('normal')" title="Standard Size (16px)">A</button>
+        <button class="btn btn-sm font-size-btn" data-size="large" onclick="setFontSize('large')" title="Large Size (20px)">A+</button>
+        <button class="btn btn-sm font-size-btn" data-size="projector" onclick="setFontSize('projector')" title="Projector Mode (24px)">🖥️ Projector</button>
+      </div>
+
+      <!-- High Contrast Theme Toggle (WCAG AAA) -->
+      <button id="themeToggleBtn" onclick="toggleTheme()" class="btn btn-sm">
+        🌙 Dark Mode
+      </button>
+
+      <!-- Print Lab Report Button -->
+      <button id="printReportBtn" class="btn btn-sm" title="Generate formal printed lab report or save as PDF">
+        🖨️ Print Report
+      </button>
+
+      <!-- Teacher Mode Button -->
+      <button onclick="openTeacherModal()" class="btn btn-sm btn-teacher" title="Open Custom Scenario Builder for teachers">
+        🛠️ Teacher Mode
+      </button>
+
+      <!-- Student Google Auth Container -->
+      <div id="authContainer">
+        <button onclick="signInWithGoogle()" class="btn btn-sm btn-primary">
+          🔑 Sign In with Google
+        </button>
+      </div>
+
+      <!-- Back to Main Site -->
+      <a href="../index.html" class="btn btn-sm" title="Return to Course Home">
+        🏠 Home
+      </a>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       Scenario Switcher & Discipline Filter Bar
+       ========================================================================== -->
+  <nav class="scenario-nav-bar no-print">
+    <!-- Multi-Disciplinary Category Filter Pills -->
+    <div class="filter-pills">
+      <button class="filter-btn active" data-discipline="all" onclick="filterDiscipline('all')">All Disciplines</button>
+      <button class="filter-btn" data-discipline="physics" onclick="filterDiscipline('physics')">⚛️ Physics</button>
+      <button class="filter-btn" data-discipline="biology" onclick="filterDiscipline('biology')">🌿 Biology</button>
+      <button class="filter-btn" data-discipline="chemistry" onclick="filterDiscipline('chemistry')">🧪 Chemistry</button>
+      <button class="filter-btn" data-discipline="earth & space" onclick="filterDiscipline('earth & space')">🌋 Earth & Space</button>
+    </div>
+
+    <!-- Active Scenario Selector -->
+    <div class="scenario-select-wrapper">
+      <label for="scenarioSelect">Active Investigation:</label>
+      <select id="scenarioSelect" class="app-select">
+        <!-- Dynamically loaded from scenarios.js -->
+      </select>
+    </div>
+  </nav>
+
+  <!-- ==========================================================================
+       Main CAST Split-Pane Workspace
+       ========================================================================== -->
+  <main class="app-container">
+
+    <!-- LEFT COLUMN: Phenomenon, Background, Data Table & Graph Canvas -->
+    <section class="left-column">
+      
+      <!-- Phenomenon Narrative Card -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title" id="scenarioTitle">Investigation Title</h2>
+          <span id="disciplineBadge" class="badge badge-physics">⚛️ Physics</span>
+        </div>
+        
+        <p class="phenomenon-narrative" id="phenomenonText">
+          Scientific phenomenon background narrative...
+        </p>
+
+        <div class="meta-tags-row">
+          <span class="badge" id="ngssBadge" style="background:var(--bg-card-subtle); color:var(--text-main);">HS-PS2-1</span>
+          <span class="badge" id="sepBadge" style="background:var(--bg-card-subtle); color:var(--text-main);">SEP-4: Data Analysis</span>
+          <span class="badge" id="cccBadge" style="background:var(--bg-card-subtle); color:var(--text-main);">CCC-1: Patterns</span>
+        </div>
+      </div>
+
+      <!-- Scientific Data Table Card -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">📊 Experimental Data Table</h3>
+          <span class="table-caption" id="tableCaption">Table 1: Measured Data</span>
+        </div>
+        <div class="table-container" id="dataTableContainer">
+          <!-- Dynamically populated table -->
+        </div>
+      </div>
+
+      <!-- Interactive Scientific Graph Card -->
+      <div class="card graph-card">
+        <div class="card-header">
+          <h3 class="card-title">📈 Plotted Graph & Model</h3>
+          <div class="graph-stats-pills">
+            <span class="stat-pill" id="graphEquationBadge">y = mx + b</span>
+          </div>
+        </div>
+
+        <div class="graph-canvas-wrapper">
+          <canvas id="scenarioChart"></canvas>
+        </div>
+
+        <div class="graph-toolbar">
+          <div style="font-size:0.775rem; color:var(--text-muted);" id="graphSlopeMeaningBadge">
+            Rate of change slope analysis
+          </div>
+          <button onclick="renderChart()" class="btn btn-sm no-print" title="Refresh graph scaling">
+            🔄 Reset Zoom
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- RIGHT COLUMN: Multi-Step Questions, Free Response CER & Rubric Evaluator -->
+    <section class="right-column">
+      
+      <!-- Stepper Navigation Bar -->
+      <div class="stepper-nav no-print">
+        <button class="step-tab-btn active" id="stepTab-0" onclick="setStep(0)">
+          <span class="step-num">Part 1</span>
+          <span class="step-label">Trend Pattern</span>
+        </button>
+        <button class="step-tab-btn" id="stepTab-1" onclick="setStep(1)">
+          <span class="step-num">Part 2</span>
+          <span class="step-label">Rate / Slope</span>
+        </button>
+        <button class="step-tab-btn" id="stepTab-2" onclick="setStep(2)">
+          <span class="step-num">Part 3</span>
+          <span class="step-label">Evidence CER</span>
+        </button>
+        <button class="step-tab-btn" id="stepTab-3" onclick="setStep(3)">
+          <span class="step-num">Part 4</span>
+          <span class="step-label">Synthesis</span>
+        </button>
+      </div>
+
+      <!-- STEP 1: TREND IDENTIFICATION -->
+      <div class="card question-panel active" id="panelStep-0">
+        <div class="card-header">
+          <h3 class="card-title">🔍 Part 1: Identifying Data Trends (SEP-4)</h3>
+          <span class="badge badge-physics">1 Point</span>
+        </div>
+
+        <p class="question-prompt" id="trendPrompt">
+          What is the mathematical relationship demonstrated by the data?
+        </p>
+
+        <div class="mcq-options" id="trendOptions">
+          <!-- Dynamically populated radio choices -->
+        </div>
+
+        <div id="trendFeedback" class="feedback-box"></div>
+
+        <div class="step-footer-actions no-print">
+          <span></span>
+          <button onclick="setStep(1)" class="btn btn-primary">
+            Next: Part 2 Rate Analysis →
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 2: QUANTITATIVE RATE / SLOPE CALCULATION -->
+      <div class="card question-panel" id="panelStep-1">
+        <div class="card-header">
+          <h3 class="card-title">🧮 Part 2: Quantitative Data & Rate Analysis (SEP-5)</h3>
+          <span class="badge badge-physics">1 Point</span>
+        </div>
+
+        <p class="question-prompt" id="quantPrompt">
+          Calculate the rate of change (slope Δy / Δx) between the specified trials.
+        </p>
+
+        <div class="calc-input-box">
+          <input type="number" step="any" id="quantInput" class="calc-input" placeholder="0.00">
+          <span class="calc-unit-label" id="quantUnit">units</span>
+          <button onclick="checkQuantitativeCalculation(true)" class="btn btn-primary no-print">
+            Check Calculation
+          </button>
+        </div>
+
+        <div id="quantFeedback" class="feedback-box"></div>
+
+        <div class="step-footer-actions no-print">
+          <button onclick="setStep(0)" class="btn">
+            ← Back to Part 1
+          </button>
+          <button onclick="setStep(2)" class="btn btn-primary">
+            Next: Part 3 Evidence CER →
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 3: FREE RESPONSE (CER) & AUTOMATED EVIDENCE CHECKER -->
+      <div class="card question-panel" id="panelStep-2">
+        <div class="card-header">
+          <h3 class="card-title">✍️ Part 3: Free Response Scientific Argumentation (SEP-7)</h3>
+          <span class="badge badge-physics">4 Points</span>
+        </div>
+
+        <p class="question-prompt" id="frPrompt">
+          Construct a scientific explanation (Claim-Evidence-Reasoning) citing specific numerical evidence and units from the data table or graph.
+        </p>
+
+        <!-- Student Writing Area -->
+        <textarea id="frTextarea" class="cer-textarea" placeholder="State your claim, cite at least TWO specific numbers with units from the data table or graph, compare the values, and explain why using scientific reasoning..."></textarea>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;" class="no-print">
+          <span style="font-size:0.775rem; color:var(--text-muted); font-weight:600;">
+            Type your response above. The automated rubric evaluates your evidence in real time.
+          </span>
+          <button onclick="evaluateFreeResponseLive()" class="btn btn-sm btn-primary">
+            🔍 Check Evidence Rubric
+          </button>
+        </div>
+
+        <!-- Real-Time Automated 4-Point Evidence Rubric Breakdown -->
+        <div class="rubric-card">
+          <div class="rubric-header">
+            <span class="rubric-title">📋 4-Point Scientific Evidence Rubric</span>
+            <span class="rubric-score-badge" id="frRubricScoreBadge">0 / 4 Pts</span>
+          </div>
+
+          <p style="font-size:0.8rem; font-weight:700; color:var(--text-main); margin-bottom:0.6rem;" id="frOverallFeedback">
+            Start by writing a claim stating how the independent variable affected the dependent variable.
+          </p>
+
+          <div class="rubric-criteria-list" id="frCriteriaList">
+            <!-- Dynamically populated criteria items -->
+          </div>
+
+          <!-- Actionable Tips to Reach Full 4/4 Points -->
+          <div id="frActionableTipsBox" class="actionable-tips-box" style="display:none;"></div>
+        </div>
+
+        <div class="step-footer-actions no-print">
+          <button onclick="setStep(1)" class="btn">
+            ← Back to Part 2
+          </button>
+          <button onclick="setStep(3)" class="btn btn-primary">
+            Next: Part 4 Synthesis →
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 4: SYNTHESIS / EXTRAPOLATION & FINAL SUBMISSION -->
+      <div class="card question-panel" id="panelStep-3">
+        <div class="card-header">
+          <h3 class="card-title">🚀 Part 4: Scientific Synthesis & Mastery Review</h3>
+          <span class="badge badge-physics">1 Point</span>
+        </div>
+
+        <p class="question-prompt" id="synPrompt">
+          Based on the model, evaluate the projected outcome under new conditions.
+        </p>
+
+        <div class="mcq-options" id="synOptions">
+          <!-- Dynamically populated choices -->
+        </div>
+
+        <div id="synFeedback" class="feedback-box"></div>
+
+        <!-- Master Task Score & Completion Submission Card -->
+        <div class="card submission-card" style="margin-top:1.25rem;">
+          <h4 style="font-size:0.95rem; font-weight:800; color:var(--text-main);">
+            🎯 Investigation Mastery Summary
+          </h4>
+          <div class="mastery-score-display">
+            <div class="score-big" id="totalScoreDisplay">0 / 7</div>
+            <div>
+              <div style="font-size:1.05rem; font-weight:800; color:var(--text-main);" id="masteryPercentDisplay">0% Mastery</div>
+              <div style="font-size:0.775rem; color:var(--text-muted);">
+                Part 1 (Trend: 1 pt) • Part 2 (Rate: 1 pt) • Part 3 (CER: 4 pts) • Part 4 (Synthesis: 1 pt)
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.65rem; margin-top:0.85rem;" class="no-print">
+            <button onclick="submitWorkToFirestore()" id="submitToFirestoreBtn" class="btn btn-primary" style="font-size:0.95rem; padding:0.6rem 1.25rem;">
+              🚀 Submit to Gradebook / Firestore
+            </button>
+            <button onclick="window.print()" class="btn">
+              🖨️ Print Student Report
+            </button>
+          </div>
+        </div>
+
+        <div class="step-footer-actions no-print">
+          <button onclick="setStep(2)" class="btn">
+            ← Back to Part 3 (CER)
+          </button>
+          <span></span>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ==========================================================================
+       HONORS WORKSHEET 1-PAGE PRINTABLE LAB REPORT
+       Strict 1-Page Layout modeled after Honors_Kinematics_Graphing_Challenges_1_and_2.html
+       ========================================================================== -->
+  <div id="printWorksheet" class="print-worksheet-page">
+    <div class="print-top-block">
+      <!-- Worksheet Header -->
+      <div class="p-header">
+        <div class="p-header-titles">
+          <h1 id="pHeaderTitle">CAST Data Analysis &amp; Graphing Lab</h1>
+          <p class="p-sub" id="pHeaderSub">Science Department Inquiry Assessment &bull; NGSS Performance Task</p>
+        </div>
+        <div class="p-header-meta">
+          <span class="p-badge p-badge-blue" id="pHeaderNgss">HS-PS2-1 • SEP-4 • SEP-7</span>
+          <div class="p-student-fields">
+            <div><span class="p-field-label">Name:</span> <span class="p-field-line" id="pStudentName" style="min-width:150px;"></span></div>
+            <div><span class="p-field-label">Period:</span> <span class="p-field-line" id="pStudentPeriod" style="min-width:28px;"></span></div>
+            <div><span class="p-field-label">Date:</span> <span class="p-field-line" id="pCurrentDate" style="min-width:60px;"></span></div>
+            <div><span class="p-field-label">Score:</span> <span class="p-field-line" id="pMasteryScore" style="min-width:45px; font-weight:800; color:#0284c7;"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scenario Background Narrative Box -->
+      <div class="p-scenario-container">
+        <div class="p-scenario-title" id="pScenarioTitle">INVESTIGATION SCENARIO</div>
+        <div class="p-scenario-text" id="pScenarioText">...</div>
+      </div>
+
+      <!-- Evidence Middle Grid: Data Table (Left 46%) & Graph Image (Right 52%) -->
+      <div class="p-evidence-grid">
+        <!-- Table Column -->
+        <div class="p-table-box">
+          <div class="p-box-header">
+            <span>📊 Experimental Data</span>
+            <span id="pTableCaption" style="font-size:6.8pt; color:#64748b; font-weight:600;">Table 1</span>
+          </div>
+          <div id="pTableWrapper" style="flex:1; overflow:hidden;"></div>
+        </div>
+
+        <!-- Graph Column -->
+        <div class="p-graph-box">
+          <div class="p-box-header">
+            <span>📈 Plotted Graph &amp; Trendline</span>
+            <span id="pGraphModelBadge" class="p-badge p-badge-blue">Model</span>
+          </div>
+          <div class="p-graph-content">
+            <img id="pGraphImg" class="p-graph-img" src="" alt="Plotted Scientific Graph">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Questions & Scientific Argumentation Box -->
+    <div class="p-questions-container">
+      <div class="p-questions-title">
+        <span>Graphical Analysis &amp; Scientific Argumentation (CAST Task)</span>
+        <span style="font-size:7pt; color:#64748b; font-weight:600;">Answer citing specific data above</span>
+      </div>
+
+      <!-- Question 1: Trend Identification -->
+      <div class="p-q-item">
+        <div class="p-q-prompt">1. Mathematical Trend (SEP-4): <span id="pQ1Prompt"></span></div>
+        <div class="p-q-answer"><strong>Student Selection:</strong> <span id="pQ1Answer" style="font-weight:600;"></span></div>
+      </div>
+
+      <!-- Question 2: Rate of Change Calculation -->
+      <div class="p-q-item">
+        <div class="p-q-prompt">2. Rate of Change / Slope Calculation (SEP-5): <span id="pQ2Prompt"></span></div>
+        <div class="p-q-answer">
+          <strong>Calculated Rate:</strong> <span class="p-inline-blank" id="pQ2Value"></span> <span id="pQ2Unit"></span> &nbsp;&nbsp;|&nbsp;&nbsp; 
+          <span id="pQ2Check" style="font-weight:700;"></span>
+        </div>
+      </div>
+
+      <!-- Question 3: Free Response CER & 4-Point Rubric Bar -->
+      <div class="p-q-item">
+        <div class="p-q-prompt">3. Scientific Argumentation — Claim, Evidence &amp; Reasoning (SEP-7):</div>
+        <div id="pQ3Prompt" style="font-size:7.2pt; color:#334155; margin-bottom:2px;"></div>
+        <div class="p-cer-box" id="pCerText">[No response written yet]</div>
+        <!-- Compact 4-Point Rubric Bar -->
+        <div class="p-rubric-bar">
+          <div class="p-rubric-pills">
+            <span class="p-rub-pill" id="pRubClaim">Claim: 0/1</span>
+            <span class="p-rub-pill" id="pRubEvidence">Evidence: 0/1</span>
+            <span class="p-rub-pill" id="pRubUnits">Units: 0/1</span>
+            <span class="p-rub-pill" id="pRubReasoning">Reasoning: 0/1</span>
+          </div>
+          <div>
+            Evidence Rubric: <strong id="pRubTotal" style="color:#0284c7;">0 / 4 Pts</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 4: Model Synthesis / Extrapolation -->
+      <div class="p-q-item" style="margin-bottom:0;">
+        <div class="p-q-prompt">4. Model Synthesis &amp; Extrapolation: <span id="pQ4Prompt"></span></div>
+        <div class="p-q-answer"><strong>Evaluation:</strong> <span id="pQ4Answer" style="font-weight:600;"></span></div>
+      </div>
+    </div>
+
+    <!-- Footer Bar -->
+    <div class="p-footer-bar">
+      <span>Orange High School &bull; Science Department Practice &bull; <span id="pFooterNgss">HS-PS2-1</span></span>
+      <span>CAST High School Standard Alignment &bull; Page 1 of 1</span>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Teacher Mode Modal: Custom Scenario Builder & JSON Exporter
+       ========================================================================== -->
+  <div id="teacherModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 style="font-size:1.15rem; font-weight:800; display:flex; align-items:center; gap:0.5rem;">
+          🛠️ Science Department Custom Scenario Builder
+        </h2>
+        <button onclick="closeTeacherModal()" class="btn btn-sm">✕ Close</button>
+      </div>
+
+      <div class="modal-body">
+        <p style="font-size:0.825rem; color:var(--text-muted);">
+          Create or customize high school CAST data analysis scenarios for common department exams or unit labs.
+        </p>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="teacherTitleInput">Investigation Title:</label>
+            <input type="text" id="teacherTitleInput" class="form-input" placeholder="e.g., Spring Extension vs. Hanging Mass">
+          </div>
+          <div class="form-group">
+            <label for="teacherDisciplineSelect">Discipline:</label>
+            <select id="teacherDisciplineSelect" class="form-input">
+              <option value="Physics">⚛️ Physics</option>
+              <option value="Biology">🌿 Biology</option>
+              <option value="Chemistry">🧪 Chemistry</option>
+              <option value="Earth & Space">🌋 Earth & Space</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="teacherNgssCodeInput">NGSS Performance Expectation Code:</label>
+            <input type="text" id="teacherNgssCodeInput" class="form-input" placeholder="e.g., HS-PS2-1">
+          </div>
+          <div class="form-group">
+            <label for="teacherQuantExpectedInput">Expected Rate / Slope Value (Part 2):</label>
+            <input type="number" step="any" id="teacherQuantExpectedInput" class="form-input" placeholder="e.g., 0.20">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="teacherBgTextarea">Background Phenomenon Narrative:</label>
+          <textarea id="teacherBgTextarea" class="form-textarea" rows="3" placeholder="Describe the investigative context, controlled factors, and experimental procedure..."></textarea>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="teacherXLabelInput">Independent Variable (X-Axis) Name & Unit:</label>
+            <div style="display:flex; gap:0.4rem;">
+              <input type="text" id="teacherXLabelInput" class="form-input" placeholder="Variable Name" style="flex:2;">
+              <input type="text" id="teacherXUnitInput" class="form-input" placeholder="Unit (e.g. N)" style="flex:1;">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="teacherYLabelInput">Dependent Variable (Y-Axis) Name & Unit:</label>
+            <div style="display:flex; gap:0.4rem;">
+              <input type="text" id="teacherYLabelInput" class="form-input" placeholder="Variable Name" style="flex:2;">
+              <input type="text" id="teacherYUnitInput" class="form-input" placeholder="Unit (e.g. m/s²)" style="flex:1;">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="teacherDataRowsInput">Experimental Data Rows (Format: X, Y per line):</label>
+          <textarea id="teacherDataRowsInput" class="form-textarea" rows="4" placeholder="5, 1.0&#10;10, 2.0&#10;15, 3.0&#10;20, 4.0&#10;25, 5.0"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="teacherTrendPromptInput">Part 1 Trend Question Prompt:</label>
+          <input type="text" id="teacherTrendPromptInput" class="form-input" placeholder="What pattern does the data exhibit?">
+        </div>
+
+        <div class="form-group">
+          <label for="teacherFrPromptInput">Part 3 Free Response CER Prompt:</label>
+          <textarea id="teacherFrPromptInput" class="form-textarea" rows="2" placeholder="Construct a scientific argument explaining the relationship between the variables, citing data and units..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="teacherFrNumbersInput">Target Numbers to Expect in Student Evidence (comma-separated):</label>
+          <input type="text" id="teacherFrNumbersInput" class="form-input" placeholder="e.g., 5, 1.0, 10, 2.0, 20, 4.0">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button onclick="exportCustomScenariosJson()" class="btn">
+          💾 Export Scenarios JSON
+        </button>
+        <button onclick="closeTeacherModal()" class="btn">
+          Cancel
+        </button>
+        <button onclick="saveCustomScenarioFromForm()" class="btn btn-primary">
+          ✓ Save & Activate Scenario
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Logic Scripts -->
+  <script src="js/scenarios.js"></script>
+  <script src="js/evidence-checker.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

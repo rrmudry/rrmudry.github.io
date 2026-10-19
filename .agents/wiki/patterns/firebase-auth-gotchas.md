@@ -88,8 +88,21 @@ For multi-level scaffolded interactive webapps (e.g. `Physics Speed Calculator`)
 - **Firestore rules require auth**: All reads/writes to `student_results` require `request.auth != null`. If a user somehow bypasses the frontend auth check, Firestore rules will reject the write.
 - **Roster lookup**: The Bell-Ringer system cross-references `roster/{studentId}` to verify class period. Not all apps do this — only period-gated apps need it.
 
+## 🚨 Admin/Teacher Testing Hides Rule Failures (2026-10-16)
+- `firebase-admin` **bypasses security rules**, and the teacher account matches `isAdmin()` (global `match /{document=**}`). Neither one can catch a student `PERMISSION_DENIED`. Because of this, Period 0 lost work.
+- **Fix**: `sync-classroom/student-rules-check.js` (Step 6 of `npm run verify`) mints a custom token with `email=<id>@orangeusd.org, email_verified=true`, swaps it for an ID token through the Identity Toolkit REST API, and calls the Firestore REST API, so the **deployed** rules are enforced.
+- It scans the app source for every `.collection(...)` (including const names) and replays student reads/writes on each one. It impersonates a real P0 student and a real standard-period student for the `roster` GET, runs a privacy negative control, and warns if local `firestore.rules` ≠ deployed.
+- Static red flags: writing the parent `student_results/{assignment}` doc (admin-only), using `user.uid` as the doc ID (rules need the email prefix), and literal `undefined` in payloads.
+- **Any new collection needs a student `match` block** in `firestore.rules`, deployed with `firebase deploy --only firestore:rules`, or the global admin rule makes it work for the teacher only.
+- Usage: `npm run verify -- --id <ASSIGNMENT_ID> --app <app_folder>`.
+
 ## Evidence
 - Auth pattern from `create-secure-webapp.md` workflow
 - Score submission from `create-student-webapp.md` workflow
 - Dual-path sync from Bell-Ringer README and teacher.html
 - Popup vs login screen pattern observed across skydiving-game and Bell-Ringer
+
+### Enforcement gates (2026-10-16)
+1. Pre-commit: `scripts/audit-firestore-rules-coverage.js --staged` (static; opt-out marker `firestore-audit: teacher-only`).
+2. `npm run verify -- --id <ID> --app <folder>` Step 6 (live student token).
+3. `deploy-assignment.js` blocks Classroom posting unless the live student test passes.

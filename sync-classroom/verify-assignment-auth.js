@@ -18,6 +18,7 @@
 const fs = require('fs');
 const path = require('path');
 const admin = require('firebase-admin');
+const { runStudentRulesCheck } = require('./student-rules-check');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const serviceAccountPath = path.join(__dirname, '..', 'site-6e500-firebase-adminsdk-fbsvc-407ccb8f99.json');
@@ -35,11 +36,10 @@ const db = admin.firestore();
 // Parse CLI args
 const args = process.argv.slice(2);
 let assignmentId = null;
+let appPath = null;
 for (let i = 0; i < args.length; i++) {
-  if (args[i] === '--id' || args[i] === '-i') {
-    assignmentId = args[i + 1];
-    break;
-  }
+  if (args[i] === '--id' || args[i] === '-i') assignmentId = args[i + 1];
+  if (args[i] === '--app' || args[i] === '-a') appPath = args[i + 1];
 }
 
 if (!assignmentId) {
@@ -105,7 +105,9 @@ async function runPreFlightCheck() {
   }
 
   // 4. Test Synthetic Student Document Write
-  console.log('\n4️⃣ Testing synthetic student Firestore write (Student Impersonation Test)...');
+  // NOTE: admin SDK bypasses security rules. This only validates payload schema.
+  // Real student permissions are tested in Step 6.
+  console.log('\n4️⃣ Testing payload schema via admin write (does NOT test security rules)...');
   const testStudentId = '_preflight_test_student_99999';
   const testDocRef = db.collection('student_results').doc(assignmentId).collection('students').doc(testStudentId);
   
@@ -178,6 +180,11 @@ async function runPreFlightCheck() {
       }
     }
   }
+
+  // 6. LIVE security-rules test authenticated AS A STUDENT (not admin/teacher)
+  console.log('\n6️⃣ LIVE student-permission test (real student auth token vs DEPLOYED rules)...');
+  const rulesOk = await runStudentRulesCheck({ admin, db, assignmentId, appPath });
+  if (!rulesOk) passed = false;
 
   console.log('\n========================================================================');
   if (passed) {

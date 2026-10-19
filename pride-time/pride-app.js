@@ -1,4 +1,5 @@
 /**
+ * firestore-audit: teacher-only  (teacher-operated kiosk; students never sign in)
  * PRIDE Time Attendance & Behavior Tracker - Core Application Logic
  * Continuous Barcode/QR Scanning, Live Counter, Firestore Roster Sync & Realtime Bus
  */
