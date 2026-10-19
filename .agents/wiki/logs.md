@@ -2,6 +2,16 @@
 
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
+## 2026-10-18 — Cardstock Rocket Phase 2: Stage 2 Sticky Technical Blueprint Tracking (`Unit_2/rocket_phase2/index.html`)
+**Patterns Updated**: `cardstock-rocket-phase2-forensics.md`.
+
+**Changes**:
+- **Stage 2 Sticky Technical Blueprint (`main.stage-2-active #dualBlueprintCard`)**:
+  - Implemented dynamic sticky positioning (`position: sticky; top: 65px; z-index: 100`) on `#dualBlueprintCard` activated exclusively when Stage 2 is active.
+  - When students scroll down the tall left column into the Fin Drafting Studio at the bottom of Stage 2, the Technical Blueprint smoothly moves down alongside them, keeping the 1cm × 1cm CAD projection and real-time Center of Mass/Center of Pressure stability meters continuously in view while dragging fin handles.
+  - **Stage-Specific Isolation**: Strictly restricted to Stage 2 (`main.stage-2-active`). On Stage 4, `#dualBlueprintCard` reverts to `position: static` so that both the Blueprint and Satellite Recovery Map stack and scroll naturally beside the CER questions.
+  - **Mobile Degradation**: Media query (`@media (max-width: 960px)`) resets `#dualBlueprintCard` to `position: static` on smaller screens and mobile viewports.
+
 ## 2026-10-18 — Cardstock Rocket Phase 2: Stage-Gated Tool Visibility & Student-Authored CER Evidence (`Unit_2/rocket_phase2/index.html`)
 **Patterns Updated**: `cardstock-rocket-phase2-forensics.md`.
 

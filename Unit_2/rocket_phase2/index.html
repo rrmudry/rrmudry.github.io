@@ -243,8 +243,17 @@
       grid-template-columns: 1fr;
       max-width: 980px;
     }
+    /* Sticky Blueprint on Stage 2 only: tracks down as students scroll down to the Fin Studio */
+    main.stage-2-active #dualBlueprintCard {
+      position: sticky;
+      top: 65px;
+      z-index: 100;
+    }
     @media (max-width: 960px) {
       main { grid-template-columns: 1fr; }
+      main.stage-2-active #dualBlueprintCard {
+        position: static;
+      }
     }
 
     /* Cards */
@@ -1958,6 +1967,7 @@
       // When Stage 1 (neither card shown), switch main to focused single-column layout
       if (mainEl) {
         mainEl.classList.toggle('single-col-stage', !showRightCol);
+        mainEl.classList.toggle('stage-2-active', stageNum === 2);
       }
 
       // If map is shown (Stage 3 or 4), recalculate Leaflet map dimensions

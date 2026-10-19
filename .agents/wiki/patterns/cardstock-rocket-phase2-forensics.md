@@ -42,11 +42,16 @@ To prevent students from inadvertently changing multiple variables:
 To eliminate visual clutter and align tools directly to each stage's cognitive objective:
 - **Stage 1 (Squad & Variable)**: Neither blueprint nor satellite map is displayed. Layout shifts to a focused, centered single column (`max-width: 980px`).
 - **Stage 2 (Measurements)**: Shows **Technical Blueprint ONLY** on the right column (satellite map hidden) so students focus exclusively on metric teardown and CAD stability margins.
+- **Stage 2 Sticky Blueprint Tracking**:
+  - The left column on Stage 2 contains teardown specs for Rocket A, Rocket B, and the Interactive Fin Drafting Studio at the bottom.
+  - When students scroll down into the Fin Studio, `#dualBlueprintCard` is dynamically styled with `position: sticky; top: 65px; z-index: 100` via the `main.stage-2-active` container class.
+  - This allows the technical blueprint and real-time Center of Mass/Center of Pressure stability margins to float alongside students as they tweak fin geometries, providing instant visual feedback.
+  - **Stage 2 Only**: The sticky behavior is strictly disabled on Stage 4 (`position: static`) so that both the Blueprint and Satellite Recovery Map stack and scroll naturally beside the CER writing prompts. On mobile/tablet screens ($\le 960\text{px}$), a media query resets the blueprint to `position: static`.
 - **Stage 3 (Launch Operations)**: Shows **Satellite Recovery Map ONLY** on the right column (blueprint hidden) so students focus on stopwatch timers, azimuth vectors, and touchdown pins.
 - **Stage 4 (CER Conclusion)**: Displays **BOTH Technical Blueprint AND Satellite Map** stacked on the right column, placing all physical dimensions, stability calibers, and recovery telemetry directly beside the CER writing prompts.
 - **Student-Authored Evidence (Zero Pre-Filled Text)**:
   - The `cerEvidence` textarea is intentionally kept EMPTY so students write their own quantitative evaluation rather than accepting a prewritten robot sentence.
-  - A compact read-only "📊 Live Data Reference" box sits above the textbox displaying live numbers (Mass A/B, Hang A/B, Range A/B, Apogee A/B, Stability Margins, and $\Delta$ Range) for students to cite.
+  - A compact read-only "📊 Live Data Reference" box sits above the textbox displaying live numbers (Mass A/B, Hang A/B, Range A/B, Apogee A/B, Stability Margins, and Δ Range) for students to cite.
 
 ### 5. District Web Filter & Security Hardening
 - **Zero unpkg.com & Zero In-Browser Babel**: Uses native vanilla JavaScript and vendored Leaflet (`assets/vendor/leaflet/`).
