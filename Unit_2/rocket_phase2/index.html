@@ -1185,12 +1185,21 @@
             </div>
 
             <!-- Target Fin Selector when Fin Dimensions or Shape is the Independent Variable -->
-            <div id="finTargetToggleWrap" style="display:none; margin:0.4rem 0; padding:0.4rem 0.6rem; background:var(--bg-card); border-radius:6px; font-size:0.72rem; align-items:center; justify-content:space-between; border:1px solid var(--border-subtle);">
+            <div id="finTargetToggleWrap" style="display:none; margin:0.4rem 0; padding:0.45rem 0.65rem; background:var(--bg-card); border-radius:8px; font-size:0.72rem; align-items:center; justify-content:space-between; border:1px solid var(--border-subtle); flex-wrap:wrap; gap:0.4rem;">
               <span style="color:var(--gold); font-weight:700;">★ Fin Variable Active — Which rocket fins are you modeling?</span>
-              <div style="display:flex; gap:0.4rem;">
+              <div style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap;">
                 <button type="button" class="preset-btn" id="btnEditFinA" onclick="setFinTarget('A')" style="border-color:#ef4444; color:#ef4444; font-weight:800;">🔴 Rocket A Fins</button>
                 <button type="button" class="preset-btn" id="btnEditFinB" onclick="setFinTarget('B')" style="border-color:#38bdf8; color:#38bdf8; font-weight:800;">🔵 Rocket B Fins</button>
+                <button type="button" class="preset-btn" onclick="copyRocketAFinsToB()" title="Reset Rocket B fins to match Rocket A" style="color:var(--cyan); border-color:var(--cyan); font-weight:700;">🔄 Reset B to Match A</button>
               </div>
+            </div>
+
+            <!-- When NON-Fin variable is active (e.g. Fuselage length, mass, nose cone) -->
+            <div id="finNonVarSyncWrap" style="margin:0.4rem 0; padding:0.45rem 0.65rem; background:rgba(2, 132, 199, 0.08); border-radius:8px; font-size:0.72rem; display:flex; align-items:center; justify-content:space-between; border:1px solid rgba(2, 132, 199, 0.25); flex-wrap:wrap; gap:0.4rem;">
+              <span style="color:var(--text);"><strong style="color:var(--cyan);">🔗 Matched Fin Rule:</strong> Both rockets must use identical fins because your variable is <span id="finNonVarName" style="color:var(--gold); font-weight:700;">Not Fins</span>.</span>
+              <button type="button" class="btn btn-primary" onclick="copyRocketAFinsToB()" style="padding:3px 10px; font-size:0.7rem; font-weight:700;">
+                🔄 Match Rocket B Fins to A
+              </button>
             </div>
 
             <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:0.4rem;">
@@ -1513,6 +1522,9 @@
             <button type="button" class="preset-btn" id="modalTargetA" onclick="setFinTarget('A')" style="border-color:#ef4444; color:#ef4444; font-weight:800;">🔴 Rocket A</button>
             <button type="button" class="preset-btn" id="modalTargetB" onclick="setFinTarget('B')" style="border-color:#38bdf8; color:#38bdf8; font-weight:800;">🔵 Rocket B</button>
           </div>
+          <button type="button" class="preset-btn" id="modalBtnMatchFins" onclick="copyRocketAFinsToB()" title="Force Rocket B fins to match Rocket A" style="color:var(--cyan); border-color:var(--cyan); font-weight:700; padding:3px 9px;">
+            🔄 Match B to A
+          </button>
 
           <div class="fin-presets">
             <button type="button" class="preset-btn" onclick="applyPhase2FinPreset('delta')">Delta</button>
@@ -1561,9 +1573,14 @@
 
         <!-- Right: Dimensional Specifier & Physical Side Lengths -->
         <div>
-          <div id="modalTargetNotice" style="font-size:0.75rem; color:var(--cyan); background:rgba(2,132,199,0.08); border:1px solid rgba(2,132,199,0.25); border-radius:6px; padding:0.4rem 0.65rem; margin-bottom:0.75rem; display:flex; align-items:center; justify-content:space-between;">
-            <strong id="modalTargetLabel">Currently Editing: 🔴 Rocket A (Baseline)</strong>
-            <span id="modalTargetRule" style="font-size:0.68rem; color:var(--text-muted);">Sync Rule: Changes mirror to Rocket B unless fins are your variable</span>
+          <div id="modalTargetNotice" style="font-size:0.75rem; color:var(--cyan); background:rgba(2,132,199,0.08); border:1px solid rgba(2,132,199,0.25); border-radius:6px; padding:0.4rem 0.65rem; margin-bottom:0.75rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.4rem;">
+            <div>
+              <strong id="modalTargetLabel">Currently Editing: 🔴 Rocket A (Baseline)</strong>
+              <div id="modalTargetRule" style="font-size:0.68rem; color:var(--text-muted); margin-top:2px;">Sync Rule: Changes mirror to Rocket B unless fins are your variable</div>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="copyRocketAFinsToB()" style="font-size:0.68rem; padding:3px 9px; font-weight:700;">
+              🔄 Match B to A
+            </button>
           </div>
 
           <div style="font-size:0.78rem; font-weight:800; color:var(--text); text-transform:uppercase; margin-bottom:0.6rem; letter-spacing:0.04em;">
@@ -1951,13 +1968,85 @@
       // Show Fin Target Selector if Fin Shape or Dimensions is the variable
       const isFinVar = (v === 'fin_shape' || v === 'fin_dimensions');
       const finToggleWrap = document.getElementById('finTargetToggleWrap');
+      const finNonVarWrap = document.getElementById('finNonVarSyncWrap');
+      const finNonVarName = document.getElementById('finNonVarName');
+      
       if (finToggleWrap) {
         finToggleWrap.style.display = isFinVar ? 'flex' : 'none';
+      }
+      if (finNonVarWrap) {
+        finNonVarWrap.style.display = isFinVar ? 'none' : 'flex';
+      }
+      if (finNonVarName) {
+        finNonVarName.textContent = names[v] ? names[v].replace('Variable: ', '') : 'Chosen Variable';
+      }
+
+      // If switching to a non-fin variable, automatically match Rocket B fins to Rocket A
+      if (!isFinVar && v) {
+        phase2FinPointsB = JSON.parse(JSON.stringify(phase2FinPointsA));
+        const elHA = document.getElementById('finHeightA');
+        const elWA = document.getElementById('finWidthA');
+        const elHB = document.getElementById('finHeightB');
+        const elWB = document.getElementById('finWidthB');
+        if (elHA && elHB) elHB.value = elHA.value;
+        if (elWA && elWB) elWB.value = elWA.value;
       }
 
       drawDualBlueprint();
       updateComparativeEvidence();
       triggerAutoSave();
+    }
+
+    function copyRocketAFinsToB() {
+      // 1. Copy CAD Fin Points
+      phase2FinPointsB = JSON.parse(JSON.stringify(phase2FinPointsA));
+
+      // 2. Copy In-Page Fin Dimension Inputs
+      const elHA = document.getElementById('finHeightA');
+      const elWA = document.getElementById('finWidthA');
+      const elOffA = document.getElementById('finOffsetA');
+      const elCountA = document.getElementById('finCountA');
+
+      const elHB = document.getElementById('finHeightB');
+      const elWB = document.getElementById('finWidthB');
+      const elOffB = document.getElementById('finOffsetB');
+      const elCountB = document.getElementById('finCountB');
+
+      if (elHA && elHB) elHB.value = elHA.value;
+      if (elWA && elWB) elWB.value = elWA.value;
+      if (elOffA && elOffB) elOffB.value = elOffA.value;
+      if (elCountA && elCountB) elCountB.value = elCountA.value;
+
+      // 3. Mark drawn and update all UIs
+      markPhase2FinDrawn();
+      syncPhase2ModalInputsFromFinPoints();
+      syncInputsFromPhase2Fin();
+      renderPhase2FinStudio();
+      renderPhase2FinModal();
+      drawDualBlueprint();
+      updateComparativeEvidence();
+      triggerAutoSave();
+
+      // 4. User Feedback Toast
+      showNotificationToast("✓ Rocket B fins matched to Rocket A! Both rockets now share identical fin geometry.");
+    }
+
+    function showNotificationToast(msg, isSuccess = true) {
+      let toast = document.getElementById('appNotificationToast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'appNotificationToast';
+        toast.className = 'paste-toast';
+        document.body.appendChild(toast);
+      }
+      toast.style.background = isSuccess ? 'rgba(4, 120, 87, 0.96)' : 'rgba(190, 18, 60, 0.96)';
+      toast.style.borderColor = isSuccess ? '#10b981' : '#f43f5e';
+      toast.style.boxShadow = isSuccess ? '0 8px 24px rgba(16, 185, 129, 0.35)' : '0 8px 24px rgba(244, 63, 94, 0.35)';
+      toast.innerHTML = `<span>${isSuccess ? '✓' : '⚠️'}</span><span>${escapeHtml(msg)}</span>`;
+      toast.style.display = 'flex';
+      setTimeout(() => {
+        if (toast) toast.style.display = 'none';
+      }, 3500);
     }
 
     function syncControlToRocketB() {
@@ -1969,12 +2058,15 @@
       if (selectedVar !== 'nose_shape') document.getElementById('noseHeightB').value = document.getElementById('noseHeightA').value;
       if (selectedVar !== 'nose_ballast') document.getElementById('addedMassB').value = document.getElementById('addedMassA').value;
       if (selectedVar !== 'fin_count') document.getElementById('finCountB').value = document.getElementById('finCountA').value;
-      if (selectedVar !== 'fin_dimensions') {
+      if (selectedVar !== 'fin_dimensions' && selectedVar !== 'fin_shape') {
         document.getElementById('finHeightB').value = document.getElementById('finHeightA').value;
         document.getElementById('finWidthB').value = document.getElementById('finWidthA').value;
+        phase2FinPointsB = JSON.parse(JSON.stringify(phase2FinPointsA));
       }
       if (selectedVar !== 'fin_offset') document.getElementById('finOffsetB').value = document.getElementById('finOffsetA').value;
 
+      renderPhase2FinStudio();
+      renderPhase2FinModal();
       drawDualBlueprint();
       updateComparativeEvidence();
       triggerAutoSave();
