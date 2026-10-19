@@ -20,6 +20,9 @@ Append-only log tracking pattern changes across recent sessions.
 - **Curriculum Stores & Course Outline**:
   - Updated `assets/lessons-data.js` for Days 36, 37, and 38 with Phase 2 assignments, resources, practice tools, and NGSS standards (`HS-PS2-1`, `HS-ETS1-2`, `HS-ETS1-3`).
   - Updated `Unit_2/outline.md` documenting the 3-day Phase 2 project schedule, rain contingency notes for Wednesday, and links.
+- **Period 0 (Honors) Launch Pad Correction**:
+  - Calibrated Period 0 launch station GPS coordinates across `Unit_2/rocket_recovery/index.html`, `Unit_2/rocket_phase2/index.html`, and `Unit_2/worksheets/Cardstock_Rocket_Autopsy_Lab.html` to `33°47'50.5"N 117°50'48.7"W` (`33.797361, -117.846861`) labeled as **"Basketball Courts"**.
+  - Recompiled printable PDF `Unit_2/worksheets/Cardstock_Rocket_Autopsy_Lab.pdf` via Puppeteer with updated launcher coordinates.
   - Refreshed site footer timestamp via `node scripts/update-timestamp.js`.
 
 ## 2026-10-16 — Firestore Security Rules: Drop Client-Side Parent Doc Writes (`Unit_2/rocket_recovery/index.html`)
