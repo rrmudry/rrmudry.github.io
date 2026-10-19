@@ -2,6 +2,20 @@
 
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
+## 2026-10-18 — Cardstock Rocket: 0 cm Cone Height & Blunt Nose Blueprint Rendering (`rocket_phase2` & `rocket_recovery`)
+**Patterns Updated**: `cardstock-rocket-phase2-forensics.md`.
+
+**Changes**:
+- **Resolved Falsy 0 Fallback Defect (`0 || 6.5 => 6.5`)**:
+  - In `Unit_2/rocket_phase2/index.html` and `Unit_2/rocket_recovery/index.html`, inputs were parsed using `parseFloat(...) || 6.5`. Entering `0` or `0.0` for cone height caused `0 || 6.5` to evaluate to `6.5`, incorrectly drawing a 6.5 cm pointed cone when students built and tested flat/blunt rockets.
+  - Implemented `parseNumWithDefault(elId, fallback)` and `parseIntWithDefault(elId, fallback)` to verify if the trimmed input string is truly empty (`''`) before defaulting, safely preserving `0` as an authentic engineering specification.
+  - Updated blueprint generation (`drawDualBlueprint`), Firestore payload serialization (`submitFinalReport`), and student draft restore logic (`loadStudentProgress`) to preserve `0` values across all numeric fields.
+- **Blunt Nose Technical Blueprint Projection**:
+  - When `specs.H_nose <= 0.5` (such as `0 cm`), the CAD engine suppresses the protruding conical polygon and instead renders a flat blunt cap line (`<line x1="50" ...>`) directly on the cylinder edge at 0 cm on the ruler.
+  - Blueprint label badge updates dynamically to display `• BLUNT NOSE (0 cm)`.
+  - Suppressed zero-length arrow dimension callouts when cone height is 0.
+  - Enhanced scaffolded CER evidence generator to recognize `nose_shape` and explicitly describe blunt/flat vs pointed nose profiles.
+
 ## 2026-10-18 — Cardstock Rocket Phase 2: One-Click Fin Matching for Non-Fin Variables (`Unit_2/rocket_phase2/index.html`)
 **Patterns Updated**: `cardstock-rocket-phase2-forensics.md`.
 

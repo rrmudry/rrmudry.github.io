@@ -24,6 +24,10 @@ To prevent students from inadvertently changing multiple variables:
   - **Center of Mass (CM)**: Weighted balance point factoring fuselage length, nose cone, and tip ballast clay.
   - **Center of Pressure (CP)**: Barrowman approximation based on fuselage surface area and fin root/tip dimensions and offset.
   - **Stability Margin**: $CP - CM$ in centimeters. Positive values (e.g. +3.0 to +8.0 cm) indicate the Center of Pressure is comfortably behind the Center of Mass (STABLE); negative or small values indicate instability/tumble hazard. Displayed in intuitive centimeters and plain-English tags rather than abstract body calibers.
+- **Blunt Nose & 0 cm Specification Handling (Critical Gotcha)**:
+  - In JavaScript, using `parseFloat(input.value) || 6.5` converts `0` into `6.5` because `0` is falsy. This caused 0 cm blunt rockets to render as 6.5 cm cones on the blueprint!
+  - Always use `parseNumWithDefault(elId, fallback)` which verifies `valStr === ''` before falling back, safely returning `0` when `0` or `0.0` is entered.
+  - When `H_nose <= 0.5`, the CAD engine draws a flat blunt cap line (`<line x1="50" ...>`) flush at 0 cm on the ruler with label `• BLUNT NOSE (0 cm)`, and suppresses zero-length conical polygons and dimension callouts.
 
 ### 3. Dual-Pin Campus Satellite Recovery Map
 - Leaflet map initialized with Orange High School center coordinates (`33.79688, -117.84678`).
