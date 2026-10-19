@@ -27,7 +27,7 @@ To prevent students from inadvertently changing multiple variables:
 
 ### 3. Dual-Pin Campus Satellite Recovery Map
 - Leaflet map initialized with Orange High School center coordinates (`33.79688, -117.84678`).
-- Launch Pad station selector (Periods 4–6 Quad Pad vs Period 0 Honors Upper Quad Pad).
+- Launch Pad station selector (Periods 4–6 Quad Pad: 33°47'48.8"N, 117°50'48.4"W vs Period 0 Honors Basketball Courts Pad: 33°47'50.5"N, 117°50'48.7"W).
 - Two interactive draggable markers:
   - 🔴 **Red Pin A**: Rocket A Touchdown Spot
   - 🔵 **Blue Pin B**: Rocket B Touchdown Spot
