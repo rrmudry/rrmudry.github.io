@@ -1002,46 +1002,48 @@
         <div class="field-grid">
           <div class="field-group">
             <label class="field-label" for="studentName">Student Name</label>
-            <input type="text" id="studentName" placeholder="e.g. Alex Rivera" value="">
+            <input type="text" id="studentName" placeholder="Auto-filled on Google Sign-In" value="" readonly style="opacity:0.85;">
           </div>
           <div class="field-group">
             <label class="field-label" for="classPeriod">Class Period</label>
             <select id="classPeriod" onchange="onPeriodChange()">
+              <option value="" disabled selected>-- Select Your Period --</option>
               <option value="0">Period 0 (Honors)</option>
               <option value="1">Period 1 (Conceptual)</option>
               <option value="2">Period 2 (Conceptual)</option>
               <option value="3">Period 3 (Conceptual)</option>
-              <option value="4" selected>Period 4 (Physics)</option>
+              <option value="4">Period 4 (Physics)</option>
               <option value="5">Period 5 (Physics)</option>
               <option value="6">Period 6 (Physics)</option>
             </select>
           </div>
           <div class="field-group full">
             <label class="field-label" for="callSign">Rocket Call Sign / Squad Name</label>
-            <input type="text" id="callSign" placeholder="e.g. Apollo 13 / The Flying Burrito" value="Titan V">
+            <input type="text" id="callSign" placeholder="e.g. Apollo 13 / SkyHawk / The Burrito" value="">
           </div>
         </div>
 
-        <!-- Section A: Fuselage Specs (Paper wraps removed per teacher specification) -->
+        <!-- Section A: Fuselage Specs -->
         <div style="font-size:0.75rem; font-weight:800; color:var(--cyan); margin:0.8rem 0 0.35rem; text-transform:uppercase;">
           1. Fuselage Anatomy (Cardstock Cylinder)
         </div>
         <div class="field-grid">
           <div class="field-group">
             <label class="field-label" for="fuseLength">Length (L) <span class="unit">cm</span></label>
-            <input type="number" id="fuseLength" step="0.1" min="10" max="40" value="28.0" oninput="updateAll()">
+            <input type="number" id="fuseLength" step="0.1" min="10" max="40" placeholder="Measure with ruler (e.g. 28.0)" value="" oninput="updateAll()">
           </div>
           <div class="field-group">
             <label class="field-label" for="fuseDiameter">
               <span>Outer Diameter (D) <span style="font-size:0.68rem; color:var(--text-muted); font-weight:normal;">(½" pipe)</span></span>
               <span class="unit">cm</span>
             </label>
-            <input type="number" id="fuseDiameter" step="0.05" min="0.8" max="3.0" value="1.3" oninput="updateAll()">
+            <input type="number" id="fuseDiameter" step="0.05" min="0.8" max="3.0" placeholder="e.g. 1.3" value="" oninput="updateAll()">
           </div>
           <div class="field-group">
             <label class="field-label" for="fuseFit">Fit on 0.5" Pipe</label>
             <select id="fuseFit" onchange="updateAll()">
-              <option value="snug" selected>Snug Seal (Good 80–100 PSI)</option>
+              <option value="" disabled selected>-- Select Pipe Fit Seal --</option>
+              <option value="snug">Snug Seal (Good 80–100 PSI)</option>
               <option value="loose">Loose / Wobbly (Air Leaked)</option>
               <option value="tight">Too Tight (High Friction)</option>
             </select>
@@ -1049,6 +1051,7 @@
           <div class="field-group">
             <label class="field-label" for="fuseCondition">Structural Condition</label>
             <select id="fuseCondition" onchange="updateAll()">
+              <option value="" disabled selected>-- Select Fuselage Condition --</option>
               <option value="pristine">Pristine / Straight</option>
               <option value="crimped">Crimped / Blown Seam</option>
               <option value="accordion">Accordion / Crushed</option>
@@ -1063,25 +1066,33 @@
         <div class="field-grid">
           <div class="field-group">
             <label class="field-label" for="noseHeight">Cone Height <span class="unit">cm</span></label>
-            <input type="number" id="noseHeight" step="0.1" min="2" max="15" value="6.5" oninput="updateAll()">
+            <input type="number" id="noseHeight" step="0.1" min="2" max="15" placeholder="Measure with ruler (e.g. 6.5)" value="" oninput="updateAll()">
           </div>
           <div class="field-group">
             <label class="field-label" for="addedMass">Added Tip Mass (If Any) <span class="unit">g</span></label>
-            <input type="number" id="addedMass" step="0.1" min="0" max="50" value="0.0" oninput="updateAll()">
+            <input type="number" id="addedMass" step="0.1" min="0" max="50" placeholder="0.0 if none" value="" oninput="updateAll()">
           </div>
           <div class="field-group full">
             <label class="field-label" for="ballastType">Nose Tip Material</label>
             <select id="ballastType" onchange="updateAll()">
-              <option value="none" selected>Standard Cardstock &amp; Tape (No added weights)</option>
+              <option value="" disabled selected>-- Select Nose Tip Material --</option>
+              <option value="none">Standard Cardstock &amp; Tape (No added weights)</option>
               <option value="tape">Extra Tape Wrap Reinforcement</option>
-              <option value="coins">Coins / Clips Added</option>
+              <option value="coins">Coins / Clips / Clay Added</option>
             </select>
           </div>
         </div>
 
         <!-- Section C: Interactive Fin Drafting Studio -->
-        <div style="font-size:0.75rem; font-weight:800; color:var(--cyan); margin:0.8rem 0 0.35rem; text-transform:uppercase;">
-          3. Stabilizing Fin Geometry &amp; Fin Studio
+        <div style="display:flex; justify-content:space-between; align-items:center; margin:1rem 0 0.4rem; flex-wrap:wrap; gap:0.4rem;">
+          <div style="font-size:0.78rem; font-weight:800; color:var(--cyan); text-transform:uppercase;">
+            3. Stabilizing Fin Studio (Draw Your Fin Shape)
+          </div>
+          <span class="badge badge-amber" id="finCustomBadge">⚠️ Action Required: Draw/Shape Your Fin</span>
+        </div>
+
+        <div style="background:rgba(56, 189, 248, 0.08); border:1px solid rgba(56, 189, 248, 0.25); border-radius:8px; padding:0.6rem 0.8rem; margin-bottom:0.75rem; font-size:0.75rem; line-height:1.4;">
+          <strong>🎯 Mandatory Fin Design:</strong> Do not use the unadjusted default! Drag the 4 corner handles (<strong style="color:var(--cyan);">●</strong>) on the canvas below, click a preset button, or click <strong>Fullscreen Fin Studio</strong> to enter your fin's height and width.
         </div>
 
         <!-- The Interactive Fin Canvas -->
@@ -1089,8 +1100,8 @@
           <div class="fin-studio-top">
             <span class="fin-studio-title">📐 Interactive Fin Drafting Studio</span>
             <div class="fin-presets">
-              <button type="button" id="btnOpenFinModal" class="btn-subtle" onclick="openFinModal()" style="padding:2px 8px; font-size:0.7rem; color:var(--cyan); border-color:var(--cyan); font-weight:700; margin-right:4px;">
-                ⛶ Fullscreen / Dimensions
+              <button type="button" id="btnOpenFinModal" class="btn btn-primary" onclick="openFinModal()" style="padding:3px 10px; font-size:0.72rem; font-weight:700; margin-right:4px;">
+                ⛶ Fullscreen Fin Studio
               </button>
               <button type="button" class="preset-btn" onclick="applyFinPreset('delta')">Delta</button>
               <button type="button" class="preset-btn" onclick="applyFinPreset('trapezoid')">Trapezoid</button>
@@ -1126,10 +1137,10 @@
           </div>
 
           <div class="fin-metrics-bar">
-            <span>Height: <strong id="metricRoot" class="mono">6.0 cm</strong></span>
-            <span>Width: <strong id="metricSpan" class="mono">4.5 cm</strong></span>
-            <span>Outer Edge: <strong id="metricTip" class="mono">2.5 cm</strong></span>
-            <span>Area: <strong id="metricArea" class="mono" style="color:var(--cyan);">19.1 cm²</strong></span>
+            <span>Height: <strong id="metricRoot" class="mono">-- cm</strong></span>
+            <span>Width: <strong id="metricSpan" class="mono">-- cm</strong></span>
+            <span>Outer Edge: <strong id="metricTip" class="mono">-- cm</strong></span>
+            <span>Area: <strong id="metricArea" class="mono" style="color:var(--cyan);">-- cm²</strong></span>
           </div>
         </div>
 
@@ -1137,14 +1148,15 @@
           <div class="field-group">
             <label class="field-label" for="finCount">Fin Count Attached</label>
             <select id="finCount" onchange="updateAll()">
-              <option value="3" selected>3 Fins (120° Radial symmetry)</option>
+              <option value="" disabled selected>-- Select Fin Count --</option>
+              <option value="3">3 Fins (120° Radial symmetry)</option>
               <option value="4">4 Fins (90° Radial symmetry)</option>
               <option value="2">2 Fins (High tumble hazard)</option>
             </select>
           </div>
           <div class="field-group">
             <label class="field-label" for="finOffsetBottom">Distance from Bottom of Tube <span class="unit">cm</span></label>
-            <input type="number" id="finOffsetBottom" step="0.5" min="-2.0" max="15.0" value="0.0" oninput="updateAll()">
+            <input type="number" id="finOffsetBottom" step="0.5" min="-2.0" max="15.0" placeholder="0.0 (flush with tail)" value="" oninput="updateAll()">
           </div>
         </div>
         <div style="font-size:0.68rem; color:var(--text-muted); margin:-0.3rem 0 0.6rem 0.1rem;">
@@ -1158,11 +1170,11 @@
         <div class="field-grid">
           <div class="field-group">
             <label class="field-label" for="totalMass">Total Rocket Mass <span class="unit">g</span></label>
-            <input type="number" id="totalMass" step="0.1" min="10" max="100" value="24.5" oninput="updateAll()">
+            <input type="number" id="totalMass" step="0.1" min="10" max="100" placeholder="Weigh on balance (e.g. 24.5)" value="" oninput="updateAll()">
           </div>
           <div class="field-group">
             <label class="field-label" for="cmMeasured">CM From Nose Tip <span class="unit">cm</span></label>
-            <input type="number" id="cmMeasured" step="0.1" min="5" max="45" value="14.2" oninput="updateAll()">
+            <input type="number" id="cmMeasured" step="0.1" min="5" max="45" placeholder="Balance on finger & measure (e.g. 14.2)" value="" oninput="updateAll()">
           </div>
         </div>
 
@@ -1199,7 +1211,8 @@
         <div class="field-group full" style="margin-bottom:0.75rem;">
           <label class="field-label" for="qTrajectoryStyle">Observed Flight Behavior</label>
           <select id="qTrajectoryStyle" onchange="updateForensics()">
-            <option value="vertical_drift" selected>High vertical climb with wind drift</option>
+            <option value="" disabled selected>-- Select Observed Flight Path --</option>
+            <option value="vertical_drift">High vertical climb with wind drift</option>
             <option value="long_arc">Long arching flight across campus (boosted glide)</option>
             <option value="corkscrew">Tight spiral / corkscrew spin on ascent</option>
             <option value="hard_bank">Hard banking curve / turn shortly after liftoff</option>
@@ -2194,9 +2207,20 @@
       ]
     };
 
+    let userHasDrawnFin = false;
+    function markFinDrawn() {
+      userHasDrawnFin = true;
+      const badge = document.getElementById('finCustomBadge');
+      if (badge) {
+        badge.className = 'badge badge-green';
+        badge.textContent = '✓ Custom Fin Shape Recorded';
+      }
+    }
+
     function applyFinPreset(presetKey) {
       if (FIN_PRESETS[presetKey]) {
         finPoints = JSON.parse(JSON.stringify(FIN_PRESETS[presetKey]));
+        markFinDrawn();
         syncInputsFromFinPoints();
         renderFinStudio();
         renderFinModal();
@@ -2254,6 +2278,7 @@
           finPoints[2].y = Math.max(15, Math.min(165, pt.y));
         }
 
+        markFinDrawn();
         syncInputsFromFinPoints();
         renderFinStudio();
         renderFinModal();
@@ -2403,6 +2428,7 @@
       finPoints[2] = { x: Math.round(p2x), y: Math.round(p2y) };
       finPoints[3] = { x: FIN_ROOT_X, y: p3y };
 
+      markFinDrawn();
       renderFinStudio();
       renderFinModal();
       drawBlueprint();
