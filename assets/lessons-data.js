@@ -4130,8 +4130,8 @@ const lessonsData = [
     "type": "Activity / Inquiry",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Investigate interaction force pairs: whenever one object exerts a force on a second, the second exerts an equal and opposite force back on the first (F<sub>A on B</sub> = -F<sub>B on A</sub>). (Pacing Note: Periods 0, 4, 5, and 6 kick off their 3-day Cardstock Rocket Phase 2 Project: Controlled Variable Forensics, forming squads of up to 3 to construct two rockets identical in all aspects except exactly ONE isolated independent variable.)",
-    "activity": "Dual Force Sensor Collisions & Skateboard Push-Offs: Students collide equal and unequal mass dynamics carts equipped with wireless force sensors to observe identical opposing force spikes in real time. (Periods 0, 4, 5, 6 Project Studio): Rocket squads select their single isolated variable, formulate pre-flight CER hypotheses, input baseline Rocket A specs, and draft scaled CAD blueprints in the Phase 2 Webapp.",
+    "summary": "Investigate interaction force pairs: whenever one object exerts a force on a second, the second exerts an equal and opposite force back on the first (F<sub>A on B</sub> = -F<sub>B on A</sub>). (Pacing Note: Periods 1, 2, and 3 investigate the Hot Wheels Coasting Baseline: Deceleration & Friction on an 8-foot track; Periods 0, 4, 5, and 6 kick off their 3-day Cardstock Rocket Phase 2 Project: Controlled Variable Forensics.)",
+    "activity": "Dual Force Sensor Collisions & Skateboard Push-Offs: Students collide equal and unequal mass dynamics carts equipped with wireless force sensors to observe identical opposing force spikes in real time. (Periods 1, 2, 3 Lab Studio): Standardize 8-ft Hot Wheels track stations, conduct 3-car coasting shootout, test added penny weight on the champion car to discover momentum vs axle friction, and analyze deceleration. (Periods 0, 4, 5, 6 Project Studio): Rocket squads select their single isolated variable, formulate pre-flight CER hypotheses, input baseline Rocket A specs, and draft scaled CAD blueprints in the Phase 2 Webapp.",
     "essentialQuestion": "When a massive Mack truck hits a tiny mosquito on the highway, which object experiences the greater impact force?",
     "standards": [
       "HS-PS2-1",
@@ -4152,11 +4152,21 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Hot Wheels Coasting Baseline (Periods 1, 2, 3)": "Unit_2/hot_wheels_coasting/index.html",
       "Cardstock Rocket Phase 2 (Periods 0, 4, 5, 6)": "Unit_2/rocket_phase2/index.html",
       "Rocket Flight Forensics (Phase 1)": "Unit_2/rocket_recovery/index.html",
       "Newton's 3rd Law Slides": "Unit_2/describing-motion-presentation/index.html"
     },
     "assignments": [
+      {
+        "title": "Hot Wheels Coasting Baseline: Deceleration & Friction (Periods 1, 2, 3)",
+        "url": "Unit_2/hot_wheels_coasting/index.html",
+        "typeLabel": "Laboratory Investigation",
+        "submission": "Auto-Saved on Google Sign-In (10 pts) / Turn In in Classroom",
+        "actionLabel": "Launch Hot Wheels Lab ↗",
+        "description": "Periods 1, 2, 3: Set up a 4-track ramp, run the 3-car shootout across the classroom floor to find your Champion Car, test added penny weight to discover real-world friction and momentum trade-offs, and analyze deceleration.",
+        "status": "active"
+      },
       {
         "title": "Cardstock Rocket Phase 2: Controlled Variable Forensics (Periods 0, 4, 5, 6)",
         "url": "Unit_2/rocket_phase2/index.html",
@@ -4177,6 +4187,12 @@ const lessonsData = [
     ],
     "resources": [
       {
+        "title": "Hot Wheels Coasting Baseline Studio (Periods 1, 2, 3)",
+        "url": "Unit_2/hot_wheels_coasting/index.html",
+        "typeLabel": "Interactive Lab Workbench",
+        "description": "Periods 1, 2, 3: Standardized track setup, 3-car shootout, added penny weight test, deceleration physics, and baseline tape mark retention."
+      },
+      {
         "title": "Cardstock Rocket Phase 2 Studio (Periods 0, 4, 5, 6)",
         "url": "Unit_2/rocket_phase2/index.html",
         "typeLabel": "Interactive CAD & Satellite Map",
@@ -4190,6 +4206,12 @@ const lessonsData = [
       }
     ],
     "practice": [
+      {
+        "title": "Hot Wheels Coasting & Deceleration Visualizer (Periods 1, 2, 3)",
+        "url": "Unit_2/hot_wheels_coasting/index.html",
+        "typeLabel": "Kinematics Sandbox",
+        "description": "Periods 1, 2, 3: Explore how stopping distance determines deceleration rate and analyze negative acceleration."
+      },
       {
         "title": "Rocket Phase 2 Telemetry & Blueprint (Periods 0, 4, 5, 6)",
         "url": "Unit_2/rocket_phase2/index.html",

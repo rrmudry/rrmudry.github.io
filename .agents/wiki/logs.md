@@ -2,6 +2,34 @@
 
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
+## 2026-10-18 — Hot Wheels Coasting Baseline: Deceleration & Friction Webapp (`Unit_2/hot_wheels_coasting/index.html`)
+**Patterns Added**: `hot-wheels-coasting-deceleration-lab.md`.
+**Patterns Updated**: `classroom-projection-and-high-contrast-theming.md`, `assignment-registry.md`, `cast-aligned-webapp-design.md`.
+
+**Changes**:
+- **Constructed & Refined Hot Wheels Coasting Baseline Web Application (`Unit_2/hot_wheels_coasting/index.html`) for Periods 1, 2, 3**:
+  - Implemented 5 structured stages adapted for conceptual physics students:
+    1. **Stage 1 (4-Track Launch Ramp Setup)**: 4 connected track pieces forming a launch ramp (20–30 cm high propped on chair/books) that curves onto the open classroom floor where cars coast to a stop. Removed station numbers (identified by period and partner names).
+    2. **Stage 2 (The Car Shootout)**: 3-car comparison (Die-Cast Muscle, Light Plastic, Boxy Truck) with 3 release trials each across open floor, bumper tape markers, average stopping distance calculation, and interactive HTML5 Canvas animated track simulation.
+    3. **Stage 3 (The Weight Challenge Hook)**: Pre-test conceptual prediction with 2 hypotheses (A: Stops sooner due to friction, B: Rolls farther due to momentum; removed C), empirical testing with +0, +2, +4, +6 pennies, dynamic scatter chart, and open-ended physics reflection.
+    4. **Stage 4 (Understanding Deceleration / Slowing Down)**: Purely qualitative concepts without algebraic formulas or calculations (moving forward vs pushing backward friction, positive vs negative acceleration), with strobe/ticker-tape trail visualizer.
+    5. **Stage 5 (Tuesday Wrap-Up & Synthesis)**: Directive banner to leave baseline stopping tape on the floor for Tuesday, 3-question synthesis ticket (Q1: Friction as backward force; Q2: Empirical penny observations & reasoning; Q3: Fair testing / controlled variables without pushing), and 10-point auto-grading engine submitting to Firestore.
+- **Unified Classroom Deployment & Pre-Flight Verification**:
+  - Deployed coursework across Periods 1, 2, and 3 via `sync-classroom/deploy-assignment.js` under assignment ID `unit2_day36_hot_wheels_coasting` with 10 max points and topic "Unit 2: Motion".
+  - Created coursework entries for P1 (`874079718847`), P2 (`874079753513`), and P3 (`874079762233`) and linked in `assignment_registry`.
+  - Executed `npm run verify -- --id unit2_day36_hot_wheels_coasting` with 100% green checks (registry verified, roster schema verified, synthetic student write tested, zero undefined values).
+- **Security & Firestore Rules Alignment**:
+  - Client-side submit workflow writes directly to subcollection `student_results/{id}/students/{student_id}` without attempting to write to the admin-only top-level parent doc, preventing student permission-denied errors.
+- **District Web Filter & Accessibility**:
+  - Zero `unpkg.com` and zero in-browser Babel; 100% clean audit on `node scripts/audit-web-filter-cdn.js`.
+  - High-Contrast Light Mode toggle (WCAG AAA > 14:1 contrast ratio) with dynamic canvas re-rendering.
+  - Universal Root Font Scaling (Normal `16px`, Large `19px`, Projector `23px`).
+  - Synthesized Web Audio API sound effects (no external audio assets).
+- **Curriculum Stores & Course Outline**:
+  - Updated Day 36 in `assets/lessons-data.js` with Hot Wheels Coasting Baseline link, assignment, and resource entries.
+  - Updated Day 36 in `Unit_2/outline.md` reflecting the lab activity and conceptual focus for Periods 1, 2, and 3.
+  - Refreshed site footer deployment timestamp via `node scripts/update-timestamp.js`.
+
 ## 2026-10-18 — Cardstock Rocket Phase 2: Stage 2 Sticky Technical Blueprint Tracking (`Unit_2/rocket_phase2/index.html`)
 **Patterns Updated**: `cardstock-rocket-phase2-forensics.md`.
 
