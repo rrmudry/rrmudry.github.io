@@ -98,9 +98,20 @@ Never declare an interactive student assignment, lab, or webapp "ready" or deplo
 - **Why**: Teacher accounts bypass student roster lookup (`period: 'T'`) and cannot receive student grades in Google Classroom. Testing only as a teacher conceals schema bugs (such as `period` vs `class_period`) and `undefined` payload values that crash real student writes.
 - **Enforcement**:
   1. Every interactive student webapp must be validated using `npm run verify -- --id <assignment_id>` in `sync-classroom/`.
-  2. The validator executes an automated synthetic student write into `student_results/{id}/students/` using real roster schema, tests Period 0 Honors and standard periods, and confirms zero `undefined` values.
+  2. The validator executes an automated synthetic student write into `student_results/{id}/students/` using real roster schema, tests Period 0 Honors and standard periods, and confirms zero `undefined` values. **Step 6 authenticates as a real student (custom token → ID token → Firestore REST) against the DEPLOYED rules** and replays every collection the app uses (pass `--app <folder>`). Admin SDK and teacher-account writes bypass rules and prove nothing.
   3. All Firestore payloads must sanitize variables (`value !== undefined && value !== null ? value : null`) so writes never throw `Unsupported field value: undefined`.
   4. If `npm run verify` does not pass with 100% green checks, the assignment MUST NOT be deployed, posted, or marked ready.
+
+## 🔐 Firestore Student-Permission Law (Students Must Never Lose Work)
+Recurring failure: an app works for the teacher and silently fails for every student. Causes: the admin catch-all `match /{document=**} { allow read, write: if isAdmin(); }`, the admin SDK bypassing rules, and the teacher account passing `isAdmin()`. **A teacher-account or admin-SDK test proves NOTHING about student access.**
+1. **Every collection a student page touches needs its own student `match` block** in `firestore.rules`, scoped to the owner's email prefix (`isStudentOwner` / `ownsPrefixedDoc`). Add it in the SAME change as the app code, then run `firebase deploy --only firestore:rules`. Editing `firestore.rules` locally does nothing until it is deployed.
+2. **Student doc IDs = email prefix** (`email.split('@')[0]`), never `user.uid`. Students never write parent docs (`student_results/{assignment}`). Those are admin-only, so wrap any such write in an `isTeacher()` guard or its own try/catch, and never let it block the student write.
+3. **Three automated gates (do not bypass):**
+   - `node scripts/audit-firestore-rules-coverage.js`: static, no credentials. Runs automatically as a git pre-commit hook (`.githooks/pre-commit`, `core.hooksPath=.githooks`). It fails on any collection that only the admin rule covers. Teacher-only tools opt out with the comment `firestore-audit: teacher-only`. **Note for other machines**: run `git config core.hooksPath .githooks` once after cloning or pulling.
+   - `npm run verify -- --id <ASSIGNMENT_ID> --app <folder>` (in `sync-classroom/`): Step 6 signs in as a REAL student token (P0 and a standard period) against the DEPLOYED rules and replays every collection the app uses.
+   - `deploy-assignment.js` runs the same live student test and **refuses to post to Google Classroom** if it fails. `--skip-student-check` is for emergencies only and must be reported to the teacher.
+4. Legacy `post-*.js` scripts skip these gates. Use `deploy-assignment.js` for all new postings.
+5. Never tell the teacher an app is "ready" until gates 1 and 2 are green. If the service-account key isn't available, say plainly that the live student test has NOT been run.
 
 ## 🛡️ Strict District Web Filter Policy: Zero unpkg.com & Zero In-Browser Babel
 Never use `unpkg.com` or in-browser Babel transpilation on student-facing pages, dashboards, or inquiry webapps.

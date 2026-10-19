@@ -263,6 +263,25 @@ async function deploy() {
     return;
   }
 
+  // ---------------------------------------------------------------
+  // HARD GATE: real-student Firestore permission test (deployed rules).
+  // Admin/teacher testing bypasses rules -> students lose work. Never skip.
+  // ---------------------------------------------------------------
+  if (!process.argv.includes('--skip-student-check')) {
+    console.log('🛡️  Gate: live student-permission test against DEPLOYED Firestore rules...\n');
+    const { runStudentRulesCheck } = require('./student-rules-check');
+    const appArgIdx = process.argv.indexOf('--app');
+    const appPath = config.app || (appArgIdx !== -1 ? process.argv[appArgIdx + 1] : null);
+    const ok = await runStudentRulesCheck({ admin, db, assignmentId, appPath });
+    if (!ok) {
+      console.error('\n🚫 DEPLOY BLOCKED: a real student would get PERMISSION_DENIED. Fix firestore.rules / app code, deploy rules, and retry.');
+      process.exit(1);
+    }
+    console.log('\n✅ Student permission gate passed.\n');
+  } else {
+    console.warn('⚠️  --skip-student-check used: student permissions NOT verified. (Emergency use only.)\n');
+  }
+
   const classroom = getClassroomClient();
 
   // ---------------------------------------------------------------

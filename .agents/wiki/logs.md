@@ -126,6 +126,26 @@ Append-only log tracking pattern changes across recent sessions.
   - Removed client-side `db.collection('student_results').doc(ASSIGNMENT_ID).set(...)` from the student submission workflow in `Unit_2/rocket_recovery/index.html`.
   - Parent document creation is handled ahead of time during automated deployment via `sync-classroom/deploy-assignment.js` (running with Firebase Admin credentials). This ensures students never encounter `permission-denied` exceptions upon final score submission.
 
+## 2026-10-19 — Department-Wide CAST Data Analysis & Graphing Practice Suite (`cast-data-practice/`)
+**Patterns Added**: `cast-data-analysis-practice-suite.md`.
+**Patterns Updated**: `index.md`.
+
+**Changes**:
+- **Department-Wide Assessment Suite Architecture (`cast-data-practice/index.html`)**:
+  - Developed a standalone web application designed for high school science departments to consistently practice and evaluate CAST-style data analysis and scientific graphing.
+  - Implemented 8 multi-disciplinary phenomena scenarios spanning **Physics** (Newton's 2nd Law, Braking Distance), **Biology** (Catalase Enzyme Kinetics, Photosynthesis Saturation), **Chemistry** (Reaction Rate vs. Concentration, Water Heating Curve), and **Earth & Space Science** (Seafloor Spreading, Atmospheric CO₂ vs. Temperature).
+- **Real-Time Automated 4-Point Evidence & Rubric Checking Engine (`js/evidence-checker.js`)**:
+  - Automatically analyzes free response student writing against a 4-point CAST rubric: (1) Scientific Claim, (2) Authentic numerical data cited ($\pm 3\%$ matching against table values), (3) Scientific measurement units, and (4) Comparative analysis & mechanism reasoning.
+  - Generates live checklist badges (`✅ Claim`, `⏳ Cite Two Data Points`) and actionable guidance to help students achieve mastery.
+- **Teacher Mode & Custom Scenario Builder**:
+  - Modal drawer allowing department teachers to create, preview, and export custom inquiry scenarios in JSON format for common assessments.
+- **Classroom Projector Mode & WCAG AAA High-Contrast Light Mode**:
+  - Integrated 3-tier font scaling (Normal: 16px, Large: 20px, Projector: 24px) via root `rem` scaling, high-contrast ink-slate on white, and dynamic Chart.js theme re-rendering.
+- **Firestore Student-Permission Law Compliance & Honors 1-Page Printable PDF**:
+  - Direct student subdoc writes to `practice_results/cast_data_practice/students/{studentId}` with zero parent writes and sanitized payloads.
+  - Implemented an uncluttered **1-Page Letter Portrait PDF** layout modeled after `Honors_Kinematics_Graphing_Challenges_1_and_2.html` (`height: 10.36in`, balanced side-by-side data table & graph snapshot, 4-point CER rubric pills, and student fill-in header fields) with zero spillover onto page 2.
+
+
 ## 2026-10-16 — Anti-Paste Response Protection, Fin Terminology Alignment & Web Filter Hardening (`Unit_2/rocket_recovery/index.html`)
 **Patterns Updated**: `cast-aligned-webapp-design.md`, `classroom-projection-and-high-contrast-theming.md`.
 
@@ -984,3 +1004,8 @@ Append-only log tracking pattern changes across recent sessions.
   - Performed site-wide NGSS standards audit confirming 100% of all 139 lessons have explicit `standards: [...]` arrays and 0 LaTeX syntax errors.
 - **Site Deployment**:
   - Refreshed site footer deployment timestamp via `node scripts/update-timestamp.js`.
+
+- 2026-10-15: physics_speed_calculator/dist/index.html - replaced unpkg Lucide with assets/vendor/lucide.min.js (+jsdelivr fallback), guarded all lucide.createIcons() calls. Audit still flags ~40 other unpkg/Babel pages.
+
+- **2026-10-16**: firebase-auth-gotchas: added 'Admin/Teacher Testing Hides Rule Failures' section + live student-token rules check (sync-classroom/student-rules-check.js, Step 6 of npm run verify).
+- **2026-10-16**: Added Firestore Student-Permission Law to AGENTS.md; scripts/audit-firestore-rules-coverage.js + .githooks/pre-commit; deploy-assignment.js now blocks on live student-token rules test.

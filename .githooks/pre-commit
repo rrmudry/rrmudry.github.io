@@ -1,0 +1,8 @@
+#!/bin/sh
+# Blocks commits that add a Firestore collection students can't write to
+# (works for teacher via admin catch-all, silently fails for students).
+node scripts/audit-firestore-rules-coverage.js --staged || {
+  echo ""
+  echo "Commit blocked by Firestore student-permission audit. See messages above."
+  exit 1
+}

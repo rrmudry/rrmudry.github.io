@@ -913,6 +913,142 @@
       to { transform: translate(-50%, 0); opacity: 1; }
     }
 
+    /* CER Guidance & Dynamic Feedback */
+    .cer-ref-card {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 0.75rem 0.9rem;
+      margin-bottom: 0.85rem;
+    }
+    .cer-ref-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 0.45rem;
+      font-size: 0.75rem;
+      margin-top: 0.4rem;
+    }
+    .cer-ref-item {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .cer-ref-item .label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .cer-ref-item .value {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .cer-scaffold-box {
+      background: var(--bg-sub);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 1rem;
+      transition: border-color 0.15s ease;
+    }
+    :root[data-theme="light"] .cer-scaffold-box {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+    .cer-scaffold-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .cer-scaffold-header:hover {
+      filter: brightness(1.1);
+    }
+    .cer-scaffold-body {
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .cer-scenario-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+    }
+    :root[data-theme="light"] .cer-scenario-card {
+      background: #ffffff;
+      border-color: #e2e8f0;
+    }
+    .cer-scenario-card .title {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.35rem;
+    }
+    .cer-scenario-card p {
+      font-size: 0.75rem;
+      margin: 0.25rem 0;
+      color: var(--text);
+      line-height: 1.4;
+    }
+    .cer-scenario-card p strong {
+      color: var(--cyan);
+    }
+    :root[data-theme="light"] .cer-scenario-card p strong {
+      color: #0369a1;
+    }
+    .cer-starter-actions {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+    .btn-xs {
+      font-size: 0.72rem;
+      padding: 0.24rem 0.6rem;
+      border-radius: 6px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .cer-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      margin-top: 0.35rem;
+      transition: all 0.2s ease;
+      width: fit-content;
+      max-width: 100%;
+      line-height: 1.3;
+    }
+    .cer-status-badge.complete {
+      background: var(--green-bg);
+      color: var(--green);
+      border: 1px solid var(--green);
+    }
+    .cer-status-badge.incomplete {
+      background: var(--amber-bg);
+      color: var(--amber);
+      border: 1px solid var(--amber);
+    }
+    .cer-status-badge.error {
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid var(--red);
+    }
+
     /* Print Styles */
     @media print {
       body { background: #fff !important; color: #000 !important; }
@@ -1249,22 +1385,128 @@
       <!-- TAB 3: CER REPORT & EXPORT -->
       <div id="paneReport" style="display:none;">
         <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.75rem;">
-          Synthesize your teardown measurements and satellite landing data into a formal Claim-Evidence-Reasoning (CER) aerospace engineering evaluation.
+          Synthesize your teardown measurements and satellite landing data into a formal Claim-Evidence-Reasoning (CER) aerospace evaluation.
+        </div>
+
+        <!-- Live Teardown & Satellite Telemetry Reference Card -->
+        <div class="cer-ref-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+            <strong style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
+              <span>📊</span> <span>Your Rocket Teardown &amp; Flight Data to Cite</span>
+            </strong>
+            <span class="badge badge-cyan" style="font-size:0.65rem;">Auto-Synced</span>
+          </div>
+          <div class="cer-ref-grid">
+            <div class="cer-ref-item">
+              <span class="label">Total Mass</span>
+              <span class="value" id="cerRefMass">0.0 g</span>
+            </div>
+            <div class="cer-ref-item">
+              <span class="label">Added Ballast</span>
+              <span class="value" id="cerRefBallast">0.0 g</span>
+            </div>
+            <div class="cer-ref-item">
+              <span class="label">Fins &amp; Area</span>
+              <span class="value" id="cerRefFins">0 fins (0.0 cm²)</span>
+            </div>
+            <div class="cer-ref-item">
+              <span class="label">Impact Range</span>
+              <span class="value" id="cerRefDistance" style="color:var(--cyan);">0.0 m (0 ft)</span>
+            </div>
+            <div class="cer-ref-item">
+              <span class="label">Flight Bearing</span>
+              <span class="value" id="cerRefBearing" style="color:var(--amber);">0° (N)</span>
+            </div>
+            <div class="cer-ref-item">
+              <span class="label">Observed Style</span>
+              <span class="value" id="cerRefStyle" style="color:var(--green); font-size:0.72rem; font-family:inherit;">Vertical climb</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Collapsible CER Guidance & Sentence Starters -->
+        <div class="cer-scaffold-box">
+          <div class="cer-scaffold-header" onclick="toggleCerScaffold()" role="button" tabindex="0" aria-expanded="false" id="cerScaffoldHeader">
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <span style="font-size:1.15rem;">💡</span>
+              <div>
+                <div style="font-size:0.82rem; font-weight:800; color:var(--cyan);">Need Help? Click for CER Sentence Starters &amp; Scoring Rubric</div>
+                <div style="font-size:0.68rem; color:var(--text-muted);">Starter templates contain [brackets] you must replace with your own numbers and words to earn credit.</div>
+              </div>
+            </div>
+            <span id="cerScaffoldArrow" style="font-size:0.85rem; font-weight:800; color:var(--cyan);">▼ Show</span>
+          </div>
+
+          <div class="cer-scaffold-body" id="cerScaffoldBody" style="display:none;">
+            <!-- Archetype A -->
+            <div class="cer-scenario-card">
+              <div class="title"><span>🚀 Scenario A: Stable &amp; Straight Vertical Ascent</span></div>
+              <p><strong>Claim:</strong> <em>"My rocket achieved straight vertical flight and landed [distance] m away because nose ballast kept the Center of Mass ahead of the fins."</em></p>
+              <p><strong>Reasoning:</strong> <em>"Explain how nose clay pulled Center of Mass (CM) forward of Center of Pressure (CP), allowing tail fins to create aerodynamic restoring force."</em></p>
+              <div class="cer-starter-actions">
+                <button type="button" class="btn btn-xs" onclick="insertCerStarter('claim', 'stable')">Insert Claim Starter</button>
+                <button type="button" class="btn btn-xs" onclick="insertCerStarter('reasoning', 'stable')">Insert Reasoning Starter</button>
+              </div>
+            </div>
+
+            <!-- Archetype B -->
+            <div class="cer-scenario-card">
+              <div class="title"><span>🌪️ Scenario B: Unstable / Tumbling or Corkscrew Flight</span></div>
+              <p><strong>Claim:</strong> <em>"My rocket was aerodynamically unstable and tumbled end-over-end right off the launch tube because it lacked sufficient nose weight to stabilize the body."</em></p>
+              <p><strong>Reasoning:</strong> <em>"Explain that without enough nose ballast, CM was too close to CP. As air rushed past, drag on the body flipped the rocket around its balance point."</em></p>
+              <div class="cer-starter-actions">
+                <button type="button" class="btn btn-xs" onclick="insertCerStarter('claim', 'tumble')">Insert Claim Starter</button>
+                <button type="button" class="btn btn-xs" onclick="insertCerStarter('reasoning', 'tumble')">Insert Reasoning Starter</button>
+              </div>
+            </div>
+
+            <!-- Archetype C -->
+            <div class="cer-scenario-card">
+              <div class="title"><span>📉 Scenario C: Short Range / Heavy Rocket / Pressure Leak</span></div>
+              <p><strong>Claim:</strong> <em>"My rocket reached a lower peak height and landed [distance] m away because [choose: heavy mass / loose fuselage air leak] limited liftoff speed."</em></p>
+              <p><strong>Reasoning:</strong> <em>"According to Newton's 2nd Law (a = F_net / m), acceleration is inversely proportional to mass. A heavier mass [or air leaking past the tube, reducing launch force] reduced launch acceleration."</em></p>
+              <div class="cer-starter-actions">
+                <button type="button" class="btn btn-xs" onclick="insertCerStarter('claim', 'heavy')">Insert Claim Starter</button>
+                <button type="button" class="btn btn-xs" onclick="insertCerStarter('reasoning', 'heavy')">Insert Reasoning Starter</button>
+              </div>
+            </div>
+
+            <!-- Evidence Checklist -->
+            <div class="cer-scenario-card" style="border-left: 3px solid var(--cyan);">
+              <div class="title"><span>📋 Evidence Checklist: What Numbers You Must Cite</span></div>
+              <p>To earn full evidence points, you must cite at least your <strong>total mass (g)</strong>, <strong>fin count &amp; area (cm²)</strong>, and <strong>satellite landing distance (m)</strong> from the reference card above.</p>
+              <div class="cer-starter-actions">
+                <button type="button" class="btn btn-xs" onclick="insertCerStarter('evidence', 'default')">Insert Evidence Template</button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="field-group full" style="margin-bottom:0.75rem;">
-          <label class="field-label" for="cerClaim">1. Claim (Direct answer to why your rocket flew and landed as it did)</label>
-          <input type="text" id="cerClaim" placeholder="e.g. My rocket achieved high-altitude stability but drifted 45m Northeast due to wind shear acting on its large cardstock fins.">
+          <label class="field-label" for="cerClaim">
+            <span>1. Claim (Direct answer: what did your rocket do and why?)</span>
+            <span class="unit">Max 8 pts</span>
+          </label>
+          <input type="text" id="cerClaim" placeholder="State your flight trajectory, landing distance, and the #1 physical reason why...">
+          <div id="cerClaimStatus" class="cer-status-badge incomplete">⚠️ Type your claim (min 15 chars) — 0/8 pts</div>
         </div>
 
         <div class="field-group full" style="margin-bottom:0.75rem;">
-          <label class="field-label" for="cerEvidence">2. Evidence (Cite specific numbers from your teardown and map)</label>
-          <textarea id="cerEvidence" placeholder="Cite: Landing Distance (m/ft), Flight Azimuth, Fin Height & Width (cm), Fuselage Fit, and Total Mass (g)..."></textarea>
+          <label class="field-label" for="cerEvidence">
+            <span>2. Evidence (Cite exact numbers from your teardown and map)</span>
+            <span class="unit">Max 9 pts</span>
+          </label>
+          <textarea id="cerEvidence" placeholder="Cite: Total Mass (g), Added Ballast (g), Fin Count &amp; Area (cm²), and Satellite Landing Distance (m/ft)..."></textarea>
+          <div id="cerEvidenceStatus" class="cer-status-badge incomplete">⚠️ Cite specific teardown numbers and distance — 0/9 pts</div>
         </div>
 
         <div class="field-group full" style="margin-bottom:0.75rem;">
-          <label class="field-label" for="cerReasoning">3. Reasoning (Explain the physics: Newton's 2nd Law, CM vs CP, and drag)</label>
-          <textarea id="cerReasoning" placeholder="Connect your evidence to physics principles: a = F_net / m, aerodynamic restoring torque, and center of pressure..."></textarea>
+          <label class="field-label" for="cerReasoning">
+            <span>3. Reasoning (Explain the physics: Center of Mass vs CP or Newton's 2nd Law)</span>
+            <span class="unit">Max 8 pts</span>
+          </label>
+          <textarea id="cerReasoning" placeholder="Explain the physics: Why did those specific measurements cause that flight path? Connect Center of Mass vs Center of Pressure, Newton's 2nd Law (a = F_net / m), or aerodynamic drag..."></textarea>
+          <div id="cerReasoningStatus" class="cer-status-badge incomplete">⚠️ Explain the physics principles behind your flight — 0/8 pts</div>
         </div>
 
         <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:1.25rem;">
@@ -1779,20 +2021,191 @@
       if (qFin.length >= 10) score += 7;
 
       // 4. CER Synthesis (max 25 pts)
-      const claim = (document.getElementById('cerClaim') ? document.getElementById('cerClaim').value : '').trim();
-      const ev = (document.getElementById('cerEvidence') ? document.getElementById('cerEvidence').value : '').trim();
-      const re = (document.getElementById('cerReasoning') ? document.getElementById('cerReasoning').value : '').trim();
-      if (claim.length >= 15) score += 8;
-      if (ev.length >= 20) score += 9;
-      if (re.length >= 20) score += 8;
+      const claimEl = document.getElementById('cerClaim');
+      const evEl = document.getElementById('cerEvidence');
+      const reEl = document.getElementById('cerReasoning');
+
+      const claimText = (claimEl ? claimEl.value : '').trim();
+      const evText = (evEl ? evEl.value : '').trim();
+      const reText = (reEl ? reEl.value : '').trim();
+
+      const isClaimEdited = claimEl ? (claimEl.dataset.userEdited === 'true') : false;
+      const isEvEdited = evEl ? (evEl.dataset.userEdited === 'true') : false;
+      const isReEdited = reEl ? (reEl.dataset.userEdited === 'true') : false;
+
+      const claimEval = validateCerClaim(claimText, isClaimEdited);
+      const evEval = validateCerEvidence(evText, isEvEdited);
+      const reEval = validateCerReasoning(reText, isReEdited);
+
+      score += claimEval.pts;
+      score += evEval.pts;
+      score += reEval.pts;
 
       return Math.min(100, score);
+    }
+
+    function validateCerClaim(text, isEdited) {
+      if (!isEdited || !text) {
+        return { pts: 0, msg: "⚠️ Type your claim (min 15 chars) — 0/8 pts", status: "incomplete" };
+      }
+      if (/\[.*?\]/.test(text)) {
+        return { pts: 0, msg: "⚠️ Replace all bracketed [ ... ] placeholders with your own words — 0/8 pts", status: "error" };
+      }
+      if (text.length < 15) {
+        return { pts: 0, msg: "⚠️ Claim too short (must be a complete sentence, min 15 chars) — 0/8 pts", status: "incomplete" };
+      }
+      return { pts: 8, msg: "✅ Claim Complete (+8 pts)", status: "complete" };
+    }
+
+    function validateCerEvidence(text, isEdited) {
+      if (!isEdited || !text) {
+        return { pts: 0, msg: "⚠️ Cite specific teardown numbers and distance — 0/9 pts", status: "incomplete" };
+      }
+      if (/\[.*?\]/.test(text)) {
+        return { pts: 0, msg: "⚠️ Replace all bracketed [ ... ] placeholders with your actual numbers — 0/9 pts", status: "error" };
+      }
+      if (text.length < 20) {
+        return { pts: 0, msg: "⚠️ Evidence too short (min 20 chars) — 0/9 pts", status: "incomplete" };
+      }
+      const hasNumbers = /\d+/.test(text);
+      const hasUnits = /\b(g|grams?|m|meters?|ft|feet|cm|deg|degrees?|fins?|psi)\b/i.test(text);
+      if (!hasNumbers || !hasUnits) {
+        return { pts: 4, msg: "⚠️ Cite specific measurements with units (e.g. mass in g, fins, meters) — 4/9 pts", status: "incomplete" };
+      }
+      return { pts: 9, msg: "✅ Evidence Cited (+9 pts)", status: "complete" };
+    }
+
+    function validateCerReasoning(text, isEdited) {
+      if (!isEdited || !text) {
+        return { pts: 0, msg: "⚠️ Explain the physics principles behind your flight — 0/8 pts", status: "incomplete" };
+      }
+      if (/\[.*?\]/.test(text)) {
+        return { pts: 0, msg: "⚠️ Replace all bracketed [ ... ] placeholders with your own explanation — 0/8 pts", status: "error" };
+      }
+      if (text.length < 25) {
+        return { pts: 0, msg: "⚠️ Reasoning too short (min 25 chars) — 0/8 pts", status: "incomplete" };
+      }
+      const physicsTerms = /(newton|law|force|mass|accelerat|center of mass|\bcm\b|center of pressure|\bcp\b|drag|stabilit|torque|balance|gravit|pressur|friction|air resist)/i;
+      if (!physicsTerms.test(text)) {
+        return { pts: 4, msg: "⚠️ Explain the physics: cite Center of Mass vs Pressure or Newton's 2nd Law — 4/8 pts", status: "incomplete" };
+      }
+      return { pts: 8, msg: "✅ Physics Reasoning Complete (+8 pts)", status: "complete" };
+    }
+
+    function updateBadgeElement(elId, evaluation) {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      el.textContent = evaluation.msg;
+      el.className = 'cer-status-badge ' + evaluation.status;
     }
 
     function updateCompletionBadge() {
       const score = calculateCompletionScore();
       const valEl = document.getElementById('scoreVal');
       if (valEl) valEl.textContent = `${score}%`;
+
+      const claimEl = document.getElementById('cerClaim');
+      const evEl = document.getElementById('cerEvidence');
+      const reEl = document.getElementById('cerReasoning');
+
+      const claimText = (claimEl ? claimEl.value : '').trim();
+      const evText = (evEl ? evEl.value : '').trim();
+      const reText = (reEl ? reEl.value : '').trim();
+
+      const isClaimEdited = claimEl ? (claimEl.dataset.userEdited === 'true') : false;
+      const isEvEdited = evEl ? (evEl.dataset.userEdited === 'true') : false;
+      const isReEdited = reEl ? (reEl.dataset.userEdited === 'true') : false;
+
+      updateBadgeElement('cerClaimStatus', validateCerClaim(claimText, isClaimEdited));
+      updateBadgeElement('cerEvidenceStatus', validateCerEvidence(evText, isEvEdited));
+      updateBadgeElement('cerReasoningStatus', validateCerReasoning(reText, isReEdited));
+    }
+
+    function syncCerRefCard() {
+      const mTot = document.getElementById('totalMass') ? document.getElementById('totalMass').value : '0';
+      const mAdd = parseFloat(document.getElementById('addedMass') ? document.getElementById('addedMass').value : 0) || 0;
+      const bTypeEl = document.getElementById('ballastType');
+      const bType = (bTypeEl && bTypeEl.options[bTypeEl.selectedIndex]) ? bTypeEl.options[bTypeEl.selectedIndex].text : 'Clay';
+      const fins = document.getElementById('finCount') ? document.getElementById('finCount').value : '3';
+      const finA = document.getElementById('metricArea') ? document.getElementById('metricArea').textContent : '0.0 cm²';
+      const distM = document.getElementById('hudDistanceM') ? document.getElementById('hudDistanceM').textContent : '0.0 m';
+      const distFt = document.getElementById('hudDistanceFt') ? document.getElementById('hudDistanceFt').textContent : '(0 ft)';
+      const az = document.getElementById('hudAzimuth') ? document.getElementById('hudAzimuth').textContent : '0°';
+      const styleEl = document.getElementById('qTrajectoryStyle');
+      const styleText = (styleEl && styleEl.options[styleEl.selectedIndex]) ? styleEl.options[styleEl.selectedIndex].text : 'Vertical climb';
+
+      const elMass = document.getElementById('cerRefMass');
+      if (elMass) elMass.textContent = (mTot || '0') + ' g';
+
+      const elBallast = document.getElementById('cerRefBallast');
+      if (elBallast) elBallast.textContent = mAdd > 0 ? `${mAdd}g (${bType})` : '0 g (None)';
+
+      const elFins = document.getElementById('cerRefFins');
+      if (elFins) elFins.textContent = `${fins} fins (${finA})`;
+
+      const elDist = document.getElementById('cerRefDistance');
+      if (elDist) elDist.textContent = `${distM} ${distFt}`;
+
+      const elBearing = document.getElementById('cerRefBearing');
+      if (elBearing) elBearing.textContent = az;
+
+      const elStyle = document.getElementById('cerRefStyle');
+      if (elStyle) elStyle.textContent = styleText;
+    }
+
+    function toggleCerScaffold() {
+      const body = document.getElementById('cerScaffoldBody');
+      const arrow = document.getElementById('cerScaffoldArrow');
+      const header = document.getElementById('cerScaffoldHeader');
+      if (!body) return;
+      const isHidden = body.style.display === 'none';
+      body.style.display = isHidden ? 'flex' : 'none';
+      if (arrow) arrow.textContent = isHidden ? '▲ Hide' : '▼ Show';
+      if (header) header.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+    }
+
+    function insertCerStarter(field, type) {
+      const claimInput = document.getElementById('cerClaim');
+      const evInput = document.getElementById('cerEvidence');
+      const reInput = document.getElementById('cerReasoning');
+      const dist = document.getElementById('hudDistanceM') ? document.getElementById('hudDistanceM').textContent : '0.0 m';
+      const ft = document.getElementById('hudDistanceFt') ? document.getElementById('hudDistanceFt').textContent : '(0 ft)';
+      const az = document.getElementById('hudAzimuth') ? document.getElementById('hudAzimuth').textContent : '0°';
+      const mTot = document.getElementById('totalMass') ? document.getElementById('totalMass').value : '0';
+      const mAdd = document.getElementById('addedMass') ? document.getElementById('addedMass').value : '0';
+      const fins = document.getElementById('finCount') ? document.getElementById('finCount').value : '3';
+      const finA = document.getElementById('metricArea') ? document.getElementById('metricArea').textContent : '0.0 cm²';
+
+      if (field === 'claim') {
+        if (!claimInput) return;
+        claimInput.dataset.userEdited = 'true';
+        if (type === 'stable') {
+          claimInput.value = `My rocket achieved straight vertical flight and landed [insert distance, e.g. ${dist}] away because [explain: nose ballast kept the Center of Mass ahead of the fins].`;
+        } else if (type === 'tumble') {
+          claimInput.value = `My rocket was aerodynamically unstable and tumbled end-over-end right off the launch tube, landing [insert distance, e.g. ${dist}] away because [explain: lack of nose ballast / small fins].`;
+        } else if (type === 'heavy') {
+          claimInput.value = `My rocket had a lower peak altitude and landed [insert distance, e.g. ${dist}] away because [choose: heavy total mass / loose fuselage air leak] limited liftoff velocity.`;
+        }
+        claimInput.focus();
+      } else if (field === 'evidence') {
+        if (!evInput) return;
+        evInput.dataset.userEdited = 'true';
+        evInput.value = `My rocket had an as-flown total mass of [insert mass, e.g. ${mTot}g with ${mAdd}g ballast] and [insert fin count, e.g. ${fins}] cardstock fins with [insert fin area, e.g. ${finA} area]. On the satellite map, it landed [insert distance, e.g. ${dist} ${ft}] away at a bearing of [insert bearing, e.g. ${az}].`;
+        evInput.focus();
+      } else if (field === 'reasoning') {
+        if (!reInput) return;
+        reInput.dataset.userEdited = 'true';
+        if (type === 'stable') {
+          reInput.value = `According to rocket stability principles, a rocket only flies straight when the Center of Mass (CM) is forward of the Center of Pressure (CP). Our rocket stayed stable because [explain how nose ballast pulled CM forward while fins at the tail held CP rearward, creating a restoring torque].`;
+        } else if (type === 'tumble') {
+          reInput.value = `Our rocket tumbled end-over-end because the Center of Mass (CM) was positioned [too close to / behind] the Center of Pressure (CP). Without sufficient nose weight, [explain how aerodynamic drag at the front overcame the fins and flipped the rocket].`;
+        } else if (type === 'heavy') {
+          reInput.value = `According to Newton's 2nd Law (a = F_net / m), acceleration decreases when mass increases. Our rocket had [heavy mass / loose fuselage seal], which [explain how higher mass or air pressure leakage reduced acceleration off the 80–100 PSI launcher].`;
+        }
+        reInput.focus();
+      }
+      triggerAutoSave();
+      updateCompletionBadge();
     }
 
     async function submitToFirestore(isExplicitSubmit = false) {
@@ -1989,6 +2402,7 @@
           }
           if (entries.cerClaim && document.getElementById('cerClaim')) {
             document.getElementById('cerClaim').value = entries.cerClaim;
+            document.getElementById('cerClaim').dataset.userEdited = 'true';
           }
           if (entries.cerEvidence && document.getElementById('cerEvidence')) {
             let restoredEv = entries.cerEvidence;
@@ -1997,9 +2411,11 @@
             }
             document.getElementById('cerEvidence').value = restoredEv;
             document.getElementById('cerEvidence').dataset.touched = 'true';
+            document.getElementById('cerEvidence').dataset.userEdited = 'true';
           }
           if (entries.cerReasoning && document.getElementById('cerReasoning')) {
             document.getElementById('cerReasoning').value = entries.cerReasoning;
+            document.getElementById('cerReasoning').dataset.userEdited = 'true';
           }
 
           renderFinStudio();
@@ -2844,21 +3260,9 @@
       const elImpactCoords = document.getElementById('txtImpactCoords');
       if (elImpactCoords) elImpactCoords.textContent = coordStr;
 
-      // Auto-suggest evidence sentence
-      const mTot = document.getElementById('totalMass').value;
-      const mAdd = parseFloat(document.getElementById('addedMass').value) || 0;
-      const massNote = mAdd > 0 ? ` (including ${mAdd}g added tip weight)` : '';
-      const fins = document.getElementById('finCount').value;
-      const finA = document.getElementById('metricArea').textContent;
-
-      const autoEv = `Rocket '${document.getElementById('callSign').value}' had an as-flown mass of ${mTot}g${massNote} and ${fins} cardstock fins (${finA} area). It traveled a ground range of ${distM.toFixed(1)} meters (${distFt.toFixed(1)} feet) at a bearing of ${Math.round(brng)}° (${cardDir}) from the 80–100 PSI launcher (${site.periodTag} pad).`;
-      
-      const evInput = document.getElementById('cerEvidence');
-      if (!evInput.value || evInput.dataset.touched !== 'true') {
-        evInput.value = autoEv;
-      } else if (evInput.value.includes('hand-drawn fins')) {
-        evInput.value = evInput.value.replace(/hand-drawn fins/g, 'cardstock fins');
-      }
+      // Sync CER live data card and evaluation
+      syncCerRefCard();
+      updateCompletionBadge();
     }
 
     // -------------------------------------------------------------
@@ -3109,25 +3513,8 @@
     }
 
     function updateForensics() {
-      const style = document.getElementById('qTrajectoryStyle').value;
-      const claimInput = document.getElementById('cerClaim');
-      const dist = document.getElementById('hudDistanceM').textContent;
-      const finOffset = parseFloat(document.getElementById('finOffsetBottom') ? document.getElementById('finOffsetBottom').value : 0) || 0;
-      const offsetNote = finOffset > 0 ? ` (with fins attached ${finOffset} cm up from fuselage bottom)` : '';
-
-      if (style === 'vertical_drift') {
-        claimInput.value = `My rocket achieved straight vertical flight and drifted ${dist} with the prevailing wind during descent.`;
-      } else if (style === 'long_arc') {
-        claimInput.value = `A slight launch angle combined with aerodynamic lift sent my rocket on a long arching flight path of ${dist} across campus.`;
-      } else if (style === 'corkscrew') {
-        claimInput.value = `Angled or canted fins${offsetNote} caused my rocket to spin in a tight corkscrew spiral on ascent, landing ${dist} from the launch pad.`;
-      } else if (style === 'hard_bank') {
-        claimInput.value = `Fin asymmetry or misalignment${offsetNote} caused my rocket to bank hard in one direction after liftoff, curving into a ground range of ${dist}.`;
-      } else if (style === 'tumble') {
-        claimInput.value = `Aerodynamic instability${offsetNote} shifted the center of pressure too close to the center of mass, causing my rocket to tumble end-over-end right off the launch tube, limiting travel to ${dist}.`;
-      } else if (style === 'blowout') {
-        claimInput.value = `High launch pressure (80–100 PSI) blew out the nose seal or tore a fin at liftoff, destabilizing the flight and landing it ${dist} away.`;
-      }
+      syncCerRefCard();
+      updateCompletionBadge();
       triggerAutoSave();
     }
 
@@ -3203,9 +3590,16 @@ CER SYNTHESIS:
       triggerAutoSave();
     });
 
-    // Mark evidence as touched if student edits
-    document.getElementById('cerEvidence').addEventListener('input', function() {
-      this.dataset.touched = 'true';
+    // Mark responses as actively written / edited by student
+    ['cerClaim', 'cerEvidence', 'cerReasoning', 'qMassEffect', 'qFinEffect'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', function() {
+          this.dataset.userEdited = 'true';
+          this.dataset.touched = 'true';
+          updateCompletionBadge();
+        });
+      }
     });
 
     // -------------------------------------------------------------
@@ -3277,6 +3671,7 @@ CER SYNTHESIS:
       initPastePrevention();
       drawBlueprint();
       onPeriodChange();
+      syncCerRefCard();
       updateCompletionBadge();
 
       // Hook autosave on text & select fields

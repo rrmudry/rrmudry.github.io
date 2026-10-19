@@ -6,7 +6,7 @@
 | Pattern | Tags | Last Updated | Summary |
 |---|---|---|---|
 | [dashboard-layout](patterns/dashboard-layout.md) | dashboard, HTML, CSS, glass-card, tailwind, assignments, modal | 2026-09-07 | Unit dashboard HTML structure, theming, glass cards, categorized assignments vs learning resources in cards & modals |
-| [firebase-auth-gotchas](patterns/firebase-auth-gotchas.md) | firebase, auth, security, scoring | 2026-08-29 | Auth gateway, domain filtering, score submission, dual-path sync |
+| [firebase-auth-gotchas](patterns/firebase-auth-gotchas.md) | firebase, auth, security, scoring | 2026-10-16 | Auth gateway, domain filtering, score submission, dual-path sync, live student-token rules verification |
 | [ngss-integration](patterns/ngss-integration.md) | NGSS, standards, data-attr, badges, modal | 2026-08-29 | NGSSHelper API, three data attributes, loading chain, re-init pattern |
 | [mobile-responsive](patterns/mobile-responsive.md) | CSS, responsive, mobile, breakpoints, touch | 2026-08-29 | Breakpoints, container patterns, touch controls, iOS pitfalls |
 | [phaser-game-structure](patterns/phaser-game-structure.md) | game, simulation, canvas, physics, sprites | 2026-08-29 | Game file structure, physics engine, game loop, canvas, mobile controls |
@@ -39,4 +39,6 @@
 | [cardstock-rocketry-engineering-and-telemetry](patterns/cardstock-rocketry-engineering-and-telemetry.md) | rocketry, aerodynamics, avid, close-reading, minimum-day, telemetry, kinematics, apogee | 2026-10-11 | Cardstock rocketry engineering capstone: AVID 2-page annotated close reading, minimum-day QC pacing, multi-timer launch telemetry, and kinematic apogee derivations |
 | [cardstock-rocket-phase2-forensics](patterns/cardstock-rocket-phase2-forensics.md) | rocketry, controlled-variables, cad, blueprint, satellite-map, telemetry, cer, anti-paste | 2026-10-18 | Phase 2 Controlled Variable Forensics: Squads max 3, single isolated variable sync, dual 1cm × 1cm CAD blueprinting, multi-pin satellite map telemetry, and comparative CER |
 | [hot-wheels-coasting-deceleration-lab](patterns/hot-wheels-coasting-deceleration-lab.md) | kinematics, dynamics, hot-wheels, deceleration, negative-acceleration, rolling-friction, momentum, conceptual-physics | 2026-10-18 | Hot Wheels 8-foot standardized track inquiry for Periods 1, 2, 3: 3-car shootout, weight challenge (momentum vs axle rub), visual deceleration ticker tape, and Tuesday baseline retention |
+| [cast-data-analysis-practice-suite](patterns/cast-data-analysis-practice-suite.md) | CAST, data-analysis, graphing, evidence-checker, cer, rubric, multi-disciplinary, firestore | 2026-10-19 | Science department CAST practice suite: 8 multi-disciplinary phenomena, dynamic Chart.js graphing, 4-point real-time CER evidence checker, teacher mode, and printable reports |
+
 
