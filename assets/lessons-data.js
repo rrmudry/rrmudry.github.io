@@ -4074,7 +4074,7 @@ const lessonsData = [
         "typeLabel": "Aerospace Forensics & Blueprint",
         "submission": "In-Class Handout / Google Classroom",
         "actionLabel": "Open Autopsy PDF ↗",
-        "description": "Precision rocket teardown, 1:2 scaled blueprint drafting, and satellite touchdown mapping across the Orange High School center quad."
+        "description": "Precision rocket teardown, 1:2 scaled blueprint drafting, and satellite touchdown mapping from the Science Building and Basketball Courts pads."
       },
       {
         "title": "Flight Kinematics Derivation & CER Synthesis",

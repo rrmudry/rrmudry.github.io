@@ -1189,7 +1189,7 @@
             <span class="mono" id="forensicDistanceBadge">0.0 m</span>
           </div>
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.4rem; font-size:0.75rem;">
-            <div>Launcher: <strong class="mono" id="txtLauncherForensics" style="color:var(--green);">33°47'48.8"N, 117°50'48.4"W</strong> (<span id="txtLauncherForensicsPeriod">Periods 4–6</span>)</div>
+            <div>Launcher: <strong class="mono" id="txtLauncherForensics" style="color:var(--green);">33°47'48.8"N, 117°50'48.4"W</strong> (<span id="txtLauncherForensicsPeriod">Science Building</span>)</div>
             <div>Impact Range: <strong class="mono" id="txtImpactFt" style="color:var(--cyan);">0 ft</strong></div>
             <div>Flight Azimuth: <strong class="mono" id="txtImpactAzimuth" style="color:var(--amber);">0° (N)</strong></div>
             <div>Touchdown GPS: <strong class="mono" id="txtImpactCoords" style="color:var(--text);">33.79712° N, 117.84645° W</strong></div>
@@ -1326,7 +1326,7 @@
             <span>Orange High School Satellite Flight Map</span>
           </div>
           <div id="txtLauncherHeader" style="font-size:0.72rem; color:var(--cyan); font-weight:700;">
-            Launcher: <span class="mono">33°47'48.8"N 117°50'48.4"W</span> (Periods 4–6)
+            Launcher: <span class="mono">33°47'48.8"N 117°50'48.4"W</span> (Science Building)
           </div>
         </div>
 
@@ -1339,7 +1339,7 @@
             <div style="display:flex; align-items:center; gap:0.3rem; font-size:0.7rem;">
               <span style="color:var(--text-muted);">Launch Pad:</span>
               <button type="button" id="btnPadP0" class="btn-subtle" style="padding:2px 7px; font-size:0.68rem; border-radius:4px;" onclick="setPeriodPad('0')">Period 0 Pad (Basketball Courts)</button>
-              <button type="button" id="btnPadP4" class="btn-subtle" style="padding:2px 7px; font-size:0.68rem; border-radius:4px; border-color:var(--cyan); background:rgba(56,189,248,0.25); color:var(--cyan); font-weight:700;" onclick="setPeriodPad('4')">Periods 4–6 Pad</button>
+              <button type="button" id="btnPadP4" class="btn-subtle" style="padding:2px 7px; font-size:0.68rem; border-radius:4px; border-color:var(--cyan); background:rgba(56,189,248,0.25); color:var(--cyan); font-weight:700;" onclick="setPeriodPad('4')">Periods 4–6 Pad (Science Building)</button>
             </div>
           </div>
 
@@ -2035,7 +2035,7 @@
     // -------------------------------------------------------------
     // 1. Coordinates & Constants (Orange High School, CA)
     // Period 0 (Honors): 33°47'50.5"N 117°50'48.7"W -> 33.7973611, -117.8468611 ("Basketball Courts")
-    // Periods 4, 5, 6:   33°47'48.8"N 117°50'48.4"W -> 33.7968889, -117.8467778
+    // Periods 4, 5, 6:   33°47'48.8"N 117°50'48.4"W -> 33.7968889, -117.8467778 ("Science Building")
     // -------------------------------------------------------------
     const LAUNCH_SITES = {
       p0: {
@@ -2044,6 +2044,7 @@
         dms: '33°47\'50.5"N 117°50\'48.7"W',
         shortDms: '33°47\'50.5"N, 117°50\'48.7"W',
         label: 'Period 0 (Honors) Launch Pad (Basketball Courts)',
+        siteName: 'Basketball Courts',
         periodTag: 'Period 0'
       },
       p_standard: {
@@ -2051,7 +2052,8 @@
         lon: -117.8467778,
         dms: '33°47\'48.8"N 117°50\'48.4"W',
         shortDms: '33°47\'48.8"N, 117°50\'48.4"W',
-        label: 'Periods 4–6 (Physics) Launch Pad',
+        label: 'Periods 4–6 (Physics) Launch Pad (Science Building)',
+        siteName: 'Science Building',
         periodTag: 'Periods 4–6'
       }
     };
@@ -2088,7 +2090,7 @@
       // Update UI displays
       const headerEl = document.getElementById('txtLauncherHeader');
       if (headerEl) {
-        headerEl.innerHTML = `Launcher: <span class="mono">${site.dms}</span> (${site.periodTag})`;
+        headerEl.innerHTML = `Launcher: <span class="mono">${site.dms}</span> (${site.siteName || site.periodTag})`;
       }
       const forensicsCoord = document.getElementById('txtLauncherForensics');
       if (forensicsCoord) {
@@ -2096,7 +2098,7 @@
       }
       const forensicsTag = document.getElementById('txtLauncherForensicsPeriod');
       if (forensicsTag) {
-        forensicsTag.textContent = site.periodTag;
+        forensicsTag.textContent = site.siteName || site.periodTag;
       }
 
       // Update button toggle states
