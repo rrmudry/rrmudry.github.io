@@ -239,7 +239,7 @@
       flex: 1;
       width: 100%;
     }
-    @media (max-width: 1100px) {
+    @media (max-width: 960px) {
       main { grid-template-columns: 1fr; }
     }
 
@@ -517,6 +517,152 @@
     }
     .fin-metrics-bar strong {
       color: var(--text);
+    }
+
+    /* Fullscreen Fin CAD Studio Modal */
+    .fin-modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(7, 13, 25, 0.95);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display: none;
+      flex-direction: column;
+      padding: 1rem 1.25rem;
+      overflow-y: auto;
+    }
+    .fin-modal-container {
+      max-width: 1200px;
+      width: 100%;
+      margin: auto;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+    }
+    .fin-modal-header {
+      padding: 0.9rem 1.25rem;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      background: var(--bg-input);
+    }
+    .fin-modal-title-area {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+    .fin-modal-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text);
+      margin: 0;
+      letter-spacing: -0.01em;
+    }
+    .fin-modal-subtitle {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .fin-modal-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .fin-modal-body {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+      padding: 1.25rem;
+    }
+    @media (min-width: 960px) {
+      .fin-modal-body {
+        grid-template-columns: minmax(0, 1.35fr) minmax(320px, 1fr);
+      }
+    }
+    .fin-modal-canvas-wrap {
+      background: var(--blueprint-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      touch-action: none;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
+    }
+    #finModalSvg {
+      display: block;
+      width: 100%;
+      height: auto;
+      user-select: none;
+    }
+    .fin-canvas-hint {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .spec-input-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .spec-input-grid .field-label {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+    .field-hint {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+      display: block;
+    }
+    .spec-results-card {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 0.75rem 0.9rem;
+      margin-top: 0.5rem;
+    }
+    .spec-metrics-table {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      font-size: 0.74rem;
+    }
+    .spec-metrics-table .metric-row {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-muted);
+    }
+    .spec-metrics-table .metric-row strong {
+      color: var(--text);
+    }
+    :root[data-theme="light"] .fin-modal-overlay {
+      background: rgba(241, 245, 249, 0.96);
+    }
+    :root[data-theme="light"] .fin-modal-container {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    }
+    :root[data-theme="light"] .fin-modal-header {
+      background: #f8fafc;
+      border-color: #e2e8f0;
+    }
+    :root[data-theme="light"] .spec-results-card {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
     }
 
     /* Map Section */
@@ -903,7 +1049,10 @@
               <span style="font-weight:800; font-size:0.85rem; color:#ef4444; display:flex; align-items:center; gap:0.4rem;">
                 <span>🔴</span> ROCKET A (CONTROL / BASELINE)
               </span>
-              <span class="badge badge-red">Refer            <div class="field-grid-3">
+              <span class="badge badge-red">Reference Standard</span>
+            </div>
+
+            <div class="field-grid-3">
               <div class="field-group">
                 <label class="field-label" for="fuseLengthA">Fuselage Length <span class="unit">cm</span></label>
                 <input type="number" id="fuseLengthA" step="0.5" min="10" max="60" placeholder="e.g. 28.0" value="" oninput="onRocketASpecChange()">
@@ -1025,6 +1174,9 @@
                 <span class="badge badge-amber" id="finStudioStatus">⚠️ Action Required: Draw/Shape Real Fins</span>
               </div>
               <div class="fin-presets">
+                <button type="button" id="btnOpenFinModal" class="btn btn-primary" onclick="openPhase2FinModal()" style="padding:3px 10px; font-size:0.72rem; font-weight:700; margin-right:4px;">
+                  ⛶ Fullscreen Fin Studio
+                </button>
                 <button type="button" class="preset-btn" onclick="applyPhase2FinPreset('delta')">Delta</button>
                 <button type="button" class="preset-btn" onclick="applyPhase2FinPreset('trapezoid')">Trapezoid</button>
                 <button type="button" class="preset-btn" onclick="applyPhase2FinPreset('swept')">Swept</button>
@@ -1342,6 +1494,186 @@
     </div>
   </main>
 
+  <!-- Fullscreen Fin CAD Studio Modal & Dimensional Specifier -->
+  <div id="finModal" class="fin-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="finModalTitle">
+    <div class="fin-modal-container">
+      <div class="fin-modal-header">
+        <div class="fin-modal-title-area">
+          <span style="font-size:1.4rem;">📐</span>
+          <div>
+            <h2 id="finModalTitle" class="fin-modal-title">Precision Fin CAD Studio &amp; Dimensional Specifier</h2>
+            <div class="fin-modal-subtitle">Specify side dimensions directly or drag corner handles with live millimeter feedback</div>
+          </div>
+        </div>
+
+        <div class="fin-modal-header-actions">
+          <!-- Rocket Selector inside Modal -->
+          <div style="display:flex; align-items:center; gap:0.35rem; background:var(--bg-card); padding:3px 6px; border-radius:8px; border:1px solid var(--border-subtle);">
+            <span style="font-size:0.7rem; color:var(--text-muted); font-weight:700; margin-right:2px;">Editing:</span>
+            <button type="button" class="preset-btn" id="modalTargetA" onclick="setFinTarget('A')" style="border-color:#ef4444; color:#ef4444; font-weight:800;">🔴 Rocket A</button>
+            <button type="button" class="preset-btn" id="modalTargetB" onclick="setFinTarget('B')" style="border-color:#38bdf8; color:#38bdf8; font-weight:800;">🔵 Rocket B</button>
+          </div>
+
+          <div class="fin-presets">
+            <button type="button" class="preset-btn" onclick="applyPhase2FinPreset('delta')">Delta</button>
+            <button type="button" class="preset-btn" onclick="applyPhase2FinPreset('trapezoid')">Trapezoid</button>
+            <button type="button" class="preset-btn" onclick="applyPhase2FinPreset('swept')">Swept</button>
+            <button type="button" class="preset-btn" onclick="applyPhase2FinPreset('straight')">Straight</button>
+          </div>
+          <button type="button" class="btn-subtle" onclick="closePhase2FinModal()" style="padding: 0.35rem 0.85rem; font-weight: 700; font-size: 0.82rem; border-color: var(--cyan); color: var(--cyan);">
+            ✓ Save &amp; Close
+          </button>
+        </div>
+      </div>
+
+      <div class="fin-modal-body">
+        <!-- Left: Large CAD Canvas with Dimensional Overlays -->
+        <div>
+          <div class="fin-modal-canvas-wrap">
+            <svg id="finModalSvg" viewBox="0 0 320 180">
+              <defs>
+                <pattern id="modalFinGrid" x="50" y="15" width="20" height="20" patternUnits="userSpaceOnUse">
+                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="var(--grid-line)" stroke-width="1"/>
+                </pattern>
+              </defs>
+              <rect width="320" height="180" fill="var(--bg-input)" />
+              <rect width="320" height="180" fill="url(#modalFinGrid)" />
+              
+              <!-- Fuselage Attachment Reference Line on left -->
+              <line x1="50" y1="8" x2="50" y2="172" stroke="var(--cyan)" stroke-width="2.5" stroke-dasharray="4,3"/>
+              <text x="56" y="20" fill="var(--text-muted)" font-size="7.5" font-family="'JetBrains Mono', monospace">Fuselage Seam</text>
+
+              <!-- Polygon Fin Shape -->
+              <polygon id="modalFinPolygon" points="" fill="rgba(56, 189, 248, 0.28)" stroke="var(--cyan)" stroke-width="2.5" />
+              
+              <!-- Dynamic Dimension Callout Overlays -->
+              <g id="modalDimensionLines"></g>
+
+              <!-- Draggable Handle Nodes -->
+              <g id="modalFinHandlesGroup"></g>
+            </svg>
+          </div>
+          <div class="fin-canvas-hint">
+            <span>🖱️ <strong>Drag corner nodes (●)</strong> or specify side lengths on the right.</span>
+            <span>Grid scale: <strong>1 square = 1.0 cm × 1.0 cm</strong> (20 px/cm)</span>
+          </div>
+        </div>
+
+        <!-- Right: Dimensional Specifier & Physical Side Lengths -->
+        <div>
+          <div id="modalTargetNotice" style="font-size:0.75rem; color:var(--cyan); background:rgba(2,132,199,0.08); border:1px solid rgba(2,132,199,0.25); border-radius:6px; padding:0.4rem 0.65rem; margin-bottom:0.75rem; display:flex; align-items:center; justify-content:space-between;">
+            <strong id="modalTargetLabel">Currently Editing: 🔴 Rocket A (Baseline)</strong>
+            <span id="modalTargetRule" style="font-size:0.68rem; color:var(--text-muted);">Sync Rule: Changes mirror to Rocket B unless fins are your variable</span>
+          </div>
+
+          <div style="font-size:0.78rem; font-weight:800; color:var(--text); text-transform:uppercase; margin-bottom:0.6rem; letter-spacing:0.04em;">
+            Fin Dimensions (Height &amp; Width)
+          </div>
+
+          <div class="spec-input-grid">
+            <div class="field-group">
+              <label class="field-label" for="specRootChord">Fin Height (Along Body)</label>
+              <div class="input-with-unit">
+                <input type="number" id="specRootChord" step="0.1" min="1.0" max="7.0" placeholder="e.g. 4.0" oninput="onPhase2SpecInputChange()">
+                <span class="unit-tag">cm</span>
+              </div>
+              <span class="field-hint">Length taped along rocket body</span>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="specSpan">Fin Width (Sticking Out)</label>
+              <div class="input-with-unit">
+                <input type="number" id="specSpan" step="0.1" min="1.0" max="11.5" placeholder="e.g. 4.0" oninput="onPhase2SpecInputChange()">
+                <span class="unit-tag">cm</span>
+              </div>
+              <span class="field-hint">Distance sticking outward from body</span>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="specTipChord">Outer Flat Edge</label>
+              <div class="input-with-unit">
+                <input type="number" id="specTipChord" step="0.1" min="0.0" max="7.0" placeholder="0.0" oninput="onPhase2SpecInputChange()">
+                <span class="unit-tag">cm</span>
+              </div>
+              <span class="field-hint">0 cm for triangle / delta fins</span>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="specSweepOffset">Front Slant Offset</label>
+              <div class="input-with-unit">
+                <input type="number" id="specSweepOffset" step="0.1" min="-2.0" max="7.0" placeholder="e.g. 4.0" oninput="onPhase2SpecInputChange()">
+                <span class="unit-tag">cm</span>
+              </div>
+              <span class="field-hint">Slant distance of front edge</span>
+            </div>
+
+            <div class="field-group full" style="margin-top:0.35rem;">
+              <label class="field-label" for="specOffsetBottom">Fin Distance from Fuselage Tail</label>
+              <div class="input-with-unit">
+                <input type="number" id="specOffsetBottom" step="0.5" min="0.0" max="15.0" placeholder="0.0 (flush with tail)" oninput="onPhase2SpecOffsetChange()">
+                <span class="unit-tag">cm</span>
+              </div>
+              <span class="field-hint">0.0 cm = aligned flush with bottom; enter positive cm if taped higher up the tube</span>
+            </div>
+          </div>
+
+          <!-- Quick Alignment Helpers -->
+          <div style="display:flex; gap:0.5rem; margin-bottom:0.75rem;">
+            <button type="button" class="btn-subtle" onclick="setPhase2TrailingEdgeSquare()" style="flex:1; font-size:0.7rem; padding:0.35rem 0.5rem;">
+              Set Bottom Edge 90° (Flat Base)
+            </button>
+            <button type="button" class="btn-subtle" onclick="setPhase2LeadingEdgeSquare()" style="flex:1; font-size:0.7rem; padding:0.35rem 0.5rem;">
+              Set Front Edge 90° (Flat Front)
+            </button>
+          </div>
+
+          <!-- Calculated Physical Side Lengths (Cut Lines) -->
+          <div class="spec-results-card">
+            <div style="font-size:0.72rem; font-weight:700; color:var(--cyan); margin-bottom:0.45rem; text-transform:uppercase;">
+              Exact Physical Edge Lengths (Cardstock Cut Lines)
+            </div>
+            <div class="spec-metrics-table">
+              <div class="metric-row">
+                <span>Front Edge (Cut Line):</span>
+                <strong id="specLeadingLength" class="mono">-- cm</strong>
+              </div>
+              <div class="metric-row">
+                <span>Back Edge (Cut Line):</span>
+                <strong id="specTrailingLength" class="mono">-- cm</strong>
+              </div>
+              <div class="metric-row">
+                <span>Outer Flat Edge:</span>
+                <strong id="specTipEdgeLength" class="mono">-- cm</strong>
+              </div>
+              <div class="metric-row">
+                <span>Fin Height (Along Body):</span>
+                <strong id="specRootEdgeLength" class="mono">-- cm</strong>
+              </div>
+              <div class="metric-row" style="border-top:1px dashed var(--border-subtle); padding-top:0.35rem; margin-top:0.2rem;">
+                <span>Planform Surface Area (1 fin):</span>
+                <strong id="specSurfaceArea" class="mono" style="color:var(--cyan);">-- cm²</strong>
+              </div>
+              <div class="metric-row">
+                <span>Total Fin Set Area (<span id="specFinCountDisplay">3</span> fins):</span>
+                <strong id="specTotalFinArea" class="mono" style="color:var(--amber);">-- cm²</strong>
+              </div>
+              <div class="metric-row">
+                <span>Aspect Ratio (Width² / Area):</span>
+                <strong id="specAspectRatio" class="mono">--</strong>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:0.85rem; display:flex; justify-content:flex-end;">
+            <button type="button" class="btn-subtle" onclick="closePhase2FinModal()" style="padding:0.45rem 1.25rem; font-size:0.82rem; font-weight:700; color:var(--cyan); border-color:var(--cyan);">
+              ✓ Accept &amp; Return to Console
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Submit Success Modal -->
   <div id="submitModal" class="modal-overlay" style="display:none;">
     <div class="modal-card">
@@ -1648,15 +1980,51 @@
       triggerAutoSave();
     }
 
+    function syncFinPointsFromPageInputs(target) {
+      const isA = (target === 'A');
+      const elH = document.getElementById(isA ? 'finHeightA' : 'finHeightB');
+      const elW = document.getElementById(isA ? 'finWidthA' : 'finWidthB');
+      if (!elH || !elW) return;
+      const hVal = parseFloat(elH.value);
+      const wVal = parseFloat(elW.value);
+      if (isNaN(hVal) || isNaN(wVal) || hVal <= 0 || wVal <= 0) return;
+
+      const Cr = Math.max(0.5, Math.min(7.0, hVal));
+      const S = Math.max(0.5, Math.min(12.0, wVal));
+      const pts = isA ? phase2FinPointsA : phase2FinPointsB;
+      const Ct = Math.abs(pts[2].y - pts[1].y) / P2_FIN_PIXELS_PER_CM;
+      const dx = (pts[1].y - pts[0].y) / P2_FIN_PIXELS_PER_CM;
+
+      const p3y = 155;
+      const p0y = Math.max(15, Math.min(p3y - 15, p3y - (Cr * P2_FIN_PIXELS_PER_CM)));
+      const p1x = Math.max(P2_FIN_ROOT_X + 15, Math.min(295, P2_FIN_ROOT_X + (S * P2_FIN_PIXELS_PER_CM)));
+      const p1y = Math.max(15, Math.min(165, p0y + (dx * P2_FIN_PIXELS_PER_CM)));
+      const p2x = p1x;
+      const p2y = Math.max(p1y, Math.min(165, p1y + (Ct * P2_FIN_PIXELS_PER_CM)));
+
+      pts[0] = { x: P2_FIN_ROOT_X, y: Math.round(p0y) };
+      pts[1] = { x: Math.round(p1x), y: Math.round(p1y) };
+      pts[2] = { x: Math.round(p2x), y: Math.round(p2y) };
+      pts[3] = { x: P2_FIN_ROOT_X, y: p3y };
+
+      const selectedVar = document.getElementById('independentVarSelect').value;
+      if (isA && selectedVar !== 'fin_dimensions' && selectedVar !== 'fin_shape') {
+        phase2FinPointsB = JSON.parse(JSON.stringify(phase2FinPointsA));
+      }
+      renderPhase2FinStudio();
+    }
+
     function onRocketASpecChange() {
       // Auto-mirror non-variable values to Rocket B
       syncControlToRocketB();
+      syncFinPointsFromPageInputs('A');
       drawDualBlueprint();
       updateComparativeEvidence();
       triggerAutoSave();
     }
 
     function onRocketBSpecChange() {
+      syncFinPointsFromPageInputs('B');
       drawDualBlueprint();
       updateComparativeEvidence();
       triggerAutoSave();
@@ -1724,6 +2092,8 @@
 
     function setFinTarget(target) {
       editingFinTarget = target;
+      
+      // Update in-page buttons
       const btnA = document.getElementById('btnEditFinA');
       const btnB = document.getElementById('btnEditFinB');
       if (btnA) {
@@ -1736,7 +2106,373 @@
         btnB.style.background = target === 'B' ? '#38bdf8' : 'var(--bg-input)';
         btnB.style.color = target === 'B' ? '#070d19' : '#38bdf8';
       }
+
+      // Update modal buttons
+      const mBtnA = document.getElementById('modalTargetA');
+      const mBtnB = document.getElementById('modalTargetB');
+      if (mBtnA) {
+        mBtnA.style.background = target === 'A' ? '#ef4444' : 'var(--bg-input)';
+        mBtnA.style.color = target === 'A' ? '#ffffff' : '#ef4444';
+      }
+      if (mBtnB) {
+        mBtnB.style.background = target === 'B' ? '#38bdf8' : 'var(--bg-input)';
+        mBtnB.style.color = target === 'B' ? '#070d19' : '#38bdf8';
+      }
+
+      // Update modal banner notice
+      const mLabel = document.getElementById('modalTargetLabel');
+      const mRule = document.getElementById('modalTargetRule');
+      const selectedVar = document.getElementById('independentVarSelect').value;
+      const isFinVar = (selectedVar === 'fin_shape' || selectedVar === 'fin_dimensions');
+      if (mLabel) {
+        mLabel.textContent = target === 'A' ? 'Currently Editing: 🔴 Rocket A (Baseline Control)' : 'Currently Editing: 🔵 Rocket B (Experimental Variant)';
+        mLabel.style.color = target === 'A' ? '#ef4444' : 'var(--cyan)';
+      }
+      if (mRule) {
+        mRule.textContent = isFinVar ? '★ Fin Variable Active: Rocket A and B can have different fin designs!' : 'Sync Rule: Changes mirror to both rockets to isolate your non-fin variable.';
+      }
+
+      syncPhase2ModalInputsFromFinPoints();
       renderPhase2FinStudio();
+      renderPhase2FinModal();
+    }
+
+    // Modal Open & Close
+    let activeModalDragIdx = -1;
+
+    function openPhase2FinModal() {
+      const modal = document.getElementById('finModal');
+      if (!modal) return;
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      setFinTarget(editingFinTarget);
+      syncPhase2ModalInputsFromFinPoints();
+      renderPhase2FinModal();
+    }
+
+    function closePhase2FinModal() {
+      const modal = document.getElementById('finModal');
+      if (!modal) return;
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+      renderPhase2FinStudio();
+      drawDualBlueprint();
+      updateComparativeEvidence();
+      triggerAutoSave();
+    }
+
+    function syncPhase2ModalInputsFromFinPoints() {
+      const activePts = editingFinTarget === 'A' ? phase2FinPointsA : phase2FinPointsB;
+      const rootChordCm = (activePts[3].y - activePts[0].y) / P2_FIN_PIXELS_PER_CM;
+      const spanCm = (Math.max(activePts[1].x, activePts[2].x) - P2_FIN_ROOT_X) / P2_FIN_PIXELS_PER_CM;
+      const tipChordCm = Math.abs(activePts[2].y - activePts[1].y) / P2_FIN_PIXELS_PER_CM;
+      const sweepOffsetCm = (activePts[1].y - activePts[0].y) / P2_FIN_PIXELS_PER_CM;
+
+      const elRoot = document.getElementById('specRootChord');
+      const elSpan = document.getElementById('specSpan');
+      const elTip = document.getElementById('specTipChord');
+      const elSweep = document.getElementById('specSweepOffset');
+      const elSpecOffset = document.getElementById('specOffsetBottom');
+
+      const pageOffsetEl = document.getElementById(editingFinTarget === 'A' ? 'finOffsetA' : 'finOffsetB');
+
+      if (elRoot) elRoot.value = Math.max(0.5, rootChordCm).toFixed(1);
+      if (elSpan) elSpan.value = Math.max(0.5, spanCm).toFixed(1);
+      if (elTip) elTip.value = Math.max(0.0, tipChordCm).toFixed(1);
+      if (elSweep) elSweep.value = sweepOffsetCm.toFixed(1);
+      if (elSpecOffset && pageOffsetEl) elSpecOffset.value = pageOffsetEl.value;
+    }
+
+    function onPhase2SpecOffsetChange() {
+      const elSpecOffset = document.getElementById('specOffsetBottom');
+      const pageOffsetEl = document.getElementById(editingFinTarget === 'A' ? 'finOffsetA' : 'finOffsetB');
+      if (elSpecOffset && pageOffsetEl) {
+        pageOffsetEl.value = elSpecOffset.value;
+      }
+      const selectedVar = document.getElementById('independentVarSelect').value;
+      if (editingFinTarget === 'A' && selectedVar !== 'fin_offset') {
+        const offsetB = document.getElementById('finOffsetB');
+        if (offsetB && elSpecOffset) offsetB.value = elSpecOffset.value;
+      }
+      drawDualBlueprint();
+      triggerAutoSave();
+    }
+
+    function onPhase2SpecInputChange() {
+      const elRoot = document.getElementById('specRootChord');
+      const elSpan = document.getElementById('specSpan');
+      const elTip = document.getElementById('specTipChord');
+      const elSweep = document.getElementById('specSweepOffset');
+
+      let Cr = parseFloat(elRoot ? elRoot.value : 4.0);
+      let S = parseFloat(elSpan ? elSpan.value : 4.0);
+      let Ct = parseFloat(elTip ? elTip.value : 0.0);
+      let dx = parseFloat(elSweep ? elSweep.value : 4.0);
+
+      if (isNaN(Cr) || Cr < 0.5) Cr = 0.5;
+      if (Cr > 7.0) Cr = 7.0;
+      if (isNaN(S) || S < 0.5) S = 0.5;
+      if (S > 12.0) S = 12.0;
+      if (isNaN(Ct) || Ct < 0) Ct = 0;
+      if (Ct > 7.0) Ct = 7.0;
+      if (isNaN(dx)) dx = 0;
+
+      const p3y = 155;
+      const p0y = Math.max(15, Math.min(p3y - 15, p3y - (Cr * P2_FIN_PIXELS_PER_CM)));
+      const p1x = Math.max(P2_FIN_ROOT_X + 15, Math.min(295, P2_FIN_ROOT_X + (S * P2_FIN_PIXELS_PER_CM)));
+      const p1y = Math.max(15, Math.min(165, p0y + (dx * P2_FIN_PIXELS_PER_CM)));
+      const p2x = p1x;
+      const p2y = Math.max(p1y, Math.min(165, p1y + (Ct * P2_FIN_PIXELS_PER_CM)));
+
+      const activePts = editingFinTarget === 'A' ? phase2FinPointsA : phase2FinPointsB;
+      activePts[0] = { x: P2_FIN_ROOT_X, y: Math.round(p0y) };
+      activePts[1] = { x: Math.round(p1x), y: Math.round(p1y) };
+      activePts[2] = { x: Math.round(p2x), y: Math.round(p2y) };
+      activePts[3] = { x: P2_FIN_ROOT_X, y: p3y };
+
+      const selectedVar = document.getElementById('independentVarSelect').value;
+      if (editingFinTarget === 'A' && selectedVar !== 'fin_dimensions' && selectedVar !== 'fin_shape') {
+        phase2FinPointsB = JSON.parse(JSON.stringify(phase2FinPointsA));
+      }
+
+      markPhase2FinDrawn();
+      syncInputsFromPhase2Fin();
+      renderPhase2FinStudio();
+      renderPhase2FinModal();
+      drawDualBlueprint();
+      updateComparativeEvidence();
+      triggerAutoSave();
+    }
+
+    function setPhase2TrailingEdgeSquare() {
+      const elRoot = document.getElementById('specRootChord');
+      const elTip = document.getElementById('specTipChord');
+      const elSweep = document.getElementById('specSweepOffset');
+      const Cr = parseFloat(elRoot ? elRoot.value : 4.0) || 4.0;
+      const Ct = parseFloat(elTip ? elTip.value : 0.0) || 0.0;
+      const squareSweep = Math.max(-2.0, Cr - Ct);
+      if (elSweep) elSweep.value = squareSweep.toFixed(1);
+      onPhase2SpecInputChange();
+    }
+
+    function setPhase2LeadingEdgeSquare() {
+      const elSweep = document.getElementById('specSweepOffset');
+      if (elSweep) elSweep.value = "0.0";
+      onPhase2SpecInputChange();
+    }
+
+    function renderPhase2FinModal() {
+      const modalSvg = document.getElementById('finModalSvg');
+      if (!modalSvg) return;
+
+      const activePts = editingFinTarget === 'A' ? phase2FinPointsA : phase2FinPointsB;
+      const ptsStr = activePts.map(p => `${p.x},${p.y}`).join(' ');
+      const poly = document.getElementById('modalFinPolygon');
+      const themeColor = (editingFinTarget === 'A') ? '#ef4444' : 'var(--cyan)';
+      const fillColor = (editingFinTarget === 'A') ? 'rgba(239, 68, 68, 0.28)' : 'rgba(56, 189, 248, 0.28)';
+
+      if (poly) {
+        poly.setAttribute('points', ptsStr);
+        poly.setAttribute('fill', fillColor);
+        poly.setAttribute('stroke', themeColor);
+      }
+
+      // Render draggable handles
+      let handlesHtml = '';
+      activePts.forEach((p, idx) => {
+        handlesHtml += `
+          <g transform="translate(${p.x}, ${p.y})">
+            <circle r="9" fill="${themeColor}" stroke="#ffffff" stroke-width="2.5" style="cursor: grab;" />
+            <circle r="3.5" fill="#070d19" />
+          </g>
+        `;
+      });
+      const hGroup = document.getElementById('modalFinHandlesGroup');
+      if (hGroup) hGroup.innerHTML = handlesHtml;
+
+      // Side lengths
+      const p0 = activePts[0];
+      const p1 = activePts[1];
+      const p2 = activePts[2];
+      const p3 = activePts[3];
+
+      const lenLeadingCm = Math.hypot(p1.x - p0.x, p1.y - p0.y) / P2_FIN_PIXELS_PER_CM;
+      const lenTrailingCm = Math.hypot(p2.x - p3.x, p2.y - p3.y) / P2_FIN_PIXELS_PER_CM;
+      const lenTipCm = Math.hypot(p2.x - p1.x, p2.y - p1.y) / P2_FIN_PIXELS_PER_CM;
+      const lenRootCm = Math.abs(p3.y - p0.y) / P2_FIN_PIXELS_PER_CM;
+
+      let areaPx = 0;
+      for (let i = 0; i < activePts.length; i++) {
+        const j = (i + 1) % activePts.length;
+        areaPx += activePts[i].x * activePts[j].y;
+        areaPx -= activePts[j].x * activePts[i].y;
+      }
+      const areaCm2 = Math.abs(areaPx) / (2 * P2_FIN_PIXELS_PER_CM * P2_FIN_PIXELS_PER_CM);
+
+      const finCountEl = document.getElementById(editingFinTarget === 'A' ? 'finCountA' : 'finCountB');
+      const finCount = finCountEl ? parseInt(finCountEl.value, 10) || 3 : 3;
+      const totalAreaCm2 = areaCm2 * finCount;
+      const spanCm = (Math.max(p1.x, p2.x) - P2_FIN_ROOT_X) / P2_FIN_PIXELS_PER_CM;
+      const aspectRatio = areaCm2 > 0.05 ? (spanCm * spanCm) / areaCm2 : 0;
+
+      const elLead = document.getElementById('specLeadingLength');
+      const elTrail = document.getElementById('specTrailingLength');
+      const elTipEdge = document.getElementById('specTipEdgeLength');
+      const elRootEdge = document.getElementById('specRootEdgeLength');
+      const elArea = document.getElementById('specSurfaceArea');
+      const elFinCountDisp = document.getElementById('specFinCountDisplay');
+      const elTotalArea = document.getElementById('specTotalFinArea');
+      const elAR = document.getElementById('specAspectRatio');
+
+      if (elLead) elLead.textContent = lenLeadingCm.toFixed(1) + ' cm';
+      if (elTrail) elTrail.textContent = lenTrailingCm.toFixed(1) + ' cm';
+      if (elTipEdge) elTipEdge.textContent = lenTipCm.toFixed(1) + ' cm';
+      if (elRootEdge) elRootEdge.textContent = lenRootCm.toFixed(1) + ' cm';
+      if (elArea) elArea.textContent = areaCm2.toFixed(1) + ' cm²';
+      if (elFinCountDisp) elFinCountDisp.textContent = finCount;
+      if (elTotalArea) elTotalArea.textContent = totalAreaCm2.toFixed(1) + ' cm²';
+      if (elAR) elAR.textContent = aspectRatio.toFixed(2);
+
+      // Dimension Callouts on Modal SVG
+      let dimsHtml = '';
+      const rx = 34;
+      dimsHtml += `
+        <g pointer-events="none">
+          <line x1="${rx}" y1="${p0.y}" x2="${rx}" y2="${p3.y}" stroke="${themeColor}" stroke-width="1.2" stroke-dasharray="2,2"/>
+          <line x1="${rx-3}" y1="${p0.y}" x2="${rx+3}" y2="${p0.y}" stroke="${themeColor}" stroke-width="1.2"/>
+          <line x1="${rx-3}" y1="${p3.y}" x2="${rx+3}" y2="${p3.y}" stroke="${themeColor}" stroke-width="1.2"/>
+          <rect x="2" y="${(p0.y + p3.y)/2 - 6}" width="30" height="12" rx="2" fill="var(--bg-card)" stroke="var(--border-subtle)" stroke-width="0.8"/>
+          <text x="17" y="${(p0.y + p3.y)/2 + 3}" text-anchor="middle" fill="${themeColor}" font-size="7" font-family="'JetBrains Mono', monospace" font-weight="700">${lenRootCm.toFixed(1)}cm</text>
+        </g>
+      `;
+
+      // Front Edge mid-point tag
+      const midLeX = (p0.x + p1.x) / 2;
+      const midLeY = (p0.y + p1.y) / 2;
+      dimsHtml += `
+        <g pointer-events="none">
+          <rect x="${midLeX - 25}" y="${midLeY - 14}" width="50" height="12" rx="3" fill="var(--bg-card)" stroke="var(--border-subtle)" stroke-width="1"/>
+          <text x="${midLeX}" y="${midLeY - 5}" text-anchor="middle" fill="var(--text)" font-size="7.5" font-family="'JetBrains Mono', monospace" font-weight="600">Front ${lenLeadingCm.toFixed(1)}cm</text>
+        </g>
+      `;
+
+      // Back Edge mid-point tag
+      const midTeX = (p2.x + p3.x) / 2;
+      const midTeY = (p2.y + p3.y) / 2;
+      const teTagY = midTeY > 140 ? (midTeY - 14) : (midTeY + 4);
+      const teTextY = midTeY > 140 ? (midTeY - 5) : (midTeY + 13);
+      dimsHtml += `
+        <g pointer-events="none">
+          <rect x="${midTeX - 25}" y="${teTagY}" width="50" height="12" rx="3" fill="var(--bg-card)" stroke="var(--border-subtle)" stroke-width="1"/>
+          <text x="${midTeX}" y="${teTextY}" text-anchor="middle" fill="var(--text)" font-size="7.5" font-family="'JetBrains Mono', monospace" font-weight="600">Back ${lenTrailingCm.toFixed(1)}cm</text>
+        </g>
+      `;
+
+      // Outer Edge tag (if >= 0.4cm)
+      if (lenTipCm >= 0.4) {
+        const midTipX = (p1.x + p2.x) / 2;
+        const midTipY = (p1.y + p2.y) / 2;
+        dimsHtml += `
+          <g pointer-events="none">
+            <rect x="${midTipX + 6}" y="${midTipY - 6}" width="44" height="12" rx="3" fill="var(--bg-card)" stroke="var(--border-subtle)" stroke-width="1"/>
+            <text x="${midTipX + 28}" y="${midTipY + 3}" text-anchor="middle" fill="var(--amber)" font-size="7.5" font-family="'JetBrains Mono', monospace" font-weight="600">Outer ${lenTipCm.toFixed(1)}</text>
+          </g>
+        `;
+      }
+
+      const dimGroup = document.getElementById('modalDimensionLines');
+      if (dimGroup) dimGroup.innerHTML = dimsHtml;
+    }
+
+    function initPhase2FinModal() {
+      const svg = document.getElementById('finModalSvg');
+      if (!svg) return;
+
+      function getModalSvgPoint(e) {
+        const pt = svg.createSVGPoint();
+        if (e.touches && e.touches.length > 0) {
+          pt.x = e.touches[0].clientX;
+          pt.y = e.touches[0].clientY;
+        } else {
+          pt.x = e.clientX;
+          pt.y = e.clientY;
+        }
+        return pt.matrixTransform(svg.getScreenCTM().inverse());
+      }
+
+      function onModalPointerDown(e) {
+        const pt = getModalSvgPoint(e);
+        const activePts = editingFinTarget === 'A' ? phase2FinPointsA : phase2FinPointsB;
+        for (let i = 0; i < activePts.length; i++) {
+          const dx = pt.x - activePts[i].x;
+          const dy = pt.y - activePts[i].y;
+          if (Math.hypot(dx, dy) < 22) {
+            activeModalDragIdx = i;
+            e.preventDefault();
+            break;
+          }
+        }
+      }
+
+      function onModalPointerMove(e) {
+        if (activeModalDragIdx < 0) return;
+        const pt = getModalSvgPoint(e);
+        const activePts = editingFinTarget === 'A' ? phase2FinPointsA : phase2FinPointsB;
+
+        if (activeModalDragIdx === 0) {
+          activePts[0].y = Math.max(15, Math.min(activePts[3].y - 15, pt.y));
+        } else if (activeModalDragIdx === 3) {
+          activePts[3].y = Math.max(activePts[0].y + 15, Math.min(165, pt.y));
+        } else if (activeModalDragIdx === 1) {
+          activePts[1].x = Math.max(P2_FIN_ROOT_X + 15, Math.min(295, pt.x));
+          activePts[1].y = Math.max(15, Math.min(165, pt.y));
+        } else if (activeModalDragIdx === 2) {
+          activePts[2].x = Math.max(P2_FIN_ROOT_X + 15, Math.min(295, pt.x));
+          activePts[2].y = Math.max(15, Math.min(165, pt.y));
+        }
+
+        const selectedVar = document.getElementById('independentVarSelect').value;
+        if (editingFinTarget === 'A' && selectedVar !== 'fin_dimensions' && selectedVar !== 'fin_shape') {
+          phase2FinPointsB = JSON.parse(JSON.stringify(phase2FinPointsA));
+        }
+
+        markPhase2FinDrawn();
+        syncPhase2ModalInputsFromFinPoints();
+        syncInputsFromPhase2Fin();
+        renderPhase2FinStudio();
+        renderPhase2FinModal();
+        drawDualBlueprint();
+        updateComparativeEvidence();
+        e.preventDefault();
+      }
+
+      function onModalPointerUp() {
+        if (activeModalDragIdx !== -1) {
+          activeModalDragIdx = -1;
+          triggerAutoSave();
+        }
+      }
+
+      svg.addEventListener('mousedown', onModalPointerDown);
+      window.addEventListener('mousemove', onModalPointerMove);
+      window.addEventListener('mouseup', onModalPointerUp);
+
+      svg.addEventListener('touchstart', onModalPointerDown, { passive: false });
+      window.addEventListener('touchmove', onModalPointerMove, { passive: false });
+      window.addEventListener('touchend', onModalPointerUp);
+
+      // Close modal on outside click
+      const modal = document.getElementById('finModal');
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) closePhase2FinModal();
+        });
+      }
+
+      // Close on Escape key
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closePhase2FinModal();
+      });
     }
 
     function applyPhase2FinPreset(presetKey) {
@@ -1752,8 +2488,10 @@
           phase2FinPointsB = pts;
         }
         markPhase2FinDrawn();
+        syncPhase2ModalInputsFromFinPoints();
         syncInputsFromPhase2Fin();
         renderPhase2FinStudio();
+        renderPhase2FinModal();
         drawDualBlueprint();
         updateComparativeEvidence();
         triggerAutoSave();
@@ -1888,9 +2626,16 @@
           activePts[2].y = Math.max(15, Math.min(165, pt.y));
         }
 
+        const selectedVar = document.getElementById('independentVarSelect').value;
+        if (editingFinTarget === 'A' && selectedVar !== 'fin_dimensions' && selectedVar !== 'fin_shape') {
+          phase2FinPointsB = JSON.parse(JSON.stringify(phase2FinPointsA));
+        }
+
         markPhase2FinDrawn();
         syncInputsFromPhase2Fin();
+        syncPhase2ModalInputsFromFinPoints();
         renderPhase2FinStudio();
+        renderPhase2FinModal();
         drawDualBlueprint();
         updateComparativeEvidence();
         e.preventDefault();
@@ -2053,17 +2798,35 @@
         rSvg += `<line x1="${originX - 25}" y1="${centerY}" x2="${tailX + 35}" y2="${centerY}" stroke="${color}" stroke-dasharray="5,4" stroke-width="1.2" opacity="0.6"/>`;
 
         // Stabilizing Fins (Top & Bottom)
-        const finHPx = specs.fin_h * pxPerCm;
-        const finWPx = specs.fin_w * pxPerCm;
-        const finOffsetPx = specs.fin_offset * pxPerCm;
+        const finPts = isVariant ? phase2FinPointsB : phase2FinPointsA;
+        const rootChordCm = Math.abs(finPts[3].y - finPts[0].y) / P2_FIN_PIXELS_PER_CM;
+        const maxSpanPx = Math.max(finPts[1].x, finPts[2].x) - P2_FIN_ROOT_X;
+        const spanCm = maxSpanPx / P2_FIN_PIXELS_PER_CM;
+        const finOffsetCm = specs.fin_offset || 0.0;
+        const finOffsetPx = finOffsetCm * pxPerCm;
         const finTrailingX = tailX - finOffsetPx;
-        const finLeadingX = finTrailingX - finHPx;
+        const finAttachStart = finTrailingX - (rootChordCm * pxPerCm);
 
-        const topFinPts = `${finLeadingX},${centerY - R_fuse_px} ${finLeadingX + (finHPx * 0.4)},${centerY - R_fuse_px - finWPx} ${finTrailingX},${centerY - R_fuse_px - (finWPx * 0.7)} ${finTrailingX},${centerY - R_fuse_px}`;
-        const botFinPts = `${finLeadingX},${centerY + R_fuse_px} ${finLeadingX + (finHPx * 0.4)},${centerY + R_fuse_px + finWPx} ${finTrailingX},${centerY + R_fuse_px + (finWPx * 0.7)} ${finTrailingX},${centerY + R_fuse_px}`;
+        // 1:1 True-to-Scale Mathematical Fin Projection matching rocket_recovery
+        function mapFinPt(pt, isTop) {
+          const ptSpanCm = (pt.x - P2_FIN_ROOT_X) / P2_FIN_PIXELS_PER_CM;
+          const axialOffsetCm = (pt.y - finPts[3].y) / P2_FIN_PIXELS_PER_CM;
+          const ptX = finTrailingX + (axialOffsetCm * pxPerCm);
+          const ptSpanPx = ptSpanCm * pxPerCm;
+          const ptY = isTop ? (centerY - R_fuse_px - ptSpanPx) : (centerY + R_fuse_px + ptSpanPx);
+          return `${ptX.toFixed(1)},${ptY.toFixed(1)}`;
+        }
 
-        rSvg += `<polygon points="${topFinPts}" fill="${color}" fill-opacity="0.2" stroke="${color}" stroke-width="1.8"/>`;
-        rSvg += `<polygon points="${botFinPts}" fill="${color}" fill-opacity="0.2" stroke="${color}" stroke-width="1.8"/>`;
+        const topFinPts = finPts.map(p => mapFinPt(p, true)).join(' ');
+        const botFinPts = finPts.map(p => mapFinPt(p, false)).join(' ');
+
+        rSvg += `<polygon points="${topFinPts}" fill="${color}" fill-opacity="0.22" stroke="${color}" stroke-width="1.8"/>`;
+        rSvg += `<polygon points="${botFinPts}" fill="${color}" fill-opacity="0.22" stroke="${color}" stroke-width="1.8"/>`;
+
+        if (specs.fin_count === 4) {
+          // Center fin front elevation
+          rSvg += `<line x1="${finAttachStart}" y1="${centerY}" x2="${finTrailingX}" y2="${centerY}" stroke="${color}" stroke-width="3" opacity="0.9"/>`;
+        }
 
         // Fuselage Body Cylinder
         rSvg += `<rect x="${noseBaseX}" y="${centerY - R_fuse_px}" width="${L_fuse_px}" height="${R_fuse_px * 2}" fill="${color}" fill-opacity="0.08" stroke="${color}" stroke-width="2"/>`;
@@ -2078,13 +2841,13 @@
         }
 
         // Fin Offset Dimension Callout (if shifted forward)
-        if (specs.fin_offset >= 0.2) {
-          const dimY = centerY + R_fuse_px + finWPx + 12;
+        if (Math.abs(finOffsetCm) >= 0.2) {
+          const dimY = centerY + R_fuse_px + (spanCm * pxPerCm) + 12;
           rSvg += `
             <line x1="${finTrailingX}" y1="${dimY}" x2="${tailX}" y2="${dimY}" stroke="var(--gold)" stroke-width="1.5"/>
             <polygon points="${finTrailingX},${dimY} ${finTrailingX + 4},${dimY - 3} ${finTrailingX + 4},${dimY + 3}" fill="var(--gold)"/>
             <polygon points="${tailX},${dimY} ${tailX - 4},${dimY - 3} ${tailX - 4},${dimY + 3}" fill="var(--gold)"/>
-            <text x="${(finTrailingX + tailX) / 2}" y="${dimY - 3}" fill="var(--gold)" font-family="'JetBrains Mono',monospace" font-size="8.5" font-weight="800" text-anchor="middle">+${specs.fin_offset}cm offset</text>
+            <text x="${(finTrailingX + tailX) / 2}" y="${dimY - 3}" fill="var(--gold)" font-family="'JetBrains Mono',monospace" font-size="8.5" font-weight="800" text-anchor="middle">+${finOffsetCm.toFixed(1)}cm offset</text>
           `;
         }
 
@@ -2780,6 +3543,7 @@
       initMap();
       initPastePrevention();
       initPhase2FinStudio();
+      initPhase2FinModal();
       onVariableChange();
       drawDualBlueprint();
 
