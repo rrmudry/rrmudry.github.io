@@ -235,12 +235,23 @@
       border-radius: 50%;
       background: var(--green);
       box-shadow: 0 0 8px var(--green);
+      transition: background 0.3s ease, box-shadow 0.3s ease;
     }
 
     .save-dot.syncing {
       background: var(--amber);
       box-shadow: 0 0 8px var(--amber);
       animation: pulse 1s infinite;
+    }
+
+    .save-dot.local {
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan);
+    }
+
+    .save-dot.error {
+      background: var(--red);
+      box-shadow: 0 0 8px var(--red);
     }
 
     @keyframes pulse {
@@ -794,6 +805,23 @@
           <div>
             <label class="label-meta">Team Partners</label>
             <input type="text" id="station-partners" class="input-box" placeholder="e.g. Marcus, Sofia, Jaylen" />
+          </div>
+        </div>
+
+        <!-- Day 36 Prior Baseline Banner (Auto-Loaded when student signs in) -->
+        <div id="day36-baseline-banner" class="glass-card" style="display: none; padding: 1rem 1.25rem; background: linear-gradient(135deg, rgba(249, 115, 22, 0.12), rgba(56, 189, 248, 0.08)); border: 1.5px solid var(--orange); margin-bottom: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <div style="font-weight: 800; font-size: 0.95rem; color: var(--flame-yellow); display: flex; align-items: center; gap: 0.4rem;">
+                <span>🏆</span> Day 36 Coasting Baseline Found!
+              </div>
+              <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.2rem;">
+                Yesterday's Champion Car: <strong id="day36-car-name" style="color:var(--text);">--</strong> &bull; Baseline Distance (No Fan/No Card): <strong id="day36-distance" class="font-mono" style="color:var(--cyan);">-- cm</strong>
+              </div>
+            </div>
+            <button type="button" id="btn-use-day36-specs" class="btn-action" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; background: var(--orange); color:#ffffff;">
+              Use This Car For Today's Test
+            </button>
           </div>
         </div>
 
@@ -1486,6 +1514,258 @@
       console.warn('Firebase init warning:', e);
     }
 
+    const LOCAL_STORAGE_KEY_PREFIX = 'hw_air_resistance_draft_';
+
+    function collectFormData() {
+      const periodVal = parseInt(document.getElementById('station-period')?.value, 10) || AppState.classPeriod || 1;
+      const carName = (document.getElementById('test-car-name') || document.getElementById('car-name'))?.value || AppState.carSpecs.carName || '';
+      const cardOrient = (document.getElementById('test-card-orient') || document.getElementById('card-orientation'))?.value || AppState.carSpecs.cardOrientation || 'vertical';
+      const cardSize = document.getElementById('test-card-size')?.value || 'Standard 3 x 5 in Card';
+
+      return {
+        class_period: periodVal,
+        period: periodVal,
+        partners: document.getElementById('station-partners')?.value || '',
+        checklist: {
+          airBrake: !!document.getElementById('check-air-brake')?.checked,
+          fanAim: !!document.getElementById('check-fan-aim')?.checked,
+          startingLine: !!document.getElementById('check-starting-line')?.checked,
+          measuringTape: !!document.getElementById('check-measuring-tape')?.checked
+        },
+        carSpecs: {
+          carName: carName,
+          cardOrientation: cardOrient,
+          cardSize: cardSize,
+          releaseHeight: 30
+        },
+        prediction: AppState.prediction || null,
+        predictionText: document.getElementById('prediction-reasoning')?.value || AppState.predictionText || '',
+        fanTiers: {
+          fan0: { ...AppState.fanTiers.fan0 },
+          fan1: { ...AppState.fanTiers.fan1 },
+          fan2: { ...AppState.fanTiers.fan2 },
+          fan3: { ...AppState.fanTiers.fan3 }
+        },
+        fbdAnswers: {
+          check1: document.querySelector('input[name="fbd-check1"]:checked')?.value || null,
+          check2: document.querySelector('input[name="fbd-check2"]:checked')?.value || null
+        },
+        synthesis: {
+          q1: document.getElementById('synth-q1')?.value || '',
+          q2: document.getElementById('synth-q2')?.value || '',
+          q3: document.getElementById('synth-q3')?.value || ''
+        }
+      };
+    }
+
+    function saveLocalDraft() {
+      try {
+        const formData = collectFormData();
+        formData.lastLocalSavedAt = Date.now();
+        const serialized = JSON.stringify(formData);
+        const studentKey = LOCAL_STORAGE_KEY_PREFIX + (AppState.studentId || 'guest');
+        localStorage.setItem(studentKey, serialized);
+        localStorage.setItem(LOCAL_STORAGE_KEY_PREFIX + 'latest', serialized);
+      } catch (err) {
+        console.warn('LocalStorage draft save notice:', err);
+      }
+    }
+
+    function loadLocalDraft(studentId) {
+      try {
+        const key = LOCAL_STORAGE_KEY_PREFIX + (studentId || AppState.studentId || 'guest');
+        let raw = localStorage.getItem(key);
+        if (!raw && !studentId) {
+          raw = localStorage.getItem(LOCAL_STORAGE_KEY_PREFIX + 'latest');
+        }
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          restoreStudentData(parsed, false);
+          return parsed;
+        }
+      } catch (err) {
+        console.warn('LocalStorage draft load notice:', err);
+      }
+      return null;
+    }
+
+    function restoreStudentData(data, isFromCloud = false) {
+      if (!data) return;
+
+      if (data.partners && document.getElementById('station-partners')) {
+        document.getElementById('station-partners').value = data.partners;
+      }
+      if ((data.class_period !== undefined || data.period !== undefined) && document.getElementById('station-period')) {
+        const p = data.class_period !== undefined ? data.class_period : data.period;
+        document.getElementById('station-period').value = String(p);
+        AppState.classPeriod = parseInt(p, 10) || 1;
+      }
+      if (data.checklist) {
+        if (document.getElementById('check-air-brake')) document.getElementById('check-air-brake').checked = !!data.checklist.airBrake;
+        if (document.getElementById('check-fan-aim')) document.getElementById('check-fan-aim').checked = !!data.checklist.fanAim;
+        if (document.getElementById('check-starting-line')) document.getElementById('check-starting-line').checked = !!data.checklist.startingLine;
+        if (document.getElementById('check-measuring-tape')) document.getElementById('check-measuring-tape').checked = !!data.checklist.measuringTape;
+      }
+      if (data.carSpecs) {
+        AppState.carSpecs = { ...AppState.carSpecs, ...data.carSpecs };
+        const nameVal = data.carSpecs.carName || '';
+        const nameEl = document.getElementById('test-car-name') || document.getElementById('car-name');
+        if (nameEl) nameEl.value = nameVal;
+
+        const orientVal = data.carSpecs.cardOrientation || 'vertical';
+        const orientEl = document.getElementById('test-card-orient') || document.getElementById('card-orientation');
+        if (orientEl) orientEl.value = orientVal;
+
+        const sizeVal = data.carSpecs.cardSize;
+        const sizeEl = document.getElementById('test-card-size');
+        if (sizeEl && sizeVal) sizeEl.value = sizeVal;
+      }
+      if (data.prediction) {
+        selectAirPrediction(data.prediction, false);
+      }
+      const predText = data.predictionText !== undefined ? data.predictionText : data.prediction_text;
+      if (predText !== undefined && predText !== null) {
+        const reasonEl = document.getElementById('prediction-reasoning');
+        if (reasonEl) {
+          reasonEl.value = predText;
+          AppState.predictionText = predText;
+          updateAirPredictionCharCount();
+        }
+      }
+      if (data.fanTiers) {
+        ['fan0', 'fan1', 'fan2', 'fan3'].forEach(k => {
+          if (data.fanTiers[k]) {
+            ['t1', 't2', 't3'].forEach(t => {
+              const val = data.fanTiers[k][t];
+              const el = document.getElementById(`${k}-${t}`);
+              if (el && val !== null && val !== undefined && val !== '') {
+                el.value = val;
+              }
+            });
+            recalcFanTier(k);
+          }
+        });
+        renderFanGraph();
+      }
+      if (data.fbdAnswers) {
+        if (data.fbdAnswers.check1) {
+          const r1 = document.querySelector(`input[name="fbd-check1"][value="${data.fbdAnswers.check1}"]`);
+          if (r1) r1.checked = true;
+        }
+        if (data.fbdAnswers.check2) {
+          const r2 = document.querySelector(`input[name="fbd-check2"][value="${data.fbdAnswers.check2}"]`);
+          if (r2) r2.checked = true;
+        }
+      }
+      if (data.synthesis) {
+        ['q1', 'q2', 'q3'].forEach(q => {
+          const val = data.synthesis[q];
+          const el = document.getElementById(`synth-${q}`);
+          if (el && val !== undefined && val !== null) {
+            el.value = val;
+          }
+        });
+      }
+
+      calculateScore();
+    }
+
+    function updateSaveIndicator(status, customText) {
+      const dot = document.getElementById('save-status-dot');
+      const text = document.getElementById('save-status-text');
+      if (!dot || !text) return;
+
+      dot.className = 'save-dot';
+      if (status === 'syncing') {
+        dot.classList.add('syncing');
+        text.textContent = customText || 'Saving Draft...';
+      } else if (status === 'cloud') {
+        text.textContent = customText || 'Cloud Synced';
+      } else if (status === 'local') {
+        dot.classList.add('local');
+        text.textContent = customText || (AppState.studentId ? 'Saved Locally' : 'Saved Locally (Sign in to sync)');
+      } else if (status === 'error') {
+        dot.classList.add('error');
+        text.textContent = customText || 'Sync Error (Retrying...)';
+      }
+    }
+
+    let autoSaveTimer = null;
+    function triggerAutoSave() {
+      saveLocalDraft();
+      if (!AppState.studentId) {
+        updateSaveIndicator('local');
+        return;
+      }
+
+      updateSaveIndicator('syncing');
+      if (autoSaveTimer) clearTimeout(autoSaveTimer);
+      autoSaveTimer = setTimeout(async () => {
+        await saveStudentProgress({ isExplicitSubmit: false });
+      }, 1200);
+    }
+
+    async function resolveStudentRosterPeriod(studentId, email) {
+      if (!db) return;
+      try {
+        let snap = await db.collection('roster').doc(studentId).get();
+        if (!snap.exists) {
+          const qSnap = await db.collection('roster').where('email', '==', email).limit(1).get();
+          if (!qSnap.empty) snap = qSnap.docs[0];
+        }
+        if (snap.exists) {
+          const data = snap.data();
+          const periodVal = data.class_period !== undefined ? data.class_period : (data.period !== undefined ? data.period : null);
+          if (periodVal !== null && periodVal !== undefined) {
+            AppState.classPeriod = periodVal;
+            const periodSelect = document.getElementById('station-period');
+            if (periodSelect) periodSelect.value = String(periodVal);
+          }
+        }
+      } catch (err) {
+        console.warn('Roster lookup note:', err.message);
+      }
+    }
+
+    async function loadDay36Baseline(studentId) {
+      if (!db || !studentId) return;
+      try {
+        const d36Ref = db.collection('student_results').doc('unit2_day36_hot_wheels_coasting').collection('students').doc(studentId);
+        const d36Snap = await d36Ref.get();
+        if (d36Snap.exists) {
+          const d36Data = d36Snap.data();
+          const champ = d36Data.champion;
+          const baselineDist = (champ && champ.distance) || (d36Data.weight_data && d36Data.weight_data.t0) || (d36Data.cars_data && d36Data.cars_data.car1 && d36Data.cars_data.car1.avg);
+          const champName = (champ && champ.name) || (d36Data.cars_data && d36Data.cars_data.car1 && d36Data.cars_data.car1.name);
+
+          if (champName || baselineDist) {
+            const banner = document.getElementById('day36-baseline-banner');
+            const carEl = document.getElementById('day36-car-name');
+            const distEl = document.getElementById('day36-distance');
+            if (carEl) carEl.textContent = champName || 'Day 36 Car';
+            if (distEl) distEl.textContent = baselineDist ? `${baselineDist} cm` : '-- cm';
+            if (banner) banner.style.display = 'block';
+
+            const useBtn = document.getElementById('btn-use-day36-specs');
+            if (useBtn) {
+              useBtn.onclick = () => {
+                playSound('click');
+                const testCarInp = document.getElementById('test-car-name') || document.getElementById('car-name');
+                if (testCarInp && champName) {
+                  testCarInp.value = champName;
+                  AppState.carSpecs.carName = champName;
+                }
+                triggerAutoSave();
+                alert(`Loaded "${champName}" into vehicle specifications!`);
+              };
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Day 36 baseline lookup notice:', err.message);
+      }
+    }
+
     function initFirebaseAuth() {
       firebase.auth().onAuthStateChanged(async (user) => {
         const authStatusEl = document.getElementById('auth-user-status');
@@ -1511,8 +1791,10 @@
               document.getElementById('btn-signout')?.addEventListener('click', () => firebase.auth().signOut());
             }
 
-            // Sync Period if student was detected in roster
-            loadPriorSubmission();
+            // Sync Period, previous submission, and Day 36 baseline
+            await resolveStudentRosterPeriod(AppState.studentId, email);
+            await loadPriorSubmission();
+            await loadDay36Baseline(AppState.studentId);
           } else {
             firebase.auth().signOut();
             alert('Please sign in with your district @orangeusd.org Google account.');
@@ -1529,8 +1811,7 @@
             `;
             document.getElementById('btn-signin')?.addEventListener('click', signInWithGoogle);
           }
-          if (saveStatusDot) saveStatusDot.className = 'save-dot';
-          if (saveStatusText) saveStatusText.textContent = 'Sign in to auto-save';
+          updateSaveIndicator('local');
         }
       });
     }
@@ -1557,54 +1838,21 @@
         const snap = await docRef.get();
         if (snap.exists) {
           const data = snap.data();
-          if (data.carSpecs) {
-            AppState.carSpecs = { ...AppState.carSpecs, ...data.carSpecs };
-            if (document.getElementById('car-name')) document.getElementById('car-name').value = data.carSpecs.carName || '';
-            if (document.getElementById('card-orientation')) document.getElementById('card-orientation').value = data.carSpecs.cardOrientation || 'vertical';
-            if (document.getElementById('release-height')) document.getElementById('release-height').value = data.carSpecs.releaseHeight || 30;
+          restoreStudentData(data, true);
+          saveLocalDraft();
+          updateSaveIndicator('cloud');
+        } else {
+          // No cloud record yet. Check if a local draft exists
+          const localDraft = loadLocalDraft(AppState.studentId) || loadLocalDraft('guest');
+          if (localDraft) {
+            triggerAutoSave();
+          } else {
+            updateSaveIndicator('cloud', 'Cloud Ready');
           }
-          if (data.class_period || data.period) {
-            AppState.classPeriod = parseInt(data.class_period || data.period, 10) || 1;
-            const periodSelect = document.getElementById('station-period');
-            if (periodSelect) periodSelect.value = AppState.classPeriod;
-          }
-          if (data.prediction) {
-            AppState.prediction = data.prediction;
-            const predRadio = document.querySelector(`input[name="prediction-option"][value="${data.prediction}"]`);
-            if (predRadio) predRadio.checked = true;
-          }
-          if (data.predictionText && document.getElementById('prediction-reasoning')) {
-            document.getElementById('prediction-reasoning').value = data.predictionText;
-            AppState.predictionText = data.predictionText;
-          }
-          if (data.fanTiers) {
-            ['fan0', 'fan1', 'fan2', 'fan3'].forEach(k => {
-              if (data.fanTiers[k]) {
-                ['t1', 't2', 't3'].forEach(t => {
-                  const val = data.fanTiers[k][t];
-                  const el = document.getElementById(`${k}-${t}`);
-                  if (el && val !== null && val !== undefined) {
-                    el.value = val;
-                  }
-                });
-                recalcFanTier(k);
-              }
-            });
-          }
-          if (data.synthesis) {
-            if (data.synthesis.q1 && document.getElementById('synth-q1')) document.getElementById('synth-q1').value = data.synthesis.q1;
-            if (data.synthesis.q2 && document.getElementById('synth-q2')) document.getElementById('synth-q2').value = data.synthesis.q2;
-            if (data.synthesis.q3 && document.getElementById('synth-q3')) document.getElementById('synth-q3').value = data.synthesis.q3;
-          }
-
-          const saveStatusDot = document.getElementById('save-status-dot');
-          const saveStatusText = document.getElementById('save-status-text');
-          if (saveStatusDot) saveStatusDot.className = 'save-dot';
-          if (saveStatusText) saveStatusText.textContent = `Synced (${data.points || 0}/10 pts)`;
-          renderFanGraph();
         }
       } catch (e) {
         console.warn('Error loading prior student submission:', e);
+        loadLocalDraft(AppState.studentId);
       }
     }
 
@@ -1838,11 +2086,11 @@
     // 6. STAGE 2: PREDICTION INPUTS & SPEC BINDINGS
     // =========================================================================
     function initStage2Inputs() {
-      const radios = document.querySelectorAll('input[name="prediction-option"]');
-      radios.forEach(r => {
-        r.addEventListener('change', () => {
-          AppState.prediction = r.value;
-          playSound('click');
+      // Radios for prediction (.radio-card with data-hypo)
+      const radioCards = document.querySelectorAll('.radio-card[data-hypo]');
+      radioCards.forEach(card => {
+        card.addEventListener('click', () => {
+          selectAirPrediction(card.dataset.hypo);
         });
       });
 
@@ -1850,28 +2098,52 @@
       if (reasonEl) {
         reasonEl.addEventListener('input', () => {
           AppState.predictionText = reasonEl.value;
+          updateAirPredictionCharCount();
         });
       }
 
-      const carNameEl = document.getElementById('car-name');
+      const carNameEl = document.getElementById('test-car-name') || document.getElementById('car-name');
       if (carNameEl) {
         carNameEl.addEventListener('input', () => {
           AppState.carSpecs.carName = carNameEl.value;
         });
       }
 
-      const orientationEl = document.getElementById('card-orientation');
+      const orientationEl = document.getElementById('test-card-orient') || document.getElementById('card-orientation');
       if (orientationEl) {
         orientationEl.addEventListener('change', () => {
           AppState.carSpecs.cardOrientation = orientationEl.value;
         });
       }
 
-      const heightEl = document.getElementById('release-height');
-      if (heightEl) {
-        heightEl.addEventListener('input', () => {
-          AppState.carSpecs.releaseHeight = parseFloat(heightEl.value) || 30;
+      const cardSizeEl = document.getElementById('test-card-size');
+      if (cardSizeEl) {
+        cardSizeEl.addEventListener('input', () => {
+          AppState.carSpecs.cardSize = cardSizeEl.value;
         });
+      }
+    }
+
+    function selectAirPrediction(hypo, shouldPlaySound = true) {
+      if (shouldPlaySound) playSound('click');
+      AppState.prediction = hypo;
+      document.querySelectorAll('.radio-card[data-hypo]').forEach(c => {
+        c.classList.toggle('selected', c.dataset.hypo === hypo);
+      });
+      triggerAutoSave();
+    }
+
+    function updateAirPredictionCharCount() {
+      const len = (AppState.predictionText || '').trim().length;
+      const hint = document.getElementById('prediction-char-hint');
+      if (hint) {
+        if (len >= 20) {
+          hint.textContent = `✓ Prediction recorded (${len} characters).`;
+          hint.style.color = 'var(--green)';
+        } else {
+          hint.textContent = `Minimum 20 characters required. (Current: ${len})`;
+          hint.style.color = 'var(--text-dim)';
+        }
       }
     }
 
@@ -2266,8 +2538,8 @@
       };
 
       // Check 1: Setup Specs
-      const carName = document.getElementById('car-name')?.value.trim();
-      const cardOrient = document.getElementById('card-orientation')?.value;
+      const carName = (document.getElementById('test-car-name') || document.getElementById('car-name'))?.value.trim();
+      const cardOrient = (document.getElementById('test-card-orient') || document.getElementById('card-orientation'))?.value;
       if (carName && carName.length >= 2 && cardOrient) {
         checks.setup = true;
         score += 1;
@@ -2354,103 +2626,116 @@
     // =========================================================================
     // 9. SUBMISSION TO FIRESTORE
     // =========================================================================
-    async function submitGradeToFirestore() {
+    async function saveStudentProgress({ isExplicitSubmit = false } = {}) {
       if (AppState.isSubmitting) return;
-      playSound('click');
-
-      const saveDot = document.getElementById('save-status-dot');
-      const saveText = document.getElementById('save-status-text');
-      const statusMsg = document.getElementById('submission-status-message');
-
-      if (!AppState.user || !AppState.studentId) {
-        alert('Please sign in with your student Google Account (@orangeusd.org) before submitting.');
-        signInWithGoogle();
-        return;
-      }
 
       const points = calculateScore();
       const pct = points * 10;
+      const statusMsg = document.getElementById('submission-status-message');
+
+      if (!AppState.user || !AppState.studentId) {
+        saveLocalDraft();
+        updateSaveIndicator('local', 'Saved Locally (Sign in to sync)');
+        if (isExplicitSubmit) {
+          playSound('ding');
+          alert('Please click the "Sign In" button with your student Google Account (@orangeusd.org) before submitting.');
+        }
+        return;
+      }
 
       AppState.isSubmitting = true;
-      if (saveDot) saveDot.className = 'save-dot saving';
-      if (saveText) saveText.textContent = 'Saving grade...';
-      if (statusMsg) statusMsg.innerHTML = '<span style="color:var(--accent-blue);">Submitting your lab data & score to Google Classroom sync...</span>';
+      updateSaveIndicator('syncing', isExplicitSubmit ? 'Saving Grade...' : 'Saving Draft...');
 
       try {
-        const studentRef = db.collection('student_results')
-          .doc(ASSIGNMENT_ID)
-          .collection('students')
-          .doc(AppState.studentId);
-
+        const studentRef = db.collection('student_results').doc(ASSIGNMENT_ID).collection('students').doc(AppState.studentId);
         const existingSnap = await studentRef.get();
-        const existingScore = existingSnap.exists ? (existingSnap.data().points || 0) : 0;
+        const existingScore = existingSnap.exists ? (existingSnap.data().points || existingSnap.data().score || 0) : 0;
+        const finalScore = Math.max(points, existingScore);
+        const finalPct = finalScore * 10;
 
-        if (points >= existingScore || !existingSnap.exists) {
-          const payload = {
-            student_id: AppState.studentId,
-            student_name: AppState.studentName,
-            email: AppState.studentEmail,
-            period: AppState.classPeriod,
-            class_period: AppState.classPeriod,
-            points: points,
-            max_points: 10,
-            percent: pct,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            carSpecs: {
-              carName: document.getElementById('car-name')?.value || '',
-              cardOrientation: document.getElementById('card-orientation')?.value || 'vertical',
-              releaseHeight: parseFloat(document.getElementById('release-height')?.value) || 30
-            },
-            prediction: AppState.prediction || null,
-            predictionText: document.getElementById('prediction-reasoning')?.value || '',
-            fanTiers: {
-              fan0: { ...AppState.fanTiers.fan0 },
-              fan1: { ...AppState.fanTiers.fan1 },
-              fan2: { ...AppState.fanTiers.fan2 },
-              fan3: { ...AppState.fanTiers.fan3 }
-            },
-            fbdAnswers: {
-              check1: document.querySelector('input[name="fbd-check1"]:checked')?.value || null,
-              check2: document.querySelector('input[name="fbd-check2"]:checked')?.value || null
-            },
-            synthesis: {
-              q1: document.getElementById('synth-q1')?.value || '',
-              q2: document.getElementById('synth-q2')?.value || '',
-              q3: document.getElementById('synth-q3')?.value || ''
+        const formData = collectFormData();
+        const payload = {
+          student_id: AppState.studentId,
+          student_name: AppState.studentName || 'Student',
+          email: AppState.studentEmail || `${AppState.studentId}@orangeusd.org`,
+          period: formData.class_period,
+          class_period: formData.class_period,
+          points: finalScore,
+          score: finalScore,
+          max_points: 10,
+          maxScore: 10,
+          percent: finalPct,
+          percentage: finalPct,
+          isCompleted: finalScore >= 8,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          lastSavedAt: new Date().toISOString(),
+          // Full Telemetry and Answers
+          partners: formData.partners,
+          checklist: formData.checklist,
+          carSpecs: formData.carSpecs,
+          prediction: formData.prediction,
+          predictionText: formData.predictionText,
+          fanTiers: formData.fanTiers,
+          fbdAnswers: formData.fbdAnswers,
+          synthesis: formData.synthesis
+        };
+
+        // Recursive sanitizer to prevent undefined errors
+        function sanitizePayload(obj) {
+          if (!obj || typeof obj !== 'object') return;
+          Object.keys(obj).forEach(k => {
+            if (obj[k] === undefined) {
+              obj[k] = null;
+            } else if (obj[k] && typeof obj[k] === 'object' && !(obj[k] instanceof Date) && !('nanoseconds' in obj[k])) {
+              sanitizePayload(obj[k]);
             }
-          };
-
-          // Sanitize any potential undefined values
-          Object.keys(payload).forEach(k => {
-            if (payload[k] === undefined) payload[k] = null;
           });
+        }
+        sanitizePayload(payload);
 
-          await studentRef.set(payload, { merge: true });
+        await studentRef.set(payload, { merge: true });
 
-          playSound('fanfare');
-          if (typeof confetti === 'function') {
-            confetti({ particleCount: 80, spread: 70, origin: { y: 0.7 } });
+        // Sync to local storage draft
+        saveLocalDraft();
+        updateSaveIndicator('cloud', isExplicitSubmit ? 'Grade Synced' : 'Cloud Synced');
+
+        if (isExplicitSubmit) {
+          if (finalScore >= 8) {
+            playSound('fanfare');
+            if (typeof confetti === 'function') {
+              confetti({ particleCount: 80, spread: 70, origin: { y: 0.7 } });
+            }
+          } else {
+            playSound('ding');
           }
-          if (saveDot) saveDot.className = 'save-dot';
-          if (saveText) saveText.textContent = 'Grade Synced';
           if (statusMsg) {
-            statusMsg.innerHTML = `🎉 Grade of <strong style="color:var(--green);">${points}/10 (${pct}%)</strong> recorded in Google Classroom queue!`;
-          }
-        } else {
-          playSound('ding');
-          if (saveDot) saveDot.className = 'save-dot';
-          if (saveText) saveText.textContent = 'Prior High Maintained';
-          if (statusMsg) {
-            statusMsg.innerHTML = `Attempt verified (${points}/10). Your previous high score of <strong style="color:var(--green);">${existingScore}/10</strong> was retained.`;
+            statusMsg.innerHTML = `🎉 Grade of <strong style="color:var(--green);">${finalScore}/10 (${finalPct}%)</strong> recorded in Google Classroom queue!`;
           }
         }
       } catch (err) {
-        console.error('Submission error:', err);
-        if (saveDot) saveDot.className = 'save-dot';
-        if (saveText) saveText.textContent = 'Save Error';
-        if (statusMsg) statusMsg.innerHTML = `<span style="color:var(--red);">Error saving grade: ${err.message}</span>`;
+        console.error('Save progress error:', err);
+        updateSaveIndicator('error', 'Save Error');
+        if (isExplicitSubmit && statusMsg) {
+          statusMsg.innerHTML = `<span style="color:var(--red);">Error saving grade: ${err.message}</span>`;
+        }
       } finally {
         AppState.isSubmitting = false;
+      }
+    }
+
+    async function submitGradeToFirestore() {
+      await saveStudentProgress({ isExplicitSubmit: true });
+    }
+
+    function initAutoSaveHooks() {
+      const mainEl = document.querySelector('main');
+      if (mainEl) {
+        mainEl.addEventListener('input', () => {
+          triggerAutoSave();
+        });
+        mainEl.addEventListener('change', () => {
+          triggerAutoSave();
+        });
       }
     }
 
@@ -2463,11 +2748,16 @@
       initDesmos();
       initStage2Inputs();
       initStage3Inputs();
+      initAutoSaveHooks();
+
+      // Immediately restore from local storage draft before network
+      loadLocalDraft();
 
       const periodSelect = document.getElementById('station-period');
       if (periodSelect) {
         periodSelect.addEventListener('change', () => {
           AppState.classPeriod = parseInt(periodSelect.value, 10) || 1;
+          triggerAutoSave();
         });
       }
 

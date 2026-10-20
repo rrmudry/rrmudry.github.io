@@ -2,6 +2,29 @@
 
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
+## 2026-10-20 — Hot Wheels Multi-Day Continuous Autosave & Dual-Layer Persistence Fix (`Unit_2/hot_wheels_coasting/`, `Unit_2/hot_wheels_air_resistance/`)
+**Patterns Updated**: `cast-aligned-webapp-design.md`, `assignment-registry.md`.
+
+**Problem Resolved**:
+- Students' laboratory trial measurements, vehicle specifications, and predictions from Day 36 (`Unit_2/hot_wheels_coasting/index.html`) were lost overnight when students closed their Chromebooks without submitting Stage 5.
+- Root causes:
+  1. No continuous input auto-save: Firestore writes were deferred entirely to the final Stage 5 submit button.
+  2. No client-side `localStorage` caching for form state.
+  3. Incomplete cloud restoration in `loadExistingSubmission` (`weight_data.t0` was omitted; custom car names, checklist state, and champion data were not re-hydrated; Stage 5 retention card remained blank; `points >= existingScore` gate prevented draft updates if a student hadn't beaten prior high score).
+  4. Mismatched IDs in Day 37 fan lab (`test-car-name`, `test-card-orient` vs `car-name`, `card-orientation`) and non-functional prediction radios.
+
+**Changes Implemented**:
+- **Dual-Layer Persistence (Instant Local + Debounced Cloud)**:
+  - Instant `localStorage` serialization (`hw_coasting_draft_*`, `hw_air_resistance_draft_*`) on every single keystroke/change, guaranteeing zero data loss even if the Chromebook is abruptly shut or network drops.
+  - Debounced (1200ms) automatic Firestore cloud save on input for signed-in students with visual status dot indicators (`● Cloud Ready`, `● Saving Draft...`, `● Cloud Synced`, `● Saved Locally`).
+  - Score preservation rule: draft updates and answers are always merged without reducing a previously achieved higher score (`Math.max(currentScore, existingScore)`).
+  - Immediate local draft re-hydration on `DOMContentLoaded` before network latency, followed by cloud restoration on auth state resolution.
+  - Zero-data migration: if a student worked offline or before signing in, their local draft is automatically pushed to Firestore as soon as they sign in.
+- **Complete Re-hydration**:
+  - Restored baseline `t0` distance, custom car names, checklist checkboxes, prediction choices, character counts, and Tuesday retention card.
+- **Cross-Activity Continuity**:
+  - Day 37 (`Unit_2/hot_wheels_air_resistance/index.html`) automatically looks up the student's Day 36 champion car and baseline coasting distance from `student_results/unit2_day36_hot_wheels_coasting/students/{studentId}` and displays an interactive banner to load their baseline car into Day 37 fan testing.
+
 ## 2026-10-20 — Hot Wheels Wind Resistance & Air Brake Lab (`Unit_2/hot_wheels_air_resistance/index.html`)
 **Patterns Added**: `hot-wheels-wind-resistance-air-brake-lab.md`.
 **Patterns Updated**: `classroom-projection-and-high-contrast-theming.md`, `cast-aligned-webapp-design.md`, `assignment-registry.md`.
