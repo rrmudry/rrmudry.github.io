@@ -3,6 +3,19 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-19 — CAST Quantitative Calculations: Adaptive Setup Work & Enzyme Kinetics Rate Drop Alignment (`cast-data-practice/`)
+**Patterns Updated**: `cast-data-analysis-practice-suite.md`.
+
+**Changes**:
+- **Enzyme Kinetics Rate Drop Alignment**:
+  - Resolved contradiction in Scenario 3 where the prompt asked for rate drop ($\Delta\text{Rate} = \text{Rate}_{37} - \text{Rate}_{55} = 76.0\text{ mL/min}$), but the print worksheet hardcoded a slope fraction $\Delta y / \Delta x$ with denominator and requested `Calculated Rate (Slope): _______ mL/min`.
+  - Updated prompt to explicitly specify $\Delta y = \text{Rate}_{37} − \text{Rate}_{55}$.
+  - Added scenario-specific `blankSetupWork`: `Δy = Rate_37 − Rate_55 = ( _____ − _____ )`, `title`: `3. Calculating Change in Reaction Rate (Δy):`, and `calcLabel`: `Calculated Drop (Δy):`.
+- **Dynamic Worksheet & Interactive Stepper Adaptation**:
+  - Replaced hardcoded `3. Calculating Rate of Change (Slope):` and `Calculated Rate (Slope):` in `index.html` with dynamic `#pQ2Header` and `#pQ2Label`.
+  - Updated `syncPrintWorksheet()` in `app.js` to dynamically render `#pQ2Header`, `#pQ2Label`, and `#pQ2Work` (using `blankSetupWork` when blank or `formulaSetup` when completed), cleanly accommodating slopes ($\Delta y / \Delta x$), rate drops ($\Delta y$), and ratio factors ($d_2 / d_1$).
+  - Updated Step 2 in the interactive web UI and calculation verification feedback to reference the expected label rather than forcing generic "calculated slope".
+
 ## 2026-10-19 — CAST Printable Worksheet: Stacked Option Rows & Unbolded Typography (`cast-data-practice/`)
 **Patterns Updated**: `cast-data-analysis-practice-suite.md`.
 

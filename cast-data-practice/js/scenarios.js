@@ -273,6 +273,7 @@ High-resolution GPS telemetry and wheel optical encoders record the exact brakin
       quantitative: {
         id: "quant_q",
         type: "calculation",
+        title: "3. Calculating Distance Increase Factor:",
         prompt: "When initial speed doubles from 8.9 m/s (20 mph) to 17.9 m/s (40 mph), by what factor does the braking distance increase? (Divide distance at 17.9 m/s by distance at 8.9 m/s).",
         expectedValue: 4.0,
         tolerance: 0.2,
@@ -282,8 +283,10 @@ High-resolution GPS telemetry and wheel optical encoders record the exact brakin
           point1: { x: 8.9, y: 6.4, label: "Trial 2 (8.9 m/s, 6.4 m)" },
           point2: { x: 17.9, y: 25.6, label: "Trial 4 (17.9 m/s, 25.6 m)" },
           formulaSetup: "Factor = d₂ / d₁ = 25.6 m / 6.4 m = 4.0",
+          blankSetupWork: "Factor = d₂ / d₁ = ( _____ / _____ )",
           calculatedSlope: 4.0,
           slopeUnit: "ratio (4x)",
+          calcLabel: "Calculated Factor:",
           physicalMeaning: "Work-Energy relationship: Stopping distance scales quadratically (d ∝ v²)"
         }
       },
@@ -431,17 +434,20 @@ Uniform filter paper disks saturated with standardized bovine liver homogenate (
       quantitative: {
         id: "quant_q",
         type: "calculation",
-        prompt: "By how many mL/min did the reaction rate drop when temperature increased from the optimal 37°C to 55°C? (Calculate ΔRate = Rate_37 - Rate_55).",
+        title: "3. Calculating Change in Reaction Rate (Δy):",
+        prompt: "By how many mL/min did the reaction rate drop when temperature increased from the optimal 37°C to 55°C? (Calculate Δy = Rate_37 − Rate_55).",
         expectedValue: 76.0,
         tolerance: 1.0,
         unit: "mL/min",
-        hint: "Subtract the rate at 55°C (10.0 mL/min) from the rate at 37°C (86.0 mL/min): 86.0 - 10.0 = 76.0 mL/min.",
+        hint: "Subtract the rate at 55°C (10.0 mL/min) from the rate at 37°C (86.0 mL/min): Δy = 86.0 - 10.0 = 76.0 mL/min.",
         slopeSteps: {
           point1: { x: 37, y: 86.0, label: "Optimum (37°C, 86.0 mL/min)" },
           point2: { x: 55, y: 10.0, label: "Denaturation (55°C, 10.0 mL/min)" },
-          formulaSetup: "ΔRate = Rate_peak - Rate_high = 86.0 mL/min - 10.0 mL/min = 76.0 mL/min",
+          formulaSetup: "Δy = Rate_37 − Rate_55 = 86.0 mL/min − 10.0 mL/min = 76.0 mL/min",
+          blankSetupWork: "Δy = Rate_37 − Rate_55 = ( _____ − _____ )",
           calculatedSlope: 76.0,
           slopeUnit: "mL/min",
+          calcLabel: "Calculated Drop (Δy):",
           physicalMeaning: "Quantitative loss of enzymatic catalytic throughput due to thermal denaturation"
         }
       },
@@ -1071,6 +1077,7 @@ Radioactive isotope dating of the basalt cores determines the numerical age of o
       quantitative: {
         id: "quant_q",
         type: "calculation",
+        title: "3. Calculating Spreading Speed (Velocity):",
         prompt: "Calculate the spreading speed of the East Pacific Rise in km per million years (km/Ma) using the data at 500 km (Distance / Age).",
         expectedValue: 66.67,
         tolerance: 2.0,
@@ -1080,8 +1087,10 @@ Radioactive isotope dating of the basalt cores determines the numerical age of o
           point1: { x: 0, y: 0.0, label: "Rift Axis (0 km, 0 Ma)" },
           point2: { x: 500, y: 7.5, label: "Outer Crust (500 km, 7.5 Ma)" },
           formulaSetup: "Velocity = Distance / Age = 500 km / 7.5 Ma ≈ 66.67 km/Ma",
+          blankSetupWork: "Velocity = Distance / Age = ( _____ / _____ )",
           calculatedSlope: 66.67,
           slopeUnit: "km/Ma",
+          calcLabel: "Calculated Speed:",
           physicalMeaning: "Tectonic plate divergence velocity: ~66.7 km/Ma (equivalent to 6.67 cm/year)"
         }
       },
@@ -1229,7 +1238,8 @@ The dataset quantifies historical trends in anthropogenic greenhouse gas forcing
       quantitative: {
         id: "quant_q",
         type: "calculation",
-        prompt: "Calculate the total change in global temperature anomaly (ΔT = T_2020 - T_1960) over the 60-year observation span between 1960 and 2020.",
+        title: "3. Calculating Total Temperature Change (ΔT):",
+        prompt: "Calculate the total change in global temperature anomaly (ΔT = T_2020 − T_1960) over the 60-year observation span between 1960 and 2020.",
         expectedValue: 0.99,
         tolerance: 0.03,
         unit: "°C",
@@ -1237,9 +1247,11 @@ The dataset quantifies historical trends in anthropogenic greenhouse gas forcing
         slopeSteps: {
           point1: { x: 317, y: 0.03, label: "1960 Baseline (317 ppm, +0.03°C)" },
           point2: { x: 414, y: 1.02, label: "2020 Modern (414 ppm, +1.02°C)" },
-          formulaSetup: "Slope = ΔT / ΔCO₂ = (1.02°C - 0.03°C) / (414 ppm - 317 ppm) = 0.99 / 97 ≈ 0.0102",
+          formulaSetup: "ΔT = T_2020 − T_1960 = 1.02°C − 0.03°C = 0.99°C",
+          blankSetupWork: "ΔT = T_2020 − T_1960 = ( _____ − _____ )",
           calculatedSlope: 0.99,
           slopeUnit: "°C (Total ΔT)",
+          calcLabel: "Calculated Change (ΔT):",
           physicalMeaning: "Transient climate sensitivity: ~0.10°C global warming per 10 ppm increase in atmospheric CO₂"
         }
       },

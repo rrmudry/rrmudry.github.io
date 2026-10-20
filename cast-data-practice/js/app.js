@@ -586,6 +586,15 @@ function renderStepQuestions(scenario, resp) {
   const quantInput = document.getElementById("quantInput");
   const quantUnit = document.getElementById("quantUnit");
   const quantFeedback = document.getElementById("quantFeedback");
+  const part3Title = document.querySelector("#panelStep-2 .card-title");
+
+  if (part3Title) {
+    if (scenario.questions.quantitative.title) {
+      part3Title.textContent = "🧮 " + scenario.questions.quantitative.title.replace(/^\d+\.\s*/, "");
+    } else {
+      part3Title.textContent = "🧮 Part 3: Calculating Rate of Change";
+    }
+  }
 
   if (slopeSteps) {
     if (slopeCoordDisplay) slopeCoordDisplay.textContent = `${slopeSteps.point1.label}  •  ${slopeSteps.point2.label}`;
@@ -852,9 +861,12 @@ function checkQuantitativeCalculation(showAlert = true) {
 
   fb.className = `feedback-box show ${isCorrect ? 'feedback-correct' : 'feedback-incorrect'}`;
   if (isCorrect) {
+    const calcLabel = scenario.questions.quantitative.slopeSteps?.calcLabel 
+      ? scenario.questions.quantitative.slopeSteps.calcLabel.replace(/:$/, '').toLowerCase() 
+      : 'calculated value';
     fb.innerHTML = `
       <strong>✓ Calculation Verified! (+1 pt)</strong>
-      <p style="margin-top:0.35rem;">Excellent data analysis. Your rate of change matches the calculated slope (${target} ${scenario.questions.quantitative.unit}).</p>
+      <p style="margin-top:0.35rem;">Excellent data analysis. Your result matches the expected ${calcLabel} (${target} ${scenario.questions.quantitative.unit}).</p>
     `;
   } else {
     fb.innerHTML = `
@@ -2177,17 +2189,29 @@ function syncPrintWorksheet(mode = currentPrintMode) {
     }
   }
 
-  // Part 3: Rate of Change / Slope with Setup Work
+  // Part 3: Rate of Change / Quantitative Calculation with Setup Work
+  const pQ2Header = document.getElementById("pQ2Header");
   const pQ2Prompt = document.getElementById("pQ2Prompt");
   const pQ2Value = document.getElementById("pQ2Value");
   const pQ2Unit = document.getElementById("pQ2Unit");
   const pQ2Work = document.getElementById("pQ2Work");
-  if (pQ2Prompt) pQ2Prompt.textContent = stripHtml(scenario.questions.quantitative.prompt);
+  const pQ2Label = document.getElementById("pQ2Label");
+  const quantQ = scenario.questions.quantitative;
+
+  if (pQ2Header) {
+    pQ2Header.textContent = quantQ.title || "3. Calculating Rate of Change (Slope):";
+  }
+  if (pQ2Prompt) pQ2Prompt.textContent = stripHtml(quantQ.prompt);
   if (pQ2Value) pQ2Value.textContent = (!isBlank && resp.quantAnswer) ? resp.quantAnswer : "";
-  if (pQ2Unit) pQ2Unit.textContent = stripHtml(scenario.questions.quantitative.unit);
+  if (pQ2Unit) pQ2Unit.textContent = stripHtml(quantQ.unit);
+  if (pQ2Label) {
+    pQ2Label.textContent = quantQ.slopeSteps?.calcLabel || "Calculated Rate (Slope):";
+  }
   if (pQ2Work) {
-    if (!isBlank && scenario.questions.quantitative.slopeSteps?.formulaSetup) {
-      pQ2Work.textContent = scenario.questions.quantitative.slopeSteps.formulaSetup;
+    if (!isBlank && quantQ.slopeSteps?.formulaSetup) {
+      pQ2Work.textContent = quantQ.slopeSteps.formulaSetup;
+    } else if (quantQ.slopeSteps?.blankSetupWork) {
+      pQ2Work.textContent = quantQ.slopeSteps.blankSetupWork;
     } else {
       pQ2Work.textContent = "Δy / Δx = ( _____ − _____ ) / ( _____ − _____ )";
     }
