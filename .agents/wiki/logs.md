@@ -2,120 +2,28 @@
 
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
+## 2026-10-20 — Hot Wheels Wind Resistance & Air Brake Lab (`Unit_2/hot_wheels_air_resistance/index.html`)
+**Patterns Added**: `hot-wheels-wind-resistance-air-brake-lab.md`.
+**Patterns Updated**: `classroom-projection-and-high-contrast-theming.md`, `cast-aligned-webapp-design.md`, `assignment-registry.md`.
+
+**Changes**:
+- **Constructed Hot Wheels Wind Resistance & Air Brake Web Application (`Unit_2/hot_wheels_air_resistance/index.html`) for Periods 1, 2, 3**:
+  - Implemented 5 structured stages adapted for conceptual physics students exploring aerodynamic drag:
+    1. **Stage 1 (Air Brake & Headwind Fan Setup)**: Mounting an index card taped vertically or horizontally across the roof of the Hot Wheels car, placing a variable-speed floor fan facing directly down the track toward the car, and establishing a fair testing release height.
+    2. **Stage 2 (Predictions & Aerodynamic Hypotheses)**: Qualitative hypothesis selection (Hypothesis A: Higher fan speeds exert greater opposing air resistance force, stopping the car sooner; Hypothesis B: Car mass and momentum easily overpower wind; Hypothesis C: Wind only affects tall vehicles) with student-authored rationale and car/card spec tracking.
+    3. **Stage 3 (Fan Speed Data Collection & Visualizer)**: 4 fan speed tiers (Fan Off 0 m/s, Speed 1 Low ~1.5 m/s, Speed 2 Med ~3.0 m/s, Speed 3 High ~4.5 m/s) with 3 release trials each, dynamic average calculation, interactive HTML5 Canvas animated track runner with rotating fan blades and headwind streamlines, and real-time comparative bar chart.
+    4. **Stage 4 (Free-Body Diagram & Net Deceleration Force)**: Qualitative FBD highlighting that both rolling friction ($F_f$) and aerodynamic drag ($F_{\text{drag}}$) point backward in the same direction ($F_{\text{net}} = F_f + F_{\text{drag}}$), producing greater negative acceleration (deceleration) and tighter strobe dot spacing.
+    5. **Stage 5 (Synthesis & Grade Submission)**: 3 synthesis questions linking fan speed to deceleration rate, cross-sectional area, and real-world automotive efficiency, coupled to a 10-point auto-grading engine submitting directly to Firestore `student_results/unit2_day37_hot_wheels_air_resistance/students/{studentId}`.
+- **District Web Filter & Accessibility**:
+  - Zero `unpkg.com` and zero in-browser Babel; 100% clean audit on `node scripts/audit-web-filter-cdn.js`.
+  - High-Contrast Light Mode toggle (WCAG AAA) with dynamic canvas re-rendering.
+  - Universal Root Font Scaling (Normal `16px`, Large `19px`, Projector `23px`).
+  - Synthesized Web Audio API sound effects (no external audio assets).
+- **Curriculum Stores & Course Outline**:
+  - Updated Day 37 in `assets/lessons-data.js` with Hot Wheels Wind Resistance & Air Brake links, assignments, and resources.
+  - Refreshed site footer deployment timestamp via `node scripts/update-timestamp.js`.
 
 ## 2026-10-19 — CAST Printable Worksheet: Gold-Standard Architecture & Spacing Blueprint (`cast-data-practice/`)
-**Patterns Updated**: `cast-data-analysis-practice-suite.md`.
-
-**Changes**:
-- **Codified Gold-Standard Worksheet Specifications (Section 7)**:
-  - Documented complete architectural specifications for the 1-page letter portrait printable worksheet (`#printWorksheet`) in `cast-data-analysis-practice-suite.md`.
-  - Detailed the exact 10.36in vertical height budget: margins (`0.32in 0.40in`), Header (`~0.55in`), Investigation Setup (`~0.85in`), Evidence Grid (`2.25in`), Questions (`~6.50in`), Footer (`~0.20in`).
-  - Cataloged core spacing rules: `padding: 7px 11px;`, `.p-q-item { margin-bottom: 12px; font-size: 7.4pt; line-height: 1.30; }` preventing student visual overwhelm.
-  - Standardized option typography: unbolded regular weight (`font-weight: 400; color: #1e293b;`) for option text, monospace bold for checkboxes (`[ &nbsp; ]`), and mandatory stacked flex rows (`.p-mc-options-list`).
-  - Standardized adaptive quantitative setup work: authentic formula mapping (slope $\Delta y / \Delta x$, rate drop $\Delta y$, factor ratio $d_2 / d_1$) with zero fake division bars.
-  - Standardized CER flex writing box: `.p-cer-box` (`flex: 1`, min-height `1.35in`) with clean solid borders and dynamic height absorption.
-  - Synchronized AI Scenario Generator prompt schema in `cast-data-practice/js/app.js` to enforce `title`, `blankSetupWork`, and `calcLabel` for all future teacher-generated scenarios.
-
-## 2026-10-19 — CAST Quantitative Calculations: Adaptive Setup Work & Enzyme Kinetics Rate Drop Alignment (`cast-data-practice/`)
-**Patterns Updated**: `cast-data-analysis-practice-suite.md`.
-
-**Changes**:
-- **Enzyme Kinetics Rate Drop Alignment**:
-  - Resolved contradiction in Scenario 3 where the prompt asked for rate drop ($\Delta\text{Rate} = \text{Rate}_{37} - \text{Rate}_{55} = 76.0\text{ mL/min}$), but the print worksheet hardcoded a slope fraction $\Delta y / \Delta x$ with denominator and requested `Calculated Rate (Slope): _______ mL/min`.
-  - Updated prompt to explicitly specify $\Delta y = \text{Rate}_{37} − \text{Rate}_{55}$.
-  - Added scenario-specific `blankSetupWork`: `Δy = Rate_37 − Rate_55 = ( _____ − _____ )`, `title`: `3. Calculating Change in Reaction Rate (Δy):`, and `calcLabel`: `Calculated Drop (Δy):`.
-- **Dynamic Worksheet & Interactive Stepper Adaptation**:
-  - Replaced hardcoded `3. Calculating Rate of Change (Slope):` and `Calculated Rate (Slope):` in `index.html` with dynamic `#pQ2Header` and `#pQ2Label`.
-  - Updated `syncPrintWorksheet()` in `app.js` to dynamically render `#pQ2Header`, `#pQ2Label`, and `#pQ2Work` (using `blankSetupWork` when blank or `formulaSetup` when completed), cleanly accommodating slopes ($\Delta y / \Delta x$), rate drops ($\Delta y$), and ratio factors ($d_2 / d_1$).
-  - Updated Step 2 in the interactive web UI and calculation verification feedback to reference the expected label rather than forcing generic "calculated slope".
-
-## 2026-10-19 — CAST Printable Worksheet: Stacked Option Rows & Unbolded Typography (`cast-data-practice/`)
-**Patterns Updated**: `cast-data-analysis-practice-suite.md`.
-
-**Changes**:
-- **Dedicated Stacked Option Rows**:
-  - Replaced horizontal inline-wrapped checkbox options with dedicated, stacked row items (`.p-mc-options-list`, `.p-mc-option`).
-  - Added baseline alignment (`align-items: baseline; gap: 6px;`) so each choice is easy for students to scan on paper without horizontal clutter or awkward wrapping.
-- **Unbolded Regular Font Weight (`font-weight: 400`)**:
-  - Removed container `font-weight: 600` wrapper and hardcoded `Trend Selection:` bold label prefix from `#pQ1Answer` in `index.html`.
-  - Styled option text with regular weight (`.p-mc-text { font-weight: 400; color: #1e293b; }`) while keeping checkboxes distinct and bold (`.p-mc-checkbox { font-weight: 700; font-family: monospace; }`).
-  - Updated Question 5 multiple-choice options in `syncPrintWorksheet()` to also use normal unbolded font weight, stacking multi-word sentences vertically while keeping short numbers inline.
-- **Dynamic 1-Page Height Absorption**:
-  - Stacking 4 options adds ~0.25in to Question 2, which is dynamically absorbed by Question 4's `.p-cer-box` (`flex: 1`), maintaining the strict 1-page letter portrait budget (`10.36in`) with zero page spillover.
-
-## 2026-10-19 — CAST Scenario Studio: Printable Worksheet Space Budgeting & AI Prompt Sanitization (`cast-data-practice/`)
-**Patterns Updated**: `cast-data-analysis-practice-suite.md`.
-
-**Changes**:
-- **AI Scenario Generation Schema & Resilient Parser Fix**:
-  - **Root Cause**: During prompt edits, top-level schema keys (`title`, `xAxis`, `yAxis`, `dataTable`, `graphConfig`, `questions`) were inadvertently replaced with question-only instructions, causing Gemini to return JSON missing root properties like `title` and `dataTable`.
-  - **Complete Schema Restoration**: Restored the explicit top-level JSON schema in `systemInstruction` defining all root keys, table formats, and 5-part question properties.
-  - **Multi-Stage JSON Parser (`parseJsonText`)**: Added trailing comma cleanup and string quote literal newline sanitization (`sanitizeJsonString`) so multiline narrative paragraphs and loose commas from LLM outputs never crash `JSON.parse`.
-  - **Defensive Scenario Normalization**: Added robust fallbacks for missing titles, tables, rows, and all 5 question types (`anatomy`, `trend`, `quantitative`, `freeResponse`, `synthesis`) guaranteeing generation succeeds gracefully without throwing structure errors.
-  - **Extended Unit Tests**: Added test cases for trailing commas and multiline strings in `tests/test_cast_data_practice.js`, passing 100% green.
-- **Investigation Procedure & Apparatus Prompt Mandate (Zero Textbook Filler)**:
-  - Updated AI generation rules in `systemInstruction` to strictly demand a concrete experimental scenario: physical materials tested, exact method of manipulating the independent variable, instrumentation used to record the dependent variable, and controlled variables held constant.
-  - Explicitly banned theoretical textbook definitions and encyclopedic summaries (e.g. *"Understanding friction is crucial..."*).
-  - Clarified Question 3 to strictly require rate of change / slope calculations ($\Delta y / \Delta x$), preventing confusion with extrapolation.
-- **Section Header De-duplication**:
-  - Replaced redundant repeated title banner with clean, functional section header: `INVESTIGATION PROCEDURE & EXPERIMENTAL SETUP` across both HTML template and runtime sync.
-- **Questions Container Layout & Elimination of Bottom Void**:
-  - Attached `.p-q-cer` with `flex: 1; display: flex; flex-direction: column;` and `.p-cer-box` with `flex: 1; min-height: 1.35in;` allowing the CER writing box to dynamically absorb all leftover vertical space in `.p-questions-container`.
-  - Expanded question separation margins from `8.5px` to `12px` and prompt margins to `3px`, giving students comfortable, non-overwhelming breathing room between questions.
-  - Question 5 now docks naturally at the bottom of the container, eliminating the 2-inch empty white void at the bottom of the CAST Task section.
-- **Data Table Caption Truncation Fix**:
-  - Updated `.p-box-header span:first-child` to allow natural text wrapping (`white-space: normal; overflow: visible; font-size: 6.8pt;`), preventing long table captions from being cut off.
-- **Scientific Unit & Plain-Text Unicode Sanitization**:
-  - Enforced strict plain-text Unicode (`Δ`, `·`, `²`, `³`, `°C`) in AI generation instructions, removing prompt recommendations that previously caused literal `<strong>` tags to leak into JSON fields.
-  - Implemented `stripHtml()` sanitizer applied across titles, background narratives, questions, options, and tables.
-  - Added automatic unit injection for data table column headers (`colLabel (unit)`) when missing from AI outputs.
-- **Pedagogical Workspace & Typographical Polish**:
-  - Added structured slope calculation workspace for Question 3 (`Δy / Δx = ( ___ − ___ ) / ( ___ − ___ )`) alongside calculated rate line.
-  - Cleaned trendline math equations, replacing programming asterisks (`*`) with centered dots (`·`).
-  - Removed duplicate `"Rubric:"` text in the CER evidence rubric pill (`[ ____ / 4 Pts ]`).
-  - Fixed `"Score: / 8 Pts"` wrapping by applying `white-space: nowrap` to score labels and student header fields.
-- **Verification & Deployment**:
-  - All tests in `tests/test_cast_data_practice.js` passing 100%. Verified Firestore rules coverage and web filter compliance. Refreshed deployment timestamp.
-
-## 2026-10-19 — CAST Data Studio: Teacher Mode Whitelist Auth & AI Scenario Generator (`cast-data-practice/`)
-**Patterns Updated**: `cast-data-analysis-practice-suite.md`.
-
-**Changes**:
-- **Teacher Mode Google Whitelist Authentication**:
-  - Gated access to **🛠️ Teacher Mode** exclusively to verified science department faculty via Google sign-in.
-  - Implemented 10-teacher whitelist validation:
-    `cchurney@orangeusd.org`, `ashue@orangeusd.org`, `avelasquez@orangeusd.org`, `egerbasi@orangeusd.org`, `jricupito@orangeusd.org`, `jbowling@orangeusd.org`, `lluna@orangeusd.org`, `oroot@orangeusd.org`, `scourtney@orangeusd.org`, `rmudry@orangeusd.org`.
-  - Seamless auth flow: If unauthenticated, prompts to sign in with district `@orangeusd.org` Google account; validates email case-insensitively and blocks unauthorized accounts with a clear restriction modal.
-  - Displays authenticated teacher email and verified faculty badge in the Studio modal header.
-- **AI CAST Scenario Generator (Option B - Shared Proxy & Gemini)**:
-  - Added AI Scenario Generator card in `#teacherModal` allowing teachers to enter any topic/phenomenon (or pick quick ideas: *Hooke's Law*, *Enzyme vs pH*, *Boyle's Law*, *Ocean Acidification*).
-  - Automatically queries Firestore `system_config/chat_config` (`chatProxyUrl`) to call Gemini through the shared proxy (with localStorage API key fallback).
-  - Generates comprehensive 5-part CAST performance tasks conforming to strict repository standards (No-LaTeX Unicode, Lexile background, controlled variables, data table, anatomy reading, trend analysis, guided slope, scaffolded CER with sentence frames, and synthesis misconception diagnostics).
-  - Auto-populates builder form fields, adds scenario to active dropdown, saves to `localStorage`, and provides direct action buttons to view in-app or print clean 1-page blank student worksheets.
-- **Testing & Audits**:
-  - Extended `tests/test_cast_data_practice.js` testing all 10 teacher emails, case-insensitivity, space trimming, unauthorized rejection, and markdown JSON parsing. 100% green pass.
-  - Verified `scripts/audit-firestore-rules-coverage.js` and `scripts/audit-web-filter-cdn.js`. Refreshed site footer deployment timestamp.
-
-## 2026-10-19 — CAST Data Analysis & Graphing Practice Suite: Active 5-Part Pedagogical Transformation (`cast-data-practice/`)
-**Patterns Updated**: `cast-data-analysis-practice-suite.md`.
-
-**Changes**:
-- **Upgraded Pedagogical Architecture from 4-Step Sheet to Active 5-Part Learning Tool (8 Points Total)**:
-  1. **Phenomenon Narrative & Controlled Variables**: High-rigor Lexile narratives (1200L–1350L) with explicit `controlledVariables` arrays and `calibratedInstrumentation` specifications rendered in dedicated UI callouts.
-  2. **Part 1 (Graph Reading & Anatomy - Decoding Mechanics, 1 pt)**: Independent/dependent variable identification, interactive coordinate locator reading with tolerance checking, and physical intercept meaning with conceptual multiple-choice items.
-  3. **Part 2 (Mathematical Trend Identification - SEP 4, 1 pt)**: Direct linear, inverse, quadratic growth, or plateau saturation pattern analysis.
-  4. **Part 3 (Guided Mathematical Modeling & Slope - SEP 5, 1 pt)**: Step-by-step slope setup (coordinate points, formula $\Delta y / \Delta x$, combined units, physical rate meaning) with calculation check.
-  5. **Part 4 (Scaffolded Scientific Argumentation - SEP 7, 4 pts)**: Scaffolded CER with toggleable sentence frames (Claim, Evidence, Reasoning) and real-time automated 4-point `EvidenceChecker` rubric.
-  6. **Part 5 (Synthesis & Misconception Diagnostics, 1 pt)**: Mathematical extrapolation beyond the tested range paired with immediate formative misconception diagnostic check and debunking explanations.
-- **Scenarios & Testing**:
-  - Upgraded all 8 comprehensive high school scenarios across Physics, Biology, Chemistry, and Earth & Space science in `cast-data-practice/js/scenarios.js`.
-  - Expanded `tests/test_cast_data_practice.js` asserting all schema additions (`controlledVariables`, `calibratedInstrumentation`, `anatomy`, `slopeSteps`, `sentenceFrames`, `diagnosticPrompt`), passing 100% green.
-- **Honors 1-Page Printable Worksheet (`@media print`)**:
-  - Synchronized print layout to dynamically populate the 5-part question structure and 8-point rubric breakdown within the strict 1-page letter portrait budget without overflow.
-- **Firestore Student-Permission Law Compliance**:
-  - Writes directly to `practice_results/cast_data_practice/students/{studentId}` using email prefix with zero parent doc writes and zero undefined payload fields.
-- **Audits & Verification**:
-  - Passes `audit-firestore-rules-coverage.js` and test suite. Updated deployment timestamp.
 
 ## 2026-10-18 — Hot Wheels Coasting Baseline: Deceleration & Friction Webapp (`Unit_2/hot_wheels_coasting/index.html`)
 **Patterns Added**: `hot-wheels-coasting-deceleration-lab.md`.

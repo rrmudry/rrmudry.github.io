@@ -4230,9 +4230,9 @@ const lessonsData = [
     "type": "Activity / Discussion",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Resolve the classic Third Law paradox: Action-reaction pairs NEVER cancel each other out to prevent motion because they act on DIFFERENT objects; identify system boundaries to determine net external force. (Pacing Note: Periods 0, 4, 5, and 6 continue Day 2 of Cardstock Rocket Phase 2 Project: Controlled Variable Forensics, completing identical fabrication of Rocket A and B, verifying their isolated variable, and checking CM vs CP aerodynamic stability.)",
-    "activity": "System Boundary Diagramming Workshop: Students draw system boundaries around a walker, the ground, and the Earth, proving why the forward friction force from the ground on the person's feet is an unbalanced external force that accelerates the person forward. (Periods 0, 4, 5, 6 Project Studio): Rocket squads finalize fin attachment, nose ballast, and mass measurements, confirming aerodynamic stability (Center of Pressure behind Center of Mass) on the Phase 2 blueprint in preparation for tomorrow's launch.",
-    "essentialQuestion": "Why can't action-reaction force pairs ever cancel each other out to prevent motion?",
+    "summary": "Resolve the classic Third Law paradox: Action-reaction pairs NEVER cancel each other out to prevent motion because they act on DIFFERENT objects; identify system boundaries to determine net external force. (Pacing Note: Conceptual Physics Periods 1, 2, and 3 conduct the Hot Wheels Wind Resistance & Air Brake Investigation, mounting an index card air brake on their cars and measuring stopping distance against a variable-speed fan to quantify air resistance and net deceleration forces. Periods 0, 4, 5, and 6 continue Day 2 of Cardstock Rocket Phase 2 Project: Controlled Variable Forensics.)",
+    "activity": "Hot Wheels Wind Resistance & Air Brake Lab (Periods 1, 2, 3): Students tape an index card sail to the roof of their Hot Wheels car as an air brake, launch from a standardized ramp toward a variable-speed fan, and record stopping distance across 4 fan speed tiers (Off, Low, Med, High) to analyze how aerodynamic drag increases deceleration and shortens coasting distance. (Periods 0, 4, 5, 6 Project Studio): Rocket squads finalize fin attachment, nose ballast, and mass measurements, confirming aerodynamic stability on the Phase 2 blueprint in preparation for tomorrow's launch.",
+    "essentialQuestion": "Why can't action-reaction force pairs ever cancel each other out, and how does aerodynamic drag add to friction to decelerate a moving vehicle?",
     "standards": [
       "HS-PS2-1",
       "HS-ETS1-2",
@@ -4240,10 +4240,10 @@ const lessonsData = [
     ],
     "wicor": {
       "Writing": "Writing a formal logical refutation of the horse's argument in the Horse-Cart dilemma.",
-      "Inquiry": "Drawing system boundaries to isolate internal forces from external accelerating forces.",
-      "Collaboration": "Debate teams representing the Horse (skeptic) vs the Farmer (physicist).",
-      "Organization": "Constructing dual Free-Body Diagrams highlighting which forces act on which specific body.",
-      "Reading": "Reading the philosophical and mathematical text of the Horse-Cart paradox."
+      "Inquiry": "Drawing system boundaries and measuring stopping distances across multiple fan wind speeds.",
+      "Collaboration": "Lab squads managing track launch alignment, fan speed adjustments, and tape-measure stopping positions.",
+      "Organization": "Constructing dual Free-Body Diagrams highlighting friction and aerodynamic drag opposing motion.",
+      "Reading": "Reading the philosophical and mathematical text of the Horse-Cart paradox and aerodynamic drag."
     },
     "bellRinger": {
       "type": "free_response",
@@ -4252,10 +4252,20 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Hot Wheels Wind Resistance & Air Brake Lab (Periods 1, 2, 3)": "Unit_2/hot_wheels_air_resistance/index.html",
       "Cardstock Rocket Phase 2 (Periods 0, 4, 5, 6)": "Unit_2/rocket_phase2/index.html",
       "System Boundaries Guide": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing"
     },
     "assignments": [
+      {
+        "title": "Hot Wheels Wind Resistance & Air Brake Lab (Periods 1, 2, 3)",
+        "url": "Unit_2/hot_wheels_air_resistance/index.html",
+        "typeLabel": "Laboratory Investigation",
+        "submission": "Auto-Saved on Google Sign-In (10 pts) / Turn In in Classroom",
+        "actionLabel": "Launch Wind Resistance Lab ↗",
+        "description": "Periods 1, 2, 3: Tape an index card air brake to the roof of your car, roll down the ramp into opposing fan wind, collect distance data across 4 fan speed settings, and analyze net deceleration force (F_net = F_f + F_drag).",
+        "status": "active"
+      },
       {
         "title": "Cardstock Rocket Phase 2: Controlled Variable Forensics (Periods 0, 4, 5, 6)",
         "url": "Unit_2/rocket_phase2/index.html",
@@ -4276,6 +4286,12 @@ const lessonsData = [
     ],
     "resources": [
       {
+        "title": "Hot Wheels Wind Resistance & Air Brake Studio (Periods 1, 2, 3)",
+        "url": "Unit_2/hot_wheels_air_resistance/index.html",
+        "typeLabel": "Interactive Lab Workbench",
+        "description": "Periods 1, 2, 3: Standardized fan track setup, 4 wind speed tiers, dynamic bar graphing, and deceleration FBD analysis."
+      },
+      {
         "title": "Cardstock Rocket Phase 2 Studio (Periods 0, 4, 5, 6)",
         "url": "Unit_2/rocket_phase2/index.html",
         "typeLabel": "Interactive CAD & Satellite Map",
@@ -4289,6 +4305,12 @@ const lessonsData = [
       }
     ],
     "practice": [
+      {
+        "title": "Hot Wheels Wind Resistance & Drag Visualizer (Periods 1, 2, 3)",
+        "url": "Unit_2/hot_wheels_air_resistance/index.html",
+        "typeLabel": "Aerodynamics Sandbox",
+        "description": "Periods 1, 2, 3: Explore how opposing wind speed and air brake cross-sectional area increase deceleration and shorten stopping distance."
+      },
       {
         "title": "Rocket Phase 2 Telemetry & Blueprint (Periods 0, 4, 5, 6)",
         "url": "Unit_2/rocket_phase2/index.html",
