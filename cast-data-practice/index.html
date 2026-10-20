@@ -132,6 +132,7 @@
 
         <div class="meta-tags-row">
           <span class="badge" id="gradeBadge" style="display:none; background:rgba(99, 102, 241, 0.15); color:var(--accent-purple); border:1px solid rgba(99, 102, 241, 0.35); font-weight:700;">🎒 Middle School</span>
+          <span class="badge" id="multiSeriesBadge" style="display:none; background:rgba(234, 88, 12, 0.15); color:var(--accent-orange, #ea580c); border:1px solid rgba(234, 88, 12, 0.35); font-weight:700;">📈 2 Datasets</span>
           <span class="badge" id="ngssBadge" style="background:var(--bg-card-subtle); color:var(--text-main);">HS-PS2-1</span>
           <span class="badge" id="sepBadge" style="background:var(--bg-card-subtle); color:var(--text-main);">SEP-4: Data Analysis</span>
           <span class="badge" id="cccBadge" style="background:var(--bg-card-subtle); color:var(--text-main);">CCC-1: Patterns</span>
@@ -673,8 +674,8 @@
               </div>
             </div>
 
-            <!-- Grade Level / Rigor & Special Requests -->
-            <div class="form-grid-2" style="margin-top:0.35rem;">
+            <!-- Grade Level / Rigor, Datasets & Special Requests -->
+            <div class="form-grid-3" style="margin-top:0.35rem;">
               <div class="form-group" style="margin-bottom:0.4rem;">
                 <label for="aiGradeLevelSelect">Target Grade / Rigor Level:</label>
                 <select id="aiGradeLevelSelect" class="form-input">
@@ -686,9 +687,17 @@
                 </select>
               </div>
               <div class="form-group" style="margin-bottom:0.4rem;">
+                <label for="aiDatasetsSelect">Number of Datasets (Series):</label>
+                <select id="aiDatasetsSelect" class="form-input">
+                  <option value="1" selected>📊 1 Dataset (Single Series)</option>
+                  <option value="2">📈 2 Datasets (Comparative Multi-Series)</option>
+                  <option value="3">📈 3 Datasets (3-Condition Comparative)</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom:0.4rem;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <label for="aiSpecialRequestsInput">Special Requests / Custom Instructions (optional):</label>
-                  <span style="font-size:0.68rem; color:var(--text-muted);">e.g., lower grade level, integers only</span>
+                  <label for="aiSpecialRequestsInput">Special Requests (optional):</label>
+                  <span style="font-size:0.68rem; color:var(--text-muted);">e.g., integers only</span>
                 </div>
                 <input type="text" id="aiSpecialRequestsInput" class="form-input" placeholder="e.g., Lower to 7th grade, use whole numbers only, kitchen experiment...">
               </div>
@@ -705,7 +714,9 @@
 
             <!-- Quick Differentiation & Special Request Pills -->
             <div style="display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap; margin-bottom:0.75rem;">
-              <span style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">Special Request Presets:</span>
+              <span style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">Special Presets:</span>
+              <button type="button" class="btn btn-subtle-pill" onclick="setAiSpecialPreset('compare-2')">📈 2 Datasets (Comparative)</button>
+              <button type="button" class="btn btn-subtle-pill" onclick="setAiSpecialPreset('compare-3')">📊 3 Datasets</button>
               <button type="button" class="btn btn-subtle-pill" onclick="setAiSpecialPreset('lower-grade')">🎒 Lower to 7th-8th Grade</button>
               <button type="button" class="btn btn-subtle-pill" onclick="setAiSpecialPreset('integers-only')">🔢 Whole Numbers Only</button>
               <button type="button" class="btn btn-subtle-pill" onclick="setAiSpecialPreset('eld-support')">🗣️ ELD / Simple Vocabulary</button>
@@ -780,8 +791,26 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="teacherQuantExpectedInput">Expected Slope (Part 2):</label>
+            <label for="teacherDatasetsSelect">Datasets (Series):</label>
+            <select id="teacherDatasetsSelect" class="form-input">
+              <option value="1" selected>📊 1 Dataset (Single Series)</option>
+              <option value="2">📈 2 Datasets (Comparative Y1, Y2)</option>
+              <option value="3">📈 3 Datasets (Comparative Y1, Y2, Y3)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="teacherQuantExpectedInput">Expected Slope / Rate Value (Part 2):</label>
             <input type="number" step="any" id="teacherQuantExpectedInput" class="form-input" placeholder="e.g., 0.20">
+          </div>
+          <div class="form-group">
+            <label for="teacherXLabelInput">Independent Variable (X-Axis) Name & Unit:</label>
+            <div style="display:flex; gap:0.4rem;">
+              <input type="text" id="teacherXLabelInput" class="form-input" placeholder="Variable Name" style="flex:2;">
+              <input type="text" id="teacherXUnitInput" class="form-input" placeholder="Unit (e.g. N)" style="flex:1;">
+            </div>
           </div>
         </div>
 
@@ -790,26 +819,17 @@
           <textarea id="teacherBgTextarea" class="form-textarea" rows="3" placeholder="Describe the investigative context, controlled factors, and experimental procedure..."></textarea>
         </div>
 
-        <div class="form-grid-2">
-          <div class="form-group">
-            <label for="teacherXLabelInput">Independent Variable (X-Axis) Name & Unit:</label>
-            <div style="display:flex; gap:0.4rem;">
-              <input type="text" id="teacherXLabelInput" class="form-input" placeholder="Variable Name" style="flex:2;">
-              <input type="text" id="teacherXUnitInput" class="form-input" placeholder="Unit (e.g. N)" style="flex:1;">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="teacherYLabelInput">Dependent Variable (Y-Axis) Name & Unit:</label>
-            <div style="display:flex; gap:0.4rem;">
-              <input type="text" id="teacherYLabelInput" class="form-input" placeholder="Variable Name" style="flex:2;">
-              <input type="text" id="teacherYUnitInput" class="form-input" placeholder="Unit (e.g. m/s²)" style="flex:1;">
-            </div>
+        <div class="form-group">
+          <label for="teacherYLabelInput">Dependent Variable (Y-Axis) Name & Unit:</label>
+          <div style="display:flex; gap:0.4rem;">
+            <input type="text" id="teacherYLabelInput" class="form-input" placeholder="Variable Name (e.g. Acceleration, Reaction Rate, Crust Age)" style="flex:2;">
+            <input type="text" id="teacherYUnitInput" class="form-input" placeholder="Unit (e.g. m/s², Ma, mL/s)" style="flex:1;">
           </div>
         </div>
 
         <div class="form-group">
-          <label for="teacherDataRowsInput">Experimental Data Rows (Format: X, Y per line):</label>
-          <textarea id="teacherDataRowsInput" class="form-textarea" rows="4" placeholder="5, 1.0&#10;10, 2.0&#10;15, 3.0&#10;20, 4.0&#10;25, 5.0"></textarea>
+          <label for="teacherDataRowsInput">Experimental Data Rows (Format: X, Y for 1 dataset | X, Y1, Y2 for 2 datasets | X, Y1, Y2, Y3 for 3 datasets):</label>
+          <textarea id="teacherDataRowsInput" class="form-textarea" rows="4" placeholder="5, 1.0&#10;10, 2.0 (or for 2 datasets: 100, 5.0, 1.5)"></textarea>
         </div>
 
         <div class="form-group">

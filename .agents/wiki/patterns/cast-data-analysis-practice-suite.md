@@ -184,4 +184,38 @@ The printable student worksheet layout (`#printWorksheet`) represents the depart
 - `border-top: 1px solid #cbd5e1; padding-top: 2px; margin-top: 4px; font-size: 7pt; color: #64748b; display: flex; justify-content: space-between; align-items: center;`
 - Displays Orange High School Science Department branding and `Page 1 of 1`.
 
+---
+
+## 7. Multi-Dataset Tables & Comparative Multi-Series Graphing Architecture
+
+### 1. Pedagogical Rationale
+Real-world science investigations and CAST performance tasks frequently require students to compare two or three experimental conditions (e.g., rough vs. smooth surfaces, warm vs. cold solutions, or spreading rates of the Mid-Atlantic Ridge vs. East Pacific Rise). To enable authentic comparative data analysis:
+- Teachers can specify the number of datasets (1 Single Series, 2 Comparative Multi-Series, or 3 Three-Condition Comparative) directly in both the **AI Scenario Generator** and the **Manual Scenario Builder**.
+- One-click presets (`📈 2 Datasets (Comparative)` and `📊 3 Datasets`) instantly configure the generator.
+
+### 2. Multi-Dataset Schema Standard
+When multiple datasets are requested:
+- **`dataTable.columns`**: Contains 1 shared independent variable (X) column (`isX: true`) and $N$ separate dependent variable (Y) columns (`isY: true`), each stamped with scientific units and a matching `seriesId` (e.g. `series1`, `series2`, `series3`).
+- **`dataTable.rows`**: Each row object contains `trial`, `x`, and $N$ corresponding values: `y1`, `y2`, `y3` (or named keys like `atlantic`, `pacific`).
+- **`graphConfig.multiSeries: true`**:
+  - `graphConfig.series`: Array of series configs defining `id`, `key`, `label`, and `pointStyle` (`circle`, `triangle`, `rectRot`, `cross`, `star`).
+  - `equation`: Dual or comparative rate summary (e.g. `Condition A slope: m₁; Condition B slope: m₂`).
+  - `slopeMeaning`: Comparative physical rate interpretation.
+- **Comparative CER & Quantitative Prompts**: Prompt Question 3 and Question 4 specifically require students to compare the datasets and synthesize the contrasting trends.
+
+### 3. Dynamic Chart.js Graphing Engine
+`renderChart()` adapts dynamically without hardcoded column names:
+- **Dynamic X-Axis Detection**: Identifies the X-axis via column attribute `isX: true` (or numeric non-Y column fallback).
+- **Dynamic Y-Key Matching**: Extracts Y points by matching `sConfig.key`, `sConfig.id`, `yCols[idx].key`, or fallback `y1`/`y2`/`y3`.
+- **Projector-Safe 5-Color Saturated Palette**:
+  - Light mode: `["#0284c7", "#ea580c", "#10b981", "#7c3aed", "#e11d48"]` (ensures razor-sharp differentiation under overhead classroom projectors).
+  - Dark mode: `["#38bdf8", "#fb923c", "#34d399", "#c084fc", "#f43f5e"]`.
+- **Distinct Point Styles**: Circles, triangles, rotated rectangles, crosses, and stars ensure accessibility for colorblind students.
+
+### 4. UI Indicators & 1-Page Printable Worksheet Sync
+- **Metadata Badges**: Header displays `#multiSeriesBadge` (`📈 2 Datasets`) when a multi-series scenario is active.
+- **Dropdown Tagging**: Scenario dropdown prefixes multi-dataset items with `[2 Datasets]` or `[3 Datasets]`.
+- **1-Page Print Worksheet**: Dynamically renders all Y-columns in `.p-table` and captures the multi-series Chart.js canvas snapshot into `#pGraphImg` within the strict 10.36in page budget.
+
+
 

@@ -2,6 +2,35 @@
 
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
+
+## 2026-10-20 — CAST Data Analysis Practice Suite: Multi-Dataset Tables & Comparative Multi-Series Graphing (`cast-data-practice/`)
+**Patterns Updated**: `cast-data-analysis-practice-suite.md`.
+
+**Problem Addressed**:
+- Science teachers needed the ability to specify multiple datasets (e.g., 2 comparative series or 3-condition series) in the data table and plotted graph, matching authentic CAST comparative performance tasks (such as comparing rough vs. smooth surfaces, enzyme activity across multiple concentrations, or spreading rates across different mid-ocean ridges).
+
+**Changes Implemented**:
+- **Dataset Count Selector & Quick Presets**:
+  - Added `#aiDatasetsSelect` (1 Single Series, 2 Comparative Multi-Series, 3 Three-Condition Comparative) to the AI Scenario Studio modal.
+  - Added one-click quick presets: `📈 2 Datasets (Comparative)` and `📊 3 Datasets` to automatically set the selector and append instructional prompts.
+  - Added `#teacherDatasetsSelect` to the Manual Scenario Builder with multi-dataset CSV format guidance (`X, Y1, Y2` or `X, Y1, Y2, Y3`).
+- **Multi-Dataset Schema & AI Prompt Architecture**:
+  - Updated `buildAiPromptPayload()` to accept `datasetCount` and generate explicit multi-series rules:
+    - Data table schema with shared independent variable ($X$) column and $N$ dependent variable ($Y$) columns with `seriesId`.
+    - Data table rows containing `trial`, `x`, and $y_1, y_2, y_3$.
+    - `graphConfig.multiSeries: true` with series configurations (labels, IDs, distinct point styles).
+    - Comparative prompt instructions for Question 3 (quantitative rate comparison) and Question 4 (comparative CER).
+- **Dynamic Multi-Series Chart.js Graphing**:
+  - Generalizing `renderChart()` to dynamically detect the X-axis (`isX: true`) and plot multi-series datasets without hardcoded column names (fixing previous bug where `distance` was hardcoded).
+  - Implemented 5-color high-contrast saturated palette (`#0284c7`, `#ea580c`, `#10b981`, `#7c3aed`, `#e11d48`) with distinct point styles (`circle`, `triangle`, `rectRot`, `cross`, `star`) for projector readability and colorblind accessibility.
+- **UI & 1-Page Printable Sync**:
+  - Header displays `#multiSeriesBadge` (`📈 2 Datasets`) when a multi-dataset scenario is active.
+  - Scenario dropdown prefixes `[2 Datasets]` or `[3 Datasets]` tag.
+  - Honors 1-Page printable worksheet dynamically formats multi-column tables and captures multi-series graph canvas snapshots within the 10.36in height budget.
+- **Verification**:
+  - Added automated unit tests to `tests/test_cast_data_practice.js` covering 2-dataset and 3-dataset prompt payloads, presets, and resets.
+  - Ran `audit-firestore-rules-coverage.js` and `audit-web-filter-cdn.js` (100% compliant).
+
 ## 2026-10-20 — CAST Data Analysis Practice Suite: AI Investigation Special Requests & Target Grade-Level Adaptation (`cast-data-practice/`)
 **Patterns Updated**: `cast-data-analysis-practice-suite.md`.
 
