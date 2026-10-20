@@ -1162,6 +1162,12 @@ function setAiTopicExample(topic, discipline) {
   if (discSelect && discipline) discSelect.value = discipline;
 }
 
+// Helper to strip HTML tags from strings for clean printing and display
+function stripHtml(str) {
+  if (!str || typeof str !== "string") return str || "";
+  return str.replace(/<[^>]*>/g, "").trim();
+}
+
 // Helper to extract valid JSON from Gemini AI text output
 function parseJsonText(rawText) {
   if (!rawText) return null;
@@ -1251,109 +1257,17 @@ async function generateAiScenario() {
 Generate a complete, rigorous, standards-aligned science investigation and data analysis performance task based on the user's topic.
 
 CRITICAL RULES:
-1. STRICT NO-LATEX POLICY: Never use LaTeX syntax (e.g. no \\Delta, no \\frac, no \\vec, no $...$). Use standard plain text and Unicode symbols: Δ, ², ³, °, °C, x₀, v₀, m/s², and HTML <strong> for bold variables.
-2. CAST 5-PART ARCHITECTURE: Return a single valid JSON object containing:
-   - title: Engaging scientific title
-   - discipline: "${discipline}"
-   - disciplineBadge: "${discipline === "Physics" ? "⚛️ Physics" : (discipline === "Biology" ? "🌿 Biology" : (discipline === "Chemistry" ? "🧪 Chemistry" : "🌋 Earth & Space"))}"
-   - ngssCode: Relevant NGSS PE Code (e.g. HS-PS2-1, HS-LS1-5, HS-PS1-5, HS-ESS2-2)
-   - ngssTitle: NGSS Core Topic Title
-   - sep: "SEP-4: Analyzing and Interpreting Data"
-   - ccc: "CCC-1: Patterns"
-   - chartType: "scatter"
-   - xAxis: { label: string, symbol: string, unit: string, min: 0, suggestedMax: number }
-   - yAxis: { label: string, symbol: string, unit: string, min: 0, suggestedMax: number }
-   - background: 2 paragraphs explaining experimental context, procedure, and apparatus.
-   - controlledVariables: Array of 3-4 strings detailing specific controlled variables.
-   - calibratedInstrumentation: Array of 2-3 strings detailing precision sensors/instruments.
-   - dataTable: {
-       caption: "Table 1: Measured ...",
-       columns: [
-         { key: "trial", label: "Trial #", isText: true },
-         { key: "x", label: "...", isX: true, unit: "..." },
-         { key: "y", label: "...", isY: true, unit: "..." }
-       ],
-       rows: [
-         5 to 6 data rows with { trial: "Trial 1", x: number, y: number }
-       ]
-     }
-   - graphConfig: {
-       showBestFitDefault: true,
-       beginAtZero: true,
-       slope: number,
-       intercept: number,
-       r2: number (between 0.95 and 1.0),
-       equation: string (e.g. "y = m x + b"),
-       slopeMeaning: string explaining physical rate of change
-     }
-   - questions: {
-       anatomy: {
-         id: "anatomy_q",
-         independentVar: string,
-         dependentVar: string,
-         locatorPrompt: string asking to find a specific X value and read the corresponding Y value,
-         expectedLocatorValue: number (the Y value corresponding to that X),
-         locatorTolerance: number (e.g. 0.1 or 0.2),
-         locatorUnit: string,
-         interceptPrompt: string asking about the physical meaning of the intercept,
-         interceptOptions: [4 plausible multiple choice options],
-         interceptCorrectIndex: integer (0 to 3),
-         interceptExplanation: string
-       },
-       trend: {
-         id: "trend_q",
-         type: "multiple_choice",
-         prompt: string asking what mathematical pattern connects the variables,
-         options: [4 options such as direct linear, inverse, quadratic, no correlation],
-         correctIndex: integer (0 to 3),
-         explanation: string
-       },
-       quantitative: {
-         id: "quant_q",
-         type: "calculation",
-         prompt: string asking to calculate the rate of change / slope between two specific trials,
-         expectedValue: number (slope value),
-         tolerance: number (e.g. 0.05 or 0.1),
-         unit: string (e.g. "(unit_y) / (unit_x)"),
-         hint: string showing slope formula calculation,
-         slopeSteps: {
-           point1: { x: number, y: number, label: string },
-           point2: { x: number, y: number, label: string },
-           formulaSetup: string,
-           calculatedSlope: number,
-           slopeUnit: string,
-           physicalMeaning: string
-         }
-       },
-       freeResponse: {
-         id: "fr_q",
-         type: "cer",
-         prompt: "Construct a scientific explanation (Claim-Evidence-Reasoning) explaining the relationship between the variables. You must: (1) State a clear claim, (2) Cite at least TWO specific data points with units from the table or graph, (3) Compare values to show the rate of change, and (4) Explain the underlying scientific mechanism.",
-         targetNumbers: [array of numbers from the data table trials],
-         requiredUnits: [array of relevant lowercase unit strings],
-         claimKeywords: [array of 6-8 relevant claim words],
-         reasoningKeywords: [array of 6-8 relevant scientific mechanism words],
-         exemplar: string providing a 4/4 exemplary Claim-Evidence-Reasoning paragraph,
-         sentenceFrames: {
-           claimFrame: string,
-           evidenceFrame: string,
-           reasoningFrame: string
-         }
-       },
-       synthesis: {
-         id: "syn_q",
-         type: "multiple_choice",
-         prompt: string asking for an extrapolated prediction beyond the measured range,
-         options: [4 options],
-         correctIndex: integer (0 to 3),
-         explanation: string,
-         diagnosticPrompt: string presenting a common student misconception about this topic,
-         diagnosticOptions: [4 options],
-         diagnosticCorrectIndex: integer (0 to 3),
-         diagnosticExplanation: string
-       }
-     }
-3. OUTPUT FORMAT: Return ONLY the raw JSON object. No markdown code blocks, backticks, or preamble text.`;
+1. STRICT NO-LATEX & NO-RAW-HTML POLICY: Never use LaTeX syntax (no \\Delta, no \\frac, no \\vec, no $...$). Never include raw HTML tags (like <strong>, <b>, <span>) inside JSON strings for independentVar, dependentVar, prompts, or options. Return clean, plain text and standard Unicode symbols: Δ, ², ³, °, °C, x₀, v₀, m/s².
+2. CONCISE BACKGROUND NARRATIVE: Keep background narrative strictly between 50 and 80 words across 2 short paragraphs. Do NOT repeat the investigation title in the background narrative.
+3. DATA TABLE COLUMNS WITH UNITS: Column labels in dataTable MUST explicitly include their scientific units in parentheses, e.g. "Normal Force (N)" and "Kinetic Friction Force (N)".
+4. GRAPH EQUATION: Write clean math notation (e.g. "F_k = 0.402 · F_N" or "y = 0.402 x + 0.005") without programming asterisks '*' or unformatted computer syntax.
+5. 5-PART QUESTION ARCHITECTURE:
+   - anatomy: { id: "anatomy_q", independentVar: string, dependentVar: string, locatorPrompt: string, expectedLocatorValue: number, locatorTolerance: number, locatorUnit: string, interceptPrompt: string, interceptOptions: [4 options], interceptCorrectIndex: integer 0-3, interceptExplanation: string }
+   - trend: { id: "trend_q", type: "multiple_choice", prompt: string, options: [4 options], correctIndex: integer 0-3, explanation: string }
+   - quantitative: { id: "quant_q", type: "calculation", prompt: string, expectedValue: number, tolerance: number, unit: string, hint: string, slopeSteps: { point1: { x, y, label }, point2: { x, y, label }, formulaSetup: string, calculatedSlope: number, slopeUnit: string, physicalMeaning: string } }
+   - freeResponse: { id: "fr_q", type: "cer", prompt: string, targetNumbers: [number, ...], requiredUnits: [string, ...], claimKeywords: [string, ...], reasoningKeywords: [string, ...], exemplar: string, sentenceFrames: { claimFrame: string, evidenceFrame: string, reasoningFrame: string } }
+   - synthesis: { id: "syn_q", type: "multiple_choice", prompt: string, options: [4 distinct numerical/conceptual options formatted with units], correctIndex: integer 0-3, explanation: string, diagnosticPrompt: string, diagnosticOptions: [4 options], diagnosticCorrectIndex: integer 0-3, diagnosticExplanation: string }
+6. OUTPUT FORMAT: Return ONLY the raw JSON object. No markdown code blocks, backticks, or preamble text.`;
 
     const userPrompt = `Topic: "${topic}"\nDiscipline: "${discipline}"\nTarget: High School NGSS CAST Performance Task\nGenerate the complete JSON scenario object now.`;
 
@@ -1410,6 +1324,7 @@ CRITICAL RULES:
     // 3. Normalize & calibrate scenario properties
     const customId = `custom-ai-${Date.now()}`;
     scenario.id = customId;
+    scenario.title = stripHtml(scenario.title);
     if (!scenario.discipline) scenario.discipline = discipline;
     if (!scenario.disciplineBadge) {
       scenario.disciplineBadge = scenario.discipline === "Physics" ? "⚛️ Physics" : 
@@ -1422,6 +1337,54 @@ CRITICAL RULES:
 
     if (!scenario.xAxis) scenario.xAxis = { label: "Independent Variable", unit: "units", min: 0 };
     if (!scenario.yAxis) scenario.yAxis = { label: "Dependent Variable", unit: "units", min: 0 };
+    scenario.xAxis.label = stripHtml(scenario.xAxis.label);
+    scenario.yAxis.label = stripHtml(scenario.yAxis.label);
+
+    // Strip duplicated title from background if AI prepended it
+    if (scenario.background) {
+      let bg = scenario.background;
+      const titleClean = scenario.title;
+      if (bg.toLowerCase().startsWith(titleClean.toLowerCase())) {
+        bg = bg.slice(titleClean.length).replace(/^[:\s—–.-]+/, "");
+      }
+      bg = bg.replace(/^(?:[A-Z\s&]+INVESTIGATION\s*:\s*)?[A-Z\s,:—–-]+\.\s+/i, (match) => {
+        if (match.toLowerCase().includes("investigation") || (scenario.title && match.toLowerCase().includes(scenario.title.toLowerCase().slice(0, 15)))) {
+          return "";
+        }
+        return match;
+      });
+      scenario.background = bg.trim();
+    }
+
+    // Clean equation syntax
+    if (scenario.graphConfig?.equation) {
+      scenario.graphConfig.equation = scenario.graphConfig.equation.replace(/\s*\*\s*/g, " · ");
+    }
+
+    // Clean questions strings of raw HTML tags
+    if (scenario.questions?.anatomy) {
+      scenario.questions.anatomy.independentVar = stripHtml(scenario.questions.anatomy.independentVar);
+      scenario.questions.anatomy.dependentVar = stripHtml(scenario.questions.anatomy.dependentVar);
+      scenario.questions.anatomy.locatorPrompt = stripHtml(scenario.questions.anatomy.locatorPrompt);
+    }
+    if (scenario.questions?.trend) {
+      scenario.questions.trend.prompt = stripHtml(scenario.questions.trend.prompt);
+      if (Array.isArray(scenario.questions.trend.options)) {
+        scenario.questions.trend.options = scenario.questions.trend.options.map(opt => stripHtml(opt));
+      }
+    }
+    if (scenario.questions?.quantitative) {
+      scenario.questions.quantitative.prompt = stripHtml(scenario.questions.quantitative.prompt);
+    }
+    if (scenario.questions?.freeResponse) {
+      scenario.questions.freeResponse.prompt = stripHtml(scenario.questions.freeResponse.prompt);
+    }
+    if (scenario.questions?.synthesis) {
+      scenario.questions.synthesis.prompt = stripHtml(scenario.questions.synthesis.prompt);
+      if (Array.isArray(scenario.questions.synthesis.options)) {
+        scenario.questions.synthesis.options = scenario.questions.synthesis.options.map(opt => stripHtml(opt));
+      }
+    }
 
     scenario.dataTable.rows = scenario.dataTable.rows.map((r, i) => {
       const row = { trial: r.trial || `Trial ${i + 1}` };
@@ -1442,6 +1405,17 @@ CRITICAL RULES:
         { key: "x", label: `${scenario.xAxis.label} (${scenario.xAxis.unit})`, isX: true, unit: scenario.xAxis.unit },
         { key: "y", label: `${scenario.yAxis.label} (${scenario.yAxis.unit})`, isY: true, unit: scenario.yAxis.unit }
       ];
+    } else {
+      // Ensure existing columns explicitly display scientific units in parentheses
+      scenario.dataTable.columns = scenario.dataTable.columns.map(col => {
+        let lbl = stripHtml(col.label || "");
+        if (col.isX && scenario.xAxis?.unit && !lbl.includes("(") && !lbl.toLowerCase().includes(scenario.xAxis.unit.toLowerCase())) {
+          lbl = `${lbl} (${scenario.xAxis.unit})`;
+        } else if (col.isY && scenario.yAxis?.unit && !lbl.includes("(") && !lbl.toLowerCase().includes(scenario.yAxis.unit.toLowerCase())) {
+          lbl = `${lbl} (${scenario.yAxis.unit})`;
+        }
+        return { ...col, label: lbl };
+      });
     }
 
     // Populate manual builder form inputs
@@ -1755,17 +1729,36 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   // 2. Scenario Narrative
   const pScenarioTitle = document.getElementById("pScenarioTitle");
   const pScenarioText = document.getElementById("pScenarioText");
-  if (pScenarioTitle) pScenarioTitle.textContent = `${scenario.discipline.toUpperCase()} INVESTIGATION: ${scenario.title.toUpperCase()}`;
-  if (pScenarioText) pScenarioText.innerHTML = scenario.background;
+  if (pScenarioTitle) pScenarioTitle.textContent = `${scenario.discipline.toUpperCase()} INVESTIGATION: ${stripHtml(scenario.title).toUpperCase()}`;
+  if (pScenarioText) {
+    let cleanBg = stripHtml(scenario.background || "");
+    const titleClean = stripHtml(scenario.title || "");
+    if (cleanBg.toLowerCase().startsWith(titleClean.toLowerCase())) {
+      cleanBg = cleanBg.slice(titleClean.length).replace(/^[:\s—–.-]+/, "");
+    }
+    cleanBg = cleanBg.replace(/^(?:[A-Z\s&]+INVESTIGATION\s*:\s*)?[A-Z\s,:—–-]+\.\s+/i, (match) => {
+      if (match.toLowerCase().includes("investigation") || (scenario.title && match.toLowerCase().includes(scenario.title.toLowerCase().slice(0, 15)))) {
+        return "";
+      }
+      return match;
+    });
+    pScenarioText.textContent = cleanBg;
+  }
 
   // 3. Experimental Data Table
   const pTableCaption = document.getElementById("pTableCaption");
   const pTableWrapper = document.getElementById("pTableWrapper");
-  if (pTableCaption) pTableCaption.textContent = scenario.dataTable.caption;
+  if (pTableCaption) pTableCaption.textContent = stripHtml(scenario.dataTable.caption);
   if (pTableWrapper) {
     let tHtml = `<table class="p-table"><thead><tr>`;
     scenario.dataTable.columns.forEach(col => {
-      tHtml += `<th>${col.label}</th>`;
+      let colLabel = col.label;
+      if (col.isX && scenario.xAxis?.unit && !colLabel.includes("(") && !colLabel.toLowerCase().includes(scenario.xAxis.unit.toLowerCase())) {
+        colLabel = `${colLabel} (${scenario.xAxis.unit})`;
+      } else if (col.isY && scenario.yAxis?.unit && !colLabel.includes("(") && !colLabel.toLowerCase().includes(scenario.yAxis.unit.toLowerCase())) {
+        colLabel = `${colLabel} (${scenario.yAxis.unit})`;
+      }
+      tHtml += `<th>${stripHtml(colLabel)}</th>`;
     });
     tHtml += `</tr></thead><tbody>`;
     scenario.dataTable.rows.forEach(r => {
@@ -1784,7 +1777,11 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   // 4. Plotted Graph Image Snapshot
   const pGraphModelBadge = document.getElementById("pGraphModelBadge");
   const pGraphImg = document.getElementById("pGraphImg");
-  if (pGraphModelBadge) pGraphModelBadge.textContent = scenario.graphConfig.equation || "Model";
+  if (pGraphModelBadge) {
+    let eq = scenario.graphConfig.equation || "Model";
+    eq = eq.replace(/\s*\*\s*/g, " · ");
+    pGraphModelBadge.textContent = eq;
+  }
 
   if (chartInstance && pGraphImg) {
     const wasDark = currentTheme === "dark";
@@ -1807,34 +1804,42 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   const pQ0Value = document.getElementById("pQ0Value");
   const pQ0Unit = document.getElementById("pQ0Unit");
 
-  if (pQ0Prompt && anatomy) pQ0Prompt.textContent = anatomy.locatorPrompt;
-  if (pQ0X && anatomy) pQ0X.textContent = anatomy.independentVar;
-  if (pQ0Y && anatomy) pQ0Y.textContent = anatomy.dependentVar;
+  if (pQ0Prompt && anatomy) pQ0Prompt.textContent = stripHtml(anatomy.locatorPrompt);
+  if (pQ0X && anatomy) pQ0X.textContent = stripHtml(anatomy.independentVar);
+  if (pQ0Y && anatomy) pQ0Y.textContent = stripHtml(anatomy.dependentVar);
   if (pQ0Value) pQ0Value.textContent = (!isBlank && resp.anatomyLocatorAnswer) ? resp.anatomyLocatorAnswer : "";
-  if (pQ0Unit && anatomy) pQ0Unit.textContent = anatomy.locatorUnit;
+  if (pQ0Unit && anatomy) pQ0Unit.textContent = stripHtml(anatomy.locatorUnit);
 
   // Part 2: Trend Pattern
   const pQ1Prompt = document.getElementById("pQ1Prompt");
   const pQ1Answer = document.getElementById("pQ1Answer");
-  if (pQ1Prompt) pQ1Prompt.textContent = scenario.questions.trend.prompt;
+  if (pQ1Prompt) pQ1Prompt.textContent = stripHtml(scenario.questions.trend.prompt);
   if (pQ1Answer) {
     if (!isBlank && resp.trendAnswer !== null && scenario.questions.trend.options[resp.trendAnswer]) {
       const isCor = resp.scores.trend === 1;
-      pQ1Answer.innerHTML = `${scenario.questions.trend.options[resp.trendAnswer]} <span style="color:${isCor ? '#15803d' : '#b91c1c'}; font-weight:700;">(${isCor ? '✓ 1/1 pt' : '0/1 pt'})</span>`;
+      pQ1Answer.innerHTML = `${stripHtml(scenario.questions.trend.options[resp.trendAnswer])} <span style="color:${isCor ? '#15803d' : '#b91c1c'}; font-weight:700;">(${isCor ? '✓ 1/1 pt' : '0/1 pt'})</span>`;
     } else {
       // Clean standalone checkboxes for paper completion
-      const optionsHtml = scenario.questions.trend.options.map(opt => `[ ] ${opt}`).join("&nbsp;&nbsp;&nbsp;&nbsp;");
-      pQ1Answer.innerHTML = `<span style="color:#475569; font-size:7.5pt;">${optionsHtml}</span>`;
+      const optionsHtml = scenario.questions.trend.options.map(opt => `<strong>[ &nbsp; ]</strong> ${stripHtml(opt)}`).join("&nbsp;&nbsp;&nbsp;&nbsp;");
+      pQ1Answer.innerHTML = `<span style="color:#0f172a; font-size:7.4pt;">${optionsHtml}</span>`;
     }
   }
 
-  // Part 3: Rate of Change / Slope
+  // Part 3: Rate of Change / Slope with Setup Work
   const pQ2Prompt = document.getElementById("pQ2Prompt");
   const pQ2Value = document.getElementById("pQ2Value");
   const pQ2Unit = document.getElementById("pQ2Unit");
-  if (pQ2Prompt) pQ2Prompt.textContent = scenario.questions.quantitative.prompt;
+  const pQ2Work = document.getElementById("pQ2Work");
+  if (pQ2Prompt) pQ2Prompt.textContent = stripHtml(scenario.questions.quantitative.prompt);
   if (pQ2Value) pQ2Value.textContent = (!isBlank && resp.quantAnswer) ? resp.quantAnswer : "";
-  if (pQ2Unit) pQ2Unit.textContent = scenario.questions.quantitative.unit;
+  if (pQ2Unit) pQ2Unit.textContent = stripHtml(scenario.questions.quantitative.unit);
+  if (pQ2Work) {
+    if (!isBlank && scenario.questions.quantitative.slopeSteps?.formulaSetup) {
+      pQ2Work.textContent = scenario.questions.quantitative.slopeSteps.formulaSetup;
+    } else {
+      pQ2Work.textContent = "Δy / Δx = ( _____ − _____ ) / ( _____ − _____ )";
+    }
+  }
 
   // Part 4: Free Response CER & 4-Point Rubric Bar
   const pQ3Prompt = document.getElementById("pQ3Prompt");
@@ -1845,14 +1850,13 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   const pRubReasoning = document.getElementById("pRubReasoning");
   const pRubTotal = document.getElementById("pRubTotal");
 
-  if (pQ3Prompt) pQ3Prompt.textContent = scenario.questions.freeResponse.prompt;
+  if (pQ3Prompt) pQ3Prompt.textContent = stripHtml(scenario.questions.freeResponse.prompt);
   if (pCerText) {
     if (!isBlank && resp.frAnswer && resp.frAnswer.trim().length > 0) {
       pCerText.textContent = resp.frAnswer;
       pCerText.style.fontStyle = "normal";
       pCerText.style.color = "#0f172a";
     } else {
-      // Standalone blank worksheet: provide clean open writing box
       pCerText.innerHTML = "";
     }
   }
@@ -1876,22 +1880,26 @@ function syncPrintWorksheet(mode = currentPrintMode) {
     pRubReasoning.className = `p-rub-pill ${(!isBlank && cerResult.criteria[3].earned) ? 'passed' : ''}`;
   }
   if (pRubTotal) {
-    pRubTotal.textContent = !isBlank ? `${cerResult.score} / 4 Pts` : `Rubric: ____ / 4 Pts`;
+    pRubTotal.textContent = !isBlank ? `[ ${cerResult.score} / 4 Pts ]` : `[ ____ / 4 Pts ]`;
     pRubTotal.style.color = (!isBlank && cerResult.score >= 3) ? '#15803d' : '#0284c7';
   }
 
   // Part 5: Prediction & Real-World Application
   const pQ4Prompt = document.getElementById("pQ4Prompt");
   const pQ4Answer = document.getElementById("pQ4Answer");
-  if (pQ4Prompt) pQ4Prompt.textContent = scenario.questions.synthesis.prompt;
+  if (pQ4Prompt) pQ4Prompt.textContent = stripHtml(scenario.questions.synthesis.prompt);
   if (pQ4Answer) {
     if (!isBlank && resp.synAnswer !== null && scenario.questions.synthesis.options[resp.synAnswer]) {
       const isCor = resp.scores.syn === 1;
-      pQ4Answer.innerHTML = `${scenario.questions.synthesis.options[resp.synAnswer]} <span style="color:${isCor ? '#15803d' : '#b91c1c'}; font-weight:700;">(${isCor ? '✓ 1/1 pt' : '0/1 pt'})</span>`;
+      pQ4Answer.innerHTML = `${stripHtml(scenario.questions.synthesis.options[resp.synAnswer])} <span style="color:${isCor ? '#15803d' : '#b91c1c'}; font-weight:700;">(${isCor ? '✓ 1/1 pt' : '0/1 pt'})</span>`;
     } else {
-      // Standalone blank checkboxes for paper completion
-      const synHtml = scenario.questions.synthesis.options.map(opt => `[ ] ${opt}`).join("&nbsp;&nbsp;&nbsp;&nbsp;");
-      pQ4Answer.innerHTML = `<span style="color:#475569; font-size:7.5pt;">${synHtml}</span>`;
+      const synOpts = (scenario.questions.synthesis && Array.isArray(scenario.questions.synthesis.options)) ? scenario.questions.synthesis.options : [];
+      if (synOpts.length > 0) {
+        const synHtml = synOpts.map(opt => `<strong>[ &nbsp; ]</strong> ${stripHtml(opt)}`).join("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+        pQ4Answer.innerHTML = `<div style="color:#0f172a; font-size:7.4pt; margin-top:2px;">${synHtml}</div>`;
+      } else {
+        pQ4Answer.innerHTML = `<span style="color:#475569; font-size:7.4pt;">Prediction: _________________________________________________</span>`;
+      }
     }
   }
 

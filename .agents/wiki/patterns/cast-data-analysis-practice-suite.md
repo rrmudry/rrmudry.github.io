@@ -83,13 +83,26 @@ In adherence to repository security rules:
      - 5-part question architecture (Anatomy with locator & intercept decoding, Trend identification, Guided Slope calculation with step breakdown, Scaffolded CER with sentence frames & target evidence numbers, and Synthesis with diagnostic misconception check).
    - Auto-populates the builder form fields, adds the scenario to the active dropdown, saves to `localStorage`, and allows immediate in-app testing or 1-page blank worksheet printing.
 
-3. **Honors 1-Page Printable PDF Design**:
+3. **Honors 1-Page Printable PDF Design & Height Budgeting**:
    - Structured after `Honors_Kinematics_Graphing_Challenges_1_and_2.html` with a strict **1-Page Letter Portrait budget** (`height: 10.36in; max-height: 10.36in; margin: 0.32in 0.40in;`).
    - Clean, uncluttered visual hierarchy:
-     - Header block with Title, NGSS Performance Expectation badge, Student Name, Period, Date, and Score (`X / 8 Pts`).
-     - Background Phenomenon callout box with blue left accent bar (`border-left: 3.5px solid #0284c7; background: #f8fafc;`).
-     - Evidence Grid (`height: 2.75in`): Balanced side-by-side with Data Table on left (46%) and high-resolution base64 Graph snapshot on right (52%).
-     - Questions container with Parts 1–4, student's written CER explanation, and compact 4-Point Evidence Rubric pills (`[Claim: 1/1] [Evidence: 1/1] [Units: 1/1] [Reasoning: 1/1]`).
+     - Header block with Title, NGSS Performance Expectation badge, Student Name, Period, Date, and Score (`X / 8 Pts` with `white-space: nowrap`).
+     - Background Phenomenon callout box with blue left accent bar (`border-left: 3.5px solid #0284c7; background: #f8fafc; font-size: 7.1pt; max-height: 0.90in; line-height: 1.22;`).
+     - Evidence Grid (`height: 2.25in`): Balanced side-by-side with Data Table on left (46%) and high-resolution base64 Graph snapshot on right (52%, max-height `1.85in`). Reclaimed 0.50 vertical inches to ensure Question 5 options are never clipped.
+     - Questions container with 5 parts (`justify-content: space-between; padding: 5px 8px; margin-bottom: 5px;`):
+       - Question 1: Decoding Mechanics (Independent / Dependent variables + Coordinate Locator).
+       - Question 2: Trend Selection with clean checkboxes (`[ ]`).
+       - Question 3: Rate of Change Calculation with explicit Setup Work line (`Δy / Δx = ( ___ − ___ ) / ( ___ − ___ )`) to maintain productive pedagogical friction.
+       - Question 4: Student written CER explanation box (`0.72in` height) and compact 4-Point Evidence Rubric (`[ ____ / 4 Pts ]`).
+       - Question 5: Model Synthesis & Misconception Diagnostics with clean horizontal multiple-choice checkboxes (`[ ] A  [ ] B  [ ] C  [ ] D`).
      - Footer bar with Orange High School Science Department branding and `Page 1 of 1`.
    - Guarantees zero spillover onto page 2, whether printed with student answers or printed blank as a student classroom worksheet.
+
+---
+
+## 6. AI Prompt Engineering & Data Sanitization Pitfalls
+- **Raw HTML Tag Leakage**: If the AI prompt suggests HTML markup (e.g., `<strong>v</strong>`), the model may place literal tags into JSON string fields like `independentVar` or question prompts. When these are rendered via `.textContent`, the browser escapes them into visible text (e.g. `(<strong>F_N</strong>)`). The prompt now strictly enforces clean plain-text Unicode (`Δ`, `·`, `²`, `³`, `°C`), and client-side `stripHtml()` sanitizes all incoming fields during render.
+- **Verbose AI Background Narratives**: Models often produce 200–300 word backgrounds that repeat the scenario title and consume excessive vertical space on 1-page prints. Prompts are constrained to 50–80 words, title prefixes are stripped automatically, and the container is CSS-clamped to `0.90in`.
+- **Missing Data Table Units**: If the model supplies column headers without units (e.g. `Normal Force`), client-side normalization checks `col.isX` and `col.isY` against `xAxis.unit` and `yAxis.unit` and automatically appends ` (unit)` to guarantee complete scientific notation.
+- **Mathematical Equations**: Equations with programming asterisks (e.g. `y = 0.35 * x`) are sanitized to use standard multiplication dots (`y = 0.35 · x`) or standard algebraic notation.
 
