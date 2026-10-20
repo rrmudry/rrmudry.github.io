@@ -1,0 +1,2497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hot Wheels Wind Resistance &amp; Air Brake Lab • Periods 1, 2, 3</title>
+  <meta name="description" content="Hot Wheels Air Brake Investigation: Test the effect of fan wind speed against index card air sails on stopping distance. NGSS HS-PS2-1 inquiry lab for Conceptual Physics.">
+  <link rel="icon" type="image/svg+xml" href="../../assets/unit2-favicon.svg">
+
+  <!-- Google Fonts: Space Grotesk, Outfit, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Desmos Scientific Calculator API -->
+  <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+
+  <!-- Confetti Effects (Zero unpkg, official jsdelivr CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Firebase Compat SDKs (Zero unpkg, official Google gstatic CDN) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    /* =====================================================================
+       1. COLOR PALETTES & THEME TOKENS
+       ===================================================================== */
+    :root {
+      --bg-page: #070d19;
+      --bg-header: rgba(7, 13, 25, 0.95);
+      --bg-card: #0f172a;
+      --bg-card-hover: #17233d;
+      --bg-subcard: rgba(30, 41, 59, 0.7);
+      --bg-input: #0b1324;
+      --border: rgba(56, 189, 248, 0.25);
+      --border-strong: rgba(56, 189, 248, 0.6);
+      --border-subtle: rgba(255, 255, 255, 0.1);
+
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      /* Hot Wheels Racing Palette */
+      --orange: #f97316;
+      --orange-glow: rgba(249, 115, 22, 0.3);
+      --flame-yellow: #facc15;
+      --cyan: #38bdf8;
+      --cyan-glow: rgba(56, 189, 248, 0.25);
+      --green: #34d399;
+      --green-bg: rgba(52, 211, 153, 0.12);
+      --red: #fb7185;
+      --red-bg: rgba(251, 113, 133, 0.12);
+      --amber: #fbbf24;
+      --amber-bg: rgba(251, 191, 36, 0.12);
+      --purple: #c084fc;
+
+      --canvas-bg: #0b1426;
+      --canvas-track: #1e293b;
+      --canvas-grid: rgba(255, 255, 255, 0.08);
+      --canvas-text: #e2e8f0;
+      --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.35);
+    }
+
+    /* HIGH-CONTRAST LIGHT THEME (WCAG AAA Compliance >14:1) */
+    html.theme-light {
+      --bg-page: #f1f5f9;
+      --bg-header: rgba(255, 255, 255, 0.97);
+      --bg-card: #ffffff;
+      --bg-card-hover: #f8fafc;
+      --bg-subcard: #f8fafc;
+      --bg-input: #ffffff;
+      --border: #cbd5e1;
+      --border-strong: #0284c7;
+      --border-subtle: #e2e8f0;
+
+      /* Near-black ink slate text */
+      --text: #0f172a;
+      --text-muted: #334155;
+      --text-dim: #64748b;
+
+      /* Deep saturated accents */
+      --orange: #ea580c;
+      --orange-glow: rgba(234, 88, 12, 0.2);
+      --flame-yellow: #ca8a04;
+      --cyan: #0284c7;
+      --cyan-glow: rgba(2, 132, 199, 0.18);
+      --green: #047857;
+      --green-bg: #ecfdf5;
+      --red: #be123c;
+      --red-bg: #fff1f2;
+      --amber: #b45309;
+      --amber-bg: #fffbeb;
+      --purple: #7e22ce;
+
+      --canvas-bg: #ffffff;
+      --canvas-track: #cbd5e1;
+      --canvas-grid: rgba(0, 0, 0, 0.08);
+      --canvas-text: #0f172a;
+      --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Universal Root Font Scaling (Projector Mode) */
+    * { box-sizing: border-box; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    html.font-large { font-size: 19px; }
+    html.font-huge { font-size: 23px; }
+
+    body {
+      margin: 0;
+      background: var(--bg-page);
+      color: var(--text);
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.45;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .font-display { font-family: 'Space Grotesk', sans-serif; }
+
+    /* =====================================================================
+       2. HEADER & STICKY CONTROLS
+       ===================================================================== */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+    }
+
+    .header-bar {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.65rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-logo-icon {
+      font-size: 1.8rem;
+      filter: drop-shadow(0 0 10px var(--orange-glow));
+    }
+
+    .brand-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+
+    .brand-subtitle {
+      font-size: 0.72rem;
+      color: var(--orange);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-header {
+      padding: 0.4rem 0.75rem;
+      border-radius: 0.65rem;
+      background: var(--bg-subcard);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .btn-header:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--cyan);
+      transform: translateY(-1px);
+    }
+
+    .btn-header:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--orange), #d97706);
+      color: #ffffff;
+      border: none;
+      box-shadow: 0 4px 14px var(--orange-glow);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.1);
+      border: none;
+    }
+
+    /* Save Indicator */
+    .save-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 0.65rem;
+      background: var(--bg-subcard);
+      border: 1px solid var(--border);
+      font-size: 0.7rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-muted);
+    }
+
+    .save-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+    }
+
+    .save-dot.syncing {
+      background: var(--amber);
+      box-shadow: 0 0 8px var(--amber);
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+    }
+
+    /* =====================================================================
+       3. STEPPER PROGRESS BAR (Zero-Scroll Sticky Navigation)
+       ===================================================================== */
+    .nav-stepper-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.45rem 1rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .nav-stepper {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 0.4rem;
+    }
+
+    .step-btn {
+      padding: 0.5rem 0.4rem;
+      border-radius: 0.6rem;
+      background: var(--bg-subcard);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .step-btn span.step-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+    }
+
+    .step-btn.active {
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.25), rgba(56, 189, 248, 0.2));
+      border-color: var(--orange);
+      color: var(--text);
+      box-shadow: 0 0 12px var(--orange-glow);
+    }
+
+    .step-btn.completed {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    /* =====================================================================
+       4. MAIN CONTAINER & GLASS CARDS
+       ===================================================================== */
+    main {
+      flex: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+      width: 100%;
+    }
+
+    .glass-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 1.5rem;
+      transition: border-color 0.2s ease;
+    }
+
+    .glass-card:hover {
+      border-color: var(--border-strong);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 0.5rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      border: 1px solid transparent;
+    }
+
+    .badge-orange {
+      background: rgba(249, 115, 22, 0.15);
+      color: var(--orange);
+      border-color: rgba(249, 115, 22, 0.35);
+    }
+
+    .badge-cyan {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--cyan);
+      border-color: rgba(56, 189, 248, 0.35);
+    }
+
+    .badge-green {
+      background: var(--green-bg);
+      color: var(--green);
+      border-color: rgba(52, 211, 153, 0.35);
+    }
+
+    .badge-gold {
+      background: rgba(250, 204, 21, 0.15);
+      color: var(--flame-yellow);
+      border-color: rgba(250, 204, 21, 0.35);
+    }
+
+    /* Grid Layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+    }
+
+    @media (max-width: 768px) {
+      .grid-2, .grid-3, .grid-4 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Form Inputs */
+    .input-box {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 0.65rem;
+      padding: 0.6rem 0.85rem;
+      color: var(--text);
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .input-box:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px var(--orange-glow);
+    }
+
+    .input-box.text-center {
+      text-align: center;
+    }
+
+    .input-box.font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .label-meta {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Callout Card */
+    .callout {
+      padding: 1rem;
+      border-radius: 0.75rem;
+      background: var(--bg-subcard);
+      border-left: 4px solid var(--orange);
+      margin: 1rem 0;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .callout-pro-tip {
+      border-left-color: var(--cyan);
+      background: rgba(56, 189, 248, 0.08);
+    }
+
+    .callout-tuesday {
+      border-left-color: var(--green);
+      background: var(--green-bg);
+      border-width: 2px 2px 2px 6px;
+      border-color: rgba(52, 211, 153, 0.4) rgba(52, 211, 153, 0.4) rgba(52, 211, 153, 0.4) var(--green);
+    }
+
+    /* Simulation Canvas Container */
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      height: 260px;
+      background: var(--canvas-bg);
+      border: 1px solid var(--border);
+      border-radius: 0.85rem;
+      overflow: hidden;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Desmos Drawer Modal */
+    #desmos-drawer {
+      position: fixed;
+      bottom: 0;
+      right: 1.5rem;
+      width: 480px;
+      height: 380px;
+      background: var(--bg-card);
+      border: 2px solid var(--cyan);
+      border-bottom: none;
+      border-radius: 1rem 1rem 0 0;
+      box-shadow: 0 -8px 30px rgba(0,0,0,0.5);
+      z-index: 2000;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #desmos-drawer.open {
+      display: flex;
+    }
+
+    .drawer-bar {
+      padding: 0.5rem 1rem;
+      background: var(--bg-subcard);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Buttons */
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.25rem;
+      border-radius: 0.75rem;
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .btn-action:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-action:active {
+      transform: translateY(0);
+    }
+
+    .btn-launch {
+      background: linear-gradient(135deg, var(--orange), #ef4444);
+      color: #ffffff;
+      box-shadow: 0 4px 16px var(--orange-glow);
+    }
+
+    .btn-calc {
+      background: linear-gradient(135deg, var(--cyan), #3b82f6);
+      color: #ffffff;
+    }
+
+    .btn-next {
+      background: linear-gradient(135deg, var(--green), #059669);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(52, 211, 153, 0.25);
+    }
+
+    /* Radio Cards */
+    .radio-card {
+      padding: 1rem;
+      border-radius: 0.75rem;
+      background: var(--bg-subcard);
+      border: 2px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .radio-card:hover {
+      border-color: var(--cyan);
+      background: var(--bg-card-hover);
+    }
+
+    .radio-card.selected {
+      border-color: var(--orange);
+      background: rgba(249, 115, 22, 0.1);
+      box-shadow: 0 0 12px var(--orange-glow);
+    }
+
+    .radio-indicator {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid var(--text-muted);
+      margin-top: 2px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .radio-card.selected .radio-indicator {
+      border-color: var(--orange);
+    }
+
+    .radio-card.selected .radio-indicator::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--orange);
+    }
+
+    /* Scoreboard Footer */
+    .score-summary-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.25rem;
+      border-radius: 1rem;
+      background: var(--bg-subcard);
+      border: 1px solid var(--border);
+      margin-top: 1rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    /* Ticker tape visualizer */
+    .ticker-tape-container {
+      background: #fef08a;
+      color: #0f172a;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      border: 2px dashed #ca8a04;
+      font-family: 'JetBrains Mono', monospace;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    /* Specific enhancements for Wind / Fan / Air Brake Lab */
+    .fan-badge-0 { background: rgba(148, 163, 184, 0.2); color: #94a3b8; border-color: rgba(148, 163, 184, 0.4); }
+    .fan-badge-1 { background: rgba(56, 189, 248, 0.2); color: var(--cyan); border-color: rgba(56, 189, 248, 0.4); }
+    .fan-badge-2 { background: rgba(249, 115, 22, 0.2); color: var(--orange); border-color: rgba(249, 115, 22, 0.4); }
+    .fan-badge-3 { background: rgba(239, 68, 68, 0.2); color: #ef4444; border-color: rgba(239, 68, 68, 0.4); }
+
+    .fan-card-tier {
+      background: var(--bg-card);
+      padding: 1rem;
+      border-radius: 0.85rem;
+      border: 1px solid var(--border);
+      transition: all 0.2s ease;
+    }
+    .fan-card-tier:hover {
+      border-color: var(--cyan);
+      transform: translateY(-2px);
+    }
+
+    .air-brake-diagram {
+      background: var(--bg-subcard);
+      border: 1px solid var(--border);
+      border-radius: 0.85rem;
+      padding: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 1rem;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      background: var(--bg-header);
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =====================================================================
+       HEADER: HOT WHEELS LAB BRAND & LIVE UTILITIES
+       ===================================================================== -->
+  <header>
+    <div class="header-bar">
+      
+      <!-- Brand & Standard Alignment -->
+      <div class="brand-group">
+        <span class="brand-logo-icon">💨</span>
+        <div>
+          <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap: wrap;">
+            <h1 class="brand-title">Hot Wheels Wind &amp; Air Brake Lab</h1>
+            <span class="badge badge-orange font-mono">Periods 1, 2, 3</span>
+            <span data-ngss-code="HS-PS2-1" class="badge badge-cyan font-mono">HS-PS2-1</span>
+          </div>
+          <div class="brand-subtitle">Headwind Deceleration &bull; Index Card Air Brakes &bull; Fan Speed Testing</div>
+        </div>
+      </div>
+
+      <!-- Action Utilities & Auth -->
+      <div class="header-actions">
+        <!-- Desmos Calculator Drawer Toggle -->
+        <button id="btn-toggle-calculator" class="btn-header" title="Toggle Desmos Scientific Calculator">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
+          <span>Calculator</span>
+        </button>
+
+        <!-- Sound FX Toggle -->
+        <button id="btn-sound-toggle" class="btn-header" title="Toggle Sound FX">
+          🔊 <span id="sound-label">Sound ON</span>
+        </button>
+
+        <!-- Font Scaling (Projector Mode) -->
+        <button id="btn-font-toggle" class="btn-header" title="Toggle Font Size: Normal / Large / Projector">
+          🖥️ <span id="font-size-label">Normal</span>
+        </button>
+
+        <!-- Theme Toggle (Dark / High-Contrast Light) -->
+        <button id="btn-theme-toggle" class="btn-header" title="Toggle High-Contrast Light / Dark Mode">
+          ☀️ <span id="theme-label">Light Mode</span>
+        </button>
+
+        <!-- Cloud Save Status -->
+        <div class="save-indicator" title="Firestore Auto-Save Status">
+          <span id="save-status-dot" class="save-dot"></span>
+          <span id="save-status-text">Cloud Ready</span>
+        </div>
+
+        <!-- Google Sign-in / User Profile -->
+        <div id="auth-user-status">
+          <button id="btn-google-login" class="btn-header btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24"><path fill="#ffffff" d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/></svg>
+            <span>Sign In</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Sticky Navigation Stepper (5 Structured Stages) -->
+    <div class="nav-stepper-wrap">
+      <div class="nav-stepper">
+        <button class="step-btn active" data-step="1">
+          <span class="font-mono">STAGE 1</span>
+          <span class="step-title">Air Brake Setup</span>
+        </button>
+        <button class="step-btn" data-step="2">
+          <span class="font-mono">STAGE 2</span>
+          <span class="step-title">Wind Prediction</span>
+        </button>
+        <button class="step-btn" data-step="3">
+          <span class="font-mono">STAGE 3</span>
+          <span class="step-title">Fan Trials</span>
+        </button>
+        <button class="step-btn" data-step="4">
+          <span class="font-mono">STAGE 4</span>
+          <span class="step-title">Force Visualizer</span>
+        </button>
+        <button class="step-btn" data-step="5">
+          <span class="font-mono">STAGE 5</span>
+          <span class="step-title">Synthesis &amp; Submit</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- =====================================================================
+       MAIN WORKBENCH
+       ===================================================================== -->
+  <main>
+
+    <!-- ===================================================================
+         STAGE 1: AIR BRAKE & FAN TUNNEL SETUP
+         =================================================================== -->
+    <section id="stage-1" class="stage-section">
+      <div class="glass-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>📐</span> Stage 1: Index Card Air Brake &amp; Headwind Fan Setup
+          </div>
+          <span class="badge badge-orange font-mono">Apparatus Calibration</span>
+        </div>
+
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Welcome Periods 1, 2, and 3! Today we test how <strong>aerodynamic drag (air resistance)</strong> affects stopping distance. We attach a standard <strong>index card</strong> to the roof of your Hot Wheels car standing vertically like an air brake, and aim the car directly into a headwind fan at different speed settings!
+        </p>
+
+        <!-- Team Identification (Class Period & Partners) -->
+        <div class="grid-2" style="margin-bottom: 1.25rem;">
+          <div>
+            <label class="label-meta">Class Period</label>
+            <select id="station-period" class="input-box font-mono" style="font-weight:700;">
+              <option value="1">Period 1 (Conceptual Physics)</option>
+              <option value="2">Period 2 (Conceptual Physics)</option>
+              <option value="3">Period 3 (Conceptual Physics)</option>
+              <option value="4">Period 4 (Physics)</option>
+              <option value="5">Period 5 (Physics)</option>
+              <option value="6">Period 6 (Physics)</option>
+              <option value="0">Period 0 (Honors)</option>
+            </select>
+          </div>
+          <div>
+            <label class="label-meta">Team Partners</label>
+            <input type="text" id="station-partners" class="input-box" placeholder="e.g. Marcus, Sofia, Jaylen" />
+          </div>
+        </div>
+
+        <!-- Apparatus Schematic SVG Diagram -->
+        <div class="air-brake-diagram">
+          <div style="font-size: 0.8rem; font-weight: 700; color: var(--orange); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.05em;">
+            Apparatus Architecture: Track Heading Toward The Fan
+          </div>
+          
+          <svg viewBox="0 0 920 260" style="width: 100%; height: auto; display: block;">
+            <defs>
+              <linearGradient id="rampGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#f97316" />
+                <stop offset="100%" stop-color="#ea580c" />
+              </linearGradient>
+            </defs>
+
+            <!-- Floor Line (Full Width) -->
+            <rect x="40" y="200" width="840" height="8" rx="3" fill="#334155" />
+            <text x="50" y="225" font-family="'JetBrains Mono', monospace" font-size="11" fill="var(--text-muted)">Classroom Floor Runway</text>
+
+            <!-- Chair / Book Stack Support -->
+            <rect x="60" y="100" width="90" height="100" rx="4" fill="#1e293b" stroke="var(--border)" stroke-width="2" />
+            <text x="105" y="150" font-family="'Outfit', sans-serif" font-weight="700" font-size="11" fill="#cbd5e1" text-anchor="middle">Chair or Books</text>
+            <text x="105" y="168" font-family="'JetBrains Mono', monospace" font-size="10" fill="var(--orange)" text-anchor="middle">20–30 cm</text>
+
+            <!-- 4 Connected Track Pieces (Curving down to floor) -->
+            <path d="M 120 100 Q 230 195 290 200" fill="none" stroke="url(#rampGrad)" stroke-width="8" stroke-linecap="round" />
+            <text x="175" y="118" font-family="'Outfit', sans-serif" font-weight="700" font-size="12" fill="var(--orange)">Launch Ramp</text>
+
+            <!-- Mandatory Starting Line Masking Tape -->
+            <rect x="135" y="102" width="16" height="14" rx="2" fill="#fef08a" stroke="#ca8a04" stroke-width="1.5" transform="rotate(35 143 109)" />
+            <text x="170" y="85" font-family="'JetBrains Mono', monospace" font-weight="700" font-size="11" fill="#facc15">Fixed Starting Mark (No Pushing!)</text>
+
+            <!-- Transition Point (0 cm) -->
+            <line x1="290" y1="185" x2="290" y2="215" stroke="var(--cyan)" stroke-width="3" stroke-dasharray="3,3" />
+            <text x="290" y="175" font-family="'JetBrains Mono', monospace" font-weight="700" font-size="11" fill="var(--cyan)" text-anchor="middle">0 cm (Ramp Exit)</text>
+
+            <!-- Floor Track heading forward -->
+            <line x1="290" y1="200" x2="740" y2="200" stroke="#38bdf8" stroke-width="2" stroke-dasharray="6,4" />
+            <text x="500" y="180" font-family="'Outfit', sans-serif" font-weight="700" font-size="12" fill="var(--cyan)" text-anchor="middle">Car Travels Toward Fan →</text>
+
+            <!-- Car with Index Card Air Brake on Roof -->
+            <rect x="420" y="170" width="70" height="26" rx="5" fill="#f97316" stroke="#ffffff" stroke-width="2" />
+            <circle cx="435" cy="198" r="8" fill="#0f172a" stroke="#94a3b8" stroke-width="2.5" />
+            <circle cx="475" cy="198" r="8" fill="#0f172a" stroke="#94a3b8" stroke-width="2.5" />
+            
+            <!-- Index Card Air Brake (Vertical sail on roof) -->
+            <rect x="445" y="105" width="8" height="65" rx="1" fill="#ffffff" stroke="#0284c7" stroke-width="2" />
+            <line x1="445" y1="120" x2="453" y2="120" stroke="#93c5fd" stroke-width="1" />
+            <line x1="445" y1="135" x2="453" y2="135" stroke="#93c5fd" stroke-width="1" />
+            <line x1="445" y1="150" x2="453" y2="150" stroke="#93c5fd" stroke-width="1" />
+            <rect x="438" y="165" width="22" height="6" fill="#fef08a" stroke="#ca8a04" stroke-width="1" />
+            
+            <text x="449" y="95" font-family="'Outfit', sans-serif" font-weight="800" font-size="12" fill="#0284c7" text-anchor="middle">Index Card Air Brake</text>
+            <text x="449" y="80" font-family="'JetBrains Mono', monospace" font-size="10" fill="var(--text-muted)" text-anchor="middle">(Taped Vertically to Roof)</text>
+
+            <!-- Classroom Electric Fan at End of Runway -->
+            <rect x="750" y="130" width="16" height="70" rx="3" fill="#475569" stroke="#94a3b8" stroke-width="1.5" />
+            <rect x="730" y="195" width="56" height="8" rx="2" fill="#334155" />
+            <circle cx="758" cy="115" r="42" fill="none" stroke="#38bdf8" stroke-width="3" />
+            <circle cx="758" cy="115" r="12" fill="#0284c7" />
+            <path d="M 758 103 Q 745 75 758 75 Q 771 75 758 103 Z" fill="#38bdf8" opacity="0.85" />
+            <path d="M 758 127 Q 745 155 758 155 Q 771 155 758 127 Z" fill="#38bdf8" opacity="0.85" />
+            <path d="M 746 115 Q 718 102 718 115 Q 718 128 746 115 Z" fill="#38bdf8" opacity="0.85" />
+            <path d="M 770 115 Q 798 102 798 115 Q 798 128 770 115 Z" fill="#38bdf8" opacity="0.85" />
+            <text x="758" y="60" font-family="'Outfit', sans-serif" font-weight="800" font-size="13" fill="#38bdf8" text-anchor="middle">💨 Variable Fan</text>
+            <text x="758" y="44" font-family="'JetBrains Mono', monospace" font-size="10" fill="var(--text-dim)" text-anchor="middle">(Off, Low, Med, High)</text>
+
+            <!-- Wind Flow Arrows (Blowing backward against car) -->
+            <g stroke="#38bdf8" stroke-width="2.5" fill="none">
+              <path d="M 710 95 C 640 95 560 110 470 115" stroke-dasharray="8,4" />
+              <polygon points="460,115 472,110 472,120" fill="#38bdf8" />
+              <path d="M 710 120 C 620 120 540 130 470 135" stroke-dasharray="8,4" />
+              <polygon points="460,135 472,130 472,140" fill="#38bdf8" />
+              <path d="M 710 145 C 640 145 570 150 480 155" stroke-dasharray="8,4" />
+              <polygon points="470,155 482,150 482,160" fill="#38bdf8" />
+            </g>
+            <text x="600" y="110" font-family="'JetBrains Mono', monospace" font-weight="700" font-size="11" fill="#38bdf8">← HEADWIND DRAG FORCE (F_air)</text>
+          </svg>
+        </div>
+
+        <!-- Pro-Tip Callout Banner -->
+        <div class="callout callout-pro-tip">
+          <strong style="color: var(--cyan); display: flex; align-items: center; gap: 0.35rem; margin-bottom: 0.25rem;">
+            <span>💡</span> Pro-Tip: Index Card Attachment &amp; Fan Alignment
+          </strong>
+          Tape a 3&times;5 inch index card across the roof of your Hot Wheels car standing up like a sail/air brake. Ensure the fan is aimed straight down the track centerline at bumper/roof height. Always release the car from the <strong>same tape line on the ramp without pushing</strong>!
+        </div>
+
+        <!-- Verification Checklist -->
+        <div style="background: var(--bg-subcard); border: 1px solid var(--border); border-radius: 0.85rem; padding: 1.25rem; margin-bottom: 1.5rem;">
+          <div style="font-weight: 800; font-size: 0.9rem; margin-bottom: 0.75rem;">
+            Pre-Flight Checklist (Verify before testing):
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.85rem;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" id="check-air-brake" style="accent-color: var(--orange); width: 18px; height: 18px;" />
+              <span>Index card taped securely to the car roof standing upright like an air brake / sail.</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" id="check-fan-aim" style="accent-color: var(--orange); width: 18px; height: 18px;" />
+              <span>Fan positioned at the end of the runway pointing directly toward the approaching car.</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" id="check-starting-line" style="accent-color: var(--orange); width: 18px; height: 18px;" />
+              <span>Starting release line marked with masking tape on ramp (20–30 cm elevation).</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" id="check-measuring-tape" style="accent-color: var(--orange); width: 18px; height: 18px;" />
+              <span>Meter stick / tape measure aligned with 0 cm at the bottom of the ramp.</span>
+            </label>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end;">
+          <button id="btn-to-stage-2" class="btn-action btn-next">
+            <span>Proceed to Stage 2: Wind Prediction</span>
+            <span>&rarr;</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         STAGE 2: HYPOTHESIS & WIND PREDICTION (10 MINS)
+         =================================================================== -->
+    <section id="stage-2" class="stage-section" style="display: none;">
+      <div class="glass-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🤔</span> Stage 2: The Wind Speed &amp; Stopping Distance Prediction
+          </div>
+          <span class="badge badge-gold font-mono">Conceptual Hypothesis</span>
+        </div>
+
+        <div style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(249, 115, 22, 0.08)); border: 2px solid var(--cyan); border-radius: 0.85rem; padding: 1.25rem; margin-bottom: 1.5rem;">
+          <div style="font-size: 1.1rem; font-weight: 800; color: var(--cyan); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+            <span>💨</span> The Core Inquiry Question:
+          </div>
+          <p style="font-size: 0.95rem; line-height: 1.5; color: var(--text); margin: 0 0 1rem 0;">
+            <em>"As we increase the fan speed from <strong>OFF (0)</strong> &rarr; <strong>LOW (1)</strong> &rarr; <strong>MEDIUM (2)</strong> &rarr; <strong>HIGH (3)</strong>, what will happen to the distance your air-brake car travels before stopping, and how will the backward net force change?"</em>
+          </p>
+
+          <!-- Prediction Selection Radios -->
+          <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem;">
+            <div class="radio-card" data-hypo="A">
+              <div class="radio-indicator"></div>
+              <div>
+                <strong style="color: var(--cyan);">Hypothesis A: Higher fan speed = Much SHORTER distance (Stops Sooner).</strong>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.2rem 0 0 0;">
+                  Faster wind slams into the index card with greater force. The backward drag force adds to rolling friction, creating a larger backward net force that decelerates the car faster.
+                </p>
+              </div>
+            </div>
+
+            <div class="radio-card" data-hypo="B">
+              <div class="radio-indicator"></div>
+              <div>
+                <strong style="color: var(--amber);">Hypothesis B: Distance will remain nearly unchanged.</strong>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.2rem 0 0 0;">
+                  The car's momentum rolling down the ramp is too heavy for fan air to make a noticeable difference in stopping distance.
+                </p>
+              </div>
+            </div>
+
+            <div class="radio-card" data-hypo="C">
+              <div class="radio-indicator"></div>
+              <div>
+                <strong style="color: var(--purple);">Hypothesis C: Higher fan speed = LONGER distance.</strong>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.2rem 0 0 0;">
+                  Turbulent air swirls around the sides of the card and pushes the car forward like an aerodynamic slipstream.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Written Student Reasoning -->
+          <div>
+            <label class="label-meta">Why did your group choose this hypothesis? (1–2 sentences):</label>
+            <textarea id="prediction-reasoning" class="input-box" rows="2" placeholder="We predict this because..." style="resize: vertical;"></textarea>
+            <div id="prediction-char-hint" style="font-size: 0.72rem; color: var(--text-dim); margin-top: 0.25rem;">
+              Minimum 20 characters required. (Current: 0)
+            </div>
+          </div>
+        </div>
+
+        <!-- Vehicle Details -->
+        <div class="glass-card" style="padding: 1rem; background: var(--bg-subcard); margin-bottom: 1.5rem;">
+          <div style="font-weight: 800; font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--orange);">
+            🚗 Selected Test Vehicle &amp; Air Brake Specifications
+          </div>
+          <div class="grid-3">
+            <div>
+              <label class="label-meta">Car Make / Description</label>
+              <input type="text" id="test-car-name" class="input-box" value="Hot Wheels Racer with Index Card Brake" />
+            </div>
+            <div>
+              <label class="label-meta">Index Card Size</label>
+              <input type="text" id="test-card-size" class="input-box" value="Standard 3 x 5 in Card" />
+            </div>
+            <div>
+              <label class="label-meta">Card Orientation</label>
+              <select id="test-card-orient" class="input-box">
+                <option value="vertical">Vertical Sail (Maximum Drag Area)</option>
+                <option value="horizontal">Horizontal Wing (Low Drag)</option>
+                <option value="angled">Angled 45° Deflector</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <button id="btn-back-to-stage-1" class="btn-header">
+            <span>&larr; Back to Setup</span>
+          </button>
+          <button id="btn-to-stage-3" class="btn-action btn-next">
+            <span>Proceed to Stage 3: Fan Trials</span>
+            <span>&rarr;</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         STAGE 3: FAN SPEED TRIALS DATA COLLECTION (15 MINS)
+         =================================================================== -->
+    <section id="stage-3" class="stage-section" style="display: none;">
+      <div class="glass-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>📊</span> Stage 3: Fan Speed vs. Coasting Distance Data
+          </div>
+          <span class="badge badge-cyan font-mono">4 Fan Settings &bull; 3 Trials Each</span>
+        </div>
+
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">
+          For each fan speed setting (<strong>Off, Low, Medium, High</strong>), release your car with the index card air brake <strong>3 times</strong> from the fixed starting mark. Measure the distance from the bottom of the ramp (0 cm) to where the car's front bumper stops.
+        </p>
+
+        <!-- 4 Fan Setting Data Cards -->
+        <div class="grid-4" style="margin-bottom: 1.5rem;">
+          
+          <!-- Fan 0: OFF (Baseline) -->
+          <div class="fan-card-tier">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span class="badge fan-badge-0 font-mono">Setting 0: Fan OFF</span>
+              <span style="font-size: 1.1rem;">🛑</span>
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 0.5rem;">Baseline floor friction only</div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.6rem;">
+              <input type="number" id="fan0-t1" class="input-box font-mono fan-input" placeholder="Trial 1 (cm)" step="0.5" />
+              <input type="number" id="fan0-t2" class="input-box font-mono fan-input" placeholder="Trial 2 (cm)" step="0.5" />
+              <input type="number" id="fan0-t3" class="input-box font-mono fan-input" placeholder="Trial 3 (cm)" step="0.5" />
+            </div>
+
+            <div style="padding: 0.5rem; border-radius: 0.5rem; background: var(--bg-subcard); border: 1px solid var(--border); text-align: center;">
+              <div class="label-meta" style="margin:0;">Average</div>
+              <div id="fan0-avg" class="font-mono" style="font-size: 1.1rem; font-weight: 800; color: #94a3b8;">-- cm</div>
+            </div>
+          </div>
+
+          <!-- Fan 1: LOW -->
+          <div class="fan-card-tier">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span class="badge fan-badge-1 font-mono">Setting 1: LOW</span>
+              <span style="font-size: 1.1rem;">🍃</span>
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 0.5rem;">Gentle headwind breeze</div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.6rem;">
+              <input type="number" id="fan1-t1" class="input-box font-mono fan-input" placeholder="Trial 1 (cm)" step="0.5" />
+              <input type="number" id="fan1-t2" class="input-box font-mono fan-input" placeholder="Trial 2 (cm)" step="0.5" />
+              <input type="number" id="fan1-t3" class="input-box font-mono fan-input" placeholder="Trial 3 (cm)" step="0.5" />
+            </div>
+
+            <div style="padding: 0.5rem; border-radius: 0.5rem; background: var(--bg-subcard); border: 1px solid var(--border); text-align: center;">
+              <div class="label-meta" style="margin:0;">Average</div>
+              <div id="fan1-avg" class="font-mono" style="font-size: 1.1rem; font-weight: 800; color: var(--cyan);">-- cm</div>
+            </div>
+          </div>
+
+          <!-- Fan 2: MEDIUM -->
+          <div class="fan-card-tier">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span class="badge fan-badge-2 font-mono">Setting 2: MEDIUM</span>
+              <span style="font-size: 1.1rem;">💨</span>
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 0.5rem;">Moderate headwind drag</div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.6rem;">
+              <input type="number" id="fan2-t1" class="input-box font-mono fan-input" placeholder="Trial 1 (cm)" step="0.5" />
+              <input type="number" id="fan2-t2" class="input-box font-mono fan-input" placeholder="Trial 2 (cm)" step="0.5" />
+              <input type="number" id="fan2-t3" class="input-box font-mono fan-input" placeholder="Trial 3 (cm)" step="0.5" />
+            </div>
+
+            <div style="padding: 0.5rem; border-radius: 0.5rem; background: var(--bg-subcard); border: 1px solid var(--border); text-align: center;">
+              <div class="label-meta" style="margin:0;">Average</div>
+              <div id="fan2-avg" class="font-mono" style="font-size: 1.1rem; font-weight: 800; color: var(--orange);">-- cm</div>
+            </div>
+          </div>
+
+          <!-- Fan 3: HIGH -->
+          <div class="fan-card-tier">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span class="badge fan-badge-3 font-mono">Setting 3: HIGH</span>
+              <span style="font-size: 1.1rem;">🌪️</span>
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 0.5rem;">Maximum headwind gale</div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.6rem;">
+              <input type="number" id="fan3-t1" class="input-box font-mono fan-input" placeholder="Trial 1 (cm)" step="0.5" />
+              <input type="number" id="fan3-t2" class="input-box font-mono fan-input" placeholder="Trial 2 (cm)" step="0.5" />
+              <input type="number" id="fan3-t3" class="input-box font-mono fan-input" placeholder="Trial 3 (cm)" step="0.5" />
+            </div>
+
+            <div style="padding: 0.5rem; border-radius: 0.5rem; background: var(--bg-subcard); border: 1px solid var(--border); text-align: center;">
+              <div class="label-meta" style="margin:0;">Average</div>
+              <div id="fan3-avg" class="font-mono" style="font-size: 1.1rem; font-weight: 800; color: #ef4444;">-- cm</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Live Track Simulation & Graph -->
+        <div style="margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div style="font-weight: 800; font-size: 0.95rem; display: flex; align-items: center; gap: 0.4rem;">
+              <span>🏁</span> Live Track Visualizer &bull; Wind Resistance Headwind Run
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button id="btn-animate-fan" class="btn-action btn-launch" style="padding: 0.45rem 0.85rem; font-size: 0.78rem;">
+                <span>▶ Run Visual Headwind Test</span>
+              </button>
+              <button id="btn-reset-fan" class="btn-header" style="font-size: 0.78rem;">
+                <span>↺ Reset</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="canvas-container">
+            <canvas id="canvas-fan-track"></canvas>
+          </div>
+          <div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 0.35rem; display: flex; justify-content: space-between;">
+            <span>Ramp (0–60 cm)</span>
+            <span>Coast Line (0 cm)</span>
+            <span>Runway toward Fan at 200+ cm</span>
+          </div>
+        </div>
+
+        <!-- Dynamic Graph: Distance vs Fan Setting -->
+        <div style="margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span class="label-meta" style="margin:0;">Distance vs. Fan Wind Speed</span>
+            <span id="fan-trend-label" class="badge badge-cyan font-mono">Trend: Enter Data Above</span>
+          </div>
+          <div style="height: 190px; width: 100%; background: var(--canvas-bg); border-radius: 0.75rem; border: 1px solid var(--border); overflow: hidden;">
+            <canvas id="canvas-fan-graph"></canvas>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <button id="btn-back-to-stage-2" class="btn-header">
+            <span>&larr; Back to Prediction</span>
+          </button>
+          <button id="btn-to-stage-4" class="btn-action btn-next">
+            <span>Proceed to Stage 4: Force Visualizer</span>
+            <span>&rarr;</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         STAGE 4: FORCES & AERODYNAMIC DRAG VISUALIZER (10 MINS)
+         =================================================================== -->
+    <section id="stage-4" class="stage-section" style="display: none;">
+      <div class="glass-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>📉</span> Stage 4: Free-Body Diagram &amp; Net Deceleration Force
+          </div>
+          <span class="badge badge-cyan font-mono">Newton's 2nd Law &bull; F_net = m &times; a</span>
+        </div>
+
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Why did the car stop in a much shorter distance as the fan speed increased? Because <strong>two backward forces</strong> combined to resist the car's forward motion!
+        </p>
+
+        <!-- 2 Conceptual Cards -->
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          
+          <!-- Concept Card 1: Combined Backward Forces -->
+          <div class="glass-card" style="padding: 1.25rem; background: var(--bg-subcard); margin: 0;">
+            <div style="font-weight: 800; font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--orange);">
+              1. Two Backward Forces: Friction + Air Drag
+            </div>
+
+            <svg viewBox="0 0 420 180" style="width: 100%; height: auto; display: block;">
+              <!-- Floor Line -->
+              <line x1="20" y1="150" x2="400" y2="150" stroke="#475569" stroke-width="3" />
+              <!-- Car Body -->
+              <rect x="190" y="90" width="100" height="40" rx="6" fill="#f97316" stroke="#ffffff" stroke-width="2" />
+              <!-- Index Card Sail on Roof -->
+              <rect x="225" y="30" width="8" height="60" rx="1" fill="#ffffff" stroke="#0284c7" stroke-width="2" />
+              <text x="229" y="22" font-family="'Outfit', sans-serif" font-weight="700" font-size="10" fill="#0284c7" text-anchor="middle">Air Brake</text>
+              <!-- Wheels -->
+              <circle cx="210" cy="135" r="12" fill="#0f172a" stroke="#94a3b8" stroke-width="3" />
+              <circle cx="270" cy="135" r="12" fill="#0f172a" stroke="#94a3b8" stroke-width="3" />
+              <text x="240" y="115" font-family="'Outfit', sans-serif" font-weight="800" font-size="11" fill="#ffffff" text-anchor="middle">Car Body</text>
+
+              <!-- Forward Motion Velocity Arrow (Green) -->
+              <line x1="240" y1="65" x2="310" y2="65" stroke="var(--green)" stroke-width="3" />
+              <polygon points="315,65 307,61 307,69" fill="var(--green)" />
+              <text x="275" y="55" font-family="'Outfit', sans-serif" font-weight="700" font-size="11" fill="var(--green)">Velocity v (Forward →)</text>
+
+              <!-- Backward Floor Friction (Red) -->
+              <line x1="190" y1="140" x2="110" y2="140" stroke="var(--red)" stroke-width="3" />
+              <polygon points="105,140 113,136 113,144" fill="var(--red)" />
+              <text x="145" y="158" font-family="'Outfit', sans-serif" font-weight="700" font-size="10" fill="var(--red)">← Floor Friction (F_f)</text>
+
+              <!-- Backward Air Resistance Drag (Cyan) -->
+              <line x1="225" y1="50" x2="110" y2="50" stroke="#0284c7" stroke-width="3.5" />
+              <polygon points="105,50 113,46 113,54" fill="#0284c7" />
+              <text x="160" y="42" font-family="'Outfit', sans-serif" font-weight="800" font-size="11" fill="#0284c7">← Air Drag (F_drag)</text>
+            </svg>
+
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.4;">
+              On the flat runway, the total backward force is <strong>F_backward = F_friction + F_air_drag</strong>. When the fan blows harder, F_air_drag skyrockets, producing a larger backward net force!
+            </p>
+          </div>
+
+          <!-- Concept Card 2: Negative Acceleration / Deceleration -->
+          <div class="glass-card" style="padding: 1.25rem; background: var(--bg-subcard); margin: 0;">
+            <div style="font-weight: 800; font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--cyan);">
+              2. Newton's Second Law: a = F_net / m
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.85rem; margin-top: 0.5rem;">
+              <div style="background: var(--bg-card); padding: 0.75rem; border-radius: 0.65rem; border-left: 4px solid #94a3b8;">
+                <strong style="color: #94a3b8;">Fan OFF (Setting 0):</strong>
+                <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.2rem;">
+                  F_net is small (friction only) &rarr; gentle deceleration &rarr; <strong>longest stopping distance</strong>.
+                </div>
+              </div>
+
+              <div style="background: var(--bg-card); padding: 0.75rem; border-radius: 0.65rem; border-left: 4px solid var(--orange);">
+                <strong style="color: var(--orange);">Fan MEDIUM (Setting 2):</strong>
+                <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.2rem;">
+                  F_net increases &rarr; sharper deceleration rate &rarr; <strong>moderate stopping distance</strong>.
+                </div>
+              </div>
+
+              <div style="background: var(--bg-card); padding: 0.75rem; border-radius: 0.65rem; border-left: 4px solid var(--red);">
+                <strong style="color: var(--red);">Fan HIGH (Setting 3):</strong>
+                <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.2rem;">
+                  F_net is maximum &rarr; violent braking deceleration &rarr; <strong>shortest stopping distance</strong>!
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Ticker Tape / Strobe Trail Visualizer Comparison -->
+        <div style="margin-bottom: 1.5rem;">
+          <div style="font-weight: 800; font-size: 0.95rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+            <span>🎞️</span> Strobe Dot Comparison: Fan OFF vs. Fan HIGH
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <!-- Fan OFF Strobe -->
+            <div>
+              <div style="font-size: 0.75rem; font-weight: 700; color: #94a3b8; margin-bottom: 0.2rem;">Fan OFF (Gentle Deceleration &bull; Glides Far):</div>
+              <div class="ticker-tape-container">
+                <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 0.75rem;">
+                  <span>[0 cm]</span>
+                  <span style="letter-spacing: 28px;">●●●●</span>
+                  <span style="letter-spacing: 20px;">●●●</span>
+                  <span style="letter-spacing: 14px;">●●●</span>
+                  <span style="letter-spacing: 8px;">●●●</span>
+                  <span style="letter-spacing: 3px;">●●</span>
+                  <span style="color: #10b981;">[STOPPED AT ~180 cm ●]</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fan HIGH Strobe -->
+            <div>
+              <div style="font-size: 0.75rem; font-weight: 700; color: #ef4444; margin-bottom: 0.2rem;">Fan HIGH (Violent Air Braking &bull; Stops Fast):</div>
+              <div class="ticker-tape-container" style="background: #fee2e2; border-color: #ef4444;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 0.75rem;">
+                  <span>[0 cm]</span>
+                  <span style="letter-spacing: 22px;">●●</span>
+                  <span style="letter-spacing: 10px;">●●</span>
+                  <span style="letter-spacing: 4px;">●●●</span>
+                  <span style="color: #dc2626;">[STOPPED AT ~60 cm ●]</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <button id="btn-back-to-stage-3" class="btn-header">
+            <span>&larr; Back to Fan Trials</span>
+          </button>
+          <button id="btn-to-stage-5" class="btn-action btn-next">
+            <span>Proceed to Stage 5: Synthesis &amp; Submit</span>
+            <span>&rarr;</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         STAGE 5: SYNTHESIS & SCORE SUBMISSION (10 MINS)
+         =================================================================== -->
+    <section id="stage-5" class="stage-section" style="display: none;">
+      <div class="glass-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🏁</span> Stage 5: Scientific Synthesis &amp; Grade Submission
+          </div>
+          <span class="badge badge-green font-mono">10 Mins &bull; Final Submission (10 Pts)</span>
+        </div>
+
+        <!-- 3 Targeted Synthesis Questions -->
+        <div style="margin-bottom: 1.5rem;">
+          <div style="font-weight: 800; font-size: 1.05rem; margin-bottom: 1rem;">
+            Three-Question Physics Synthesis Ticket (Checked for Credit):
+          </div>
+
+          <!-- Question 1: Effect of Wind Speed on Distance -->
+          <div class="glass-card" style="padding: 1rem; background: var(--bg-subcard); margin-bottom: 1rem;">
+            <label class="label-meta" style="color: var(--cyan);">Question 1: The Relationship Between Wind Speed &amp; Distance</label>
+            <p style="font-size: 0.88rem; margin: 0 0 0.5rem 0;">
+              What happened to the stopping distance of your car as you increased the fan speed from Off &rarr; Low &rarr; Medium &rarr; High? Use specific distance numbers from your data to support your answer.
+            </p>
+            <textarea id="synth-q1" class="input-box" rows="2" placeholder="As fan speed increased, our stopping distance changed from... to... because..."></textarea>
+            <div id="q1-feedback" style="font-size: 0.75rem; margin-top: 0.25rem;"></div>
+          </div>
+
+          <!-- Question 2: Backward Forces & Newton's Second Law -->
+          <div class="glass-card" style="padding: 1rem; background: var(--bg-subcard); margin-bottom: 1rem;">
+            <label class="label-meta" style="color: var(--orange);">Question 2: Forces Acting on the Air Brake</label>
+            <p style="font-size: 0.88rem; margin: 0 0 0.5rem 0;">
+              Why did the index card act like a brake? Name the TWO specific backward forces that opposed the car's forward motion, and explain which force increased with fan speed.
+            </p>
+            <textarea id="synth-q2" class="input-box" rows="2" placeholder="The two backward forces were... The force that increased was..."></textarea>
+            <div id="q2-feedback" style="font-size: 0.75rem; margin-top: 0.25rem;"></div>
+          </div>
+
+          <!-- Question 3: Controlled Variables & Real-World Application -->
+          <div class="glass-card" style="padding: 1rem; background: var(--bg-subcard); margin-bottom: 1rem;">
+            <label class="label-meta" style="color: var(--green);">Question 3: Controlled Variables &amp; Real-World Engineering</label>
+            <p style="font-size: 0.88rem; margin: 0 0 0.5rem 0;">
+              Why was it essential to keep the starting release mark and car mass identical across all fan trials? How do real high-speed trains, dragsters, or aircraft use air brakes in real life?
+            </p>
+            <textarea id="synth-q3" class="input-box" rows="2" placeholder="Keeping the starting mark constant was important because... Real-world vehicles use air brakes to..."></textarea>
+            <div id="q3-feedback" style="font-size: 0.75rem; margin-top: 0.25rem;"></div>
+          </div>
+        </div>
+
+        <!-- Gradebook Scoring Bar & Firestore Sync -->
+        <div class="score-summary-bar">
+          <div>
+            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700;">
+              Assignment Grade (Highest Score Retained)
+            </div>
+            <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-top: 0.25rem;">
+              <span id="final-score-display" class="font-mono" style="font-size: 2rem; font-weight: 900; color: var(--cyan);">0 / 10</span>
+              <span id="final-pct-display" class="badge badge-orange font-mono">0% Complete</span>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+            <button id="btn-validate-grade" class="btn-action btn-calc">
+              <span>✓ Verify Answers</span>
+            </button>
+            <button id="btn-submit-grade" class="btn-action btn-primary" style="padding: 0.75rem 1.5rem; font-size: 0.95rem;">
+              <span>🚀 Submit Score (10 Pts)</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="submit-status-msg" style="margin-top: 0.75rem; font-size: 0.85rem; text-align: right; color: var(--text-muted);"></div>
+
+        <div style="display: flex; justify-content: flex-start; margin-top: 1.5rem;">
+          <button id="btn-back-to-stage-4" class="btn-header">
+            <span>&larr; Back to Force Visualizer</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =====================================================================
+       DESMOS SCIENTIFIC CALCULATOR DRAWER
+       ===================================================================== -->
+  <div id="desmos-drawer">
+    <div class="drawer-bar">
+      <div style="display: flex; align-items: center; gap: 0.4rem; font-weight: 800; font-size: 0.85rem;">
+        <span>🧮</span> Desmos Scientific Calculator
+      </div>
+      <button id="btn-close-calculator" class="btn-header" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">✕ Close</button>
+    </div>
+    <div id="desmos-calculator-container" style="flex: 1; width: 100%; height: 100%;"></div>
+  </div>
+
+  <!-- =====================================================================
+       FOOTER
+       ===================================================================== -->
+  <footer>
+    <div style="max-w: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+      <div>
+        <strong>Orange High School &bull; Science Department</strong> &bull; Conceptual Physics (Periods 1, 2, 3)
+      </div>
+      <div>
+        Unit 2: Kinematics &bull; <span data-ngss-code="HS-PS2-1">HS-PS2-1</span> &bull; 🏎️ Hot Wheels Deceleration Investigation
+      </div>
+    </div>
+  </footer>
+
+  <!-- =====================================================================
+       JAVASCRIPT APPLICATION LOGIC
+       ===================================================================== -->
+
+  <script>
+    // Configuration & Assignment ID
+    const ASSIGNMENT_ID = 'unit2_day37_hot_wheels_air_resistance';
+    const FIREBASE_CONFIG = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+
+    // Global State
+    const AppState = {
+      user: null,
+      studentId: null,
+      studentName: 'Guest Student',
+      studentEmail: '',
+      classPeriod: 1,
+      currentStep: 1,
+      soundEnabled: true,
+      audioCtx: null,
+      desmosCalc: null,
+      carSpecs: {
+        carName: '',
+        cardOrientation: 'vertical',
+        releaseHeight: 30
+      },
+      prediction: null,
+      predictionText: '',
+      fanTiers: {
+        fan0: { label: 'Fan Off (0 m/s)', t1: null, t2: null, t3: null, avg: null },
+        fan1: { label: 'Speed 1 - Low (~1.5 m/s)', t1: null, t2: null, t3: null, avg: null },
+        fan2: { label: 'Speed 2 - Medium (~3.0 m/s)', t1: null, t2: null, t3: null, avg: null },
+        fan3: { label: 'Speed 3 - High (~4.5 m/s)', t1: null, t2: null, t3: null, avg: null }
+      },
+      synthesis: {
+        q1: '',
+        q2: '',
+        q3: ''
+      },
+      score: 0,
+      isSubmitting: false
+    };
+
+    // =========================================================================
+    // 1. FIREBASE AUTH & FIRESTORE INITIALIZATION
+    // =========================================================================
+    let db = null;
+    try {
+      if (typeof firebase !== 'undefined') {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(FIREBASE_CONFIG);
+        }
+        db = firebase.firestore();
+        initFirebaseAuth();
+      }
+    } catch (e) {
+      console.warn('Firebase init warning:', e);
+    }
+
+    function initFirebaseAuth() {
+      firebase.auth().onAuthStateChanged(async (user) => {
+        const authStatusEl = document.getElementById('auth-user-status');
+        const saveStatusDot = document.getElementById('save-status-dot');
+        const saveStatusText = document.getElementById('save-status-text');
+
+        if (user) {
+          const email = (user.email || '').toLowerCase();
+          if (email.endsWith('@orangeusd.org') || email === 'ryan.mudry@gmail.com') {
+            AppState.user = user;
+            AppState.studentId = email.split('@')[0];
+            AppState.studentName = user.displayName || AppState.studentId;
+            AppState.studentEmail = email;
+
+            if (authStatusEl) {
+              authStatusEl.innerHTML = `
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                  <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--green);"></span>
+                  <span><strong>${AppState.studentName}</strong> (${AppState.studentId})</span>
+                  <button type="button" id="btn-signout" class="btn btn-secondary btn-sm" style="padding:0.2rem 0.5rem; font-size:0.75rem;">Sign Out</button>
+                </div>
+              `;
+              document.getElementById('btn-signout')?.addEventListener('click', () => firebase.auth().signOut());
+            }
+
+            // Sync Period if student was detected in roster
+            loadPriorSubmission();
+          } else {
+            firebase.auth().signOut();
+            alert('Please sign in with your district @orangeusd.org Google account.');
+          }
+        } else {
+          AppState.user = null;
+          AppState.studentId = null;
+          AppState.studentName = 'Guest Student';
+          if (authStatusEl) {
+            authStatusEl.innerHTML = `
+              <button type="button" id="btn-signin" class="btn btn-primary btn-sm" style="padding:0.35rem 0.75rem;">
+                🔑 Sign In with Google (@orangeusd.org)
+              </button>
+            `;
+            document.getElementById('btn-signin')?.addEventListener('click', signInWithGoogle);
+          }
+          if (saveStatusDot) saveStatusDot.className = 'save-dot';
+          if (saveStatusText) saveStatusText.textContent = 'Sign in to auto-save';
+        }
+      });
+    }
+
+    async function signInWithGoogle() {
+      try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ hd: 'orangeusd.org' });
+        await firebase.auth().signInWithPopup(provider);
+      } catch (err) {
+        console.error('Sign-in error:', err);
+        alert('Could not complete Google sign-in: ' + err.message);
+      }
+    }
+
+    async function loadPriorSubmission() {
+      if (!db || !AppState.studentId) return;
+      try {
+        const docRef = db.collection('student_results')
+          .doc(ASSIGNMENT_ID)
+          .collection('students')
+          .doc(AppState.studentId);
+
+        const snap = await docRef.get();
+        if (snap.exists) {
+          const data = snap.data();
+          if (data.carSpecs) {
+            AppState.carSpecs = { ...AppState.carSpecs, ...data.carSpecs };
+            if (document.getElementById('car-name')) document.getElementById('car-name').value = data.carSpecs.carName || '';
+            if (document.getElementById('card-orientation')) document.getElementById('card-orientation').value = data.carSpecs.cardOrientation || 'vertical';
+            if (document.getElementById('release-height')) document.getElementById('release-height').value = data.carSpecs.releaseHeight || 30;
+          }
+          if (data.class_period || data.period) {
+            AppState.classPeriod = parseInt(data.class_period || data.period, 10) || 1;
+            const periodSelect = document.getElementById('station-period');
+            if (periodSelect) periodSelect.value = AppState.classPeriod;
+          }
+          if (data.prediction) {
+            AppState.prediction = data.prediction;
+            const predRadio = document.querySelector(`input[name="prediction-option"][value="${data.prediction}"]`);
+            if (predRadio) predRadio.checked = true;
+          }
+          if (data.predictionText && document.getElementById('prediction-reasoning')) {
+            document.getElementById('prediction-reasoning').value = data.predictionText;
+            AppState.predictionText = data.predictionText;
+          }
+          if (data.fanTiers) {
+            ['fan0', 'fan1', 'fan2', 'fan3'].forEach(k => {
+              if (data.fanTiers[k]) {
+                ['t1', 't2', 't3'].forEach(t => {
+                  const val = data.fanTiers[k][t];
+                  const el = document.getElementById(`${k}-${t}`);
+                  if (el && val !== null && val !== undefined) {
+                    el.value = val;
+                  }
+                });
+                recalcFanTier(k);
+              }
+            });
+          }
+          if (data.synthesis) {
+            if (data.synthesis.q1 && document.getElementById('synth-q1')) document.getElementById('synth-q1').value = data.synthesis.q1;
+            if (data.synthesis.q2 && document.getElementById('synth-q2')) document.getElementById('synth-q2').value = data.synthesis.q2;
+            if (data.synthesis.q3 && document.getElementById('synth-q3')) document.getElementById('synth-q3').value = data.synthesis.q3;
+          }
+
+          const saveStatusDot = document.getElementById('save-status-dot');
+          const saveStatusText = document.getElementById('save-status-text');
+          if (saveStatusDot) saveStatusDot.className = 'save-dot';
+          if (saveStatusText) saveStatusText.textContent = `Synced (${data.points || 0}/10 pts)`;
+          renderFanGraph();
+        }
+      } catch (e) {
+        console.warn('Error loading prior student submission:', e);
+      }
+    }
+
+    // =========================================================================
+    // 2. AUDIO FEEDBACK (WEB AUDIO API)
+    // =========================================================================
+    function playSound(type) {
+      if (!AppState.soundEnabled) return;
+      try {
+        if (!AppState.audioCtx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          AppState.audioCtx = new AudioContext();
+        }
+        if (AppState.audioCtx.state === 'suspended') {
+          AppState.audioCtx.resume();
+        }
+        const ctx = AppState.audioCtx;
+        const now = ctx.currentTime;
+
+        if (type === 'click') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.exponentialRampToValueAtTime(120, now + 0.05);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.05);
+        } else if (type === 'whoosh') {
+          // White noise gust for fan wind
+          const bufferSize = ctx.sampleRate * 0.4;
+          const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+          const output = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            output[i] = Math.random() * 2 - 1;
+          }
+          const whiteNoise = ctx.createBufferSource();
+          whiteNoise.buffer = buffer;
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(450, now);
+          filter.Q.setValueAtTime(1.5, now);
+          const gain = ctx.createGain();
+          gain.gain.setValueAtTime(0.01, now);
+          gain.gain.linearRampToValueAtTime(0.15, now + 0.1);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+          whiteNoise.connect(filter);
+          filter.connect(gain);
+          gain.connect(ctx.destination);
+          whiteNoise.start(now);
+          whiteNoise.stop(now + 0.4);
+        } else if (type === 'ding') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(587.33, now); // D5
+          osc.frequency.setValueAtTime(880, now + 0.08); // A5
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        } else if (type === 'fanfare') {
+          [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + i * 0.08);
+            gain.gain.setValueAtTime(0.15, now + i * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.28);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + i * 0.08);
+            osc.stop(now + i * 0.08 + 0.3);
+          });
+        }
+      } catch (e) {
+        console.warn('Audio feedback failed:', e);
+      }
+    }
+
+    // =========================================================================
+    // 3. THEME TOGGLING & FONT SCALING (PROJECTOR MODE)
+    // =========================================================================
+    function initTheming() {
+      const themeBtn = document.getElementById('btn-theme-toggle');
+      const themeLabel = document.getElementById('theme-label');
+      const fontBtn = document.getElementById('btn-font-toggle');
+      const fontLabel = document.getElementById('font-size-label');
+      const soundBtn = document.getElementById('btn-sound-toggle');
+      const soundLabel = document.getElementById('sound-label');
+
+      // Theme toggle
+      const savedTheme = localStorage.getItem('hw_air_resistance_theme') || 'dark';
+      if (savedTheme === 'light') {
+        document.documentElement.classList.add('theme-light');
+        if (themeLabel) themeLabel.textContent = 'Dark Mode';
+      } else {
+        document.documentElement.classList.remove('theme-light');
+        if (themeLabel) themeLabel.textContent = 'Light Mode';
+      }
+
+      if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+          playSound('click');
+          const isLight = document.documentElement.classList.toggle('theme-light');
+          localStorage.setItem('hw_air_resistance_theme', isLight ? 'light' : 'dark');
+          if (themeLabel) themeLabel.textContent = isLight ? 'Dark Mode' : 'Light Mode';
+
+          renderFanTrackCanvas(0);
+          renderFanGraph();
+        });
+      }
+
+      // Font size scaling
+      const fontLevels = ['font-normal', 'font-large', 'font-huge'];
+      const fontNames = ['Normal', 'Large', '🖥️ Projector'];
+      let currentFontIdx = 0;
+
+      if (fontBtn) {
+        fontBtn.addEventListener('click', () => {
+          playSound('click');
+          document.documentElement.classList.remove(fontLevels[currentFontIdx]);
+          currentFontIdx = (currentFontIdx + 1) % fontLevels.length;
+          if (fontLevels[currentFontIdx] !== 'font-normal') {
+            document.documentElement.classList.add(fontLevels[currentFontIdx]);
+          }
+          if (fontLabel) fontLabel.textContent = fontNames[currentFontIdx];
+        });
+      }
+
+      // Sound FX Toggle
+      if (soundBtn) {
+        soundBtn.addEventListener('click', () => {
+          AppState.soundEnabled = !AppState.soundEnabled;
+          if (soundLabel) soundLabel.textContent = AppState.soundEnabled ? 'Sound ON' : 'Muted';
+          soundBtn.style.opacity = AppState.soundEnabled ? '1' : '0.6';
+          if (AppState.soundEnabled) playSound('ding');
+        });
+      }
+    }
+
+    // =========================================================================
+    // 4. STEPPER & STAGE NAVIGATION
+    // =========================================================================
+    function initNavigation() {
+      const stepButtons = document.querySelectorAll('.step-btn');
+      stepButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const stepNum = parseInt(btn.dataset.step, 10);
+          switchStep(stepNum);
+        });
+      });
+
+      document.getElementById('btn-to-stage-2')?.addEventListener('click', () => switchStep(2));
+      document.getElementById('btn-back-to-stage-1')?.addEventListener('click', () => switchStep(1));
+      document.getElementById('btn-to-stage-3')?.addEventListener('click', () => switchStep(3));
+      document.getElementById('btn-back-to-stage-2')?.addEventListener('click', () => switchStep(2));
+      document.getElementById('btn-to-stage-4')?.addEventListener('click', () => switchStep(4));
+      document.getElementById('btn-back-to-stage-3')?.addEventListener('click', () => switchStep(3));
+      document.getElementById('btn-to-stage-5')?.addEventListener('click', () => switchStep(5));
+      document.getElementById('btn-back-to-stage-4')?.addEventListener('click', () => switchStep(4));
+    }
+
+    function switchStep(stepNum) {
+      playSound('click');
+      AppState.currentStep = stepNum;
+
+      // Update Stepper Buttons
+      document.querySelectorAll('.step-btn').forEach(btn => {
+        const s = parseInt(btn.dataset.step, 10);
+        btn.classList.toggle('active', s === stepNum);
+      });
+
+      // Show/Hide Sections
+      document.querySelectorAll('.stage-section').forEach(sec => {
+        sec.style.display = 'none';
+      });
+      const targetSec = document.getElementById(`stage-${stepNum}`);
+      if (targetSec) {
+        targetSec.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      // Stage-specific initializations
+      if (stepNum === 3) {
+        setTimeout(() => {
+          renderFanTrackCanvas(0);
+          renderFanGraph();
+        }, 50);
+      } else if (stepNum === 5) {
+        calculateScore();
+      }
+    }
+
+    // =========================================================================
+    // 5. DESMOS SCIENTIFIC CALCULATOR DRAWER
+    // =========================================================================
+    function initDesmos() {
+      const toggleBtn = document.getElementById('btn-toggle-calculator');
+      const drawer = document.getElementById('desmos-drawer');
+      const closeBtn = document.getElementById('btn-close-calculator');
+      const container = document.getElementById('desmos-calculator-container');
+
+      if (!toggleBtn || !drawer) return;
+
+      toggleBtn.addEventListener('click', () => {
+        playSound('click');
+        const isOpen = drawer.classList.toggle('open');
+        if (isOpen && !AppState.desmosCalc && typeof Desmos !== 'undefined' && container) {
+          AppState.desmosCalc = Desmos.ScientificCalculator(container, {
+            fontSize: 16,
+            keypad: true
+          });
+        }
+      });
+
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+          playSound('click');
+          drawer.classList.remove('open');
+        });
+      }
+    }
+
+    // =========================================================================
+    // 6. STAGE 2: PREDICTION INPUTS & SPEC BINDINGS
+    // =========================================================================
+    function initStage2Inputs() {
+      const radios = document.querySelectorAll('input[name="prediction-option"]');
+      radios.forEach(r => {
+        r.addEventListener('change', () => {
+          AppState.prediction = r.value;
+          playSound('click');
+        });
+      });
+
+      const reasonEl = document.getElementById('prediction-reasoning');
+      if (reasonEl) {
+        reasonEl.addEventListener('input', () => {
+          AppState.predictionText = reasonEl.value;
+        });
+      }
+
+      const carNameEl = document.getElementById('car-name');
+      if (carNameEl) {
+        carNameEl.addEventListener('input', () => {
+          AppState.carSpecs.carName = carNameEl.value;
+        });
+      }
+
+      const orientationEl = document.getElementById('card-orientation');
+      if (orientationEl) {
+        orientationEl.addEventListener('change', () => {
+          AppState.carSpecs.cardOrientation = orientationEl.value;
+        });
+      }
+
+      const heightEl = document.getElementById('release-height');
+      if (heightEl) {
+        heightEl.addEventListener('input', () => {
+          AppState.carSpecs.releaseHeight = parseFloat(heightEl.value) || 30;
+        });
+      }
+    }
+
+    // =========================================================================
+    // 7. STAGE 3: FAN SPEED DATA COLLECTION & ANIMATION
+    // =========================================================================
+    function initStage3Inputs() {
+      ['fan0', 'fan1', 'fan2', 'fan3'].forEach(tierId => {
+        ['t1', 't2', 't3'].forEach(t => {
+          const inputEl = document.getElementById(`${tierId}-${t}`);
+          if (inputEl) {
+            inputEl.addEventListener('input', () => {
+              recalcFanTier(tierId);
+              renderFanGraph();
+            });
+          }
+        });
+      });
+
+      // Simulation Test Run Button
+      const testRunBtn = document.getElementById('btn-animate-fan');
+      if (testRunBtn) {
+        testRunBtn.addEventListener('click', () => {
+          runFanSimulation('fan2');
+        });
+      }
+
+      const resetBtn = document.getElementById('btn-reset-fan');
+      if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+          if (animId) cancelAnimationFrame(animId);
+          renderFanTrackCanvas(0, 'fan0');
+        });
+      }
+    }
+
+    function recalcFanTier(tierId) {
+      const t1 = parseFloat(document.getElementById(`${tierId}-t1`)?.value);
+      const t2 = parseFloat(document.getElementById(`${tierId}-t2`)?.value);
+      const t3 = parseFloat(document.getElementById(`${tierId}-t3`)?.value);
+
+      const validValues = [t1, t2, t3].filter(v => !isNaN(v) && v >= 0);
+      const avgEl = document.getElementById(`${tierId}-avg`);
+
+      AppState.fanTiers[tierId].t1 = !isNaN(t1) ? t1 : null;
+      AppState.fanTiers[tierId].t2 = !isNaN(t2) ? t2 : null;
+      AppState.fanTiers[tierId].t3 = !isNaN(t3) ? t3 : null;
+
+      if (validValues.length > 0) {
+        const sum = validValues.reduce((a, b) => a + b, 0);
+        const avg = (sum / validValues.length).toFixed(1);
+        AppState.fanTiers[tierId].avg = parseFloat(avg);
+        if (avgEl) avgEl.textContent = `${avg} cm`;
+      } else {
+        AppState.fanTiers[tierId].avg = null;
+        if (avgEl) avgEl.textContent = '-- cm';
+      }
+    }
+
+    // Canvas Fan Track Visualizer
+    let animId = null;
+    function runFanSimulation(tierId) {
+      playSound('whoosh');
+      if (animId) cancelAnimationFrame(animId);
+
+      // Distance factor based on fan speed
+      let distFactor = 1.0;
+      if (tierId === 'fan1') distFactor = 0.72;
+      else if (tierId === 'fan2') distFactor = 0.48;
+      else if (tierId === 'fan3') distFactor = 0.28;
+
+      let start = null;
+      const duration = 1600;
+
+      function step(timestamp) {
+        if (!start) start = timestamp;
+        const elapsed = timestamp - start;
+        const progress = Math.min(elapsed / duration, 1);
+        // Deceleration ease-out: 1 - (1 - progress)^2
+        const easeOut = 1 - Math.pow(1 - progress, 2);
+        const currentDistanceNorm = easeOut * distFactor;
+
+        renderFanTrackCanvas(currentDistanceNorm, tierId);
+
+        if (progress < 1) {
+          animId = requestAnimationFrame(step);
+        } else {
+          playSound('ding');
+        }
+      }
+      animId = requestAnimationFrame(step);
+    }
+
+    function renderFanTrackCanvas(progressNorm = 0, activeTier = 'fan0') {
+      const canvas = document.getElementById('canvas-fan-track');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const isLight = document.documentElement.classList.contains('theme-light');
+
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      if (canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+      }
+      ctx.resetTransform();
+      ctx.scale(dpr, dpr);
+
+      const W = rect.width;
+      const H = rect.height;
+
+      // Background
+      ctx.fillStyle = isLight ? '#f8fafc' : '#090d16';
+      ctx.fillRect(0, 0, W, H);
+
+      // Ramp on left (0 to 120px)
+      const rampEnd = 130;
+      const trackY = H - 45;
+      const rampTopY = 35;
+
+      ctx.beginPath();
+      ctx.moveTo(15, rampTopY);
+      ctx.lineTo(rampEnd, trackY);
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 6;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      // Support post for ramp
+      ctx.beginPath();
+      ctx.moveTo(15, rampTopY);
+      ctx.lineTo(15, trackY);
+      ctx.strokeStyle = isLight ? '#94a3b8' : '#475569';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Flat track going toward right
+      const trackEnd = W - 100;
+      ctx.beginPath();
+      ctx.moveTo(rampEnd - 2, trackY);
+      ctx.lineTo(trackEnd, trackY);
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 6;
+      ctx.stroke();
+
+      // Centimeter markings along flat track
+      ctx.strokeStyle = isLight ? '#cbd5e1' : '#334155';
+      ctx.fillStyle = isLight ? '#64748b' : '#94a3b8';
+      ctx.font = '10px Inter, system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      const trackLengthPx = trackEnd - rampEnd;
+      for (let cm = 0; cm <= 200; cm += 25) {
+        const x = rampEnd + (cm / 200) * trackLengthPx;
+        ctx.beginPath();
+        ctx.moveTo(x, trackY);
+        ctx.lineTo(x, trackY + (cm % 50 === 0 ? 10 : 5));
+        ctx.stroke();
+        if (cm % 50 === 0) {
+          ctx.fillText(cm + 'cm', x, trackY + 22);
+        }
+      }
+
+      // Fan on right side facing left
+      const fanX = W - 55;
+      const fanY = trackY - 32;
+
+      // Fan housing
+      ctx.fillStyle = isLight ? '#cbd5e1' : '#1e293b';
+      ctx.strokeStyle = '#0284c7';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(fanX, fanY, 26, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Fan blades
+      ctx.save();
+      ctx.translate(fanX, fanY);
+      const fanSpeedRot = activeTier === 'fan0' ? 0 : Date.now() * 0.02 * (activeTier === 'fan3' ? 2.5 : activeTier === 'fan2' ? 1.6 : 0.8);
+      ctx.rotate(fanSpeedRot);
+      ctx.fillStyle = '#38bdf8';
+      for (let b = 0; b < 4; b++) {
+        ctx.rotate(Math.PI / 2);
+        ctx.beginPath();
+        ctx.ellipse(0, 11, 4, 10, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // Fan stand
+      ctx.beginPath();
+      ctx.moveTo(fanX, fanY + 26);
+      ctx.lineTo(fanX, trackY + 8);
+      ctx.moveTo(fanX - 16, trackY + 8);
+      ctx.lineTo(fanX + 16, trackY + 8);
+      ctx.strokeStyle = isLight ? '#64748b' : '#94a3b8';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Fan Wind stream lines (blowing to the left)
+      if (activeTier !== 'fan0') {
+        const windIntensity = activeTier === 'fan3' ? 5 : activeTier === 'fan2' ? 3 : 2;
+        ctx.strokeStyle = isLight ? 'rgba(2, 132, 199, 0.45)' : 'rgba(56, 189, 248, 0.45)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([8, 6]);
+        for (let w = 0; w < windIntensity; w++) {
+          const wy = fanY - 18 + w * 10;
+          ctx.beginPath();
+          ctx.moveTo(fanX - 30, wy);
+          ctx.lineTo(rampEnd + 40, wy);
+          ctx.stroke();
+        }
+        ctx.setLineDash([]);
+      }
+
+      // Car position
+      const carStart = rampEnd;
+      const carX = carStart + progressNorm * (trackLengthPx - 30);
+      const carY = trackY - 10;
+
+      // Draw Hot Wheels Car with Index Card Sail
+      ctx.save();
+      ctx.translate(carX, carY);
+
+      // Car Body
+      ctx.fillStyle = '#ec4899';
+      ctx.beginPath();
+      ctx.roundRect(-22, -8, 44, 12, 3);
+      ctx.fill();
+
+      // Wheels
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.arc(-14, 4, 4.5, 0, Math.PI * 2);
+      ctx.arc(14, 4, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#e2e8f0';
+      ctx.beginPath();
+      ctx.arc(-14, 4, 2, 0, Math.PI * 2);
+      ctx.arc(14, 4, 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Card Sail (Vertical index card taped on roof)
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = '#e11d48';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(-3, -32, 6, 24, 1);
+      ctx.fill();
+      ctx.stroke();
+
+      // Air brake label
+      ctx.fillStyle = isLight ? '#0f172a' : '#f8fafc';
+      ctx.font = 'bold 9px Inter, system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('AIR BRAKE', 0, -36);
+
+      ctx.restore();
+    }
+
+    // Dynamic Bar Graph of Distance vs Fan Speed
+    function renderFanGraph() {
+      const canvas = document.getElementById('canvas-fan-graph');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const isLight = document.documentElement.classList.contains('theme-light');
+
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      if (canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+      }
+      ctx.resetTransform();
+      ctx.scale(dpr, dpr);
+
+      const W = rect.width;
+      const H = rect.height;
+
+      // Background
+      ctx.fillStyle = isLight ? '#ffffff' : '#0f172a';
+      ctx.fillRect(0, 0, W, H);
+
+      const padL = 60;
+      const padR = 25;
+      const padT = 35;
+      const padB = 55;
+      const graphW = W - padL - padR;
+      const graphH = H - padT - padB;
+
+      // Determine max distance
+      let maxVal = 200;
+      ['fan0', 'fan1', 'fan2', 'fan3'].forEach(k => {
+        if (AppState.fanTiers[k].avg && AppState.fanTiers[k].avg > maxVal) {
+          maxVal = Math.ceil(AppState.fanTiers[k].avg / 50) * 50;
+        }
+      });
+
+      // Y-axis gridlines
+      ctx.strokeStyle = isLight ? '#e2e8f0' : '#1e293b';
+      ctx.fillStyle = isLight ? '#64748b' : '#94a3b8';
+      ctx.font = '11px Inter, system-ui, sans-serif';
+      ctx.textAlign = 'right';
+
+      const steps = 4;
+      for (let i = 0; i <= steps; i++) {
+        const val = Math.round((maxVal / steps) * i);
+        const y = padT + graphH - (val / maxVal) * graphH;
+        ctx.beginPath();
+        ctx.moveTo(padL, y);
+        ctx.lineTo(W - padR, y);
+        ctx.stroke();
+        ctx.fillText(val + ' cm', padL - 8, y + 4);
+      }
+
+      // Title & Labels
+      ctx.fillStyle = isLight ? '#0f172a' : '#f8fafc';
+      ctx.font = 'bold 12px Outfit, Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Average Coasting Distance vs. Fan Setting (Opposing Wind)', padL + graphW / 2, 20);
+
+      // Y-Axis label rotated
+      ctx.save();
+      ctx.translate(16, padT + graphH / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillStyle = isLight ? '#64748b' : '#94a3b8';
+      ctx.font = '11px Inter, system-ui, sans-serif';
+      ctx.fillText('Distance (cm)', 0, 0);
+      ctx.restore();
+
+      // Bars for each fan setting
+      const keys = ['fan0', 'fan1', 'fan2', 'fan3'];
+      const labels = ['Off (0 m/s)', 'Low (1.5 m/s)', 'Med (3.0 m/s)', 'High (4.5 m/s)'];
+      const barColors = ['#10b981', '#06b6d4', '#f59e0b', '#ef4444'];
+      const barSlot = graphW / keys.length;
+      const barWidth = Math.min(barSlot * 0.55, 60);
+
+      keys.forEach((k, idx) => {
+        const avg = AppState.fanTiers[k].avg;
+        const x = padL + idx * barSlot + (barSlot - barWidth) / 2;
+
+        if (avg !== null && avg !== undefined && avg > 0) {
+          const h = (avg / maxVal) * graphH;
+          const y = padT + graphH - h;
+
+          // Bar
+          ctx.fillStyle = barColors[idx];
+          ctx.beginPath();
+          ctx.roundRect(x, y, barWidth, h, [4, 4, 0, 0]);
+          ctx.fill();
+
+          // Value above bar
+          ctx.fillStyle = isLight ? '#0f172a' : '#f8fafc';
+          ctx.font = 'bold 11px Inter, system-ui, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(avg + ' cm', x + barWidth / 2, y - 6);
+        } else {
+          // Placeholder empty line
+          ctx.fillStyle = isLight ? '#94a3b8' : '#475569';
+          ctx.font = 'italic 10px Inter, system-ui, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('No data', x + barWidth / 2, padT + graphH - 12);
+        }
+
+        // X-Axis tick label
+        ctx.fillStyle = isLight ? '#334155' : '#cbd5e1';
+        ctx.font = '11px Inter, system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(labels[idx], x + barWidth / 2, padT + graphH + 20);
+      });
+
+      // Bottom Axis Line
+      ctx.beginPath();
+      ctx.moveTo(padL, padT + graphH);
+      ctx.lineTo(W - padR, padT + graphH);
+      ctx.strokeStyle = isLight ? '#64748b' : '#94a3b8';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    // =========================================================================
+    // 8. AUTOMATIC SCORING ENGINE (10 POINTS TOTAL)
+    // =========================================================================
+    function calculateScore() {
+      let score = 0;
+      const checks = {
+        setup: false,       // 1 pt: car specs filled out
+        prediction: false,  // 2 pts: prediction selected & >= 20 char reasoning
+        fanData: false,     // 3 pts: at least 3 fan settings have complete trials
+        fbdAnswers: false,  // 2 pts: Stage 4 conceptual checks
+        synthesis: false    // 2 pts: Stage 5 written questions >= 25 chars each
+      };
+
+      // Check 1: Setup Specs
+      const carName = document.getElementById('car-name')?.value.trim();
+      const cardOrient = document.getElementById('card-orientation')?.value;
+      if (carName && carName.length >= 2 && cardOrient) {
+        checks.setup = true;
+        score += 1;
+      }
+
+      // Check 2: Prediction
+      const predReason = document.getElementById('prediction-reasoning')?.value.trim();
+      if (AppState.prediction && predReason && predReason.length >= 15) {
+        checks.prediction = true;
+        score += 2;
+      }
+
+      // Check 3: Fan Data
+      let completedTiers = 0;
+      ['fan0', 'fan1', 'fan2', 'fan3'].forEach(k => {
+        const t1 = parseFloat(document.getElementById(`${k}-t1`)?.value);
+        const t2 = parseFloat(document.getElementById(`${k}-t2`)?.value);
+        const t3 = parseFloat(document.getElementById(`${k}-t3`)?.value);
+        if (!isNaN(t1) && !isNaN(t2) && !isNaN(t3) && t1 > 0 && t2 > 0 && t3 > 0) {
+          completedTiers++;
+        }
+      });
+      if (completedTiers >= 3) {
+        checks.fanData = true;
+        score += 3;
+      } else if (completedTiers >= 1) {
+        score += completedTiers; // partial credit
+      }
+
+      // Check 4: Stage 4 Checks (Net deceleration force radio & strobe dot answer)
+      const fbd1 = document.querySelector('input[name="fbd-check1"]:checked')?.value;
+      const fbd2 = document.querySelector('input[name="fbd-check2"]:checked')?.value;
+      let fbdScore = 0;
+      if (fbd1 === 'same_direction') fbdScore += 1;
+      if (fbd2 === 'closer_together') fbdScore += 1;
+      if (fbdScore > 0) {
+        score += fbdScore;
+        if (fbdScore === 2) checks.fbdAnswers = true;
+      }
+
+      // Check 5: Stage 5 Synthesis questions
+      const q1 = document.getElementById('synth-q1')?.value.trim() || '';
+      const q2 = document.getElementById('synth-q2')?.value.trim() || '';
+      const q3 = document.getElementById('synth-q3')?.value.trim() || '';
+      let synthPts = 0;
+      if (q1.length >= 20) synthPts++;
+      if (q2.length >= 20 || q3.length >= 20) synthPts++;
+      if (synthPts > 0) {
+        score += synthPts;
+        if (synthPts === 2) checks.synthesis = true;
+      }
+
+      // Cap at 10
+      score = Math.min(score, 10);
+      AppState.score = score;
+
+      // Update UI Rubric Badges
+      updateBadge('badge-setup', checks.setup, 1);
+      updateBadge('badge-pred', checks.prediction, 2);
+      updateBadge('badge-fan', checks.fanData, 3);
+      updateBadge('badge-fbd', checks.fbdAnswers, 2);
+      updateBadge('badge-synth', checks.synthesis, 2);
+
+      const scoreNumEl = document.getElementById('score-number');
+      const scorePctEl = document.getElementById('score-percent');
+      if (scoreNumEl) scoreNumEl.textContent = `${score} / 10`;
+      if (scorePctEl) scorePctEl.textContent = `(${score * 10}%)`;
+
+      return score;
+    }
+
+    function updateBadge(id, isComplete, maxPts) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (isComplete) {
+        el.className = 'status-badge complete';
+        el.textContent = `✅ Complete (${maxPts}/${maxPts} pts)`;
+      } else {
+        el.className = 'status-badge incomplete';
+        el.textContent = `⏳ Incomplete (0/${maxPts} pts)`;
+      }
+    }
+
+    // =========================================================================
+    // 9. SUBMISSION TO FIRESTORE
+    // =========================================================================
+    async function submitGradeToFirestore() {
+      if (AppState.isSubmitting) return;
+      playSound('click');
+
+      const saveDot = document.getElementById('save-status-dot');
+      const saveText = document.getElementById('save-status-text');
+      const statusMsg = document.getElementById('submission-status-message');
+
+      if (!AppState.user || !AppState.studentId) {
+        alert('Please sign in with your student Google Account (@orangeusd.org) before submitting.');
+        signInWithGoogle();
+        return;
+      }
+
+      const points = calculateScore();
+      const pct = points * 10;
+
+      AppState.isSubmitting = true;
+      if (saveDot) saveDot.className = 'save-dot saving';
+      if (saveText) saveText.textContent = 'Saving grade...';
+      if (statusMsg) statusMsg.innerHTML = '<span style="color:var(--accent-blue);">Submitting your lab data & score to Google Classroom sync...</span>';
+
+      try {
+        const studentRef = db.collection('student_results')
+          .doc(ASSIGNMENT_ID)
+          .collection('students')
+          .doc(AppState.studentId);
+
+        const existingSnap = await studentRef.get();
+        const existingScore = existingSnap.exists ? (existingSnap.data().points || 0) : 0;
+
+        if (points >= existingScore || !existingSnap.exists) {
+          const payload = {
+            student_id: AppState.studentId,
+            student_name: AppState.studentName,
+            email: AppState.studentEmail,
+            period: AppState.classPeriod,
+            class_period: AppState.classPeriod,
+            points: points,
+            max_points: 10,
+            percent: pct,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            carSpecs: {
+              carName: document.getElementById('car-name')?.value || '',
+              cardOrientation: document.getElementById('card-orientation')?.value || 'vertical',
+              releaseHeight: parseFloat(document.getElementById('release-height')?.value) || 30
+            },
+            prediction: AppState.prediction || null,
+            predictionText: document.getElementById('prediction-reasoning')?.value || '',
+            fanTiers: {
+              fan0: { ...AppState.fanTiers.fan0 },
+              fan1: { ...AppState.fanTiers.fan1 },
+              fan2: { ...AppState.fanTiers.fan2 },
+              fan3: { ...AppState.fanTiers.fan3 }
+            },
+            fbdAnswers: {
+              check1: document.querySelector('input[name="fbd-check1"]:checked')?.value || null,
+              check2: document.querySelector('input[name="fbd-check2"]:checked')?.value || null
+            },
+            synthesis: {
+              q1: document.getElementById('synth-q1')?.value || '',
+              q2: document.getElementById('synth-q2')?.value || '',
+              q3: document.getElementById('synth-q3')?.value || ''
+            }
+          };
+
+          // Sanitize any potential undefined values
+          Object.keys(payload).forEach(k => {
+            if (payload[k] === undefined) payload[k] = null;
+          });
+
+          await studentRef.set(payload, { merge: true });
+
+          playSound('fanfare');
+          if (typeof confetti === 'function') {
+            confetti({ particleCount: 80, spread: 70, origin: { y: 0.7 } });
+          }
+          if (saveDot) saveDot.className = 'save-dot';
+          if (saveText) saveText.textContent = 'Grade Synced';
+          if (statusMsg) {
+            statusMsg.innerHTML = `🎉 Grade of <strong style="color:var(--green);">${points}/10 (${pct}%)</strong> recorded in Google Classroom queue!`;
+          }
+        } else {
+          playSound('ding');
+          if (saveDot) saveDot.className = 'save-dot';
+          if (saveText) saveText.textContent = 'Prior High Maintained';
+          if (statusMsg) {
+            statusMsg.innerHTML = `Attempt verified (${points}/10). Your previous high score of <strong style="color:var(--green);">${existingScore}/10</strong> was retained.`;
+          }
+        }
+      } catch (err) {
+        console.error('Submission error:', err);
+        if (saveDot) saveDot.className = 'save-dot';
+        if (saveText) saveText.textContent = 'Save Error';
+        if (statusMsg) statusMsg.innerHTML = `<span style="color:var(--red);">Error saving grade: ${err.message}</span>`;
+      } finally {
+        AppState.isSubmitting = false;
+      }
+    }
+
+    // =========================================================================
+    // 10. INITIALIZATION ON DOM READY
+    // =========================================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      initTheming();
+      initNavigation();
+      initDesmos();
+      initStage2Inputs();
+      initStage3Inputs();
+
+      const periodSelect = document.getElementById('station-period');
+      if (periodSelect) {
+        periodSelect.addEventListener('change', () => {
+          AppState.classPeriod = parseInt(periodSelect.value, 10) || 1;
+        });
+      }
+
+      document.getElementById('btn-validate-grade').addEventListener('click', () => {
+        playSound('click');
+        calculateScore();
+      });
+
+      document.getElementById('btn-submit-grade').addEventListener('click', () => {
+        submitGradeToFirestore();
+      });
+
+      // Canvas window resize listener
+      window.addEventListener('resize', () => {
+        renderFanTrackCanvas(0);
+        renderFanGraph();
+      });
+
+      // Initial canvas renders
+      setTimeout(() => {
+        renderFanTrackCanvas(0);
+        renderFanGraph();
+      }, 100);
+    });
+  </script>
+</body>
+</html>
