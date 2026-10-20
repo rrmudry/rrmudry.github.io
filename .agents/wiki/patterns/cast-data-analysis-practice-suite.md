@@ -142,13 +142,22 @@ The printable student worksheet layout (`#printWorksheet`) represents the depart
 - **Narrative Content Law**: Strictly describes the physical apparatus, materials tested, method of manipulating the independent variable, measurement instrument for the dependent variable, and controlled variables held constant. **Zero textbook definitions or philosophical filler.**
 
 ### 4. Balanced Evidence Grid (Exactly 2.25 in)
-- **Container**: `display: grid; grid-template-columns: 46% 52%; gap: 2%; height: 2.25in; margin-bottom: 4px; align-items: stretch;`
-- **Data Table (Left, 46%)**:
-  - Border: `1.5px solid #cbd5e1; border-radius: 5px; padding: 3px 5px; font-size: 6.9pt; line-height: 1.12;`
-  - Header Row: Background `#f1f5f9; font-weight: 800; color: #0f172a; padding: 1.5px 3px; border: 1px solid #cbd5e1;`
+- **Container**: `.p-evidence-grid { display: grid; grid-template-columns: 48% 50%; gap: 2%; height: 2.25in; margin-bottom: 4px; align-items: stretch; }`
+  - **Dynamic Multi-Series Column Balancing**: Adapts to multi-column tables automatically:
+    - 3 Columns (Standard): `48% 50%`
+    - 4 Columns (`.grid-cols-4`): `54% 44%` (gives table the extra width needed for 2 Y-series without compressing graph)
+    - 5 Columns (`.grid-cols-5`): `58% 40%`
+- **Data Table (Left Column)**:
+  - Border: `1.5px solid #cbd5e1; border-radius: 5px; padding: 3px 5px; font-size: 6.7pt; line-height: 1.10;`
+  - Header Row: Background `#f1f5f9; font-weight: 800; color: #0f172a; padding: 2px 3px; border: 1px solid #cbd5e1;`
+  - **Mandatory Header Wrapping**: `white-space: normal; word-break: normal; overflow-wrap: break-word; vertical-align: bottom;` (NEVER use `nowrap` on `th` — allows descriptive multi-word titles like `Pressing Force (Normal Force) (N)` to wrap into 2 compact lines).
+  - First Column (`Trial #`): Centered with compact width (`width: 12%`).
+  - **Compact Multi-Dataset Mode (`.p-table-compact`)**:
+    - Triggered automatically when table has $\ge 4$ columns.
+    - Uses `font-size: 6.1pt; line-height: 1.08;` with `1.5px 2px` padding and shortens trial values from `"Trial 1"` to `"1"` (`width: 9%`) so all Y-columns fit comfortably without clipping.
   - Caption: Allows natural wrapping (`white-space: normal; overflow: visible; font-size: 6.8pt; font-weight: 800;`) with zero text cut-off.
   - Scientific Units: Column headers must include units in parentheses, e.g. `Normal Force (N)`.
-- **Graph Snapshot (Right, 52%)**:
+- **Graph Snapshot (Right Column)**:
   - Border: `1.5px solid #cbd5e1; border-radius: 5px; padding: 3px 5px;`
   - Image: `max-height: 1.85in; width: 100%; height: 100%; object-fit: contain;` from base64 Chart.js canvas render.
 
