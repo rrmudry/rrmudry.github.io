@@ -38,11 +38,20 @@ const SCENARIOS = [
       min: 0,
       suggestedMax: 7.0
     },
-    background: `A student engineering team investigates the relationship between net applied force and acceleration on a low-friction dynamics track. A frictionless glider with a fixed total mass of <strong>5.0 kg</strong> is pulled horizontally across the track using calibrated hanging masses over a frictionless pulley. 
+    background: `A student engineering team investigates the relationship between net applied force and acceleration on a precision low-friction dynamics track. A frictionless glider with a fixed total mass of <strong>5.0 kg</strong> is accelerated horizontally using calibrated hanging masses suspended over an ultra-low-friction pulley. 
 
-An optical photogate array measures the glider's acceleration for five separate trials. The team ensures the total system mass remains constant throughout all trials to isolate the direct effect of net force on acceleration.`,
+An optical photogate array linked to a high-speed digital timer measures the glider's acceleration across five consecutive trials. To rigorously isolate the net applied force as the sole independent variable, the team maintains constant controlled variables: total system mass (5.0 kg), track leveling verified with an electronic inclinometer (0.0° inclination), aerodynamic drag profile, and ambient laboratory temperature (21.5°C).`,
+    controlledVariables: [
+      "Total system mass held constant at exactly 5.0 kg",
+      "Track leveling verified to 0.0° tilt with electronic inclinometer",
+      "Zero initial velocity (glider released from rest at identical start gate)"
+    ],
+    calibratedInstrumentation: [
+      "Photogate array with 0.001 s timing precision",
+      "Calibrated analytical hanging masses (±0.01 N tolerance)"
+    ],
     dataTable: {
-      caption: "Table 1: Glider Acceleration Under Varying Net Force (Mass = 5.0 kg)",
+      caption: "Table 1: Glider Acceleration Under Varying Net Force (System Mass = 5.0 kg)",
       columns: [
         { key: "trial", label: "Trial #", isText: true },
         { key: "force", label: "Net Force (N)", isX: true, unit: "N" },
@@ -66,7 +75,30 @@ An optical photogate array measures the glider's acceleration for five separate 
       equation: "a = 0.20 F_net + 0.00",
       slopeMeaning: "1 / Mass (1 / 5.0 kg = 0.20 m/s² per N)"
     },
+    // -------------------------------------------------------------
+    // 5-PART PEDAGOGICAL QUESTIONS ARCHITECTURE
+    // -------------------------------------------------------------
     questions: {
+      // 1. Graph Anatomy & Decoding Mechanics
+      anatomy: {
+        id: "anatomy_q",
+        independentVar: "Net Applied Force (N)",
+        dependentVar: "Measured Acceleration (m/s²)",
+        locatorPrompt: "Find 25.0 N on the horizontal axis (Net Force). What is the corresponding measured acceleration on the vertical axis?",
+        expectedLocatorValue: 5.0,
+        locatorTolerance: 0.2,
+        locatorUnit: "m/s²",
+        interceptPrompt: "At F_net = 0 N, the best-fit line passes through the origin (0, 0). What is the physical meaning of this intercept?",
+        interceptOptions: [
+          "Without an unbalanced net force, an object at rest remains at rest (zero acceleration)",
+          "The glider accelerates on its own due to gravity",
+          "The mass of the glider drops to zero at the starting gate",
+          "The photogate sensors are uncalibrated"
+        ],
+        interceptCorrectIndex: 0,
+        interceptExplanation: "In accordance with Newton's First Law, when the net unbalanced external force is zero, the acceleration must be zero (the cart stays at rest)."
+      },
+      // 2. Trend Identification & Pattern
       trend: {
         id: "trend_q",
         type: "multiple_choice",
@@ -80,6 +112,7 @@ An optical photogate array measures the glider's acceleration for five separate 
         correctIndex: 0,
         explanation: "As net force increases from 5 N to 30 N, acceleration increases at a constant linear rate of 0.20 m/s² for each 1 N increase in force (a = F_net / m)."
       },
+      // 3. Step-by-Step Guided Rate / Slope Analysis (SEP-5)
       quantitative: {
         id: "quant_q",
         type: "calculation",
@@ -87,8 +120,17 @@ An optical photogate array measures the glider's acceleration for five separate 
         expectedValue: 0.20,
         tolerance: 0.02,
         unit: "(m/s²) / N",
-        hint: "Use slope = (a₂ - a₁) / (F₂ - F₁). That is: (5.0 m/s² - 2.0 m/s²) / (25 N - 10 N) = 3.0 / 15 = 0.20 (m/s²)/N."
+        hint: "Use slope = (a₂ - a₁) / (F₂ - F₁). That is: (5.0 m/s² - 2.0 m/s²) / (25 N - 10 N) = 3.0 / 15 = 0.20 (m/s²)/N.",
+        slopeSteps: {
+          point1: { x: 10.0, y: 2.0, label: "Trial 2 (10 N, 2.0 m/s²)" },
+          point2: { x: 25.0, y: 5.0, label: "Trial 5 (25 N, 5.0 m/s²)" },
+          formulaSetup: "Slope = (5.0 m/s² - 2.0 m/s²) / (25.0 N - 10.0 N) = 3.0 / 15.0",
+          calculatedSlope: 0.20,
+          slopeUnit: "(m/s²)/N",
+          physicalMeaning: "Inverse of the system mass (1 / m = 1 / 5.0 kg = 0.20 (m/s²)/N)"
+        }
       },
+      // 4. Scaffolded CER with Sentence Frames & Diagnostics
       freeResponse: {
         id: "fr_q",
         type: "cer",
@@ -97,8 +139,14 @@ An optical photogate array measures the glider's acceleration for five separate 
         requiredUnits: ["n", "newton", "m/s²", "m/s^2", "kg"],
         claimKeywords: ["direct", "proportional", "linear", "increases", "greater force", "doubling", "rate"],
         reasoningKeywords: ["newton", "second law", "mass", "f=ma", "net force", "inertia", "unbalanced"],
-        exemplar: "Claim: The acceleration of the glider is directly proportional to the net applied force when mass is held constant. Evidence: At a net force of 10.0 N, the glider accelerated at 2.0 m/s². When the net force was doubled to 20.0 N, the acceleration exactly doubled to 4.0 m/s², maintaining a constant rate of change (slope) of 0.20 (m/s²)/N. Reasoning: According to Newton's Second Law (a = F_net / m), an unbalanced net force causes a proportional acceleration inversely scaled by the object's mass (5.0 kg)."
+        exemplar: "Claim: The acceleration of the glider is directly proportional to the net applied force when mass is held constant. Evidence: At a net force of 10.0 N, the glider accelerated at 2.0 m/s². When the net force was doubled to 20.0 N, the acceleration exactly doubled to 4.0 m/s², maintaining a constant rate of change (slope) of 0.20 (m/s²)/N. Reasoning: According to Newton's Second Law (a = F_net / m), an unbalanced net force causes a proportional acceleration inversely scaled by the object's mass (5.0 kg).",
+        sentenceFrames: {
+          claimFrame: "When system mass is held constant at 5.0 kg, the acceleration of the glider is [directly proportional to / inversely proportional to] the net applied force.",
+          evidenceFrame: "As shown in the data, when the net force is [Value 1] N, the acceleration is [Value 1] m/s². When the force increases to [Value 2] N, the acceleration reaches [Value 2] m/s², resulting in a rate of change of 0.20 (m/s²)/N.",
+          reasoningFrame: "This occurs because according to Newton's Second Law (F_net = m·a), an unbalanced net force causes an acceleration inversely proportional to the system's [mass / speed], so doubling the force [doubles / halves] the acceleration."
+        }
       },
+      // 5. Synthesis & Diagnostic Misconception Extrapolation
       synthesis: {
         id: "syn_q",
         type: "multiple_choice",
@@ -110,7 +158,16 @@ An optical photogate array measures the glider's acceleration for five separate 
           "12.0 m/s²"
         ],
         correctIndex: 1,
-        explanation: "Using a = F_net / m = 40.0 N / 5.0 kg, or extending the slope line: a = (0.20)(40.0) = 8.0 m/s²."
+        explanation: "Using a = F_net / m = 40.0 N / 5.0 kg, or extending the slope line: a = (0.20)(40.0) = 8.0 m/s².",
+        diagnosticPrompt: "A student incorrectly claims: 'If you double the net force from 10 N to 20 N, the acceleration quadruples to 8 m/s² because kinetic energy quadruples.' How does the data refute this misconception?",
+        diagnosticOptions: [
+          "Acceleration only depends on net force and mass (F=ma is linear), whereas kinetic energy scales with speed squared, not force.",
+          "The glider mass was changing during the run.",
+          "Friction cancels out all additional force.",
+          "Acceleration does quadruple when measured with radar instead of photogates."
+        ],
+        diagnosticCorrectIndex: 0,
+        diagnosticExplanation: "Newton's second law is strictly linear with net force: a = F_net / m. Kinetic energy depends on the square of velocity (½mv²), not force directly."
       }
     }
   },
@@ -142,9 +199,20 @@ An optical photogate array measures the glider's acceleration for five separate 
       min: 0,
       suggestedMax: 70
     },
-    background: `Automotive safety engineers test the emergency stopping distance of an electric sedan (mass = 1,500 kg) on a dry asphalt test track. In each test run, the test vehicle cruises at a set speed before the autonomous anti-lock braking system (ABS) applies maximum steady braking force.
+    background: `Automotive safety engineers test the emergency stopping distance of an electric sedan (mass = 1,500 kg) on an enclosed, dry asphalt test track. In each experimental trial, the vehicle cruises at a set speed before the autonomous anti-lock braking system (ABS) applies maximum calibrated hydraulic braking force.
 
-The braking distance is recorded from the precise moment the brakes engage until the vehicle comes to a complete stop. Reaction time is excluded to isolate the physical braking distance.`,
+High-resolution GPS telemetry and wheel optical encoders record the exact braking distance from the millisecond the brake calipers engage until forward motion completely ceases. To isolate initial speed as the sole independent variable, the testing team strictly controls external variables: identical road surface roughness, dry asphalt conditions (zero precipitation), identical tire tread depth (8.0 mm), constant vehicle curb weight with ballast (1,500 kg), and zero driver reaction time (actuated by electronic telemetry).`,
+    controlledVariables: [
+      "Total vehicle mass with calibrated ballast held at 1,500 kg",
+      "Identical tire compound and tread depth (8.0 mm on dry asphalt)",
+      "Braking force maintained at maximum constant ABS deceleration",
+      "Reaction time excluded (autonomous sensor trigger at 0.00 s)"
+    ],
+    calibratedInstrumentation: [
+      "Differential GPS with 2 cm positioning accuracy",
+      "Optical optical wheel-encoders sampling at 1,000 Hz",
+      "Calibrated electronic brake pedal transducer"
+    ],
     dataTable: {
       caption: "Table 2: Emergency Braking Distance as a Function of Speed",
       columns: [
@@ -168,6 +236,26 @@ The braking distance is recorded from the precise moment the brakes engage until
       slopeMeaning: "Quadratic growth: Braking distance scales with v²"
     },
     questions: {
+      // 1. Graph Anatomy & Decoding Mechanics
+      anatomy: {
+        id: "anatomy_q",
+        independentVar: "Initial Vehicle Speed (m/s)",
+        dependentVar: "Emergency Braking Distance (m)",
+        locatorPrompt: "Find 17.9 m/s (~40 mph) on the horizontal axis. What is the corresponding braking distance on the vertical axis?",
+        expectedLocatorValue: 25.6,
+        locatorTolerance: 0.5,
+        locatorUnit: "m",
+        interceptPrompt: "At an initial speed of 0 m/s, the curve originates at (0, 0). What is the physical meaning of this point?",
+        interceptOptions: [
+          "A stationary vehicle requires zero braking distance to come to rest",
+          "The brakes do not work when the car is parked",
+          "The vehicle has infinite kinetic energy at rest",
+          "The speedometer is miscalibrated"
+        ],
+        interceptCorrectIndex: 0,
+        interceptExplanation: "If initial velocity is zero, the car possesses zero kinetic energy (KE = 0 J), so no stopping distance is required."
+      },
+      // 2. Trend Identification & Pattern
       trend: {
         id: "trend_q",
         type: "multiple_choice",
@@ -181,6 +269,7 @@ The braking distance is recorded from the precise moment the brakes engage until
         correctIndex: 1,
         explanation: "The curve steepens continuously. Doubling speed from ~8.9 m/s to ~17.9 m/s causes the braking distance to quadruple from 6.4 m to 25.6 m."
       },
+      // 3. Step-by-Step Guided Rate / Factor Analysis (SEP-5)
       quantitative: {
         id: "quant_q",
         type: "calculation",
@@ -188,8 +277,17 @@ The braking distance is recorded from the precise moment the brakes engage until
         expectedValue: 4.0,
         tolerance: 0.2,
         unit: "factor (ratio)",
-        hint: "Divide the two braking distances: 25.6 m / 6.4 m = 4.0."
+        hint: "Divide the two braking distances: 25.6 m / 6.4 m = 4.0.",
+        slopeSteps: {
+          point1: { x: 8.9, y: 6.4, label: "Trial 2 (8.9 m/s, 6.4 m)" },
+          point2: { x: 17.9, y: 25.6, label: "Trial 4 (17.9 m/s, 25.6 m)" },
+          formulaSetup: "Factor = d₂ / d₁ = 25.6 m / 6.4 m = 4.0",
+          calculatedSlope: 4.0,
+          slopeUnit: "ratio (4x)",
+          physicalMeaning: "Work-Energy relationship: Stopping distance scales quadratically (d ∝ v²)"
+        }
       },
+      // 4. Scaffolded CER with Sentence Frames & Diagnostics
       freeResponse: {
         id: "fr_q",
         type: "cer",
@@ -198,8 +296,14 @@ The braking distance is recorded from the precise moment the brakes engage until
         requiredUnits: ["m/s", "m", "meters", "mph"],
         claimKeywords: ["quadratic", "disproportionate", "exponential", "quadruple", "square", "steep", "faster"],
         reasoningKeywords: ["kinetic energy", "work", "ke = 1/2mv²", "work-energy", "force", "friction", "dissipate"],
-        exemplar: "Claim: Braking distance increases quadratically with speed (d ∝ v²) rather than linearly, so doubling speed quadruples required stopping distance. Evidence: At 13.4 m/s (30 mph), the braking distance is 14.4 m. When speed doubles to 26.8 m/s (60 mph), the stopping distance increases to 57.6 m, which is exactly 4.0 times greater (57.6 / 14.4 = 4.0). Reasoning: According to the Work-Energy Theorem, the work done by friction (W = F × d) must dissipate all vehicle kinetic energy (KE = ½mv²). Because kinetic energy is proportional to the square of velocity (v²), twice the speed contains four times the kinetic energy, requiring four times the stopping distance for constant braking force."
+        exemplar: "Claim: Braking distance increases quadratically with speed (d ∝ v²) rather than linearly, so doubling speed quadruples required stopping distance. Evidence: At 13.4 m/s (30 mph), the braking distance is 14.4 m. When speed doubles to 26.8 m/s (60 mph), the stopping distance increases to 57.6 m, which is exactly 4.0 times greater (57.6 / 14.4 = 4.0). Reasoning: According to the Work-Energy Theorem, the work done by friction (W = F × d) must dissipate all vehicle kinetic energy (KE = ½mv²). Because kinetic energy is proportional to the square of velocity (v²), twice the speed contains four times the kinetic energy, requiring four times the stopping distance for constant braking force.",
+        sentenceFrames: {
+          claimFrame: "Emergency braking distance increases [linearly / quadratically] with initial vehicle speed, meaning higher speeds require disproportionately greater distance.",
+          evidenceFrame: "At an initial speed of [Speed 1] m/s, the vehicle stops in [Distance 1] m, but when speed doubles to [Speed 2] m/s, the stopping distance increases to [Distance 2] m (a factor of 4.0x).",
+          reasoningFrame: "This non-linear increase is explained by the Work-Energy Theorem (W = F·d = ½m·v²): because kinetic energy depends on the [square of velocity / linear velocity], doubling the velocity quadruples the thermal work that friction must do to stop the vehicle."
+        }
       },
+      // 5. Synthesis & Diagnostic Misconception Extrapolation
       synthesis: {
         id: "syn_q",
         type: "multiple_choice",
@@ -211,7 +315,16 @@ The braking distance is recorded from the precise moment the brakes engage until
           "~200 m"
         ],
         correctIndex: 1,
-        explanation: "Using d = 0.08 v²: d = 0.08 × (35.8)² ≈ 102.5 m. A vehicle traveling 4 times faster than 8.9 m/s requires 16 times the distance (16 × 6.4 m ≈ 102.4 m)."
+        explanation: "Using d = 0.08 v²: d = 0.08 × (35.8)² ≈ 102.5 m. A vehicle traveling 4 times faster than 8.9 m/s requires 16 times the distance (16 × 6.4 m ≈ 102.4 m).",
+        diagnosticPrompt: "A novice driver assumes: 'If 30 mph takes ~14 meters to stop, then 60 mph should take about 28 meters.' Why does real-world collision physics contradict this assumption?",
+        diagnosticOptions: [
+          "Linear scaling fails because stopping distance depends on kinetic energy (v²), not velocity (v), meaning doubling speed requires 4 times the stopping distance (~57.6 m), not 2 times.",
+          "ABS systems only turn on at speeds below 45 mph.",
+          "Tires gain more friction at higher speeds.",
+          "Mass of the car decreases at high speeds."
+        ],
+        diagnosticCorrectIndex: 0,
+        diagnosticExplanation: "Assuming linear stopping distance is one of the most dangerous driving misconceptions. Energy scales as v², so stopping distance quadruples when speed doubles."
       }
     }
   },
@@ -243,9 +356,20 @@ The braking distance is recorded from the precise moment the brakes engage until
       min: 0,
       suggestedMax: 100
     },
-    background: `High school biology students investigate the activity of the enzyme catalase, which catalyzes the breakdown of harmful hydrogen peroxide (2H₂O₂ → 2H₂O + O₂) inside mammalian cells. 
+    background: `High school biology students investigate the catalytic activity of mammalian catalase, a globular protein enzyme that accelerates the decomposition of cellular metabolic toxins by breaking hydrogen peroxide into water and oxygen gas (2H₂O₂ → 2H₂O + O₂).
 
-Uniform paper disks soaked in liver homogenate (containing catalase) are placed at the bottom of vials containing 3% hydrogen peroxide solution at varying controlled temperatures. The rate of oxygen gas evolution is measured using an inverted gas collection tube over 3-minute intervals.`,
+Uniform filter paper disks saturated with standardized bovine liver homogenate (providing constant enzyme concentration) are placed at the bottom of reaction vials filled with 30.0 mL of 3.0% hydrogen peroxide solution across a temperature gradient from 10°C to 65°C. To ensure environmental temperature is the sole manipulated independent variable, students strictly hold constant: substrate concentration (3.0% H₂O₂), solution pH buffered at 7.0 using phosphate buffer, disk surface area, and atmospheric pressure. An inverted water-displacement eudiometer records oxygen evolution over 3.0-minute trial intervals.`,
+    controlledVariables: [
+      "Substrate concentration held constant at 3.0% H₂O₂",
+      "pH buffered to 7.0 with phosphate buffer solution",
+      "Equal enzyme volume (identical saturated 6 mm filter paper disks)",
+      "Standard 3.0-minute reaction duration per trial"
+    ],
+    calibratedInstrumentation: [
+      "Digital precision water bath maintaining ±0.2°C stability",
+      "Graduated eudiometer gas tube with 0.1 mL volumetric markings",
+      "Calibrated electronic digital pH probe"
+    ],
     dataTable: {
       caption: "Table 3: Catalase Activity as a Function of Environmental Temperature",
       columns: [
@@ -270,6 +394,26 @@ Uniform paper disks soaked in liver homogenate (containing catalase) are placed 
       slopeMeaning: "Kinetic activation (10–37°C) followed by protein denaturation (37–65°C)"
     },
     questions: {
+      // 1. Graph Anatomy & Decoding Mechanics
+      anatomy: {
+        id: "anatomy_q",
+        independentVar: "Environmental Temperature (°C)",
+        dependentVar: "Rate of Oxygen Production (mL/min)",
+        locatorPrompt: "Find 30°C on the horizontal axis. What is the corresponding oxygen production rate on the vertical axis?",
+        expectedLocatorValue: 54.0,
+        locatorTolerance: 1.0,
+        locatorUnit: "mL/min",
+        interceptPrompt: "At 65°C, the curve drops to 0.0 mL/min on the horizontal axis. What is the biological meaning of this point?",
+        interceptOptions: [
+          "Thermal energy has disrupted hydrogen and ionic bonds, permanently denaturing the enzyme's active site",
+          "The substrate evaporated from the beaker",
+          "The bacteria in the liver homogenate froze",
+          "The chemical reaction reached chemical equilibrium"
+        ],
+        interceptCorrectIndex: 0,
+        interceptExplanation: "Excess thermal energy above 45°C violently vibrates protein chains, unraveling the tertiary structure and destroying the active site."
+      },
+      // 2. Trend Identification & Pattern
       trend: {
         id: "trend_q",
         type: "multiple_choice",
@@ -283,6 +427,7 @@ Uniform paper disks soaked in liver homogenate (containing catalase) are placed 
         correctIndex: 1,
         explanation: "Enzyme activity rises from 10°C to a peak of 86.0 mL/min at body temperature (37°C), then decreases sharply between 37°C and 65°C as thermal denaturation alters the protein structure."
       },
+      // 3. Step-by-Step Guided Rate / Change Analysis (SEP-5)
       quantitative: {
         id: "quant_q",
         type: "calculation",
@@ -290,8 +435,17 @@ Uniform paper disks soaked in liver homogenate (containing catalase) are placed 
         expectedValue: 76.0,
         tolerance: 1.0,
         unit: "mL/min",
-        hint: "Subtract the rate at 55°C (10.0 mL/min) from the rate at 37°C (86.0 mL/min): 86.0 - 10.0 = 76.0 mL/min."
+        hint: "Subtract the rate at 55°C (10.0 mL/min) from the rate at 37°C (86.0 mL/min): 86.0 - 10.0 = 76.0 mL/min.",
+        slopeSteps: {
+          point1: { x: 37, y: 86.0, label: "Optimum (37°C, 86.0 mL/min)" },
+          point2: { x: 55, y: 10.0, label: "Denaturation (55°C, 10.0 mL/min)" },
+          formulaSetup: "ΔRate = Rate_peak - Rate_high = 86.0 mL/min - 10.0 mL/min = 76.0 mL/min",
+          calculatedSlope: 76.0,
+          slopeUnit: "mL/min",
+          physicalMeaning: "Quantitative loss of enzymatic catalytic throughput due to thermal denaturation"
+        }
       },
+      // 4. Scaffolded CER with Sentence Frames & Diagnostics
       freeResponse: {
         id: "fr_q",
         type: "cer",
@@ -300,8 +454,14 @@ Uniform paper disks soaked in liver homogenate (containing catalase) are placed 
         requiredUnits: ["°c", "c", "deg c", "degrees c", "ml/min"],
         claimKeywords: ["denature", "optimum", "drops", "decreases", "loss of function", "peak", "inhibits"],
         reasoningKeywords: ["active site", "denaturation", "hydrogen bonds", "tertiary structure", "substrate", "conformation", "protein"],
-        exemplar: "Claim: Elevated temperatures above 37°C cause rapid loss of catalase enzyme activity due to protein denaturation. Evidence: Catalase reaches maximum activity at 37°C with an oxygen production rate of 86.0 mL/min. As temperature rises to 45°C, the rate plunges to 48.0 mL/min, and by 65°C the rate reaches 0.0 mL/min (a complete drop of 86.0 mL/min). Reasoning: Below 37°C, increasing temperature boosts molecular kinetic energy and substrate collision frequency. Above 37°C, excessive thermal agitation disrupts delicate hydrogen and ionic bonds stabilizing the enzyme's tertiary structure. This denatures the protein and deforms its active site, preventing hydrogen peroxide substrates from binding."
+        exemplar: "Claim: Elevated temperatures above 37°C cause rapid loss of catalase enzyme activity due to protein denaturation. Evidence: Catalase reaches maximum activity at 37°C with an oxygen production rate of 86.0 mL/min. As temperature rises to 45°C, the rate plunges to 48.0 mL/min, and by 65°C the rate reaches 0.0 mL/min (a complete drop of 86.0 mL/min). Reasoning: Below 37°C, increasing temperature boosts molecular kinetic energy and substrate collision frequency. Above 37°C, excessive thermal agitation disrupts delicate hydrogen and ionic bonds stabilizing the enzyme's tertiary structure. This denatures the protein and deforms its active site, preventing hydrogen peroxide substrates from binding.",
+        sentenceFrames: {
+          claimFrame: "Elevated temperatures above the 37°C optimum cause human enzyme activity to [increase rapidly / drop drastically] due to loss of protein structure.",
+          evidenceFrame: "At optimal body temperature of 37°C, catalase produces [Peak Value] mL/min of O₂, but when temperature rises to 55°C, output plummets to [High Temp Value] mL/min (a drop of 76.0 mL/min).",
+          reasoningFrame: "This occurs because thermal agitation breaks the [hydrogen and ionic bonds / covalent peptide bonds] stabilizing the enzyme's tertiary structure, denaturing the [active site / cell wall] so substrate molecules can no longer fit."
+        }
       },
+      // 5. Synthesis & Diagnostic Misconception Extrapolation
       synthesis: {
         id: "syn_q",
         type: "multiple_choice",
@@ -313,7 +473,16 @@ Uniform paper disks soaked in liver homogenate (containing catalase) are placed 
           "The enzyme will convert hydrogen peroxide into toxic radicals"
         ],
         correctIndex: 1,
-        explanation: "Extreme thermal denaturation unfolds the protein and alters its active site irreversibly. Cooling the denatured protein does not restore its functional 3D conformation."
+        explanation: "Extreme thermal denaturation unfolds the protein and alters its active site irreversibly. Cooling the denatured protein does not restore its functional 3D conformation.",
+        diagnosticPrompt: "A student states: 'Enzymes slow down at 10°C for the exact same molecular reason they slow down at 65°C.' Why is this biological reasoning incorrect?",
+        diagnosticOptions: [
+          "At 10°C, low kinetic energy reduces collision frequency without damaging structure; at 65°C, the enzyme is physically denatured and permanently nonfunctional.",
+          "At 10°C the enzyme is destroyed, but at 65°C it is frozen.",
+          "Hydrogen bonds only form at 65°C.",
+          "Enzymes work at identical speeds at both temperatures."
+        ],
+        diagnosticCorrectIndex: 0,
+        diagnosticExplanation: "Cold temperatures preserve enzyme active site structure but reduce kinetic motion; excessive heat destroys tertiary bonding and denatures the protein."
       }
     }
   },
@@ -345,9 +514,20 @@ Uniform paper disks soaked in liver homogenate (containing catalase) are placed 
       min: 0,
       suggestedMax: 18
     },
-    background: `An AP Biology class uses an aquatic elodea weed setup in a sealed chamber filled with sodium bicarbonate solution (providing an abundant dissolved carbon dioxide source). 
+    background: `An AP Biology laboratory group investigates light-dependent photosynthetic rate using sprigs of aquatic elodea weed (Elodea canadensis) submerged in an airtight glass respiration chamber filled with 250 mL of 0.20 M sodium bicarbonate (NaHCO₃) solution, providing a continuous, non-limiting reservoir of dissolved inorganic carbon dioxide.
 
-An adjustable LED spectrum light source illuminates the plant at increasing intensities while a water bath absorbs radiant heat to maintain a constant temperature of 22°C. The net rate of photosynthesis is quantified by measuring the volume of oxygen gas produced per hour.`,
+A full-spectrum calibrated LED quantum growth lamp illuminates the chamber at controlled photon intensities ranging from 5 to 80 mW/cm². To isolate light intensity as the sole manipulated independent variable, students implement rigorous controls: a circulating optical water-jacket thermal filter that absorbs infrared heat to maintain the chamber at precisely 22.0°C (±0.2°C), constant elodea vegetative wet mass (10.0 g), and uniform chamber stirring. A high-precision optical dissolved oxygen sensor connected to a micro-respirometer quantifies the rate of photosynthetic oxygen evolution in mL of O₂ per hour.`,
+    controlledVariables: [
+      "Circulating water bath thermal jacket holding temperature at 22.0°C (±0.2°C)",
+      "Non-limiting carbon source (0.20 M NaHCO₃ providing excess CO₂)",
+      "Plant biomass held constant at exactly 10.0 g of fresh elodea",
+      "Full-spectrum photosynthetically active radiation (PAR 400–700 nm)"
+    ],
+    calibratedInstrumentation: [
+      "Quantum light sensor (PAR radiometer calibrated in mW/cm²)",
+      "Micro-respirometer with digital optical O₂ probe (0.01 mL resolution)",
+      "Submersible magnetic stirrer providing uniform solution mixing"
+    ],
     dataTable: {
       caption: "Table 4: Net Photosynthetic Rate Under Varying Light Intensities",
       columns: [
@@ -372,6 +552,26 @@ An adjustable LED spectrum light source illuminates the plant at increasing inte
       slopeMeaning: "Light-limited photochemical efficiency transitioning to light saturation"
     },
     questions: {
+      // 1. Graph Anatomy & Decoding Mechanics
+      anatomy: {
+        id: "anatomy_q",
+        independentVar: "Light Intensity (mW/cm²)",
+        dependentVar: "Net Oxygen Production Rate (mL/hr)",
+        locatorPrompt: "Find 20 mW/cm² on the horizontal axis. What is the corresponding oxygen production rate on the vertical axis?",
+        expectedLocatorValue: 6.5,
+        locatorTolerance: 0.3,
+        locatorUnit: "mL/hr",
+        interceptPrompt: "At very high light intensities (65 to 80 mW/cm²), the graph becomes completely horizontal (plateaus near 14.6 mL/hr). What is the biological meaning of this plateau?",
+        interceptOptions: [
+          "Photosystem reaction centers and Calvin cycle enzymes (Rubisco) are operating at maximum catalytic turnover, so light is no longer the limiting factor",
+          "The plant has completely exhausted all water molecules in the chamber",
+          "The LED lamp has burned out and stops emitting photons",
+          "The plant chloroplasts have turned into mitochondria"
+        ],
+        interceptCorrectIndex: 0,
+        interceptExplanation: "Once all chlorophyll photosystems absorb photons faster than enzymes can fix carbon, the system reaches saturation and additional light produces no extra oxygen."
+      },
+      // 2. Trend Identification & Pattern
       trend: {
         id: "trend_q",
         type: "multiple_choice",
@@ -385,6 +585,7 @@ An adjustable LED spectrum light source illuminates the plant at increasing inte
         correctIndex: 1,
         explanation: "Photosynthesis increases linearly while light is the limiting reactant (5 to 50 mW/cm²), then plateaus near ~14.6 mL/hr once chloroplast pigments and Calvin cycle enzymes reach maximum turnover."
       },
+      // 3. Step-by-Step Guided Rate Analysis (SEP-5)
       quantitative: {
         id: "quant_q",
         type: "calculation",
@@ -392,8 +593,17 @@ An adjustable LED spectrum light source illuminates the plant at increasing inte
         expectedValue: 0.28,
         tolerance: 0.03,
         unit: "(mL/hr) / (mW/cm²)",
-        hint: "Use Δy / Δx: (14.2 mL/hr - 1.5 mL/hr) / (50 mW/cm² - 5 mW/cm²) = 12.7 / 45 ≈ 0.282."
+        hint: "Use Δy / Δx: (14.2 mL/hr - 1.5 mL/hr) / (50 mW/cm² - 5 mW/cm²) = 12.7 / 45 ≈ 0.282.",
+        slopeSteps: {
+          point1: { x: 5, y: 1.5, label: "Low Light (5 mW/cm², 1.5 mL/hr)" },
+          point2: { x: 50, y: 14.2, label: "Saturation Point (50 mW/cm², 14.2 mL/hr)" },
+          formulaSetup: "Slope = (14.2 mL/hr - 1.5 mL/hr) / (50 mW/cm² - 5 mW/cm²) = 12.7 / 45 ≈ 0.282",
+          calculatedSlope: 0.28,
+          slopeUnit: "(mL/hr)/(mW/cm²)",
+          physicalMeaning: "Photochemical quantum yield efficiency during the light-limited linear phase"
+        }
       },
+      // 4. Scaffolded CER with Sentence Frames & Diagnostics
       freeResponse: {
         id: "fr_q",
         type: "cer",
@@ -402,8 +612,14 @@ An adjustable LED spectrum light source illuminates the plant at increasing inte
         requiredUnits: ["mw/cm²", "mw/cm^2", "ml/hr"],
         claimKeywords: ["plateau", "saturation", "limiting factor", "levels off", "no longer increases", "maximum rate"],
         reasoningKeywords: ["light reactions", "chlorophyll", "calvin cycle", "rubisco", "enzymes", "turnover", "limiting factor"],
-        exemplar: "Claim: Photosynthesis reaches a light saturation point around 50 mW/cm², after which light is no longer the limiting reactant. Evidence: Between 5 and 50 mW/cm², oxygen production increased rapidly from 1.5 to 14.2 mL/hr (a gain of 12.7 mL/hr). However, increasing light further from 50 to 80 mW/cm² only increased oxygen output from 14.2 to 14.7 mL/hr (a negligible gain of 0.5 mL/hr). Reasoning: In the light-dependent reactions, chlorophyll reaction centers absorb photons to split water and produce O₂. At high light intensities, all photosystem complexes are saturated with photons and operating at peak capacity; the Calvin cycle enzymes (like Rubisco) cannot fix carbon any faster, making enzyme availability or CO₂ the new limiting factor."
+        exemplar: "Claim: Photosynthesis reaches a light saturation point around 50 mW/cm², after which light is no longer the limiting reactant. Evidence: Between 5 and 50 mW/cm², oxygen production increased rapidly from 1.5 to 14.2 mL/hr (a gain of 12.7 mL/hr). However, increasing light further from 50 to 80 mW/cm² only increased oxygen output from 14.2 to 14.7 mL/hr (a negligible gain of 0.5 mL/hr). Reasoning: In the light-dependent reactions, chlorophyll reaction centers absorb photons to split water and produce O₂. At high light intensities, all photosystem complexes are saturated with photons and operating at peak capacity; the Calvin cycle enzymes (like Rubisco) cannot fix carbon any faster, making enzyme availability or CO₂ the new limiting factor.",
+        sentenceFrames: {
+          claimFrame: "Photosynthetic oxygen evolution reaches a distinct [saturation plateau / linear increase] at high light intensities because light ceases to be the rate-limiting reactant.",
+          evidenceFrame: "Between 5 and 50 mW/cm², oxygen output rises from [Low O2] to [Mid O2] mL/hr, but increasing light from 50 to 80 mW/cm² only alters output from 14.2 to [High O2] mL/hr.",
+          reasoningFrame: "This plateau occurs because [photosystem complexes and Calvin cycle enzymes / plant roots and stems] reach their maximum biochemical processing velocity; further increases in photon flux cannot speed up oxygen generation without increasing [temperature or CO₂ concentration / light color]."
+        }
       },
+      // 5. Synthesis & Diagnostic Misconception Extrapolation
       synthesis: {
         id: "syn_q",
         type: "multiple_choice",
@@ -415,7 +631,16 @@ An adjustable LED spectrum light source illuminates the plant at increasing inte
           "Lower the chamber temperature to 5°C"
         ],
         correctIndex: 1,
-        explanation: "Because light is no longer the limiting factor at the plateau, providing more of another essential reactant (such as dissolved CO₂) enables Calvin cycle enzymes to fix carbon faster, shifting the plateau upward."
+        explanation: "Because light is no longer the limiting factor at the plateau, providing more of another essential reactant (such as dissolved CO₂) enables Calvin cycle enzymes to fix carbon faster, shifting the plateau upward.",
+        diagnosticPrompt: "A student looks at the plateau and argues: 'At 80 mW/cm², the plant has stopped photosynthesizing because the line is flat.' How does the data refute this common misconception?",
+        diagnosticOptions: [
+          "A flat horizontal line with non-zero y-value (14.7 mL/hr) indicates high, continuous oxygen production at maximum speed, not zero production.",
+          "The plant has died and is rotting.",
+          "Oxygen production only happens on upward slopes.",
+          "The y-axis actually measures glucose, not oxygen."
+        ],
+        diagnosticCorrectIndex: 0,
+        diagnosticExplanation: "Students frequently confuse rate with total accumulation. A horizontal line on a rate graph means constant maximum production (~14.7 mL of O₂ each and every hour)."
       }
     }
   },
@@ -447,10 +672,21 @@ An adjustable LED spectrum light source illuminates the plant at increasing inte
       min: 0,
       suggestedMax: 4.0
     },
-    background: `A chemistry class investigates the kinetics of the single replacement reaction between solid magnesium ribbon and aqueous hydrochloric acid:
-Mg(s) + 2HCl(aq) → MgCl₂(aq) + H₂(g)
+    background: `A high school chemistry class investigates the kinetics of single replacement oxidation-reduction between solid metallic magnesium ribbon and aqueous hydrochloric acid:
+Mg(s) + 2HCl(aq) → MgCl₂(aq) + H₂(g) + Heat
 
-In six separate trials, identical 2.0 cm strips of magnesium ribbon are submerged into 50.0 mL of HCl solution at concentrations ranging from 0.20 M to 1.20 M at a constant temperature of 21.0°C. A digital pressure transducer records the initial rate of hydrogen gas produced in mL per second during the first 15 seconds of reaction.`,
+In six consecutive quantitative trials, uniform 2.00 cm strips of magnesium ribbon (mass = 0.040 g) are submerged into 50.0 mL of standardized HCl solution at molar concentrations ranging from 0.20 M to 1.20 M. To isolate acid concentration as the sole independent variable, students implement strict controls: all reagent solutions are maintained at an isothermal 21.0°C in a water bath, ribbons are polished with emery cloth to eliminate passivating oxide coatings, and reaction volume is held constant. A digital differential pressure transducer connected to an airtight gas-collection manifold logs initial hydrogen gas evolution (mL/s) over the first 15.0 seconds of reaction.`,
+    controlledVariables: [
+      "Reaction temperature held strictly isothermal at 21.0°C (±0.1°C)",
+      "Magnesium ribbon surface area and mass constant (2.00 cm, 0.040 g, oxide-polished)",
+      "Aqueous solution volume held constant at 50.0 mL",
+      "Identical reaction vessel geometry and initial atmospheric pressure"
+    ],
+    calibratedInstrumentation: [
+      "Digital differential pressure transducer (0.01 kPa sensitivity)",
+      "Standardized analytical volumetric pipettes (±0.05 mL tolerance)",
+      "Analytical balance (0.001 g resolution)"
+    ],
     dataTable: {
       caption: "Table 5: Initial Rate of H₂ Generation Across Increasing HCl Molarities",
       columns: [
@@ -477,6 +713,26 @@ In six separate trials, identical 2.0 cm strips of magnesium ribbon are submerge
       slopeMeaning: "Rate constant factor: +2.75 mL/s per 1.0 M increase in HCl"
     },
     questions: {
+      // 1. Graph Anatomy & Decoding Mechanics
+      anatomy: {
+        id: "anatomy_q",
+        independentVar: "Hydrochloric Acid Concentration ([HCl] in M)",
+        dependentVar: "Initial Rate of Hydrogen Gas Evolution (mL/s)",
+        locatorPrompt: "Find 0.80 M on the horizontal axis. What is the corresponding initial reaction rate on the vertical axis?",
+        expectedLocatorValue: 2.20,
+        locatorTolerance: 0.08,
+        locatorUnit: "mL/s",
+        interceptPrompt: "At [HCl] = 0.0 M, the best-fit regression line intersects at (0, 0). What is the chemical meaning of this intercept?",
+        interceptOptions: [
+          "Without hydrogen ion reactants (zero acid concentration), no chemical collisions can occur and the reaction rate is zero",
+          "The magnesium ribbon dissolves instantly in pure water",
+          "The beaker has run out of atmospheric air",
+          "The pressure sensor needs a battery replacement"
+        ],
+        interceptCorrectIndex: 0,
+        interceptExplanation: "According to collision theory, without reactant particles present ([HCl] = 0), collision frequency is zero and no reaction can take place."
+      },
+      // 2. Trend Identification & Pattern
       trend: {
         id: "trend_q",
         type: "multiple_choice",
@@ -490,6 +746,7 @@ In six separate trials, identical 2.0 cm strips of magnesium ribbon are submerge
         correctIndex: 0,
         explanation: "Doubling concentration from 0.40 M to 0.80 M exactly doubles the rate from 1.10 mL/s to 2.20 mL/s, indicating a first-order direct linear relationship."
       },
+      // 3. Step-by-Step Guided Rate / Slope Analysis (SEP-5)
       quantitative: {
         id: "quant_q",
         type: "calculation",
@@ -497,8 +754,17 @@ In six separate trials, identical 2.0 cm strips of magnesium ribbon are submerge
         expectedValue: 2.75,
         tolerance: 0.1,
         unit: "(mL/s) / M",
-        hint: "Slope = (2.75 mL/s - 0.55 mL/s) / (1.00 M - 0.20 M) = 2.20 / 0.80 = 2.75 (mL/s)/M."
+        hint: "Slope = (2.75 mL/s - 0.55 mL/s) / (1.00 M - 0.20 M) = 2.20 / 0.80 = 2.75 (mL/s)/M.",
+        slopeSteps: {
+          point1: { x: 0.20, y: 0.55, label: "Trial 1 (0.20 M, 0.55 mL/s)" },
+          point2: { x: 1.00, y: 2.75, label: "Trial 5 (1.00 M, 2.75 mL/s)" },
+          formulaSetup: "Slope = (2.75 mL/s - 0.55 mL/s) / (1.00 M - 0.20 M) = 2.20 / 0.80 = 2.75",
+          calculatedSlope: 2.75,
+          slopeUnit: "(mL/s)/M",
+          physicalMeaning: "First-order kinetics rate factor: rate increases by 2.75 mL/s per 1.0 M increase in HCl"
+        }
       },
+      // 4. Scaffolded CER with Sentence Frames & Diagnostics
       freeResponse: {
         id: "fr_q",
         type: "cer",
@@ -507,8 +773,14 @@ In six separate trials, identical 2.0 cm strips of magnesium ribbon are submerge
         requiredUnits: ["m", "molar", "ml/s"],
         claimKeywords: ["direct", "proportional", "linear", "increases", "doubling", "faster", "higher concentration"],
         reasoningKeywords: ["collision theory", "particle", "frequency", "effective collisions", "density", "activation energy", "surface area"],
-        exemplar: "Claim: The initial reaction rate between magnesium and hydrochloric acid is directly proportional to HCl concentration. Evidence: At 0.40 M HCl, hydrogen gas evolved at 1.10 mL/s. When acid concentration was doubled to 0.80 M, the rate doubled to 2.20 mL/s, exhibiting a constant linear slope of 2.75 (mL/s)/M across all trials. Reasoning: According to Collision Theory, chemical reactions require reactant particles to collide with sufficient energy and correct orientation. Increasing acid molarity increases the number of H⁺ ions per unit volume, directly multiplying the frequency of effective collisions against the magnesium metal surface per second."
+        exemplar: "Claim: The initial reaction rate between magnesium and hydrochloric acid is directly proportional to HCl concentration. Evidence: At 0.40 M HCl, hydrogen gas evolved at 1.10 mL/s. When acid concentration was doubled to 0.80 M, the rate doubled to 2.20 mL/s, exhibiting a constant linear slope of 2.75 (mL/s)/M across all trials. Reasoning: According to Collision Theory, chemical reactions require reactant particles to collide with sufficient energy and correct orientation. Increasing acid molarity increases the number of H⁺ ions per unit volume, directly multiplying the frequency of effective collisions against the magnesium metal surface per second.",
+        sentenceFrames: {
+          claimFrame: "The initial reaction rate between magnesium ribbon and hydrochloric acid is [directly proportional / inversely related] to acid molarity.",
+          evidenceFrame: "In Trial 2, at 0.40 M HCl, hydrogen gas generated at [Rate 1] mL/s; when acid concentration doubled to 0.80 M (Trial 4), generation rate doubled to [Rate 2] mL/s (a slope of 2.75 (mL/s)/M).",
+          reasoningFrame: "According to Collision Theory, doubling molar concentration doubles the [density of dissolved H⁺ ions / temperature of the water], directly doubling the [frequency of effective collisions / mass of magnesium] with sufficient activation energy."
+        }
       },
+      // 5. Synthesis & Diagnostic Misconception Extrapolation
       synthesis: {
         id: "syn_q",
         type: "multiple_choice",
@@ -520,7 +792,16 @@ In six separate trials, identical 2.0 cm strips of magnesium ribbon are submerge
           "The reaction would stop completely"
         ],
         correctIndex: 1,
-        explanation: "Increasing temperature increases average molecular kinetic energy, increasing both the overall collision frequency and the percentage of collisions that exceed the activation energy threshold."
+        explanation: "Increasing temperature increases average molecular kinetic energy, increasing both the overall collision frequency and the percentage of collisions that exceed the activation energy threshold.",
+        diagnosticPrompt: "A student predicts: 'If you use 1.00 M HCl with powdered magnesium instead of a solid 2.0 cm ribbon, the slope will remain exactly 2.75 (mL/s)/M because the acid molarity didn't change.' How does collision theory critique this prediction?",
+        diagnosticOptions: [
+          "Powdered magnesium vastly increases exposed surface area, dramatically increasing collision frequency and producing a much steeper initial rate slope.",
+          "Powdered metal cannot react with aqueous acids.",
+          "Surface area only affects gas-phase reactions.",
+          "Powdered magnesium lowers the acid concentration."
+        ],
+        diagnosticCorrectIndex: 0,
+        diagnosticExplanation: "Reaction rate is governed by surface collision frequency. Greater surface area exposes far more metal atoms to simultaneous H⁺ collisions."
       }
     }
   },
@@ -552,9 +833,20 @@ In six separate trials, identical 2.0 cm strips of magnesium ribbon are submerge
       min: -20,
       suggestedMax: 120
     },
-    background: `A chemistry student places 100.0 grams of solid ice at -15.0°C inside a heavily insulated calorimeter with an electric immersion heater delivering a constant, uniform 500 Watts of thermal power. 
+    background: `An Honors Chemistry student places exactly 100.0 grams of crushed crystalline ice at an initial temperature of -15.0°C inside a precision adiabatic calorimeter equipped with a continuous electric immersion heating element delivering constant, uniform thermal power (P = 500.0 Watts = 500.0 J/s).
 
-The temperature of the water sample is recorded continuously every minute for 15 minutes as the ice warms, melts into liquid water, heats up, and boils into steam.`,
+A digital thermocouple temperature sensor records the temperature of the water sample once per minute over a 15-minute heating span as the solid warms, transitions through melting, heats as liquid, and vaporizes into steam at 1.00 atm atmospheric pressure. Controlled variables maintained to ensure internal validity include: constant heating rate (zero voltage fluctuation), sealed adiabatic insulation preventing thermal energy loss to the surroundings, ambient atmospheric pressure (101.3 kPa), and continuous magnetic stirring during liquid phases.`,
+    controlledVariables: [
+      "Constant thermal power input maintained at 500.0 W (±1.0 W)",
+      "Sample mass held constant at exactly 100.0 g of H₂O",
+      "Ambient pressure constant at standard 1.00 atm (101.3 kPa)",
+      "Adiabatic calorimeter walls preventing ambient heat exchange"
+    ],
+    calibratedInstrumentation: [
+      "Calibrated high-precision thermocouple data logger (±0.1°C)",
+      "Regulated DC power supply with digital wattmeter",
+      "Digital analytical balance (0.01 g precision)"
+    ],
     dataTable: {
       caption: "Table 6: Temperature Progression of Water During Constant Heat Addition",
       columns: [
@@ -582,6 +874,26 @@ The temperature of the water sample is recorded continuously every minute for 15
       slopeMeaning: "Slanted regions = ΔKinetic Energy; Horizontal plateaus = ΔPotential Energy (Phase Changes)"
     },
     questions: {
+      // 1. Graph Anatomy & Decoding Mechanics
+      anatomy: {
+        id: "anatomy_q",
+        independentVar: "Heating Time (min)",
+        dependentVar: "Water Temperature (°C)",
+        locatorPrompt: "Find minute 7 on the horizontal axis. What is the corresponding temperature of the liquid water on the vertical axis?",
+        expectedLocatorValue: 66.0,
+        locatorTolerance: 1.0,
+        locatorUnit: "°C",
+        interceptPrompt: "At minute 0, the temperature begins at -15.0°C (below zero). What is the physical state of the water molecules at this starting point?",
+        interceptOptions: [
+          "Molecules are locked in a rigid hexagonal crystal lattice of solid ice",
+          "Molecules are flowing freely as liquid water",
+          "Molecules have broken into separate hydrogen and oxygen atoms",
+          "Molecules possess zero total thermal energy"
+        ],
+        interceptCorrectIndex: 0,
+        interceptExplanation: "Below 0°C at 1 atm, water exists exclusively as solid crystalline ice where hydrogen bonds lock H₂O molecules into a rigid structural lattice."
+      },
+      // 2. Trend Identification & Pattern
       trend: {
         id: "trend_q",
         type: "multiple_choice",
@@ -595,6 +907,7 @@ The temperature of the water sample is recorded continuously every minute for 15
         correctIndex: 1,
         explanation: "During phase changes, added thermal energy breaks intermolecular forces (hydrogen bonds) rather than increasing molecular motion (kinetic energy/temperature)."
       },
+      // 3. Step-by-Step Guided Rate Analysis (SEP-5)
       quantitative: {
         id: "quant_q",
         type: "calculation",
@@ -602,8 +915,17 @@ The temperature of the water sample is recorded continuously every minute for 15
         expectedValue: 16.67,
         tolerance: 0.5,
         unit: "°C/min",
-        hint: "Slope = ΔT / Δt = (100.0°C - 0.0°C) / (9 min - 3 min) = 100.0 / 6 ≈ 16.67 °C/min."
+        hint: "Slope = ΔT / Δt = (100.0°C - 0.0°C) / (9 min - 3 min) = 100.0 / 6 ≈ 16.67 °C/min.",
+        slopeSteps: {
+          point1: { x: 3, y: 0.0, label: "Melting Complete (3 min, 0.0°C)" },
+          point2: { x: 9, y: 100.0, label: "Boiling Begins (9 min, 100.0°C)" },
+          formulaSetup: "Slope = (100.0°C - 0.0°C) / (9 min - 3 min) = 100.0 / 6.0 ≈ 16.67",
+          calculatedSlope: 16.67,
+          slopeUnit: "°C/min",
+          physicalMeaning: "Liquid water warming rate determined by heat capacity: q = m·c·ΔT"
+        }
       },
+      // 4. Scaffolded CER with Sentence Frames & Diagnostics
       freeResponse: {
         id: "fr_q",
         type: "cer",
@@ -612,8 +934,14 @@ The temperature of the water sample is recorded continuously every minute for 15
         requiredUnits: ["°c", "c", "min", "minutes"],
         claimKeywords: ["kinetic", "potential", "temperature", "plateau", "constant", "phase change", "hydrogen bonds"],
         reasoningKeywords: ["intermolecular", "hydrogen bonds", "kinetic energy", "potential energy", "phase change", "latent heat", "state of matter"],
-        exemplar: "Claim: Temperature measures average particle kinetic energy, which remains constant during phase changes because absorbed heat is stored as potential energy to disrupt intermolecular bonds. Evidence: Between minutes 3 and 9, liquid water temperature increased steadily from 0.0°C to 100.0°C at ~16.7°C/min. In contrast, from minutes 9 to 13, the temperature remained exactly constant at 100.0°C for 4 full minutes despite continuous heat input. Reasoning: In the liquid warming phase, thermal energy increases molecular velocity (kinetic energy), driving up temperature. At 100.0°C, the energy is diverted into latent heat of vaporization, overcoming intermolecular hydrogen bonds between liquid water molecules to separate them into gaseous water vapor without raising temperature."
+        exemplar: "Claim: Temperature measures average particle kinetic energy, which remains constant during phase changes because absorbed heat is stored as potential energy to disrupt intermolecular bonds. Evidence: Between minutes 3 and 9, liquid water temperature increased steadily from 0.0°C to 100.0°C at ~16.7°C/min. In contrast, from minutes 9 to 13, the temperature remained exactly constant at 100.0°C for 4 full minutes despite continuous heat input. Reasoning: In the liquid warming phase, thermal energy increases molecular velocity (kinetic energy), driving up temperature. At 100.0°C, the energy is diverted into latent heat of vaporization, overcoming intermolecular hydrogen bonds between liquid water molecules to separate them into gaseous water vapor without raising temperature.",
+        sentenceFrames: {
+          claimFrame: "Temperature directly reflects average [particle kinetic energy / nuclear energy], which remains constant during phase changes because absorbed heat is stored as [intermolecular potential energy / friction].",
+          evidenceFrame: "During liquid warming (minutes 3 to 9), temperature climbed from 0.0°C to 100.0°C at ~16.7°C/min, whereas during boiling (minutes 9 to 13), temperature stayed completely flat at [Boiling Temp]°C for [Plateau Duration] minutes.",
+          reasoningFrame: "At 100.0°C, all 500 Watts of heat are consumed as [latent heat of vaporization / kinetic acceleration] to overcome [intermolecular hydrogen bonds / covalent bonds], transforming liquid water into vapor without altering molecular speed."
+        }
       },
+      // 5. Synthesis & Diagnostic Misconception Extrapolation
       synthesis: {
         id: "syn_q",
         type: "multiple_choice",
@@ -625,7 +953,16 @@ The temperature of the water sample is recorded continuously every minute for 15
           "The heater output dropped at higher temperatures"
         ],
         correctIndex: 1,
-        explanation: "The heat of vaporization of water (2,260 J/g) is nearly seven times greater than the heat of fusion (334 J/g) because boiling requires completely breaking all hydrogen bonds."
+        explanation: "The heat of vaporization of water (2,260 J/g) is nearly seven times greater than the heat of fusion (334 J/g) because boiling requires completely breaking all hydrogen bonds.",
+        diagnosticPrompt: "A student looks at minute 11 (100°C boiling) and claims: 'Since the temperature isn't rising, the water has stopped absorbing energy.' Why is this thermodynamic claim scientifically false?",
+        diagnosticOptions: [
+          "The heater continues pumping 500 J/s into the water, but all absorbed energy is converted into potential energy to overcome hydrogen bonds rather than speeding up particles.",
+          "Energy is destroyed during boiling.",
+          "The water cools down the heating element.",
+          "Steam pushes energy back into the water."
+        ],
+        diagnosticCorrectIndex: 0,
+        diagnosticExplanation: "Absorbed energy does not disappear when temperature is constant; it is absorbed as latent heat of vaporization to disrupt attractive hydrogen bonds."
       }
     }
   },
@@ -657,9 +994,18 @@ The temperature of the water sample is recorded continuously every minute for 15
       min: 0,
       suggestedMax: 30
     },
-    background: `Oceanographic research vessels equipped with deep-sea core drilling rigs collect basalt core samples across two divergent tectonic plate boundaries: the Mid-Atlantic Ridge (slow-spreading ridge in the Atlantic Ocean) and the East Pacific Rise (fast-spreading ridge in the Pacific Ocean).
+    background: `Oceanographic research vessels equipped with deep-sea core drilling rigs collect basalt core samples across two divergent tectonic plate boundaries: the Mid-Atlantic Ridge (a slow-spreading ridge in the Atlantic Ocean) and the East Pacific Rise (a fast-spreading ridge in the Pacific Ocean).
 
-Radioactive isotope dating of the basalt cores determines the numerical age of oceanic crust in millions of years (Ma) at progressive distances perpendicular to the central volcanic rift valley.`,
+Radioactive isotope dating of the basalt cores determines the numerical age of oceanic crust in millions of years (Ma) at progressive perpendicular distances from the central volcanic rift valley. To maintain experimental validity, geophysicists select sampling transects perpendicular to magnetic anomaly isochrons, cross-calibrate potassium-argon (K-Ar) and argon-argon (⁴⁰Ar/³⁹Ar) radiometric decay counters against international geological standards, and account for sediment overburden.`,
+    controlledVariables: [
+      "Perpendicular distance sampling perpendicular to rift crest isochrons",
+      "Calibrated ⁴⁰Ar/³⁹Ar radiometric mass spectrometry dating",
+      "Basalt layer sampling from uppermost extrusive pillow basalt sequences"
+    ],
+    calibratedInstrumentation: [
+      "Sector-field multi-collector mass spectrometer (±0.05 Ma precision)",
+      "Satellite multibeam sonar bathymetry (10 m lateral resolution)"
+    ],
     dataTable: {
       caption: "Table 7: Oceanic Crust Age vs. Distance from Spreading Axis",
       columns: [
@@ -688,6 +1034,26 @@ Radioactive isotope dating of the basalt cores determines the numerical age of o
       slopeMeaning: "Steeper slope = older rock closer to ridge = slower spreading rate"
     },
     questions: {
+      // 1. Graph Anatomy & Decoding Mechanics
+      anatomy: {
+        id: "anatomy_q",
+        independentVar: "Distance from Ridge Crest (km)",
+        dependentVar: "Oceanic Crust Age (Million Years, Ma)",
+        locatorPrompt: "Find 300 km on the horizontal axis. What is the crust age for the East Pacific Rise (orange triangle) on the vertical axis?",
+        expectedLocatorValue: 4.5,
+        locatorTolerance: 0.2,
+        locatorUnit: "Ma",
+        interceptPrompt: "At distance = 0 km, both curves intersect at Age = 0.0 Ma. What is the plate tectonic significance of this zero-age intercept?",
+        interceptOptions: [
+          "The central ridge crest is the active rift zone where brand-new oceanic crust is continuously formed by magma upwelling",
+          "Older rocks dissolve at the ridge axis",
+          "The tectonic plates are subducting beneath the mantle at the ridge",
+          "The ocean is completely drained at the rift center"
+        ],
+        interceptCorrectIndex: 0,
+        interceptExplanation: "At the volcanic rift crest (0 km), magma wells up directly from the asthenosphere and solidifies into fresh basalt (Age = 0 Ma)."
+      },
+      // 2. Trend Identification & Pattern
       trend: {
         id: "trend_q",
         type: "multiple_choice",
@@ -701,6 +1067,7 @@ Radioactive isotope dating of the basalt cores determines the numerical age of o
         correctIndex: 1,
         explanation: "At 500 km from the ridge, Pacific crust is only 7.5 million years old, while Atlantic crust is 25.0 million years old. Generating 500 km of crust in less time means the Pacific spreading rate is much faster."
       },
+      // 3. Step-by-Step Guided Rate / Velocity Analysis (SEP-5)
       quantitative: {
         id: "quant_q",
         type: "calculation",
@@ -708,8 +1075,17 @@ Radioactive isotope dating of the basalt cores determines the numerical age of o
         expectedValue: 66.67,
         tolerance: 2.0,
         unit: "km/Ma",
-        hint: "Spreading Speed = Distance / Age = 500 km / 7.5 Ma ≈ 66.67 km/Ma (or ~6.7 cm/year)."
+        hint: "Spreading Speed = Distance / Age = 500 km / 7.5 Ma ≈ 66.67 km/Ma (or ~6.7 cm/year).",
+        slopeSteps: {
+          point1: { x: 0, y: 0.0, label: "Rift Axis (0 km, 0 Ma)" },
+          point2: { x: 500, y: 7.5, label: "Outer Crust (500 km, 7.5 Ma)" },
+          formulaSetup: "Velocity = Distance / Age = 500 km / 7.5 Ma ≈ 66.67 km/Ma",
+          calculatedSlope: 66.67,
+          slopeUnit: "km/Ma",
+          physicalMeaning: "Tectonic plate divergence velocity: ~66.7 km/Ma (equivalent to 6.67 cm/year)"
+        }
       },
+      // 4. Scaffolded CER with Sentence Frames & Diagnostics
       freeResponse: {
         id: "fr_q",
         type: "cer",
@@ -718,8 +1094,14 @@ Radioactive isotope dating of the basalt cores determines the numerical age of o
         requiredUnits: ["km", "ma", "million years"],
         claimKeywords: ["faster", "spreading", "divergent", "younger", "older", "seafloor spreading", "velocity"],
         reasoningKeywords: ["mantle", "convection", "magma", "upwelling", "slab pull", "divergent boundary", "tectonic plates"],
-        exemplar: "Claim: Ocean crust age increases linearly with distance from divergent boundaries, with the East Pacific Rise spreading over three times faster than the Mid-Atlantic Ridge. Evidence: At 500 km from the ridge axis, Mid-Atlantic crust is 25.0 Ma old (spreading velocity = 500 km / 25 Ma = 20 km/Ma). In contrast, at the same 500 km distance on the East Pacific Rise, the crust is only 7.5 Ma old (spreading velocity = 500 km / 7.5 Ma = 66.7 km/Ma). Reasoning: New oceanic crust forms continuously at ridge crests as magma upwells and solidifies. As tectonic plates pull apart due to mantle convection currents and subduction slab-pull forces, older rocks are pushed symmetrically outward. Stronger slab-pull forces in the Pacific drive faster seafloor spreading than the slower Atlantic convection cells."
+        exemplar: "Claim: Ocean crust age increases linearly with distance from divergent boundaries, with the East Pacific Rise spreading over three times faster than the Mid-Atlantic Ridge. Evidence: At 500 km from the ridge axis, Mid-Atlantic crust is 25.0 Ma old (spreading velocity = 500 km / 25 Ma = 20 km/Ma). In contrast, at the same 500 km distance on the East Pacific Rise, the crust is only 7.5 Ma old (spreading velocity = 500 km / 7.5 Ma = 66.7 km/Ma). Reasoning: New oceanic crust forms continuously at ridge crests as magma upwells and solidifies. As tectonic plates pull apart due to mantle convection currents and subduction slab-pull forces, older rocks are pushed symmetrically outward. Stronger slab-pull forces in the Pacific drive faster seafloor spreading than the slower Atlantic convection cells.",
+        sentenceFrames: {
+          claimFrame: "Oceanic crust age increases linearly with distance from the ridge crest, with the East Pacific Rise spreading [faster than / slower than] the Mid-Atlantic Ridge.",
+          evidenceFrame: "At 500 km from the rift axis, Mid-Atlantic crust is [Atlantic Age] Ma old (speed = 20 km/Ma), whereas East Pacific Rise crust at 500 km is only [Pacific Age] Ma old (speed = 66.7 km/Ma).",
+          reasoningFrame: "This difference occurs because fresh magma upwells and freezes at divergent boundaries; stronger [subduction slab pull and mantle convection / ocean tidal currents] pull Pacific plates apart at over 3 times the velocity of Atlantic plates."
+        }
       },
+      // 5. Synthesis & Diagnostic Misconception Extrapolation
       synthesis: {
         id: "syn_q",
         type: "multiple_choice",
@@ -731,7 +1113,16 @@ Radioactive isotope dating of the basalt cores determines the numerical age of o
           "Evenly distributed across the ocean floor"
         ],
         correctIndex: 1,
-        explanation: "At distance = 0 km, tectonic plates are pulling apart, allowing superheated mantle magma to breach the seafloor and create hydrothermal black smoker vents and new oceanic crust."
+        explanation: "At distance = 0 km, tectonic plates are pulling apart, allowing superheated mantle magma to breach the seafloor and create hydrothermal black smoker vents and new oceanic crust.",
+        diagnosticPrompt: "A student mistakenly concludes: 'The Mid-Atlantic Ridge is faster because its graph has a steeper slope.' Why is this mathematical interpretation of the graph flawed?",
+        diagnosticOptions: [
+          "The y-axis is Age (time). A steeper slope means more millions of years are required to travel the same distance, which corresponds to a slower spreading speed (v = Distance / Time).",
+          "The graph is inverted upside down.",
+          "Slopes only apply to temperature graphs.",
+          "The Pacific data was measured in miles instead of kilometers."
+        ],
+        diagnosticCorrectIndex: 0,
+        diagnosticExplanation: "When time/age is on the y-axis, slope is ΔTime / ΔDistance (inverse velocity). A larger slope means more time per kilometer, which is slower velocity."
       }
     }
   },
@@ -745,7 +1136,6 @@ Radioactive isotope dating of the basalt cores determines the numerical age of o
     discipline: "Earth & Space",
     disciplineBadge: "🌋 Earth & Space",
     ngssCode: "HS-ESS2-4",
-    ngssTitle: "Earth Materials, Systems, and Global Climate Change",
     sep: "SEP-4: Analyzing and Interpreting Data",
     ccc: "CCC-1: Patterns",
     chartType: "scatter",
@@ -763,9 +1153,18 @@ Radioactive isotope dating of the basalt cores determines the numerical age of o
       min: -0.1,
       suggestedMax: 1.2
     },
-    background: `Climate scientists compile composite instrument data from the Mauna Loa Observatory (measuring atmospheric carbon dioxide in parts per million, ppm) and NASA GISS global land-ocean temperature anomalies (degrees Celsius deviation relative to the 1951–1980 base period) across six decades from 1960 to 2020.
+    background: `Earth and atmospheric scientists compile composite instrumental data from the NOAA Mauna Loa Baseline Observatory in Hawaii (measuring tropospheric background carbon dioxide in parts per million, ppm) and NASA GISS global land-ocean surface temperature anomalies (degrees Celsius deviation relative to the 1951–1980 base period) across six decades from 1960 to 2020.
 
-The dataset documents historical trends in greenhouse gas concentrations and planetary thermal response.`,
+The dataset quantifies historical trends in anthropogenic greenhouse gas forcing and global thermodynamic response. To establish rigorous empirical validity, climate researchers apply systematic quality controls: sampling pristine mid-tropospheric maritime air above the planetary boundary inversion layer, filtering volcanic outgassing spikes using continuous infrared gas analyzer (NDIR) telemetry, and calculating area-weighted global temperature anomalies using thousands of calibrated weather stations and satellite sea-surface radiometers.`,
+    controlledVariables: [
+      "Mid-tropospheric background air sampling (3,397 m altitude above local pollution)",
+      "Strict 1951–1980 climatological baseline normalization period (0.00°C anomaly)",
+      "Standardized seasonal cycle detrending (annual average decadal means)"
+    ],
+    calibratedInstrumentation: [
+      "High-precision non-dispersive infrared (NDIR) gas analyzers (±0.2 ppm)",
+      "NASA GISS global land-ocean satellite thermal radiometers"
+    ],
     dataTable: {
       caption: "Table 8: Decadal Atmospheric CO₂ and Global Temperature Anomalies",
       columns: [
@@ -793,6 +1192,26 @@ The dataset documents historical trends in greenhouse gas concentrations and pla
       slopeMeaning: "Sensitivity: ~0.10°C temperature anomaly increase per 10 ppm increase in CO₂"
     },
     questions: {
+      // 1. Graph Anatomy & Decoding Mechanics
+      anatomy: {
+        id: "anatomy_q",
+        independentVar: "Atmospheric CO₂ Concentration (ppm)",
+        dependentVar: "Global Mean Temperature Anomaly (°C)",
+        locatorPrompt: "Find 370 ppm on the horizontal axis (Year 2000). What was the global temperature anomaly on the vertical axis?",
+        expectedLocatorValue: 0.42,
+        locatorTolerance: 0.05,
+        locatorUnit: "°C",
+        interceptPrompt: "The linear regression trendline predicts a 0.0°C baseline anomaly occurs at roughly ~320 ppm CO₂. What is the planetary climate meaning of this intercept?",
+        interceptOptions: [
+          "It represents the pre-industrial / mid-century baseline climate balance prior to accelerated greenhouse forcing",
+          "The Earth had zero temperature and was completely frozen at 320 ppm",
+          "Carbon dioxide gas did not exist on Earth before 1960",
+          "Solar radiation dropped to zero"
+        ],
+        interceptCorrectIndex: 0,
+        interceptExplanation: "A temperature anomaly of 0.0°C denotes the 1951–1980 reference climate normal, which corresponded to atmospheric CO₂ levels around 315–320 ppm."
+      },
+      // 2. Trend Identification & Pattern
       trend: {
         id: "trend_q",
         type: "multiple_choice",
@@ -806,6 +1225,7 @@ The dataset documents historical trends in greenhouse gas concentrations and pla
         correctIndex: 0,
         explanation: "As CO₂ increased steadily from 317 ppm in 1960 to 414 ppm in 2020, global temperature anomaly climbed from +0.03°C to +1.02°C, demonstrating a strong positive correlation."
       },
+      // 3. Step-by-Step Guided Rate / Sensitivity Analysis (SEP-5)
       quantitative: {
         id: "quant_q",
         type: "calculation",
@@ -813,8 +1233,17 @@ The dataset documents historical trends in greenhouse gas concentrations and pla
         expectedValue: 0.99,
         tolerance: 0.03,
         unit: "°C",
-        hint: "Subtract the 1960 anomaly (0.03°C) from the 2020 anomaly (1.02°C): 1.02°C - 0.03°C = 0.99°C."
+        hint: "Subtract the 1960 anomaly (0.03°C) from the 2020 anomaly (1.02°C): 1.02°C - 0.03°C = 0.99°C.",
+        slopeSteps: {
+          point1: { x: 317, y: 0.03, label: "1960 Baseline (317 ppm, +0.03°C)" },
+          point2: { x: 414, y: 1.02, label: "2020 Modern (414 ppm, +1.02°C)" },
+          formulaSetup: "Slope = ΔT / ΔCO₂ = (1.02°C - 0.03°C) / (414 ppm - 317 ppm) = 0.99 / 97 ≈ 0.0102",
+          calculatedSlope: 0.99,
+          slopeUnit: "°C (Total ΔT)",
+          physicalMeaning: "Transient climate sensitivity: ~0.10°C global warming per 10 ppm increase in atmospheric CO₂"
+        }
       },
+      // 4. Scaffolded CER with Sentence Frames & Diagnostics
       freeResponse: {
         id: "fr_q",
         type: "cer",
@@ -823,8 +1252,14 @@ The dataset documents historical trends in greenhouse gas concentrations and pla
         requiredUnits: ["ppm", "°c", "c"],
         claimKeywords: ["greenhouse effect", "correlation", "positive", "warming", "increases", "temperature anomaly", "forcing"],
         reasoningKeywords: ["infrared", "radiation", "absorption", "greenhouse gas", "thermal energy", "re-emit", "trapped"],
-        exemplar: "Claim: Rising atmospheric CO₂ concentrations directly amplify the planetary greenhouse effect, increasing global average surface temperatures. Evidence: In 1960, atmospheric CO₂ was 317 ppm with a temperature anomaly of +0.03°C. By 2020, CO₂ rose to 414 ppm and the temperature anomaly reached +1.02°C (an increase of 97 ppm CO₂ and +0.99°C temperature anomaly). Reasoning: Carbon dioxide molecules possess vibrational modes that absorb outgoing terrestrial infrared (longwave) radiation. Rather than escaping directly into space, this thermal radiation is absorbed and re-emitted in all directions, trapping additional thermal energy in the lower troposphere and driving positive climate feedback loops."
+        exemplar: "Claim: Rising atmospheric CO₂ concentrations directly amplify the planetary greenhouse effect, increasing global average surface temperatures. Evidence: In 1960, atmospheric CO₂ was 317 ppm with a temperature anomaly of +0.03°C. By 2020, CO₂ rose to 414 ppm and the temperature anomaly reached +1.02°C (an increase of 97 ppm CO₂ and +0.99°C temperature anomaly). Reasoning: Carbon dioxide molecules possess vibrational modes that absorb outgoing terrestrial infrared (longwave) radiation. Rather than escaping directly into space, this thermal radiation is absorbed and re-emitted in all directions, trapping additional thermal energy in the lower troposphere and driving positive climate feedback loops.",
+        sentenceFrames: {
+          claimFrame: "Rising atmospheric CO₂ concentrations exhibit a strong [positive correlation / negative correlation] with global surface temperature anomalies due to enhanced greenhouse forcing.",
+          evidenceFrame: "In 1960, background CO₂ measured 317 ppm with an anomaly of +0.03°C, but by 2020, CO₂ climbed to [2020 CO2] ppm as the anomaly surged to [2020 Anomaly]°C (a net rise of 0.99°C).",
+          reasoningFrame: "This warming occurs because triatomic CO₂ molecules absorb outgoing [terrestrial infrared radiation / ultraviolet light], re-radiating thermal energy back toward the surface rather than allowing it to escape freely into space."
+        }
       },
+      // 5. Synthesis & Diagnostic Misconception Extrapolation
       synthesis: {
         id: "syn_q",
         type: "multiple_choice",
@@ -836,7 +1271,16 @@ The dataset documents historical trends in greenhouse gas concentrations and pla
           "~4.00°C"
         ],
         correctIndex: 1,
-        explanation: "Using the trend rate of approximately +0.10°C per 10 ppm CO₂: from 414 ppm to 450 ppm (+36 ppm), the anomaly would increase by ~0.36°C above 1.02°C, yielding ~1.38°C."
+        explanation: "Using the trend rate of approximately +0.10°C per 10 ppm CO₂: from 414 ppm to 450 ppm (+36 ppm), the anomaly would increase by ~0.36°C above 1.02°C, yielding ~1.38°C.",
+        diagnosticPrompt: "A climate skeptic argues: 'Carbon dioxide only makes up about 0.04% of the atmosphere, so such a tiny fraction cannot possibly alter Earth's global thermal balance.' How does molecular radiative physics refute this argument?",
+        diagnosticOptions: [
+          "Major atmospheric gases (N₂ and O₂) are symmetrical and completely transparent to infrared radiation; trace greenhouse gases with dipole moments dominate 100% of the planetary thermal absorption budget.",
+          "CO₂ absorbs visible green sunlight instead of infrared.",
+          "Carbon dioxide is heavier than nitrogen so it compresses the atmosphere.",
+          "The percentage of CO₂ in the atmosphere is actually 40%."
+        ],
+        diagnosticCorrectIndex: 0,
+        diagnosticExplanation: "Diatomic gases (N₂, O₂) cannot absorb infrared radiation. Even at 400+ ppm, asymmetric molecules like CO₂ and H₂O absorb virtually all outgoing planetary infrared heat."
       }
     }
   }

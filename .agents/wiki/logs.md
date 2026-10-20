@@ -2,6 +2,46 @@
 
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
+## 2026-10-19 — CAST Data Studio: Teacher Mode Whitelist Auth & AI Scenario Generator (`cast-data-practice/`)
+**Patterns Updated**: `cast-data-analysis-practice-suite.md`.
+
+**Changes**:
+- **Teacher Mode Google Whitelist Authentication**:
+  - Gated access to **🛠️ Teacher Mode** exclusively to verified science department faculty via Google sign-in.
+  - Implemented 10-teacher whitelist validation:
+    `cchurney@orangeusd.org`, `ashue@orangeusd.org`, `avelasquez@orangeusd.org`, `egerbasi@orangeusd.org`, `jricupito@orangeusd.org`, `jbowling@orangeusd.org`, `lluna@orangeusd.org`, `oroot@orangeusd.org`, `scourtney@orangeusd.org`, `rmudry@orangeusd.org`.
+  - Seamless auth flow: If unauthenticated, prompts to sign in with district `@orangeusd.org` Google account; validates email case-insensitively and blocks unauthorized accounts with a clear restriction modal.
+  - Displays authenticated teacher email and verified faculty badge in the Studio modal header.
+- **AI CAST Scenario Generator (Option B - Shared Proxy & Gemini)**:
+  - Added AI Scenario Generator card in `#teacherModal` allowing teachers to enter any topic/phenomenon (or pick quick ideas: *Hooke's Law*, *Enzyme vs pH*, *Boyle's Law*, *Ocean Acidification*).
+  - Automatically queries Firestore `system_config/chat_config` (`chatProxyUrl`) to call Gemini through the shared proxy (with localStorage API key fallback).
+  - Generates comprehensive 5-part CAST performance tasks conforming to strict repository standards (No-LaTeX Unicode, Lexile background, controlled variables, data table, anatomy reading, trend analysis, guided slope, scaffolded CER with sentence frames, and synthesis misconception diagnostics).
+  - Auto-populates builder form fields, adds scenario to active dropdown, saves to `localStorage`, and provides direct action buttons to view in-app or print clean 1-page blank student worksheets.
+- **Testing & Audits**:
+  - Extended `tests/test_cast_data_practice.js` testing all 10 teacher emails, case-insensitivity, space trimming, unauthorized rejection, and markdown JSON parsing. 100% green pass.
+  - Verified `scripts/audit-firestore-rules-coverage.js` and `scripts/audit-web-filter-cdn.js`. Refreshed site footer deployment timestamp.
+
+## 2026-10-19 — CAST Data Analysis & Graphing Practice Suite: Active 5-Part Pedagogical Transformation (`cast-data-practice/`)
+**Patterns Updated**: `cast-data-analysis-practice-suite.md`.
+
+**Changes**:
+- **Upgraded Pedagogical Architecture from 4-Step Sheet to Active 5-Part Learning Tool (8 Points Total)**:
+  1. **Phenomenon Narrative & Controlled Variables**: High-rigor Lexile narratives (1200L–1350L) with explicit `controlledVariables` arrays and `calibratedInstrumentation` specifications rendered in dedicated UI callouts.
+  2. **Part 1 (Graph Reading & Anatomy - Decoding Mechanics, 1 pt)**: Independent/dependent variable identification, interactive coordinate locator reading with tolerance checking, and physical intercept meaning with conceptual multiple-choice items.
+  3. **Part 2 (Mathematical Trend Identification - SEP 4, 1 pt)**: Direct linear, inverse, quadratic growth, or plateau saturation pattern analysis.
+  4. **Part 3 (Guided Mathematical Modeling & Slope - SEP 5, 1 pt)**: Step-by-step slope setup (coordinate points, formula $\Delta y / \Delta x$, combined units, physical rate meaning) with calculation check.
+  5. **Part 4 (Scaffolded Scientific Argumentation - SEP 7, 4 pts)**: Scaffolded CER with toggleable sentence frames (Claim, Evidence, Reasoning) and real-time automated 4-point `EvidenceChecker` rubric.
+  6. **Part 5 (Synthesis & Misconception Diagnostics, 1 pt)**: Mathematical extrapolation beyond the tested range paired with immediate formative misconception diagnostic check and debunking explanations.
+- **Scenarios & Testing**:
+  - Upgraded all 8 comprehensive high school scenarios across Physics, Biology, Chemistry, and Earth & Space science in `cast-data-practice/js/scenarios.js`.
+  - Expanded `tests/test_cast_data_practice.js` asserting all schema additions (`controlledVariables`, `calibratedInstrumentation`, `anatomy`, `slopeSteps`, `sentenceFrames`, `diagnosticPrompt`), passing 100% green.
+- **Honors 1-Page Printable Worksheet (`@media print`)**:
+  - Synchronized print layout to dynamically populate the 5-part question structure and 8-point rubric breakdown within the strict 1-page letter portrait budget without overflow.
+- **Firestore Student-Permission Law Compliance**:
+  - Writes directly to `practice_results/cast_data_practice/students/{studentId}` using email prefix with zero parent doc writes and zero undefined payload fields.
+- **Audits & Verification**:
+  - Passes `audit-firestore-rules-coverage.js` and test suite. Updated deployment timestamp.
+
 ## 2026-10-18 — Hot Wheels Coasting Baseline: Deceleration & Friction Webapp (`Unit_2/hot_wheels_coasting/index.html`)
 **Patterns Added**: `hot-wheels-coasting-deceleration-lab.md`.
 **Patterns Updated**: `classroom-projection-and-high-contrast-theming.md`, `assignment-registry.md`, `cast-aligned-webapp-design.md`.

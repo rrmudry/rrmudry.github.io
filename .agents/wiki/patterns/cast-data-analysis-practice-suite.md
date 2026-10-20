@@ -14,11 +14,12 @@ The **CAST Data Analysis & Graphing Practice Suite** (`cast-data-practice/`) pro
 1. **Background Information / Phenomenon Context** (independent, dependent, controlled variables).
 2. **Scientific Data Table** (raw and analyzed data, units, trials, multi-series).
 3. **Plotted Graph & Mathematical Model** (scatter, line, or bar charts with linear regression trendlines, slopes, and rate callouts).
-4. **4-Part Scaffolded Question Progression**:
-   - **Part 1 (Trend Identification - SEP 4)**: Direct linear, inverse, quadratic growth, plateau saturation, or comparative rate.
-   - **Part 2 (Quantitative Rate / Slope - SEP 5)**: Calculating interval rates ($\Delta y / \Delta x$) with unit validation and tolerant checking ($\pm 5\%$).
-   - **Part 3 (Free Response CER - SEP 7 & SEP 4)**: Real-time automated 4-point rubric evaluation analyzing student text for Claim, authentic numerical citations, scientific units, and comparative reasoning.
-   - **Part 4 (Synthesis & Extrapolation)**: Projecting new conditions or analyzing model limitations.
+4. **5-Part Scaffolded Pedagogical Question Progression (8 Points Total)**:
+   - **Part 1 (Graph Reading & Anatomy - Decoding Mechanics, 1 pt)**: Independent/dependent variable identification, coordinate locator reading with tolerance check, and physical intercept meaning.
+   - **Part 2 (Mathematical Trend Identification - SEP 4, 1 pt)**: Direct linear, inverse, quadratic growth, plateau saturation, or comparative rate.
+   - **Part 3 (Guided Mathematical Modeling & Slope - SEP 5, 1 pt)**: Step-by-step slope setup (coordinate points, formula Δy / Δx, combined units, physical rate meaning) with calculation check.
+   - **Part 4 (Scaffolded Scientific Argumentation - SEP 7, 4 pts)**: Scaffolded CER with toggleable sentence frames and real-time 4-point automated `EvidenceChecker` rubric (Claim, Evidence, Units, Reasoning).
+   - **Part 5 (Synthesis & Misconception Diagnostics, 1 pt)**: Extrapolation beyond tested range + immediate formative diagnostic check with targeted misconception debunking.
 
 ---
 
@@ -63,15 +64,29 @@ In adherence to repository security rules:
 
 ---
 
-## 5. Teacher Mode & Honors 1-Page Printable Lab Report (`@media print`)
+## 5. Teacher Mode, Whitelist Auth & AI CAST Scenario Generator
 
-1. **Teacher Mode Modal**:
-   - Allows department teachers to create custom inquiry scenarios with custom data rows, units, and CER rubrics.
-   - Scenarios save locally and can be exported as `.json` files to share across the department.
-2. **Honors 1-Page Printable PDF Design**:
+1. **Teacher Mode & Whitelist Authentication**:
+   - Access to **🛠️ Teacher Mode** is restricted to verified science faculty via Google authentication.
+   - When clicking Teacher Mode, users not signed in are prompted to authenticate with their `@orangeusd.org` Google account.
+   - Whitelist authorization check verifies against the 10 approved science teachers:
+     `cchurney@orangeusd.org`, `ashue@orangeusd.org`, `avelasquez@orangeusd.org`, `egerbasi@orangeusd.org`, `jricupito@orangeusd.org`, `jbowling@orangeusd.org`, `lluna@orangeusd.org`, `oroot@orangeusd.org`, `scourtney@orangeusd.org`, `rmudry@orangeusd.org`.
+   - Unauthorized attempts (such as students) are rejected with a clear access restriction dialog.
+
+2. **AI CAST Scenario Generator (Gemini Powered - Option B)**:
+   - Teachers can input any science topic, lab experiment, or phenomenon (e.g. *Hooke's Law*, *Enzyme kinetics vs. pH*, *Ocean acidification*, *Boyle's Law*).
+   - Automatically connects to the shared Apps Script proxy configured in Firestore under `system_config/chat_config` (`chatProxyUrl`) with fallback to localStorage.
+   - Prompts Gemini to synthesize a complete 5-part CAST performance task conforming to the repository's strict schema:
+     - No-LaTeX plain text / Unicode (`Δ`, `²`, `³`, `°C`, bold).
+     - Experimental background narrative and apparatus description.
+     - Calibrated data table with 5–6 trials.
+     - 5-part question architecture (Anatomy with locator & intercept decoding, Trend identification, Guided Slope calculation with step breakdown, Scaffolded CER with sentence frames & target evidence numbers, and Synthesis with diagnostic misconception check).
+   - Auto-populates the builder form fields, adds the scenario to the active dropdown, saves to `localStorage`, and allows immediate in-app testing or 1-page blank worksheet printing.
+
+3. **Honors 1-Page Printable PDF Design**:
    - Structured after `Honors_Kinematics_Graphing_Challenges_1_and_2.html` with a strict **1-Page Letter Portrait budget** (`height: 10.36in; max-height: 10.36in; margin: 0.32in 0.40in;`).
    - Clean, uncluttered visual hierarchy:
-     - Header block with Title, NGSS Performance Expectation badge, Student Name, Period, Date, and Score (`X / 7 Pts`).
+     - Header block with Title, NGSS Performance Expectation badge, Student Name, Period, Date, and Score (`X / 8 Pts`).
      - Background Phenomenon callout box with blue left accent bar (`border-left: 3.5px solid #0284c7; background: #f8fafc;`).
      - Evidence Grid (`height: 2.75in`): Balanced side-by-side with Data Table on left (46%) and high-resolution base64 Graph snapshot on right (52%).
      - Questions container with Parts 1–4, student's written CER explanation, and compact 4-Point Evidence Rubric pills (`[Claim: 1/1] [Evidence: 1/1] [Units: 1/1] [Reasoning: 1/1]`).
