@@ -91,10 +91,10 @@ In adherence to repository security rules:
      - Evidence Grid (`height: 2.25in`): Balanced side-by-side with Data Table on left (46%) and high-resolution base64 Graph snapshot on right (52%, max-height `1.85in`). Reclaimed 0.50 vertical inches to ensure Question 5 options are never clipped.
      - Questions container with 5 parts (`justify-content: space-between; padding: 5px 8px; margin-bottom: 5px;`):
        - Question 1: Decoding Mechanics (Independent / Dependent variables + Coordinate Locator).
-       - Question 2: Trend Selection with clean checkboxes (`[ ]`).
+       - Question 2: Trend Selection with clean checkboxes (`[ ]`) rendered as dedicated stacked option rows with regular unbolded text (`font-weight: 400`).
        - Question 3: Rate of Change Calculation with explicit Setup Work line (`Δy / Δx = ( ___ − ___ ) / ( ___ − ___ )`) to maintain productive pedagogical friction.
-       - Question 4: Student written CER explanation box (`0.72in` height) and compact 4-Point Evidence Rubric (`[ ____ / 4 Pts ]`).
-       - Question 5: Model Synthesis & Misconception Diagnostics with clean horizontal multiple-choice checkboxes (`[ ] A  [ ] B  [ ] C  [ ] D`).
+       - Question 4: Student written CER explanation box (`flex: 1`, min-height `1.35in`) dynamically absorbing leftover vertical space and compact 4-Point Evidence Rubric (`[ ____ / 4 Pts ]`).
+       - Question 5: Model Synthesis & Misconception Diagnostics with regular unbolded options (stacked vertically for sentence options, horizontal inline for short numeric values).
      - Footer bar with Orange High School Science Department branding and `Page 1 of 1`.
    - Guarantees zero spillover onto page 2, whether printed with student answers or printed blank as a student classroom worksheet.
 
