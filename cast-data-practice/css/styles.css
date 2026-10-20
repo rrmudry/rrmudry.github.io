@@ -954,9 +954,10 @@ table.scientific-table tbody tr.active-row {
   border: 2px solid var(--border-color);
   border-radius: 0.85rem;
   width: 100%;
-  max-width: 900px;
+  max-width: 960px;
   max-height: 90vh;
   overflow-y: auto;
+  overflow-x: hidden;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
@@ -1035,6 +1036,7 @@ table.scientific-table tbody tr.active-row {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+  min-width: 0;
 }
 
 .form-group label {
@@ -1043,7 +1045,11 @@ table.scientific-table tbody tr.active-row {
   color: var(--text-main);
 }
 
-.form-input, .form-textarea {
+.form-input, .form-textarea, select.form-input {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   padding: 0.55rem 0.75rem;
   font-size: 0.875rem;
   border-radius: 0.45rem;
@@ -1060,17 +1066,26 @@ table.scientific-table tbody tr.active-row {
 
 .form-grid-2 {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-grid-3 {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.75rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-@media (max-width: 640px) {
+.form-grid-2 > *,
+.form-grid-3 > * {
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
   .form-grid-2,
   .form-grid-3 {
     grid-template-columns: 1fr;
