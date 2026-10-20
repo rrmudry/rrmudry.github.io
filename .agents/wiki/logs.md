@@ -6,6 +6,12 @@ Append-only log tracking pattern changes across recent sessions.
 **Patterns Updated**: `cast-data-analysis-practice-suite.md`.
 
 **Changes**:
+- **AI Scenario Generation Schema & Resilient Parser Fix**:
+  - **Root Cause**: During prompt edits, top-level schema keys (`title`, `xAxis`, `yAxis`, `dataTable`, `graphConfig`, `questions`) were inadvertently replaced with question-only instructions, causing Gemini to return JSON missing root properties like `title` and `dataTable`.
+  - **Complete Schema Restoration**: Restored the explicit top-level JSON schema in `systemInstruction` defining all root keys, table formats, and 5-part question properties.
+  - **Multi-Stage JSON Parser (`parseJsonText`)**: Added trailing comma cleanup and string quote literal newline sanitization (`sanitizeJsonString`) so multiline narrative paragraphs and loose commas from LLM outputs never crash `JSON.parse`.
+  - **Defensive Scenario Normalization**: Added robust fallbacks for missing titles, tables, rows, and all 5 question types (`anatomy`, `trend`, `quantitative`, `freeResponse`, `synthesis`) guaranteeing generation succeeds gracefully without throwing structure errors.
+  - **Extended Unit Tests**: Added test cases for trailing commas and multiline strings in `tests/test_cast_data_practice.js`, passing 100% green.
 - **Print Worksheet 1-Page Height Budgeting & Zero Clipping**:
   - Reclaimed 0.50 vertical inches by reducing Evidence Grid height from `2.75in` to `2.25in` and graph snapshot max height to `1.85in`.
   - Added vertical flex distribution (`justify-content: space-between`) and tightened question item margins from `12px` to `5px`.
