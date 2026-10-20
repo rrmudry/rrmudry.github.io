@@ -1303,8 +1303,16 @@ async function generateAiScenario() {
 Generate a complete, rigorous, standards-aligned science investigation and data analysis performance task based on the user's topic.
 
 CRITICAL RULES:
-1. STRICT NO-LATEX & NO-RAW-HTML POLICY: Never use LaTeX syntax (no \\Delta, no \\frac, no \\vec, no $...$). Never include raw HTML tags (like <strong>, <b>, <span>) inside JSON strings for independentVar, dependentVar, prompts, or options. Return clean, plain text and standard Unicode symbols: Δ, ², ³, °, °C, x₀, v₀, m/s².
-2. CONCISE BACKGROUND NARRATIVE: Keep background narrative strictly between 50 and 80 words across 2 short paragraphs. Do NOT repeat the investigation title in the background narrative.
+1. STRICT NO-LATEX & NO-RAW-HTML POLICY: Never use LaTeX syntax (no \Delta, no \frac, no \vec, no $...). Never include raw HTML tags (like <strong>, <b>, <span>) inside JSON strings for independentVar, dependentVar, prompts, or options. Return clean, plain text and standard Unicode symbols: Δ, ², ³, °, °C, x₀, v₀, m/s².
+2. EXPERIMENTAL INVESTIGATION SCENARIO (MANDATORY APPARATUS & PROCEDURE):
+   - The background narrative MUST describe an authentic physical laboratory experiment and concrete apparatus setup.
+   - Specifically detail:
+     a) The physical object and materials tested (e.g. "a 0.50 kg wooden block resting on a horizontal track").
+     b) Exactly how the independent variable was manipulated across trials (e.g. "stacking calibrated mass disks on top of the block across 6 trials to incrementally vary normal force").
+     c) The precise instrumentation used to record the dependent variable (e.g. "a digital high-resolution force sensor pulling horizontally to measure the peak breakaway static friction force just before slip").
+     d) The key controlled variables held constant (e.g. "constant contact surface area, horizontal level track verified at 0.0°, and steady pulling technique").
+   - STRICT PROHIBITION: NEVER write generic textbook definitions, encyclopedic overviews, or broad statements like "Understanding friction is crucial for many real-world applications...". Focus 100% on describing the lab procedure and experimental setup.
+   - Length: Strictly 55 to 80 words across 2 short, concise paragraphs. Do NOT repeat the investigation title in the background narrative.
 3. DATA TABLE COLUMNS WITH UNITS: Column labels in dataTable MUST explicitly include their scientific units in parentheses, e.g. "Normal Force (N)" and "Kinetic Friction Force (N)".
 4. GRAPH EQUATION: Write clean math notation (e.g. "F_k = 0.402 · F_N" or "y = 0.402 x + 0.005") without programming asterisks '*' or unformatted computer syntax.
 5. COMPLETE TOP-LEVEL JSON SCHEMA: Return a single valid JSON object containing ALL of the following top-level keys:
@@ -1318,7 +1326,7 @@ CRITICAL RULES:
    - "chartType": "scatter"
    - "xAxis": { "label": string, "symbol": string, "unit": string, "min": 0, "suggestedMax": number }
    - "yAxis": { "label": string, "symbol": string, "unit": string, "min": 0, "suggestedMax": number }
-   - "background": string (concise 50-80 words narrative)
+   - "background": string (concise 55-80 words narrative describing apparatus & procedure)
    - "controlledVariables": [ "Controlled variable 1", "Controlled variable 2", "Controlled variable 3" ]
    - "calibratedInstrumentation": [ "Precision sensor 1", "Precision sensor 2" ]
    - "dataTable": {
@@ -1371,10 +1379,10 @@ CRITICAL RULES:
        "quantitative": {
          "id": "quant_q",
          "type": "calculation",
-         "prompt": string,
-         "expectedValue": number,
+         "prompt": "Using the slope formula (Δy / Δx), calculate the rate of change (slope) of the best-fit line connecting the variables.",
+         "expectedValue": number (the slope value of the line, Δy / Δx),
          "tolerance": number,
-         "unit": string,
+         "unit": string (slope unit, e.g. "m/s² per N", "cm per g", or "N/N (dimensionless)"),
          "hint": string,
          "slopeSteps": {
            "point1": { "x": number, "y": number, "label": string },
@@ -1415,7 +1423,7 @@ CRITICAL RULES:
      }
 6. OUTPUT FORMAT: Return ONLY the raw JSON object. No markdown code blocks, backticks, or preamble text.`;
 
-    const userPrompt = `Topic: "${topic}"\nDiscipline: "${discipline}"\nTarget: High School NGSS CAST Performance Task\nGenerate the complete JSON scenario object now.`;
+    const userPrompt = `Topic: "${topic}"\nDiscipline: "${discipline}"\nTarget: High School NGSS CAST Performance Task\nGenerate the complete JSON scenario object now. Remember: The background narrative MUST describe the experimental apparatus, sensor, and procedure (NOT textbook background definitions). Question 3 MUST be a slope / rate of change calculation (not an extrapolation problem).`;
 
     let rawText = "";
     if (proxyUrl) {
@@ -2068,7 +2076,7 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   // 2. Scenario Narrative
   const pScenarioTitle = document.getElementById("pScenarioTitle");
   const pScenarioText = document.getElementById("pScenarioText");
-  if (pScenarioTitle) pScenarioTitle.textContent = `${scenario.discipline.toUpperCase()} INVESTIGATION: ${stripHtml(scenario.title).toUpperCase()}`;
+  if (pScenarioTitle) pScenarioTitle.textContent = "INVESTIGATION PROCEDURE & EXPERIMENTAL SETUP";
   if (pScenarioText) {
     let cleanBg = stripHtml(scenario.background || "");
     const titleClean = stripHtml(scenario.title || "");
