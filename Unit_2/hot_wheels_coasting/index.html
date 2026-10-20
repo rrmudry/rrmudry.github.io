@@ -235,12 +235,23 @@
       border-radius: 50%;
       background: var(--green);
       box-shadow: 0 0 8px var(--green);
+      transition: background 0.3s ease, box-shadow 0.3s ease;
     }
 
     .save-dot.syncing {
       background: var(--amber);
       box-shadow: 0 0 8px var(--amber);
       animation: pulse 1s infinite;
+    }
+
+    .save-dot.local {
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan);
+    }
+
+    .save-dot.error {
+      background: var(--red);
+      box-shadow: 0 0 8px var(--red);
     }
 
     @keyframes pulse {
@@ -1576,6 +1587,211 @@
       }
     }
 
+    const LOCAL_STORAGE_KEY_PREFIX = 'hw_coasting_draft_';
+
+    function collectFormData() {
+      const periodVal = parseInt(document.getElementById('station-period')?.value, 10) || AppState.classPeriod || 1;
+      return {
+        class_period: periodVal,
+        period: periodVal,
+        partners: document.getElementById('station-partners')?.value || '',
+        checklist: {
+          track4: !!document.getElementById('check-4-track')?.checked,
+          rampHeight: !!document.getElementById('check-ramp-height')?.checked,
+          startingTape: !!document.getElementById('check-starting-tape')?.checked,
+          floorRunway: !!document.getElementById('check-floor-runway')?.checked
+        },
+        cars_data: {
+          car1: {
+            name: document.getElementById('car1-name')?.value || AppState.cars.car1.name,
+            avg: AppState.cars.car1.avg,
+            t1: parseVal('car1-t1'),
+            t2: parseVal('car1-t2'),
+            t3: parseVal('car1-t3')
+          },
+          car2: {
+            name: document.getElementById('car2-name')?.value || AppState.cars.car2.name,
+            avg: AppState.cars.car2.avg,
+            t1: parseVal('car2-t1'),
+            t2: parseVal('car2-t2'),
+            t3: parseVal('car2-t3')
+          },
+          car3: {
+            name: document.getElementById('car3-name')?.value || AppState.cars.car3.name,
+            avg: AppState.cars.car3.avg,
+            t1: parseVal('car3-t1'),
+            t2: parseVal('car3-t2'),
+            t3: parseVal('car3-t3')
+          }
+        },
+        champion: AppState.champion ? {
+          key: AppState.champion.key,
+          name: AppState.champion.name,
+          distance: AppState.champion.distance
+        } : null,
+        prediction: AppState.prediction || null,
+        prediction_text: document.getElementById('prediction-reasoning')?.value || '',
+        weight_data: {
+          t0: parseVal('weight-tier0-dist'),
+          t1: parseVal('weight-tier1-dist'),
+          t2: parseVal('weight-tier2-dist'),
+          t3: parseVal('weight-tier3-dist')
+        },
+        synthesis_answers: {
+          q1: document.getElementById('synth-q1')?.value || '',
+          q2: document.getElementById('synth-q2')?.value || '',
+          q3: document.getElementById('synth-q3')?.value || ''
+        }
+      };
+    }
+
+    function saveLocalDraft() {
+      try {
+        const formData = collectFormData();
+        formData.lastLocalSavedAt = Date.now();
+        const serialized = JSON.stringify(formData);
+        const studentKey = LOCAL_STORAGE_KEY_PREFIX + (AppState.studentId || 'guest');
+        localStorage.setItem(studentKey, serialized);
+        localStorage.setItem(LOCAL_STORAGE_KEY_PREFIX + 'latest', serialized);
+      } catch (err) {
+        console.warn('LocalStorage draft save notice:', err);
+      }
+    }
+
+    function loadLocalDraft(studentId) {
+      try {
+        const key = LOCAL_STORAGE_KEY_PREFIX + (studentId || AppState.studentId || 'guest');
+        let raw = localStorage.getItem(key);
+        if (!raw && !studentId) {
+          raw = localStorage.getItem(LOCAL_STORAGE_KEY_PREFIX + 'latest');
+        }
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          restoreStudentData(parsed, false);
+          return parsed;
+        }
+      } catch (err) {
+        console.warn('LocalStorage draft load notice:', err);
+      }
+      return null;
+    }
+
+    function restoreStudentData(data, isFromCloud = false) {
+      if (!data) return;
+
+      if (data.partners && document.getElementById('station-partners')) {
+        document.getElementById('station-partners').value = data.partners;
+      }
+      if (data.class_period !== undefined && document.getElementById('station-period')) {
+        document.getElementById('station-period').value = String(data.class_period);
+        AppState.classPeriod = parseInt(data.class_period, 10) || 1;
+      }
+      if (data.checklist) {
+        if (document.getElementById('check-4-track')) document.getElementById('check-4-track').checked = !!data.checklist.track4;
+        if (document.getElementById('check-ramp-height')) document.getElementById('check-ramp-height').checked = !!data.checklist.rampHeight;
+        if (document.getElementById('check-starting-tape')) document.getElementById('check-starting-tape').checked = !!data.checklist.startingTape;
+        if (document.getElementById('check-floor-runway')) document.getElementById('check-floor-runway').checked = !!data.checklist.floorRunway;
+      }
+      if (data.cars_data) {
+        ['car1', 'car2', 'car3'].forEach(k => {
+          const c = data.cars_data[k];
+          if (c) {
+            if (c.name && document.getElementById(`${k}-name`)) {
+              document.getElementById(`${k}-name`).value = c.name;
+              AppState.cars[k].name = c.name;
+            }
+            ['t1', 't2', 't3'].forEach(t => {
+              const val = c[t];
+              const el = document.getElementById(`${k}-${t}`);
+              if (el && val !== undefined && val !== null && val !== '') {
+                el.value = val;
+              }
+            });
+          }
+        });
+        recalcCarAverages();
+      }
+      if (data.champion) {
+        AppState.champion = data.champion;
+        const champName = document.getElementById('champion-name');
+        const champDist = document.getElementById('champion-distance');
+        const champCard = document.getElementById('champion-reveal-card');
+        if (champName) champName.textContent = data.champion.name;
+        if (champDist) champDist.textContent = `${data.champion.distance} cm`;
+        if (champCard) champCard.style.display = 'block';
+      }
+      if (data.prediction) {
+        selectPrediction(data.prediction, false);
+      }
+      const predText = data.prediction_text !== undefined ? data.prediction_text : data.predictionText;
+      if (predText !== undefined && predText !== null) {
+        const reasonEl = document.getElementById('prediction-reasoning');
+        if (reasonEl) {
+          reasonEl.value = predText;
+          AppState.predictionText = predText;
+          updatePredictionCharCount();
+        }
+      }
+      if (data.weight_data) {
+        ['t0', 't1', 't2', 't3'].forEach(tier => {
+          const val = data.weight_data[tier];
+          const el = document.getElementById(`weight-tier${tier.slice(1)}-dist`);
+          if (el && val !== undefined && val !== null && val !== '') {
+            el.value = val;
+          }
+        });
+        recalcWeightTiers();
+      }
+      if (data.synthesis_answers) {
+        ['q1', 'q2', 'q3'].forEach(q => {
+          const val = data.synthesis_answers[q];
+          const el = document.getElementById(`synth-${q}`);
+          if (el && val !== undefined && val !== null) {
+            el.value = val;
+          }
+        });
+      }
+
+      updateChampionInStage3();
+      updateTuesdayRetentionCard();
+      calculateScore();
+    }
+
+    function updateSaveIndicator(status, customText) {
+      const dot = document.getElementById('save-status-dot');
+      const text = document.getElementById('save-status-text');
+      if (!dot || !text) return;
+
+      dot.className = 'save-dot';
+      if (status === 'syncing') {
+        dot.classList.add('syncing');
+        text.textContent = customText || 'Saving Draft...';
+      } else if (status === 'cloud') {
+        text.textContent = customText || 'Cloud Synced';
+      } else if (status === 'local') {
+        dot.classList.add('local');
+        text.textContent = customText || (AppState.studentId ? 'Saved Locally' : 'Saved Locally (Sign in to sync)');
+      } else if (status === 'error') {
+        dot.classList.add('error');
+        text.textContent = customText || 'Sync Error (Retrying...)';
+      }
+    }
+
+    let autoSaveTimer = null;
+    function triggerAutoSave() {
+      saveLocalDraft();
+      if (!AppState.studentId) {
+        updateSaveIndicator('local');
+        return;
+      }
+
+      updateSaveIndicator('syncing');
+      if (autoSaveTimer) clearTimeout(autoSaveTimer);
+      autoSaveTimer = setTimeout(async () => {
+        await saveStudentProgress({ isExplicitSubmit: false });
+      }, 1200);
+    }
+
     async function loadExistingSubmission() {
       if (!db || !AppState.studentId) return;
       try {
@@ -1586,50 +1802,23 @@
           if (data.score !== undefined) {
             updateScoreDisplay(data.score, 10);
             const msg = document.getElementById('submit-status-msg');
-            if (msg) msg.innerHTML = `Prior high score on file: <strong style="color:var(--green);">${data.score}/10 (${data.percentage || data.score * 10}%)</strong>. Merging enabled.`;
+            if (msg) msg.innerHTML = `Prior high score on file: <strong style="color:var(--green);">${data.score}/10 (${data.percentage || data.score * 10}%)</strong>. Auto-merging active.`;
           }
-          // Restore form fields if present
-          if (data.partners) document.getElementById('station-partners').value = data.partners;
-          if (data.class_period !== undefined) document.getElementById('station-period').value = data.class_period;
-          if (data.cars_data) {
-            if (data.cars_data.car1) {
-              document.getElementById('car1-t1').value = data.cars_data.car1.t1 || '';
-              document.getElementById('car1-t2').value = data.cars_data.car1.t2 || '';
-              document.getElementById('car1-t3').value = data.cars_data.car1.t3 || '';
-            }
-            if (data.cars_data.car2) {
-              document.getElementById('car2-t1').value = data.cars_data.car2.t1 || '';
-              document.getElementById('car2-t2').value = data.cars_data.car2.t2 || '';
-              document.getElementById('car2-t3').value = data.cars_data.car2.t3 || '';
-            }
-            if (data.cars_data.car3) {
-              document.getElementById('car3-t1').value = data.cars_data.car3.t1 || '';
-              document.getElementById('car3-t2').value = data.cars_data.car3.t2 || '';
-              document.getElementById('car3-t3').value = data.cars_data.car3.t3 || '';
-            }
-            recalcCarAverages();
-          }
-          if (data.prediction) {
-            selectPrediction(data.prediction);
-          }
-          if (data.prediction_text) {
-            document.getElementById('prediction-reasoning').value = data.prediction_text;
-            updatePredictionCharCount();
-          }
-          if (data.weight_data) {
-            if (data.weight_data.t1) document.getElementById('weight-tier1-dist').value = data.weight_data.t1;
-            if (data.weight_data.t2) document.getElementById('weight-tier2-dist').value = data.weight_data.t2;
-            if (data.weight_data.t3) document.getElementById('weight-tier3-dist').value = data.weight_data.t3;
-            recalcWeightTiers();
-          }
-          if (data.synthesis_answers) {
-            if (data.synthesis_answers.q1) document.getElementById('synth-q1').value = data.synthesis_answers.q1;
-            if (data.synthesis_answers.q2) document.getElementById('synth-q2').value = data.synthesis_answers.q2;
-            if (data.synthesis_answers.q3) document.getElementById('synth-q3').value = data.synthesis_answers.q3;
+          restoreStudentData(data, true);
+          saveLocalDraft();
+          updateSaveIndicator('cloud');
+        } else {
+          // No cloud record yet for this account. Check if an offline/guest local draft exists
+          const localDraft = loadLocalDraft(AppState.studentId) || loadLocalDraft('guest');
+          if (localDraft) {
+            triggerAutoSave();
+          } else {
+            updateSaveIndicator('cloud', 'Cloud Ready');
           }
         }
       } catch (e) {
         console.warn('Load existing submission error:', e);
+        loadLocalDraft(AppState.studentId);
       }
     }
 
@@ -2119,12 +2308,13 @@
       });
     }
 
-    function selectPrediction(hypo) {
-      playSound('click');
+    function selectPrediction(hypo, shouldPlaySound = true) {
+      if (shouldPlaySound) playSound('click');
       AppState.prediction = hypo;
       document.querySelectorAll('.radio-card').forEach(c => {
         c.classList.toggle('selected', c.dataset.hypo === hypo);
       });
+      triggerAutoSave();
     }
 
     function updatePredictionCharCount() {
@@ -2405,7 +2595,7 @@
       }
     }
 
-    async function submitGradeToFirestore() {
+    async function saveStudentProgress({ isExplicitSubmit = false } = {}) {
       if (AppState.isSubmitting) return;
 
       const points = calculateScore();
@@ -2413,92 +2603,118 @@
       const statusMsg = document.getElementById('submit-status-msg');
 
       if (!AppState.user || !AppState.studentId) {
-        playSound('ding');
-        alert('Please click the "Sign In" button in the top right with your school Google account before submitting your score.');
+        saveLocalDraft();
+        updateSaveIndicator('local', 'Saved Locally (Sign in to sync)');
+        if (isExplicitSubmit) {
+          playSound('ding');
+          alert('Please click the "Sign In" button in the top right with your school Google account before submitting your score.');
+        }
         return;
       }
 
       AppState.isSubmitting = true;
-      const saveDot = document.getElementById('save-status-dot');
-      const saveText = document.getElementById('save-status-text');
-      if (saveDot) saveDot.className = 'save-dot syncing';
-      if (saveText) saveText.textContent = 'Saving Grade...';
-      if (statusMsg) statusMsg.textContent = 'Syncing score to Firestore gradebook...';
+      updateSaveIndicator('syncing', isExplicitSubmit ? 'Saving Grade...' : 'Saving Draft...');
 
       try {
-        // Reference student subcollection document (Parent doc created via deploy-assignment.js)
         const studentRef = db.collection('student_results').doc(ASSIGNMENT_ID).collection('students').doc(AppState.studentId);
         const docSnap = await studentRef.get();
         const existingScore = docSnap.exists ? (docSnap.data().score || 0) : 0;
+        const finalScore = Math.max(points, existingScore);
+        const finalPct = Math.round((finalScore / 10) * 100);
 
-        if (!docSnap.exists || points >= existingScore) {
-          const periodVal = parseInt(document.getElementById('station-period')?.value, 10) || AppState.classPeriod || 1;
-          const payload = {
-            student_id: AppState.studentId,
-            student_name: AppState.studentName || 'Student',
-            email: AppState.studentEmail || `${AppState.studentId}@orangeusd.org`,
-            score: points,
-            maxScore: 10,
-            maxPoints: 10,
-            percentage: pct,
-            class_period: periodVal,
-            isCompleted: points >= 8,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            // Lab Forensic Telemetry
-            partners: document.getElementById('station-partners')?.value || '',
-            cars_data: {
-              car1: { name: AppState.cars.car1.name, avg: AppState.cars.car1.avg, t1: AppState.cars.car1.t1, t2: AppState.cars.car1.t2, t3: AppState.cars.car1.t3 },
-              car2: { name: AppState.cars.car2.name, avg: AppState.cars.car2.avg, t1: AppState.cars.car2.t1, t2: AppState.cars.car2.t2, t3: AppState.cars.car2.t3 },
-              car3: { name: AppState.cars.car3.name, avg: AppState.cars.car3.avg, t1: AppState.cars.car3.t1, t2: AppState.cars.car3.t2, t3: AppState.cars.car3.t3 }
-            },
-            champion: AppState.champion ? { name: AppState.champion.name, distance: AppState.champion.distance } : null,
-            prediction: AppState.prediction || null,
-            prediction_text: AppState.predictionText || null,
-            weight_data: {
-              t0: AppState.weightTiers.t0,
-              t1: AppState.weightTiers.t1,
-              t2: AppState.weightTiers.t2,
-              t3: AppState.weightTiers.t3
-            },
-            synthesis_answers: {
-              q1: document.getElementById('synth-q1')?.value || '',
-              q2: document.getElementById('synth-q2')?.value || '',
-              q3: document.getElementById('synth-q3')?.value || ''
+        const formData = collectFormData();
+        const payload = {
+          student_id: AppState.studentId,
+          student_name: AppState.studentName || 'Student',
+          email: AppState.studentEmail || `${AppState.studentId}@orangeusd.org`,
+          score: finalScore,
+          maxScore: 10,
+          maxPoints: 10,
+          percentage: finalPct,
+          class_period: formData.class_period,
+          period: formData.class_period,
+          isCompleted: finalScore >= 8,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          lastSavedAt: new Date().toISOString(),
+          // Full Forensic Telemetry & Answers
+          partners: formData.partners,
+          checklist: formData.checklist,
+          cars_data: formData.cars_data,
+          champion: formData.champion,
+          prediction: formData.prediction,
+          prediction_text: formData.prediction_text,
+          weight_data: formData.weight_data,
+          synthesis_answers: formData.synthesis_answers
+        };
+
+        // Recursive sanitizer to ensure zero undefined values
+        function sanitizePayload(obj) {
+          if (!obj || typeof obj !== 'object') return;
+          Object.keys(obj).forEach(k => {
+            if (obj[k] === undefined) {
+              obj[k] = null;
+            } else if (obj[k] && typeof obj[k] === 'object' && !(obj[k] instanceof Date) && !('nanoseconds' in obj[k])) {
+              sanitizePayload(obj[k]);
             }
-          };
-
-          // Sanitize any potential undefined values
-          Object.keys(payload).forEach(k => {
-            if (payload[k] === undefined) payload[k] = null;
           });
+        }
+        sanitizePayload(payload);
 
-          await studentRef.set(payload, { merge: true });
+        await studentRef.set(payload, { merge: true });
 
-          playSound('fanfare');
-          if (typeof confetti === 'function') {
-            confetti({ particleCount: 80, spread: 70, origin: { y: 0.7 } });
+        // Update LocalStorage cache as well
+        saveLocalDraft();
+        updateSaveIndicator('cloud', isExplicitSubmit ? 'Grade Synced' : 'Cloud Synced');
+
+        if (isExplicitSubmit) {
+          if (finalScore >= 8) {
+            playSound('fanfare');
+            if (typeof confetti === 'function') {
+              confetti({ particleCount: 80, spread: 70, origin: { y: 0.7 } });
+            }
+          } else {
+            playSound('ding');
           }
-          if (saveDot) saveDot.className = 'save-dot';
-          if (saveText) saveText.textContent = 'Grade Synced';
           if (statusMsg) {
-            statusMsg.innerHTML = `🎉 Grade of <strong style="color:var(--green);">${points}/10 (${pct}%)</strong> recorded in Google Classroom queue!`;
-          }
-        } else {
-          playSound('ding');
-          if (saveDot) saveDot.className = 'save-dot';
-          if (saveText) saveText.textContent = 'Prior High Maintained';
-          if (statusMsg) {
-            statusMsg.innerHTML = `Attempt verified (${points}/10). Your previous high score of <strong style="color:var(--green);">${existingScore}/10</strong> was retained.`;
+            statusMsg.innerHTML = `🎉 Grade of <strong style="color:var(--green);">${finalScore}/10 (${finalPct}%)</strong> recorded in Google Classroom queue!`;
           }
         }
       } catch (err) {
-        console.error('Submission error:', err);
-        if (saveDot) saveDot.className = 'save-dot';
-        if (saveText) saveText.textContent = 'Save Error';
-        if (statusMsg) statusMsg.innerHTML = `<span style="color:var(--red);">Error saving grade: ${err.message}</span>`;
+        console.error('Save progress error:', err);
+        updateSaveIndicator('error', 'Save Error');
+        if (isExplicitSubmit && statusMsg) {
+          statusMsg.innerHTML = `<span style="color:var(--red);">Error saving grade: ${err.message}</span>`;
+        }
       } finally {
         AppState.isSubmitting = false;
       }
+    }
+
+    async function submitGradeToFirestore() {
+      await saveStudentProgress({ isExplicitSubmit: true });
+    }
+
+    function initAutoSaveHooks() {
+      const mainEl = document.querySelector('main');
+      if (mainEl) {
+        mainEl.addEventListener('input', () => {
+          triggerAutoSave();
+        });
+        mainEl.addEventListener('change', () => {
+          triggerAutoSave();
+        });
+      }
+
+      ['car1-name', 'car2-name', 'car3-name'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', () => {
+            recalcCarAverages();
+            updateTuesdayRetentionCard();
+            triggerAutoSave();
+          });
+        }
+      });
     }
 
     // =========================================================================
@@ -2510,12 +2726,17 @@
       initDesmos();
       initStage2Inputs();
       initStage3Inputs();
+      initAutoSaveHooks();
+
+      // Immediately restore from local storage draft before network
+      loadLocalDraft();
 
       const periodSelect = document.getElementById('station-period');
       if (periodSelect) {
         periodSelect.addEventListener('change', () => {
           AppState.classPeriod = parseInt(periodSelect.value, 10) || 1;
           updateTuesdayRetentionCard();
+          triggerAutoSave();
         });
       }
 
