@@ -2164,11 +2164,16 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   if (pQ1Answer) {
     if (!isBlank && resp.trendAnswer !== null && scenario.questions.trend.options[resp.trendAnswer]) {
       const isCor = resp.scores.trend === 1;
-      pQ1Answer.innerHTML = `${stripHtml(scenario.questions.trend.options[resp.trendAnswer])} <span style="color:${isCor ? '#15803d' : '#b91c1c'}; font-weight:700;">(${isCor ? '✓ 1/1 pt' : '0/1 pt'})</span>`;
+      pQ1Answer.innerHTML = `<span style="font-weight:400; color:#1e293b;">Selected Trend: <strong>${stripHtml(scenario.questions.trend.options[resp.trendAnswer])}</strong></span> <span style="color:${isCor ? '#15803d' : '#b91c1c'}; font-weight:700;">(${isCor ? '✓ 1/1 pt' : '0/1 pt'})</span>`;
     } else {
-      // Clean standalone checkboxes for paper completion
-      const optionsHtml = scenario.questions.trend.options.map(opt => `<strong>[ &nbsp; ]</strong> ${stripHtml(opt)}`).join("&nbsp;&nbsp;&nbsp;&nbsp;");
-      pQ1Answer.innerHTML = `<span style="color:#0f172a; font-size:7.4pt;">${optionsHtml}</span>`;
+      // Clean options: each on its own line, unbolded normal text, clear checkbox
+      const optionsHtml = scenario.questions.trend.options.map(opt => `
+        <div class="p-mc-option">
+          <span class="p-mc-checkbox">[ &nbsp; ]</span>
+          <span class="p-mc-text">${stripHtml(opt)}</span>
+        </div>
+      `).join("");
+      pQ1Answer.innerHTML = `<div class="p-mc-options-list">${optionsHtml}</div>`;
     }
   }
 
@@ -2238,14 +2243,30 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   if (pQ4Answer) {
     if (!isBlank && resp.synAnswer !== null && scenario.questions.synthesis.options[resp.synAnswer]) {
       const isCor = resp.scores.syn === 1;
-      pQ4Answer.innerHTML = `${stripHtml(scenario.questions.synthesis.options[resp.synAnswer])} <span style="color:${isCor ? '#15803d' : '#b91c1c'}; font-weight:700;">(${isCor ? '✓ 1/1 pt' : '0/1 pt'})</span>`;
+      pQ4Answer.innerHTML = `<span style="font-weight:400; color:#1e293b;">Selected Prediction: <strong>${stripHtml(scenario.questions.synthesis.options[resp.synAnswer])}</strong></span> <span style="color:${isCor ? '#15803d' : '#b91c1c'}; font-weight:700;">(${isCor ? '✓ 1/1 pt' : '0/1 pt'})</span>`;
     } else {
       const synOpts = (scenario.questions.synthesis && Array.isArray(scenario.questions.synthesis.options)) ? scenario.questions.synthesis.options : [];
       if (synOpts.length > 0) {
-        const synHtml = synOpts.map(opt => `<strong>[ &nbsp; ]</strong> ${stripHtml(opt)}`).join("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
-        pQ4Answer.innerHTML = `<div style="color:#0f172a; font-size:7.4pt; margin-top:2px;">${synHtml}</div>`;
+        const avgLen = synOpts.reduce((sum, o) => sum + o.length, 0) / synOpts.length;
+        if (avgLen <= 18) {
+          const synHtml = synOpts.map(opt => `
+            <span class="p-mc-option" style="display:inline-flex; margin-right:16px;">
+              <span class="p-mc-checkbox">[ &nbsp; ]</span>
+              <span class="p-mc-text">${stripHtml(opt)}</span>
+            </span>
+          `).join("");
+          pQ4Answer.innerHTML = `<div style="margin-top:2px;">${synHtml}</div>`;
+        } else {
+          const synHtml = synOpts.map(opt => `
+            <div class="p-mc-option">
+              <span class="p-mc-checkbox">[ &nbsp; ]</span>
+              <span class="p-mc-text">${stripHtml(opt)}</span>
+            </div>
+          `).join("");
+          pQ4Answer.innerHTML = `<div class="p-mc-options-list">${synHtml}</div>`;
+        }
       } else {
-        pQ4Answer.innerHTML = `<span style="color:#475569; font-size:7.4pt;">Prediction: _________________________________________________</span>`;
+        pQ4Answer.innerHTML = `<span style="color:#475569; font-size:7.4pt; font-weight:400;">Prediction: _________________________________________________</span>`;
       }
     }
   }

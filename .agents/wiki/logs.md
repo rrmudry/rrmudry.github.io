@@ -2,6 +2,21 @@
 
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
+
+## 2026-10-19 — CAST Printable Worksheet: Stacked Option Rows & Unbolded Typography (`cast-data-practice/`)
+**Patterns Updated**: `cast-data-analysis-practice-suite.md`.
+
+**Changes**:
+- **Dedicated Stacked Option Rows**:
+  - Replaced horizontal inline-wrapped checkbox options with dedicated, stacked row items (`.p-mc-options-list`, `.p-mc-option`).
+  - Added baseline alignment (`align-items: baseline; gap: 6px;`) so each choice is easy for students to scan on paper without horizontal clutter or awkward wrapping.
+- **Unbolded Regular Font Weight (`font-weight: 400`)**:
+  - Removed container `font-weight: 600` wrapper and hardcoded `Trend Selection:` bold label prefix from `#pQ1Answer` in `index.html`.
+  - Styled option text with regular weight (`.p-mc-text { font-weight: 400; color: #1e293b; }`) while keeping checkboxes distinct and bold (`.p-mc-checkbox { font-weight: 700; font-family: monospace; }`).
+  - Updated Question 5 multiple-choice options in `syncPrintWorksheet()` to also use normal unbolded font weight, stacking multi-word sentences vertically while keeping short numbers inline.
+- **Dynamic 1-Page Height Absorption**:
+  - Stacking 4 options adds ~0.25in to Question 2, which is dynamically absorbed by Question 4's `.p-cer-box` (`flex: 1`), maintaining the strict 1-page letter portrait budget (`10.36in`) with zero page spillover.
+
 ## 2026-10-19 — CAST Scenario Studio: Printable Worksheet Space Budgeting & AI Prompt Sanitization (`cast-data-practice/`)
 **Patterns Updated**: `cast-data-analysis-practice-suite.md`.
 
