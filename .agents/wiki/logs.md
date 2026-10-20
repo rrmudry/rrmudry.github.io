@@ -2,6 +2,27 @@
 
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
+## 2026-10-19 — CAST Scenario Studio: Printable Worksheet Space Budgeting & AI Prompt Sanitization (`cast-data-practice/`)
+**Patterns Updated**: `cast-data-analysis-practice-suite.md`.
+
+**Changes**:
+- **Print Worksheet 1-Page Height Budgeting & Zero Clipping**:
+  - Reclaimed 0.50 vertical inches by reducing Evidence Grid height from `2.75in` to `2.25in` and graph snapshot max height to `1.85in`.
+  - Added vertical flex distribution (`justify-content: space-between`) and tightened question item margins from `12px` to `5px`.
+  - Clamped background scenario narrative container (`max-height: 0.90in; line-height: 1.22; font-size: 7.1pt;`).
+  - Added dedicated room for Question 5 multiple-choice options (`[ ] A  [ ] B  [ ] C  [ ] D`), completely preventing clipping off the bottom page margin.
+- **Scientific Unit & Plain-Text Unicode Sanitization**:
+  - Enforced strict plain-text Unicode (`Δ`, `·`, `²`, `³`, `°C`) in AI generation instructions, removing prompt recommendations that previously caused literal `<strong>` tags to leak into JSON fields.
+  - Implemented `stripHtml()` sanitizer applied across titles, background narratives, questions, options, and tables.
+  - Added automatic unit injection for data table column headers (`colLabel (unit)`) when missing from AI outputs.
+- **Pedagogical Workspace & Typographical Polish**:
+  - Added structured slope calculation workspace for Question 3 (`Δy / Δx = ( ___ − ___ ) / ( ___ − ___ )`) alongside calculated rate line.
+  - Cleaned trendline math equations, replacing programming asterisks (`*`) with centered dots (`·`).
+  - Removed duplicate `"Rubric:"` text in the CER evidence rubric pill (`[ ____ / 4 Pts ]`).
+  - Fixed `"Score: / 8 Pts"` wrapping by applying `white-space: nowrap` to score labels and student header fields.
+- **Verification & Deployment**:
+  - All tests in `tests/test_cast_data_practice.js` passing 100%. Verified Firestore rules coverage and web filter compliance. Refreshed deployment timestamp.
+
 ## 2026-10-19 — CAST Data Studio: Teacher Mode Whitelist Auth & AI Scenario Generator (`cast-data-practice/`)
 **Patterns Updated**: `cast-data-analysis-practice-suite.md`.
 
