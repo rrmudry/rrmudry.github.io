@@ -1391,17 +1391,20 @@ CRITICAL RULES:
        "quantitative": {
          "id": "quant_q",
          "type": "calculation",
+         "title": "3. Calculating Rate of Change (Slope):",
          "prompt": "Using the slope formula (Δy / Δx), calculate the rate of change (slope) of the best-fit line connecting the variables.",
          "expectedValue": number (the slope value of the line, Δy / Δx),
          "tolerance": number,
-         "unit": string (slope unit, e.g. "m/s² per N", "cm per g", or "N/N (dimensionless)"),
+         "unit": string (slope unit, e.g. "(m/s²) / N", "cm / g", "(mL/s) / M", or "°C / min"),
          "hint": string,
          "slopeSteps": {
            "point1": { "x": number, "y": number, "label": string },
            "point2": { "x": number, "y": number, "label": string },
            "formulaSetup": string,
+           "blankSetupWork": string (e.g. "Δy / Δx = ( _____ − _____ ) / ( _____ − _____ )"),
            "calculatedSlope": number,
            "slopeUnit": string,
+           "calcLabel": string (e.g. "Calculated Rate (Slope):"),
            "physicalMeaning": string
          }
        },

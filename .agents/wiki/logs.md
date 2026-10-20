@@ -3,6 +3,19 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-19 — CAST Printable Worksheet: Gold-Standard Architecture & Spacing Blueprint (`cast-data-practice/`)
+**Patterns Updated**: `cast-data-analysis-practice-suite.md`.
+
+**Changes**:
+- **Codified Gold-Standard Worksheet Specifications (Section 7)**:
+  - Documented complete architectural specifications for the 1-page letter portrait printable worksheet (`#printWorksheet`) in `cast-data-analysis-practice-suite.md`.
+  - Detailed the exact 10.36in vertical height budget: margins (`0.32in 0.40in`), Header (`~0.55in`), Investigation Setup (`~0.85in`), Evidence Grid (`2.25in`), Questions (`~6.50in`), Footer (`~0.20in`).
+  - Cataloged core spacing rules: `padding: 7px 11px;`, `.p-q-item { margin-bottom: 12px; font-size: 7.4pt; line-height: 1.30; }` preventing student visual overwhelm.
+  - Standardized option typography: unbolded regular weight (`font-weight: 400; color: #1e293b;`) for option text, monospace bold for checkboxes (`[ &nbsp; ]`), and mandatory stacked flex rows (`.p-mc-options-list`).
+  - Standardized adaptive quantitative setup work: authentic formula mapping (slope $\Delta y / \Delta x$, rate drop $\Delta y$, factor ratio $d_2 / d_1$) with zero fake division bars.
+  - Standardized CER flex writing box: `.p-cer-box` (`flex: 1`, min-height `1.35in`) with clean solid borders and dynamic height absorption.
+  - Synchronized AI Scenario Generator prompt schema in `cast-data-practice/js/app.js` to enforce `title`, `blankSetupWork`, and `calcLabel` for all future teacher-generated scenarios.
+
 ## 2026-10-19 — CAST Quantitative Calculations: Adaptive Setup Work & Enzyme Kinetics Rate Drop Alignment (`cast-data-practice/`)
 **Patterns Updated**: `cast-data-analysis-practice-suite.md`.
 
