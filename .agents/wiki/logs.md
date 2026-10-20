@@ -12,11 +12,18 @@ Append-only log tracking pattern changes across recent sessions.
   - **Multi-Stage JSON Parser (`parseJsonText`)**: Added trailing comma cleanup and string quote literal newline sanitization (`sanitizeJsonString`) so multiline narrative paragraphs and loose commas from LLM outputs never crash `JSON.parse`.
   - **Defensive Scenario Normalization**: Added robust fallbacks for missing titles, tables, rows, and all 5 question types (`anatomy`, `trend`, `quantitative`, `freeResponse`, `synthesis`) guaranteeing generation succeeds gracefully without throwing structure errors.
   - **Extended Unit Tests**: Added test cases for trailing commas and multiline strings in `tests/test_cast_data_practice.js`, passing 100% green.
-- **Print Worksheet 1-Page Height Budgeting & Zero Clipping**:
-  - Reclaimed 0.50 vertical inches by reducing Evidence Grid height from `2.75in` to `2.25in` and graph snapshot max height to `1.85in`.
-  - Added vertical flex distribution (`justify-content: space-between`) and tightened question item margins from `12px` to `5px`.
-  - Clamped background scenario narrative container (`max-height: 0.90in; line-height: 1.22; font-size: 7.1pt;`).
-  - Added dedicated room for Question 5 multiple-choice options (`[ ] A  [ ] B  [ ] C  [ ] D`), completely preventing clipping off the bottom page margin.
+- **Investigation Procedure & Apparatus Prompt Mandate (Zero Textbook Filler)**:
+  - Updated AI generation rules in `systemInstruction` to strictly demand a concrete experimental scenario: physical materials tested, exact method of manipulating the independent variable, instrumentation used to record the dependent variable, and controlled variables held constant.
+  - Explicitly banned theoretical textbook definitions and encyclopedic summaries (e.g. *"Understanding friction is crucial..."*).
+  - Clarified Question 3 to strictly require rate of change / slope calculations ($\Delta y / \Delta x$), preventing confusion with extrapolation.
+- **Section Header De-duplication**:
+  - Replaced redundant repeated title banner with clean, functional section header: `INVESTIGATION PROCEDURE & EXPERIMENTAL SETUP` across both HTML template and runtime sync.
+- **Questions Container Layout & Spacing**:
+  - Replaced `justify-content: space-between` with `justify-content: flex-start` on `.p-questions-container`, eliminating the artificial vertical gap below the title bar (before Question 1) and the void before Question 5.
+  - Distributed balanced, consistent margins (`margin-bottom: 8.5px`) across all questions.
+  - Expanded the CER writing box height from `0.72in` to `0.92in`, giving students ample writing space while preserving the 1-page budget.
+- **Data Table Caption Truncation Fix**:
+  - Updated `.p-box-header span:first-child` to allow natural text wrapping (`white-space: normal; overflow: visible; font-size: 6.8pt;`), preventing long table captions from being cut off.
 - **Scientific Unit & Plain-Text Unicode Sanitization**:
   - Enforced strict plain-text Unicode (`Δ`, `·`, `²`, `³`, `°C`) in AI generation instructions, removing prompt recommendations that previously caused literal `<strong>` tags to leak into JSON fields.
   - Implemented `stripHtml()` sanitizer applied across titles, background narratives, questions, options, and tables.
