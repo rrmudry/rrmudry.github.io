@@ -2408,9 +2408,18 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   // 3. Experimental Data Table
   const pTableCaption = document.getElementById("pTableCaption");
   const pTableWrapper = document.getElementById("pTableWrapper");
+  const pEvidenceGrid = document.querySelector(".p-evidence-grid");
+  const numCols = scenario.dataTable?.columns ? scenario.dataTable.columns.length : 3;
+
+  if (pEvidenceGrid) {
+    pEvidenceGrid.classList.toggle("grid-cols-4", numCols === 4);
+    pEvidenceGrid.classList.toggle("grid-cols-5", numCols >= 5);
+  }
+
   if (pTableCaption) pTableCaption.textContent = stripHtml(scenario.dataTable.caption);
   if (pTableWrapper) {
-    let tHtml = `<table class="p-table"><thead><tr>`;
+    const isCompact = numCols >= 4;
+    let tHtml = `<table class="p-table ${isCompact ? 'p-table-compact' : ''}"><thead><tr>`;
     scenario.dataTable.columns.forEach(col => {
       let colLabel = col.label;
       if (col.isX && scenario.xAxis?.unit && !colLabel.includes("(") && !colLabel.toLowerCase().includes(scenario.xAxis.unit.toLowerCase())) {
@@ -2423,9 +2432,16 @@ function syncPrintWorksheet(mode = currentPrintMode) {
     tHtml += `</tr></thead><tbody>`;
     scenario.dataTable.rows.forEach(r => {
       tHtml += `<tr>`;
-      scenario.dataTable.columns.forEach(col => {
-        const val = r[col.key];
-        const formatted = typeof val === "number" ? val.toFixed(col.key === "conc" ? 2 : 1) : val;
+      scenario.dataTable.columns.forEach((col, cIdx) => {
+        let val = r[col.key];
+        if (val === undefined && col.seriesId && r[col.seriesId] !== undefined) {
+          val = r[col.seriesId];
+        }
+        let displayVal = val;
+        if (isCompact && cIdx === 0 && typeof val === "string" && val.startsWith("Trial ")) {
+          displayVal = val.replace("Trial ", "");
+        }
+        const formatted = typeof displayVal === "number" ? displayVal.toFixed(col.key === "conc" ? 2 : 1) : displayVal;
         tHtml += `<td>${formatted}</td>`;
       });
       tHtml += `</tr>`;
