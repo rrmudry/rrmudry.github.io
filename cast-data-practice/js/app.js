@@ -12,30 +12,33 @@
  */
 
 // Global State
-let allScenarios = [...SCENARIOS];
-let activeScenarioId = SCENARIOS[0].id;
+let allScenarios = (typeof SCENARIOS !== "undefined") ? [...SCENARIOS] : [];
+let activeScenarioId = (typeof SCENARIOS !== "undefined" && SCENARIOS.length > 0) ? SCENARIOS[0].id : "";
 let activeDiscipline = "all";
-let currentStepIndex = 0; // 0: Trend, 1: Quantitative, 2: Free Response, 3: Synthesis
+let currentStepIndex = 0; // 0: Anatomy, 1: Trend, 2: Guided Slope, 3: CER, 4: Diagnostics
 let chartInstance = null;
-let currentTheme = localStorage.getItem("cast_theme") || "light";
-let currentFontSize = localStorage.getItem("cast_font_size") || "normal";
+let currentTheme = (typeof localStorage !== "undefined" && localStorage.getItem("cast_theme")) || "light";
+let currentFontSize = (typeof localStorage !== "undefined" && localStorage.getItem("cast_font_size")) || "normal";
 let currentStudent = null;
+let sentenceFramesVisible = true;
 
 // Student response state keyed by scenario ID
-let scenarioResponses = JSON.parse(localStorage.getItem("cast_student_responses") || "{}");
+let scenarioResponses = (typeof localStorage !== "undefined") ? JSON.parse(localStorage.getItem("cast_student_responses") || "{}") : {};
 
 // Firebase references
 let auth = null;
 let db = null;
 
-document.addEventListener("DOMContentLoaded", () => {
-  initThemeAndFont();
-  initFirebase();
-  loadCustomScenarios();
-  populateScenarioDropdown();
-  setupEventListeners();
-  loadScenario(activeScenarioId);
-});
+if (typeof document !== "undefined") {
+  document.addEventListener("DOMContentLoaded", () => {
+    initThemeAndFont();
+    initFirebase();
+    loadCustomScenarios();
+    populateScenarioDropdown();
+    setupEventListeners();
+    loadScenario(activeScenarioId);
+  });
+}
 
 // ==========================================================================
 // 1. THEME, ACCESSIBILITY & FONT SIZE SCALING
@@ -222,11 +225,14 @@ function getCurrentScenario() {
 function getActiveResponse() {
   if (!scenarioResponses[activeScenarioId]) {
     scenarioResponses[activeScenarioId] = {
+      anatomyLocatorAnswer: "",
+      anatomyInterceptAnswer: null,
       trendAnswer: null,
       quantAnswer: "",
       frAnswer: "",
       synAnswer: null,
-      scores: { trend: 0, quant: 0, fr: 0, syn: 0 },
+      diagnosticAnswer: null,
+      scores: { anatomy: 0, trend: 0, quant: 0, fr: 0, syn: 0 },
       submitted: false,
       timestamp: null
     };
@@ -249,7 +255,7 @@ function loadScenario(scenarioId) {
   const scenario = getCurrentScenario();
   const resp = getActiveResponse();
 
-  // Reset to Step 1 (Trend)
+  // Reset to Step 0 (Graph Anatomy)
   setStep(0);
 
   // Render Phenomenon & Metadata
@@ -260,6 +266,12 @@ function loadScenario(scenarioId) {
   document.getElementById("sepBadge").textContent = scenario.sep;
   document.getElementById("cccBadge").textContent = scenario.ccc;
   document.getElementById("phenomenonText").innerHTML = scenario.background;
+
+  // Render Controlled Variables
+  const cvList = document.getElementById("controlledVarsList");
+  if (cvList && Array.isArray(scenario.controlledVariables)) {
+    cvList.innerHTML = scenario.controlledVariables.map(v => `<li>${v}</li>`).join("");
+  }
 
   // Print Report Header sync
   const printTitle = document.getElementById("printReportTitle");
@@ -498,7 +510,51 @@ function setStep(stepIndex) {
 }
 
 function renderStepQuestions(scenario, resp) {
-  // --- PART 1: TREND IDENTIFICATION ---
+  // --- PART 1: GRAPH READING & ANATOMY ---
+  const anatomy = scenario.questions.anatomy;
+  const xDisplay = document.getElementById("anatomyXDisplay");
+  const yDisplay = document.getElementById("anatomyYDisplay");
+  const locPrompt = document.getElementById("anatomyLocatorPrompt");
+  const locInput = document.getElementById("anatomyLocatorInput");
+  const locUnit = document.getElementById("anatomyLocatorUnit");
+  const locFeedback = document.getElementById("anatomyLocatorFeedback");
+  const intPrompt = document.getElementById("anatomyInterceptPrompt");
+  const intOptions = document.getElementById("anatomyInterceptOptions");
+  const intFeedback = document.getElementById("anatomyInterceptFeedback");
+
+  if (xDisplay && anatomy) xDisplay.textContent = anatomy.independentVar;
+  if (yDisplay && anatomy) yDisplay.textContent = anatomy.dependentVar;
+  if (locPrompt && anatomy) locPrompt.textContent = anatomy.locatorPrompt;
+  if (locUnit && anatomy) locUnit.textContent = anatomy.locatorUnit;
+  if (locInput) locInput.value = resp.anatomyLocatorAnswer || "";
+  if (locFeedback) {
+    if (resp.anatomyLocatorAnswer !== "") {
+      checkLocatorCalculation(false);
+    } else {
+      locFeedback.className = "feedback-box";
+      locFeedback.style.display = "none";
+    }
+  }
+
+  if (intPrompt && anatomy) intPrompt.textContent = anatomy.interceptPrompt;
+  if (intOptions && anatomy) {
+    intOptions.innerHTML = anatomy.interceptOptions.map((opt, idx) => `
+      <label class="mcq-label ${resp.anatomyInterceptAnswer === idx ? 'selected' : ''}" onclick="selectAnatomyInterceptOption(${idx})">
+        <input type="radio" name="interceptRadio" class="mcq-radio" ${resp.anatomyInterceptAnswer === idx ? 'checked' : ''}>
+        <span>${opt}</span>
+      </label>
+    `).join("");
+  }
+  if (intFeedback && anatomy) {
+    if (resp.anatomyInterceptAnswer !== null) {
+      showAnatomyInterceptFeedback(resp.anatomyInterceptAnswer, anatomy);
+    } else {
+      intFeedback.className = "feedback-box";
+      intFeedback.style.display = "none";
+    }
+  }
+
+  // --- PART 2: TREND IDENTIFICATION ---
   const trendPrompt = document.getElementById("trendPrompt");
   const trendOptions = document.getElementById("trendOptions");
   const trendFeedback = document.getElementById("trendFeedback");
@@ -521,11 +577,21 @@ function renderStepQuestions(scenario, resp) {
     }
   }
 
-  // --- PART 2: QUANTITATIVE RATE / SLOPE ---
+  // --- PART 3: GUIDED MATHEMATICAL ANALYSIS & SLOPE ---
+  const slopeSteps = scenario.questions.quantitative.slopeSteps;
+  const slopeCoordDisplay = document.getElementById("slopeCoordDisplay");
+  const slopeFormulaDisplay = document.getElementById("slopeFormulaDisplay");
+  const slopeMeaningDisplay = document.getElementById("slopeMeaningDisplay");
   const quantPrompt = document.getElementById("quantPrompt");
   const quantInput = document.getElementById("quantInput");
   const quantUnit = document.getElementById("quantUnit");
   const quantFeedback = document.getElementById("quantFeedback");
+
+  if (slopeSteps) {
+    if (slopeCoordDisplay) slopeCoordDisplay.textContent = `${slopeSteps.point1.label}  •  ${slopeSteps.point2.label}`;
+    if (slopeFormulaDisplay) slopeFormulaDisplay.textContent = slopeSteps.formulaSetup;
+    if (slopeMeaningDisplay) slopeMeaningDisplay.textContent = slopeSteps.physicalMeaning;
+  }
 
   if (quantPrompt) quantPrompt.textContent = scenario.questions.quantitative.prompt;
   if (quantUnit) quantUnit.textContent = scenario.questions.quantitative.unit;
@@ -539,20 +605,33 @@ function renderStepQuestions(scenario, resp) {
     }
   }
 
-  // --- PART 3: FREE RESPONSE (CER) ---
+  // --- PART 4: FREE RESPONSE (CER) & SENTENCE FRAMES ---
   const frPrompt = document.getElementById("frPrompt");
   const frTextarea = document.getElementById("frTextarea");
+  const frames = scenario.questions.freeResponse.sentenceFrames;
 
   if (frPrompt) frPrompt.textContent = scenario.questions.freeResponse.prompt;
   if (frTextarea) frTextarea.value = resp.frAnswer || "";
 
-  // Evaluate CER
+  if (frames) {
+    const fClaim = document.getElementById("frameClaimText");
+    const fEvid = document.getElementById("frameEvidenceText");
+    const fReas = document.getElementById("frameReasoningText");
+    if (fClaim) fClaim.textContent = frames.claimFrame;
+    if (fEvid) fEvid.textContent = frames.evidenceFrame;
+    if (fReas) fReas.textContent = frames.reasoningFrame;
+  }
+
+  // Evaluate CER live
   evaluateFreeResponseLive();
 
-  // --- PART 4: SYNTHESIS ---
+  // --- PART 5: SYNTHESIS & MISCONCEPTION DIAGNOSTICS ---
   const synPrompt = document.getElementById("synPrompt");
   const synOptions = document.getElementById("synOptions");
   const synFeedback = document.getElementById("synFeedback");
+  const diagPrompt = document.getElementById("diagnosticPrompt");
+  const diagOptions = document.getElementById("diagnosticOptions");
+  const diagFeedback = document.getElementById("diagnosticFeedback");
 
   if (synPrompt) synPrompt.textContent = scenario.questions.synthesis.prompt;
   if (synOptions) {
@@ -571,6 +650,146 @@ function renderStepQuestions(scenario, resp) {
       synFeedback.style.display = "none";
     }
   }
+
+  if (diagPrompt) diagPrompt.textContent = scenario.questions.synthesis.diagnosticPrompt;
+  if (diagOptions) {
+    diagOptions.innerHTML = scenario.questions.synthesis.diagnosticOptions.map((opt, idx) => `
+      <label class="mcq-label ${resp.diagnosticAnswer === idx ? 'selected' : ''}" onclick="selectDiagnosticOption(${idx})">
+        <input type="radio" name="diagnosticRadio" class="mcq-radio" ${resp.diagnosticAnswer === idx ? 'checked' : ''}>
+        <span>${opt}</span>
+      </label>
+    `).join("");
+  }
+  if (diagFeedback) {
+    if (resp.diagnosticAnswer !== null) {
+      showDiagnosticFeedback(resp.diagnosticAnswer, scenario.questions.synthesis);
+    } else {
+      diagFeedback.className = "feedback-box";
+      diagFeedback.style.display = "none";
+    }
+  }
+}
+
+// Option selection & calculation: Anatomy Coordinate Locator
+function checkLocatorCalculation(showAlert = true) {
+  const scenario = getCurrentScenario();
+  const resp = getActiveResponse();
+  const inputEl = document.getElementById("anatomyLocatorInput");
+  const fb = document.getElementById("anatomyLocatorFeedback");
+  if (!inputEl || !fb || !scenario.questions.anatomy) return;
+
+  const valStr = inputEl.value.trim();
+  resp.anatomyLocatorAnswer = valStr;
+
+  if (valStr === "") {
+    if (showAlert) fb.className = "feedback-box show feedback-info";
+    fb.innerHTML = "Please enter the coordinate value from the graph.";
+    return;
+  }
+
+  const val = parseFloat(valStr);
+  const target = scenario.questions.anatomy.expectedLocatorValue;
+  const tol = scenario.questions.anatomy.locatorTolerance || 0.2;
+
+  const isCorrect = !isNaN(val) && Math.abs(val - target) <= tol;
+  recomputeAnatomyScore();
+  saveResponsesLocally();
+
+  fb.className = `feedback-box show ${isCorrect ? 'feedback-correct' : 'feedback-incorrect'}`;
+  if (isCorrect) {
+    fb.innerHTML = `<strong>✓ Coordinate Located Accurately!</strong><p style="margin-top:0.25rem;">You correctly located ${val} ${scenario.questions.anatomy.locatorUnit} on the dependent axis.</p>`;
+  } else {
+    fb.innerHTML = `<strong>⚠️ Check Axis Grid Coordinates</strong><p style="margin-top:0.25rem;">Trace the grid lines vertically from the specified value on the horizontal axis.</p>`;
+  }
+  updateScoreSummary();
+}
+
+function selectAnatomyInterceptOption(idx) {
+  const scenario = getCurrentScenario();
+  const resp = getActiveResponse();
+  resp.anatomyInterceptAnswer = idx;
+
+  const anatomy = scenario.questions.anatomy;
+  const isCorrect = idx === anatomy.interceptCorrectIndex;
+  recomputeAnatomyScore();
+  saveResponsesLocally();
+
+  document.querySelectorAll("#anatomyInterceptOptions .mcq-label").forEach((lbl, i) => {
+    lbl.classList.toggle("selected", i === idx);
+    lbl.classList.toggle("correct", i === idx && isCorrect);
+    lbl.classList.toggle("incorrect", i === idx && !isCorrect);
+  });
+
+  showAnatomyInterceptFeedback(idx, anatomy);
+  updateScoreSummary();
+}
+
+function showAnatomyInterceptFeedback(idx, anatomy) {
+  const fb = document.getElementById("anatomyInterceptFeedback");
+  if (!fb) return;
+
+  const isCorrect = idx === anatomy.interceptCorrectIndex;
+  fb.className = `feedback-box show ${isCorrect ? 'feedback-correct' : 'feedback-incorrect'}`;
+  fb.innerHTML = `
+    <strong>${isCorrect ? "✓ Intercept Concept Mastered!" : "⚠️ Revisit Physical Meaning of Intercept"}</strong>
+    <p style="margin-top:0.35rem;">${anatomy.interceptExplanation}</p>
+  `;
+}
+
+function recomputeAnatomyScore() {
+  const scenario = getCurrentScenario();
+  const resp = getActiveResponse();
+  const anatomy = scenario.questions.anatomy;
+  if (!anatomy) return;
+
+  const val = parseFloat(resp.anatomyLocatorAnswer);
+  const target = anatomy.expectedLocatorValue;
+  const tol = anatomy.locatorTolerance || 0.2;
+  const locCorrect = !isNaN(val) && Math.abs(val - target) <= tol;
+  const intCorrect = resp.anatomyInterceptAnswer === anatomy.interceptCorrectIndex;
+
+  // Award 1 full point if both coordinate locator and intercept conceptual questions pass
+  resp.scores.anatomy = (locCorrect && intCorrect) ? 1 : 0;
+}
+
+// Option selection: Sentence Frames Toggle
+function toggleSentenceFrames() {
+  sentenceFramesVisible = !sentenceFramesVisible;
+  const content = document.getElementById("sentenceFramesContent");
+  const btn = document.getElementById("btnToggleFrames");
+  if (content) content.style.display = sentenceFramesVisible ? "block" : "none";
+  if (btn) btn.textContent = sentenceFramesVisible ? "Hide Guides" : "Show Guides";
+}
+
+// Option selection: Misconception Diagnostics
+function selectDiagnosticOption(idx) {
+  const scenario = getCurrentScenario();
+  const resp = getActiveResponse();
+  resp.diagnosticAnswer = idx;
+
+  const syn = scenario.questions.synthesis;
+  const isCorrect = idx === syn.diagnosticCorrectIndex;
+  saveResponsesLocally();
+
+  document.querySelectorAll("#diagnosticOptions .mcq-label").forEach((lbl, i) => {
+    lbl.classList.toggle("selected", i === idx);
+    lbl.classList.toggle("correct", i === idx && isCorrect);
+    lbl.classList.toggle("incorrect", i === idx && !isCorrect);
+  });
+
+  showDiagnosticFeedback(idx, syn);
+}
+
+function showDiagnosticFeedback(idx, syn) {
+  const fb = document.getElementById("diagnosticFeedback");
+  if (!fb) return;
+
+  const isCorrect = idx === syn.diagnosticCorrectIndex;
+  fb.className = `feedback-box show ${isCorrect ? 'feedback-correct' : 'feedback-incorrect'}`;
+  fb.innerHTML = `
+    <strong>${isCorrect ? "✓ Misconception Successfully Debunked!" : "⚠️ Common Student Misconception"}</strong>
+    <p style="margin-top:0.35rem;">${syn.diagnosticExplanation}</p>
+  `;
 }
 
 // Option selection: Trend
@@ -745,8 +964,8 @@ function showSynFeedback(idx, synConfig) {
 // Update Master Score & Checklist
 function updateScoreSummary() {
   const resp = getActiveResponse();
-  const total = (resp.scores.trend || 0) + (resp.scores.quant || 0) + (resp.scores.fr || 0) + (resp.scores.syn || 0);
-  const maxTotal = 7; // 1 (trend) + 1 (quant) + 4 (fr) + 1 (syn)
+  const total = (resp.scores.anatomy || 0) + (resp.scores.trend || 0) + (resp.scores.quant || 0) + (resp.scores.fr || 0) + (resp.scores.syn || 0);
+  const maxTotal = 8; // 1 (anatomy) + 1 (trend) + 1 (quant) + 4 (fr) + 1 (syn)
 
   const scoreEl = document.getElementById("totalScoreDisplay");
   if (scoreEl) scoreEl.textContent = `${total} / ${maxTotal}`;
@@ -755,16 +974,18 @@ function updateScoreSummary() {
   const pctEl = document.getElementById("masteryPercentDisplay");
   if (pctEl) pctEl.textContent = `${pct}% Mastery`;
 
-  // Update Step Tabs completed markers
+  // Update Step Tabs completed markers (5 steps: 0=Anatomy, 1=Trend, 2=Slope, 3=CER, 4=Diagnostics)
   const tab0 = document.getElementById("stepTab-0");
   const tab1 = document.getElementById("stepTab-1");
   const tab2 = document.getElementById("stepTab-2");
   const tab3 = document.getElementById("stepTab-3");
+  const tab4 = document.getElementById("stepTab-4");
 
-  if (tab0) tab0.classList.toggle("completed", resp.scores.trend === 1);
-  if (tab1) tab1.classList.toggle("completed", resp.scores.quant === 1);
-  if (tab2) tab2.classList.toggle("completed", resp.scores.fr >= 3);
-  if (tab3) tab3.classList.toggle("completed", resp.scores.syn === 1);
+  if (tab0) tab0.classList.toggle("completed", resp.scores.anatomy === 1);
+  if (tab1) tab1.classList.toggle("completed", resp.scores.trend === 1);
+  if (tab2) tab2.classList.toggle("completed", resp.scores.quant === 1);
+  if (tab3) tab3.classList.toggle("completed", resp.scores.fr >= 3);
+  if (tab4) tab4.classList.toggle("completed", resp.scores.syn === 1);
 
   // Print Report sync
   const printScore = document.getElementById("printMasteryScore");
@@ -790,8 +1011,8 @@ async function submitWorkToFirestore() {
   const scenario = getCurrentScenario();
   const resp = getActiveResponse();
 
-  const total = (resp.scores.trend || 0) + (resp.scores.quant || 0) + (resp.scores.fr || 0) + (resp.scores.syn || 0);
-  const maxTotal = 7;
+  const total = (resp.scores.anatomy || 0) + (resp.scores.trend || 0) + (resp.scores.quant || 0) + (resp.scores.fr || 0) + (resp.scores.syn || 0);
+  const maxTotal = 8;
   const pct = Math.round((total / maxTotal) * 100);
 
   const submitBtn = document.getElementById("submitToFirestoreBtn");
@@ -809,11 +1030,15 @@ async function submitWorkToFirestore() {
     scenarioTitle: scenario.title,
     discipline: scenario.discipline,
     ngssCode: scenario.ngssCode,
+    anatomyLocatorAnswer: resp.anatomyLocatorAnswer || "",
+    anatomyInterceptAnswer: resp.anatomyInterceptAnswer !== undefined && resp.anatomyInterceptAnswer !== null ? resp.anatomyInterceptAnswer : null,
     trendAnswer: resp.trendAnswer !== undefined && resp.trendAnswer !== null ? resp.trendAnswer : null,
     quantAnswer: resp.quantAnswer || "",
     freeResponseText: resp.frAnswer || "",
     synAnswer: resp.synAnswer !== undefined && resp.synAnswer !== null ? resp.synAnswer : null,
+    diagnosticAnswer: resp.diagnosticAnswer !== undefined && resp.diagnosticAnswer !== null ? resp.diagnosticAnswer : null,
     scores: {
+      anatomy: resp.scores.anatomy || 0,
       trend: resp.scores.trend || 0,
       quant: resp.scores.quant || 0,
       freeResponse: resp.scores.fr || 0,
@@ -857,9 +1082,70 @@ async function submitWorkToFirestore() {
 }
 
 // ==========================================================================
-// 8. TEACHER MODE & CUSTOM SCENARIO BUILDER
+// 8. TEACHER MODE, AUTHENTICATION & AI SCENARIO GENERATOR
 // ==========================================================================
-function openTeacherModal() {
+const AUTHORIZED_TEACHERS = [
+  "cchurney@orangeusd.org",
+  "ashue@orangeusd.org",
+  "avelasquez@orangeusd.org",
+  "egerbasi@orangeusd.org",
+  "jricupito@orangeusd.org",
+  "jbowling@orangeusd.org",
+  "lluna@orangeusd.org",
+  "oroot@orangeusd.org",
+  "scourtney@orangeusd.org",
+  "rmudry@orangeusd.org"
+];
+
+function isAuthorizedTeacher(email) {
+  if (!email || typeof email !== "string") return false;
+  return AUTHORIZED_TEACHERS.includes(email.toLowerCase().trim());
+}
+
+async function openTeacherModal() {
+  if (!auth) {
+    alert("Firebase Auth is offline. Please check your network connection.");
+    return;
+  }
+
+  // 1. Enforce Google Sign-In if not already authenticated
+  if (!currentStudent || !currentStudent.email) {
+    const shouldSignIn = confirm(
+      "🛠️ Teacher Mode & Scenario Studio is restricted to authorized science department faculty.\n\n" +
+      "Click OK to sign in with your district Google account (@orangeusd.org)."
+    );
+    if (!shouldSignIn) return;
+
+    try {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      const result = await auth.signInWithPopup(provider);
+      currentStudent = result.user;
+      updateAuthUI();
+    } catch (err) {
+      console.warn("Teacher sign-in error:", err);
+      alert("Sign-in was cancelled or encountered an error: " + err.message);
+      return;
+    }
+  }
+
+  // 2. Validate against authorized teacher whitelist
+  const teacherEmail = (currentStudent.email || "").toLowerCase().trim();
+  if (!isAuthorizedTeacher(teacherEmail)) {
+    alert(
+      `🚫 Access Restricted\n\n` +
+      `Teacher Mode is reserved exclusively for authorized science department faculty.\n\n` +
+      `Signed in as: ${teacherEmail}\n\n` +
+      `If you are an OUSD science instructor, please contact Mr. Mudry (rmudry@orangeusd.org) for access.`
+    );
+    return;
+  }
+
+  // 3. Update verified faculty status in modal
+  const authStatusEl = document.getElementById("teacherAuthStatus");
+  if (authStatusEl) {
+    authStatusEl.innerHTML = `Signed in as: <strong style="color:var(--text-main);">${teacherEmail}</strong> <span class="badge badge-physics" style="font-size:0.7rem; margin-left:0.35rem;">✓ Verified Faculty</span>`;
+  }
+
   const modal = document.getElementById("teacherModal");
   if (modal) modal.style.display = "flex";
 }
@@ -867,6 +1153,340 @@ function openTeacherModal() {
 function closeTeacherModal() {
   const modal = document.getElementById("teacherModal");
   if (modal) modal.style.display = "none";
+}
+
+function setAiTopicExample(topic, discipline) {
+  const topicInput = document.getElementById("aiTopicInput");
+  const discSelect = document.getElementById("aiDisciplineSelect");
+  if (topicInput) topicInput.value = topic;
+  if (discSelect && discipline) discSelect.value = discipline;
+}
+
+// Helper to extract valid JSON from Gemini AI text output
+function parseJsonText(rawText) {
+  if (!rawText) return null;
+  try {
+    let cleaned = rawText.trim();
+    if (cleaned.startsWith("```")) {
+      cleaned = cleaned.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+    }
+    const firstBrace = cleaned.indexOf("{");
+    const lastBrace = cleaned.lastIndexOf("}");
+    if (firstBrace > -1 && lastBrace > -1) {
+      cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+    }
+    return JSON.parse(cleaned);
+  } catch (e) {
+    console.error("Error parsing AI JSON:", e, rawText);
+    return null;
+  }
+}
+
+let isGeneratingAi = false;
+
+async function generateAiScenario() {
+  if (isGeneratingAi) return;
+
+  const topicInput = document.getElementById("aiTopicInput");
+  const discSelect = document.getElementById("aiDisciplineSelect");
+  const topic = topicInput ? topicInput.value.trim() : "";
+  const discipline = discSelect ? discSelect.value : "Physics";
+
+  if (!topic) {
+    alert("Please enter an investigation topic, lab experiment, or phenomenon first.");
+    if (topicInput) topicInput.focus();
+    return;
+  }
+
+  const generateBtn = document.getElementById("btnAiGenerate");
+  const statusContainer = document.getElementById("aiStatusContainer");
+  const statusText = document.getElementById("aiStatusText");
+  const successBanner = document.getElementById("aiSuccessBanner");
+
+  if (generateBtn) generateBtn.disabled = true;
+  if (statusContainer) statusContainer.style.display = "inline-flex";
+  if (statusText) statusText.textContent = "Connecting to Gemini AI...";
+  if (successBanner) successBanner.style.display = "none";
+  isGeneratingAi = true;
+
+  try {
+    // Option B: Retrieve chatProxyUrl from Firestore system_config/chat_config or localStorage
+    let proxyUrl = localStorage.getItem("gemini_proxy_url") || "";
+    const apiKey = localStorage.getItem("gemini_api_key") || "";
+
+    if (!proxyUrl && !apiKey && db) {
+      if (statusText) statusText.textContent = "Locating AI proxy config...";
+      try {
+        const configDoc = await db.collection("system_config").doc("chat_config").get();
+        if (configDoc.exists && configDoc.data().chatProxyUrl) {
+          proxyUrl = configDoc.data().chatProxyUrl;
+        }
+      } catch (err) {
+        console.warn("Could not load chat_config doc from Firestore:", err);
+      }
+    }
+
+    if (!proxyUrl && !apiKey) {
+      const customKey = prompt(
+        "AI Proxy URL not found in system_config/chat_config.\n\n" +
+        "Please enter your Gemini API Key or Custom Proxy URL to generate this scenario:"
+      );
+      if (!customKey) {
+        if (generateBtn) generateBtn.disabled = false;
+        if (statusContainer) statusContainer.style.display = "none";
+        isGeneratingAi = false;
+        return;
+      }
+      if (customKey.startsWith("http")) {
+        proxyUrl = customKey.trim();
+        localStorage.setItem("gemini_proxy_url", proxyUrl);
+      } else {
+        localStorage.setItem("gemini_api_key", customKey.trim());
+      }
+    }
+
+    if (statusText) statusText.textContent = "Synthesizing CAST data & 5-part inquiry...";
+
+    const systemInstruction = `You are a premier high school science curriculum specialist and CAST (California Science Test) assessment architect. 
+Generate a complete, rigorous, standards-aligned science investigation and data analysis performance task based on the user's topic.
+
+CRITICAL RULES:
+1. STRICT NO-LATEX POLICY: Never use LaTeX syntax (e.g. no \\Delta, no \\frac, no \\vec, no $...$). Use standard plain text and Unicode symbols: Δ, ², ³, °, °C, x₀, v₀, m/s², and HTML <strong> for bold variables.
+2. CAST 5-PART ARCHITECTURE: Return a single valid JSON object containing:
+   - title: Engaging scientific title
+   - discipline: "${discipline}"
+   - disciplineBadge: "${discipline === "Physics" ? "⚛️ Physics" : (discipline === "Biology" ? "🌿 Biology" : (discipline === "Chemistry" ? "🧪 Chemistry" : "🌋 Earth & Space"))}"
+   - ngssCode: Relevant NGSS PE Code (e.g. HS-PS2-1, HS-LS1-5, HS-PS1-5, HS-ESS2-2)
+   - ngssTitle: NGSS Core Topic Title
+   - sep: "SEP-4: Analyzing and Interpreting Data"
+   - ccc: "CCC-1: Patterns"
+   - chartType: "scatter"
+   - xAxis: { label: string, symbol: string, unit: string, min: 0, suggestedMax: number }
+   - yAxis: { label: string, symbol: string, unit: string, min: 0, suggestedMax: number }
+   - background: 2 paragraphs explaining experimental context, procedure, and apparatus.
+   - controlledVariables: Array of 3-4 strings detailing specific controlled variables.
+   - calibratedInstrumentation: Array of 2-3 strings detailing precision sensors/instruments.
+   - dataTable: {
+       caption: "Table 1: Measured ...",
+       columns: [
+         { key: "trial", label: "Trial #", isText: true },
+         { key: "x", label: "...", isX: true, unit: "..." },
+         { key: "y", label: "...", isY: true, unit: "..." }
+       ],
+       rows: [
+         5 to 6 data rows with { trial: "Trial 1", x: number, y: number }
+       ]
+     }
+   - graphConfig: {
+       showBestFitDefault: true,
+       beginAtZero: true,
+       slope: number,
+       intercept: number,
+       r2: number (between 0.95 and 1.0),
+       equation: string (e.g. "y = m x + b"),
+       slopeMeaning: string explaining physical rate of change
+     }
+   - questions: {
+       anatomy: {
+         id: "anatomy_q",
+         independentVar: string,
+         dependentVar: string,
+         locatorPrompt: string asking to find a specific X value and read the corresponding Y value,
+         expectedLocatorValue: number (the Y value corresponding to that X),
+         locatorTolerance: number (e.g. 0.1 or 0.2),
+         locatorUnit: string,
+         interceptPrompt: string asking about the physical meaning of the intercept,
+         interceptOptions: [4 plausible multiple choice options],
+         interceptCorrectIndex: integer (0 to 3),
+         interceptExplanation: string
+       },
+       trend: {
+         id: "trend_q",
+         type: "multiple_choice",
+         prompt: string asking what mathematical pattern connects the variables,
+         options: [4 options such as direct linear, inverse, quadratic, no correlation],
+         correctIndex: integer (0 to 3),
+         explanation: string
+       },
+       quantitative: {
+         id: "quant_q",
+         type: "calculation",
+         prompt: string asking to calculate the rate of change / slope between two specific trials,
+         expectedValue: number (slope value),
+         tolerance: number (e.g. 0.05 or 0.1),
+         unit: string (e.g. "(unit_y) / (unit_x)"),
+         hint: string showing slope formula calculation,
+         slopeSteps: {
+           point1: { x: number, y: number, label: string },
+           point2: { x: number, y: number, label: string },
+           formulaSetup: string,
+           calculatedSlope: number,
+           slopeUnit: string,
+           physicalMeaning: string
+         }
+       },
+       freeResponse: {
+         id: "fr_q",
+         type: "cer",
+         prompt: "Construct a scientific explanation (Claim-Evidence-Reasoning) explaining the relationship between the variables. You must: (1) State a clear claim, (2) Cite at least TWO specific data points with units from the table or graph, (3) Compare values to show the rate of change, and (4) Explain the underlying scientific mechanism.",
+         targetNumbers: [array of numbers from the data table trials],
+         requiredUnits: [array of relevant lowercase unit strings],
+         claimKeywords: [array of 6-8 relevant claim words],
+         reasoningKeywords: [array of 6-8 relevant scientific mechanism words],
+         exemplar: string providing a 4/4 exemplary Claim-Evidence-Reasoning paragraph,
+         sentenceFrames: {
+           claimFrame: string,
+           evidenceFrame: string,
+           reasoningFrame: string
+         }
+       },
+       synthesis: {
+         id: "syn_q",
+         type: "multiple_choice",
+         prompt: string asking for an extrapolated prediction beyond the measured range,
+         options: [4 options],
+         correctIndex: integer (0 to 3),
+         explanation: string,
+         diagnosticPrompt: string presenting a common student misconception about this topic,
+         diagnosticOptions: [4 options],
+         diagnosticCorrectIndex: integer (0 to 3),
+         diagnosticExplanation: string
+       }
+     }
+3. OUTPUT FORMAT: Return ONLY the raw JSON object. No markdown code blocks, backticks, or preamble text.`;
+
+    const userPrompt = `Topic: "${topic}"\nDiscipline: "${discipline}"\nTarget: High School NGSS CAST Performance Task\nGenerate the complete JSON scenario object now.`;
+
+    let rawText = "";
+    if (proxyUrl) {
+      const response = await fetch(proxyUrl, {
+        method: "POST",
+        mode: "cors",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: `${systemInstruction}\n\n${userPrompt}` }] }],
+          systemInstruction: systemInstruction
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Proxy error: ${response.status} ${response.statusText}`);
+      }
+
+      const resJson = await response.json();
+      if (resJson.candidates && resJson.candidates[0]?.content?.parts?.[0]?.text) {
+        rawText = resJson.candidates[0].content.parts[0].text;
+      } else if (resJson.text) {
+        rawText = resJson.text;
+      } else if (typeof resJson === "string") {
+        rawText = resJson;
+      }
+    } else {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+          systemInstruction: { parts: [{ text: systemInstruction }] },
+          generationConfig: { responseMimeType: "application/json" }
+        })
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Gemini API error: ${response.status} - ${errText}`);
+      }
+
+      const resJson = await response.json();
+      rawText = resJson.candidates[0]?.content?.parts?.[0]?.text || "";
+    }
+
+    const scenario = parseJsonText(rawText);
+    if (!scenario || !scenario.title || !scenario.dataTable || !Array.isArray(scenario.dataTable.rows)) {
+      throw new Error("AI returned an incomplete or invalid scenario structure. Please try again.");
+    }
+
+    // 3. Normalize & calibrate scenario properties
+    const customId = `custom-ai-${Date.now()}`;
+    scenario.id = customId;
+    if (!scenario.discipline) scenario.discipline = discipline;
+    if (!scenario.disciplineBadge) {
+      scenario.disciplineBadge = scenario.discipline === "Physics" ? "⚛️ Physics" : 
+        (scenario.discipline === "Biology" ? "🌿 Biology" : 
+        (scenario.discipline === "Chemistry" ? "🧪 Chemistry" : "🌋 Earth & Space"));
+    }
+    if (!scenario.ngssCode) scenario.ngssCode = "HS-PS2-1";
+    if (!scenario.sep) scenario.sep = "SEP-4: Analyzing and Interpreting Data";
+    if (!scenario.ccc) scenario.ccc = "CCC-1: Patterns";
+
+    if (!scenario.xAxis) scenario.xAxis = { label: "Independent Variable", unit: "units", min: 0 };
+    if (!scenario.yAxis) scenario.yAxis = { label: "Dependent Variable", unit: "units", min: 0 };
+
+    scenario.dataTable.rows = scenario.dataTable.rows.map((r, i) => {
+      const row = { trial: r.trial || `Trial ${i + 1}` };
+      const keys = Object.keys(r);
+      if (typeof r.x === "number") row.x = r.x;
+      else if (keys[1] && typeof r[keys[1]] === "number") row.x = r[keys[1]];
+      else row.x = (i + 1) * 5;
+
+      if (typeof r.y === "number") row.y = r.y;
+      else if (keys[2] && typeof r[keys[2]] === "number") row.y = r[keys[2]];
+      else row.y = (i + 1) * 2;
+      return row;
+    });
+
+    if (!scenario.dataTable.columns || scenario.dataTable.columns.length < 3) {
+      scenario.dataTable.columns = [
+        { key: "trial", label: "Trial #", isText: true },
+        { key: "x", label: `${scenario.xAxis.label} (${scenario.xAxis.unit})`, isX: true, unit: scenario.xAxis.unit },
+        { key: "y", label: `${scenario.yAxis.label} (${scenario.yAxis.unit})`, isY: true, unit: scenario.yAxis.unit }
+      ];
+    }
+
+    // Populate manual builder form inputs
+    const setVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val;
+    };
+    setVal("teacherTitleInput", scenario.title || "");
+    setVal("teacherDisciplineSelect", scenario.discipline || "Physics");
+    setVal("teacherNgssCodeInput", scenario.ngssCode || "");
+    setVal("teacherBgTextarea", scenario.background || "");
+    setVal("teacherXLabelInput", scenario.xAxis.label || "");
+    setVal("teacherXUnitInput", scenario.xAxis.unit || "");
+    setVal("teacherYLabelInput", scenario.yAxis.label || "");
+    setVal("teacherYUnitInput", scenario.yAxis.unit || "");
+    setVal("teacherDataRowsInput", scenario.dataTable.rows.map(r => `${r.x}, ${r.y}`).join("\n"));
+    setVal("teacherQuantExpectedInput", scenario.questions?.quantitative?.expectedValue ?? "");
+    setVal("teacherTrendPromptInput", scenario.questions?.trend?.prompt || "");
+    setVal("teacherFrPromptInput", scenario.questions?.freeResponse?.prompt || "");
+    setVal("teacherFrNumbersInput", (scenario.questions?.freeResponse?.targetNumbers || []).join(", "));
+
+    // Save scenario to custom scenarios list and active bank
+    const savedCustom = JSON.parse(localStorage.getItem("cast_custom_scenarios") || "[]");
+    savedCustom.push(scenario);
+    localStorage.setItem("cast_custom_scenarios", JSON.stringify(savedCustom));
+
+    allScenarios.push(scenario);
+    populateScenarioDropdown();
+    loadScenario(customId);
+
+    // Show success feedback banner
+    if (successBanner) {
+      successBanner.style.display = "block";
+      const titleEl = document.getElementById("aiSuccessTitle");
+      if (titleEl) titleEl.textContent = `"${scenario.title}"`;
+    }
+
+  } catch (err) {
+    console.error("AI Generation error:", err);
+    alert("AI Generation failed: " + err.message + "\nPlease verify proxy settings or try a different topic.");
+  } finally {
+    if (generateBtn) generateBtn.disabled = false;
+    if (statusContainer) statusContainer.style.display = "none";
+    isGeneratingAi = false;
+  }
 }
 
 function saveCustomScenarioFromForm() {
@@ -894,7 +1514,7 @@ function saveCustomScenarioFromForm() {
     return;
   }
 
-  // Parse CSV data rows (format: label, x, y)
+  // Parse CSV data rows (format: x, y per line)
   const rows = [];
   rawData.split("\n").forEach((line, idx) => {
     const parts = line.split(",").map(p => p.trim());
@@ -915,6 +1535,9 @@ function saveCustomScenarioFromForm() {
     alert("No valid numerical data pairs found in Data Rows. Use format: X, Y (one per line).");
     return;
   }
+
+  // If activeScenario was just generated or custom, inherit rich 5-part architecture defaults
+  const baseQuestions = (activeScenario && activeScenario.questions) ? activeScenario.questions : {};
 
   const customId = `custom-${Date.now()}`;
   const customScenario = {
@@ -942,6 +1565,13 @@ function saveCustomScenarioFromForm() {
       suggestedMax: Math.max(...rows.map(r => r.y)) * 1.15
     },
     background: bg,
+    controlledVariables: (activeScenario && activeScenario.controlledVariables) || [
+      `Fixed constant system factors across all trials`,
+      `Calibrated experimental timing and measurements`
+    ],
+    calibratedInstrumentation: (activeScenario && activeScenario.calibratedInstrumentation) || [
+      `Standard laboratory precision measurement sensors`
+    ],
     dataTable: {
       caption: `Table: ${title}`,
       columns: [
@@ -957,6 +1587,24 @@ function saveCustomScenarioFromForm() {
       equation: "Custom Teacher Model"
     },
     questions: {
+      anatomy: baseQuestions.anatomy || {
+        id: "anatomy_q",
+        independentVar: `${xLabel} (${xUnit})`,
+        dependentVar: `${yLabel} (${yUnit})`,
+        locatorPrompt: `What is the measured ${yLabel} for the first trial?`,
+        expectedLocatorValue: rows[0].y,
+        locatorTolerance: 0.2,
+        locatorUnit: yUnit,
+        interceptPrompt: `What is the expected physical behavior when ${xLabel} is zero?`,
+        interceptOptions: [
+          `The dependent variable starts from the physical baseline/zero`,
+          `The experimental sensors become inactive`,
+          `The system accelerates infinitely`,
+          `No data can be gathered`
+        ],
+        interceptCorrectIndex: 0,
+        interceptExplanation: `At zero independent input, the physical response reflects baseline equilibrium.`
+      },
       trend: {
         id: "trend_q",
         type: "multiple_choice",
@@ -977,7 +1625,15 @@ function saveCustomScenarioFromForm() {
         expectedValue: !isNaN(quantExpected) ? quantExpected : ((rows[rows.length - 1].y - rows[0].y) / (rows[rows.length - 1].x - rows[0].x)),
         tolerance: 0.1,
         unit: `(${yUnit}) / (${xUnit})`,
-        hint: `Use ΔY / ΔX: (${rows[rows.length - 1].y} - ${rows[0].y}) / (${rows[rows.length - 1].x} - ${rows[0].x}).`
+        hint: `Use ΔY / ΔX: (${rows[rows.length - 1].y} - ${rows[0].y}) / (${rows[rows.length - 1].x} - ${rows[0].x}).`,
+        slopeSteps: baseQuestions.quantitative?.slopeSteps || {
+          point1: { x: rows[0].x, y: rows[0].y, label: `Trial 1 (${rows[0].x} ${xUnit}, ${rows[0].y} ${yUnit})` },
+          point2: { x: rows[rows.length - 1].x, y: rows[rows.length - 1].y, label: `Trial ${rows.length} (${rows[rows.length - 1].x} ${xUnit}, ${rows[rows.length - 1].y} ${yUnit})` },
+          formulaSetup: `Slope = (${rows[rows.length - 1].y} - ${rows[0].y}) / (${rows[rows.length - 1].x} - ${rows[0].x})`,
+          calculatedSlope: !isNaN(quantExpected) ? quantExpected : ((rows[rows.length - 1].y - rows[0].y) / (rows[rows.length - 1].x - rows[0].x)),
+          slopeUnit: `(${yUnit}) / (${xUnit})`,
+          physicalMeaning: `Rate of change of ${yLabel} with respect to ${xLabel}`
+        }
       },
       freeResponse: {
         id: "fr_q",
@@ -987,9 +1643,14 @@ function saveCustomScenarioFromForm() {
         requiredUnits: [xUnit.toLowerCase(), yUnit.toLowerCase()],
         claimKeywords: ["increases", "decreases", "proportional", "direct", "rate", "linear"],
         reasoningKeywords: ["because", "due to", "mechanism", "energy", "particles", "force", "model"],
-        exemplar: `As ${xLabel} changed, ${yLabel} changed proportionally based on the underlying scientific principle.`
+        exemplar: baseQuestions.freeResponse?.exemplar || `As ${xLabel} changed, ${yLabel} changed proportionally based on the underlying scientific principle.`,
+        sentenceFrames: baseQuestions.freeResponse?.sentenceFrames || {
+          claimFrame: `The relationship between ${xLabel} and ${yLabel} is [directly proportional / inversely proportional].`,
+          evidenceFrame: `In Trial 1, when ${xLabel} was ${rows[0].x} ${xUnit}, ${yLabel} was ${rows[0].y} ${yUnit}. As ${xLabel} increased to ${rows[rows.length - 1].x} ${xUnit}, ${yLabel} reached ${rows[rows.length - 1].y} ${yUnit}.`,
+          reasoningFrame: `This occurs because the underlying physical mechanism scales with the independent variable.`
+        }
       },
-      synthesis: {
+      synthesis: baseQuestions.synthesis || {
         id: "syn_q",
         type: "multiple_choice",
         prompt: "Based on this dataset, what would you predict happens if the independent variable increases beyond the tested range?",
@@ -1032,12 +1693,32 @@ function exportCustomScenariosJson() {
 // ==========================================================================
 // 9. SYNCHRONIZE 1-PAGE HONORS PRINT WORKSHEET
 // ==========================================================================
-function syncPrintWorksheet() {
+let currentPrintMode = "blank"; // "blank" (student worksheet) or "report" (graded submission)
+
+function printBlankWorksheet() {
+  currentPrintMode = "blank";
+  syncPrintWorksheet("blank");
+  setTimeout(() => {
+    window.print();
+  }, 100);
+}
+
+function printCompletedReport() {
+  currentPrintMode = "report";
+  syncPrintWorksheet("report");
+  setTimeout(() => {
+    window.print();
+  }, 100);
+}
+
+function syncPrintWorksheet(mode = currentPrintMode) {
   const scenario = getCurrentScenario();
   if (!scenario) return;
   const resp = getActiveResponse();
-  const total = (resp.scores.trend || 0) + (resp.scores.quant || 0) + (resp.scores.fr || 0) + (resp.scores.syn || 0);
-  const maxTotal = 7;
+  const isBlank = mode === "blank";
+
+  const total = (resp.scores.anatomy || 0) + (resp.scores.trend || 0) + (resp.scores.quant || 0) + (resp.scores.fr || 0) + (resp.scores.syn || 0);
+  const maxTotal = 8;
   const pct = Math.round((total / maxTotal) * 100);
 
   // 1. Header Block
@@ -1053,17 +1734,22 @@ function syncPrintWorksheet() {
   if (pHeaderSub) pHeaderSub.textContent = `${scenario.disciplineBadge} Investigation • ${scenario.ngssTitle} (${scenario.ngssCode})`;
   if (pHeaderNgss) pHeaderNgss.textContent = `${scenario.ngssCode} • SEP-4 • SEP-7`;
 
+  const pScoreMaxLabel = document.getElementById("pScoreMaxLabel");
+
   if (pStudentName) {
-    pStudentName.textContent = currentStudent ? (currentStudent.displayName || currentStudent.email.split("@")[0]) : "";
+    pStudentName.textContent = (!isBlank && currentStudent) ? (currentStudent.displayName || currentStudent.email.split("@")[0]) : "";
   }
   if (pStudentPeriod) {
-    pStudentPeriod.textContent = currentStudent && currentStudent.period ? currentStudent.period : "";
+    pStudentPeriod.textContent = (!isBlank && currentStudent && currentStudent.period) ? currentStudent.period : "";
   }
   if (pCurrentDate) {
-    pCurrentDate.textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    pCurrentDate.textContent = !isBlank ? new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "";
   }
   if (pMasteryScore) {
-    pMasteryScore.textContent = `${total} / ${maxTotal} Pts (${pct}%)`;
+    pMasteryScore.textContent = !isBlank ? `${total}` : "";
+  }
+  if (pScoreMaxLabel) {
+    pScoreMaxLabel.textContent = !isBlank ? `/ ${maxTotal} Pts (${pct}%)` : `/ ${maxTotal} Pts`;
   }
 
   // 2. Scenario Narrative
@@ -1112,38 +1798,45 @@ function syncPrintWorksheet() {
     }
   }
 
-  // 5. Questions Section
-  // Part 1: Trend Pattern
+  // 5. Questions Section (5-Part Pedagogical Structure)
+  // Part 1: Graph Reading & Decoding
+  const anatomy = scenario.questions.anatomy;
+  const pQ0Prompt = document.getElementById("pQ0Prompt");
+  const pQ0X = document.getElementById("pQ0X");
+  const pQ0Y = document.getElementById("pQ0Y");
+  const pQ0Value = document.getElementById("pQ0Value");
+  const pQ0Unit = document.getElementById("pQ0Unit");
+
+  if (pQ0Prompt && anatomy) pQ0Prompt.textContent = anatomy.locatorPrompt;
+  if (pQ0X && anatomy) pQ0X.textContent = anatomy.independentVar;
+  if (pQ0Y && anatomy) pQ0Y.textContent = anatomy.dependentVar;
+  if (pQ0Value) pQ0Value.textContent = (!isBlank && resp.anatomyLocatorAnswer) ? resp.anatomyLocatorAnswer : "";
+  if (pQ0Unit && anatomy) pQ0Unit.textContent = anatomy.locatorUnit;
+
+  // Part 2: Trend Pattern
   const pQ1Prompt = document.getElementById("pQ1Prompt");
   const pQ1Answer = document.getElementById("pQ1Answer");
   if (pQ1Prompt) pQ1Prompt.textContent = scenario.questions.trend.prompt;
   if (pQ1Answer) {
-    if (resp.trendAnswer !== null && scenario.questions.trend.options[resp.trendAnswer]) {
+    if (!isBlank && resp.trendAnswer !== null && scenario.questions.trend.options[resp.trendAnswer]) {
       const isCor = resp.scores.trend === 1;
       pQ1Answer.innerHTML = `${scenario.questions.trend.options[resp.trendAnswer]} <span style="color:${isCor ? '#15803d' : '#b91c1c'}; font-weight:700;">(${isCor ? '✓ 1/1 pt' : '0/1 pt'})</span>`;
     } else {
-      pQ1Answer.innerHTML = `<span style="color:#64748b;">[ ] Linear Direct &nbsp;&nbsp; [ ] Inverse &nbsp;&nbsp; [ ] Non-Linear Growth &nbsp;&nbsp; [ ] Plateau</span>`;
+      // Clean standalone checkboxes for paper completion
+      const optionsHtml = scenario.questions.trend.options.map(opt => `[ ] ${opt}`).join("&nbsp;&nbsp;&nbsp;&nbsp;");
+      pQ1Answer.innerHTML = `<span style="color:#475569; font-size:7.5pt;">${optionsHtml}</span>`;
     }
   }
 
-  // Part 2: Rate of Change / Slope
+  // Part 3: Rate of Change / Slope
   const pQ2Prompt = document.getElementById("pQ2Prompt");
   const pQ2Value = document.getElementById("pQ2Value");
   const pQ2Unit = document.getElementById("pQ2Unit");
-  const pQ2Check = document.getElementById("pQ2Check");
   if (pQ2Prompt) pQ2Prompt.textContent = scenario.questions.quantitative.prompt;
-  if (pQ2Value) pQ2Value.textContent = resp.quantAnswer || "__________";
+  if (pQ2Value) pQ2Value.textContent = (!isBlank && resp.quantAnswer) ? resp.quantAnswer : "";
   if (pQ2Unit) pQ2Unit.textContent = scenario.questions.quantitative.unit;
-  if (pQ2Check) {
-    if (resp.quantAnswer) {
-      const isCor = resp.scores.quant === 1;
-      pQ2Check.innerHTML = isCor ? `<span style="color:#15803d;">✓ Verified (+1 pt)</span>` : `<span style="color:#b91c1c;">Incorrect (Expected: ${scenario.questions.quantitative.expectedValue} ${scenario.questions.quantitative.unit})</span>`;
-    } else {
-      pQ2Check.textContent = "Rate Verification: _______";
-    }
-  }
 
-  // Part 3: Free Response CER & 4-Point Rubric Bar
+  // Part 4: Free Response CER & 4-Point Rubric Bar
   const pQ3Prompt = document.getElementById("pQ3Prompt");
   const pCerText = document.getElementById("pCerText");
   const pRubClaim = document.getElementById("pRubClaim");
@@ -1154,47 +1847,51 @@ function syncPrintWorksheet() {
 
   if (pQ3Prompt) pQ3Prompt.textContent = scenario.questions.freeResponse.prompt;
   if (pCerText) {
-    if (resp.frAnswer && resp.frAnswer.trim().length > 0) {
+    if (!isBlank && resp.frAnswer && resp.frAnswer.trim().length > 0) {
       pCerText.textContent = resp.frAnswer;
       pCerText.style.fontStyle = "normal";
+      pCerText.style.color = "#0f172a";
     } else {
-      pCerText.innerHTML = `<span style="color:#94a3b8; font-style:italic;">[Write Claim, cite 2+ numerical data points with units from table, compare rates, and provide scientific reasoning...]</span><div style="height:35px; border-bottom:1px dashed #cbd5e1; margin-top:10px;"></div>`;
+      // Standalone blank worksheet: provide clean open writing box
+      pCerText.innerHTML = "";
     }
   }
 
-  // Evaluate CER with EvidenceChecker
+  // Evaluate CER with EvidenceChecker (or show blank grading criteria for paper)
   const cerResult = EvidenceChecker.evaluate(resp.frAnswer, scenario.questions.freeResponse);
   if (pRubClaim) {
-    pRubClaim.textContent = `Claim: ${cerResult.criteria[0].points}/1`;
-    pRubClaim.className = `p-rub-pill ${cerResult.criteria[0].earned ? 'passed' : ''}`;
+    pRubClaim.textContent = !isBlank ? `Claim: ${cerResult.criteria[0].points}/1` : `Claim: [ 1 pt ]`;
+    pRubClaim.className = `p-rub-pill ${(!isBlank && cerResult.criteria[0].earned) ? 'passed' : ''}`;
   }
   if (pRubEvidence) {
-    pRubEvidence.textContent = `Evidence: ${cerResult.criteria[1].points}/1`;
-    pRubEvidence.className = `p-rub-pill ${cerResult.criteria[1].earned ? 'passed' : ''}`;
+    pRubEvidence.textContent = !isBlank ? `Evidence: ${cerResult.criteria[1].points}/1` : `Evidence (2+ pts & units): [ 1 pt ]`;
+    pRubEvidence.className = `p-rub-pill ${(!isBlank && cerResult.criteria[1].earned) ? 'passed' : ''}`;
   }
   if (pRubUnits) {
-    pRubUnits.textContent = `Units: ${cerResult.criteria[2].points}/1`;
-    pRubUnits.className = `p-rub-pill ${cerResult.criteria[2].earned ? 'passed' : ''}`;
+    pRubUnits.textContent = !isBlank ? `Units: ${cerResult.criteria[2].points}/1` : `Units: [ 1 pt ]`;
+    pRubUnits.className = `p-rub-pill ${(!isBlank && cerResult.criteria[2].earned) ? 'passed' : ''}`;
   }
   if (pRubReasoning) {
-    pRubReasoning.textContent = `Reasoning: ${cerResult.criteria[3].points}/1`;
-    pRubReasoning.className = `p-rub-pill ${cerResult.criteria[3].earned ? 'passed' : ''}`;
+    pRubReasoning.textContent = !isBlank ? `Reasoning: ${cerResult.criteria[3].points}/1` : `Reasoning: [ 1 pt ]`;
+    pRubReasoning.className = `p-rub-pill ${(!isBlank && cerResult.criteria[3].earned) ? 'passed' : ''}`;
   }
   if (pRubTotal) {
-    pRubTotal.textContent = `${cerResult.score} / 4 Pts`;
-    pRubTotal.style.color = cerResult.score >= 3 ? '#15803d' : '#0284c7';
+    pRubTotal.textContent = !isBlank ? `${cerResult.score} / 4 Pts` : `Rubric: ____ / 4 Pts`;
+    pRubTotal.style.color = (!isBlank && cerResult.score >= 3) ? '#15803d' : '#0284c7';
   }
 
-  // Part 4: Synthesis / Extrapolation
+  // Part 5: Prediction & Real-World Application
   const pQ4Prompt = document.getElementById("pQ4Prompt");
   const pQ4Answer = document.getElementById("pQ4Answer");
   if (pQ4Prompt) pQ4Prompt.textContent = scenario.questions.synthesis.prompt;
   if (pQ4Answer) {
-    if (resp.synAnswer !== null && scenario.questions.synthesis.options[resp.synAnswer]) {
+    if (!isBlank && resp.synAnswer !== null && scenario.questions.synthesis.options[resp.synAnswer]) {
       const isCor = resp.scores.syn === 1;
       pQ4Answer.innerHTML = `${scenario.questions.synthesis.options[resp.synAnswer]} <span style="color:${isCor ? '#15803d' : '#b91c1c'}; font-weight:700;">(${isCor ? '✓ 1/1 pt' : '0/1 pt'})</span>`;
     } else {
-      pQ4Answer.innerHTML = `<span style="color:#64748b;">[Student prediction or evaluation based on trend extrapolation]</span>`;
+      // Standalone blank checkboxes for paper completion
+      const synHtml = scenario.questions.synthesis.options.map(opt => `[ ] ${opt}`).join("&nbsp;&nbsp;&nbsp;&nbsp;");
+      pQ4Answer.innerHTML = `<span style="color:#475569; font-size:7.5pt;">${synHtml}</span>`;
     }
   }
 
@@ -1228,19 +1925,33 @@ function setupEventListeners() {
     });
   }
 
-  // Print button with sync trigger
-  const printBtn = document.getElementById("printReportBtn");
-  if (printBtn) {
-    printBtn.addEventListener("click", () => {
-      syncPrintWorksheet();
-      setTimeout(() => {
-        window.print();
-      }, 100);
+  // Print Blank Worksheet Button
+  const printWorksheetBtn = document.getElementById("printWorksheetBtn");
+  if (printWorksheetBtn) {
+    printWorksheetBtn.addEventListener("click", () => {
+      printBlankWorksheet();
+    });
+  }
+
+  // Print Completed Report button
+  const printReportBtn = document.getElementById("printReportBtn");
+  if (printReportBtn) {
+    printReportBtn.addEventListener("click", () => {
+      printCompletedReport();
     });
   }
 
   // Hook beforeprint event
   window.addEventListener("beforeprint", () => {
-    syncPrintWorksheet();
+    syncPrintWorksheet(currentPrintMode);
   });
+}
+
+// Node.js module exports for unit testing
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = {
+    AUTHORIZED_TEACHERS,
+    isAuthorizedTeacher,
+    parseJsonText
+  };
 }

@@ -9,9 +9,47 @@ let failed = false;
 SCENARIOS.forEach((s, idx) => {
   console.log(`[Scenario ${idx + 1}] ${s.disciplineBadge} ${s.title}`);
   if (!s.questions || !s.questions.trend || !s.questions.quantitative || !s.questions.freeResponse || !s.questions.synthesis) {
-    console.error(`  FAIL: Missing questions in ${s.id}`);
+    console.error(`  FAIL: Missing core questions in ${s.id}`);
     failed = true;
     return;
+  }
+
+  // 1. Validate Controlled Variables & Instrumentation
+  if (!Array.isArray(s.controlledVariables) || s.controlledVariables.length === 0) {
+    console.error(`  FAIL: Missing controlledVariables in ${s.id}`);
+    failed = true;
+  }
+  if (!Array.isArray(s.calibratedInstrumentation) || s.calibratedInstrumentation.length === 0) {
+    console.error(`  FAIL: Missing calibratedInstrumentation in ${s.id}`);
+    failed = true;
+  }
+
+  // 2. Validate Graph Anatomy & Decoding
+  const anatomy = s.questions.anatomy;
+  if (!anatomy || !anatomy.independentVar || !anatomy.dependentVar || typeof anatomy.expectedLocatorValue !== 'number' || !anatomy.interceptPrompt) {
+    console.error(`  FAIL: Incomplete anatomy question configuration in ${s.id}`);
+    failed = true;
+  }
+
+  // 3. Validate Step-by-Step Slope Setup
+  const slopeSteps = s.questions.quantitative.slopeSteps;
+  if (!slopeSteps || !slopeSteps.point1 || !slopeSteps.point2 || !slopeSteps.formulaSetup || !slopeSteps.physicalMeaning) {
+    console.error(`  FAIL: Incomplete slopeSteps in ${s.id}`);
+    failed = true;
+  }
+
+  // 4. Validate Scaffolded Sentence Frames
+  const frames = s.questions.freeResponse.sentenceFrames;
+  if (!frames || !frames.claimFrame || !frames.evidenceFrame || !frames.reasoningFrame) {
+    console.error(`  FAIL: Incomplete sentenceFrames in ${s.id}`);
+    failed = true;
+  }
+
+  // 5. Validate Diagnostic Misconception Prompt
+  const syn = s.questions.synthesis;
+  if (!syn.diagnosticPrompt || !Array.isArray(syn.diagnosticOptions) || typeof syn.diagnosticCorrectIndex !== 'number') {
+    console.error(`  FAIL: Incomplete diagnostic misconception question in ${s.id}`);
+    failed = true;
   }
   
   // Test that quantitative expectedValue is a number
@@ -52,8 +90,90 @@ if (vagueResult.score > 2) {
   console.log('✓ Vague response correctly flagged for missing numerical evidence and units.');
 }
 
+// -------------------------------------------------------------
+// Test Teacher Whitelist and Authorization Logic
+// -------------------------------------------------------------
+console.log('\n--- Testing Teacher Mode Whitelist & Auth Logic ---');
+const { AUTHORIZED_TEACHERS, isAuthorizedTeacher, parseJsonText } = require('../cast-data-practice/js/app.js');
+
+const EXPECTED_TEACHERS = [
+  "cchurney@orangeusd.org",
+  "ashue@orangeusd.org",
+  "avelasquez@orangeusd.org",
+  "egerbasi@orangeusd.org",
+  "jricupito@orangeusd.org",
+  "jbowling@orangeusd.org",
+  "lluna@orangeusd.org",
+  "oroot@orangeusd.org",
+  "scourtney@orangeusd.org",
+  "rmudry@orangeusd.org"
+];
+
+if (AUTHORIZED_TEACHERS.length !== 10) {
+  console.error(`FAIL: Expected 10 authorized teachers, got ${AUTHORIZED_TEACHERS.length}`);
+  failed = true;
+}
+
+EXPECTED_TEACHERS.forEach(email => {
+  if (!isAuthorizedTeacher(email)) {
+    console.error(`FAIL: Teacher ${email} failed isAuthorizedTeacher check`);
+    failed = true;
+  }
+  // Test case-insensitivity
+  if (!isAuthorizedTeacher(email.toUpperCase())) {
+    console.error(`FAIL: Teacher uppercase ${email.toUpperCase()} failed isAuthorizedTeacher check`);
+    failed = true;
+  }
+  // Test leading/trailing spaces
+  if (!isAuthorizedTeacher(`  ${email}  `)) {
+    console.error(`FAIL: Teacher trimmed ${email} failed isAuthorizedTeacher check`);
+    failed = true;
+  }
+});
+
+// Unauthorized checks
+const unauthorizedEmails = [
+  "student123@orangeusd.org",
+  "rmudry@gmail.com",
+  "random@example.com",
+  "",
+  null,
+  undefined
+];
+
+unauthorizedEmails.forEach(email => {
+  if (isAuthorizedTeacher(email)) {
+    console.error(`FAIL: Unauthorized email ${email} passed isAuthorizedTeacher!`);
+    failed = true;
+  }
+});
+console.log(`✓ All 10 teachers authorized, unauthorized emails properly blocked.`);
+
+// -------------------------------------------------------------
+// Test AI JSON Parser Helper
+// -------------------------------------------------------------
+console.log('\n--- Testing AI JSON Parser ---');
+const rawAiOutput1 = '```json\n{"title": "Sample Investigation", "dataTable": {"rows": [1,2,3]}}\n```';
+const parsed1 = parseJsonText(rawAiOutput1);
+if (!parsed1 || parsed1.title !== "Sample Investigation") {
+  console.error('FAIL: parseJsonText failed on markdown-wrapped JSON');
+  failed = true;
+} else {
+  console.log('✓ parseJsonText successfully parsed markdown code fenced JSON.');
+}
+
+const rawAiOutput2 = 'Here is your CAST scenario:\n{"title": "Ocean pH", "val": 42}\nHope this helps!';
+const parsed2 = parseJsonText(rawAiOutput2);
+if (!parsed2 || parsed2.title !== "Ocean pH" || parsed2.val !== 42) {
+  console.error('FAIL: parseJsonText failed on text-surrounded JSON');
+  failed = true;
+} else {
+  console.log('✓ parseJsonText successfully extracted embedded JSON from conversational AI output.');
+}
+
 if (failed) {
   process.exit(1);
 } else {
-  console.log('\n🎉 ALL SCENARIO AND EVIDENCE CHECKER TESTS PASSED WITH 100% ACCURACY!');
+  console.log('\n🎉 ALL SCENARIO, EVIDENCE CHECKER, AND TEACHER AUTH TESTS PASSED WITH 100% ACCURACY!');
 }
+
