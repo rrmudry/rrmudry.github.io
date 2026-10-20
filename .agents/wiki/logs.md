@@ -18,10 +18,10 @@ Append-only log tracking pattern changes across recent sessions.
   - Clarified Question 3 to strictly require rate of change / slope calculations ($\Delta y / \Delta x$), preventing confusion with extrapolation.
 - **Section Header De-duplication**:
   - Replaced redundant repeated title banner with clean, functional section header: `INVESTIGATION PROCEDURE & EXPERIMENTAL SETUP` across both HTML template and runtime sync.
-- **Questions Container Layout & Spacing**:
-  - Replaced `justify-content: space-between` with `justify-content: flex-start` on `.p-questions-container`, eliminating the artificial vertical gap below the title bar (before Question 1) and the void before Question 5.
-  - Distributed balanced, consistent margins (`margin-bottom: 8.5px`) across all questions.
-  - Expanded the CER writing box height from `0.72in` to `0.92in`, giving students ample writing space while preserving the 1-page budget.
+- **Questions Container Layout & Elimination of Bottom Void**:
+  - Attached `.p-q-cer` with `flex: 1; display: flex; flex-direction: column;` and `.p-cer-box` with `flex: 1; min-height: 1.35in;` allowing the CER writing box to dynamically absorb all leftover vertical space in `.p-questions-container`.
+  - Expanded question separation margins from `8.5px` to `12px` and prompt margins to `3px`, giving students comfortable, non-overwhelming breathing room between questions.
+  - Question 5 now docks naturally at the bottom of the container, eliminating the 2-inch empty white void at the bottom of the CAST Task section.
 - **Data Table Caption Truncation Fix**:
   - Updated `.p-box-header span:first-child` to allow natural text wrapping (`white-space: normal; overflow: visible; font-size: 6.8pt;`), preventing long table captions from being cut off.
 - **Scientific Unit & Plain-Text Unicode Sanitization**:
