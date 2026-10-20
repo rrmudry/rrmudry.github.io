@@ -211,11 +211,16 @@ function populateScenarioDropdown() {
   if (!select) return;
 
   const visible = getFilteredScenarios();
-  select.innerHTML = visible.map(s => `
-    <option value="${s.id}" ${s.id === activeScenarioId ? "selected" : ""}>
-      ${s.disciplineBadge} ${s.title}
-    </option>
-  `).join("");
+  select.innerHTML = visible.map(s => {
+    const gradeTag = (s.targetGrade && !s.targetGrade.startsWith("High School"))
+      ? `[${s.targetGrade.split("/")[0].replace(/[^\w\s-]/g, '').trim()}] `
+      : "";
+    return `
+      <option value="${s.id}" ${s.id === activeScenarioId ? "selected" : ""}>
+        ${gradeTag}${s.disciplineBadge} ${s.title}
+      </option>
+    `;
+  }).join("");
 }
 
 function getCurrentScenario() {
@@ -262,6 +267,18 @@ function loadScenario(scenarioId) {
   document.getElementById("scenarioTitle").textContent = scenario.title;
   document.getElementById("disciplineBadge").className = `badge badge-${scenario.discipline.toLowerCase().replace(/[^a-z]/g, '')}`;
   document.getElementById("disciplineBadge").textContent = scenario.disciplineBadge;
+
+  const gradeBadge = document.getElementById("gradeBadge");
+  if (gradeBadge) {
+    if (scenario.targetGrade && !scenario.targetGrade.startsWith("High School")) {
+      const shortName = scenario.targetGrade.split("/")[0].trim();
+      gradeBadge.textContent = shortName;
+      gradeBadge.style.display = "inline-flex";
+    } else {
+      gradeBadge.style.display = "none";
+    }
+  }
+
   document.getElementById("ngssBadge").textContent = `${scenario.ngssCode} • ${scenario.ngssTitle}`;
   document.getElementById("sepBadge").textContent = scenario.sep;
   document.getElementById("cccBadge").textContent = scenario.ccc;
@@ -1174,6 +1191,213 @@ function setAiTopicExample(topic, discipline) {
   if (discSelect && discipline) discSelect.value = discipline;
 }
 
+function setAiSpecialPreset(type) {
+  const gradeSelect = document.getElementById("aiGradeLevelSelect");
+  const reqInput = document.getElementById("aiSpecialRequestsInput");
+  if (!gradeSelect || !reqInput) return;
+
+  if (type === "clear") {
+    gradeSelect.value = "High School (Grades 9-12 / Standard CAST)";
+    reqInput.value = "";
+    return;
+  }
+
+  let presetGrade = null;
+  let presetReq = "";
+
+  switch (type) {
+    case "lower-grade":
+      presetGrade = "Middle School (Grades 6-8 / Accessible Vocabulary & Clean Numbers)";
+      presetReq = "Lower target grade level to 7th-8th grade with clear, accessible vocabulary, concrete familiar lab tools, and clean numbers.";
+      break;
+    case "integers-only":
+      presetReq = "Use clean, whole integer numbers for all independent and dependent data points in the table.";
+      break;
+    case "eld-support":
+      presetGrade = "Foundations / ELD Support (Plain English & Scaffolding)";
+      presetReq = "Use plain, simple English vocabulary, high visual scaffolding, and explicit sentence starters for English language learners.";
+      break;
+    case "kitchen-context":
+      presetReq = "Use everyday household or kitchen materials for the lab apparatus instead of specialized high-tech sensors.";
+      break;
+    case "inverse-trend":
+      presetReq = "Generate an inverse (indirect) relationship between the variables where y decreases as x increases.";
+      break;
+    case "honors-rigor":
+      presetGrade = "Honors / AP Science (Advanced Rigor & In-Depth CER)";
+      presetReq = "High rigor with advanced analytical terminology, precision laboratory sensors, and multi-step CER reasoning.";
+      break;
+  }
+
+  if (presetGrade) {
+    gradeSelect.value = presetGrade;
+  }
+  if (presetReq) {
+    if (!reqInput.value.trim()) {
+      reqInput.value = presetReq;
+    } else if (!reqInput.value.includes(presetReq)) {
+      reqInput.value = reqInput.value.trim() + " " + presetReq;
+    }
+  }
+}
+
+function buildAiPromptPayload({ topic, discipline = "Physics", gradeLevel = "High School (Grades 9-12 / Standard CAST)", specialRequests = "" }) {
+  const isLowerGrade = gradeLevel.includes("Middle School") || gradeLevel.includes("Elementary") || gradeLevel.includes("ELD");
+  const isHonors = gradeLevel.includes("Honors") || gradeLevel.includes("AP");
+
+  const systemInstruction = `You are a premier science curriculum specialist and CAST (California Science Test) assessment architect. 
+Generate a complete, rigorous, standards-aligned science investigation and data analysis performance task tailored to the teacher's topic, target grade level, and special customization requests.
+
+CRITICAL RULES:
+1. STRICT NO-LATEX & NO-RAW-HTML POLICY: Never use LaTeX syntax (no \\Delta, no \\frac, no \\vec, no $...). Never include raw HTML tags (like <strong>, <b>, <span>) inside JSON strings for independentVar, dependentVar, prompts, or options. Return clean, plain text and standard Unicode symbols: Δ, ², ³, °, °C, x₀, v₀, m/s².
+2. EXPERIMENTAL INVESTIGATION SCENARIO (MANDATORY APPARATUS & PROCEDURE):
+   - The background narrative MUST describe an authentic physical laboratory experiment and concrete apparatus setup.
+   - Specifically detail:
+     a) The physical object and materials tested (e.g. "a 0.50 kg wooden block resting on a horizontal track").
+     b) Exactly how the independent variable was manipulated across trials (e.g. "stacking calibrated mass disks on top of the block across 6 trials to incrementally vary normal force").
+     c) The precise instrumentation used to record the dependent variable (e.g. "a digital high-resolution force sensor pulling horizontally to measure the peak breakaway static friction force just before slip").
+     d) The key controlled variables held constant (e.g. "constant contact surface area, horizontal level track verified at 0.0°, and steady pulling technique").
+   - STRICT PROHIBITION: NEVER write generic textbook definitions, encyclopedic overviews, or broad statements like "Understanding friction is crucial for many real-world applications...". Focus 100% on describing the lab procedure and experimental setup.
+   - Length: Strictly 55 to 80 words across 2 short, concise paragraphs. Do NOT repeat the investigation title in the background narrative.
+3. GRADE-LEVEL ADAPTATION & RIGOR TARGET:
+   - Selected Target Grade / Rigor: "${gradeLevel}"
+   ${isLowerGrade ? `- LOWER GRADE LEVEL DIFFERENTIATION RULES (Grades 6-8 / Middle School / Foundations):
+     a) Vocabulary & Reading Level: Use active, clear, 7th-8th grade accessible language. Avoid dense multisyllabic technical jargon or intimidating formulas.
+     b) Intuitive Classroom Apparatus: Describe familiar, concrete classroom materials (e.g. spring scales, beakers, stopwatches, graduated cylinders, ramps, thermometers) rather than overly abstract electronic sensors.
+     c) Clean Numbers: Keep data table numbers simple and accessible (clean integers or single decimal places like 2.0, 4.0, 6.0) that are straightforward for middle school students to plot and calculate slope (Δy / Δx) without rounding obstacles.
+     d) Accessible Scaffolding: In Question 4 sentence frames, provide clear, friendly sentence starters with bracketed options (e.g., "[increased / decreased]").
+     e) NGSS Alignment: Use appropriate Middle School NGSS codes when applicable (e.g. MS-PS2-2, MS-PS3-1, MS-LS1-5, MS-ESS2-2).` : (isHonors ? `- HONORS / AP RIGOR RULES:
+     a) Analytical Terminology: Use rigorous college-prep scientific terminology and multi-variable precision apparatus (e.g. photogate sensors, spectrophotometers, digital force plates).
+     b) In-Depth CER & Synthesis: Require students to articulate physical mechanisms and evaluate boundary limits in synthesis questions.` : `- STANDARD HIGH SCHOOL CAST PERFORMANCE RULES:
+     a) Align with high school NGSS standards (9th-12th grade level).
+     b) Balanced quantitative slope analysis and 4-point CER reasoning.`)}
+4. SPECIAL TEACHER INSTRUCTIONS & DIFFERENTIATION:
+   ${specialRequests ? `- PRIORITY REQUIREMENT: The teacher has submitted the following special customization requests:
+     """${specialRequests}"""
+   You MUST strictly honor and fulfill every single one of these special teacher requests across the generated narrative, data values, vocabulary, and questions while maintaining a valid JSON structure!` : `- Standard generation: Generate authentic, balanced performance task.`}
+5. DATA TABLE COLUMNS WITH UNITS: Column labels in dataTable MUST explicitly include their scientific units in parentheses, e.g. "Normal Force (N)" and "Kinetic Friction Force (N)".
+6. GRAPH EQUATION: Write clean math notation (e.g. "F_k = 0.402 · F_N" or "y = 0.402 x + 0.005") without programming asterisks '*' or unformatted computer syntax.
+7. COMPLETE TOP-LEVEL JSON SCHEMA: Return a single valid JSON object containing ALL of the following top-level keys:
+   - "title": "Engaging Scientific Title"
+   - "discipline": "${discipline}"
+   - "disciplineBadge": "${discipline === "Physics" ? "⚛️ Physics" : (discipline === "Biology" ? "🌿 Biology" : (discipline === "Chemistry" ? "🧪 Chemistry" : "🌋 Earth & Space"))}"
+   - "targetGrade": "${gradeLevel}"
+   - "ngssCode": "${isLowerGrade ? "MS-PS2-2" : "HS-PS2-1"}"
+   - "ngssTitle": "NGSS Topic Name"
+   - "sep": "SEP-4: Analyzing and Interpreting Data"
+   - "ccc": "CCC-1: Patterns"
+   - "chartType": "scatter"
+   - "xAxis": { "label": string, "symbol": string, "unit": string, "min": 0, "suggestedMax": number }
+   - "yAxis": { "label": string, "symbol": string, "unit": string, "min": 0, "suggestedMax": number }
+   - "background": string (concise 55-80 words narrative describing apparatus & procedure)
+   - "controlledVariables": [ "Controlled variable 1", "Controlled variable 2", "Controlled variable 3" ]
+   - "calibratedInstrumentation": [ "Precision sensor 1", "Precision sensor 2" ]
+   - "dataTable": {
+       "caption": "Table 1: Measured ...",
+       "columns": [
+         { "key": "trial", "label": "Trial #", "isText": true },
+         { "key": "x", "label": "Independent Var Name (unit)", "isX": true, "unit": "unit" },
+         { "key": "y", "label": "Dependent Var Name (unit)", "isY": true, "unit": "unit" }
+       ],
+       "rows": [
+         { "trial": "Trial 1", "x": number, "y": number },
+         { "trial": "Trial 2", "x": number, "y": number },
+         { "trial": "Trial 3", "x": number, "y": number },
+         { "trial": "Trial 4", "x": number, "y": number },
+         { "trial": "Trial 5", "x": number, "y": number },
+         { "trial": "Trial 6", "x": number, "y": number }
+       ]
+     }
+   - "graphConfig": {
+       "showBestFitDefault": true,
+       "beginAtZero": true,
+       "slope": number,
+       "intercept": number,
+       "r2": number (between 0.95 and 1.0),
+       "equation": string,
+       "slopeMeaning": string
+     }
+   - "questions": {
+       "anatomy": {
+         "id": "anatomy_q",
+         "independentVar": string,
+         "dependentVar": string,
+         "locatorPrompt": string,
+         "expectedLocatorValue": number,
+         "locatorTolerance": number,
+         "locatorUnit": string,
+         "interceptPrompt": string,
+         "interceptOptions": [ "Option A", "Option B", "Option C", "Option D" ],
+         "interceptCorrectIndex": integer 0-3,
+         "interceptExplanation": string
+       },
+       "trend": {
+         "id": "trend_q",
+         "type": "multiple_choice",
+         "prompt": string,
+         "options": [ "Direct Linear", "Inverse", "Quadratic Non-Linear", "Plateau Saturation" ],
+         "correctIndex": integer 0-3,
+         "explanation": string
+       },
+       "quantitative": {
+         "id": "quant_q",
+         "type": "calculation",
+         "title": "3. Calculating Rate of Change (Slope):",
+         "prompt": "Using the slope formula (Δy / Δx), calculate the rate of change (slope) of the best-fit line connecting the variables.",
+         "expectedValue": number (the slope value of the line, Δy / Δx),
+         "tolerance": number,
+         "unit": string,
+         "hint": string,
+         "slopeSteps": {
+           "point1": { "x": number, "y": number, "label": string },
+           "point2": { "x": number, "y": number, "label": string },
+           "formulaSetup": string,
+           "blankSetupWork": string,
+           "calculatedSlope": number,
+           "slopeUnit": string,
+           "calcLabel": string,
+           "physicalMeaning": string
+         }
+       },
+       "freeResponse": {
+         "id": "fr_q",
+         "type": "cer",
+         "prompt": string,
+         "targetNumbers": [ number, number ],
+         "requiredUnits": [ string ],
+         "claimKeywords": [ string ],
+         "reasoningKeywords": [ string ],
+         "exemplar": string,
+         "sentenceFrames": {
+           "claimFrame": string,
+           "evidenceFrame": string,
+           "reasoningFrame": string
+         }
+       },
+       "synthesis": {
+         "id": "syn_q",
+         "type": "multiple_choice",
+         "prompt": string,
+         "options": [ "Option A with units", "Option B with units", "Option C with units", "Option D with units" ],
+         "correctIndex": integer 0-3,
+         "explanation": string,
+         "diagnosticPrompt": string,
+         "diagnosticOptions": [ "Option A", "Option B", "Option C", "Option D" ],
+         "diagnosticCorrectIndex": integer 0-3,
+         "diagnosticExplanation": string
+       }
+     }
+8. OUTPUT FORMAT: Return ONLY the raw JSON object. No markdown code blocks, backticks, or preamble text.`;
+
+  const userPrompt = `Topic: "${topic}"
+Discipline: "${discipline}"
+Target Grade / Rigor: "${gradeLevel}"
+${specialRequests ? `Special Teacher Customization Requests: "${specialRequests}"\n(CRITICAL REQUIREMENT: Strictly adjust vocabulary, apparatus, numbers, and prompts to honor these requests!)` : ""}
+Generate the complete JSON scenario object now. Remember: The background narrative MUST describe the experimental apparatus, sensor, and procedure (NOT textbook background definitions). Question 3 MUST be a slope / rate of change calculation (not an extrapolation problem).`;
+
+  return { systemInstruction, userPrompt };
+}
+
 // Helper to strip HTML tags from strings for clean printing and display
 function stripHtml(str) {
   if (!str || typeof str !== "string") return str || "";
@@ -1253,8 +1477,13 @@ async function generateAiScenario() {
 
   const topicInput = document.getElementById("aiTopicInput");
   const discSelect = document.getElementById("aiDisciplineSelect");
+  const gradeSelect = document.getElementById("aiGradeLevelSelect");
+  const reqInput = document.getElementById("aiSpecialRequestsInput");
+
   const topic = topicInput ? topicInput.value.trim() : "";
   const discipline = discSelect ? discSelect.value : "Physics";
+  const gradeLevel = gradeSelect ? gradeSelect.value : "High School (Grades 9-12 / Standard CAST)";
+  const specialRequests = reqInput ? reqInput.value.trim() : "";
 
   if (!topic) {
     alert("Please enter an investigation topic, lab experiment, or phenomenon first.");
@@ -1311,136 +1540,14 @@ async function generateAiScenario() {
 
     if (statusText) statusText.textContent = "Synthesizing CAST data & 5-part inquiry...";
 
-    const systemInstruction = `You are a premier high school science curriculum specialist and CAST (California Science Test) assessment architect. 
-Generate a complete, rigorous, standards-aligned science investigation and data analysis performance task based on the user's topic.
+const { systemInstruction, userPrompt } = buildAiPromptPayload({
+      topic,
+      discipline,
+      gradeLevel,
+      specialRequests
+    });
 
-CRITICAL RULES:
-1. STRICT NO-LATEX & NO-RAW-HTML POLICY: Never use LaTeX syntax (no \Delta, no \frac, no \vec, no $...). Never include raw HTML tags (like <strong>, <b>, <span>) inside JSON strings for independentVar, dependentVar, prompts, or options. Return clean, plain text and standard Unicode symbols: Δ, ², ³, °, °C, x₀, v₀, m/s².
-2. EXPERIMENTAL INVESTIGATION SCENARIO (MANDATORY APPARATUS & PROCEDURE):
-   - The background narrative MUST describe an authentic physical laboratory experiment and concrete apparatus setup.
-   - Specifically detail:
-     a) The physical object and materials tested (e.g. "a 0.50 kg wooden block resting on a horizontal track").
-     b) Exactly how the independent variable was manipulated across trials (e.g. "stacking calibrated mass disks on top of the block across 6 trials to incrementally vary normal force").
-     c) The precise instrumentation used to record the dependent variable (e.g. "a digital high-resolution force sensor pulling horizontally to measure the peak breakaway static friction force just before slip").
-     d) The key controlled variables held constant (e.g. "constant contact surface area, horizontal level track verified at 0.0°, and steady pulling technique").
-   - STRICT PROHIBITION: NEVER write generic textbook definitions, encyclopedic overviews, or broad statements like "Understanding friction is crucial for many real-world applications...". Focus 100% on describing the lab procedure and experimental setup.
-   - Length: Strictly 55 to 80 words across 2 short, concise paragraphs. Do NOT repeat the investigation title in the background narrative.
-3. DATA TABLE COLUMNS WITH UNITS: Column labels in dataTable MUST explicitly include their scientific units in parentheses, e.g. "Normal Force (N)" and "Kinetic Friction Force (N)".
-4. GRAPH EQUATION: Write clean math notation (e.g. "F_k = 0.402 · F_N" or "y = 0.402 x + 0.005") without programming asterisks '*' or unformatted computer syntax.
-5. COMPLETE TOP-LEVEL JSON SCHEMA: Return a single valid JSON object containing ALL of the following top-level keys:
-   - "title": "Engaging Scientific Title"
-   - "discipline": "${discipline}"
-   - "disciplineBadge": "${discipline === "Physics" ? "⚛️ Physics" : (discipline === "Biology" ? "🌿 Biology" : (discipline === "Chemistry" ? "🧪 Chemistry" : "🌋 Earth & Space"))}"
-   - "ngssCode": "Relevant NGSS PE Code (e.g. HS-PS2-1, HS-LS1-5, HS-PS1-5, HS-ESS2-2)"
-   - "ngssTitle": "NGSS Topic Name"
-   - "sep": "SEP-4: Analyzing and Interpreting Data"
-   - "ccc": "CCC-1: Patterns"
-   - "chartType": "scatter"
-   - "xAxis": { "label": string, "symbol": string, "unit": string, "min": 0, "suggestedMax": number }
-   - "yAxis": { "label": string, "symbol": string, "unit": string, "min": 0, "suggestedMax": number }
-   - "background": string (concise 55-80 words narrative describing apparatus & procedure)
-   - "controlledVariables": [ "Controlled variable 1", "Controlled variable 2", "Controlled variable 3" ]
-   - "calibratedInstrumentation": [ "Precision sensor 1", "Precision sensor 2" ]
-   - "dataTable": {
-       "caption": "Table 1: Measured ...",
-       "columns": [
-         { "key": "trial", "label": "Trial #", "isText": true },
-         { "key": "x", "label": "Independent Var Name (unit)", "isX": true, "unit": "unit" },
-         { "key": "y", "label": "Dependent Var Name (unit)", "isY": true, "unit": "unit" }
-       ],
-       "rows": [
-         { "trial": "Trial 1", "x": number, "y": number },
-         { "trial": "Trial 2", "x": number, "y": number },
-         { "trial": "Trial 3", "x": number, "y": number },
-         { "trial": "Trial 4", "x": number, "y": number },
-         { "trial": "Trial 5", "x": number, "y": number },
-         { "trial": "Trial 6", "x": number, "y": number }
-       ]
-     }
-   - "graphConfig": {
-       "showBestFitDefault": true,
-       "beginAtZero": true,
-       "slope": number,
-       "intercept": number,
-       "r2": number (between 0.95 and 1.0),
-       "equation": string,
-       "slopeMeaning": string
-     }
-   - "questions": {
-       "anatomy": {
-         "id": "anatomy_q",
-         "independentVar": string,
-         "dependentVar": string,
-         "locatorPrompt": string,
-         "expectedLocatorValue": number,
-         "locatorTolerance": number,
-         "locatorUnit": string,
-         "interceptPrompt": string,
-         "interceptOptions": [ "Option A", "Option B", "Option C", "Option D" ],
-         "interceptCorrectIndex": integer 0-3,
-         "interceptExplanation": string
-       },
-       "trend": {
-         "id": "trend_q",
-         "type": "multiple_choice",
-         "prompt": string,
-         "options": [ "Direct Linear", "Inverse", "Quadratic Non-Linear", "Plateau Saturation" ],
-         "correctIndex": integer 0-3,
-         "explanation": string
-       },
-       "quantitative": {
-         "id": "quant_q",
-         "type": "calculation",
-         "title": "3. Calculating Rate of Change (Slope):",
-         "prompt": "Using the slope formula (Δy / Δx), calculate the rate of change (slope) of the best-fit line connecting the variables.",
-         "expectedValue": number (the slope value of the line, Δy / Δx),
-         "tolerance": number,
-         "unit": string (slope unit, e.g. "(m/s²) / N", "cm / g", "(mL/s) / M", or "°C / min"),
-         "hint": string,
-         "slopeSteps": {
-           "point1": { "x": number, "y": number, "label": string },
-           "point2": { "x": number, "y": number, "label": string },
-           "formulaSetup": string,
-           "blankSetupWork": string (e.g. "Δy / Δx = ( _____ − _____ ) / ( _____ − _____ )"),
-           "calculatedSlope": number,
-           "slopeUnit": string,
-           "calcLabel": string (e.g. "Calculated Rate (Slope):"),
-           "physicalMeaning": string
-         }
-       },
-       "freeResponse": {
-         "id": "fr_q",
-         "type": "cer",
-         "prompt": string,
-         "targetNumbers": [ number, number ],
-         "requiredUnits": [ string ],
-         "claimKeywords": [ string ],
-         "reasoningKeywords": [ string ],
-         "exemplar": string,
-         "sentenceFrames": {
-           "claimFrame": string,
-           "evidenceFrame": string,
-           "reasoningFrame": string
-         }
-       },
-       "synthesis": {
-         "id": "syn_q",
-         "type": "multiple_choice",
-         "prompt": string,
-         "options": [ "Option A with units", "Option B with units", "Option C with units", "Option D with units" ],
-         "correctIndex": integer 0-3,
-         "explanation": string,
-         "diagnosticPrompt": string,
-         "diagnosticOptions": [ "Option A", "Option B", "Option C", "Option D" ],
-         "diagnosticCorrectIndex": integer 0-3,
-         "diagnosticExplanation": string
-       }
-     }
-6. OUTPUT FORMAT: Return ONLY the raw JSON object. No markdown code blocks, backticks, or preamble text.`;
-
-    const userPrompt = `Topic: "${topic}"\nDiscipline: "${discipline}"\nTarget: High School NGSS CAST Performance Task\nGenerate the complete JSON scenario object now. Remember: The background narrative MUST describe the experimental apparatus, sensor, and procedure (NOT textbook background definitions). Question 3 MUST be a slope / rate of change calculation (not an extrapolation problem).`;
-
-    let rawText = "";
+        let rawText = "";
     if (proxyUrl) {
       const response = await fetch(proxyUrl, {
         method: "POST",
@@ -1549,6 +1656,8 @@ CRITICAL RULES:
     const customId = `custom-ai-${Date.now()}`;
     scenario.id = customId;
     scenario.title = stripHtml(scenario.title);
+    scenario.targetGrade = gradeLevel;
+    if (specialRequests) scenario.specialRequests = specialRequests;
     if (!scenario.discipline) scenario.discipline = discipline;
     if (!scenario.disciplineBadge) {
       scenario.disciplineBadge = scenario.discipline === "Physics" ? "⚛️ Physics" : 
@@ -1787,6 +1896,7 @@ CRITICAL RULES:
     };
     setVal("teacherTitleInput", scenario.title || "");
     setVal("teacherDisciplineSelect", scenario.discipline || "Physics");
+    setVal("teacherGradeLevelSelect", scenario.targetGrade || "High School (Grades 9-12 / Standard CAST)");
     setVal("teacherNgssCodeInput", scenario.ngssCode || "");
     setVal("teacherBgTextarea", scenario.background || "");
     setVal("teacherXLabelInput", scenario.xAxis.label || "");
@@ -1875,12 +1985,15 @@ function saveCustomScenarioFromForm() {
   // If activeScenario was just generated or custom, inherit rich 5-part architecture defaults
   const baseQuestions = (activeScenario && activeScenario.questions) ? activeScenario.questions : {};
 
+  const gradeLevel = document.getElementById("teacherGradeLevelSelect") ? document.getElementById("teacherGradeLevelSelect").value : "High School (Grades 9-12 / Standard CAST)";
+
   const customId = `custom-${Date.now()}`;
   const customScenario = {
     id: customId,
     title: title,
     discipline: discipline,
     disciplineBadge: discipline === "Physics" ? "⚛️ Physics" : (discipline === "Biology" ? "🌿 Biology" : (discipline === "Chemistry" ? "🧪 Chemistry" : "🌋 Earth & Space")),
+    targetGrade: gradeLevel,
     ngssCode: ngssCode,
     ngssTitle: "Department Inquiry Performance Task",
     sep: "SEP-4: Analyzing and Interpreting Data",
@@ -2067,7 +2180,11 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   const pMasteryScore = document.getElementById("pMasteryScore");
 
   if (pHeaderTitle) pHeaderTitle.textContent = scenario.title;
-  if (pHeaderSub) pHeaderSub.textContent = `${scenario.disciplineBadge} Investigation • ${scenario.ngssTitle} (${scenario.ngssCode})`;
+  let sub = `${scenario.disciplineBadge} Investigation • ${scenario.ngssTitle} (${scenario.ngssCode})`;
+  if (scenario.targetGrade && !scenario.targetGrade.startsWith("High School")) {
+    sub += ` • ${scenario.targetGrade.split("/")[0].trim()}`;
+  }
+  if (pHeaderSub) pHeaderSub.textContent = sub;
   if (pHeaderNgss) pHeaderNgss.textContent = `${scenario.ngssCode} • SEP-4 • SEP-7`;
 
   const pScoreMaxLabel = document.getElementById("pScoreMaxLabel");
@@ -2355,6 +2472,8 @@ if (typeof module !== "undefined" && module.exports) {
   module.exports = {
     AUTHORIZED_TEACHERS,
     isAuthorizedTeacher,
-    parseJsonText
+    parseJsonText,
+    buildAiPromptPayload,
+    setAiSpecialPreset
   };
 }

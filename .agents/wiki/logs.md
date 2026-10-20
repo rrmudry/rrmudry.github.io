@@ -2,6 +2,30 @@
 
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
+## 2026-10-20 — CAST Data Analysis Practice Suite: AI Investigation Special Requests & Target Grade-Level Adaptation (`cast-data-practice/`)
+**Patterns Updated**: `cast-data-analysis-practice-suite.md`.
+
+**Problem Addressed**:
+- Teachers needed the ability to customize AI-generated CAST investigations to match varying grade levels and student needs (e.g. lowering target grade level to 7th–8th grade, requiring integer data only, simplifying vocabulary for ELD learners, or selecting everyday household/kitchen lab contexts).
+
+**Changes Implemented**:
+- **Target Grade / Rigor Level Selector**:
+  - Implemented dropdown selector in Scenario Studio (`#aiGradeLevelSelect`) supporting High School (9–12 Standard CAST), Middle School (6–8 Accessible Vocabulary & Clean Numbers), Upper Elementary (4–5), Honors / AP Science, and Foundations / ELD Support.
+  - Automatically adapts `systemInstruction`: instructs Gemini to adjust reading level, describe intuitive classroom equipment (spring scales, beakers, stopwatches, ramps) instead of abstract electronic sensors, use clean integer or single-decimal numbers for easy slope calculations, and align with Middle School NGSS codes (`MS-PS2-2`, `MS-LS1-5`).
+- **Special Customization Requests Input & Presets**:
+  - Added free-form textarea (`#aiSpecialRequestsInput`) allowing teachers to specify arbitrary constraints and differentiation requests.
+  - Added one-click quick preset pills: 🎒 *Lower to 7th-8th Grade*, 🔢 *Whole Numbers Only*, 🗣️ *ELD / Simple Vocabulary*, 🍳 *Everyday / Kitchen Lab*, 📉 *Inverse Trend*, 🎓 *Honors / AP Rigor*, and ✕ *Clear*.
+  - Helper `setAiSpecialPreset()` automates updating the dropdown and appending instructions to the textarea.
+  - Added `buildAiPromptPayload()` helper function that strictly incorporates teacher special requests with priority weighting in both system instructions and user prompt.
+- **UI & Print Sync**:
+  - Scenario dropdown prefixes grade-level indicator `[Middle School]` for non-standard scenarios.
+  - Main investigation view displays `#gradeBadge` badge next to discipline badge.
+  - Honors 1-page printable PDF layout incorporates target grade level in worksheet header subtitle.
+  - Manual scenario builder includes `teacherGradeLevelSelect` for full parity.
+- **Verification**:
+  - Expanded `tests/test_cast_data_practice.js` to test `buildAiPromptPayload()`, `setAiSpecialPreset()`, and grade-level adaptations. 100% green tests. Zero audit violations.
+
+
 ## 2026-10-20 — Hot Wheels Multi-Day Continuous Autosave & Dual-Layer Persistence Fix (`Unit_2/hot_wheels_coasting/`, `Unit_2/hot_wheels_air_resistance/`)
 **Patterns Updated**: `cast-aligned-webapp-design.md`, `assignment-registry.md`.
 

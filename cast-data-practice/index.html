@@ -131,6 +131,7 @@
         </div>
 
         <div class="meta-tags-row">
+          <span class="badge" id="gradeBadge" style="display:none; background:rgba(99, 102, 241, 0.15); color:var(--accent-purple); border:1px solid rgba(99, 102, 241, 0.35); font-weight:700;">🎒 Middle School</span>
           <span class="badge" id="ngssBadge" style="background:var(--bg-card-subtle); color:var(--text-main);">HS-PS2-1</span>
           <span class="badge" id="sepBadge" style="background:var(--bg-card-subtle); color:var(--text-main);">SEP-4: Data Analysis</span>
           <span class="badge" id="cccBadge" style="background:var(--bg-card-subtle); color:var(--text-main);">CCC-1: Patterns</span>
@@ -672,13 +673,46 @@
               </div>
             </div>
 
+            <!-- Grade Level / Rigor & Special Requests -->
+            <div class="form-grid-2" style="margin-top:0.35rem;">
+              <div class="form-group" style="margin-bottom:0.4rem;">
+                <label for="aiGradeLevelSelect">Target Grade / Rigor Level:</label>
+                <select id="aiGradeLevelSelect" class="form-input">
+                  <option value="High School (Grades 9-12 / Standard CAST)" selected>🏫 High School (Grades 9-12 / Standard CAST)</option>
+                  <option value="Middle School (Grades 6-8 / Accessible Vocabulary & Clean Numbers)">🎒 Middle School (Grades 6-8 / Accessible & Clean Numbers)</option>
+                  <option value="Upper Elementary (Grades 4-5 / Foundational Science)">🌱 Upper Elementary (Grades 4-5 / Foundational Science)</option>
+                  <option value="Honors / AP Science (Advanced Rigor & In-Depth CER)">🎓 Honors / AP Science (Advanced Rigor & Deep CER)</option>
+                  <option value="Foundations / ELD Support (Plain English & Scaffolding)">🗣️ Foundations / ELD Support (Plain English & Scaffolds)</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom:0.4rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <label for="aiSpecialRequestsInput">Special Requests / Custom Instructions (optional):</label>
+                  <span style="font-size:0.68rem; color:var(--text-muted);">e.g., lower grade level, integers only</span>
+                </div>
+                <input type="text" id="aiSpecialRequestsInput" class="form-input" placeholder="e.g., Lower to 7th grade, use whole numbers only, kitchen experiment...">
+              </div>
+            </div>
+
             <!-- Quick Example Pills for Science Teachers -->
-            <div style="display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap; margin-bottom:0.75rem;">
-              <span style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">Quick Ideas:</span>
+            <div style="display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap; margin-top:0.25rem; margin-bottom:0.45rem;">
+              <span style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">Topic Presets:</span>
               <button type="button" class="btn btn-subtle-pill" onclick="setAiTopicExample('Hooke\'s Law: Spring Extension vs. Hanging Mass', 'Physics')">🪝 Hooke's Law</button>
               <button type="button" class="btn btn-subtle-pill" onclick="setAiTopicExample('Enzyme Catalase Reaction Rate vs. pH Level', 'Biology')">🧪 Enzyme vs pH</button>
               <button type="button" class="btn btn-subtle-pill" onclick="setAiTopicExample('Boyle\'s Law: Gas Volume vs. Pressure at Constant Temp', 'Chemistry')">🎈 Boyle's Law</button>
               <button type="button" class="btn btn-subtle-pill" onclick="setAiTopicExample('Ocean Acidification: Coral Calcification Rate vs. Seawater pH', 'Earth & Space')">🪸 Ocean Acidification</button>
+            </div>
+
+            <!-- Quick Differentiation & Special Request Pills -->
+            <div style="display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap; margin-bottom:0.75rem;">
+              <span style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">Special Request Presets:</span>
+              <button type="button" class="btn btn-subtle-pill" onclick="setAiSpecialPreset('lower-grade')">🎒 Lower to 7th-8th Grade</button>
+              <button type="button" class="btn btn-subtle-pill" onclick="setAiSpecialPreset('integers-only')">🔢 Whole Numbers Only</button>
+              <button type="button" class="btn btn-subtle-pill" onclick="setAiSpecialPreset('eld-support')">🗣️ ELD / Simple Vocabulary</button>
+              <button type="button" class="btn btn-subtle-pill" onclick="setAiSpecialPreset('kitchen-context')">🍳 Everyday / Kitchen Lab</button>
+              <button type="button" class="btn btn-subtle-pill" onclick="setAiSpecialPreset('inverse-trend')">📉 Inverse Trend</button>
+              <button type="button" class="btn btn-subtle-pill" onclick="setAiSpecialPreset('honors-rigor')">🎓 Honors / AP Rigor</button>
+              <button type="button" class="btn btn-subtle-pill" onclick="setAiSpecialPreset('clear')" style="color:var(--text-muted);" title="Clear custom requests">✕ Clear</button>
             </div>
 
             <!-- Action & Progress Bar -->
@@ -730,13 +764,23 @@
           </div>
         </div>
 
-        <div class="form-grid-2">
+        <div class="form-grid-3">
           <div class="form-group">
-            <label for="teacherNgssCodeInput">NGSS Performance Expectation Code:</label>
-            <input type="text" id="teacherNgssCodeInput" class="form-input" placeholder="e.g., HS-PS2-1">
+            <label for="teacherNgssCodeInput">NGSS PE Code:</label>
+            <input type="text" id="teacherNgssCodeInput" class="form-input" placeholder="e.g., HS-PS2-1 or MS-PS2-2">
           </div>
           <div class="form-group">
-            <label for="teacherQuantExpectedInput">Expected Rate / Slope Value (Part 2):</label>
+            <label for="teacherGradeLevelSelect">Target Grade / Rigor:</label>
+            <select id="teacherGradeLevelSelect" class="form-input">
+              <option value="High School (Grades 9-12 / Standard CAST)">🏫 High School (9-12)</option>
+              <option value="Middle School (Grades 6-8 / Accessible Vocabulary & Clean Numbers)">🎒 Middle School (6-8)</option>
+              <option value="Upper Elementary (Grades 4-5 / Foundational Science)">🌱 Upper Elementary (4-5)</option>
+              <option value="Honors / AP Science (Advanced Rigor & In-Depth CER)">🎓 Honors / AP</option>
+              <option value="Foundations / ELD Support (Plain English & Scaffolding)">🗣️ Foundations / ELD</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="teacherQuantExpectedInput">Expected Slope (Part 2):</label>
             <input type="number" step="any" id="teacherQuantExpectedInput" class="form-input" placeholder="e.g., 0.20">
           </div>
         </div>

@@ -73,15 +73,25 @@ In adherence to repository security rules:
      `cchurney@orangeusd.org`, `ashue@orangeusd.org`, `avelasquez@orangeusd.org`, `egerbasi@orangeusd.org`, `jricupito@orangeusd.org`, `jbowling@orangeusd.org`, `lluna@orangeusd.org`, `oroot@orangeusd.org`, `scourtney@orangeusd.org`, `rmudry@orangeusd.org`.
    - Unauthorized attempts (such as students) are rejected with a clear access restriction dialog.
 
-2. **AI CAST Scenario Generator (Gemini Powered - Option B)**:
+2. **AI CAST Scenario Generator (Gemini Powered - Option B) & Special Customization Requests**:
    - Teachers can input any science topic, lab experiment, or phenomenon (e.g. *Hooke's Law*, *Enzyme kinetics vs. pH*, *Ocean acidification*, *Boyle's Law*).
+   - **Target Grade / Rigor Level Selector**:
+     - *High School (Grades 9–12 / Standard CAST)* [Default].
+     - *Middle School (Grades 6–8 / Accessible Vocabulary & Clean Numbers)*: Automatically instructs AI to use 7th-8th grade reading level, replace abstract electronics with intuitive classroom apparatus (spring scales, beakers, stopwatches, ramps, thermometers), provide clean integer or single-decimal data for easy slope calculations, and align with Middle School NGSS codes (`MS-PS2-2`, `MS-LS1-5`, etc.).
+     - *Upper Elementary (Grades 4–5 / Foundational Science)*: Simplified reading and intuitive patterns.
+     - *Honors / AP Science (Advanced Rigor & In-Depth CER)*: Precision apparatus (photogates, spectrophotometers) and analytical mechanism synthesis.
+     - *Foundations / ELD Support (Plain English & Scaffolding)*: Direct language and explicit CER sentence starters.
+   - **Special Teacher Requests & Custom Instructions**:
+     - Dedicated input area for free-form instructions (e.g., *"Lower reading level for 8th graders"*, *"Use whole integer numbers only in the table"*, *"Set apparatus in a kitchen or home context"*, *"Question 3 slope must be a whole integer"*).
+     - Prominently incorporated with priority weighting into both `systemInstruction` and `userPrompt`.
+     - One-click preset pills: 🎒 *Lower to 7th-8th Grade*, 🔢 *Whole Numbers Only*, 🗣️ *ELD / Simple Vocabulary*, 🍳 *Everyday / Kitchen Lab*, 📉 *Inverse Trend*, 🎓 *Honors / AP Rigor*, and ✕ *Clear*.
    - Automatically connects to the shared Apps Script proxy configured in Firestore under `system_config/chat_config` (`chatProxyUrl`) with fallback to localStorage.
    - Prompts Gemini to synthesize a complete 5-part CAST performance task conforming to the repository's strict schema:
      - No-LaTeX plain text / Unicode (`Δ`, `²`, `³`, `°C`, bold).
      - Experimental background narrative and apparatus description.
      - Calibrated data table with 5–6 trials.
      - 5-part question architecture (Anatomy with locator & intercept decoding, Trend identification, Guided Slope calculation with step breakdown, Scaffolded CER with sentence frames & target evidence numbers, and Synthesis with diagnostic misconception check).
-   - Auto-populates the builder form fields, adds the scenario to the active dropdown, saves to `localStorage`, and allows immediate in-app testing or 1-page blank worksheet printing.
+   - Auto-populates the builder form fields, adds the scenario to the active dropdown with grade tag prefix (e.g. `[Middle School]`), displays the grade level badge (`#gradeBadge`), saves to `localStorage`, and displays the target grade in 1-page printable worksheet headers.
 
 3. **Honors 1-Page Printable PDF Design & Height Budgeting**:
    - Structured after `Honors_Kinematics_Graphing_Challenges_1_and_2.html` with a strict **1-Page Letter Portrait budget** (`height: 10.36in; max-height: 10.36in; margin: 0.32in 0.40in;`).
