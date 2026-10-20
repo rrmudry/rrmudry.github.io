@@ -215,9 +215,12 @@ function populateScenarioDropdown() {
     const gradeTag = (s.targetGrade && !s.targetGrade.startsWith("High School"))
       ? `[${s.targetGrade.split("/")[0].replace(/[^\w\s-]/g, '').trim()}] `
       : "";
+    const isMulti = !!(s.graphConfig?.multiSeries);
+    const count = s.graphConfig?.series?.length || s.dataTable?.columns?.filter(c => c.isY).length || 1;
+    const seriesTag = (isMulti && count > 1) ? `[${count} Datasets] ` : "";
     return `
       <option value="${s.id}" ${s.id === activeScenarioId ? "selected" : ""}>
-        ${gradeTag}${s.disciplineBadge} ${s.title}
+        ${gradeTag}${seriesTag}${s.disciplineBadge} ${s.title}
       </option>
     `;
   }).join("");
@@ -276,6 +279,18 @@ function loadScenario(scenarioId) {
       gradeBadge.style.display = "inline-flex";
     } else {
       gradeBadge.style.display = "none";
+    }
+  }
+
+  const multiBadge = document.getElementById("multiSeriesBadge");
+  if (multiBadge) {
+    const isMulti = !!(scenario.graphConfig?.multiSeries);
+    const count = scenario.graphConfig?.series?.length || scenario.dataTable?.columns?.filter(c => c.isY).length || 1;
+    if (isMulti && count > 1) {
+      multiBadge.textContent = `📈 ${count} Datasets`;
+      multiBadge.style.display = "inline-flex";
+    } else {
+      multiBadge.style.display = "none";
     }
   }
 
@@ -360,17 +375,35 @@ function renderChart(forceTheme = null) {
 
   const datasets = [];
 
-  if (scenario.graphConfig && scenario.graphConfig.multiSeries) {
-    // Multi-series rendering (e.g. Atlantic vs Pacific Seafloor Spreading)
+  if (scenario.graphConfig && scenario.graphConfig.multiSeries && Array.isArray(scenario.graphConfig.series)) {
+    // Multi-series rendering with dynamic X detection & adaptive palette (supports 2 to 5 series)
+    const seriesColorsLight = ["#0284c7", "#ea580c", "#10b981", "#7c3aed", "#e11d48"];
+    const seriesColorsDark = ["#38bdf8", "#fb923c", "#34d399", "#c084fc", "#f43f5e"];
+    const seriesStyles = ["circle", "triangle", "rectRot", "cross", "star"];
+
+    const xCol = scenario.dataTable.columns.find(c => c.isX) || scenario.dataTable.columns.find(c => !c.isText && !c.isY) || scenario.dataTable.columns[1];
+    const xKey = xCol ? xCol.key : "x";
+    const yCols = scenario.dataTable.columns.filter(c => c.isY);
+
     scenario.graphConfig.series.forEach((sConfig, idx) => {
-      const color = idx === 0 ? primaryColor : secondaryColor;
-      const pts = scenario.dataTable.rows.map(r => ({
-        x: r.distance,
-        y: r[sConfig.id]
-      }));
+      const color = isDark
+        ? seriesColorsDark[idx % seriesColorsDark.length]
+        : seriesColorsLight[idx % seriesColorsLight.length];
+
+      const dataKey = sConfig.key || sConfig.id || (yCols[idx] ? yCols[idx].key : `y${idx + 1}`);
+
+      const pts = scenario.dataTable.rows.map(r => {
+        const xVal = typeof r[xKey] === "number" ? r[xKey] : (typeof r.x === "number" ? r.x : 0);
+        const yVal = typeof r[dataKey] === "number"
+          ? r[dataKey]
+          : (typeof r[`y${idx + 1}`] === "number"
+              ? r[`y${idx + 1}`]
+              : (idx === 0 && typeof r.y === "number" ? r.y : 0));
+        return { x: xVal, y: yVal };
+      });
 
       datasets.push({
-        label: sConfig.label,
+        label: sConfig.label || (yCols[idx] ? yCols[idx].label : `Dataset ${idx + 1}`),
         data: pts,
         backgroundColor: color,
         borderColor: color,
@@ -379,7 +412,7 @@ function renderChart(forceTheme = null) {
         pointBorderWidth: 2,
         pointRadius: 6,
         pointHoverRadius: 8,
-        pointStyle: sConfig.pointStyle || "circle",
+        pointStyle: sConfig.pointStyle || seriesStyles[idx % seriesStyles.length],
         showLine: true,
         borderWidth: 2.5
       });
@@ -1193,19 +1226,30 @@ function setAiTopicExample(topic, discipline) {
 
 function setAiSpecialPreset(type) {
   const gradeSelect = document.getElementById("aiGradeLevelSelect");
+  const datasetSelect = document.getElementById("aiDatasetsSelect");
   const reqInput = document.getElementById("aiSpecialRequestsInput");
   if (!gradeSelect || !reqInput) return;
 
   if (type === "clear") {
     gradeSelect.value = "High School (Grades 9-12 / Standard CAST)";
+    if (datasetSelect) datasetSelect.value = "1";
     reqInput.value = "";
     return;
   }
 
   let presetGrade = null;
+  let presetDatasets = null;
   let presetReq = "";
 
   switch (type) {
+    case "compare-2":
+      presetDatasets = "2";
+      presetReq = "Include 2 comparative experimental datasets/series (e.g. Condition A vs Condition B) in the data table and graph.";
+      break;
+    case "compare-3":
+      presetDatasets = "3";
+      presetReq = "Include 3 comparative experimental datasets/series (e.g. 3 different conditions or materials) in the data table and graph.";
+      break;
     case "lower-grade":
       presetGrade = "Middle School (Grades 6-8 / Accessible Vocabulary & Clean Numbers)";
       presetReq = "Lower target grade level to 7th-8th grade with clear, accessible vocabulary, concrete familiar lab tools, and clean numbers.";
@@ -1232,6 +1276,9 @@ function setAiSpecialPreset(type) {
   if (presetGrade) {
     gradeSelect.value = presetGrade;
   }
+  if (presetDatasets && datasetSelect) {
+    datasetSelect.value = presetDatasets;
+  }
   if (presetReq) {
     if (!reqInput.value.trim()) {
       reqInput.value = presetReq;
@@ -1241,12 +1288,35 @@ function setAiSpecialPreset(type) {
   }
 }
 
-function buildAiPromptPayload({ topic, discipline = "Physics", gradeLevel = "High School (Grades 9-12 / Standard CAST)", specialRequests = "" }) {
+function buildAiPromptPayload({ topic, discipline = "Physics", gradeLevel = "High School (Grades 9-12 / Standard CAST)", datasetCount = 1, specialRequests = "" }) {
   const isLowerGrade = gradeLevel.includes("Middle School") || gradeLevel.includes("Elementary") || gradeLevel.includes("ELD");
   const isHonors = gradeLevel.includes("Honors") || gradeLevel.includes("AP");
+  const numDatasets = parseInt(datasetCount, 10) || 1;
+  const isMultiDataset = numDatasets > 1;
+
+  const multiDatasetInstruction = isMultiDataset ? `
+- MULTI-SERIES COMPARATIVE INVESTIGATION RULES (${numDatasets} Datasets):
+  a) Authentic Comparative Setup: The investigation MUST test and compare ${numDatasets} distinct conditions, treatments, or materials (e.g. ${numDatasets === 2 ? 'Condition A vs Condition B, Rough vs Smooth track, Warm vs Cold solution, or Mid-Atlantic Ridge vs East Pacific Rise' : 'Low, Medium, and High concentration, or 3 distinct materials'}).
+  b) Data Table Schema:
+     - "columns": Include 1 trial column, 1 shared independent variable (x) column, and ${numDatasets} separate dependent variable (y) columns with "isY": true and "seriesId" matching each series:
+       [
+         { "key": "trial", "label": "Trial #", "isText": true },
+         { "key": "x", "label": "Shared Independent Var (unit)", "isX": true, "unit": "..." },
+         ${Array.from({length: numDatasets}, (_, k) => `{ "key": "y${k+1}", "label": "Condition ${k+1} Name (unit)", "isY": true, "unit": "...", "seriesId": "series${k+1}" }`).join(',\n         ')}
+       ]
+     - "rows": Each row object MUST contain "trial", "x", and ${Array.from({length: numDatasets}, (_, k) => `"y${k+1}": number`).join(', ')}.
+  c) Graph Multi-Series Config:
+     - "multiSeries": true
+     - "series": [
+       ${Array.from({length: numDatasets}, (_, k) => `{ "id": "series${k+1}", "key": "y${k+1}", "label": "Condition ${k+1} Name", "pointStyle": "${k === 0 ? 'circle' : (k === 1 ? 'triangle' : 'rectRot')}" }`).join(',\n       ')}
+     ]
+     - "equation": "State the comparative equations or rate comparison for all ${numDatasets} conditions"
+     - "slopeMeaning": "Comparative rate of change between the ${numDatasets} conditions"
+  d) Comparative Inquiry: Question 3 (quantitative slope/rate comparison) and Question 4 (freeResponse CER) MUST prompt students to compare or contrast the datasets across the tested conditions.
+` : '';
 
   const systemInstruction = `You are a premier science curriculum specialist and CAST (California Science Test) assessment architect. 
-Generate a complete, rigorous, standards-aligned science investigation and data analysis performance task tailored to the teacher's topic, target grade level, and special customization requests.
+Generate a complete, rigorous, standards-aligned science investigation and data analysis performance task tailored to the teacher's topic, target grade level, dataset count, and special customization requests.
 
 CRITICAL RULES:
 1. STRICT NO-LATEX & NO-RAW-HTML POLICY: Never use LaTeX syntax (no \\Delta, no \\frac, no \\vec, no $...). Never include raw HTML tags (like <strong>, <b>, <span>) inside JSON strings for independentVar, dependentVar, prompts, or options. Return clean, plain text and standard Unicode symbols: Δ, ², ³, °, °C, x₀, v₀, m/s².
@@ -1271,13 +1341,16 @@ CRITICAL RULES:
      b) In-Depth CER & Synthesis: Require students to articulate physical mechanisms and evaluate boundary limits in synthesis questions.` : `- STANDARD HIGH SCHOOL CAST PERFORMANCE RULES:
      a) Align with high school NGSS standards (9th-12th grade level).
      b) Balanced quantitative slope analysis and 4-point CER reasoning.`)}
-4. SPECIAL TEACHER INSTRUCTIONS & DIFFERENTIATION:
+4. NUMBER OF DATASETS & COMPARATIVE SERIES SPECIFICATION:
+   - Target Series Count: ${numDatasets} dataset(s)${isMultiDataset ? ` (COMPARATIVE MULTI-SERIES REQUIRED)` : ` (Single series)`}
+   ${multiDatasetInstruction}
+5. SPECIAL TEACHER INSTRUCTIONS & DIFFERENTIATION:
    ${specialRequests ? `- PRIORITY REQUIREMENT: The teacher has submitted the following special customization requests:
      """${specialRequests}"""
    You MUST strictly honor and fulfill every single one of these special teacher requests across the generated narrative, data values, vocabulary, and questions while maintaining a valid JSON structure!` : `- Standard generation: Generate authentic, balanced performance task.`}
-5. DATA TABLE COLUMNS WITH UNITS: Column labels in dataTable MUST explicitly include their scientific units in parentheses, e.g. "Normal Force (N)" and "Kinetic Friction Force (N)".
-6. GRAPH EQUATION: Write clean math notation (e.g. "F_k = 0.402 · F_N" or "y = 0.402 x + 0.005") without programming asterisks '*' or unformatted computer syntax.
-7. COMPLETE TOP-LEVEL JSON SCHEMA: Return a single valid JSON object containing ALL of the following top-level keys:
+6. DATA TABLE COLUMNS WITH UNITS: Column labels in dataTable MUST explicitly include their scientific units in parentheses, e.g. "Normal Force (N)" and "Kinetic Friction Force (N)".
+7. GRAPH EQUATION: Write clean math notation (e.g. "F_k = 0.402 · F_N" or "y = 0.402 x + 0.005") without programming asterisks '*' or unformatted computer syntax.
+8. COMPLETE TOP-LEVEL JSON SCHEMA: Return a single valid JSON object containing ALL of the following top-level keys:
    - "title": "Engaging Scientific Title"
    - "discipline": "${discipline}"
    - "disciplineBadge": "${discipline === "Physics" ? "⚛️ Physics" : (discipline === "Biology" ? "🌿 Biology" : (discipline === "Chemistry" ? "🧪 Chemistry" : "🌋 Earth & Space"))}"
@@ -1297,18 +1370,22 @@ CRITICAL RULES:
        "columns": [
          { "key": "trial", "label": "Trial #", "isText": true },
          { "key": "x", "label": "Independent Var Name (unit)", "isX": true, "unit": "unit" },
-         { "key": "y", "label": "Dependent Var Name (unit)", "isY": true, "unit": "unit" }
+         ${isMultiDataset ? Array.from({length: numDatasets}, (_, k) => `{ "key": "y${k+1}", "label": "Condition ${k+1} Name (unit)", "isY": true, "unit": "unit", "seriesId": "series${k+1}" }`).join(',\n         ') : '{ "key": "y", "label": "Dependent Var Name (unit)", "isY": true, "unit": "unit" }'}
        ],
        "rows": [
-         { "trial": "Trial 1", "x": number, "y": number },
-         { "trial": "Trial 2", "x": number, "y": number },
-         { "trial": "Trial 3", "x": number, "y": number },
-         { "trial": "Trial 4", "x": number, "y": number },
-         { "trial": "Trial 5", "x": number, "y": number },
-         { "trial": "Trial 6", "x": number, "y": number }
+         { "trial": "Trial 1", "x": number, ${isMultiDataset ? Array.from({length: numDatasets}, (_, k) => `"y${k+1}": number`).join(', ') : '"y": number'} },
+         { "trial": "Trial 2", "x": number, ${isMultiDataset ? Array.from({length: numDatasets}, (_, k) => `"y${k+1}": number`).join(', ') : '"y": number'} },
+         { "trial": "Trial 3", "x": number, ${isMultiDataset ? Array.from({length: numDatasets}, (_, k) => `"y${k+1}": number`).join(', ') : '"y": number'} },
+         { "trial": "Trial 4", "x": number, ${isMultiDataset ? Array.from({length: numDatasets}, (_, k) => `"y${k+1}": number`).join(', ') : '"y": number'} },
+         { "trial": "Trial 5", "x": number, ${isMultiDataset ? Array.from({length: numDatasets}, (_, k) => `"y${k+1}": number`).join(', ') : '"y": number'} },
+         { "trial": "Trial 6", "x": number, ${isMultiDataset ? Array.from({length: numDatasets}, (_, k) => `"y${k+1}": number`).join(', ') : '"y": number'} }
        ]
      }
    - "graphConfig": {
+       ${isMultiDataset ? `"multiSeries": true,
+       "series": [
+         ${Array.from({length: numDatasets}, (_, k) => `{ "id": "series${k+1}", "key": "y${k+1}", "label": "Condition ${k+1} Name", "pointStyle": "${k === 0 ? 'circle' : (k === 1 ? 'triangle' : 'rectRot')}" }`).join(',\n         ')}
+       ],` : ''}
        "showBestFitDefault": true,
        "beginAtZero": true,
        "slope": number,
@@ -1387,11 +1464,12 @@ CRITICAL RULES:
          "diagnosticExplanation": string
        }
      }
-8. OUTPUT FORMAT: Return ONLY the raw JSON object. No markdown code blocks, backticks, or preamble text.`;
+9. OUTPUT FORMAT: Return ONLY the raw JSON object. No markdown code blocks, backticks, or preamble text.`;
 
   const userPrompt = `Topic: "${topic}"
 Discipline: "${discipline}"
 Target Grade / Rigor: "${gradeLevel}"
+Number of Datasets (Series): ${numDatasets} ${isMultiDataset ? `(Generate ${numDatasets} comparative series columns and graph series)` : `(Single series)`}
 ${specialRequests ? `Special Teacher Customization Requests: "${specialRequests}"\n(CRITICAL REQUIREMENT: Strictly adjust vocabulary, apparatus, numbers, and prompts to honor these requests!)` : ""}
 Generate the complete JSON scenario object now. Remember: The background narrative MUST describe the experimental apparatus, sensor, and procedure (NOT textbook background definitions). Question 3 MUST be a slope / rate of change calculation (not an extrapolation problem).`;
 
@@ -1478,11 +1556,13 @@ async function generateAiScenario() {
   const topicInput = document.getElementById("aiTopicInput");
   const discSelect = document.getElementById("aiDisciplineSelect");
   const gradeSelect = document.getElementById("aiGradeLevelSelect");
+  const datasetSelect = document.getElementById("aiDatasetsSelect");
   const reqInput = document.getElementById("aiSpecialRequestsInput");
 
   const topic = topicInput ? topicInput.value.trim() : "";
   const discipline = discSelect ? discSelect.value : "Physics";
   const gradeLevel = gradeSelect ? gradeSelect.value : "High School (Grades 9-12 / Standard CAST)";
+  const datasetCount = parseInt(datasetSelect ? datasetSelect.value : "1", 10) || 1;
   const specialRequests = reqInput ? reqInput.value.trim() : "";
 
   if (!topic) {
@@ -1544,6 +1624,7 @@ const { systemInstruction, userPrompt } = buildAiPromptPayload({
       topic,
       discipline,
       gradeLevel,
+      datasetCount,
       specialRequests
     });
 
@@ -1859,16 +1940,52 @@ const { systemInstruction, userPrompt } = buildAiPromptPayload({
 
     scenario.dataTable.rows = scenario.dataTable.rows.map((r, i) => {
       const row = { trial: r.trial || `Trial ${i + 1}` };
-      const keys = Object.keys(r);
-      if (typeof r.x === "number") row.x = r.x;
-      else if (keys[1] && typeof r[keys[1]] === "number") row.x = r[keys[1]];
-      else row.x = (i + 1) * 5;
+      
+      // Determine X value
+      if (typeof r.x === "number") {
+        row.x = r.x;
+      } else {
+        const xKey = Object.keys(r).find(k => k === "x" || k === "distance" || k === "time" || k === "conc" || k === "temp");
+        if (xKey && typeof r[xKey] === "number") row.x = r[xKey];
+        else row.x = (i + 1) * 5;
+      }
 
-      if (typeof r.y === "number") row.y = r.y;
-      else if (keys[2] && typeof r[keys[2]] === "number") row.y = r[keys[2]];
-      else row.y = (i + 1) * 2;
+      // Preserve all numeric properties from r (including y, y1, y2, y3, or custom series keys)
+      Object.keys(r).forEach(k => {
+        if (k !== "trial" && typeof r[k] === "number") {
+          row[k] = r[k];
+        }
+      });
+
+      // Ensure fallback y exists if single series
+      if (typeof row.y !== "number" && typeof row.y1 === "number") {
+        row.y = row.y1;
+      } else if (typeof row.y !== "number" && typeof row.y1 !== "number") {
+        row.y = (i + 1) * 2;
+      }
+
       return row;
     });
+
+    // Ensure multi-series graphConfig is set if datasetCount > 1
+    if (datasetCount > 1) {
+      if (!scenario.graphConfig) scenario.graphConfig = {};
+      scenario.graphConfig.multiSeries = true;
+      if (!Array.isArray(scenario.graphConfig.series) || scenario.graphConfig.series.length < datasetCount) {
+        const yCols = scenario.dataTable.columns.filter(c => c.isY);
+        scenario.graphConfig.series = Array.from({ length: datasetCount }, (_, k) => {
+          const col = yCols[k];
+          const colKey = col ? col.key : `y${k + 1}`;
+          const colLabel = col ? col.label.replace(/\s*\([^)]*\)/, "") : `Condition ${k + 1}`;
+          return {
+            id: `series${k + 1}`,
+            key: colKey,
+            label: colLabel,
+            pointStyle: k === 0 ? "circle" : (k === 1 ? "triangle" : "rectRot")
+          };
+        });
+      }
+    }
 
     if (!scenario.dataTable.columns || scenario.dataTable.columns.length < 3) {
       scenario.dataTable.columns = [
@@ -1903,7 +2020,21 @@ const { systemInstruction, userPrompt } = buildAiPromptPayload({
     setVal("teacherXUnitInput", scenario.xAxis.unit || "");
     setVal("teacherYLabelInput", scenario.yAxis.label || "");
     setVal("teacherYUnitInput", scenario.yAxis.unit || "");
-    setVal("teacherDataRowsInput", scenario.dataTable.rows.map(r => `${r.x}, ${r.y}`).join("\n"));
+
+    const detectedDatasets = scenario.graphConfig?.multiSeries 
+      ? (scenario.graphConfig.series?.length || 2)
+      : (scenario.dataTable.columns.filter(c => c.isY).length || 1);
+    setVal("teacherDatasetsSelect", String(detectedDatasets > 1 ? (detectedDatasets >= 3 ? 3 : 2) : 1));
+
+    const yCols = scenario.dataTable.columns.filter(c => c.isY);
+    if (detectedDatasets > 1 && yCols.length > 1) {
+      setVal("teacherDataRowsInput", scenario.dataTable.rows.map(r => {
+        const yVals = yCols.map(c => r[c.key] !== undefined ? r[c.key] : (r[c.seriesId] !== undefined ? r[c.seriesId] : 0));
+        return `${r.x}, ${yVals.join(", ")}`;
+      }).join("\n"));
+    } else {
+      setVal("teacherDataRowsInput", scenario.dataTable.rows.map(r => `${r.x}, ${r.y}`).join("\n"));
+    }
     setVal("teacherQuantExpectedInput", scenario.questions?.quantitative?.expectedValue ?? "");
     setVal("teacherTrendPromptInput", scenario.questions?.trend?.prompt || "");
     setVal("teacherFrPromptInput", scenario.questions?.freeResponse?.prompt || "");
@@ -1955,16 +2086,44 @@ function saveCustomScenarioFromForm() {
     .map(n => parseFloat(n.trim()))
     .filter(n => !isNaN(n));
 
+  const datasetSelect = document.getElementById("teacherDatasetsSelect");
+  const numDatasets = parseInt(datasetSelect ? datasetSelect.value : "1", 10) || 1;
+
   if (!title || !bg || !rawData) {
     alert("Please enter at least Title, Background Narrative, and Data Rows.");
     return;
   }
 
-  // Parse CSV data rows (format: x, y per line)
+  // Parse CSV data rows (format: x, y per line for 1 series; x, y1, y2 for 2 series; x, y1, y2, y3 for 3 series)
   const rows = [];
   rawData.split("\n").forEach((line, idx) => {
     const parts = line.split(",").map(p => p.trim());
-    if (parts.length >= 2) {
+    if (parts.length >= (numDatasets + 1)) {
+      const x = parseFloat(parts[0]);
+      if (!isNaN(x)) {
+        const row = {
+          trial: `Trial ${idx + 1}`,
+          x: x
+        };
+        let allValid = true;
+        for (let k = 1; k <= numDatasets; k++) {
+          const val = parseFloat(parts[k]);
+          if (isNaN(val)) {
+            allValid = false;
+            break;
+          }
+          if (numDatasets === 1) {
+            row.y = val;
+          } else {
+            row[`y${k}`] = val;
+            if (k === 1) row.y = val;
+          }
+        }
+        if (allValid) {
+          rows.push(row);
+        }
+      }
+    } else if (parts.length >= 2 && numDatasets === 1) {
       const x = parseFloat(parts[0]);
       const y = parseFloat(parts[1]);
       if (!isNaN(x) && !isNaN(y)) {
@@ -1978,7 +2137,8 @@ function saveCustomScenarioFromForm() {
   });
 
   if (rows.length === 0) {
-    alert("No valid numerical data pairs found in Data Rows. Use format: X, Y (one per line).");
+    const formatHelp = numDatasets === 1 ? "X, Y" : (numDatasets === 2 ? "X, Y1, Y2" : "X, Y1, Y2, Y3");
+    alert(`No valid numerical data pairs found in Data Rows. For ${numDatasets} dataset(s), use format: ${formatHelp} (one per line).`);
     return;
   }
 
@@ -2023,17 +2183,38 @@ function saveCustomScenarioFromForm() {
     ],
     dataTable: {
       caption: `Table: ${title}`,
-      columns: [
+      columns: numDatasets === 1 ? [
         { key: "trial", label: "Trial #", isText: true },
         { key: "x", label: `${xLabel} (${xUnit})`, isX: true, unit: xUnit },
         { key: "y", label: `${yLabel} (${yUnit})`, isY: true, unit: yUnit }
+      ] : [
+        { key: "trial", label: "Trial #", isText: true },
+        { key: "x", label: `${xLabel} (${xUnit})`, isX: true, unit: xUnit },
+        ...Array.from({ length: numDatasets }, (_, k) => ({
+          key: `y${k + 1}`,
+          label: `${yLabel} - Condition ${String.fromCharCode(65 + k)} (${yUnit})`,
+          isY: true,
+          unit: yUnit,
+          seriesId: `cond${String.fromCharCode(65 + k)}`
+        }))
       ],
       rows: rows
     },
-    graphConfig: {
+    graphConfig: numDatasets === 1 ? {
       showBestFitDefault: true,
       beginAtZero: true,
       equation: "Custom Teacher Model"
+    } : {
+      multiSeries: true,
+      series: Array.from({ length: numDatasets }, (_, k) => ({
+        id: `cond${String.fromCharCode(65 + k)}`,
+        key: `y${k + 1}`,
+        label: `${yLabel} - Condition ${String.fromCharCode(65 + k)}`,
+        pointStyle: k === 0 ? "circle" : (k === 1 ? "triangle" : "rectRot")
+      })),
+      showBestFitDefault: true,
+      beginAtZero: true,
+      equation: `Comparative Model (${numDatasets} Conditions)`
     },
     questions: {
       anatomy: baseQuestions.anatomy || {

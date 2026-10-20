@@ -229,7 +229,40 @@ if (!customReqPrompt.systemInstruction.includes("HONORS / AP RIGOR RULES") ||
   console.log("✓ Priority teacher special requests and Honors rigor accurately integrated into AI prompt.");
 }
 
-// 4. Test Preset Helper (setAiSpecialPreset)
+// 4. Multi-Dataset AI Prompt Generation (2 Datasets & 3 Datasets)
+const multi2Prompt = buildAiPromptPayload({
+  topic: "Kinetic Friction: Smooth Track vs Rough Track",
+  discipline: "Physics",
+  gradeLevel: "High School (Grades 9-12 / Standard CAST)",
+  datasetCount: 2,
+  specialRequests: "Compare static breakaway vs kinetic friction for two surface textures"
+});
+if (!multi2Prompt.systemInstruction.includes("MULTI-SERIES COMPARATIVE INVESTIGATION RULES (2 Datasets)") ||
+    !multi2Prompt.systemInstruction.includes('"key": "y1"') ||
+    !multi2Prompt.systemInstruction.includes('"key": "y2"') ||
+    !multi2Prompt.userPrompt.includes("Number of Datasets (Series): 2")) {
+  console.error("FAIL: 2-Dataset AI prompt payload missing multi-series rules or schema");
+  failed = true;
+} else {
+  console.log("✓ 2-Dataset comparative prompt payload successfully generates multi-series schema (y1, y2) and rules.");
+}
+
+const multi3Prompt = buildAiPromptPayload({
+  topic: "Enzyme Catalase Activity Across Three Substrate Concentrations",
+  discipline: "Biology",
+  gradeLevel: "High School (Grades 9-12 / Standard CAST)",
+  datasetCount: 3
+});
+if (!multi3Prompt.systemInstruction.includes("MULTI-SERIES COMPARATIVE INVESTIGATION RULES (3 Datasets)") ||
+    !multi3Prompt.systemInstruction.includes('"key": "y3"') ||
+    !multi3Prompt.userPrompt.includes("Number of Datasets (Series): 3")) {
+  console.error("FAIL: 3-Dataset AI prompt payload missing 3-series rules or y3 schema");
+  failed = true;
+} else {
+  console.log("✓ 3-Dataset comparative prompt payload successfully includes 3 distinct condition series (y1, y2, y3).");
+}
+
+// 5. Test Preset Helper (setAiSpecialPreset)
 global.document = {
   getElementById: (id) => {
     if (!global._testElements) global._testElements = {};
@@ -237,6 +270,26 @@ global.document = {
     return global._testElements[id];
   }
 };
+
+setAiSpecialPreset('compare-2');
+const datasetVal2 = global.document.getElementById('aiDatasetsSelect').value;
+const reqValCompare2 = global.document.getElementById('aiSpecialRequestsInput').value;
+if (datasetVal2 !== '2' || !reqValCompare2.includes('2 comparative experimental datasets')) {
+  console.error("FAIL: setAiSpecialPreset('compare-2') failed:", { datasetVal2, reqValCompare2 });
+  failed = true;
+} else {
+  console.log("✓ setAiSpecialPreset('compare-2') correctly sets 2 Datasets and comparative prompt note.");
+}
+
+setAiSpecialPreset('compare-3');
+const datasetVal3 = global.document.getElementById('aiDatasetsSelect').value;
+const reqValCompare3 = global.document.getElementById('aiSpecialRequestsInput').value;
+if (datasetVal3 !== '3' || !reqValCompare3.includes('3 comparative experimental datasets')) {
+  console.error("FAIL: setAiSpecialPreset('compare-3') failed:", { datasetVal3, reqValCompare3 });
+  failed = true;
+} else {
+  console.log("✓ setAiSpecialPreset('compare-3') correctly sets 3 Datasets and comparative prompt note.");
+}
 
 setAiSpecialPreset('lower-grade');
 const gradeVal = global.document.getElementById('aiGradeLevelSelect').value;
@@ -259,11 +312,16 @@ if (!reqVal2.includes('whole integer numbers')) {
 
 setAiSpecialPreset('clear');
 if (global.document.getElementById('aiGradeLevelSelect').value !== 'High School (Grades 9-12 / Standard CAST)' ||
+    global.document.getElementById('aiDatasetsSelect').value !== '1' ||
     global.document.getElementById('aiSpecialRequestsInput').value !== '') {
-  console.error("FAIL: setAiSpecialPreset('clear') did not reset fields");
+  console.error("FAIL: setAiSpecialPreset('clear') did not reset fields", {
+    grade: global.document.getElementById('aiGradeLevelSelect').value,
+    datasets: global.document.getElementById('aiDatasetsSelect').value,
+    req: global.document.getElementById('aiSpecialRequestsInput').value
+  });
   failed = true;
 } else {
-  console.log("✓ setAiSpecialPreset('clear') properly resets grade level and special requests.");
+  console.log("✓ setAiSpecialPreset('clear') properly resets grade level, dataset count to 1, and special requests.");
 }
 
 if (failed) {
