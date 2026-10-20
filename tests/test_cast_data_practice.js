@@ -171,6 +171,15 @@ if (!parsed2 || parsed2.title !== "Ocean pH" || parsed2.val !== 42) {
   console.log('✓ parseJsonText successfully extracted embedded JSON from conversational AI output.');
 }
 
+const rawAiOutput3 = '{"title": "Friction Investigation", "background": "Paragraph 1.\nParagraph 2.", "dataTable": {"rows": [1, 2, ], }, }';
+const parsed3 = parseJsonText(rawAiOutput3);
+if (!parsed3 || parsed3.title !== "Friction Investigation" || !parsed3.background.includes("Paragraph 2")) {
+  console.error('FAIL: parseJsonText failed on unescaped newlines or trailing commas');
+  failed = true;
+} else {
+  console.log('✓ parseJsonText successfully repaired trailing commas and multiline string literals.');
+}
+
 if (failed) {
   process.exit(1);
 } else {
