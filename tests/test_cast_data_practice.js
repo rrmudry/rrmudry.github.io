@@ -94,7 +94,7 @@ if (vagueResult.score > 2) {
 // Test Teacher Whitelist and Authorization Logic
 // -------------------------------------------------------------
 console.log('\n--- Testing Teacher Mode Whitelist & Auth Logic ---');
-const { AUTHORIZED_TEACHERS, isAuthorizedTeacher, parseJsonText } = require('../cast-data-practice/js/app.js');
+const { AUTHORIZED_TEACHERS, isAuthorizedTeacher, parseJsonText, buildAiPromptPayload, setAiSpecialPreset } = require('../cast-data-practice/js/app.js');
 
 const EXPECTED_TEACHERS = [
   "cchurney@orangeusd.org",
@@ -178,6 +178,92 @@ if (!parsed3 || parsed3.title !== "Friction Investigation" || !parsed3.backgroun
   failed = true;
 } else {
   console.log('✓ parseJsonText successfully repaired trailing commas and multiline string literals.');
+}
+
+// -------------------------------------------------------------
+// Test AI Prompt Payload & Special Teacher Requests / Rigor
+// -------------------------------------------------------------
+console.log('\n--- Testing AI Prompt Payload & Grade Level Adaptations ---');
+
+// 1. High School Default
+const hsPrompt = buildAiPromptPayload({
+  topic: "Hooke's Law: Spring Extension vs. Hanging Mass",
+  discipline: "Physics",
+  gradeLevel: "High School (Grades 9-12 / Standard CAST)"
+});
+if (!hsPrompt.systemInstruction.includes("HS-PS2-1") || !hsPrompt.userPrompt.includes("High School (Grades 9-12 / Standard CAST)")) {
+  console.error("FAIL: Standard High School prompt payload missing expected parameters");
+  failed = true;
+} else {
+  console.log("✓ Standard High School prompt payload generated correctly.");
+}
+
+// 2. Middle School (Lowered Grade Level)
+const msPrompt = buildAiPromptPayload({
+  topic: "Density of Liquid Solutions vs Salt Mass",
+  discipline: "Chemistry",
+  gradeLevel: "Middle School (Grades 6-8 / Accessible Vocabulary & Clean Numbers)",
+  specialRequests: "Lower grade level to 7th grade; use whole integer numbers only"
+});
+if (!msPrompt.systemInstruction.includes("MS-PS2-2") || 
+    !msPrompt.systemInstruction.includes("LOWER GRADE LEVEL DIFFERENTIATION RULES") ||
+    !msPrompt.userPrompt.includes("Lower grade level to 7th grade")) {
+  console.error("FAIL: Middle school prompt payload missing lower grade differentiation rules or custom requests");
+  failed = true;
+} else {
+  console.log("✓ Middle School lowered grade level & differentiation rules correctly applied to AI prompt.");
+}
+
+// 3. Special Requests Integration
+const customReqPrompt = buildAiPromptPayload({
+  topic: "Photosynthesis vs Light Wavelength",
+  discipline: "Biology",
+  gradeLevel: "Honors / AP Science (Advanced Rigor & In-Depth CER)",
+  specialRequests: "Must use spinach leaves in sodium bicarbonate; Q3 slope must equal 0.75"
+});
+if (!customReqPrompt.systemInstruction.includes("HONORS / AP RIGOR RULES") ||
+    !customReqPrompt.userPrompt.includes("Must use spinach leaves in sodium bicarbonate")) {
+  console.error("FAIL: Special customization requests missing from prompt payload");
+  failed = true;
+} else {
+  console.log("✓ Priority teacher special requests and Honors rigor accurately integrated into AI prompt.");
+}
+
+// 4. Test Preset Helper (setAiSpecialPreset)
+global.document = {
+  getElementById: (id) => {
+    if (!global._testElements) global._testElements = {};
+    if (!global._testElements[id]) global._testElements[id] = { value: "" };
+    return global._testElements[id];
+  }
+};
+
+setAiSpecialPreset('lower-grade');
+const gradeVal = global.document.getElementById('aiGradeLevelSelect').value;
+const reqVal = global.document.getElementById('aiSpecialRequestsInput').value;
+if (!gradeVal.includes('Middle School') || !reqVal.includes('7th-8th grade')) {
+  console.error("FAIL: setAiSpecialPreset('lower-grade') failed:", { gradeVal, reqVal });
+  failed = true;
+} else {
+  console.log("✓ setAiSpecialPreset('lower-grade') correctly sets Middle School target and request notes.");
+}
+
+setAiSpecialPreset('integers-only');
+const reqVal2 = global.document.getElementById('aiSpecialRequestsInput').value;
+if (!reqVal2.includes('whole integer numbers')) {
+  console.error("FAIL: setAiSpecialPreset('integers-only') did not append instruction");
+  failed = true;
+} else {
+  console.log("✓ setAiSpecialPreset('integers-only') successfully appends integer constraint.");
+}
+
+setAiSpecialPreset('clear');
+if (global.document.getElementById('aiGradeLevelSelect').value !== 'High School (Grades 9-12 / Standard CAST)' ||
+    global.document.getElementById('aiSpecialRequestsInput').value !== '') {
+  console.error("FAIL: setAiSpecialPreset('clear') did not reset fields");
+  failed = true;
+} else {
+  console.log("✓ setAiSpecialPreset('clear') properly resets grade level and special requests.");
 }
 
 if (failed) {
