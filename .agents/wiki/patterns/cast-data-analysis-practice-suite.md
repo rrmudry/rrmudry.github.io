@@ -92,7 +92,7 @@ In adherence to repository security rules:
      - Questions container with 5 parts (`justify-content: space-between; padding: 5px 8px; margin-bottom: 5px;`):
        - Question 1: Decoding Mechanics (Independent / Dependent variables + Coordinate Locator).
        - Question 2: Trend Selection with clean checkboxes (`[ ]`) rendered as dedicated stacked option rows with regular unbolded text (`font-weight: 400`).
-       - Question 3: Rate of Change Calculation with explicit Setup Work line (`Δy / Δx = ( ___ − ___ ) / ( ___ − ___ )`) to maintain productive pedagogical friction.
+       - Question 3: Quantitative Calculation with adaptive Setup Work line (`blankSetupWork`, e.g. slope `Δy / Δx = ( ___ − ___ ) / ( ___ − ___ )`, rate drop `Δy = Rate_37 − Rate_55 = ( ___ − ___ )`, or ratio `Factor = d₂ / d₁ = ( ___ / ___ )`) to maintain authentic pedagogical friction without mathematical contradictions.
        - Question 4: Student written CER explanation box (`flex: 1`, min-height `1.35in`) dynamically absorbing leftover vertical space and compact 4-Point Evidence Rubric (`[ ____ / 4 Pts ]`).
        - Question 5: Model Synthesis & Misconception Diagnostics with regular unbolded options (stacked vertically for sentence options, horizontal inline for short numeric values).
      - Footer bar with Orange High School Science Department branding and `Page 1 of 1`.
