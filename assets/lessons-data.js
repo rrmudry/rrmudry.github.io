@@ -4352,7 +4352,7 @@ const lessonsData = [
     "links": {
       "Physics Word Search Quest (Interactive App)": "Unit_2/physics_word_search/index.html",
       "Cardstock Rocket Phase 2 (CAD Reference)": "Unit_2/rocket_phase2/index.html",
-      "Operation Safe Heeler Lab": "operation-safe-heeler.html"
+      "Newton's 3rd Law Dual-Language AVID Reading": "https://docs.google.com/document/d/12uWgTtxU5Q6Fq_dD9p-0ZXWHx2wCSGF_c5azRRUNcqU/edit?usp=sharing"
     },
     "assignments": [
       {
@@ -4361,7 +4361,7 @@ const lessonsData = [
         "typeLabel": "Interactive Review Webapp",
         "submission": "Auto-Saved on Google Sign-In (10 pts) / Turn In in Classroom",
         "actionLabel": "Launch Word Search Quest ↗",
-        "description": "All Periods (0–6): Complete your chosen physics mission (Kinematics, Dynamics, or Aerospace), find 8–10 terms using touch/pointer drag, and submit your score for 10 points in Google Classroom.",
+        "description": "All Periods (0–6): Complete all 3 physics missions (Kinematics, Dynamics, and Aerospace), find all 30 terms using touch/pointer drag, and submit your score for 10 points in Google Classroom.",
         "status": "active"
       },
       {
@@ -4375,6 +4375,12 @@ const lessonsData = [
       }
     ],
     "resources": [
+      {
+        "title": "Annotated Reading: Newton's 3rd Law of Motion (Dual-Language AVID Reading Package)",
+        "url": "https://docs.google.com/document/d/12uWgTtxU5Q6Fq_dD9p-0ZXWHx2wCSGF_c5azRRUNcqU/edit?usp=sharing",
+        "typeLabel": "AVID Dual-Language Document",
+        "description": "Pre-reading, marking the text prep, and dual-language reading on action-reaction pairs, system boundaries, and rocket propulsion."
+      },
       {
         "title": "Physics Word Search Studio (All Periods)",
         "url": "Unit_2/physics_word_search/index.html",
