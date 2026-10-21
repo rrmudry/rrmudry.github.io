@@ -251,7 +251,8 @@ function renderMissionTabs() {
     const activeClass = m.id === AppState.activeMissionId ? 'active' : '';
     const missionState = AppState.missions[m.id];
     const score = missionState ? missionState.foundWords.size : 0;
-    const badgeText = score >= 10 ? '⭐ 10/10' : `${score}/10 pts`;
+    const isDone = score >= m.words.length;
+    const badgeText = isDone ? '⭐ 10/10 Done' : `${score}/10`;
 
     return `
       <button class="mission-tab ${activeClass}" data-mission="${m.id}" onclick="selectMission('${m.id}')">
@@ -260,7 +261,7 @@ function renderMissionTabs() {
           <div class="mission-tab-title">${m.title}</div>
           <div class="mission-tab-sub">${m.subtitle}</div>
         </div>
-        <span class="badge ${score >= 8 ? 'badge-success' : ''}">${badgeText}</span>
+        <span class="badge ${isDone ? 'badge-success' : ''}">${badgeText}</span>
       </button>
     `;
   }).join('');
@@ -272,6 +273,7 @@ function selectMission(missionId) {
   AppState.audio.playTick();
   renderMissionTabs();
   loadMission(missionId);
+  triggerAutoSave();
 }
 
 function loadMission(missionId) {
@@ -518,23 +520,32 @@ function evaluateSelectedPath(missionObj, path) {
     // Re-render word list to show strike-through
     renderWordList(missionObj);
 
-    // Update HUD
+    // Update HUD & Tabs
     updateProgressHUD(missionObj);
     renderMissionTabs();
 
-    // Trigger auto-save
+    // Trigger instant cloud auto-save of current progress across all missions
     triggerAutoSave();
 
-    // Check completion
-    const count = missionObj.foundWords.size;
-    if (count === 8) {
-      showToast('🎉 Mastery Achieved (8/10 points)! Passing threshold unlocked.');
-    } else if (count >= 10) {
+    // Check completion status across missions
+    const missionFoundCount = missionObj.foundWords.size;
+    const stats = getOverallProgress();
+
+    if (stats.allComplete) {
+      // 30 / 30 words found across all 3 missions!
       AppState.audio.playVictory();
       if (typeof confetti === 'function') {
-        confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+        confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
       }
-      openCertificateModal(missionObj);
+      showToast('🏆 AMAZING JOB! All 3 missions completed (30/30 words)! Click "🚀 Submit Final Grade" to record your 10/10 points!');
+    } else if (missionFoundCount >= 10) {
+      // Current mission is complete, but other missions remain
+      AppState.audio.playVictory();
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 60, spread: 60, origin: { y: 0.65 } });
+      }
+      const remainingMissions = stats.totalMissionsCount - stats.completedMissionsCount;
+      showToast(`🎉 ${missionObj.missionData.title} Complete (10/10)! ${remainingMissions} mission(s) remaining. Switch tabs above to continue!`);
     }
   } else {
     AppState.audio.playInvalid();
@@ -607,13 +618,50 @@ function useHint() {
 }
 
 // -----------------------------------------------------------------------------
-// 10. Progress HUD & Scoring
+// 10. Multi-Mission Progress Aggregation & HUD
 // -----------------------------------------------------------------------------
+function getOverallProgress() {
+  const missions = WORD_SEARCH_MISSIONS.map(m => {
+    const mObj = AppState.missions[m.id];
+    const foundCount = mObj ? mObj.foundWords.size : 0;
+    const targetCount = m.words.length; // 10
+    const isCompleted = foundCount >= targetCount;
+    return {
+      id: m.id,
+      title: m.title,
+      subtitle: m.subtitle,
+      badge: m.badge,
+      foundCount: foundCount,
+      targetCount: targetCount,
+      isCompleted: isCompleted,
+      hintsUsed: mObj ? (mObj.hintsUsed || 0) : 0
+    };
+  });
+
+  const totalWordsFound = missions.reduce((acc, m) => acc + m.foundCount, 0);
+  const totalTargetWords = missions.reduce((acc, m) => acc + m.targetCount, 0); // 30
+  const completedMissionsCount = missions.filter(m => m.isCompleted).length;
+  const allComplete = completedMissionsCount === missions.length; // all 3 missions done
+
+  // Grade scoring:
+  // Requires all 3 missions to be completed for the full 10/10 points.
+  const points = allComplete ? 10 : Math.round((totalWordsFound / totalTargetWords) * 10 * 10) / 10;
+  const percentage = Math.round((totalWordsFound / totalTargetWords) * 100);
+
+  return {
+    missions,
+    totalWordsFound,
+    totalTargetWords,
+    completedMissionsCount,
+    totalMissionsCount: missions.length,
+    allComplete,
+    points,
+    percentage
+  };
+}
+
 function updateProgressHUD(missionObj) {
-  const foundCount = missionObj.foundWords.size;
-  const totalCount = missionObj.missionData.words.length;
-  const points = foundCount; // 1 pt per word
-  const pct = Math.round((foundCount / totalCount) * 100);
+  const stats = getOverallProgress();
 
   const countEl = document.getElementById('hud-word-count');
   const scoreEl = document.getElementById('hud-points-score');
@@ -621,18 +669,22 @@ function updateProgressHUD(missionObj) {
   const fillEl = document.getElementById('hud-progress-fill');
   const submitBtn = document.getElementById('btn-submit-score');
 
-  if (countEl) countEl.textContent = `${foundCount} / ${totalCount} Words`;
-  if (scoreEl) scoreEl.textContent = `${points} / 10 Pts`;
-  if (pctEl) pctEl.textContent = `${pct}%`;
-  if (fillEl) fillEl.style.width = `${pct}%`;
+  if (countEl) {
+    countEl.innerHTML = `<strong>${stats.totalWordsFound} / ${stats.totalTargetWords} Words</strong> <span style="font-size:0.75rem; color:var(--text-muted);">(${stats.completedMissionsCount}/${stats.totalMissionsCount} Missions Complete)</span>`;
+  }
+  if (scoreEl) scoreEl.textContent = `${stats.points} / 10 Pts`;
+  if (pctEl) pctEl.textContent = `${stats.percentage}%`;
+  if (fillEl) fillEl.style.width = `${stats.percentage}%`;
 
   if (submitBtn) {
-    if (points >= 8) {
+    if (stats.allComplete) {
       submitBtn.classList.add('ready');
-      submitBtn.innerHTML = `🚀 Submit Final Grade (${points}/10 pts)`;
+      submitBtn.innerHTML = `🚀 Submit Final Grade (10/10 Pts • 3/3 Complete!)`;
+      submitBtn.title = 'All 3 missions completed! Click to submit your official grade.';
     } else {
       submitBtn.classList.remove('ready');
-      submitBtn.innerHTML = `Submit Grade (${points}/10 pts • Need 8)`;
+      submitBtn.innerHTML = `Complete All 3 Missions (${stats.completedMissionsCount}/3 Done • ${stats.totalWordsFound}/30 Words)`;
+      submitBtn.title = 'All 3 missions must be completed before final grade submission.';
     }
   }
 }
@@ -644,18 +696,37 @@ function showToast(message) {
   banner.style.display = 'block';
   setTimeout(() => {
     banner.style.display = 'none';
-  }, 4500);
+  }, 5000);
 }
 
 // -----------------------------------------------------------------------------
 // 11. Firestore Gradebook Sync & Submission
 // -----------------------------------------------------------------------------
-function collectSubmissionData(missionObj) {
+function collectSubmissionData() {
   const periodVal = parseInt(document.getElementById('student-period')?.value, 10) || AppState.classPeriod || 1;
-  const points = missionObj.foundWords.size;
-  const pct = points * 10;
+  const stats = getOverallProgress();
 
-  const foundWordsArray = Array.from(missionObj.foundWords.keys());
+  const missionsPayload = {};
+  const allWordsFoundList = [];
+
+  WORD_SEARCH_MISSIONS.forEach(m => {
+    const mObj = AppState.missions[m.id];
+    const wordsArray = mObj ? Array.from(mObj.foundWords.keys()) : [];
+    const isDone = wordsArray.length >= m.words.length;
+
+    wordsArray.forEach(w => allWordsFoundList.push(w));
+
+    missionsPayload[m.id] = {
+      missionId: m.id,
+      title: m.title,
+      badge: m.badge,
+      wordsFound: wordsArray,
+      wordsFoundCount: wordsArray.length,
+      targetCount: m.words.length,
+      hintsUsed: mObj ? (mObj.hintsUsed || 0) : 0,
+      isCompleted: isDone
+    };
+  });
 
   return {
     student_id: AppState.studentId,
@@ -663,26 +734,30 @@ function collectSubmissionData(missionObj) {
     email: AppState.studentEmail || `${AppState.studentId}@orangeusd.org`,
     period: periodVal,
     class_period: periodVal,
-    points: points,
-    score: points,
+    points: stats.points,
+    score: stats.points,
     max_points: 10,
     maxScore: 10,
-    percent: pct,
-    percentage: pct,
-    isCompleted: points >= 8,
-    missionId: missionObj.missionData.id,
-    missionTitle: missionObj.missionData.title,
-    hintsUsed: missionObj.hintsUsed || 0,
-    wordsFound: foundWordsArray,
-    wordsFoundCount: foundWordsArray.length,
-    verificationCode: generateVerificationCode(AppState.studentId, points, missionObj.missionData.id),
+    percent: stats.percentage,
+    percentage: stats.percentage,
+    isCompleted: stats.allComplete,
+    allMissionsCompleted: stats.allComplete,
+    totalWordsFound: stats.totalWordsFound,
+    totalTargetWords: stats.totalTargetWords,
+    completedMissionsCount: stats.completedMissionsCount,
+    totalMissionsCount: stats.totalMissionsCount,
+    wordsFound: allWordsFoundList,
+    wordsFoundCount: allWordsFoundList.length,
+    missions: missionsPayload,
+    activeMissionId: AppState.activeMissionId,
+    verificationCode: generateVerificationCode(AppState.studentId, stats.points, stats.completedMissionsCount),
     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
     lastSavedAt: new Date().toISOString()
   };
 }
 
-function generateVerificationCode(studentId, score, missionId) {
-  const seed = `${studentId}_${score}_${missionId}_DAY38_2026`;
+function generateVerificationCode(studentId, score, completedCount) {
+  const seed = `${studentId}_${score}_M${completedCount}_ALL3_DAY38_2026`;
   let hash = 0;
   for (let i = 0; i < seed.length; i++) {
     hash = ((hash << 5) - hash) + seed.charCodeAt(i);
@@ -703,7 +778,6 @@ function updateSaveIndicator(status, text) {
 
 function saveLocalDraft(id) {
   try {
-    const missionObj = AppState.missions[AppState.activeMissionId];
     const data = {
       activeMissionId: AppState.activeMissionId,
       period: AppState.classPeriod,
@@ -774,11 +848,11 @@ function triggerAutoSave() {
     return;
   }
 
-  updateSaveIndicator('syncing', 'Saving Draft...');
+  updateSaveIndicator('syncing', 'Backing Up Progress...');
   if (autoSaveTimer) clearTimeout(autoSaveTimer);
   autoSaveTimer = setTimeout(async () => {
     await saveStudentSubmission({ isExplicitSubmit: false });
-  }, 1200);
+  }, 800);
 }
 
 function initAutoSave() {
@@ -802,12 +876,37 @@ async function loadPriorSubmission() {
     const snap = await docRef.get();
     if (snap.exists) {
       const data = snap.data();
-      if (data.period) {
+      if (data.period !== undefined && data.period !== null) {
         AppState.classPeriod = data.period;
         const select = document.getElementById('student-period');
         if (select) select.value = String(data.period);
       }
-      if (data.wordsFound && data.missionId) {
+
+      // 1. Restore all 3 missions from data.missions
+      if (data.missions && typeof data.missions === 'object') {
+        Object.keys(data.missions).forEach(mId => {
+          const mData = data.missions[mId];
+          const mObj = AppState.missions[mId];
+          if (mObj && mData) {
+            if (mData.hintsUsed !== undefined) {
+              mObj.hintsUsed = mData.hintsUsed;
+            }
+            if (Array.isArray(mData.wordsFound)) {
+              mData.wordsFound.forEach((word, idx) => {
+                if (!mObj.foundWords.has(word)) {
+                  const themeClass = `word-theme-${idx % 10}`;
+                  const placed = mObj.placedWords.get(word);
+                  mObj.foundWords.set(word, {
+                    themeClass: themeClass,
+                    coords: placed ? placed.coords : []
+                  });
+                }
+              });
+            }
+          }
+        });
+      } else if (data.wordsFound && data.missionId) {
+        // Fallback for legacy single-mission format
         const mObj = AppState.missions[data.missionId];
         if (mObj) {
           if (data.hintsUsed !== undefined) {
@@ -823,12 +922,20 @@ async function loadPriorSubmission() {
               });
             }
           });
-          renderLetterGrid(mObj);
-          renderWordList(mObj);
-          updateProgressHUD(mObj);
-          renderMissionTabs();
-          updateHintButton(mObj);
         }
+      }
+
+      // Also sync to local draft so offline caching is up to date
+      saveLocalDraft();
+
+      // Refresh view
+      const curr = AppState.missions[AppState.activeMissionId];
+      if (curr) {
+        renderLetterGrid(curr);
+        renderWordList(curr);
+        updateProgressHUD(curr);
+        renderMissionTabs();
+        updateHintButton(curr);
       }
       updateSaveIndicator('cloud', 'Cloud Synced');
     } else {
@@ -844,8 +951,7 @@ async function loadPriorSubmission() {
 async function saveStudentSubmission({ isExplicitSubmit = false } = {}) {
   if (AppState.isSubmitting) return;
 
-  const missionObj = AppState.missions[AppState.activeMissionId];
-  if (!missionObj) return;
+  const stats = getOverallProgress();
 
   if (!AppState.user || !AppState.studentId) {
     saveLocalDraft();
@@ -856,8 +962,27 @@ async function saveStudentSubmission({ isExplicitSubmit = false } = {}) {
     return;
   }
 
+  // ENFORCE ALL 3 MISSIONS RULE ON EXPLICIT SUBMIT
+  if (isExplicitSubmit && !stats.allComplete) {
+    const m1 = stats.missions[0];
+    const m2 = stats.missions[1];
+    const m3 = stats.missions[2];
+
+    const message = `⚠️ ALL 3 MISSIONS REQUIRED FOR FINAL GRADE SUBMISSION!\n\n` +
+      `Current Progress (${stats.completedMissionsCount}/3 Missions Complete • ${stats.totalWordsFound}/30 Words Found):\n` +
+      `• ${m1.title}: ${m1.foundCount}/10 words ${m1.isCompleted ? '✓ (Done)' : '⏳'}\n` +
+      `• ${m2.title}: ${m2.foundCount}/10 words ${m2.isCompleted ? '✓ (Done)' : '⏳'}\n` +
+      `• ${m3.title}: ${m3.foundCount}/10 words ${m3.isCompleted ? '✓ (Done)' : '⏳'}\n\n` +
+      `Your work is already automatically backed up to Firestore! Please click the mission tabs at the top to complete all 3 missions before submitting your final grade.`;
+
+    alert(message);
+    // Background cloud save to ensure nothing is lost
+    await saveStudentSubmission({ isExplicitSubmit: false });
+    return;
+  }
+
   AppState.isSubmitting = true;
-  updateSaveIndicator('syncing', isExplicitSubmit ? 'Saving Grade...' : 'Saving Draft...');
+  updateSaveIndicator('syncing', isExplicitSubmit ? 'Saving Final Grade...' : 'Backing Up Progress...');
 
   try {
     const studentRef = db.collection('student_results')
@@ -865,20 +990,19 @@ async function saveStudentSubmission({ isExplicitSubmit = false } = {}) {
       .collection('students')
       .doc(AppState.studentId);
 
-    // Read previous grade to guarantee Rule B (higher score wins)
+    // Read previous grade to guarantee higher score wins
     const existingSnap = await studentRef.get();
     const existingScore = existingSnap.exists ? (existingSnap.data().points || 0) : 0;
-    const currentPoints = missionObj.foundWords.size;
-    const finalScore = Math.max(currentPoints, existingScore);
+    const finalScore = Math.max(stats.points, existingScore);
 
-    const payload = collectSubmissionData(missionObj);
+    const payload = collectSubmissionData();
     payload.points = finalScore;
     payload.score = finalScore;
-    payload.percent = finalScore * 10;
-    payload.percentage = finalScore * 10;
-    payload.isCompleted = finalScore >= 8;
+    payload.percent = Math.round((finalScore / 10) * 100);
+    payload.percentage = Math.round((finalScore / 10) * 100);
+    payload.isCompleted = finalScore >= 10 && stats.allComplete;
 
-    // Deep sanitizer to eliminate undefined
+    // Deep sanitizer to eliminate undefined values
     function sanitize(obj) {
       if (!obj || typeof obj !== 'object') return;
       Object.keys(obj).forEach(k => {
@@ -897,7 +1021,7 @@ async function saveStudentSubmission({ isExplicitSubmit = false } = {}) {
     updateSaveIndicator('cloud', isExplicitSubmit ? 'Grade Recorded' : 'Cloud Synced');
 
     if (isExplicitSubmit) {
-      openCertificateModal(missionObj, payload);
+      openCertificateModal(payload);
     }
   } catch (err) {
     console.error('Save submission error:', err);
@@ -913,20 +1037,21 @@ async function saveStudentSubmission({ isExplicitSubmit = false } = {}) {
 // -----------------------------------------------------------------------------
 // 12. Certificate Modal & Print
 // -----------------------------------------------------------------------------
-function openCertificateModal(missionObj, payloadData) {
+function openCertificateModal(payloadData) {
   const modal = document.getElementById('certificate-modal');
   if (!modal) return;
 
-  const points = payloadData ? payloadData.points : missionObj.foundWords.size;
-  const pct = points * 10;
-  const code = payloadData ? payloadData.verificationCode : generateVerificationCode(AppState.studentId || 'guest', points, missionObj.missionData.id);
+  const stats = getOverallProgress();
+  const points = payloadData ? payloadData.points : stats.points;
+  const pct = payloadData ? payloadData.percentage : stats.percentage;
+  const code = payloadData ? payloadData.verificationCode : generateVerificationCode(AppState.studentId || 'guest', points, stats.completedMissionsCount);
 
   document.getElementById('cert-student-name').textContent = AppState.studentName || 'Student';
   document.getElementById('cert-student-id').textContent = AppState.studentId || 'Guest';
   document.getElementById('cert-period').textContent = `Period ${AppState.classPeriod}`;
-  document.getElementById('cert-mission-name').textContent = missionObj.missionData.title;
+  document.getElementById('cert-mission-name').textContent = 'All 3 Missions Mastered (Kinematics, Newton\'s Laws & Aerospace)';
   document.getElementById('cert-score-text').textContent = `${points} / 10`;
-  document.getElementById('cert-pct-text').textContent = `${pct}%`;
+  document.getElementById('cert-pct-text').textContent = `(${pct}%)`;
   document.getElementById('cert-timestamp').textContent = new Date().toLocaleString();
   document.getElementById('cert-verification-code').textContent = code;
 
@@ -957,4 +1082,8 @@ function setupUIEventListeners() {
   });
   document.getElementById('btn-print-worksheet')?.addEventListener('click', printBlankWorksheet);
   document.getElementById('btn-close-cert')?.addEventListener('click', closeCertificateModal);
+
+  window.addEventListener('beforeunload', () => {
+    saveLocalDraft();
+  });
 }

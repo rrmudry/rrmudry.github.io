@@ -41,7 +41,20 @@ Rather than mindless letter hunting, students engage with physics definitions an
 - **Universal Root Font Scaling**: Standard 16px, Large 19px, Projector 23px.
 - **🖨️ Print Worksheet**: Hides all interactive headers, modals, and buttons, rendering a crisp 1-page paper worksheet with student name/period lines, grid, and definition checklist.
 
-### 6. Security, Deployment & Verification
+### 6. Multi-Mission Aggregation & Live Cloud Synchronization
+- **All 3 Missions Required (30 Words Total)**:
+  - Students must find all 10 terms across all 3 missions (30 words total) to submit their final grade for 10/10 points.
+  - Submitting before all 3 are completed is strictly blocked with a diagnostic breakdown modal displaying remaining terms per mission.
+  - The submit button remains disabled/unready (`Complete All 3 Missions (N/3 Done • X/30 Words)`) until all 30 words are found, when it animates green (`🚀 Submit Final Grade (10/10 Pts • 3/3 Complete!)`).
+- **Continuous Multi-Mission Firestore Backup**:
+  - Finding any word, using a hint, or changing periods immediately triggers a debounced cloud write to `student_results/unit2_day38_physics_word_search/students/{studentId}`.
+  - The payload preserves the complete state of all 3 missions (`missions.kinematics`, `missions.dynamics`, `missions.aerospace`), including found word arrays, hint counts, and completion flags.
+  - On page load or Google sign-in, `loadPriorSubmission()` fully restores all found words, coordinates, and styling across all 3 missions simultaneously.
+- **Strict 1-Free-Hint Limit**:
+  - Each mission permits strictly 1 free hint (`💡 Free Hint (1 left)` -> `💡 0 Hints Left (Used)`).
+  - Hints used are backed up to Firestore and localStorage to prevent bypassing limits via reloads.
+
+### 7. Security, Deployment & Verification
 - Google Authentication with `@orangeusd.org` domain restriction.
 - Auto-resolves period from `roster` collection.
 - Deep payload sanitization eliminating `undefined` fields.
