@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" class="font-normal">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unit 2 Physics Vocabulary &amp; Concept Word Search Quest</title>
+  <meta name="description" content="Interactive Physics Word Search Quest aligned with NGSS HS-PS2-1 and HS-PS2-2. Master Kinematics, Newton's Laws, and Aerospace concepts with touch drag selection, clue modes, and automatic Google Classroom gradebook submission.">
+  <link rel="icon" type="image/svg+xml" href="../../assets/unit2-favicon.svg">
+
+  <!-- Google Fonts: Space Grotesk, Outfit, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Confetti Effects (Zero unpkg, official jsdelivr CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Firebase 8 Compat SDKs (Zero unpkg, official Google gstatic CDN) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+  <!-- Custom Design System -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- =========================================================================
+       Sticky Zero-Scroll Application Header
+       ========================================================================= -->
+  <header class="app-header no-print">
+    <div class="brand-group">
+      <span class="brand-icon">🔍</span>
+      <div>
+        <div class="brand-title">
+          Physics Word Search Quest
+          <span class="badge" data-ngss="HS-PS2-1,HS-PS2-2">HS-PS2-1 • HS-PS2-2</span>
+        </div>
+        <div class="brand-subtitle">Kinematics, Newton's Laws &amp; Aerospace Engineering Review</div>
+      </div>
+    </div>
+
+    <!-- Header Controls: Text Scaling, Theme, Sound, Print & Auth -->
+    <div class="header-controls">
+      <!-- Universal Root Font Scaling (Projector Mode) -->
+      <div style="display:flex; align-items:center; gap:0.25rem; background:var(--bg-card-subtle); padding:0.2rem 0.4rem; border-radius:0.5rem; border:1px solid var(--border-color);">
+        <span style="font-size:0.75rem; font-weight:800; color:var(--text-muted); margin-right:0.2rem;">Text:</span>
+        <button class="btn btn-sm font-size-btn active" data-size="normal" onclick="setFontSize('normal')" title="Standard Size (16px)">A</button>
+        <button class="btn btn-sm font-size-btn" data-size="large" onclick="setFontSize('large')" title="Large Size (19px)">A+</button>
+        <button class="btn btn-sm font-size-btn" data-size="projector" onclick="setFontSize('projector')" title="Projector Mode (23px)">🖥️ Projector</button>
+      </div>
+
+      <!-- High-Contrast Theme Toggle (WCAG AAA) -->
+      <button id="themeToggleBtn" onclick="toggleTheme()" class="btn btn-sm" title="Toggle between High-Contrast Light Mode and Cosmic Dark Mode">
+        🌙 Dark Mode
+      </button>
+
+      <!-- Audio Synthesizer Toggle -->
+      <button id="btn-toggle-sound" class="btn btn-sm" title="Toggle synthesized sound effects">
+        🔊 Sound: ON
+      </button>
+
+      <!-- Print Paper Worksheet (For Sub Day & Chromebook dead batteries) -->
+      <button id="btn-print-worksheet" class="btn btn-sm btn-primary" title="Print a clean 1-page paper worksheet of this word search with student name and period lines">
+        🖨️ Print Worksheet
+      </button>
+
+      <!-- Auth Container -->
+      <div id="auth-user-status">
+        <button type="button" id="btn-signin" class="btn btn-primary btn-sm">
+          🔑 Sign In with Google (@orangeusd.org)
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       Substitute Teacher Instructions Banner
+       ========================================================================= -->
+  <aside class="sub-alert-banner no-print">
+    <div class="sub-alert-content">
+      <span class="sub-alert-icon">📋</span>
+      <div>
+        <div style="font-weight:800; font-size:0.95rem; color:var(--text-main);">
+          Substitute Teacher Activity Instructions • Wednesday, Oct 21, 2026
+        </div>
+        <div class="sub-steps">
+          <span class="sub-step-item"><span class="sub-step-num">1</span> Sign in with school Google</span>
+          <span class="sub-step-item"><span class="sub-step-num">2</span> Pick a Mission</span>
+          <span class="sub-step-item"><span class="sub-step-num">3</span> Drag letters to find words</span>
+          <span class="sub-step-item"><span class="sub-step-num">4</span> Earn 8–10 pts &amp; click Submit Final Grade</span>
+        </div>
+      </div>
+    </div>
+    <div style="font-size:0.78rem; font-weight:700; color:var(--accent-emerald); background:var(--badge-bg); padding:0.3rem 0.6rem; border-radius:0.4rem; border:1px solid currentColor;">
+      ✓ Auto-Graded (10 Pts)
+    </div>
+  </aside>
+
+  <!-- =========================================================================
+       Main Game Container
+       ========================================================================= -->
+  <main class="app-container">
+
+    <!-- Print-Only Letterhead for Paper Sub Worksheets -->
+    <div class="print-only-header">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2 style="font-size:16pt; margin:0;">Physics Word Search Quest</h2>
+        <span id="print-mission-title" style="font-weight:bold; font-size:12pt;">Mission 1: Kinematics</span>
+      </div>
+      <div class="print-student-lines">
+        <span><strong>Student Name:</strong> ____________________________________</span>
+        <span><strong>Period:</strong> _________</span>
+        <span><strong>Date:</strong> __________________</span>
+      </div>
+      <p style="font-size:9pt; margin-top:6px; color:#444;">
+        <strong>Instructions:</strong> Locate the 10 physics terms hidden in the letter grid below. Words run horizontally, vertically, and diagonally (forward and backward). Check off each term and read its physical concept definition as you find it.
+      </p>
+    </div>
+
+    <!-- Mission Selector Tabs -->
+    <nav class="mission-nav no-print" id="mission-tabs-container" aria-label="Word Search Missions">
+      <!-- Injected procedurally by app.js -->
+    </nav>
+
+    <!-- Student Session & Period Bar -->
+    <div class="student-bar no-print">
+      <div class="period-select-group">
+        <label for="student-period" style="font-weight:700;">Class Period:</label>
+        <select id="student-period" class="period-select">
+          <option value="0">Period 0 (Honors Physics)</option>
+          <option value="1">Period 1 (Conceptual Physics)</option>
+          <option value="2">Period 2 (Conceptual Physics)</option>
+          <option value="3">Period 3 (Conceptual Physics)</option>
+          <option value="4">Period 4 (General Physics)</option>
+          <option value="5">Period 5 (General Physics)</option>
+          <option value="6">Period 6 (General Physics)</option>
+        </select>
+      </div>
+
+      <!-- Cloud / Local Save Status -->
+      <div class="save-indicator">
+        <span class="save-dot local" id="save-status-dot"></span>
+        <span id="save-status-text">Saved Locally</span>
+      </div>
+
+      <!-- Hint Tool -->
+      <button id="btn-use-hint" class="btn btn-sm" title="Reveal the starting letter and row/column coordinates of an unfound term">
+        💡 Free Hint
+      </button>
+    </div>
+
+    <!-- Toast Notification Banner -->
+    <div id="toast-notification" style="display:none; background:var(--accent-cyan); color:#ffffff; padding:0.6rem 1rem; border-radius:0.5rem; font-weight:700; font-size:0.85rem; text-align:center; box-shadow:var(--shadow-md);"></div>
+
+    <!-- Active Workbench Layout: Grid on Left, Clues on Right -->
+    <section class="workbench-grid">
+
+      <!-- Left: Word Search Board Card -->
+      <div class="board-card">
+        <div class="board-header">
+          <div class="board-title-group">
+            <h2 id="active-mission-title" style="font-size:1.15rem;">Mission 1: Kinematics &amp; 1D Motion</h2>
+            <span id="active-mission-badge" class="badge">HS-PS2-1</span>
+          </div>
+          <div class="board-tools no-print">
+            <span style="font-size:0.75rem; color:var(--text-muted);">Drag or click letters across straight paths</span>
+          </div>
+        </div>
+
+        <p id="active-mission-desc" style="font-size:0.85rem; color:var(--text-muted); width:100%; text-align:left;">
+          Master the fundamental language of motion, coordinate frames, rates of change, and graphical vectors.
+        </p>
+
+        <!-- Touch-Friendly Grid Wrapper -->
+        <div class="grid-wrapper">
+          <div id="word-search-grid" class="word-search-grid">
+            <!-- Grid tiles injected by app.js -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Word Bank & Concept Clues Card -->
+      <div class="clues-card">
+        <div class="clues-header">
+          <div>
+            <h3 style="font-size:1.05rem;">Physics Terms &amp; Definitions</h3>
+            <span style="font-size:0.75rem; color:var(--text-muted);">Find all 10 terms to earn 100% (10/10 pts)</span>
+          </div>
+
+          <!-- Dual Mode Toggle (Words vs Clues) -->
+          <div class="mode-toggle-group no-print">
+            <button class="mode-toggle-btn active" data-mode="words" onclick="setClueMode('words')">
+              Word Bank
+            </button>
+            <button class="mode-toggle-btn" data-mode="clues" onclick="setClueMode('clues')">
+              🕵️ Clue Mode
+            </button>
+          </div>
+        </div>
+
+        <!-- Scrollable Word & Clue List -->
+        <div id="word-items-list" class="word-items-list">
+          <!-- Injected by app.js -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Progress, Scoring & Final Submission Bar -->
+    <footer class="score-submission-bar no-print">
+      <div class="progress-group">
+        <div class="progress-header-row">
+          <span id="hud-word-count">0 / 10 Words</span>
+          <span id="hud-points-score" style="color:var(--accent-emerald);">0 / 10 Pts</span>
+          <span id="hud-pct-score">0%</span>
+        </div>
+        <div class="progress-bar-track">
+          <div id="hud-progress-fill" class="progress-bar-fill"></div>
+        </div>
+      </div>
+
+      <div class="submission-controls">
+        <button id="btn-submit-score" class="btn btn-success btn-submit-grade">
+          Submit Grade (0/10 pts • Need 8)
+        </button>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- =========================================================================
+       Tamper-Resistant Digital Completion Certificate Modal
+       ========================================================================= -->
+  <div id="certificate-modal" class="modal-overlay no-print" role="dialog" aria-modal="true" aria-labelledby="cert-title">
+    <div class="certificate-card">
+      <div class="cert-border-seal"></div>
+      <span style="font-size:2.8rem; line-height:1;">🏆</span>
+      <h2 id="cert-title" class="cert-title">Official Mastery Certificate</h2>
+      <p style="font-size:0.9rem; color:var(--text-muted);">Orange High School Science Department • Physics</p>
+
+      <div id="cert-score-display" class="cert-score-display">
+        <span id="cert-score-text">10 / 10</span>
+        <span style="font-size:1.5rem; color:var(--text-dim);" id="cert-pct-text">(100%)</span>
+      </div>
+
+      <p style="font-weight:700; color:var(--accent-cyan); font-size:0.95rem;">
+        Grade recorded in Google Classroom queue!
+      </p>
+
+      <div class="cert-meta-grid">
+        <div><strong>Student:</strong> <span id="cert-student-name">Student</span></div>
+        <div><strong>Student ID:</strong> <span id="cert-student-id">400000</span></div>
+        <div><strong>Class Period:</strong> <span id="cert-period">Period 1</span></div>
+        <div><strong>Mission:</strong> <span id="cert-mission-name">Mission 1: Kinematics</span></div>
+        <div style="grid-column: span 2;"><strong>Timestamp:</strong> <span id="cert-timestamp">Date &amp; Time</span></div>
+      </div>
+
+      <div style="text-align:left; font-size:0.75rem; font-weight:700; color:var(--text-dim); margin-bottom:0.25rem;">
+        Tamper-Resistant Verification Hash:
+      </div>
+      <div id="cert-verification-code" class="cert-hash-box">
+        CAST-WS-B7A23F10-10PTS
+      </div>
+
+      <div style="display:flex; justify-content:center; gap:0.75rem;">
+        <button class="btn btn-primary" onclick="window.print()">
+          🖨️ Print Certificate
+        </button>
+        <button id="btn-close-cert" class="btn">
+          Close Window
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Logic Scripts -->
+  <script src="js/word-search-data.js"></script>
+  <script src="js/word-search-engine.js"></script>
+  <script src="js/audio-manager.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
