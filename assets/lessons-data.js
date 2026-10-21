@@ -3803,8 +3803,7 @@ const lessonsData = [
     "links": {
       "Cardstock Rocket Engineering (Google Doc)": "https://docs.google.com/document/d/1fsDiE0mtPhklifH_eB5T-gsIUCMKgAzTz2M_CIUKpMU/edit?usp=sharing",
       "Cardstock Rocket Simulator": "Unit_2/cardstock_rocket/index.html",
-      "Annotated Reading Worksheet (PDF)": "Unit_2/worksheets/Cardstock_Rocket_Annotated_Reading.pdf",
-      "Physics Curriculum Tie-Ins": "Unit_2/Cardstock_Rocket_Physics_Tie_Ins.md"
+      "Annotated Reading Worksheet (PDF)": "Unit_2/worksheets/Cardstock_Rocket_Annotated_Reading.pdf"
     },
     "assignments": [
       {
@@ -3834,12 +3833,6 @@ const lessonsData = [
         "url": "Unit_2/cardstock_rocket/index.html",
         "typeLabel": "Interactive Simulation",
         "description": "Virtual launch sandbox modeling pneumatic thrust, stability torque (CM vs CP), and kinematics graphs."
-      },
-      {
-        "title": "Cardstock Rocket Physics Curriculum Tie-Ins Guide",
-        "url": "Unit_2/Cardstock_Rocket_Physics_Tie_Ins.md",
-        "typeLabel": "Teacher Reference",
-        "description": "Comprehensive pedagogical guide detailing phase-by-phase kinematics, Newton's laws, and flight calculations."
       }
     ],
     "practice": [
