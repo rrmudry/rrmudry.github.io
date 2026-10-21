@@ -237,7 +237,8 @@ function initMissions() {
       grid: result.grid,
       placedWords: result.placedWords,
       foundWords: new Map(), // word -> { themeClass, coords }
-      score: 0
+      score: 0,
+      hintsUsed: 0
     };
   });
 }
@@ -298,6 +299,9 @@ function loadMission(missionId) {
 
   // Update Score & HUD
   updateProgressHUD(missionObj);
+
+  // Update 1-Free-Hint Button State
+  updateHintButton(missionObj);
 }
 
 // -----------------------------------------------------------------------------
@@ -539,12 +543,35 @@ function evaluateSelectedPath(missionObj, path) {
 }
 
 // -----------------------------------------------------------------------------
-// 9. Hint System
+// 9. Hint System (Strictly 1 Free Hint Allowed)
 // -----------------------------------------------------------------------------
+function updateHintButton(missionObj) {
+  const hintBtn = document.getElementById('btn-use-hint');
+  if (!hintBtn) return;
+  const hintsUsed = missionObj ? (missionObj.hintsUsed || 0) : 0;
+  if (hintsUsed >= 1) {
+    hintBtn.disabled = true;
+    hintBtn.innerHTML = '💡 0 Hints Left (Used)';
+    hintBtn.title = 'You have already used your 1 free hint for this mission.';
+  } else {
+    hintBtn.disabled = false;
+    hintBtn.innerHTML = '💡 Free Hint (1 left)';
+    hintBtn.title = 'Reveal the starting letter and coordinates of 1 unfound term (Only 1 free hint allowed!)';
+  }
+}
+
 function useHint() {
+  const missionObj = AppState.missions[AppState.activeMissionId];
+  if (!missionObj) return;
+
+  if ((missionObj.hintsUsed || 0) >= 1) {
+    showToast('⚠️ You have already used your 1 free hint! Find the remaining words on your own.');
+    updateHintButton(missionObj);
+    return;
+  }
+
   if (AppState.hintCooldown) return;
 
-  const missionObj = AppState.missions[AppState.activeMissionId];
   const allMissionWords = missionObj.missionData.words.map(w => w.word.toUpperCase().replace(/[^A-Z]/g, ''));
   const unfoundWords = allMissionWords.filter(w => !missionObj.foundWords.has(w));
 
@@ -557,6 +584,11 @@ function useHint() {
   const hint = missionObj.engine.getWordHint(targetWord);
   if (!hint) return;
 
+  // Consume the single free hint
+  missionObj.hintsUsed = 1;
+  updateHintButton(missionObj);
+  triggerAutoSave();
+
   AppState.hintCooldown = true;
   AppState.audio.playHint();
 
@@ -565,12 +597,12 @@ function useHint() {
 
   if (startTile) {
     startTile.classList.add('hint-pulse');
-    showToast(`💡 Hint: First letter "${hint.firstLetter}" starts at [Row ${hint.start.r + 1}, Col ${hint.start.c + 1}] (${hint.dirName})`);
+    showToast(`💡 Free Hint Used! First letter "${hint.firstLetter}" starts at [Row ${hint.start.r + 1}, Col ${hint.start.c + 1}] (${hint.dirName}). No hints remaining!`);
 
     setTimeout(() => {
       startTile.classList.remove('hint-pulse');
       AppState.hintCooldown = false;
-    }, 4000);
+    }, 4500);
   }
 }
 
@@ -640,6 +672,7 @@ function collectSubmissionData(missionObj) {
     isCompleted: points >= 8,
     missionId: missionObj.missionData.id,
     missionTitle: missionObj.missionData.title,
+    hintsUsed: missionObj.hintsUsed || 0,
     wordsFound: foundWordsArray,
     wordsFoundCount: foundWordsArray.length,
     verificationCode: generateVerificationCode(AppState.studentId, points, missionObj.missionData.id),
@@ -681,7 +714,8 @@ function saveLocalDraft(id) {
       const mObj = AppState.missions[m.id];
       if (mObj) {
         data.missions[m.id] = {
-          foundWords: Array.from(mObj.foundWords.entries())
+          foundWords: Array.from(mObj.foundWords.entries()),
+          hintsUsed: mObj.hintsUsed || 0
         };
       }
     });
@@ -708,10 +742,13 @@ function loadLocalDraft(id) {
       Object.keys(parsed.missions).forEach(mId => {
         const stored = parsed.missions[mId];
         const mObj = AppState.missions[mId];
-        if (mObj && stored.foundWords) {
-          stored.foundWords.forEach(([word, info]) => {
-            mObj.foundWords.set(word, info);
-          });
+        if (mObj) {
+          mObj.hintsUsed = stored.hintsUsed || 0;
+          if (stored.foundWords) {
+            stored.foundWords.forEach(([word, info]) => {
+              mObj.foundWords.set(word, info);
+            });
+          }
         }
       });
     }
@@ -722,6 +759,7 @@ function loadLocalDraft(id) {
       renderWordList(currMission);
       updateProgressHUD(currMission);
       renderMissionTabs();
+      updateHintButton(currMission);
     }
   } catch (e) {
     console.warn('LocalStorage load draft error:', e);
@@ -772,6 +810,9 @@ async function loadPriorSubmission() {
       if (data.wordsFound && data.missionId) {
         const mObj = AppState.missions[data.missionId];
         if (mObj) {
+          if (data.hintsUsed !== undefined) {
+            mObj.hintsUsed = data.hintsUsed;
+          }
           data.wordsFound.forEach((word, idx) => {
             if (!mObj.foundWords.has(word)) {
               const themeClass = `word-theme-${idx % 10}`;
@@ -786,6 +827,7 @@ async function loadPriorSubmission() {
           renderWordList(mObj);
           updateProgressHUD(mObj);
           renderMissionTabs();
+          updateHintButton(mObj);
         }
       }
       updateSaveIndicator('cloud', 'Cloud Synced');
