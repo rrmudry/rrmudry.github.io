@@ -3,6 +3,16 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-21 — Curriculum Alignment: Day 37 Dashboard & Outline Cleanup (`assets/lessons-data.js` & `Unit_2/outline.md`)
+**Changes**:
+- **Removed Third Law Paradox & System Boundaries from Day 37**:
+  - Removed legacy "Resolving the Third Law Paradox & System Boundaries" topic, "The Horse-and-Cart Dilemma" bell-ringer, "Resolving the Third Law Paradox Worksheet", and "System Boundaries & The Horse-Cart Paradox Guide" from Day 37.
+  - Re-anchored Day 37 cleanly to actual dual-track classroom investigations:
+    - **Periods 1, 2, 3**: Hot Wheels Wind Resistance & Air Brake Lab (`Unit_2/hot_wheels_air_resistance/index.html`), focusing on aerodynamic drag and net deceleration forces (`F_net = F_friction + F_drag`).
+    - **Periods 0, 4, 5, 6**: Cardstock Rocket Phase 2 Controlled Variable Forensics Studio (`Unit_2/rocket_phase2/index.html`), focusing on Rocket A vs. B precision fabrication and flight stability balance.
+  - Synchronized `Unit_2/outline.md` with `assets/lessons-data.js` single source of truth.
+  - Refreshed site deployment timestamp in `partials/footer.html`.
+
 ## 2026-10-21 — Substitute Plan App: Unit 2 Physics Vocabulary & Concept Word Search Quest (`Unit_2/physics_word_search/`)
 **Patterns Added**: `physics-word-search-quest.md`.
 **Patterns Updated**: `student-task-engagement.md`, `assignment-registry.md`, `classroom-projection-and-high-contrast-theming.md`.
