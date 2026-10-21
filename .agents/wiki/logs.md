@@ -5,9 +5,10 @@ Append-only log tracking pattern changes across recent sessions.
 
 ## 2026-10-21 — Curriculum Alignment: Day 31, Day 36 & Day 37 Dashboard & Outline Cleanup (`assets/lessons-data.js` & `Unit_2/outline.md`)
 **Changes**:
-- **Linked Cardstock Rocket Engineering Google Doc to Day 31**:
+- **Linked Cardstock Rocket Engineering Google Doc & Cleaned Day 31**:
   - Linked Google Doc `https://docs.google.com/document/d/1fsDiE0mtPhklifH_eB5T-gsIUCMKgAzTz2M_CIUKpMU/edit?usp=sharing` directly to the Day 31 assignment card (`Open Google Doc ↗`) in `assets/lessons-data.js` and in Day 31 links within `Unit_2/outline.md`.
   - Retained the printable 2-page student worksheet PDF in `resources` for physical classroom distribution.
+  - Removed `Unit_2/Cardstock_Rocket_Physics_Tie_Ins.md` from Day 31 dashboard links, resources, and outline.
 - **Removed Action-Reaction Collision Investigation Sheet from Day 36**:
   - Removed "Action-Reaction Collision Investigation Sheet" from Day 36 `assignments` in `assets/lessons-data.js` and from Day 36 Links in `Unit_2/outline.md`.
   - Day 36 is now focused purely on the two active inquiry webapps: Hot Wheels Coasting Baseline (Periods 1, 2, 3) and Cardstock Rocket Phase 2 (Periods 0, 4, 5, 6).
