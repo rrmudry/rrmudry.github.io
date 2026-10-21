@@ -4175,14 +4175,6 @@ const lessonsData = [
         "actionLabel": "Launch Phase 2 Webapp ↗",
         "description": "Periods 0, 4, 5, 6: Work in squads of no more than 3 to design and build two rockets identical in all ways except ONE isolated variable. Log dual CAD blueprints, launch telemetry, satellite touchdown coordinates, and comparative CER.",
         "status": "active"
-      },
-      {
-        "title": "Action-Reaction Collision Investigation Sheet",
-        "typeLabel": "Lab Activity",
-        "submission": "In-Class Handout (Subject to Pacing)",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Analyze dual force sensor collision data between equal and unequal cart masses to prove F<sub>A on B</sub> = -F<sub>B on A</sub>.",
-        "status": "planned"
       }
     ],
     "resources": [
