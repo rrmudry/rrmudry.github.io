@@ -12,7 +12,7 @@
  */
 
 :root {
-  font-size: 16px;
+  font-size: 14.4px; /* 90% default scale tailored for Chromebook displays (1366x768) */
 
   /* Saturated High-Contrast Light Mode (WCAG AAA) */
   --bg-page: #f8fafc;
@@ -47,7 +47,7 @@
   --badge-bg: #e0f2fe;
   --badge-text: #0369a1;
 
-  --tile-size: clamp(26px, 4vw, 42px);
+  --tile-size: clamp(22px, 3.2vw, 36px);
 }
 
 /* Dark Mode Palette */
@@ -85,10 +85,10 @@ html.dark {
   --badge-text: #38bdf8;
 }
 
-/* Root font scaling */
-html.font-normal { font-size: 16px; }
-html.font-large { font-size: 19px; }
-html.font-projector { font-size: 23px; }
+/* Root font scaling (Default 90% scale for Chromebook screen optimization) */
+html.font-normal { font-size: 14.4px; }
+html.font-large { font-size: 16.5px; }
+html.font-projector { font-size: 21px; }
 
 /* 10 Unique Found Word Color Themes (High Contrast) */
 .word-theme-0 { --w-bg: #e0f2fe; --w-border: #0284c7; --w-text: #0369a1; --w-chip: #0284c7; }
@@ -768,20 +768,72 @@ h1, h2, h3, h4 {
   flex-wrap: wrap;
 }
 
-.period-select-group {
+.period-display-group {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.period-select {
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.4rem;
-  border: 1px solid var(--border-color);
+.period-badge-display {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
   background: var(--bg-card);
-  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 0.25rem 0.65rem;
+  border-radius: 0.5rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  font-size: 0.85rem;
+  color: var(--text-muted);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.period-badge-display.detected {
+  border-color: var(--accent-cyan);
+  background: var(--badge-bg);
+  color: var(--accent-cyan);
+}
+
+.period-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  transition: background-color 0.2s ease;
+}
+
+.period-badge-display.detected .period-dot {
+  background: var(--accent-emerald);
+  box-shadow: 0 0 6px rgba(5, 150, 105, 0.6);
+}
+
+.chromebook-rec-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(2, 132, 199, 0.12);
+  color: var(--accent-cyan);
+  border: 1px solid var(--accent-cyan);
+  padding: 0.3rem 0.65rem;
+  border-radius: 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.chromebook-rec-btn:hover {
+  background: var(--accent-cyan);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+#btn-toggle-fullscreen.active {
+  background: var(--accent-cyan);
+  border-color: var(--accent-cyan);
+  color: #ffffff;
 }
 
 /* Save Status Indicator */
