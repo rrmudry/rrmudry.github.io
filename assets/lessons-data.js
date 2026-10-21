@@ -4224,37 +4224,36 @@ const lessonsData = [
     "day": 37,
     "date": "2026-10-20",
     "unit": 2,
-    "title": "Resolving the Third Law Paradox & System Boundaries",
-    "topic": "The Horse-and-Cart Dilemma: Why Motion Occurs Despite Equal Opposing Forces",
+    "title": "Hot Wheels Wind Resistance Lab (P1-3) & Cardstock Rocket Phase 2 (P0, 4-6)",
+    "topic": "Aerodynamic Drag, Opposing Wind Resistance & Controlled Variable Rocket Fabrication",
     "dok": 3,
-    "type": "Activity / Discussion",
+    "type": "Laboratory Investigation / Engineering Studio",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Resolve the classic Third Law paradox: Action-reaction pairs NEVER cancel each other out to prevent motion because they act on DIFFERENT objects; identify system boundaries to determine net external force. (Pacing Note: Conceptual Physics Periods 1, 2, and 3 conduct the Hot Wheels Wind Resistance & Air Brake Investigation, mounting an index card air brake on their cars and measuring stopping distance against a variable-speed fan to quantify air resistance and net deceleration forces. Periods 0, 4, 5, and 6 continue Day 2 of Cardstock Rocket Phase 2 Project: Controlled Variable Forensics.)",
-    "activity": "Hot Wheels Wind Resistance & Air Brake Lab (Periods 1, 2, 3): Students tape an index card sail to the roof of their Hot Wheels car as an air brake, launch from a standardized ramp toward a variable-speed fan, and record stopping distance across 4 fan speed tiers (Off, Low, Med, High) to analyze how aerodynamic drag increases deceleration and shortens coasting distance. (Periods 0, 4, 5, 6 Project Studio): Rocket squads finalize fin attachment, nose ballast, and mass measurements, confirming aerodynamic stability on the Phase 2 blueprint in preparation for tomorrow's launch.",
-    "essentialQuestion": "Why can't action-reaction force pairs ever cancel each other out, and how does aerodynamic drag add to friction to decelerate a moving vehicle?",
+    "summary": "Dual-track physics investigation day: Conceptual Physics Periods 1, 2, and 3 conduct the Hot Wheels Wind Resistance & Air Brake Lab, mounting an index card air brake on their cars and measuring stopping distance against a variable-speed fan to quantify air resistance and net deceleration forces (F_net = F_friction + F_drag). Periods 0, 4, 5, and 6 continue Day 2 of Cardstock Rocket Phase 2: Controlled Variable Forensics, fabricating Rocket A and B to strict tolerances and verifying stability balance.",
+    "activity": "Hot Wheels Wind Resistance & Air Brake Lab (Periods 1, 2, 3): Students tape an index card sail to the roof of their Hot Wheels car as an air brake, launch from a standardized ramp toward a variable-speed fan, and record stopping distance across 4 fan speed tiers (Off, Low, Med, High) to analyze how aerodynamic drag increases deceleration and shortens coasting distance. (Periods 0, 4, 5, 6 Project Studio): Rocket squads finalize fin attachment, nose ballast, and mass measurements, confirming aerodynamic stability on the Phase 2 blueprint in preparation for launch.",
+    "essentialQuestion": "How does opposing wind speed and air-brake surface area increase deceleration force and shorten stopping distance, and how do small changes in fin placement or nose ballast alter rocket flight stability?",
     "standards": [
       "HS-PS2-1",
       "HS-ETS1-2",
       "HS-ETS1-3"
     ],
     "wicor": {
-      "Writing": "Writing a formal logical refutation of the horse's argument in the Horse-Cart dilemma.",
-      "Inquiry": "Drawing system boundaries and measuring stopping distances across multiple fan wind speeds.",
+      "Writing": "Formulating evidence-based CER conclusions linking opposing fan wind speed to stopping distance deltas.",
+      "Inquiry": "Testing aerodynamic drag across 4 fan speed settings and measuring precision coasting distances.",
       "Collaboration": "Lab squads managing track launch alignment, fan speed adjustments, and tape-measure stopping positions.",
       "Organization": "Constructing dual Free-Body Diagrams highlighting friction and aerodynamic drag opposing motion.",
-      "Reading": "Reading the philosophical and mathematical text of the Horse-Cart paradox and aerodynamic drag."
+      "Reading": "Reading and interpreting real-time deceleration telemetry and comparative stopping distance bar graphs."
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "A stubborn horse says to a farmer: 'If I pull on the cart, the cart pulls back on me with an equal and opposite force. The forces cancel out, so it is impossible for me to move the cart!' How would you explain to the horse why it can move?",
-      "explanation": "Action-reaction pairs act on DIFFERENT objects, so they never cancel! The force on the cart determines whether the cart accelerates (cart FBD), while the forward push from the ground on the horse's hooves determines whether the horse accelerates (horse FBD). The horse accelerates because its forward push against the ground exceeds the backward pull from the cart.",
+      "promptQuestion": "How does taping an index card air brake to a toy car change the net deceleration force when it coasts into a headwind from a fan? Which forces are opposing its motion?",
+      "explanation": "The net opposing force becomes F_net = F_friction + F_drag. Friction acts at the wheels/axles and track, while aerodynamic drag acts on the frontal surface area of the index card. Higher fan wind speed increases air resistance (proportional to v²), causing a larger deceleration force (a = F_net / m) and a shorter stopping distance.",
       "defaultDuration": 3
     },
     "links": {
       "Hot Wheels Wind Resistance & Air Brake Lab (Periods 1, 2, 3)": "Unit_2/hot_wheels_air_resistance/index.html",
-      "Cardstock Rocket Phase 2 (Periods 0, 4, 5, 6)": "Unit_2/rocket_phase2/index.html",
-      "System Boundaries Guide": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing"
+      "Cardstock Rocket Phase 2 (Periods 0, 4, 5, 6)": "Unit_2/rocket_phase2/index.html"
     },
     "assignments": [
       {
@@ -4274,14 +4273,6 @@ const lessonsData = [
         "actionLabel": "Launch Phase 2 Webapp ↗",
         "description": "Periods 0, 4, 5, 6: Finalize precision fabrication of Rocket A and B. Ensure all parameters match except your 1 chosen variable. Check stability balance on the interactive blueprint.",
         "status": "active"
-      },
-      {
-        "title": "Resolving the Third Law Paradox Worksheet",
-        "typeLabel": "Analysis Worksheet",
-        "submission": "In-Class Handout (Subject to Pacing)",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Draw dashed system boundaries around the Horse, Cart, and Ground to prove why internal action-reaction pairs do not cancel external forces.",
-        "status": "planned"
       }
     ],
     "resources": [
@@ -4296,12 +4287,6 @@ const lessonsData = [
         "url": "Unit_2/rocket_phase2/index.html",
         "typeLabel": "Interactive CAD & Satellite Map",
         "description": "Periods 0, 4, 5, 6: Dual 1cm × 1cm technical blueprint, variable isolation tracker, and campus touchdown coordinates."
-      },
-      {
-        "title": "System Boundaries & The Horse-Cart Paradox Guide",
-        "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
-        "typeLabel": "Concept Guide",
-        "description": "Detailed explanation of internal forces vs external unbalanced forces."
       }
     ],
     "practice": [
