@@ -3,6 +3,29 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-20 — Google Classroom Deployment: Hot Wheels Wind Resistance & Air Brake Lab (Periods 1, 2, 3)
+**Patterns Updated**: `hot-wheels-wind-resistance-air-brake-lab.md`, `assignment-registry.md`.
+
+**Changes**:
+- **Google Classroom Coursework Deployment**:
+  - Deployed coursework titled **"Hot Wheels Wind Resistance & Air Brake Lab"** across Periods 1, 2, and 3 via `sync-classroom/deploy-assignment.js` under assignment ID `unit2_day37_hot_wheels_air_resistance`.
+  - Max Points: 10 pts, Topic: "Unit 2: Motion", Activity URL: `https://rrmudry.github.io/Unit_2/hot_wheels_air_resistance/`.
+  - Created coursework entries:
+    - Period 1 (`875053274185`): Coursework ID `893484948804`
+    - Period 2 (`819978306673`): Coursework ID `893486385506`
+    - Period 3 (`875053206741`): Coursework ID `893486095431`
+- **Firestore Registry & Pre-Flight Verification**:
+  - Passed all 6 pre-flight gates via `npm run verify -- --id unit2_day37_hot_wheels_air_resistance --app Unit_2/hot_wheels_air_resistance`:
+    - Roster schema compatibility verified (`class_period`).
+    - Period 0 and standard period resolution verified.
+    - Zero `undefined` payload values verified.
+    - Real student token (`isStudentOwner`) tested against DEPLOYED security rules.
+  - Registered single source of truth in `assignment_registry/unit2_day37_hot_wheels_air_resistance`, `student_results/unit2_day37_hot_wheels_air_resistance`, and `gradest_assignments`.
+  - Validated dry-run grade sync via `npm run sync -- "Hot Wheels Wind Resistance & Air Brake Lab" --dry-run` discovering existing student submissions from today's in-class testing.
+- **Curriculum Outline Alignment**:
+  - Updated Day 37 in `Unit_2/outline.md` reflecting the Hot Wheels Wind Resistance & Air Brake inquiry lab and links for Periods 1, 2, 3 alongside Cardstock Rocket Phase 2 for Periods 0, 4, 5, 6.
+  - Refreshed site footer deployment timestamp.
+
 ## 2026-10-20 — CAST Data Analysis Practice Suite: Multi-Dataset Tables & Comparative Multi-Series Graphing (`cast-data-practice/`)
 **Patterns Updated**: `cast-data-analysis-practice-suite.md`.
 
