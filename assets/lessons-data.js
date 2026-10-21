@@ -3801,7 +3801,7 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
-      "Annotated Reading (Google Doc)": "https://docs.google.com/document/d/1fsDiE0mtPhklifH_eB5T-gsIUCMKgAzTz2M_CIUKpMU/edit?usp=sharing",
+      "Cardstock Rocket Engineering (Google Doc)": "https://docs.google.com/document/d/1fsDiE0mtPhklifH_eB5T-gsIUCMKgAzTz2M_CIUKpMU/edit?usp=sharing",
       "Cardstock Rocket Simulator": "Unit_2/cardstock_rocket/index.html",
       "Annotated Reading Worksheet (PDF)": "Unit_2/worksheets/Cardstock_Rocket_Annotated_Reading.pdf",
       "Physics Curriculum Tie-Ins": "Unit_2/Cardstock_Rocket_Physics_Tie_Ins.md"
@@ -3809,11 +3809,11 @@ const lessonsData = [
     "assignments": [
       {
         "title": "Cardstock Rocket Performance Characteristics AVID Close Reading",
-        "url": "Unit_2/worksheets/Cardstock_Rocket_Annotated_Reading.pdf",
+        "url": "https://docs.google.com/document/d/1fsDiE0mtPhklifH_eB5T-gsIUCMKgAzTz2M_CIUKpMU/edit?usp=sharing",
         "typeLabel": "AVID Annotated Reading",
-        "submission": "In-Class Handout / AVID Binder",
-        "actionLabel": "Open Worksheet PDF ↗",
-        "description": "2-page AVID close reading on pneumatic seal, mass budget (a = F_net / m), CM/CP stability, and apogee kinematics."
+        "submission": "Google Doc / In-Class Handout / AVID Binder",
+        "actionLabel": "Open Google Doc ↗",
+        "description": "2-page AVID close reading on pneumatic seal, mass budget (a = F_net / m), CM/CP stability, and apogee kinematics. (Printable PDF also available)."
       }
     ],
     "resources": [
@@ -3822,6 +3822,12 @@ const lessonsData = [
         "url": "https://docs.google.com/document/d/1fsDiE0mtPhklifH_eB5T-gsIUCMKgAzTz2M_CIUKpMU/edit?usp=sharing",
         "typeLabel": "Google Doc Reading",
         "description": "Original classroom close reading text with English and Spanish translations."
+      },
+      {
+        "title": "Cardstock Rocket Annotated Reading Worksheet (PDF)",
+        "url": "Unit_2/worksheets/Cardstock_Rocket_Annotated_Reading.pdf",
+        "typeLabel": "Printable Worksheet",
+        "description": "2-page printable PDF handout with margin annotation guides."
       },
       {
         "title": "Cardstock Rocket Physics Simulator & Flight Visualizer",
