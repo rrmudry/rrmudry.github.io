@@ -3,6 +3,33 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-21 — Substitute Plan App: Unit 2 Physics Vocabulary & Concept Word Search Quest (`Unit_2/physics_word_search/`)
+**Patterns Added**: `physics-word-search-quest.md`.
+**Patterns Updated**: `student-task-engagement.md`, `assignment-registry.md`, `classroom-projection-and-high-contrast-theming.md`.
+
+**Changes**:
+- **Engineered Interactive Physics Word Search Application (`Unit_2/physics_word_search/index.html` & `physics-word-search/index.html`)**:
+  - Purpose-built substitute assignment for Day 38 (Wednesday, Oct 21) across all physics periods (Periods 0 through 6).
+  - 3 Themed Missions:
+    - **Mission 1: Kinematics & 1D Motion** (`VELOCITY`, `ACCELERATION`, `DISPLACEMENT`, `SCALAR`, `VECTOR`, `FREEFALL`, `TRAJECTORY`, `INTERVAL`, `ORIGIN`, `DECELERATION`).
+    - **Mission 2: Newton's Laws & Dynamics** (`INERTIA`, `NETFORCE`, `FRICTION`, `NORMAL`, `ACTION`, `REACTION`, `EQUILIBRIUM`, `TERMINAL`, `AIRRESISTANCE`, `TENSION`).
+    - **Mission 3: Aerospace & Safety** (`MOMENTUM`, `IMPULSE`, `APOGEE`, `AERODYNAMICS`, `BALLAST`, `CRUMPLE`, `STABILITY`, `PRESSURE`, `RESTORING`, `TOLERANCE`).
+  - **Procedural Word Search Engine (`js/word-search-engine.js`)**: 8-directional placement (H, V, and 4 diagonals) with collision validation and weighted English letter filler.
+  - **Touch & Pointer Drag Mechanics (`js/app.js`)**: Real-time vector angle snapping, `touch-action: none;` without scroll interference, and 10 high-contrast pastel found-word themes.
+  - **Dual Gameplay Modes**: Standard "Word Bank Mode" and AVID-style "🕵️ Clue Mode" (shows physics definitions/formulas to deduce terms).
+  - **Web Audio API Synthesizer (`js/audio-manager.js`)**: Zero audio file dependencies; synthesizes letter drag ticks, 4-note major chord discoveries, mistake thuds, and grand victory fanfares.
+  - **Classroom Substitute Teacher Mode**: 1-click **🖨️ Print Worksheet** button generating a clean 1-page paper version with student name/period lines.
+  - **Tamper-Resistant Digital Completion Certificate**: Cryptographic verification hash (`CAST-WS-XXXX-10PTS`) and score receipt.
+- **Unified Classroom Deployment & Verification**:
+  - Deployed to Google Classroom across all 7 periods (Periods 0 to 6) under `unit2_day38_physics_word_search`, Topic "Unit 2: Motion", 10 max points.
+  - All 6 pre-flight gates passed with 100% green checks on `npm run verify -- --id unit2_day38_physics_word_search --app Unit_2/physics_word_search`.
+- **District Web Filter & Security**:
+  - 100% compliant with District Web Filter policy (zero unpkg.com, zero in-browser Babel).
+  - Verified student-permission law: doc IDs = email prefix, zero parent writes, zero undefined values.
+- **Curriculum Stores & Course Outline**:
+  - Updated `Unit_2/outline.md` and `assets/lessons-data.js` Day 38 entry with substitute plan badge and app links.
+  - Refreshed site footer deployment timestamp.
+
 ## 2026-10-20 — Google Classroom Deployment: Hot Wheels Wind Resistance & Air Brake Lab (Periods 1, 2, 3)
 **Patterns Updated**: `hot-wheels-wind-resistance-air-brake-lab.md`, `assignment-registry.md`.
 

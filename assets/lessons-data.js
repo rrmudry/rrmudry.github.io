@@ -4323,83 +4323,77 @@ const lessonsData = [
     "day": 38,
     "date": "2026-10-21",
     "unit": 2,
-    "title": "Structural Crashworthiness Engineering: Crumple Zone Impulse Optimization",
-    "topic": "Iterative Engineering Design: Reducing Impact Force via Deceleration Duration Extension under Physical Constraints",
-    "dok": 4,
-    "type": "Engineering Design / Lab",
+    "title": "Unit 2 Physics Vocabulary & Concept Word Search Quest <span class=\"inline-flex items-center gap-1 bg-amber-950/40 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-500/30 ml-2 animate-pulse\">📋 SUBSTITUTE PLAN</span>",
+    "topic": "Comprehensive Unit 2 Terminology & Concept Synthesis: Kinematics, Dynamics & Aerospace Review",
+    "dok": 2,
+    "type": "Review / Concept Synthesis / Digital Quest",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Execute a multi-iteration engineering design cycle optimizing vehicle crumple zone structures. (Pacing & Weather Note: Periods 0, 4, 5, and 6 conduct outdoor launch operations for Cardstock Rocket Phase 2 from the 80–100 PSI pneumatic launcher. In the event of Wednesday rain, launch operations shift to the Thursday/Friday dry weather window while teams finalize CAD blueprints and pre-flight hypotheses.)",
-    "activity": "Operation Safe Heeler Crashworthiness Engineering Challenge (DOK 4 Engineering Design): Teams receive client design constraints for an autonomous passenger pod. (Periods 0, 4, 5, 6 Project Studio): Rocket squads execute outdoor launch operations from the 80–100 PSI pneumatic pad, log flight hang-times, pinpoint touchdown coordinates on the satellite campus map, and compose their head-to-head comparative CER evaluations.",
-    "essentialQuestion": "How do automotive engineers manipulate structural deformation and material failure modes to minimize lethal deceleration forces within strict mass and space constraints?",
+    "summary": "Full-period interactive concept synthesis and vocabulary review quest across all physics classes. (Substitute Teacher Pacing Note: Instructor absent. Outdoor pneumatic rocket launches for Periods 0, 4, 5, 6 shift to the Thursday/Friday launch window. All periods complete the interactive digital Word Search Quest with 8-way vector drag selection, concept clue decoding, and automatic Google Classroom gradebook submission. Paper worksheet printing is available for classroom distribution.)",
+    "activity": "Unit 2 Physics Word Search Quest: Students log into the interactive studio with their school Google account (@orangeusd.org), select their mission (Kinematics & 1D Motion, Newton's Laws & Dynamics, or Aerospace & Safety), and locate 10 key physics terms across 8 directions. Students can toggle between standard Word Bank Mode and Detective Clue Mode to deduce concepts from definitions. Achieving 8/10 unlocks Mastery, and finding all 10 terms awards 10/10 points with an official verified certificate and automatic gradebook queue submission.",
+    "essentialQuestion": "How do precise physical definitions and mathematical relationships connect kinematics, forces, and impact momentum into a unified model of motion?",
     "standards": [
       "HS-PS2-1",
-      "HS-ETS1-2",
-      "HS-ETS1-3"
+      "HS-PS2-2"
     ],
     "wicor": {
-      "Writing": "Documenting iterative design logs, recording structural modifications and telemetry delta readouts.",
-      "Inquiry": "Testing material failure geometries (accordion pleats vs honeycomb cells) to maximize energy absorption time.",
-      "Collaboration": "Engineering design squads: CAD/structure fabricator, telemetry sensor technician, and systems budget auditor.",
-      "Organization": "Managing multi-trial data tables comparing peak impact force (N), collision duration (ms), and structural deformation (cm).",
-      "Reading": "Interpreting IIHS automotive crashworthiness ratings, accelerometer curves, and impulse area integrals."
+      "Writing": "Decoding physical definitions and matching formulas to motion concepts.",
+      "Inquiry": "Scanning 8-directional coordinate letter grids to solve conceptual physics clue puzzles.",
+      "Collaboration": "Comparing term locations and discussing clue definitions with table partners.",
+      "Organization": "Tracking completed mission progress and earning verified mastery badges.",
+      "Reading": "Reading and analyzing concept clues covering kinematics, Newton's laws, and aerospace."
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "Why are modern cars designed with front ends that crumple and collapse like an accordion in a crash, instead of being built out of indestructible solid steel?",
-      "explanation": "Crumple zones intentionally lengthen the time (Δt) it takes the passenger cabin to come to a stop. Because F<sub>impact</sub> = m · Δv / Δt, increasing stopping time by a factor of 4 reduces the lethal impact force on passengers by 75%, saving lives.",
+      "promptQuestion": "Why would bungee jumping with an inelastic steel cable instead of an elastic rubber cord be fatal, even though both cords stop your fall over the exact same vertical distance?",
+      "explanation": "An inelastic steel cable stops the jumper almost instantaneously (very tiny Δt), creating an astronomical impact force (F = m · Δv / Δt) that breaks bones. An elastic rubber cord stretches over several meters, extending the stopping time by a factor of 50 to 100, which reduces the deceleration force to survivable levels.",
       "defaultDuration": 3
     },
     "links": {
-      "Cardstock Rocket Phase 2 (Periods 0, 4, 5, 6)": "Unit_2/rocket_phase2/index.html",
-      "Operation Safe Heeler": "operation-safe-heeler.html",
-      "Safe Heeler Results": "operation_safe_heeler_results.html"
+      "Physics Word Search Quest (Interactive App)": "Unit_2/physics_word_search/index.html",
+      "Cardstock Rocket Phase 2 (CAD Reference)": "Unit_2/rocket_phase2/index.html",
+      "Operation Safe Heeler Lab": "operation-safe-heeler.html"
     },
     "assignments": [
+      {
+        "title": "Unit 2 Physics Vocabulary & Concept Word Search Quest",
+        "url": "Unit_2/physics_word_search/index.html",
+        "typeLabel": "Interactive Review Webapp",
+        "submission": "Auto-Saved on Google Sign-In (10 pts) / Turn In in Classroom",
+        "actionLabel": "Launch Word Search Quest ↗",
+        "description": "All Periods (0–6): Complete your chosen physics mission (Kinematics, Dynamics, or Aerospace), find 8–10 terms using touch/pointer drag, and submit your score for 10 points in Google Classroom.",
+        "status": "active"
+      },
       {
         "title": "Cardstock Rocket Phase 2: Controlled Variable Forensics (Periods 0, 4, 5, 6)",
         "url": "Unit_2/rocket_phase2/index.html",
         "typeLabel": "Aerospace Engineering Webapp",
         "submission": "Auto-Saved on Google Sign-In (10 pts) / Turn In in Classroom",
         "actionLabel": "Launch Phase 2 Webapp ↗",
-        "description": "Periods 0, 4, 5, 6: Launch both rockets at 80–100 PSI. Drag Red Pin (A) and Blue Pin (B) to touchdown spots, record hang times, and submit your comparative CER flight synthesis.",
+        "description": "Periods 0, 4, 5, 6: Launch operations shift to Thursday/Friday. Review Rocket A & B CAD blueprints and pre-flight hypotheses.",
         "status": "active"
-      },
-      {
-        "title": "Operation Safe Heeler Crash Engineering Portfolio",
-        "url": "operation-safe-heeler.html",
-        "typeLabel": "DOK 4 Engineering Portfolio",
-        "submission": "Cloud Auto-Saved ✓",
-        "actionLabel": "Launch Engineering Lab",
-        "description": "Design and iteratively test crumple zones under mass and depth constraints, optimizing deceleration telemetry."
       }
     ],
     "resources": [
+      {
+        "title": "Physics Word Search Studio (All Periods)",
+        "url": "Unit_2/physics_word_search/index.html",
+        "typeLabel": "Interactive Vocabulary Workbench",
+        "description": "8-direction letter grid, sound synthesizer, concept clue mode, and 1-page printable worksheet option."
+      },
       {
         "title": "Cardstock Rocket Phase 2 Studio (Periods 0, 4, 5, 6)",
         "url": "Unit_2/rocket_phase2/index.html",
         "typeLabel": "Interactive CAD & Satellite Map",
         "description": "Periods 0, 4, 5, 6: Dual 1cm × 1cm technical blueprint, variable isolation tracker, and campus touchdown coordinates."
-      },
-      {
-        "title": "Safe Heeler Telemetry & Crash Analytics Platform",
-        "url": "operation_safe_heeler_results.html",
-        "typeLabel": "Telemetry Analytics",
-        "description": "Class-wide crash test analytics, accelerometer curves, and impulse area comparisons."
       }
     ],
     "practice": [
       {
-        "title": "Rocket Phase 2 Telemetry & Blueprint (Periods 0, 4, 5, 6)",
-        "url": "Unit_2/rocket_phase2/index.html",
-        "typeLabel": "Aerospace Sandbox",
-        "description": "Periods 0, 4, 5, 6: Compare stability margins (CM vs CP) and predict flight performance delta."
-      },
-      {
-        "title": "Operation Safe Heeler Simulator",
-        "url": "operation-safe-heeler.html",
-        "typeLabel": "Engineering Sandbox",
-        "description": "Virtual crash simulator to test material deformation under varying impact speeds."
+        "title": "Physics Word Search Sandbox",
+        "url": "Unit_2/physics_word_search/index.html",
+        "typeLabel": "Vocabulary Sandbox",
+        "description": "Test your speed and concept deduction across all 3 missions."
       }
     ]
   },
