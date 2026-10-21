@@ -8,6 +8,11 @@ Append-only log tracking pattern changes across recent sessions.
 **Patterns Updated**: `student-task-engagement.md`, `assignment-registry.md`, `classroom-projection-and-high-contrast-theming.md`.
 
 **Changes**:
+- **Multi-Mission Aggregation & Live Cloud Backup**:
+  - Enforced completion of **all 3 missions** (30 words total: Kinematics, Newton's Laws, Aerospace) to earn full 10/10 points and submit final grade.
+  - Submitting before all 3 are completed is blocked with an informative breakdown modal displaying per-mission progress while preserving work in the cloud.
+  - Continuous Firestore cloud auto-save (`student_results/unit2_day38_physics_word_search/students/{studentId}`) stores and restores all 3 missions' found words, coordinates, and hint usage.
+  - Strictly limited free hints to 1 per mission with persistent lock (`💡 0 Hints Left (Used)`).
 - **Engineered Interactive Physics Word Search Application (`Unit_2/physics_word_search/index.html` & `physics-word-search/index.html`)**:
   - Purpose-built substitute assignment for Day 38 (Wednesday, Oct 21) across all physics periods (Periods 0 through 6).
   - 3 Themed Missions:
