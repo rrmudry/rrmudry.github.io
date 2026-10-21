@@ -60,6 +60,11 @@
         🔊 Sound: ON
       </button>
 
+      <!-- Fullscreen Toggle (Chromebook Recommended) -->
+      <button id="btn-toggle-fullscreen" onclick="toggleFullscreen()" class="btn btn-sm" title="Toggle Fullscreen Mode (Press F4 on Chromebook keyboards)">
+        ⛶ Fullscreen
+      </button>
+
       <!-- Print Paper Worksheet (For Sub Day & Chromebook dead batteries) -->
       <button id="btn-print-worksheet" class="btn btn-sm btn-primary" title="Print a clean 1-page paper worksheet of this word search with student name and period lines">
         🖨️ Print Worksheet
@@ -92,8 +97,13 @@
         </div>
       </div>
     </div>
-    <div style="font-size:0.78rem; font-weight:700; color:var(--accent-emerald); background:var(--badge-bg); padding:0.3rem 0.6rem; border-radius:0.4rem; border:1px solid currentColor;">
-      ✓ All 3 Missions Required (10 Pts)
+    <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+      <button type="button" class="chromebook-rec-btn" onclick="toggleFullscreen()" title="Chromebook Recommendation: Click to view full word search without scrolling">
+        💻 <strong>Chromebook:</strong> Click <strong>⛶ Fullscreen</strong> (F4 key) for best fit
+      </button>
+      <div style="font-size:0.78rem; font-weight:700; color:var(--accent-emerald); background:var(--badge-bg); padding:0.3rem 0.6rem; border-radius:0.4rem; border:1px solid currentColor;">
+        ✓ All 3 Missions Required (10 Pts)
+      </div>
     </div>
   </aside>
 
@@ -125,17 +135,12 @@
 
     <!-- Student Session & Period Bar -->
     <div class="student-bar no-print">
-      <div class="period-select-group">
-        <label for="student-period" style="font-weight:700;">Class Period:</label>
-        <select id="student-period" class="period-select">
-          <option value="0">Period 0 (Honors Physics)</option>
-          <option value="1">Period 1 (Conceptual Physics)</option>
-          <option value="2">Period 2 (Conceptual Physics)</option>
-          <option value="3">Period 3 (Conceptual Physics)</option>
-          <option value="4">Period 4 (General Physics)</option>
-          <option value="5">Period 5 (General Physics)</option>
-          <option value="6">Period 6 (General Physics)</option>
-        </select>
+      <div class="period-display-group">
+        <span style="font-weight:700; color:var(--text-muted); font-size:0.85rem;">Class Period:</span>
+        <div id="student-period-badge" class="period-badge-display" title="Automatically detected from district roster when signed in">
+          <span class="period-dot"></span>
+          <span id="period-badge-text">Sign in to auto-detect</span>
+        </div>
       </div>
 
       <!-- Cloud / Local Save Status -->

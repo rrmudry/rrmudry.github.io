@@ -52,6 +52,7 @@ let db = null;
 document.addEventListener('DOMContentLoaded', () => {
   initThemeAndFont();
   initAudioManager();
+  initFullscreenListener();
   initFirebase();
   initMissions();
   setupPointerEvents();
@@ -166,6 +167,7 @@ function initAuthListener() {
         }
 
         await resolveStudentRosterPeriod(AppState.studentId, email);
+        updatePeriodBadge();
         await loadPriorSubmission();
       } else {
         firebase.auth().signOut();
@@ -185,19 +187,35 @@ function initAuthListener() {
         `;
         document.getElementById('btn-signin')?.addEventListener('click', signInWithGoogle);
       }
+      updatePeriodBadge();
       loadLocalDraft('guest');
     }
   });
 }
 
-async function signInWithGoogle() {
-  try {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    provider.setCustomParameters({ hd: 'orangeusd.org' });
-    await firebase.auth().signInWithPopup(provider);
-  } catch (err) {
-    console.error('Sign-in error:', err);
-    alert('Sign-in failed: ' + err.message);
+function getCourseNameForPeriod(p) {
+  if (p === 0) return 'Honors Physics';
+  if (p >= 1 && p <= 3) return 'Conceptual Physics';
+  if (p >= 4 && p <= 6) return 'General Physics';
+  return 'Physics';
+}
+
+function updatePeriodBadge() {
+  const badgeText = document.getElementById('period-badge-text');
+  const badgeEl = document.getElementById('student-period-badge');
+  if (!badgeText || !badgeEl) return;
+
+  if (AppState.user && AppState.studentId) {
+    const p = AppState.classPeriod !== undefined && AppState.classPeriod !== null ? AppState.classPeriod : 1;
+    const course = getCourseNameForPeriod(p);
+    const star = p === 0 ? '⭐' : '🏫';
+    badgeText.textContent = `${star} Period ${p} (${course})`;
+    badgeEl.classList.add('detected');
+    badgeEl.title = `Authoritative period auto-detected from school roster for ID ${AppState.studentId}.`;
+  } else {
+    badgeText.textContent = 'Sign in to auto-detect';
+    badgeEl.classList.remove('detected');
+    badgeEl.title = 'Sign in with Google to automatically detect your class period from the school roster.';
   }
 }
 
@@ -214,8 +232,7 @@ async function resolveStudentRosterPeriod(studentId, email) {
       const periodVal = data.class_period !== undefined ? data.class_period : (data.period !== undefined ? data.period : null);
       if (periodVal !== null && periodVal !== undefined) {
         AppState.classPeriod = parseInt(periodVal, 10);
-        const periodSelect = document.getElementById('student-period');
-        if (periodSelect) periodSelect.value = String(AppState.classPeriod);
+        updatePeriodBadge();
       }
     }
   } catch (err) {
@@ -703,7 +720,7 @@ function showToast(message) {
 // 11. Firestore Gradebook Sync & Submission
 // -----------------------------------------------------------------------------
 function collectSubmissionData() {
-  const periodVal = parseInt(document.getElementById('student-period')?.value, 10) || AppState.classPeriod || 1;
+  const periodVal = (AppState.classPeriod !== undefined && AppState.classPeriod !== null) ? AppState.classPeriod : 1;
   const stats = getOverallProgress();
 
   const missionsPayload = {};
@@ -806,10 +823,9 @@ function loadLocalDraft(id) {
     if (!raw) return;
     const parsed = JSON.parse(raw);
 
-    if (parsed.period) {
+    if (parsed.period !== undefined && parsed.period !== null) {
       AppState.classPeriod = parsed.period;
-      const select = document.getElementById('student-period');
-      if (select) select.value = String(parsed.period);
+      updatePeriodBadge();
     }
 
     if (parsed.missions) {
@@ -856,13 +872,7 @@ function triggerAutoSave() {
 }
 
 function initAutoSave() {
-  const periodSelect = document.getElementById('student-period');
-  if (periodSelect) {
-    periodSelect.addEventListener('change', () => {
-      AppState.classPeriod = parseInt(periodSelect.value, 10);
-      triggerAutoSave();
-    });
-  }
+  updatePeriodBadge();
 }
 
 async function loadPriorSubmission() {
@@ -878,8 +888,7 @@ async function loadPriorSubmission() {
       const data = snap.data();
       if (data.period !== undefined && data.period !== null) {
         AppState.classPeriod = data.period;
-        const select = document.getElementById('student-period');
-        if (select) select.value = String(data.period);
+        updatePeriodBadge();
       }
 
       // 1. Restore all 3 missions from data.missions
@@ -1072,8 +1081,51 @@ function printBlankWorksheet() {
 }
 
 // -----------------------------------------------------------------------------
-// 13. UI Event Listeners Hookup
+// 13. UI Event Listeners Hookup & Fullscreen Control
 // -----------------------------------------------------------------------------
+function toggleFullscreen() {
+  const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+  if (!isFs) {
+    const el = document.documentElement;
+    if (el.requestFullscreen) {
+      el.requestFullscreen().catch(err => console.warn('Fullscreen error:', err));
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    } else if (el.mozRequestFullScreen) {
+      el.mozRequestFullScreen();
+    } else if (el.msRequestFullscreen) {
+      el.msRequestFullscreen();
+    }
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen().catch(err => console.warn('Exit fullscreen error:', err));
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+      document.mozCancelFullScreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    }
+  }
+}
+
+function initFullscreenListener() {
+  const updateFsBtn = () => {
+    const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+    const btn = document.getElementById('btn-toggle-fullscreen');
+    if (btn) {
+      btn.innerHTML = isFs ? '✖ Exit Fullscreen' : '⛶ Fullscreen';
+      btn.classList.toggle('active', isFs);
+      btn.title = isFs ? 'Exit Fullscreen Mode (Press Esc or F4)' : 'Toggle Fullscreen Mode (Press F4 on Chromebook keyboards)';
+    }
+  };
+
+  document.addEventListener('fullscreenchange', updateFsBtn);
+  document.addEventListener('webkitfullscreenchange', updateFsBtn);
+  document.addEventListener('mozfullscreenchange', updateFsBtn);
+  document.addEventListener('MSFullscreenChange', updateFsBtn);
+}
+
 function setupUIEventListeners() {
   document.getElementById('btn-toggle-sound')?.addEventListener('click', toggleAudio);
   document.getElementById('btn-use-hint')?.addEventListener('click', useHint);
