@@ -594,26 +594,41 @@
       auth.onAuthStateChanged(user => {
         if (user) {
           const email = (user.email || '').toLowerCase();
-          if (email === 'rmudry@orangeusd.org' || email === 'ryan.mudry@gmail.com') {
+          const authorizedAdmins = [
+            'rmudry@orangeusd.org',
+            'ryan.mudry@gmail.com',
+            'ryanmudry@gmail.com'
+          ];
+          if (authorizedAdmins.includes(email)) {
             currentUser = user;
             overlay.classList.add('hidden');
-            userChip.textContent = `👤 ${user.displayName || user.email}`;
+            userChip.innerHTML = `<span>👤 ${user.displayName || user.email}</span> <span style="font-size:0.65rem; opacity:0.6; margin-left:0.3rem;" title="Sign Out">✕</span>`;
+            userChip.style.cursor = 'pointer';
+            userChip.title = 'Click to sign out';
+            userChip.onclick = () => {
+              if (confirm('Sign out from Classroom Projector?')) {
+                auth.signOut();
+              }
+            };
             startDataListeners();
           } else {
-            authError.textContent = 'Access Denied: Teacher account required.';
+            authError.textContent = `Access Denied: ${email} is not authorized. Please sign in with rmudry@orangeusd.org.`;
             authError.style.display = 'block';
             auth.signOut();
           }
         } else {
           currentUser = null;
           overlay.classList.remove('hidden');
-          userChip.textContent = 'Not Signed In';
+          userChip.textContent = '🔒 Sign In Required';
+          userChip.style.cursor = 'default';
+          userChip.onclick = null;
         }
       });
 
       loginBtn.addEventListener('click', () => {
+        authError.style.display = 'none';
         const provider = new firebase.auth.GoogleAuthProvider();
-        provider.setCustomParameters({ hd: 'orangeusd.org' });
+        provider.setCustomParameters({ prompt: 'select_account' });
         auth.signInWithPopup(provider).catch(err => {
           authError.textContent = err.message;
           authError.style.display = 'block';
