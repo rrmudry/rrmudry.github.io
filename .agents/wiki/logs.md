@@ -3,6 +3,22 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-22 — Curriculum Progression: Day 39 Differentiated Schedule (Rocket Launch P0,4,5,6 & Catch-Up Studio P1,2,3)
+**Files Updated**: `assets/lessons-data.js`, `Unit_2/outline.md`, `unit2-dashboard.html`, `partials/footer.html`.
+
+**Changes**:
+- **Single Source of Truth (`assets/lessons-data.js`) Day 39 Alignment**:
+  - Differentiated Day 39 (`2026-10-22`) curriculum for the two distinct cohort tracks:
+    - **Periods 0, 4, 5, 6 (Physics & Honors Physics)**: **Cardstock Rocket Phase 2 Launch Operations**. Outdoor pneumatic launches at 80–100 PSI testing isolated engineering variables (mass ballast, fuselage length, fin profile, or nose cone), recording 3-timer flight telemetry (hang time, apogee altitude, ground range), and placing touchdown coordinates on the Leaflet campus recovery map (`Unit_2/rocket_phase2/index.html`).
+    - **Periods 1, 2, 3 (Conceptual Physics)**: **Unit 2 Catch-Up & Lab Revision Studio**. Dedicated in-class work session for completing, revising, and submitting the **Hot Wheels Coasting Baseline Lab** (`Unit_2/hot_wheels_coasting/index.html`) and **Hot Wheels Wind Resistance & Air Brake Lab** (`Unit_2/hot_wheels_air_resistance/index.html`), supported by dual-layer local and cloud auto-save.
+  - Formatted daily lesson card with clear track headers (`🚀 Periods 0, 4, 5, 6` and `🏎️ Periods 1, 2, 3`), distinct essential questions, structured assignments, and practice tools.
+  - Included explicit NGSS standards array: `["HS-PS2-1", "HS-ETS1-2", "HS-PS2-2"]`.
+  - Upheld all site policies: zero LaTeX syntax (plain text / Unicode formulas only), zero teacher keys exposed.
+- **Coursework Outline & Dashboard Cache Busters**:
+  - Updated `Unit_2/outline.md` Day 39 entry to document both tracks.
+  - Bumped cache buster in `unit2-dashboard.html` to `v=20261022` to ensure immediate browser hydration.
+  - Refreshed site footer deployment timestamp via `node scripts/update-timestamp.js`.
+
 ## 2026-10-21 — Curriculum Alignment: Day 31, Day 36 & Day 37 Dashboard & Outline Cleanup (`assets/lessons-data.js` & `Unit_2/outline.md`)
 **Changes**:
 - **Linked Cardstock Rocket Engineering Google Doc & Cleaned Day 31**:
