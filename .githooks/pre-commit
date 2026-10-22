@@ -6,3 +6,13 @@ node scripts/audit-firestore-rules-coverage.js --staged || {
   echo "Commit blocked by Firestore student-permission audit. See messages above."
   exit 1
 }
+
+# Block any accidental commit of private keys, service accounts, or secret JSONs
+if git diff --cached --name-only | grep -E '(adminsdk|client_secret|\.pem|\.key|private_key)' >/dev/null 2>&1; then
+  echo ""
+  echo "❌ CRITICAL SECURITY ERROR: Attempted to commit a private key or secret credentials file!"
+  echo "Blocked staged secret file(s):"
+  git diff --cached --name-only | grep -E '(adminsdk|client_secret|\.pem|\.key|private_key)'
+  exit 1
+fi
+
