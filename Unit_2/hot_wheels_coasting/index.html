@@ -772,24 +772,10 @@
           Welcome Periods 1, 2, and 3! Today we investigate why moving cars coast to a stop. Each group gets <strong>4 pieces of Hot Wheels track</strong> to create a launch ramp propped against a chair or stack of books. The cars roll down the ramp and run out across the classroom floor, where you will measure their coasting stopping distance.
         </p>
 
-        <!-- Team Identification (Class Period & Partners) -->
-        <div class="grid-2" style="margin-bottom: 1.25rem;">
-          <div>
-            <label class="label-meta">Class Period</label>
-            <select id="station-period" class="input-box font-mono" style="font-weight:700;">
-              <option value="1">Period 1 (Conceptual Physics)</option>
-              <option value="2">Period 2 (Conceptual Physics)</option>
-              <option value="3">Period 3 (Conceptual Physics)</option>
-              <option value="4">Period 4 (Physics)</option>
-              <option value="5">Period 5 (Physics)</option>
-              <option value="6">Period 6 (Physics)</option>
-              <option value="0">Period 0 (Honors)</option>
-            </select>
-          </div>
-          <div>
-            <label class="label-meta">Team Partners</label>
-            <input type="text" id="station-partners" class="input-box" placeholder="e.g. Maya, Jordan, Alex" />
-          </div>
+        <!-- Team Identification (Team Partners - Period is auto-resolved from roster) -->
+        <div style="margin-bottom: 1.25rem;">
+          <label class="label-meta">Team Partners</label>
+          <input type="text" id="station-partners" class="input-box" placeholder="e.g. Maya, Jordan, Alex" />
         </div>
 
         <!-- Apparatus Schematic SVG Diagram -->
@@ -1575,9 +1561,7 @@
           const data = snap.data();
           const periodVal = data.class_period !== undefined ? data.class_period : (data.period !== undefined ? data.period : null);
           if (periodVal !== null && periodVal !== undefined) {
-            AppState.classPeriod = periodVal;
-            const periodSelect = document.getElementById('station-period');
-            if (periodSelect) periodSelect.value = String(periodVal);
+            AppState.classPeriod = parseInt(periodVal, 10);
             const badge = document.getElementById('user-badge-period');
             if (badge) badge.textContent = `P${periodVal}`;
           }
@@ -1590,7 +1574,7 @@
     const LOCAL_STORAGE_KEY_PREFIX = 'hw_coasting_draft_';
 
     function collectFormData() {
-      const periodVal = parseInt(document.getElementById('station-period')?.value, 10) || AppState.classPeriod || 1;
+      const periodVal = AppState.classPeriod || 1;
       return {
         class_period: periodVal,
         period: periodVal,
@@ -1682,9 +1666,11 @@
       if (data.partners && document.getElementById('station-partners')) {
         document.getElementById('station-partners').value = data.partners;
       }
-      if (data.class_period !== undefined && document.getElementById('station-period')) {
-        document.getElementById('station-period').value = String(data.class_period);
-        AppState.classPeriod = parseInt(data.class_period, 10) || 1;
+      if (data.class_period !== undefined || data.period !== undefined) {
+        const p = data.class_period !== undefined ? data.class_period : data.period;
+        AppState.classPeriod = parseInt(p, 10) || 1;
+        const badge = document.getElementById('user-badge-period');
+        if (badge && p) badge.textContent = `P${p}`;
       }
       if (data.checklist) {
         if (document.getElementById('check-4-track')) document.getElementById('check-4-track').checked = !!data.checklist.track4;
@@ -2477,8 +2463,7 @@
     function updateTuesdayRetentionCard() {
       const bestDist = AppState.champion ? AppState.champion.distance : (AppState.weightTiers.t0 || '--');
       const bestCar = AppState.champion ? AppState.champion.name : 'Champion Car';
-      const periodSelect = document.getElementById('station-period');
-      const periodVal = periodSelect ? periodSelect.value : (AppState.classPeriod || 1);
+      const periodVal = AppState.classPeriod || 1;
 
       const distEl = document.getElementById('tuesday-record-dist');
       const carEl = document.getElementById('tuesday-record-car');
@@ -2730,15 +2715,6 @@
 
       // Immediately restore from local storage draft before network
       loadLocalDraft();
-
-      const periodSelect = document.getElementById('station-period');
-      if (periodSelect) {
-        periodSelect.addEventListener('change', () => {
-          AppState.classPeriod = parseInt(periodSelect.value, 10) || 1;
-          updateTuesdayRetentionCard();
-          triggerAutoSave();
-        });
-      }
 
       document.getElementById('btn-validate-grade').addEventListener('click', () => {
         playSound('click');

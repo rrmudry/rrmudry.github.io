@@ -788,24 +788,10 @@
           Welcome Periods 1, 2, and 3! Today we test how <strong>aerodynamic drag (air resistance)</strong> affects stopping distance. We attach a standard <strong>index card</strong> to the roof of your Hot Wheels car standing vertically like an air brake, and aim the car directly into a headwind fan at different speed settings!
         </p>
 
-        <!-- Team Identification (Class Period & Partners) -->
-        <div class="grid-2" style="margin-bottom: 1.25rem;">
-          <div>
-            <label class="label-meta">Class Period</label>
-            <select id="station-period" class="input-box font-mono" style="font-weight:700;">
-              <option value="1">Period 1 (Conceptual Physics)</option>
-              <option value="2">Period 2 (Conceptual Physics)</option>
-              <option value="3">Period 3 (Conceptual Physics)</option>
-              <option value="4">Period 4 (Physics)</option>
-              <option value="5">Period 5 (Physics)</option>
-              <option value="6">Period 6 (Physics)</option>
-              <option value="0">Period 0 (Honors)</option>
-            </select>
-          </div>
-          <div>
-            <label class="label-meta">Team Partners</label>
-            <input type="text" id="station-partners" class="input-box" placeholder="e.g. Marcus, Sofia, Jaylen" />
-          </div>
+        <!-- Team Identification (Team Partners - Period is auto-resolved from roster) -->
+        <div style="margin-bottom: 1.25rem;">
+          <label class="label-meta">Team Partners</label>
+          <input type="text" id="station-partners" class="input-box" placeholder="e.g. Marcus, Sofia, Jaylen" />
         </div>
 
         <!-- Day 36 Prior Baseline Banner (Auto-Loaded when student signs in) -->
@@ -1517,7 +1503,7 @@
     const LOCAL_STORAGE_KEY_PREFIX = 'hw_air_resistance_draft_';
 
     function collectFormData() {
-      const periodVal = parseInt(document.getElementById('station-period')?.value, 10) || AppState.classPeriod || 1;
+      const periodVal = AppState.classPeriod || 1;
       const carName = (document.getElementById('test-car-name') || document.getElementById('car-name'))?.value || AppState.carSpecs.carName || '';
       const cardOrient = (document.getElementById('test-card-orient') || document.getElementById('card-orientation'))?.value || AppState.carSpecs.cardOrientation || 'vertical';
       const cardSize = document.getElementById('test-card-size')?.value || 'Standard 3 x 5 in Card';
@@ -1595,10 +1581,14 @@
       if (data.partners && document.getElementById('station-partners')) {
         document.getElementById('station-partners').value = data.partners;
       }
-      if ((data.class_period !== undefined || data.period !== undefined) && document.getElementById('station-period')) {
+      if (data.class_period !== undefined || data.period !== undefined) {
         const p = data.class_period !== undefined ? data.class_period : data.period;
-        document.getElementById('station-period').value = String(p);
         AppState.classPeriod = parseInt(p, 10) || 1;
+        const periodBadge = document.getElementById('user-badge-period');
+        if (periodBadge && p) {
+          periodBadge.textContent = `P${p}`;
+          periodBadge.style.display = 'inline-block';
+        }
       }
       if (data.checklist) {
         if (document.getElementById('check-air-brake')) document.getElementById('check-air-brake').checked = !!data.checklist.airBrake;
@@ -1717,9 +1707,12 @@
           const data = snap.data();
           const periodVal = data.class_period !== undefined ? data.class_period : (data.period !== undefined ? data.period : null);
           if (periodVal !== null && periodVal !== undefined) {
-            AppState.classPeriod = periodVal;
-            const periodSelect = document.getElementById('station-period');
-            if (periodSelect) periodSelect.value = String(periodVal);
+            AppState.classPeriod = parseInt(periodVal, 10);
+            const periodBadge = document.getElementById('user-badge-period');
+            if (periodBadge) {
+              periodBadge.textContent = `P${periodVal}`;
+              periodBadge.style.display = 'inline-block';
+            }
           }
         }
       } catch (err) {
@@ -1785,6 +1778,7 @@
                 <div style="display:flex; align-items:center; gap:0.5rem;">
                   <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--green);"></span>
                   <span><strong>${AppState.studentName}</strong> (${AppState.studentId})</span>
+                  <span id="user-badge-period" class="badge font-mono" style="display:none; background:rgba(249,115,22,0.2); color:var(--orange); border:1px solid rgba(249,115,22,0.4); font-size:0.75rem; padding:0.15rem 0.45rem; border-radius:0.4rem; font-weight:800;">P?</span>
                   <button type="button" id="btn-signout" class="btn btn-secondary btn-sm" style="padding:0.2rem 0.5rem; font-size:0.75rem;">Sign Out</button>
                 </div>
               `;
@@ -2752,14 +2746,6 @@
 
       // Immediately restore from local storage draft before network
       loadLocalDraft();
-
-      const periodSelect = document.getElementById('station-period');
-      if (periodSelect) {
-        periodSelect.addEventListener('change', () => {
-          AppState.classPeriod = parseInt(periodSelect.value, 10) || 1;
-          triggerAutoSave();
-        });
-      }
 
       document.getElementById('btn-validate-grade').addEventListener('click', () => {
         playSound('click');
