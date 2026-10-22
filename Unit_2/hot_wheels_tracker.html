@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🏎️ Hot Wheels Labs: Live Progress Tracker</title>
+  <title>🏎️ Hot Wheels Classroom Progress Board</title>
   <!-- firestore-audit: teacher-only -->
-  <link rel="icon" type="image/png" href="../../head.png">
+  <link rel="icon" type="image/png" href="../head.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800;900&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
   
   <!-- Firebase SDKs (Official gstatic CDN) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -17,421 +17,395 @@
 
   <style>
     :root {
-      --bg: #090d16;
-      --bg-card: rgba(17, 24, 39, 0.75);
+      --bg: #030712;
+      --card-bg: rgba(17, 24, 39, 0.78);
       --border: rgba(255, 255, 255, 0.08);
       --text: #f8fafc;
       --text-muted: #94a3b8;
       --text-dim: #64748b;
       --accent: #f97316;
-      --accent-cyan: #0284c7;
-      --green: #10b981;
+      --accent-cyan: #38bdf8;
+      --green: #22c55e;
       --amber: #f59e0b;
       --red: #ef4444;
       --font-main: 'Outfit', system-ui, sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
-      --card-radius: 1rem;
     }
 
     html.theme-light {
-      --bg: #f8fafc;
-      --bg-card: rgba(255, 255, 255, 0.95);
-      --border: rgba(15, 23, 42, 0.12);
+      --bg: #f1f5f9;
+      --card-bg: #ffffff;
+      --border: rgba(15, 23, 42, 0.14);
       --text: #0f172a;
       --text-muted: #334155;
       --text-dim: #64748b;
       --accent: #ea580c;
-      --accent-cyan: #0369a1;
-      --green: #059669;
+      --accent-cyan: #0284c7;
+      --green: #16a34a;
       --amber: #d97706;
       --red: #dc2626;
     }
 
-    /* Universal Root Font Scaling (Projector Mode) */
-    html { font-size: 16px; }
-    html.scale-large { font-size: 19px; }
-    html.scale-projector { font-size: 23px; }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
+    /* HARD NO-SCROLL LAYOUT: EXACT 100VH FIT */
+    html, body {
+      width: 100%;
+      height: 100vh;
+      max-height: 100vh;
+      overflow: hidden;
       background: var(--bg);
       color: var(--text);
       font-family: var(--font-main);
-      min-height: 100vh;
+      user-select: none;
+    }
+
+    .app-viewport {
+      width: 100%;
+      height: 100vh;
       display: flex;
       flex-direction: column;
-      transition: background 0.3s ease, color 0.3s ease;
-      overflow-x: hidden;
+      padding: 0.65rem 1rem 0.5rem;
+      gap: 0.5rem;
     }
 
-    /* Ambient dynamic glow */
-    body::before {
-      content: '';
-      position: fixed;
-      top: -20%;
-      left: 20%;
-      width: 60vw;
-      height: 50vh;
-      background: radial-gradient(circle, rgba(249, 115, 22, 0.09) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      background: rgba(9, 13, 22, 0.85);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border);
-      padding: 0.75rem 1.5rem;
-    }
-    html.theme-light header {
-      background: rgba(248, 250, 252, 0.92);
-    }
-
-    .header-inner {
-      max-width: 1600px;
-      margin: 0 auto;
+    /* TOP BAR: Ultra Compact Header */
+    .top-bar {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      gap: 1rem;
-      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-shrink: 0;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
     }
 
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
     .brand-title {
-      font-size: 1.35rem;
+      font-size: 1.15rem;
       font-weight: 900;
       letter-spacing: -0.02em;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
+      white-space: nowrap;
     }
-
-    .brand-title span.badge-live {
-      font-size: 0.68rem;
-      background: rgba(16, 185, 129, 0.18);
+    .badge-live {
+      font-size: 0.62rem;
+      font-weight: 800;
+      background: rgba(34, 197, 94, 0.18);
       color: var(--green);
-      border: 1px solid rgba(16, 185, 129, 0.35);
-      padding: 0.15rem 0.5rem;
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      padding: 0.15rem 0.45rem;
       border-radius: 9999px;
-      font-weight: 800;
+      text-transform: uppercase;
       letter-spacing: 0.05em;
-      text-transform: uppercase;
-      animation: pulse 2s infinite;
+      animation: pulse-badge 2s infinite;
     }
-
-    @keyframes pulse {
+    @keyframes pulse-badge {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.75; transform: scale(0.97); }
-    }
-
-    .controls-cluster {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      font-family: var(--font-main);
-      font-weight: 700;
-      font-size: 0.82rem;
-      padding: 0.45rem 0.85rem;
-      border-radius: 0.55rem;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.06);
-      color: var(--text);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      transition: all 0.2s ease;
-      text-decoration: none;
-    }
-    .btn:hover {
-      background: rgba(255, 255, 255, 0.12);
-      border-color: var(--text-muted);
-    }
-    .btn.active {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-      box-shadow: 0 0 15px rgba(249, 115, 22, 0.4);
-    }
-
-    main {
-      flex: 1;
-      max-width: 1600px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 1.25rem 1.5rem 3rem;
-      position: relative;
-      z-index: 1;
-    }
-
-    /* KPI Summary Row */
-    .kpi-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 0.85rem;
-      margin-bottom: 1.25rem;
-    }
-
-    .kpi-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--card-radius);
-      padding: 0.85rem 1.15rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    }
-    .kpi-title {
-      font-size: 0.72rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-dim);
-    }
-    .kpi-num {
-      font-family: var(--font-mono);
-      font-size: 1.8rem;
-      font-weight: 800;
-      line-height: 1.1;
-      color: var(--text);
-    }
-    .kpi-sub {
-      font-size: 0.72rem;
-      color: var(--text-muted);
+      50% { opacity: 0.7; transform: scale(0.97); }
     }
 
     /* Period Filter Pills */
-    .period-tabs {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1.25rem;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .period-tab-btn {
-      padding: 0.45rem 1.1rem;
-      border-radius: 9999px;
-      font-weight: 800;
-      font-size: 0.85rem;
-      cursor: pointer;
-      border: 1.5px solid var(--border);
-      background: var(--bg-card);
-      color: var(--text-muted);
-      transition: all 0.2s ease;
-    }
-    .period-tab-btn:hover {
-      color: var(--text);
-      border-color: var(--text-muted);
-    }
-    .period-tab-btn.active {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-      box-shadow: 0 0 16px rgba(249, 115, 22, 0.35);
-    }
-
-    /* Student Grid */
-    .students-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 1rem;
-    }
-
-    .student-card {
-      background: var(--bg-card);
-      border: 1.5px solid var(--border);
-      border-radius: var(--card-radius);
-      padding: 1.1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      transition: all 0.25s ease;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
-    }
-    .student-card:hover {
-      border-color: rgba(255, 255, 255, 0.2);
-      transform: translateY(-2px);
-    }
-
-    /* Status accent bar on top of card */
-    .student-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: var(--red);
-    }
-    .student-card.status-complete::before {
-      background: var(--green);
-    }
-    .student-card.status-partial::before {
-      background: var(--amber);
-    }
-    .student-card.status-both-complete::before {
-      background: linear-gradient(9deg, var(--green), #38bdf8);
-    }
-
-    .card-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 0.5rem;
-    }
-    .student-name {
-      font-size: 1.05rem;
-      font-weight: 800;
-      color: var(--text);
-      letter-spacing: -0.01em;
-      line-height: 1.2;
-    }
-    .student-meta {
-      font-size: 0.72rem;
-      color: var(--text-dim);
-      font-family: var(--font-mono);
-      margin-top: 0.15rem;
-    }
-
-    .period-badge {
-      font-family: var(--font-mono);
-      font-weight: 800;
-      font-size: 0.72rem;
-      padding: 0.2rem 0.5rem;
-      border-radius: 0.4rem;
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text-muted);
-      border: 1px solid var(--border);
-      white-space: nowrap;
-    }
-
-    /* Activity Rows Inside Card */
-    .activity-row {
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid var(--border);
-      border-radius: 0.65rem;
-      padding: 0.65rem 0.75rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-    html.theme-light .activity-row {
-      background: rgba(15, 23, 42, 0.03);
-    }
-
-    .activity-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.75rem;
-    }
-    .activity-name {
-      font-weight: 800;
+    .period-cluster {
       display: flex;
       align-items: center;
       gap: 0.35rem;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 0.2rem 0.35rem;
+      border-radius: 9999px;
+      border: 1px solid var(--border);
+    }
+    html.theme-light .period-cluster {
+      background: rgba(0, 0, 0, 0.04);
+    }
+    .period-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-main);
+      font-weight: 800;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .period-btn:hover {
       color: var(--text);
     }
-    .activity-status-pill {
-      font-family: var(--font-mono);
-      font-size: 0.68rem;
-      font-weight: 800;
-      padding: 0.15rem 0.45rem;
-      border-radius: 0.35rem;
-      letter-spacing: 0.03em;
-    }
-    .pill-complete {
-      background: rgba(16, 185, 129, 0.18);
-      color: var(--green);
-      border: 1px solid rgba(16, 185, 129, 0.35);
-    }
-    .pill-partial {
-      background: rgba(245, 158, 11, 0.18);
-      color: var(--amber);
-      border: 1px solid rgba(245, 158, 11, 0.35);
-    }
-    .pill-missing {
-      background: rgba(239, 68, 68, 0.15);
-      color: var(--red);
-      border: 1px solid rgba(239, 68, 68, 0.3);
+    .period-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(249, 115, 22, 0.45);
     }
 
-    /* Fan Tiers Progress Bar (4 blocks: Off, Low, Med, High) */
-    .fan-tier-blocks {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.3rem;
-      margin-top: 0.2rem;
+    /* KPI Summary Strip */
+    .kpi-strip {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
-    .tier-block {
-      padding: 0.25rem 0.2rem;
-      text-align: center;
-      font-size: 0.62rem;
-      font-weight: 800;
-      border-radius: 0.35rem;
-      font-family: var(--font-mono);
-      background: rgba(255, 255, 255, 0.04);
+    .kpi-pill {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 0.25rem 0.65rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+    }
+    .kpi-pill .k-label {
       color: var(--text-dim);
-      border: 1px dashed var(--border);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.65rem;
     }
-    .tier-block.done {
-      background: rgba(16, 185, 129, 0.2);
-      color: var(--green);
-      border: 1px solid rgba(16, 185, 129, 0.4);
+    .kpi-pill .k-val {
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 0.95rem;
     }
 
-    .partners-tag {
-      font-size: 0.7rem;
-      color: var(--text-muted);
+    /* Right Controls */
+    .right-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .ctrl-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--font-main);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 0.45rem;
+      cursor: pointer;
       display: flex;
       align-items: center;
       gap: 0.3rem;
+      transition: all 0.15s ease;
+    }
+    .ctrl-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--text-muted);
+    }
+
+    /* MAIN TILES GRID: CSS GRID AUTO-FIT IN REMAINING HEIGHT */
+    .board-container {
+      flex: 1;
+      width: 100%;
+      min-height: 0; /* Critical for flex child containing CSS grid */
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      grid-auto-rows: 1fr; /* Equal height rows filling viewport */
+      gap: 0.5rem;
+    }
+
+    /* Adaptive columns for Period 1 & 2 (~18-20 students) */
+    @media (min-width: 1100px) {
+      .board-container {
+        grid-template-columns: repeat(5, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+      }
+    }
+    @media (min-width: 1450px) {
+      .board-container {
+        grid-template-columns: repeat(6, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+      }
+    }
+
+    /* STUDENT TILE */
+    .tile {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 0.65rem;
+      padding: 0.45rem 0.65rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.3rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+      transition: border-color 0.2s ease, transform 0.15s ease;
+    }
+    .tile:hover {
+      transform: scale(1.02);
+      z-index: 5;
+    }
+
+    /* Left Status Accent Bar */
+    .tile::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--red);
+    }
+    .tile.status-complete::before {
+      background: var(--green);
+    }
+    .tile.status-partial::before {
+      background: var(--amber);
+    }
+    .tile.status-both-complete::before {
+      background: linear-gradient(180deg, var(--green), var(--accent-cyan));
+    }
+
+    /* Tile Header: Name & ID */
+    .tile-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.3rem;
+      padding-left: 0.2rem;
+    }
+    .s-name {
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: var(--text);
+      line-height: 1.15;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-
-    /* Empty state */
-    .empty-state {
-      text-align: center;
-      padding: 4rem 2rem;
+    .s-id {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
       color: var(--text-dim);
       font-weight: 600;
-      grid-column: 1 / -1;
+      flex-shrink: 0;
     }
 
-    /* Modal / Auth layer */
+    /* Activity Rows */
+    .tile-activity {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 0.4rem;
+      padding: 0.25rem 0.4rem;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    html.theme-light .tile-activity {
+      background: rgba(0, 0, 0, 0.03);
+    }
+
+    .act-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.68rem;
+    }
+    .act-name {
+      font-weight: 800;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .act-pill {
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 0.6rem;
+      padding: 0.08rem 0.35rem;
+      border-radius: 0.3rem;
+      text-transform: uppercase;
+    }
+    .pill-done {
+      background: rgba(34, 197, 94, 0.2);
+      color: var(--green);
+      border: 1px solid rgba(34, 197, 94, 0.45);
+    }
+    .pill-prog {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--amber);
+      border: 1px solid rgba(245, 158, 11, 0.45);
+    }
+    .pill-none {
+      background: rgba(239, 68, 68, 0.18);
+      color: var(--red);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+
+    /* 4-Block Fan Speed Grid (OFF, 1, 2, 3) */
+    .fan-blocks {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.2rem;
+      margin-top: 0.1rem;
+    }
+    .fan-block {
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      font-weight: 800;
+      padding: 0.12rem 0;
+      border-radius: 0.25rem;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-dim);
+      border: 1px dashed var(--border);
+    }
+    .fan-block.done {
+      background: rgba(34, 197, 94, 0.22);
+      color: var(--green);
+      border: 1px solid rgba(34, 197, 94, 0.45);
+    }
+
+    .tile-partner {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: -0.1rem;
+    }
+
+    /* Auth Overlay */
     #auth-overlay {
       position: fixed;
       inset: 0;
       z-index: 1000;
-      background: rgba(3, 7, 18, 0.92);
-      backdrop-filter: blur(20px);
+      background: rgba(3, 7, 18, 0.94);
+      backdrop-filter: blur(25px);
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 1.5rem;
     }
     .auth-box {
-      background: var(--bg-card);
+      background: var(--card-bg);
       border: 1.5px solid var(--accent);
-      border-radius: 1.5rem;
-      padding: 2.5rem;
-      max-width: 480px;
+      border-radius: 1.25rem;
+      padding: 2.2rem;
+      max-width: 440px;
       width: 100%;
       text-align: center;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+    }
+    .auth-btn {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      font-family: var(--font-main);
+      font-weight: 800;
+      font-size: 0.95rem;
+      padding: 0.75rem 1rem;
+      border-radius: 0.65rem;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+      margin-top: 1rem;
     }
 
     .hidden { display: none !important; }
@@ -439,99 +413,88 @@
 </head>
 <body>
 
-  <!-- Teacher Auth Overlay -->
+  <!-- Teacher Auth Layer -->
   <div id="auth-overlay">
     <div class="auth-box">
-      <div style="font-size: 3rem; margin-bottom: 0.5rem;">🏎️💨</div>
-      <h2 style="font-size: 1.4rem; font-weight: 900; margin-bottom: 0.5rem; text-transform: uppercase;">
+      <div style="font-size: 2.7rem; margin-bottom: 0.5rem;">🏎️💨</div>
+      <h2 style="font-size: 1.3rem; font-weight: 900; margin-bottom: 0.4rem; text-transform: uppercase;">
         Classroom Live Projector
       </h2>
-      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">
-        Sign in with your district teacher account (<code style="color:var(--accent);">rmudry@orangeusd.org</code>) to stream live student progress to the projector.
+      <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+        Sign in with your teacher Google account (<code style="color:var(--accent);">rmudry@orangeusd.org</code>) to stream the no-scroll progress board.
       </p>
-      <button id="btn-login" class="btn active" style="width: 100%; justify-content: center; padding: 0.75rem 1rem; font-size: 0.95rem;">
-        🔑 Sign In with Google (@orangeusd.org)
+      <button id="btn-login" class="auth-btn">
+        🔑 Sign In with Google
       </button>
-      <p id="auth-error" style="color: var(--red); font-size: 0.75rem; font-weight: 700; margin-top: 1rem; display: none;"></p>
+      <p id="auth-error" style="color: var(--red); font-size: 0.72rem; font-weight: 700; margin-top: 0.75rem; display: none;"></p>
     </div>
   </div>
 
-  <header>
-    <div class="header-inner">
-      <div class="brand-title">
-        <span>🏎️ Hot Wheels Progress Tracker</span>
+  <div class="app-viewport">
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <div class="brand-wrap">
+        <span class="brand-title">🏎️ Hot Wheels Live Board</span>
         <span class="badge-live">● Live Stream</span>
       </div>
 
-      <div class="controls-cluster">
-        <!-- Scale Switcher (Normal / Large / Projector) -->
-        <button id="btn-scale-toggle" class="btn" title="Toggle Font Scaling for Classroom Projector">
-          🖥️ <span id="scale-label">Projector Mode</span>
-        </button>
-        <!-- High-Contrast Theme Toggle -->
-        <button id="btn-theme-toggle" class="btn" title="Toggle High-Contrast Light / Dark Mode">
+      <!-- Class Period Tabs -->
+      <div class="period-cluster">
+        <button class="period-btn" data-period="1">P1</button>
+        <button class="period-btn active" data-period="2">P2</button>
+        <button class="period-btn" data-period="3">P3</button>
+        <button class="period-btn" data-period="4">P4</button>
+        <button class="period-btn" data-period="5">P5</button>
+        <button class="period-btn" data-period="6">P6</button>
+        <button class="period-btn" data-period="0">P0</button>
+        <button class="period-btn" data-period="all">All</button>
+      </div>
+
+      <!-- KPI Summary Strip -->
+      <div class="kpi-strip">
+        <div class="kpi-pill">
+          <span class="k-label">Period Count</span>
+          <span id="kpi-total" class="k-val">0</span>
+        </div>
+        <div class="kpi-pill">
+          <span class="k-label">💨 Air Done</span>
+          <span id="kpi-air-done" class="k-val" style="color:var(--green);">0</span>
+        </div>
+        <div class="kpi-pill">
+          <span class="k-label">⏳ Air In-Prog</span>
+          <span id="kpi-air-partial" class="k-val" style="color:var(--amber);">0</span>
+        </div>
+        <div class="kpi-pill">
+          <span class="k-label">❌ Air Missing</span>
+          <span id="kpi-air-missing" class="k-val" style="color:var(--red);">0</span>
+        </div>
+        <div class="kpi-pill">
+          <span class="k-label">🏎️ Coast Done</span>
+          <span id="kpi-coast-done" class="k-val" style="color:var(--accent-cyan);">0</span>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="right-controls">
+        <button id="btn-theme-toggle" class="ctrl-btn" title="Toggle Light/Dark Theme">
           ☀️ Theme
         </button>
-        <!-- Manual Refresh -->
-        <button id="btn-refresh" class="btn" title="Force Refresh">
-          🔄 Refresh
+        <button id="btn-refresh" class="ctrl-btn" title="Force Refresh">
+          🔄 Sync
         </button>
-        <!-- Auth Profile Badge -->
-        <div id="user-chip" class="btn" style="cursor: default; opacity: 0.85;">
+        <div id="user-chip" class="ctrl-btn" style="cursor: pointer; opacity: 0.9;" title="Click to Sign Out">
           Teacher
         </div>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <main>
-    <!-- Period Tabs -->
-    <div class="period-tabs">
-      <span style="font-size: 0.75rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; margin-right: 0.4rem;">Class Period:</span>
-      <button class="period-tab-btn" data-period="all">All Periods</button>
-      <button class="period-tab-btn" data-period="1">Period 1</button>
-      <button class="period-tab-btn active" data-period="2">Period 2</button>
-      <button class="period-tab-btn" data-period="3">Period 3</button>
-      <button class="period-tab-btn" data-period="4">Period 4</button>
-      <button class="period-tab-btn" data-period="5">Period 5</button>
-      <button class="period-tab-btn" data-period="6">Period 6</button>
-      <button class="period-tab-btn" data-period="0">Period 0 (Honors)</button>
-    </div>
-
-    <!-- Live KPI Summary -->
-    <div class="kpi-row">
-      <div class="kpi-card">
-        <span class="kpi-title">Students in Period</span>
-        <span id="kpi-total" class="kpi-num">0</span>
-        <span class="kpi-sub">Enrolled roster</span>
+    <!-- Main Grid: Fills exactly 100vh with Zero Scroll -->
+    <main id="board-container" class="board-container">
+      <div style="grid-column: 1 / -1; display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-weight:700;">
+        Loading live classroom progress board...
       </div>
-      <div class="kpi-card">
-        <span class="kpi-title">Air Brake Complete</span>
-        <span id="kpi-air-done" class="kpi-num" style="color: var(--green);">0</span>
-        <span class="kpi-sub">4/4 Fan speeds tested</span>
-      </div>
-      <div class="kpi-card">
-        <span class="kpi-title">Air Brake In-Progress</span>
-        <span id="kpi-air-partial" class="kpi-num" style="color: var(--amber);">0</span>
-        <span class="kpi-sub">Trials underway</span>
-      </div>
-      <div class="kpi-card">
-        <span class="kpi-title">Air Brake Missing</span>
-        <span id="kpi-air-missing" class="kpi-num" style="color: var(--red);">0</span>
-        <span class="kpi-sub">Need data collection</span>
-      </div>
-      <div class="kpi-card">
-        <span class="kpi-title">Coasting Baseline Done</span>
-        <span id="kpi-coast-done" class="kpi-num" style="color: var(--accent-cyan);">0</span>
-        <span class="kpi-sub">Day 36 lab submitted</span>
-      </div>
-    </div>
-
-    <!-- Student Cards Grid -->
-    <div id="students-grid" class="students-grid">
-      <div class="empty-state">Loading student roster and live submissions...</div>
-    </div>
-  </main>
+    </main>
+  </div>
 
   <script>
     const FIREBASE_CONFIG = {
@@ -547,7 +510,6 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // State
     let currentUser = null;
     let fullRoster = [];
     let coastingSubmissions = new Map();
@@ -555,35 +517,19 @@
     let selectedPeriod = '2'; // Default to Period 2
 
     // -------------------------------------------------------------------------
-    // Theming & Projector Mode
+    // Theme Switcher
     // -------------------------------------------------------------------------
-    function initDisplayControls() {
-      const themeBtn = document.getElementById('btn-theme-toggle');
-      const scaleBtn = document.getElementById('btn-scale-toggle');
-      const scaleLabel = document.getElementById('scale-label');
-
-      // Theme toggle
-      const savedTheme = localStorage.getItem('hw_dashboard_theme') || 'dark';
-      if (savedTheme === 'light') document.documentElement.classList.add('theme-light');
-      themeBtn.addEventListener('click', () => {
+    function initTheme() {
+      const saved = localStorage.getItem('hw_board_theme') || 'dark';
+      if (saved === 'light') document.documentElement.classList.add('theme-light');
+      document.getElementById('btn-theme-toggle').addEventListener('click', () => {
         const isLight = document.documentElement.classList.toggle('theme-light');
-        localStorage.setItem('hw_dashboard_theme', isLight ? 'light' : 'dark');
-      });
-
-      // Scale toggle (Normal -> Large -> Projector -> Normal)
-      const scaleModes = ['normal', 'scale-large', 'scale-projector'];
-      let currentScaleIdx = 0;
-      scaleBtn.addEventListener('click', () => {
-        document.documentElement.classList.remove('scale-large', 'scale-projector');
-        currentScaleIdx = (currentScaleIdx + 1) % scaleModes.length;
-        const nextMode = scaleModes[currentScaleIdx];
-        if (nextMode !== 'normal') document.documentElement.classList.add(nextMode);
-        scaleLabel.textContent = nextMode === 'scale-projector' ? '🖥️ Projector (23px)' : (nextMode === 'scale-large' ? '🔍 Large (19px)' : 'Normal (16px)');
+        localStorage.setItem('hw_board_theme', isLight ? 'light' : 'dark');
       });
     }
 
     // -------------------------------------------------------------------------
-    // Authentication
+    // Google Auth Shield
     // -------------------------------------------------------------------------
     function initAuth() {
       const overlay = document.getElementById('auth-overlay');
@@ -594,33 +540,24 @@
       auth.onAuthStateChanged(user => {
         if (user) {
           const email = (user.email || '').toLowerCase();
-          const authorizedAdmins = [
-            'rmudry@orangeusd.org',
-            'ryan.mudry@gmail.com',
-            'ryanmudry@gmail.com'
-          ];
-          if (authorizedAdmins.includes(email)) {
+          const admins = ['rmudry@orangeusd.org', 'ryan.mudry@gmail.com', 'ryanmudry@gmail.com'];
+          if (admins.includes(email)) {
             currentUser = user;
             overlay.classList.add('hidden');
-            userChip.innerHTML = `<span>👤 ${user.displayName || user.email}</span> <span style="font-size:0.65rem; opacity:0.6; margin-left:0.3rem;" title="Sign Out">✕</span>`;
-            userChip.style.cursor = 'pointer';
-            userChip.title = 'Click to sign out';
+            userChip.innerHTML = `<span>👤 ${user.displayName || email}</span> <span style="font-size:0.6rem; opacity:0.6; margin-left:0.2rem;">✕</span>`;
             userChip.onclick = () => {
-              if (confirm('Sign out from Classroom Projector?')) {
-                auth.signOut();
-              }
+              if (confirm('Sign out from Classroom Board?')) auth.signOut();
             };
             startDataListeners();
           } else {
-            authError.textContent = `Access Denied: ${email} is not authorized. Please sign in with rmudry@orangeusd.org.`;
+            authError.textContent = `Access Denied: ${email} is not authorized. Please use rmudry@orangeusd.org.`;
             authError.style.display = 'block';
             auth.signOut();
           }
         } else {
           currentUser = null;
           overlay.classList.remove('hidden');
-          userChip.textContent = '🔒 Sign In Required';
-          userChip.style.cursor = 'default';
+          userChip.textContent = '🔒 Sign In';
           userChip.onclick = null;
         }
       });
@@ -637,75 +574,67 @@
     }
 
     // -------------------------------------------------------------------------
-    // Real-Time Firestore Listeners
+    // Firestore Listeners
     // -------------------------------------------------------------------------
     function startDataListeners() {
-      // 1. Roster Listener
+      // 1. Roster
       db.collection('roster').onSnapshot(snap => {
         fullRoster = [];
         snap.forEach(doc => {
           const d = doc.data();
-          const period = d.class_period !== undefined ? d.class_period : d.period;
+          const p = d.class_period !== undefined ? d.class_period : d.period;
           fullRoster.push({
             id: doc.id.toLowerCase(),
             name: d.full_name || d.name || `${d.first_name || ''} ${d.last_name || ''}`.trim() || doc.id,
-            period: period !== undefined && period !== null ? String(period) : 'Unknown'
+            period: p !== undefined && p !== null ? String(p) : 'Unknown'
           });
         });
-        renderDashboard();
-      }, err => console.error('Roster listener error:', err));
+        renderBoard();
+      });
 
-      // 2. Day 36 Coasting Baseline Listener
+      // 2. Day 36 Coasting Baseline
       db.collection('student_results')
         .doc('unit2_day36_hot_wheels_coasting')
         .collection('students')
         .onSnapshot(snap => {
           coastingSubmissions.clear();
-          snap.forEach(doc => {
-            coastingSubmissions.set(doc.id.toLowerCase(), doc.data());
-          });
-          renderDashboard();
-        }, err => console.error('Coasting listener error:', err));
+          snap.forEach(doc => coastingSubmissions.set(doc.id.toLowerCase(), doc.data()));
+          renderBoard();
+        });
 
-      // 3. Day 37 Air Resistance Listener
+      // 3. Day 37 Air Resistance
       db.collection('student_results')
         .doc('unit2_day37_hot_wheels_air_resistance')
         .collection('students')
         .onSnapshot(snap => {
           airSubmissions.clear();
-          snap.forEach(doc => {
-            airSubmissions.set(doc.id.toLowerCase(), doc.data());
-          });
-          renderDashboard();
-        }, err => console.error('Air Resistance listener error:', err));
+          snap.forEach(doc => airSubmissions.set(doc.id.toLowerCase(), doc.data()));
+          renderBoard();
+        });
     }
 
     // -------------------------------------------------------------------------
-    // Render Functions
+    // Dynamic Board Render (Zero Scroll)
     // -------------------------------------------------------------------------
-    function renderDashboard() {
-      const grid = document.getElementById('students-grid');
+    function renderBoard() {
+      const board = document.getElementById('board-container');
 
-      // Filter roster by period
       let filtered = fullRoster;
       if (selectedPeriod !== 'all') {
         filtered = fullRoster.filter(s => s.period === selectedPeriod);
       }
-
-      // Sort alphabetically by student name
       filtered.sort((a, b) => a.name.localeCompare(b.name));
 
-      // Calculate KPIs
       let airDoneCount = 0;
       let airPartialCount = 0;
       let airMissingCount = 0;
       let coastDoneCount = 0;
 
-      const cardHtmlList = filtered.map(student => {
+      const tileHtmlList = filtered.map(student => {
         const coastData = coastingSubmissions.get(student.id);
         const airData = airSubmissions.get(student.id);
 
-        // Coasting Status Evaluation
+        // Coasting Status
         let coastDone = false;
         let coastScore = 0;
         let coastPartners = '';
@@ -716,13 +645,11 @@
           let carCount = 0;
           ['car1', 'car2', 'car3'].forEach(c => { if (cars[c]?.avg) carCount++; });
           const hasWeights = coastData.weight_data && (coastData.weight_data.t0 || coastData.weight_data.t2);
-          if (carCount >= 3 || hasWeights || coastScore >= 7) {
-            coastDone = true;
-          }
+          if (carCount >= 3 || hasWeights || coastScore >= 7) coastDone = true;
         }
         if (coastDone) coastDoneCount++;
 
-        // Air Resistance Status Evaluation
+        // Air Resistance Status
         let airTiersDone = { fan0: false, fan1: false, fan2: false, fan3: false };
         let tiersCount = 0;
         let airScore = 0;
@@ -751,54 +678,47 @@
           airMissingCount++;
         }
 
-        // Card Border State
-        let cardStateClass = 'status-missing';
-        if (airStatus === 'complete' && coastDone) {
-          cardStateClass = 'status-both-complete';
-        } else if (airStatus === 'complete') {
-          cardStateClass = 'status-complete';
-        } else if (airStatus === 'partial') {
-          cardStateClass = 'status-partial';
-        }
+        let statusClass = 'status-missing';
+        if (airStatus === 'complete' && coastDone) statusClass = 'status-both-complete';
+        else if (airStatus === 'complete') statusClass = 'status-complete';
+        else if (airStatus === 'partial') statusClass = 'status-partial';
 
         return `
-          <div class="student-card ${cardStateClass}">
-            <div class="card-head">
-              <div>
-                <div class="student-name">${student.name}</div>
-                <div class="student-meta">ID: ${student.id}</div>
-              </div>
-              <span class="period-badge">P${student.period}</span>
+          <div class="tile ${statusClass}">
+            <div class="tile-header">
+              <span class="s-name" title="${student.name}">${student.name}</span>
+              <span class="s-id">${student.id}</span>
             </div>
 
-            <!-- Activity 1: Air Brake Lab -->
-            <div class="activity-row">
-              <div class="activity-header">
-                <span class="activity-name">💨 Air Brake (Day 37)</span>
-                <span class="activity-status-pill ${airStatus === 'complete' ? 'pill-complete' : (airStatus === 'partial' ? 'pill-partial' : 'pill-missing')}">
-                  ${airStatus === 'complete' ? '✅ DATA READY' : (airStatus === 'partial' ? `⏳ IN PROGRESS (${tiersCount}/4)` : '❌ NEED DATA')}
+            <!-- Activity 1: Air Brake (Day 37) -->
+            <div class="tile-activity">
+              <div class="act-top">
+                <span class="act-name">💨 Air Brake</span>
+                <span class="act-pill ${airStatus === 'complete' ? 'pill-done' : (airStatus === 'partial' ? 'pill-prog' : 'pill-none')}">
+                  ${airStatus === 'complete' ? 'READY' : (airStatus === 'partial' ? `${tiersCount}/4` : 'MISSING')}
                 </span>
               </div>
-              
-              <div class="fan-tier-blocks">
-                <div class="tier-block ${airTiersDone.fan0 ? 'done' : ''}">OFF ${airTiersDone.fan0 ? '✓' : ''}</div>
-                <div class="tier-block ${airTiersDone.fan1 ? 'done' : ''}">LOW ${airTiersDone.fan1 ? '✓' : ''}</div>
-                <div class="tier-block ${airTiersDone.fan2 ? 'done' : ''}">MED ${airTiersDone.fan2 ? '✓' : ''}</div>
-                <div class="tier-block ${airTiersDone.fan3 ? 'done' : ''}">HIGH ${airTiersDone.fan3 ? '✓' : ''}</div>
+              <div class="fan-blocks">
+                <div class="fan-block ${airTiersDone.fan0 ? 'done' : ''}">OFF${airTiersDone.fan0 ? '✓' : ''}</div>
+                <div class="fan-block ${airTiersDone.fan1 ? 'done' : ''}">L1${airTiersDone.fan1 ? '✓' : ''}</div>
+                <div class="fan-block ${airTiersDone.fan2 ? 'done' : ''}">L2${airTiersDone.fan2 ? '✓' : ''}</div>
+                <div class="fan-block ${airTiersDone.fan3 ? 'done' : ''}">L3${airTiersDone.fan3 ? '✓' : ''}</div>
               </div>
-
-              ${airPartners ? `<div class="partners-tag">👥 Partners: ${airPartners}</div>` : ''}
             </div>
 
-            <!-- Activity 2: Coasting Baseline Lab -->
-            <div class="activity-row">
-              <div class="activity-header">
-                <span class="activity-name">🏎️ Coasting (Day 36)</span>
-                <span class="activity-status-pill ${coastDone ? 'pill-complete' : 'pill-missing'}">
-                  ${coastDone ? `✅ COMPLETE (${coastScore}/10)` : '❌ NEED DATA'}
+            <!-- Activity 2: Coasting (Day 36) -->
+            <div class="tile-activity">
+              <div class="act-top">
+                <span class="act-name">🏎️ Coasting</span>
+                <span class="act-pill ${coastDone ? 'pill-done' : 'pill-none'}">
+                  ${coastDone ? `${coastScore}/10` : 'MISSING'}
                 </span>
               </div>
-              ${coastPartners ? `<div class="partners-tag">👥 Partners: ${coastPartners}</div>` : ''}
+              ${coastPartners || airPartners ? `
+                <div class="tile-partner" title="Team: ${airPartners || coastPartners}">
+                  👥 ${airPartners || coastPartners}
+                </div>
+              ` : ''}
             </div>
           </div>
         `;
@@ -812,30 +732,25 @@
       document.getElementById('kpi-coast-done').textContent = coastDoneCount;
 
       if (filtered.length === 0) {
-        grid.innerHTML = `<div class="empty-state">No students found for Period ${selectedPeriod}.</div>`;
+        board.innerHTML = `<div style="grid-column:1/-1; display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-weight:700;">No students found for Period ${selectedPeriod}.</div>`;
       } else {
-        grid.innerHTML = cardHtmlList.join('');
+        board.innerHTML = tileHtmlList.join('');
       }
     }
 
-    // -------------------------------------------------------------------------
-    // Event Listeners
-    // -------------------------------------------------------------------------
-    document.querySelectorAll('.period-tab-btn').forEach(btn => {
+    // Period tab listeners
+    document.querySelectorAll('.period-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.period-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         selectedPeriod = btn.dataset.period;
-        renderDashboard();
+        renderBoard();
       });
     });
 
-    document.getElementById('btn-refresh').addEventListener('click', () => {
-      renderDashboard();
-    });
+    document.getElementById('btn-refresh').addEventListener('click', () => renderBoard());
 
-    // Init
-    initDisplayControls();
+    initTheme();
     initAuth();
   </script>
 </body>
