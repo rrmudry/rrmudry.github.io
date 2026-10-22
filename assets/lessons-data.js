@@ -4383,59 +4383,108 @@ const lessonsData = [
     "day": 39,
     "date": "2026-10-22",
     "unit": 2,
-    "title": "Automotive Safety Symposium & Peer Defense Gallery Walk",
-    "topic": "Cross-Disciplinary Kinematics-Dynamics Synthesis, Model Defense, and Peer Technical Review",
-    "dok": 4,
-    "type": "Symposium / Model Defense",
+    "title": "Cardstock Rocket Phase 2 Launch (Periods 0, 4, 5, 6) & Catch-Up Day (Periods 1, 2, 3)",
+    "topic": "Controlled Variable Rocketry Flight Trials (Periods 0, 4, 5, 6) & Unit 2 Mastery Catch-Up / Lab Revision (Periods 1, 2, 3)",
+    "dok": 3,
+    "type": "Lab Launch & Catch-Up Studio",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Convene an engineering symposium where student teams present technical design portfolios uniting 1D Kinematics and Newtonian Dynamics, defend their crashworthiness models against peer cross-examination, and audit competing claims.",
-    "activity": "Automotive Safety Symposium & Technical Peer Defense (DOK 4 Synthesis & Critique): Teams present large technical poster portfolios that integrate the entire unit's physics: (1) Free-Body Diagrams of impact phases, (2) Piecewise kinematics curves (x-t, v-t, a-t), (3) Newton's 2nd & 3rd Law interaction pair analysis, and (4) Empirical crashworthiness trade-offs. Teams rotate through structured defense rounds, answering formal technical cross-examinations from peer audit panels and evaluating competing engineering portfolios using standardized criteria.",
-    "essentialQuestion": "How do scientists and engineers critically evaluate and defend complex physical models when public safety depends on the accuracy of the physics?",
+    "summary": "Pacing & Launch Operations: Periods 0, 4, 5, and 6 execute outdoor pneumatic launch trials (80–100 PSI) for Cardstock Rocket Phase 2, logging multi-timer hang times, apogee kinematics, and satellite touchdown GPS telemetry. Periods 1, 2, and 3 use this dedicated in-class studio to complete and revise pending Unit 2 laboratory investigations (Hot Wheels Coasting & Deceleration, Hot Wheels Wind Resistance & Air Brake, and Kinematics practice) with 1-on-1 teacher conferencing.",
+    "activity": "Differentiated Laboratory & Mastery Studio: (1) Periods 0, 4, 5, 6 (Cardstock Rocket Phase 2 Launch Day): Teams report to the outdoor launch pad (Science Courtyard / Courts) to launch their paired rockets (Rocket A Baseline vs. Rocket B Modified Variable) at 80–100 PSI. Squads rotate through certified roles: Pad Safety Officer, Pressurization Tech, Master Trigger, and 3 independent stopwatch timers. Timers log hang time to apex, compute maximum apogee height (h_max = 5 · t_up²), drag satellite touchdown markers to landing coordinates on the campus map, and compose a comparative CER flight defense in the Cardstock Rocket Phase 2 Webapp. (2) Periods 1, 2, 3 (Unit 2 Catch-Up & Lab Revision Studio): Dedicated classroom workshop where students audit their submission portals, complete unfinished data tables, and finalize lab reports: Hot Wheels Coasting & Friction Lab (3-car shootout, mass ballast, deceleration curves), Hot Wheels Wind Resistance Lab (opposing fan aerodynamic drag, index card air brakes), and Newton's Laws practice. Teacher provides targeted small-group intervention and data verification.",
+    "essentialQuestion": "How does isolating a single variable reveal its true physical impact on rocket flight performance (Periods 0, 4, 5, 6), and how do friction and drag forces govern real-world vehicle stopping distance (Periods 1, 2, 3)?",
     "standards": [
       "HS-PS2-1",
-      "HS-ETS1-2"
+      "HS-ETS1-2",
+      "HS-PS2-2"
     ],
     "wicor": {
-      "Writing": "Authoring formal technical peer audit critiques with evidence-based justifications.",
-      "Inquiry": "Cross-examining peer engineering models to uncover unstated assumptions, calculation flaws, or measurement errors.",
-      "Collaboration": "Presenting and defending team technical portfolios under structured peer cross-examination rounds.",
-      "Organization": "Assembling multi-domain technical posters uniting kinematic graphs, force vectors, and empirical telemetry.",
-      "Reading": "Critically evaluating peer technical posters, data charts, and design trade-off justifications."
+      "Writing": "Composing comparative Claim-Evidence-Reasoning (CER) flight evaluations (Periods 0, 4, 5, 6) and articulating physical deceleration mechanisms (Periods 1, 2, 3).",
+      "Inquiry": "Isolating one independent variable (fin geometry, nose ballast, or fuselage aspect ratio) across paired pneumatic rocket launches, and analyzing air resistance drag curves.",
+      "Collaboration": "Coordinating multi-role launch pad squads (Safety, Pressure, Trigger, Timers) and peer data audits during catch-up studio.",
+      "Organization": "Logging precision field telemetry, satellite touchdown markers, and organizing laboratory portfolios.",
+      "Reading": "Interpreting launch pad telemetry logs, aerodynamic stability criteria, and lab procedural rubrics."
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "Imagine you are explaining physics to a younger student: What is the single most important rule or relationship you learned in Unit 2 that connects how an object moves (kinematics) to why it moves (forces)?",
-      "explanation": "Newton's Second Law: F<sub>net</sub> = m · a! Forces cause acceleration (dynamics), and acceleration changes an object's velocity and position over time (kinematics). It is the master bridge of physics.",
+      "promptQuestion": "Whether testing rockets flying through the air or cars rolling on the ground: What is one controlled variable that MUST be kept identical between trials to ensure you are conducting a fair, scientifically valid test?",
+      "explanation": "In any valid scientific experiment, only ONE independent variable can be changed at a time. All other conditions (e.g., launch pressure, release height, vehicle mass, track surface, wind speed) must remain strictly controlled so you can prove the changed variable caused the difference in outcome.",
       "defaultDuration": 3
     },
     "links": {
-      "Unit 2 Review Slide Deck": "Unit_2/describing-motion-presentation/index.html"
+      "Cardstock Rocket Phase 2 (Periods 0, 4, 5, 6)": "Unit_2/rocket_phase2/index.html",
+      "Hot Wheels Wind Resistance (Periods 1, 2, 3)": "Unit_2/hot_wheels_air_resistance/index.html",
+      "Hot Wheels Coasting (Periods 1, 2, 3)": "Unit_2/hot_wheels_coasting/index.html",
+      "Cardstock Rocket Lab Guide (PDF)": "Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf",
+      "Unit 2 Review Slide Deck": "Unit_2/describing-motion-presentation/index.html",
+      "Missing Work & Grade Portal": "missing-work.html"
     },
     "assignments": [
       {
-        "title": "Technical Symposium Portfolio & Peer Audit Review",
-        "typeLabel": "DOK 4 Symposium Defense",
-        "submission": "In-Class Handout (Subject to Pacing)",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Present technical engineering portfolio, defend kinematics-dynamics models under cross-examination, and submit peer audits.",
-        "status": "planned"
+        "title": "Cardstock Rocket Phase 2: Controlled Variable Forensics (Periods 0, 4, 5, 6)",
+        "url": "Unit_2/rocket_phase2/index.html",
+        "typeLabel": "Aerospace Engineering Webapp",
+        "submission": "Auto-Saved on Google Sign-In (10 pts) / Turn In in Classroom",
+        "actionLabel": "Launch Phase 2 Webapp ↗",
+        "description": "Periods 0, 4, 5, 6: Launch both paired rockets at 80–100 PSI. Log multi-timer hang times, drop satellite touchdown markers on the field map, and submit your comparative CER flight synthesis.",
+        "status": "active"
+      },
+      {
+        "title": "Hot Wheels Wind Resistance & Air Brake Lab (Periods 1, 2, 3)",
+        "url": "Unit_2/hot_wheels_air_resistance/index.html",
+        "typeLabel": "Laboratory Catch-Up & Mastery",
+        "submission": "Auto-Saved on Google Sign-In (10 pts) / Turn In in Classroom",
+        "actionLabel": "Open Air Brake Lab ↗",
+        "description": "Periods 1, 2, 3: Finalize trials across all 4 fan speed settings, review stopping distances, and complete your net deceleration force analysis.",
+        "status": "active"
+      },
+      {
+        "title": "Hot Wheels Coasting Baseline: Deceleration & Friction (Periods 1, 2, 3)",
+        "url": "Unit_2/hot_wheels_coasting/index.html",
+        "typeLabel": "Laboratory Catch-Up & Mastery",
+        "submission": "Auto-Saved on Google Sign-In (10 pts) / Turn In in Classroom",
+        "actionLabel": "Open Coasting Lab ↗",
+        "description": "Periods 1, 2, 3: Complete your 3-car shootout, penny ballast friction analysis, and deceleration calculation revisions.",
+        "status": "active"
       }
     ],
     "resources": [
       {
-        "title": "Unit 2 Grand Synthesis & Technical Defense Presentation",
+        "title": "Cardstock Rocket Lab Guide (PDF)",
+        "url": "Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf",
+        "typeLabel": "Engineering Lab Protocol",
+        "description": "Periods 0, 4, 5, 6: Official launch pad protocol, safety rules, multi-timer telemetry table, and apogee formulas."
+      },
+      {
+        "title": "Hot Wheels Wind Resistance & Air Brake Guide",
+        "url": "Unit_2/hot_wheels_air_resistance/index.html",
+        "typeLabel": "Lab Interactive Companion",
+        "description": "Periods 1, 2, 3: Fan air brake procedures, stopping distance measurement guides, and force analysis."
+      },
+      {
+        "title": "Unit 2 Grand Synthesis & Review Presentation",
         "url": "Unit_2/describing-motion-presentation/index.html",
-        "typeLabel": "Symposium Guide",
-        "description": "Comprehensive synthesis unifying 1D Kinematics and Newtonian Dynamics with technical presentation rubrics."
+        "typeLabel": "Review Slide Deck",
+        "description": "Comprehensive review slide deck unifying 1D Kinematics and Newtonian Dynamics with practice problems."
+      },
+      {
+        "title": "Student Missing Work & Assignment Portal",
+        "url": "missing-work.html",
+        "typeLabel": "Classroom Tool",
+        "description": "Direct student portal to audit pending assignments, review scores, and catch up on missing lab submissions."
       }
     ],
     "practice": [
       {
+        "title": "Cardstock Rocket Simulator",
+        "url": "Unit_2/cardstock_rocket/index.html",
+        "typeLabel": "Aerodynamic Sandbox",
+        "description": "Virtual launch sandbox to simulate apogee height and stability based on fin geometry and mass balance."
+      },
+      {
         "title": "Operation Safe Heeler Simulator",
         "url": "operation-safe-heeler.html",
         "typeLabel": "Engineering Sandbox",
-        "description": "Review crash impulse curves during symposium prep."
+        "description": "Virtual crash simulator to test material deformation and impulse curves."
       }
     ]
   },
