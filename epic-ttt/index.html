@@ -1,14 +1,278 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/epic-ttt/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Epic Tic Tac Toe 2077</title>
-    <script type="module" crossorigin src="/epic-ttt/assets/index-BCCXfeCH.js"></script>
-    <link rel="stylesheet" crossorigin href="/epic-ttt/assets/index-6MhEza35.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Epic 3D Tic-Tac-Toe 2077 | 3x3x3 & 4x4x4 Qubic</title>
+  <meta name="description" content="Epic 3D Tic-Tac-Toe & 4x4x4 Qubic with rotating 3D hologram cube, exploded layer slices, unbeatable AI, high-contrast light mode, and Web Audio." />
+  <link rel="icon" type="image/svg+xml" href="vite.svg" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Ambient Cyber Particle & Grid Canvas -->
+  <canvas id="bg-canvas"></canvas>
+
+  <div class="app-wrapper">
+    <!-- Sticky Top Navigation & Utility Header -->
+    <header class="site-header" role="banner">
+      <div class="brand-section">
+        <a href="../games.html" class="back-link" title="Return to Physics Games Hub">
+          ← Games Hub
+        </a>
+        <div class="game-title-group">
+          <h1 class="game-title">
+            <span>EPIC 3D TIC-TAC-TOE</span>
+            <span class="title-neon">2077</span>
+            <span class="title-badge" id="badge-mode">3×3×3</span>
+          </h1>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="btn-icon" id="btn-rules" title="Rules and 3D Lines Guide" aria-label="Rules and 3D Lines Guide">
+          ℹ️ Rules & 3D Lines
+        </button>
+        <button class="btn-icon" id="btn-sound-toggle" title="Toggle Sound Effects" aria-label="Toggle Sound Effects">
+          🔊 Sound: ON
+        </button>
+        <!-- Font Scaling for Classroom Projectors & Chromebooks -->
+        <div class="font-scale-group" role="group" aria-label="Font Size">
+          <button id="btn-font-normal" class="active" title="Normal Font Size">A</button>
+          <button id="btn-font-large" title="Large Font Size">A+</button>
+          <button id="btn-font-huge" title="Projector Mode (Huge)">🖥️</button>
+        </div>
+        <!-- High-Contrast Theme Toggle -->
+        <button class="btn-icon" id="btn-theme-toggle" title="Toggle Light / Dark Mode" aria-label="Toggle Light / Dark Mode">
+          ☀️ Light
+        </button>
+      </div>
+    </header>
+
+    <!-- Game Configuration & Mode Selectors -->
+    <section class="control-bar" aria-label="Game Settings">
+      <!-- Board Dimension Selection -->
+      <div class="control-card">
+        <div class="control-label">
+          <span>Grid Size</span>
+          <span style="color: var(--accent-cyan); font-weight:700;">3D Dimensions</span>
+        </div>
+        <div class="btn-group">
+          <button class="btn-pill active" id="btn-mode-3" data-size="3">3×3×3 Classic (27)</button>
+          <button class="btn-pill" id="btn-mode-4" data-size="4">4×4×4 Qubic (64)</button>
+        </div>
+      </div>
+
+      <!-- Match Type (AI vs Pass & Play) -->
+      <div class="control-card">
+        <div class="control-label">
+          <span>Opponent</span>
+          <span id="label-opponent-status">Solo vs AI</span>
+        </div>
+        <div class="btn-group">
+          <button class="btn-pill active" id="btn-type-ai">🤖 vs AI</button>
+          <button class="btn-pill" id="btn-type-pvp">👥 Pass & Play</button>
+        </div>
+      </div>
+
+      <!-- AI Difficulty (Active when vs AI) -->
+      <div class="control-card" id="card-ai-difficulty">
+        <div class="control-label">
+          <span>AI Intelligence</span>
+          <span id="label-ai-level" style="color: var(--color-o);">Tactician</span>
+        </div>
+        <div class="btn-group">
+          <button class="btn-pill" id="btn-diff-easy" data-diff="easy">Rookie</button>
+          <button class="btn-pill active" id="btn-diff-med" data-diff="medium">Tactician</button>
+          <button class="btn-pill" id="btn-diff-hard" data-diff="hard">Cyber-Master</button>
+        </div>
+      </div>
+
+      <!-- View Mode Selector -->
+      <div class="control-card">
+        <div class="control-label">
+          <span>View Mode</span>
+          <span style="color: var(--accent-purple);">Spatial Mode</span>
+        </div>
+        <div class="btn-group">
+          <button class="btn-pill" id="btn-view-3d">🧊 3D Cube</button>
+          <button class="btn-pill" id="btn-view-slices">📋 Slices</button>
+          <button class="btn-pill active" id="btn-view-split">⚡ Split (Both)</button>
+        </div>
+      </div>
+
+      <!-- Threat Radar & Assistance Toggle -->
+      <div class="control-card">
+        <div class="control-label">
+          <span>Threat Radar</span>
+          <span id="label-radar-status" style="color: var(--accent-emerald);">Active</span>
+        </div>
+        <div class="btn-group">
+          <button class="btn-pill active" id="btn-radar-toggle">🛰️ Threat Radar: ON</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Match Status HUD & Live Scoreboard -->
+    <section class="hud-banner" aria-label="Game Status and Scoreboard">
+      <div class="hud-status-area">
+        <div class="turn-pill turn-x" id="turn-pill">
+          <span id="turn-symbol">X</span>
+          <span id="turn-text">YOUR TURN</span>
+        </div>
+        <div class="threat-alert" id="threat-alert">
+          <span>⚠️</span>
+          <span id="threat-text">CRITICAL THREAT DETECTED!</span>
+        </div>
+      </div>
+
+      <!-- Live Scoreboard -->
+      <div class="scoreboard">
+        <div class="score-item">
+          <span class="score-title" id="score-label-x">Player (X)</span>
+          <span class="score-val val-x" id="score-x">0</span>
+        </div>
+        <div class="score-item">
+          <span class="score-title" id="score-label-o">AI (O)</span>
+          <span class="score-val val-o" id="score-o">0</span>
+        </div>
+        <div class="score-item">
+          <span class="score-title">Draws</span>
+          <span class="score-val" id="score-draws">0</span>
+        </div>
+        <div class="score-item">
+          <span class="score-title">Streak</span>
+          <span class="score-val" id="score-streak" style="color: var(--accent-gold);">0</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="hud-actions">
+        <button class="btn-action" id="btn-hint" title="Suggest tactical move">
+          🎯 Hint
+        </button>
+        <button class="btn-action" id="btn-undo" title="Undo last move" disabled>
+          ↶ Undo
+        </button>
+        <button class="btn-action btn-restart" id="btn-restart" title="Restart current match">
+          ⟲ New Match
+        </button>
+      </div>
+    </section>
+
+    <!-- Main Game Arena -->
+    <main class="game-arena view-mode-split" id="game-arena">
+      <!-- Left / Top: 3D Hologram Cube Stage -->
+      <section class="stage-3d-card" id="stage-3d" aria-label="3D Hologram Cube">
+        <div class="stage-top-bar">
+          <div class="stage-title">
+            <span>🧊 3D Hologram Cube</span>
+          </div>
+          <div class="camera-controls">
+            <button class="camera-btn" id="cam-iso" title="Isometric Angle">📐 Iso</button>
+            <button class="camera-btn" id="cam-front" title="Front Elevation">🔲 Front</button>
+            <button class="camera-btn" id="cam-top" title="Top-Down Plan">🔝 Top</button>
+            <button class="camera-btn" id="cam-spin" title="Toggle Auto Rotation">🔄 Auto-Spin</button>
+            <button class="camera-btn" id="cam-reset" title="Reset Camera Orientation">⟲ Reset</button>
+          </div>
+        </div>
+
+        <div class="viewport-3d" id="viewport-3d" title="Click and drag or touch swipe to rotate in 3D">
+          <div class="cube-scene" id="cube-scene">
+            <!-- Dynamically populated 3D layer decks -->
+          </div>
+        </div>
+
+        <div class="stage-bottom-bar">
+          <span>🖱️ Click & drag or touch-swipe to rotate 3D view</span>
+          <div class="elevation-slider-box">
+            <label for="slider-elevation">Layer Gap:</label>
+            <input type="range" id="slider-elevation" min="65" max="150" value="95" title="Expand or contract layer separation" />
+            <span id="val-elevation">95px</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right / Bottom: Exploded 2D Layer Slices Stage -->
+      <section class="stage-slices-card" id="stage-slices" aria-label="Exploded 2D Layer Slices">
+        <div class="slices-header">
+          <div class="slices-title">
+            <span>📋 Exploded Layer Slices</span>
+          </div>
+          <span style="font-size: 0.72rem; color: var(--text-dim); font-weight: 600;">Synchronized cross-layer view</span>
+        </div>
+
+        <div class="slices-container grid-3-slices" id="slices-container">
+          <!-- Dynamically populated 2D slice grids -->
+        </div>
+
+        <div class="coord-inspector" id="coord-inspector">
+          Hover or tap any square to inspect 3D spatial coordinates
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Rules & 3D Lines Guide Modal -->
+  <div class="modal-overlay" id="modal-rules" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-title">🧊 How to Play & 3D Winning Lines</h3>
+        <button class="btn-close" id="btn-modal-close" aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>
+          Welcome to <strong>Epic 3D Tic-Tac-Toe 2077</strong>! Unlike flat 2D tic-tac-toe, the game takes place inside a 3-dimensional cube of cells (3×3×3 or 4×4×4 Qubic).
+        </p>
+
+        <div class="rules-grid">
+          <div class="rule-box">
+            <h4>1. Orthogonal Lines</h4>
+            <p>Straight lines running horizontally along rows, vertically down columns, or vertically like pillars straight through the floors.</p>
+            <p style="margin-top:0.4rem; color: var(--accent-cyan); font-weight: 700;">27 lines in 3³, 48 in 4³</p>
+          </div>
+          <div class="rule-box">
+            <h4>2. Planar Diagonals</h4>
+            <p>2D diagonals lying on any horizontal floor, vertical front/back wall, or side vertical wall.</p>
+            <p style="margin-top:0.4rem; color: var(--accent-pink); font-weight: 700;">18 lines in 3³, 24 in 4³</p>
+          </div>
+          <div class="rule-box">
+            <h4>3. Space Diagonals</h4>
+            <p>True 3D diagonals that cut directly through the 3D cube from one outer corner to the exact opposite outer corner.</p>
+            <p style="margin-top:0.4rem; color: var(--accent-gold); font-weight: 700;">4 lines in both</p>
+          </div>
+        </div>
+
+        <div>
+          <h4 style="color: var(--accent-cyan); margin-bottom: 0.4rem;">Why 4×4×4 Qubic is the Grandmaster Standard</h4>
+          <p>
+            In standard <strong>3×3×3</strong>, 13 winning lines pass through the exact center cell, giving the first player an overwhelming advantage.
+          </p>
+          <p style="margin-top: 0.5rem;">
+            In <strong>4×4×4 Qubic</strong>, there are 64 cells and 76 winning lines. No single cell is in the absolute center! Every corner and every internal cell belongs to exactly 7 winning lines, creating chess-like tactical depth, multiple forks, and unblockable combination attacks.
+          </p>
+        </div>
+
+        <div>
+          <h4 style="color: var(--accent-emerald); margin-bottom: 0.4rem;">Pro-Tips</h4>
+          <ul style="padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.35rem;">
+            <li>Use the <strong>Exploded Layer Slices</strong> to quickly scan cross-floor diagonals that might be hidden in 3D.</li>
+            <li>Turn on <strong>Threat Radar</strong> to see real-time alert borders on any line with 2-in-a-row (3³) or 3-in-a-row (4³).</li>
+            <li>Adjust the <strong>Layer Gap</strong> slider to separate the floating decks if lower levels are occluded.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-action" id="btn-modal-ok">Got it, Let's Play!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-notice" id="toast-notice" role="status" aria-live="polite">
+    <span id="toast-icon">⚡</span>
+    <span id="toast-msg">Ready</span>
+  </div>
+
+  <script src="game.js"></script>
+</body>
 </html>
