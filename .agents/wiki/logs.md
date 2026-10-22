@@ -3,6 +3,22 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-22 — Interactive Game Architecture: Epic 3D Tic-Tac-Toe 2077 & 4×4×4 Qubic Rebuild (`epic-ttt/`)
+**Patterns Added**: `epic-3d-ttt-and-qubic.md`.
+**Patterns Updated**: `classroom-projection-and-high-contrast-theming.md`.
+**Files Created/Updated**: `epic-ttt/index.html`, `epic-ttt/styles.css`, `epic-ttt/game.js`, `partials/footer.html`.
+
+**Changes**:
+- **Rebuilt Game Architecture from Bloated Vite Bundle to Clean Native Vanilla Stack**:
+  - Replaced the fixed 400x500px React bundle with a modular, responsive vanilla webapp (`epic-ttt/index.html`, `epic-ttt/styles.css`, `epic-ttt/game.js`).
+  - Added **4×4×4 Qubic Mode (64 cells, 76 lines)** alongside 3×3×3 Classic (27 cells, 49 lines), solving the first-player center-trick forced win and offering chess-like depth.
+  - Implemented **3 AI Difficulty Tiers**: Rookie (Easy), Tactician (Medium), and Cyber-Master (Unbeatable / Expert) featuring Minimax Alpha-Beta pruning for 3x3x3 and 2-ply threat-lookahead with fork detection for 4x4x4 Qubic.
+  - Added **Local 2-Player Pass & Play Mode** for peer challenges and classroom tournaments.
+  - Added **Interactive Dual-View Board**: 3D perspective cube with mouse/touch drag rotation, camera quick-snaps, elevation/gap slider, auto-spin, alongside an exploded 2D layer slice view with synchronized cross-layer hover and coordinate inspector.
+  - Integrated **Real-Time Threat Radar**: Highlights lines with $N-1$ marks to train 3D spatial reasoning.
+  - Integrated zero-asset **Web Audio API polyphonic sound synthesizer** (move clicks, threat pings, win/loss fanfares).
+  - Enforced full site compliance: WCAG AAA High-Contrast Light Mode (`#btn-theme-toggle`), universal root font scaling (Normal, Large, Projector), zero unpkg, zero Babel.
+
 ## 2026-10-22 — Curriculum Progression: Day 39 Differentiated Schedule (Rocket Launch P0,4,5,6 & Catch-Up Studio P1,2,3)
 **Files Updated**: `assets/lessons-data.js`, `Unit_2/outline.md`, `unit2-dashboard.html`, `partials/footer.html`.
 
@@ -1196,3 +1212,5 @@ Append-only log tracking pattern changes across recent sessions.
 
 - **2026-10-16**: firebase-auth-gotchas: added 'Admin/Teacher Testing Hides Rule Failures' section + live student-token rules check (sync-classroom/student-rules-check.js, Step 6 of npm run verify).
 - **2026-10-16**: Added Firestore Student-Permission Law to AGENTS.md; scripts/audit-firestore-rules-coverage.js + .githooks/pre-commit; deploy-assignment.js now blocks on live student-token rules test.
+
+- 2026-10-22: THE_PROCTOR Lucide fix. Removed unpkg (how_it_works) and the trailing jsdelivr lucide@latest tag (BETA/TEMPLATE). Load only ../../assets/vendor/lucide.min.js. Lesson: a CDN fallback placed AFTER the local copy can stall or override the working local build on filtered networks, so use the local copy only.
