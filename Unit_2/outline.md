@@ -379,7 +379,7 @@ This unit follows the classical and cognitive progression:
     *   *Links:* [Cardstock Rocket Phase 2 (Periods 0, 4, 5, 6)](Unit_2/rocket_phase2/index.html), [Hot Wheels Wind Resistance (Periods 1, 2, 3)](Unit_2/hot_wheels_air_resistance/index.html), [Hot Wheels Coasting (Periods 1, 2, 3)](Unit_2/hot_wheels_coasting/index.html), [Cardstock Rocket Lab Guide (PDF)](Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf), [Missing Work & Grade Portal](missing-work.html)
 
 *   **Day 40 (2026-10-23): Unit 2 Summative Assessment**
-    *   *Bell-Ringer:* Exam Readiness Mindset & Formula Check: Final 5-minute formula sheet review and calculator setup.
+    *   *Bell-Ringer:* CAST 3D Performance Task: Autonomous Delivery Pod Emergency Braking & Stopping Distance Telemetry (`HS-PS2-1`, `HS-ETS1-2`). Students analyze 800 kg vehicle obstacle braking data, resolve vector signs, calculate 6.0 m/s² deceleration and 4,800 N net force, and defend Newton's 3rd Law road-tire interaction pairs with the AI mentor.
     *   *Focus:* Comprehensive summative evaluation across 1D Kinematics and Newtonian Dynamics (Days 1–39).
     *   *Activity:* Unit 2 Summative Examination: 50-minute exam featuring conceptual multiple-choice items, graphical slope and area calculations, FBD construction and equilibrium problem solving, and multi-step F<sub>net</sub> = m · a dynamics-kinematics integration (DOK 1-3).
     *   *Essential Question:* How effectively can we measure, calculate, model, and explain the motion and interactions of physical systems?

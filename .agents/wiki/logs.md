@@ -3,6 +3,22 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-23 — Curriculum Progression: Day 40 CAST 3D Performance Task Bell-Ringer (`assets/lessons-data.js` & `Unit_2/outline.md`)
+**Patterns Updated**: `bell-ringer-config.md`.
+**Files Updated**: `assets/lessons-data.js`, `Unit_2/outline.md`, `unit2-dashboard.html`, `partials/footer.html`.
+
+**Changes**:
+- **Upgraded Day 40 Bell-Ringer to Authentic CAST 3D Performance Task**:
+  - Replaced the passive "deep breath / formula check" text prompt on Day 40 with a multi-step **CAST 3D Performance Task: Autonomous Delivery Pod Emergency Braking & Stopping Distance Telemetry** (`cast_challenge`).
+  - Aligned 3D components: `HS-PS2.A: Forces & Motion` (DCI), `SEP-5: Mathematical & Computational Thinking` (SEP), `CCC-2: Cause & Effect / Scale & Proportion` (CCC).
+  - Configured 4 scaffolded performance steps:
+    1. **Part 1 (Cloze Dropdown)**: Vector directions and signs (stopping force opposite forward motion, negative deceleration), and inverse mass scaling ($F_{\text{net}} = m \cdot a \implies$ doubling mass cuts acceleration in half and increases stopping distance).
+    2. **Part 2 (Data Calculation)**: Quantitative deceleration calculation ($a = (v - v_0) / \Delta t = -6.0\text{ m/s}^2$, target magnitude $6.0\text{ m/s}^2$).
+    3. **Part 3 (Data Calculation)**: Net horizontal braking force calculation ($F_{\text{net}} = m \cdot a = 800\text{ kg} \cdot 6.0\text{ m/s}^2 = 4,800\text{ N}$).
+    4. **Part 4 (AI Reasoning Chat)**: Defending Newton's 3rd Law road-tire interaction pairs ($F_{\text{road on tires}} = -F_{\text{tires on road}}$) with the AI Physics Mentor.
+  - Strictly enforced the site-wide No-LaTeX policy (Unicode `Δt`, `v₀`, `m/s²`, standard fractions).
+  - Synchronized `Unit_2/outline.md` Day 40 documentation, bumped cache buster in `unit2-dashboard.html` (`v=20261023`), and refreshed footer deployment timestamp.
+
 ## 2026-10-22 — Interactive Game Architecture: Epic 3D Tic-Tac-Toe 2077 & 4×4×4 Qubic Rebuild (`epic-ttt/`)
 **Patterns Added**: `epic-3d-ttt-and-qubic.md`.
 **Patterns Updated**: `classroom-projection-and-high-contrast-theming.md`.

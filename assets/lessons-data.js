@@ -4513,10 +4513,132 @@ const lessonsData = [
       "Reading": "Carefully reading exam prompts to identify constraints and coordinate conventions."
     },
     "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "Take a deep breath! What is one concept or problem from Unit 2 that you feel most confident about explaining today?",
-      "explanation": "Confidence and calm focus are keys to scientific problem solving. Trust your preparation and show all your work with units!",
-      "defaultDuration": 3
+      "type": "cast_challenge",
+      "title": "CAST 3D Performance Task: Autonomous Delivery Pod Emergency Braking",
+      "defaultDuration": 5,
+      "standards": {
+        "dci": "HS-PS2.A: Forces & Motion",
+        "sep": "SEP-5: Using Mathematics & Computational Thinking",
+        "ccc": "CCC-2: Cause & Effect / Scale & Proportion"
+      },
+      "phenomenon": {
+        "title": "Autonomous Delivery Pod: Emergency Braking Telemetry",
+        "type": "data_table",
+        "text": "An autonomous electric delivery pod (mass m = 800 kg) conducts emergency stopping trials on a level test roadway. Traveling at an initial speed of 24 m/s (approx. 54 mph), obstacle-detection lidar triggers emergency friction braking, bringing the vehicle to a complete stop (0 m/s) in 4.0 seconds over a distance of 48 meters. Telemetry is logged below.",
+        "dataTable": {
+          "caption": "Collision Avoidance Braking Telemetry Log",
+          "headers": [
+            "Metric / Parameter",
+            "Measured Telemetry Value",
+            "Scientific Unit",
+            "Physical Description"
+          ],
+          "rows": [
+            {
+              "col_0": "Initial Velocity (v₀)",
+              "col_1": "24",
+              "col_2": "m/s",
+              "col_3": "Speed when obstacle lidar triggers"
+            },
+            {
+              "col_0": "Final Velocity (v)",
+              "col_1": "0",
+              "col_2": "m/s",
+              "col_3": "Vehicle brought to full stop"
+            },
+            {
+              "col_0": "Stopping Time (Δt)",
+              "col_1": "4.0",
+              "col_2": "s",
+              "col_3": "Time elapsed from brake engagement to rest"
+            },
+            {
+              "col_0": "Stopping Distance (Δx)",
+              "col_1": "48",
+              "col_2": "m",
+              "col_3": "Distance traveled while decelerating"
+            },
+            {
+              "col_0": "Vehicle Loaded Mass (m)",
+              "col_1": "800",
+              "col_2": "kg",
+              "col_3": "Total mass including battery and cargo"
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "stepId": "step_1",
+          "type": "cloze_dropdown",
+          "title": "Part 1: Force Vectors & Acceleration Signs",
+          "prompt": "Analyze the direction of net force and acceleration during emergency braking:",
+          "text": "While the delivery pod is moving forward and braking, the net stopping force exerted by the roadway points in the [blank1], producing an acceleration that is [blank2]. According to Newton's Second Law (F_net = m · a), if cargo mass is added so that total mass doubles to 1,600 kg while the brakes apply the exact same stopping force, the vehicle's deceleration rate will be [blank3], causing the stopping distance to [blank4].",
+          "blanks": {
+            "blank1": {
+              "correct": "opposite direction of motion (backward)",
+              "options": [
+                "opposite direction of motion (backward)",
+                "same direction as forward velocity",
+                "downward toward Earth's center"
+              ]
+            },
+            "blank2": {
+              "correct": "negative (opposite to forward velocity)",
+              "options": [
+                "negative (opposite to forward velocity)",
+                "positive (increasing velocity)",
+                "zero (constant velocity)"
+              ]
+            },
+            "blank3": {
+              "correct": "cut in half (50%)",
+              "options": [
+                "cut in half (50%)",
+                "doubled (200%)",
+                "unchanged"
+              ]
+            },
+            "blank4": {
+              "correct": "increase (longer stopping distance)",
+              "options": [
+                "increase (longer stopping distance)",
+                "decrease (shorter stopping distance)",
+                "remain exactly the same"
+              ]
+            }
+          }
+        },
+        {
+          "stepId": "step_2",
+          "type": "data_calculation",
+          "title": "Part 2: Calculating Deceleration Rate (Acceleration)",
+          "prompt": "Using the kinematic definition of uniform acceleration, a = (v - v₀) / Δt, calculate the magnitude of the delivery pod's deceleration in meters per second squared (m/s²).",
+          "inputLabel": "Deceleration Magnitude",
+          "unit": "m/s²",
+          "targetValue": 6,
+          "tolerance": 0.5,
+          "hint": "a = (v - v₀) / Δt = (0 m/s - 24 m/s) / 4.0 s = -6.0 m/s². The magnitude of the deceleration is 6.0 m/s²."
+        },
+        {
+          "stepId": "step_3",
+          "type": "data_calculation",
+          "title": "Part 3: Calculating Net Braking Force",
+          "prompt": "Using Newton's Second Law of Motion, F_net = m · a, calculate the magnitude of the net horizontal braking force in Newtons (N) required to decelerate the 800 kg delivery vehicle at 6.0 m/s².",
+          "inputLabel": "Net Braking Force",
+          "unit": "N",
+          "targetValue": 4800,
+          "tolerance": 50,
+          "hint": "F_net = m · a = 800 kg · 6.0 m/s² = 4,800 N."
+        },
+        {
+          "stepId": "step_4",
+          "type": "ai_reasoning_chat",
+          "title": "Part 4: Defend Your Thinking (Newton's 3rd Law AI Mentor)",
+          "prompt": "Discuss your calculation with the AI Physics Mentor. Explain how Newton's Third Law applies to the contact interaction between the vehicle's tires and the road during emergency braking.",
+          "openingMessage": "Great job calculating that 4,800 N braking force! According to Newton's Third Law, if the road exerts a 4,800 N backward friction force on the delivery vehicle's tires to stop it, what force does the vehicle exert back on the road, and in which direction? Defend your thinking!"
+        }
+      ]
     },
     "links": {},
     "assignments": [
