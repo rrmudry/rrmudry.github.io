@@ -2,7 +2,8 @@
 /**
  * apply-transfer-baseline.js
  * 
- * Sets a 59% baseline score for transfer student STUDENT_ID ([TRANSFER STUDENT], Period 1)
+ * Sets a 59% baseline score for a transfer student (identity read from the gitignored
+ * local/transfer-student.json: { "id", "firstName", "lastName", "period" })
  * across all existing Firestore assignment stores so reports, grade syncs, and webapps
  * recognize the transfer benefit-of-the-doubt grade.
  */
@@ -19,10 +20,11 @@ if (!admin.apps.length) {
 }
 const db = admin.firestore();
 
-const STUDENT_ID = 'STUDENT_ID';
-const STUDENT_NAME = '[TRANSFER STUDENT]';
-const STUDENT_EMAIL = 'STUDENT_ID@orangeusd.org';
-const PERIOD = 1;
+const student = require('./local/transfer-student.json');
+const STUDENT_ID = student.id;
+const STUDENT_NAME = `${student.firstName} ${student.lastName}`;
+const STUDENT_EMAIL = `${student.id}@orangeusd.org`;
+const PERIOD = student.period;
 const BASELINE_PCT = 59;
 
 async function run() {
@@ -33,8 +35,8 @@ async function run() {
   await db.collection('roster').doc(STUDENT_ID).set({
     student_id: STUDENT_ID,
     studentId: STUDENT_ID,
-    first_name: '[FIRST]',
-    last_name: '[LAST]',
+    first_name: student.firstName,
+    last_name: student.lastName,
     full_name: STUDENT_NAME,
     name: STUDENT_NAME,
     email: STUDENT_EMAIL,

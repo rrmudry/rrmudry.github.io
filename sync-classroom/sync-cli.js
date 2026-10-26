@@ -260,17 +260,16 @@ function getCourseworkFromRegistry(assignmentId, courseId, registry) {
   };
 }
 
-// Students who have left the class (pruned from roster 2026-10-06); their old app scores are not synced
-const DROPPED_STUDENT_IDS = new Set([
-  'REDACTED', // [REDACTED]
-  'REDACTED', // [REDACTED]
-  'REDACTED', // [REDACTED]
-  'REDACTED', // [REDACTED]
-  'REDACTED', // [REDACTED]
-  'REDACTED', // [REDACTED]
-  'REDACTED', // [REDACTED]
-  'REDACTED'  // [REDACTED]
-]);
+// Students who have left the class (pruned from roster 2026-10-06); their old app scores are not synced.
+// IDs live in the gitignored local/pruned-students.json (FERPA) — never hardcode student IDs or names here.
+const DROPPED_STUDENT_IDS = (() => {
+  try {
+    return new Set(require('./local/pruned-students.json').map(s => String(s.id)));
+  } catch (e) {
+    console.warn('⚠️  local/pruned-students.json not found — dropped students will not be filtered.');
+    return new Set();
+  }
+})();
 
 // ---------------------------------------------------------------------
 // 5. Helper: Fetch Roster Map

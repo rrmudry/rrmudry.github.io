@@ -647,7 +647,7 @@ Append-only log tracking pattern changes across recent sessions.
   - Persisted the active assigned question array inside `session_progress.questions` and updated `resumeSession()` to restore the exact question array upon reload.
   - Added explicit `isCompleted: true` and `completed_at` timestamp flags upon test submission.
 - **Student Grade Adjustments**:
-  - Updated a Period 6 student (`REDACTED`, Period 6) to `13 / 20` (`COMPLETED: 13 / 20`) per teacher verification.
+  - Updated a Period 6 student to `13 / 20` (`COMPLETED: 13 / 20`) per teacher verification.
 
 ## 2026-10-09 — THE_PROCTOR: Sync Pipeline Resilience, Watchdog, & Dashboard Period Normalization
 **Patterns Updated**: `proctor-assessment-question-bank.md`.
@@ -773,12 +773,12 @@ Append-only log tracking pattern changes across recent sessions.
   - Dual-mode dynamic canvas graphs: $a$ vs. $M_{total}$ (inverse hyperbola) and $a$ vs. $1/M_{total}$ (linearized trendline through origin with slope $= F_{net}$).
   - Full WCAG AAA high-contrast light mode styling and updated curriculum integration in `assets/lessons-data.js` and `Unit_2/outline.md` under Day 28.
 
-## 2026-10-06 — Transfer Student Baseline: [TRANSFER STUDENT] (STUDENT_ID, Period 1)
+## 2026-10-06 — Transfer Student Baseline (Period 1)
 **Patterns Updated**: `classroom-gradebook-sync.md`.
 
 **Changes**:
 - **59% Benefit-of-the-Doubt Transfer Baseline**:
-  - Identified transfer student [TRANSFER STUDENT] (`STUDENT_ID@orangeusd.org`) in Period 1 Conceptual Physics.
+  - Identified a transfer student in Period 1 Conceptual Physics.
   - Tagged Firestore `roster` record with `transfer_student: true`, `isTransferBaseline: true`, `transfer_baseline_pct: 59`.
   - Populated 59% baseline scores across 17 Firestore assignment collections (`student_results` and `physics_labs`).
   - Patched Google Classroom gradebook across all 18 API-managed Period 1 coursework items (`5.9/10`, `11.8/20`, and `47.2/80`).

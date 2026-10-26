@@ -11,16 +11,9 @@ if (!admin.apps.length) {
 }
 const db = admin.firestore();
 
-const studentsToPrune = [
-  { id: 'REDACTED', name: '[REDACTED]', period: 1 },
-  { id: 'REDACTED', name: '[REDACTED]', period: 2 },
-  { id: 'REDACTED', name: '[REDACTED]', period: 3 },
-  { id: 'REDACTED', name: '[REDACTED]', period: 5 },
-  { id: 'REDACTED', name: '[REDACTED]', period: 6 },
-  { id: 'REDACTED', name: '[REDACTED]', period: 6 },
-  { id: 'REDACTED', name: '[REDACTED]', period: 6 },
-  { id: 'REDACTED', name: '[REDACTED]', period: 6 }
-];
+// Student list lives in a gitignored file (FERPA): local/pruned-students.json
+// Format: [{ "id": "<studentId>", "name": "<full name>", "period": <n> }, ...]
+const studentsToPrune = require('./local/pruned-students.json');
 
 async function prune() {
   console.log('1. Fetching current records for backup...');
