@@ -4700,15 +4700,15 @@ const lessonsData = [
     "day": 41,
     "date": "2026-10-26",
     "unit": 2,
-    "title": "2D Motion: Vector Independence & Horizontal Projectiles",
-    "topic": "Independence of Perpendicular Vector Components (Horizontal vs. Vertical)",
+    "title": "Free Fall Foundations & 2D Vector Independence",
+    "topic": "Vertical Free Fall Acceleration (g = 10 m/s²) and Horizontal Motion Independence",
     "dok": 2,
     "type": "Direct Instruction / Demonstration",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Introduce 2D kinematics by demonstrating that horizontal motion at constant velocity is completely independent of vertical gravitational free fall.",
-    "activity": "Simultaneous Drop vs. Fire Demonstration & Conceptual Dissection: Comparing a coin or marble dropped vertically from rest with one launched horizontally at high speed. Students analyze strobe photos, track time-of-flight equality, and establish the foundational principle: gravity accelerates the vertical axis (a_y = -9.8 m/s²) without altering horizontal speed (a_x = 0).",
-    "essentialQuestion": "Why does a bullet fired horizontally hit the ground at the exact same instant as a bullet dropped from the same height?",
+    "summary": "Introduce free-fall acceleration under gravity (g = 10 m/s² downward, adding 10 m/s every second) and demonstrate that horizontal coasting speed does not change falling time.",
+    "activity": "Free Fall Foundations & Drop vs. Fire Demonstration: Part 1 examines free fall: why all objects accelerate downward at g = 10 m/s² when air drag is removed (book and paper drop demo), establishing the speed rule (v = 10 · t) and drop distance rule (Δy = 5 · t²). Part 2 conducts the simultaneous drop vs. horizontal launch challenge: students listen for the simultaneous impact sound and verify on the Horizontal Projectile Explorer that horizontal velocity has zero vertical component.",
+    "essentialQuestion": "How does free fall gravity control the flight time of horizontally launched objects?",
     "standards": [
       "HS-PS2-1"
     ],
@@ -4717,12 +4717,12 @@ const lessonsData = [
       "Inquiry": "Analyzing simultaneous two-dimensional motion vectors and decomposing velocity into perpendicular components.",
       "Collaboration": "Partner prediction showdowns comparing drop vs horizontal launch flight times.",
       "Organization": "Separating 2D kinematics problems into distinct horizontal (x) and vertical (y) parameter tables.",
-      "Reading": "Interpreting 2D vector diagrams and simultaneous stroboscopic motion photographs."
+      "Reading": "Interpreting 2D vector diagrams and stroboscopic trajectory markers."
     },
     "bellRinger": {
       "type": "free_response",
       "promptQuestion": "A heavy metal ball is dropped from a table 1.0 meter high. At the exact same second, another identical ball is shot horizontally off the table at 15 m/s. Which ball hits the ground first? Explain your reasoning.",
-      "explanation": "Both balls hit the ground at the exact same instant. Because gravity acts only in the vertical direction (downward), the vertical acceleration (g = 9.8 m/s²) and vertical distance (1.0 m) are identical for both balls. Horizontal velocity has zero vertical component and cannot alter falling time.",
+      "explanation": "Both balls hit the ground at the exact same instant. Because gravity acts only downward with acceleration g = 10 m/s², the vertical fall time depends strictly on table height (Δy = 5 · t²). Horizontal speed does not pull the ball upward or prolong its fall.",
       "defaultDuration": 3
     },
     "links": {
@@ -4731,11 +4731,11 @@ const lessonsData = [
     },
     "assignments": [
       {
-        "title": "Horizontal Vector Independence Practice",
+        "title": "Free Fall & Vector Independence Practice",
         "typeLabel": "Conceptual Practice Set",
         "submission": "In-Class Handout / Notebook Check",
         "actionLabel": "In-Class Activity Notice",
-        "description": "Decompose 2D trajectories into independent x and y components and calculate flight times.",
+        "description": "Calculate free fall speeds and vertical drop distances using g = 10 m/s², and practice 2-column X/Y problem setups.",
         "status": "active"
       }
     ],
@@ -4744,7 +4744,7 @@ const lessonsData = [
         "title": "Horizontal Projectile Motion Explorer",
         "url": "horizontal-projectile-motion/index.html",
         "typeLabel": "Simulation Tool",
-        "description": "Interactive trajectory simulator with real-time range, flight time, and velocity calculations."
+        "description": "Interactive trajectory simulator with real-time range, flight time, and velocity calculations using g = 10 m/s²."
       }
     ]
   },
@@ -4752,14 +4752,14 @@ const lessonsData = [
     "day": 42,
     "date": "2026-10-27",
     "unit": 2,
-    "title": "Horizontal Projectile Mathematics: Flight Time & Horizontal Range",
+    "title": "Horizontal Projectile Mathematics & Target Math",
     "topic": "Connecting Vertical Free-Fall Time to Horizontal Range (Δx = v_x · t)",
     "dok": 2,
     "type": "Guided Practice / Problem Solving",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Master the 2-step mathematical procedure for horizontally launched projectiles: calculate time of flight from height (t = √(2Δy / g)), then calculate landing distance (Δx = v_x · t).",
-    "activity": "Two-Column Coordinate Problem Solving: Students solve horizontal projectile challenge problems using dual-column T-charts (X-axis uniform motion vs. Y-axis gravitational acceleration). Exploring dynamic trajectories using the Horizontal Projectile Motion Explorer.",
+    "summary": "Master the 2-step mathematical procedure using g = 10 m/s²: calculate time of flight from height (t = √(Δy / 5)), then calculate landing distance (Δx = v_x · t).",
+    "activity": "Two-Column Coordinate Problem Solving: Students solve horizontal projectile challenge problems using dual-column T-charts (X-axis uniform motion vs. Y-axis free fall with g = 10 m/s²). Exploring dynamic trajectories using the Horizontal Projectile Motion Explorer.",
     "essentialQuestion": "How does vertical drop height dictate how far an object travels horizontally before impact?",
     "standards": [
       "HS-PS2-1"
@@ -4773,8 +4773,8 @@ const lessonsData = [
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "An archer fires an arrow horizontally from a cliff 20 meters high. If g ≈ 10 m/s², how many seconds does it take for the arrow to hit the ground below?",
-      "explanation": "Using Δy = ½gt²: 20 m = ½(10 m/s²)t² = 5t², so t² = 4, meaning t = 2.0 seconds. The arrow remains airborne for 2.0 seconds regardless of its horizontal speed.",
+      "promptQuestion": "An archer fires an arrow horizontally from a cliff 20 meters high. Using g = 10 m/s², how many seconds does it take for the arrow to hit the ground below?",
+      "explanation": "Using Δy = ½ · g · t² = 5 · t²: 20 m = 5 · t², so t² = 4, meaning t = 2.0 seconds. The arrow remains airborne for 2.0 seconds regardless of its horizontal speed.",
       "defaultDuration": 3
     },
     "links": {
@@ -4783,19 +4783,19 @@ const lessonsData = [
     "assignments": [
       {
         "title": "Horizontal Projectile Problem Set 1",
-        "typeLabel": "Problem Set",
-        "submission": "Turn In in Classroom / Notebook Check",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Solve 6 guided problems finding flight time and horizontal range from given launch heights and velocities.",
-        "status": "active"
+        typeLabel: "Problem Set",
+        submission: "Turn In in Classroom / Notebook Check",
+        actionLabel: "In-Class Activity Notice",
+        description: "Solve 6 guided problems finding flight time and horizontal range using g = 10 m/s².",
+        status: "active"
       }
     ],
     "resources": [
       {
         "title": "Horizontal Projectile Motion Explorer",
-        "url": "horizontal-projectile-motion/index.html",
-        "typeLabel": "Interactive Calculator",
-        "description": "Test calculations with real-time trajectory curves and flight metrics."
+        url: "horizontal-projectile-motion/index.html",
+        typeLabel: "Interactive Calculator",
+        description: "Test calculations with real-time trajectory curves and flight metrics."
       }
     ]
   },
@@ -4803,22 +4803,22 @@ const lessonsData = [
     "day": 43,
     "date": "2026-10-28",
     "unit": 2,
-    "title": "Tabletop Marble Launch Lab: The Target Cup Challenge",
-    "topic": "Empirical Measurement of Horizontal Velocity & Target Range Prediction",
+    "title": "Tabletop Marble Launch Lab: The Target Cup Challenge (Block: Periods 0, 2, 4, 6)",
+    "topic": "Empirical Tabletop Velocity Calibration & Blind Target Range Prediction",
     "dok": 3,
-    "type": "Laboratory Investigation",
+    "type": "Laboratory Investigation (Block)",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Student teams measure marble tabletop launch speed using photogates or rulers, mathematically predict the exact floor landing position, and place a target cup for a single live trial.",
-    "activity": "Tabletop Projectile Target Lab: Teams release marbles down an incline ramp onto a level tabletop. Using distance and time on the table, they determine horizontal launch velocity (v_x). They measure table height (Δy), calculate predicted floor landing position (Δx), tape a target cup to the floor, and execute a live confirmation drop.",
-    "essentialQuestion": "Can mathematical kinematic models accurately predict the physical landing position of a projectile in the real world?",
+    "summary": "Block Schedule (Periods 0, 2, 4, 6 - 105 min): Student teams calibrate marble tabletop speed, mathematically predict the floor landing position using g = 10 m/s², and place a target cup for a single live trial.",
+    "activity": "Tabletop Projectile Target Lab (105-Min Block): Teams release marbles down an incline ramp onto a level tabletop. Using distance and time across the tabletop, they determine launch velocity (v_x). They measure table height (Δy), calculate predicted floor landing position (Δx = v_x · √(Δy / 5)), tape a target cup to the floor, execute a live confirmation drop, and complete their error analysis.",
+    "essentialQuestion": "Can mathematical free fall and kinematics models accurately predict the physical landing position of a projectile in the real world?",
     "standards": [
       "HS-PS2-1"
     ],
     "wicor": {
       "Writing": "Recording experimental procedures, derivations, and percentage error explanations.",
       "Inquiry": "Calculating predicted landing coordinates without any trial drops onto the floor.",
-      "Collaboration": "Lab teams coordinating release timing, photogate alignment, and floor target placement.",
+      "Collaboration": "Lab teams coordinating release timing, tabletop speed timing, and floor target placement.",
       "Organization": "Tabulating multiple table velocity trials to determine mean launch speed.",
       "Reading": "Reading meter sticks and plumb-bob reference points on the floor."
     },
@@ -4834,19 +4834,19 @@ const lessonsData = [
     "assignments": [
       {
         "title": "Tabletop Marble Projectile Lab Report",
-        "typeLabel": "Laboratory Report",
-        "submission": "Turn In in Classroom",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Empirical launch speed measurement, theoretical range calculation, and target accuracy verification.",
-        "status": "active"
+        typeLabel: "Laboratory Report",
+        submission: "Turn In in Classroom",
+        actionLabel: "In-Class Activity Notice",
+        description: "Empirical launch speed measurement, theoretical range calculation using g = 10 m/s², and target accuracy verification.",
+        status: "active"
       }
     ],
     "resources": [
       {
         "title": "Horizontal Projectile Motion Explorer",
-        "url": "horizontal-projectile-motion/index.html",
-        "typeLabel": "Lab Simulator Companion",
-        "description": "Verify predicted flight trajectories and impact velocities."
+        url: "horizontal-projectile-motion/index.html",
+        typeLabel: "Lab Simulator Companion",
+        description: "Verify predicted flight trajectories and impact velocities."
       }
     ]
   },
@@ -4854,14 +4854,14 @@ const lessonsData = [
     "day": 44,
     "date": "2026-10-29",
     "unit": 2,
-    "title": "Projectile Trajectory Forensics: Systematic Errors & Air Resistance",
-    "topic": "Experimental Discrepancy, Plumb-Line Error, and Velocity Variations",
+    "title": "Tabletop Marble Launch Lab: The Target Cup Challenge (Block: Periods 0, 1, 3, 5)",
+    "topic": "Empirical Tabletop Velocity Calibration & Blind Target Range Prediction",
     "dok": 3,
-    "type": "Data Analysis / Review",
+    "type": "Laboratory Investigation (Block)",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Analyze lab results from the Tabletop Challenge, investigate why marbles landed slightly short or long, and explore how launch speed variability affects landing spread.",
-    "activity": "Target Accuracy Forensics: Teams pool class landing error data, calculate standard deviation and mean error, and analyze systematic error sources: table dip, rotational kinetic energy loss, plumb line misalignment, and air resistance.",
+    "summary": "Block Schedule (Periods 0, 1, 3, 5 - 105 min): Mirror of Wednesday block. Student teams calibrate marble tabletop speed, predict floor landing distance using g = 10 m/s², place a target cup, and analyze error sources.",
+    "activity": "Tabletop Projectile Target Lab (105-Min Block): Mirror block for Periods 1, 3, 5. Teams release marbles down an incline ramp onto a level tabletop, determine launch velocity (v_x), measure table height (Δy), predict floor landing distance (Δx), tape a target cup to the floor, execute a live confirmation drop, and evaluate rotational inertia vs air drag error sources. Period 0 completes classwide error pooling and hit/miss distributions.",
     "essentialQuestion": "What physical mechanisms cause experimental projectiles to deviate from idealized kinematic equations?",
     "standards": [
       "HS-PS2-1"

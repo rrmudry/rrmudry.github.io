@@ -30,7 +30,6 @@
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -41,16 +40,9 @@
         .chart-container {
             position: relative;
             width: 100%;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 300px;
-            max-height: 400px;
         }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 350px;
-            }
+        .chart-container canvas {
+            display: block;
         }
         input[type="range"] {
             -webkit-appearance: none;
@@ -89,6 +81,159 @@
         input[type="range"]:disabled::-moz-range-thumb {
             background: #94a3b8;
         }
+        /* ---------- Presentation mode (classroom TVs) ---------- */
+        #pres-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            background: #fffbeb;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5vh;
+            padding: 1.5vh 1.5vw;
+        }
+        #pres-overlay.hidden {
+            display: none;
+        }
+        #pres-top #results-container {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 1vw;
+            margin: 0;
+        }
+        #pres-top #results-container > div {
+            padding: 1vh 1vw;
+        }
+        #pres-top #results-container .text-sm {
+            font-size: clamp(1rem, 1.5vw, 1.9rem);
+        }
+        #pres-top #results-container .text-2xl {
+            font-size: clamp(1.75rem, 3.4vw, 4.25rem);
+            line-height: 1.15;
+        }
+        #pres-scene {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #pres-scene .chart-container {
+            width: auto;
+        }
+        #pres-note {
+            text-align: center;
+            font-size: clamp(0.9rem, 1.25vw, 1.5rem);
+            color: #44403c;
+        }
+        #pres-keys {
+            margin-left: 2vw;
+            font-size: 0.8em;
+            color: #78716c;
+        }
+        #pres-keys kbd {
+            border: 1px solid #d6d3d1;
+            border-bottom-width: 2px;
+            border-radius: 4px;
+            padding: 0 0.3em;
+            margin-left: 0.6em;
+            background: #fff;
+        }
+        #launch-table {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.88);
+            border: 1px solid #e7e5e4;
+            border-radius: 0.5em;
+            padding: 0.3em 0.6em;
+            color: #292524;
+        }
+        #launch-table.hidden {
+            display: none;
+        }
+        #launch-table table {
+            border-collapse: collapse;
+        }
+        #launch-table th, #launch-table td {
+            padding: 0.1em 0.55em;
+            text-align: right;
+            white-space: nowrap;
+        }
+        #launch-table th {
+            color: #78716c;
+            font-weight: 600;
+        }
+        #launch-table td:first-child {
+            text-align: left;
+        }
+        #launch-table .swatch {
+            display: inline-block;
+            width: 1.3em;
+            height: 0.3em;
+            border-radius: 2px;
+            vertical-align: middle;
+            margin-right: 0.3em;
+        }
+        #launch-table .t-col {
+            font-weight: 700;
+        }
+        #pres-controls {
+            display: flex;
+            align-items: flex-end;
+            gap: 1.5vw;
+            font-size: clamp(1rem, 1.3vw, 1.6rem);
+        }
+        #pres-controls > div {
+            flex: 1;
+            min-width: 0;
+        }
+        #pres-controls label.text-lg {
+            font-size: inherit;
+            gap: 0.5em;
+            align-items: flex-end;
+        }
+        #pres-controls label.text-lg > span:last-child {
+            white-space: nowrap;
+        }
+        #pres-controls #mode-select-container {
+            flex: 0.9;
+        }
+        #pres-controls > div:not(#mode-select-container) {
+            flex: 1.3;
+        }
+        #pres-controls label.text-lg > span:first-child {
+            white-space: nowrap;
+        }
+        /* While presenting, hide the greyed-out slider and the step numbers to declutter */
+        #pres-controls .opacity-50,
+        #pres-controls .step-num {
+            display: none;
+        }
+        #pres-controls #mode-select-container > label {
+            display: none;
+        }
+        #pres-controls #mode-select-container .mode-option {
+            padding: 0.5vh 0.5vw;
+        }
+        #pres-controls #mode-select-container .text-sm {
+            font-size: 0.75em;
+        }
+        #pres-controls input[type="range"] {
+            height: 14px;
+        }
+        #pres-controls input[type="range"]::-webkit-slider-thumb {
+            width: 34px;
+            height: 34px;
+        }
+        #pres-controls input[type="range"]::-moz-range-thumb {
+            width: 34px;
+            height: 34px;
+        }
+        #pres-controls button {
+            flex: 0 0 auto;
+            width: auto;
+            font-size: inherit;
+            padding: 1.6vh 1.6vw;
+        }
+
         /* Style for the formula <pre> tags */
         pre.formula {
             background-color: #f8fafc; /* bg-gray-50 slightly adjusted */
@@ -161,7 +306,7 @@
                 </p>
 
                 <div class="space-y-6">
-                    <div>
+                    <div id="mode-select-container">
                         <label class="block text-lg font-semibold mb-2">1. Select Calculation Mode</label>
                         <div class="flex space-x-4">
                             <label class="flex-1">
@@ -183,30 +328,30 @@
 
                     <div id="height-input-container" class="space-y-2">
                         <label for="height-slider" class="flex justify-between text-lg font-semibold">
-                            <span>2. Initial Height (x<sub>o</sub>)</span>
+                            <span><span class="step-num">2. </span>Initial Height (x<sub>o</sub>)</span>
                             <span id="height-value" class="font-bold text-amber-700">50 m</span>
                         </label>
-                        <input type="range" id="height-slider" min="1" max="500" value="50" step="1">
+                        <input type="range" id="height-slider" min="1" max="100" value="50" step="1">
                     </div>
 
                     <div id="velocity-input-container" class="space-y-2">
                         <label for="velocity-slider" class="flex justify-between text-lg font-semibold">
-                            <span>3. Initial H. Velocity (v<sub>ox</sub>)</span>
+                            <span><span class="step-num">3. </span>Initial H. Velocity (v<sub>ox</sub>)</span>
                             <span id="velocity-value" class="font-bold text-amber-700">20 m/s</span>
                         </label>
-                        <input type="range" id="velocity-slider" min="1" max="100" value="20" step="1">
+                        <input type="range" id="velocity-slider" min="1" max="50" value="20" step="1">
                     </div>
 
                     <div id="range-input-container" class="space-y-2">
                         <label for="range-slider" class="flex justify-between text-lg font-semibold">
-                            <span>4. Horizontal Range (x<sub>range</sub>)</span>
+                            <span><span class="step-num">4. </span>Horizontal Range (x<sub>range</sub>)</span>
                             <span id="range-value" class="font-bold text-amber-700">50 m</span>
                         </label>
-                        <input type="range" id="range-slider" min="1" max="500" value="50" step="1">
+                        <input type="range" id="range-slider" min="1" max="250" value="50" step="1">
                     </div>
 
                     <button id="calculate-btn" class="w-full bg-amber-600 text-white font-bold text-lg py-3 px-6 rounded-lg shadow-md hover:bg-amber-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-opacity-50">
-                        Calculate & Visualize
+                        Launch & Calculate
                     </button>
                 </div>
             </section>
@@ -215,7 +360,7 @@
             <section id="results-panel" class="bg-white p-6 rounded-2xl shadow-lg">
                 <h2 class="text-2xl font-bold text-amber-800 mb-4 border-b border-amber-200 pb-2">Results & Visualization</h2>
                 <p class="text-gray-600 mb-6">
-                    This panel displays the calculated outcomes of your simulation. Below the key metrics, a dynamic chart visualizes the projectile's parabolic path from its launch point (0, x<sub>o</sub>) to the ground.
+                    This panel displays the calculated outcomes of your simulation. Below the key metrics, a to-scale scene shows the projectile's path from the cliff edge (0, x<sub>o</sub>) to the ground. The scale never changes, so you can compare launches directly.
                 </p>
 
                 <div id="results-container" class="grid grid-cols-2 gap-4 mb-8">
@@ -237,8 +382,22 @@
                     </div>
                 </div>
 
-                <div class="chart-container">
-                    <canvas id="trajectory-chart"></canvas>
+                <div id="chart-container" class="chart-container">
+                    <canvas id="trajectory-canvas" role="img" aria-label="Side view of a ball launched horizontally off a cliff, drawn to scale"></canvas>
+                    <div id="launch-table" class="hidden" aria-live="polite"></div>
+                </div>
+                <ul id="launch-legend" class="mt-3 space-y-1 text-sm text-stone-700" aria-live="polite"></ul>
+                <div class="flex flex-wrap items-center justify-between gap-3 mt-3 text-sm text-gray-600">
+                    <p>
+                        Dots are <strong>0.5 s</strong> apart.
+                        <span class="text-sky-700 font-semibold">Ground ticks</span> show horizontal position;
+                        <span class="text-rose-700 font-semibold">cliff ticks</span> show height.
+                        Faded paths are your last 3 launches.
+                    </p>
+                    <div class="flex gap-2">
+                        <button id="clear-trails-btn" class="px-3 py-1.5 rounded-lg border border-amber-400 text-amber-800 font-semibold hover:bg-amber-50">Clear trails</button>
+                        <button id="pres-enter-btn" class="px-3 py-1.5 rounded-lg bg-stone-800 text-white font-semibold hover:bg-stone-700">📺 Presentation mode</button>
+                    </div>
                 </div>
             </section>
 
@@ -269,96 +428,332 @@
 
     </div>
 
+    <!-- Presentation mode overlay (classroom TVs). The live controls, readouts, scene and
+         legend are moved in here while presenting and moved back on exit. -->
+    <div id="pres-overlay" class="hidden" role="dialog" aria-label="Presentation mode">
+        <div id="pres-top"></div>
+        <div id="pres-scene"></div>
+        <p id="pres-note">
+            Dots every <strong>0.5 s</strong> ·
+            <span class="text-sky-700 font-semibold">ground ticks</span> = horizontal position ·
+            <span class="text-rose-700 font-semibold">cliff ticks</span> = height
+            <span id="pres-keys"><kbd>Space</kbd> launch <kbd>C</kbd> clear <kbd>Esc</kbd> exit</span>
+        </p>
+        <div id="pres-controls">
+            <button id="pres-exit-btn" class="rounded-lg border-2 border-stone-400 text-stone-700 font-semibold hover:bg-stone-100">✕ Exit</button>
+        </div>
+    </div>
+
     <script>
-        let trajectoryChart;
         let currentMode = 'calculate-range';
-        const g = 10; 
+        const g = 10;
 
-        function wrapText(context, text, x, y, maxWidth, lineHeight) {
-            const words = text.split(' ');
-            let line = '';
-            for (let n = 0; n < words.length; n++) {
-                const testLine = line + words[n] + ' ';
-                const metrics = context.measureText(testLine);
-                const testWidth = metrics.width;
-                if (testWidth > maxWidth && n > 0) {
-                    context.fillText(line, x, y);
-                    line = words[n] + ' ';
-                    y += lineHeight;
-                } else {
-                    line = testLine;
-                }
+        // Fixed world window (meters). The scale never changes, so a taller cliff
+        // or a faster launch is visibly taller/farther instead of just relabeling axes.
+        const WORLD = { xMin: -30, xMax: 250, yMax: 110 };
+        const BASE_MARGIN = { left: 44, right: 14, top: 12, bottom: 40 };
+        const STROBE_DT = 0.5;      // seconds between "equal-time" dots
+        const MAX_GHOSTS = 3;
+        const GHOST_COLORS = ['#0f766e', '#7c3aed', '#64748b'];
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        const canvas = document.getElementById('trajectory-canvas');
+        const ctx = canvas.getContext('2d');
+        let scale = 1;              // px per meter (same on both axes)
+        let k = 1;                  // size multiplier for text/lines/dots (grows in presentation mode)
+        let M = { ...BASE_MARGIN }; // canvas margins in px, scaled by k
+        let presenting = false;
+        let ghosts = [];            // previous launches: { h, v, t, color }
+        let current = null;         // active launch: { h, v, t }
+        let elapsed = 0;            // seconds of flight shown so far
+        let animId = null;
+
+        function resizeCanvas() {
+            const dpr = window.devicePixelRatio || 1;
+            k = presenting ? Math.min(2.6, Math.max(1.4, window.innerHeight / 450)) : 1;
+            M = Object.fromEntries(Object.entries(BASE_MARGIN).map(([key, val]) => [key, val * k]));
+            let cssW, cssH;
+            if (presenting) {
+                // Fit the to-scale world inside the scene slot (limited by width or height)
+                const slot = document.getElementById('pres-scene');
+                const availW = slot.clientWidth, availH = slot.clientHeight;
+                scale = Math.min((availW - M.left - M.right) / (WORLD.xMax - WORLD.xMin),
+                                 (availH - M.top - M.bottom) / WORLD.yMax);
+                cssW = (WORLD.xMax - WORLD.xMin) * scale + M.left + M.right;
+            } else {
+                cssW = canvas.parentElement.clientWidth;
+                scale = (cssW - M.left - M.right) / (WORLD.xMax - WORLD.xMin);
             }
-            context.fillText(line, x, y);
+            cssH = WORLD.yMax * scale + M.top + M.bottom;
+            canvas.style.width = cssW + 'px';
+            canvas.style.height = cssH + 'px';
+            canvas.width = Math.round(cssW * dpr);
+            canvas.height = Math.round(cssH * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            // Launch table sits in the top-right sky. Even the fastest possible launch
+            // (100 m cliff, 250 m range) stays below ~67 m beyond x = 145 m.
+            const table = document.getElementById('launch-table');
+            table.classList.toggle('hidden', !presenting);
+            if (presenting) {
+                table.style.fontSize = (10.5 * k) + 'px';
+                table.style.right = (cssW - px(WORLD.xMax) + 4 * k) + 'px';
+                table.style.top = (py(WORLD.yMax) + 4 * k) + 'px';
+            }
+            draw();
         }
-        
-        const chartLabelWrapper = (tooltipItems) => {
-            const item = tooltipItems[0];
-            const label = item.chart.data.labels[item.dataIndex] || '';
-            const lines = [];
-            const max = 16;
-            for (let i = 0; i < label.length; i += max) {
-                lines.push(label.substring(i, i + max));
-            }
-            return lines;
-        };
 
-        function initChart() {
-            const ctx = document.getElementById('trajectory-chart').getContext('2d');
-            trajectoryChart = new Chart(ctx, {
-                type: 'scatter',
-                data: {
-                    datasets: [{
-                        label: 'Trajectory',
-                        data: [],
-                        borderColor: '#d97706',
-                        backgroundColor: '#d97706',
-                        showLine: true,
-                        fill: false,
-                        pointRadius: 2,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Range (m)',
-                                font: {
-                                    weight: 'bold'
-                                }
-                            },
-                            beginAtZero: true,
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Height (m)',
-                                font: {
-                                    weight: 'bold'
-                                }
-                            },
-                            beginAtZero: true
-                        }
-                    },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let xLabel = context.parsed.x.toFixed(2);
-                                    let yLabel = context.parsed.y.toFixed(2);
-                                    return `(Range: ${xLabel} m, Height: ${yLabel} m)`;
-                                }
-                            }
-                        },
-                        legend: {
-                            display: false
-                        }
-                    }
+        const px = x => M.left + (x - WORLD.xMin) * scale;
+        const py = y => M.top + (WORLD.yMax - y) * scale;
+        const font = (size, bold) => `${bold ? 'bold ' : ''}${size * k}px Inter, sans-serif`;
+        const dot = (x, y, r) => { ctx.beginPath(); ctx.arc(x, y, r * k, 0, Math.PI * 2); ctx.fill(); };
+        const posAt = (launch, t) => ({ x: launch.v * t, y: Math.max(0, launch.h - 0.5 * g * t * t) });
+
+        function drawPath(launch, tEnd, color, width) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width * k;
+            ctx.beginPath();
+            const steps = 60;
+            for (let i = 0; i <= steps; i++) {
+                const p = posAt(launch, (tEnd * i) / steps);
+                i === 0 ? ctx.moveTo(px(p.x), py(p.y)) : ctx.lineTo(px(p.x), py(p.y));
+            }
+            ctx.stroke();
+        }
+
+        function drawScene() {
+            const w = canvas.clientWidth, h = canvas.clientHeight;
+            ctx.clearRect(0, 0, w, h);
+            ctx.fillStyle = '#f0f9ff';
+            ctx.fillRect(px(WORLD.xMin), py(WORLD.yMax), (WORLD.xMax - WORLD.xMin) * scale, WORLD.yMax * scale);
+
+            // Grid + axis labels every 50 m (x) and 20 m (y)
+            ctx.font = font(11);
+            ctx.fillStyle = '#57534e';
+            ctx.strokeStyle = '#e0f2fe';
+            ctx.lineWidth = k;
+            ctx.textAlign = 'center';
+            for (let x = 0; x <= WORLD.xMax; x += 50) {
+                ctx.beginPath(); ctx.moveTo(px(x), py(0)); ctx.lineTo(px(x), py(WORLD.yMax)); ctx.stroke();
+                ctx.fillText(x, px(x), py(0) + 20 * k);
+            }
+            ctx.textAlign = 'right';
+            for (let y = 0; y <= 100; y += 20) {
+                ctx.beginPath(); ctx.moveTo(px(WORLD.xMin), py(y)); ctx.lineTo(px(WORLD.xMax), py(y)); ctx.stroke();
+                ctx.fillText(y, px(WORLD.xMin) - 6 * k, py(y) + 4 * k);
+            }
+            ctx.font = font(11, true);
+            ctx.textAlign = 'center';
+            ctx.fillText('Horizontal distance (m)', px(WORLD.xMax / 2), py(0) + 35 * k);
+            ctx.save();
+            ctx.translate(11 * k, py(WORLD.yMax / 2));
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Height (m)', 0, 0);
+            ctx.restore();
+
+            // Ground
+            ctx.fillStyle = '#65a30d';
+            ctx.fillRect(px(WORLD.xMin), py(0) - 2 * k, (WORLD.xMax - WORLD.xMin) * scale, 3 * k);
+
+            // Cliff follows the height slider; a dashed outline marks taller cliffs that
+            // earlier launches started from, so no path appears to begin in mid-air.
+            const cliffH = parseFloat(document.getElementById('height-slider').value);
+            const tallestH = Math.max(cliffH, ...[current, ...ghosts].filter(Boolean).map(l => l.h));
+            if (tallestH > cliffH) {
+                ctx.fillStyle = 'rgba(168, 162, 158, 0.25)';
+                ctx.fillRect(px(WORLD.xMin), py(tallestH), -WORLD.xMin * scale, (tallestH - cliffH) * scale);
+                ctx.strokeStyle = '#a8a29e';
+                ctx.lineWidth = k;
+                ctx.setLineDash([4 * k, 3 * k]);
+                ctx.strokeRect(px(WORLD.xMin), py(tallestH), -WORLD.xMin * scale, (tallestH - cliffH) * scale);
+                ctx.setLineDash([]);
+            }
+            ctx.fillStyle = '#a8a29e';
+            ctx.fillRect(px(WORLD.xMin), py(cliffH), -WORLD.xMin * scale, cliffH * scale);
+            ctx.strokeStyle = '#78716c';
+            ctx.lineWidth = 1.5 * k;
+            ctx.strokeRect(px(WORLD.xMin), py(cliffH), -WORLD.xMin * scale, cliffH * scale);
+        }
+
+        function drawGhosts() {
+            ghosts.forEach(gh => {
+                ctx.globalAlpha = 0.45;
+                drawPath(gh, gh.t, gh.color, 2);
+                // Faded equal-time dots: at each 0.5 s every launch is at the same height
+                ctx.fillStyle = gh.color;
+                for (let t = 0; t <= gh.t + 1e-9; t += STROBE_DT) {
+                    const p = posAt(gh, t);
+                    dot(px(p.x), py(p.y), 2.5);
                 }
+                const end = posAt(gh, gh.t);
+                ctx.globalAlpha = 0.9;
+                dot(px(end.x), py(0), 3.5);
+                ctx.globalAlpha = 1;
             });
+        }
+
+        function drawCurrent() {
+            if (!current) return;
+            const color = '#d97706';
+            drawPath(current, elapsed, color, 3);
+
+            // Equal-time dots, projected onto the ground (constant spacing = constant vx)
+            // and onto the cliff face (growing spacing = vertical acceleration).
+            for (let t = 0; t <= elapsed + 1e-9; t += STROBE_DT) {
+                const p = posAt(current, t);
+                ctx.fillStyle = color;
+                dot(px(p.x), py(p.y), 4);
+                ctx.fillStyle = '#0369a1';
+                ctx.fillRect(px(p.x) - k, py(0) + k, 2 * k, 7 * k);
+                ctx.fillStyle = '#be123c';
+                ctx.fillRect(px(0) - 8 * k, py(p.y) - k, 7 * k, 2 * k);
+            }
+
+            // Ball
+            const b = posAt(current, elapsed);
+            ctx.fillStyle = '#1c1917';
+            dot(px(b.x), py(b.y), 5.5);
+
+            // Clock, then range bracket once landed
+            // Clock sits top-left above the cliff, the one region no path ever enters
+            ctx.font = font(13, true);
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#1c1917';
+            ctx.fillText(`t = ${elapsed.toFixed(2)} s`, px(0) + 6 * k, py(WORLD.yMax) + 16 * k);
+            if (elapsed >= current.t) {
+                const R = current.v * current.t;
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 1.5 * k;
+                ctx.setLineDash([4 * k, 3 * k]);
+                ctx.beginPath(); ctx.moveTo(px(0), py(0) - 14 * k); ctx.lineTo(px(R), py(0) - 14 * k); ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = color;
+                ctx.textAlign = R > 40 ? 'center' : 'left';
+                ctx.fillText(`x = ${R.toFixed(1)} m`, R > 40 ? px(R / 2) : px(R) + 6 * k, py(0) - 19 * k);
+            }
+        }
+
+        // Legend lives in HTML (not on the canvas) so it never covers a trajectory on narrow screens
+        function updateLegend() {
+            const row = (color, label, l) =>
+                `<li class="flex items-center gap-2"><span class="legend-swatch inline-block w-4 h-1 rounded shrink-0" style="background:${color}"></span>` +
+                `<span>${label}: <span class="whitespace-nowrap">x<sub>o</sub> = ${l.h} m,</span> ` +
+                `<span class="whitespace-nowrap">v<sub>ox</sub> = ${l.v.toFixed(1)} m/s</span> ` +
+                `<span class="whitespace-nowrap">→ t = ${l.t.toFixed(2)} s,</span> ` +
+                `<span class="whitespace-nowrap">x<sub>range</sub> = ${(l.v * l.t).toFixed(1)} m</span></span></li>`;
+            let html = current ? row('#d97706', '<strong>Now</strong>', current) : '';
+            ghosts.forEach((gh, i) => { html += row(gh.color, i === 0 ? 'Previous' : `${i + 1} launches ago`, gh); });
+            document.getElementById('launch-legend').innerHTML = html;
+
+            // Presentation mode shows the same data as a compact table on the scene,
+            // so the t column makes "same height → same time" obvious at a glance.
+            const tr = (color, label, l) =>
+                `<tr><td><span class="swatch" style="background:${color}"></span>${label}</td>` +
+                `<td>${l.h} m</td><td>${l.v.toFixed(1)} m/s</td><td class="t-col">${l.t.toFixed(2)} s</td>` +
+                `<td>${(l.v * l.t).toFixed(1)} m</td></tr>`;
+            let rows = current ? tr('#d97706', '<strong>Now</strong>', current) : '';
+            ghosts.forEach(gh => { rows += tr(gh.color, '', gh); });
+            document.getElementById('launch-table').innerHTML = rows &&
+                `<table><thead><tr><th></th><th>x<sub>o</sub></th><th>v<sub>ox</sub></th><th>t</th><th>x<sub>range</sub></th></tr></thead><tbody>${rows}</tbody></table>`;
+        }
+
+        function draw() {
+            drawScene();
+            drawGhosts();
+            drawCurrent();
+        }
+
+        function launch(h, v, t) {
+            if (animId) cancelAnimationFrame(animId);
+            if (current) {
+                ghosts.unshift({ ...current, color: GHOST_COLORS[0] });
+                ghosts = ghosts.slice(0, MAX_GHOSTS).map((gh, i) => ({ ...gh, color: GHOST_COLORS[i] }));
+            }
+            current = { h, v, t };
+            updateLegend();
+            if (reduceMotion) {
+                elapsed = t;
+                draw();
+                return;
+            }
+            elapsed = 0;
+            const start = performance.now();
+            const step = now => {
+                elapsed = Math.min(t, (now - start) / 1000);  // real time: longer falls take longer
+                draw();
+                animId = elapsed < t ? requestAnimationFrame(step) : null;
+            };
+            animId = requestAnimationFrame(step);
+        }
+
+        function clearTrails() {
+            // Clears everything, including the current ("Now") path and any launch in flight
+            if (animId) cancelAnimationFrame(animId);
+            animId = null;
+            ghosts = [];
+            current = null;
+            elapsed = 0;
+            updateLegend();
+            draw();
+        }
+
+        // ---------------------------------------------------------------
+        // Presentation mode: moves the live controls, readouts, scene and legend
+        // into a full-screen overlay sized for classroom TVs, then puts them back.
+        // ---------------------------------------------------------------
+        const PRES_SLOTS = [
+            ['results-container', 'pres-top'],
+            ['chart-container', 'pres-scene'],
+            ['mode-select-container', 'pres-controls'],
+            ['height-input-container', 'pres-controls'],
+            ['velocity-input-container', 'pres-controls'],
+            ['range-input-container', 'pres-controls'],
+            ['calculate-btn', 'pres-controls'],
+            ['clear-trails-btn', 'pres-controls'],
+        ];
+        let presPlaceholders = [];
+
+        function enterPresentation() {
+            if (presenting) return;
+            presenting = true;
+            presPlaceholders = PRES_SLOTS.map(([id, slotId]) => {
+                const el = document.getElementById(id);
+                const marker = document.createComment(id);
+                el.replaceWith(marker);
+                document.getElementById(slotId).appendChild(el);
+                return [marker, el];
+            });
+            document.getElementById('pres-controls').appendChild(document.getElementById('pres-exit-btn'));
+            document.getElementById('pres-overlay').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            }
+            resizeCanvas();
+        }
+
+        function exitPresentation() {
+            if (!presenting) return;
+            presenting = false;
+            presPlaceholders.forEach(([marker, el]) => marker.replaceWith(el));
+            presPlaceholders = [];
+            document.getElementById('pres-overlay').classList.add('hidden');
+            document.body.style.overflow = '';
+            if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+            resizeCanvas();
+        }
+
+        function onPresentationKey(e) {
+            if (!presenting || e.ctrlKey || e.metaKey || e.altKey) return;
+            const onButton = e.target.tagName === 'BUTTON';  // let a focused button handle its own Space/Enter
+            if (e.key === 'Escape') {
+                exitPresentation();
+            } else if ((e.key === ' ' || e.key === 'Enter') && !onButton) {
+                e.preventDefault();
+                calculateProjectileMotion();
+            } else if (e.key === 'c' || e.key === 'C') {
+                clearTrails();
+            }
         }
 
         function updateSliderValue(sliderId, outputId) {
@@ -369,6 +764,10 @@
                 unit = ' m/s';
             }
             output.textContent = slider.value + unit;
+            if (sliderId === 'height-slider' && !animId) {
+                // Preview the new cliff height before launching (keeps the current path)
+                draw();
+            }
         }
 
         function updateUIBasedOnMode() {
@@ -425,55 +824,21 @@
             document.getElementById('output-velocity').textContent = calculatedVelocity.toFixed(2) + ' m/s';
             document.getElementById('output-final-velocity').textContent = finalVerticalVelocity.toFixed(2) + ' m/s';
 
-            updateChart(height, calculatedRange, calculatedVelocity, time);
-        }
-
-        function updateChart(initialHeight, totalRange, horizontalVelocity, timeInAir) {
-            const dataPoints = [];
-            const steps = 30;
-
-            for (let i = 0; i <= steps; i++) {
-                let t = (timeInAir / steps) * i;
-                let x = horizontalVelocity * t;
-                let y = initialHeight - (0.5 * g * t * t);
-                
-                if (y < 0) {
-                    y = 0;
-                }
-                
-                dataPoints.push({ x: x, y: y });
-
-                if (y === 0) {
-                    break;
-                }
-            }
-            
-            if (dataPoints.length > 0 && dataPoints[dataPoints.length - 1].y !== 0) {
-                dataPoints.push({ x: totalRange, y: 0 });
-            }
-
-            trajectoryChart.data.datasets[0].data = dataPoints;
-
-            // Calculate 'nice' maximum values for axes
-            const roundUpToNearest = (val, step) => {
-                if (val <= 0) return step;
-                return Math.ceil(val / step) * step;
-            }
-            
-            const xMax = roundUpToNearest(totalRange, 10);
-            const yMax = roundUpToNearest(initialHeight, 10);
-
-            trajectoryChart.options.scales.y.max = yMax;
-            trajectoryChart.options.scales.x.max = xMax;
-            
-            trajectoryChart.update();
+            launch(height, calculatedVelocity, time);
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            initChart();
-
             document.getElementById('calculate-btn').addEventListener('click', calculateProjectileMotion);
-            
+            document.getElementById('clear-trails-btn').addEventListener('click', clearTrails);
+            document.getElementById('pres-enter-btn').addEventListener('click', enterPresentation);
+            document.getElementById('pres-exit-btn').addEventListener('click', exitPresentation);
+            document.addEventListener('keydown', onPresentationKey);
+            document.addEventListener('fullscreenchange', () => {
+                // Esc in fullscreen is consumed by the browser; leaving fullscreen also leaves presentation mode
+                if (!document.fullscreenElement && presenting) exitPresentation();
+                else if (presenting) resizeCanvas();
+            });
+
             document.querySelectorAll('input[name="mode"]').forEach(radio => {
                 radio.addEventListener('change', updateUIBasedOnMode);
             });
@@ -482,7 +847,9 @@
             document.getElementById('velocity-slider').addEventListener('input', () => updateSliderValue('velocity-slider', 'velocity-value'));
             document.getElementById('range-slider').addEventListener('input', () => updateSliderValue('range-slider', 'range-value'));
 
+            window.addEventListener('resize', resizeCanvas);
             updateUIBasedOnMode();
+            resizeCanvas();
             calculateProjectileMotion();
         });
 
