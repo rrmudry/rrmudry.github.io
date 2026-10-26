@@ -408,11 +408,11 @@ function resolveSeriesVisuals(label, idx, isDark, customColor = null, customPoin
 
   // 2. Distinct Geometric Marker Shapes & Line Dash Patterns for B&W Accessibility
   const stylesCatalog = [
-    { pointStyle: "circle",   symbol: "●", shapeDesc: "Circle (●)",   borderDash: [],            lineDesc: "Solid Line" },
-    { pointStyle: "rect",     symbol: "■", shapeDesc: "Square (■)",   borderDash: [8, 4],        lineDesc: "Dashed Line" },
-    { pointStyle: "triangle", symbol: "▲", shapeDesc: "Triangle (▲)", borderDash: [3, 3],        lineDesc: "Dotted Line" },
-    { pointStyle: "rectRot",  symbol: "◆", shapeDesc: "Diamond (◆)",  borderDash: [10, 3, 2, 3], lineDesc: "Dash-Dot Line" },
-    { pointStyle: "crossRot", symbol: "✕", shapeDesc: "Cross (✕)",    borderDash: [14, 5],       lineDesc: "Long-Dash Line" }
+    { pointStyle: "circle",   symbol: "●", shapeName: "Circle",   shapeDesc: "Circle (●)",   borderDash: [],            lineDesc: "Solid Line" },
+    { pointStyle: "rect",     symbol: "■", shapeName: "Square",   shapeDesc: "Square (■)",   borderDash: [8, 4],        lineDesc: "Dashed Line" },
+    { pointStyle: "triangle", symbol: "▲", shapeName: "Triangle", shapeDesc: "Triangle (▲)", borderDash: [3, 3],        lineDesc: "Dotted Line" },
+    { pointStyle: "rectRot",  symbol: "◆", shapeName: "Diamond",  shapeDesc: "Diamond (◆)",  borderDash: [10, 3, 2, 3], lineDesc: "Dash-Dot Line" },
+    { pointStyle: "crossRot", symbol: "✕", shapeName: "Cross",    shapeDesc: "Cross (✕)",    borderDash: [14, 5],       lineDesc: "Long-Dash Line" }
   ];
 
   const styleObj = stylesCatalog[idx % stylesCatalog.length];
@@ -424,6 +424,7 @@ function resolveSeriesVisuals(label, idx, isDark, customColor = null, customPoin
     darkColor,
     pointStyle: pointStyle,
     symbol: styleObj.symbol,
+    shapeName: styleObj.shapeName,
     shapeDesc: styleObj.shapeDesc,
     borderDash: styleObj.borderDash,
     lineDesc: styleObj.lineDesc
@@ -2418,6 +2419,177 @@ function exportCustomScenariosJson() {
 // ==========================================================================
 let currentPrintMode = "blank"; // "blank" (student worksheet) or "report" (graded submission)
 
+function renderPrintChartSnapshot(scenario) {
+  if (!scenario || typeof Chart === "undefined" || typeof document === "undefined") return "";
+
+  const offCanvas = document.createElement("canvas");
+  offCanvas.width = 720;
+  offCanvas.height = 640;
+  const offCtx = offCanvas.getContext("2d");
+
+  // Fill canvas with pure white background for crisp printing
+  offCtx.fillStyle = "#ffffff";
+  offCtx.fillRect(0, 0, offCanvas.width, offCanvas.height);
+
+  const datasets = [];
+  const textColor = "#0f172a";
+  const gridColor = "rgba(15, 23, 42, 0.12)";
+
+  if (scenario.graphConfig && scenario.graphConfig.multiSeries && Array.isArray(scenario.graphConfig.series)) {
+    const xCol = scenario.dataTable.columns.find(c => c.isX) || scenario.dataTable.columns.find(c => !c.isText && !c.isY) || scenario.dataTable.columns[1];
+    const xKey = xCol ? xCol.key : "x";
+    const yCols = scenario.dataTable.columns.filter(c => c.isY);
+
+    scenario.graphConfig.series.forEach((sConfig, idx) => {
+      const dataKey = sConfig.key || sConfig.id || (yCols[idx] ? yCols[idx].key : `y${idx + 1}`);
+      const rawLabel = sConfig.label || (yCols[idx] ? yCols[idx].label : `Dataset ${idx + 1}`);
+      const cleanLabel = rawLabel.replace(/\s*\([^)]*\)/, "").trim();
+      const visuals = resolveSeriesVisuals(cleanLabel, idx, false, sConfig.color, sConfig.pointStyle);
+
+      const pts = scenario.dataTable.rows.map(r => {
+        const xVal = typeof r[xKey] === "number" ? r[xKey] : (typeof r.x === "number" ? r.x : 0);
+        const yVal = typeof r[dataKey] === "number"
+          ? r[dataKey]
+          : (typeof r[`y${idx + 1}`] === "number"
+              ? r[`y${idx + 1}`]
+              : (idx === 0 && typeof r.y === "number" ? r.y : 0));
+        return { x: xVal, y: yVal };
+      });
+
+      const seriesColor = visuals.lightColor || visuals.color;
+      datasets.push({
+        label: `${visuals.symbol} ${cleanLabel} (${visuals.lineDesc})`,
+        data: pts,
+        backgroundColor: seriesColor,
+        borderColor: seriesColor,
+        borderDash: visuals.borderDash,
+        pointBackgroundColor: seriesColor,
+        pointBorderColor: "#ffffff",
+        pointBorderWidth: 3,
+        pointRadius: 9,
+        pointStyle: visuals.pointStyle,
+        showLine: true,
+        borderWidth: 3.5
+      });
+    });
+  } else {
+    const xCol = scenario.dataTable.columns.find(c => c.isX);
+    const yCol = scenario.dataTable.columns.find(c => c.isY);
+    const pts = scenario.dataTable.rows.map(r => ({
+      x: r[xCol.key],
+      y: r[yCol.key]
+    }));
+    const visuals = resolveSeriesVisuals(scenario.yAxis.label, 0, false);
+    const primaryColor = "#0284c7";
+
+    datasets.push({
+      label: `${visuals.symbol} ${scenario.yAxis.label} (${scenario.yAxis.unit})`,
+      data: pts,
+      backgroundColor: primaryColor,
+      borderColor: primaryColor,
+      borderDash: [],
+      pointBackgroundColor: primaryColor,
+      pointBorderColor: "#ffffff",
+      pointBorderWidth: 3,
+      pointRadius: 9,
+      pointStyle: visuals.pointStyle,
+      showLine: scenario.chartType === "line",
+      tension: scenario.chartType === "line" ? 0.2 : 0,
+      borderWidth: 3.5
+    });
+
+    if (scenario.graphConfig && scenario.graphConfig.slope !== undefined) {
+      const minX = scenario.xAxis.min || 0;
+      const maxX = scenario.xAxis.suggestedMax || Math.max(...pts.map(p => p.x));
+      const m = scenario.graphConfig.slope;
+      const b = scenario.graphConfig.intercept || 0;
+
+      datasets.push({
+        label: "Best-Fit Trendline",
+        data: [
+          { x: minX, y: m * minX + b },
+          { x: maxX, y: m * maxX + b }
+        ],
+        borderColor: "#7c3aed",
+        borderDash: [8, 5],
+        borderWidth: 3,
+        pointRadius: 0,
+        fill: false,
+        showLine: true
+      });
+    }
+  }
+
+  try {
+    const tempChart = new Chart(offCtx, {
+      type: "scatter",
+      data: { datasets },
+      options: {
+        responsive: false,
+        animation: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: "top",
+            labels: {
+              color: textColor,
+              font: { size: 14, weight: "bold" },
+              usePointStyle: true,
+              pointStyleWidth: 18,
+              boxWidth: 18,
+              padding: 10
+            }
+          },
+          tooltip: { enabled: false }
+        },
+        scales: {
+          x: {
+            type: "linear",
+            title: {
+              display: true,
+              text: `${scenario.xAxis.label} [${scenario.xAxis.symbol}] (${scenario.xAxis.unit})`,
+              color: textColor,
+              font: { size: 15, weight: "800" },
+              padding: { top: 6 }
+            },
+            ticks: {
+              color: textColor,
+              font: { size: 13, weight: "700" }
+            },
+            grid: { color: gridColor, lineWidth: 1.2 },
+            min: scenario.xAxis.min !== undefined ? scenario.xAxis.min : undefined,
+            suggestedMax: scenario.xAxis.suggestedMax
+          },
+          y: {
+            type: "linear",
+            title: {
+              display: true,
+              text: `${scenario.yAxis.label} [${scenario.yAxis.symbol}] (${scenario.yAxis.unit})`,
+              color: textColor,
+              font: { size: 15, weight: "800" },
+              padding: { bottom: 6 }
+            },
+            ticks: {
+              color: textColor,
+              font: { size: 13, weight: "700" }
+            },
+            grid: { color: gridColor, lineWidth: 1.2 },
+            min: scenario.yAxis.min !== undefined ? scenario.yAxis.min : undefined,
+            suggestedMax: scenario.yAxis.suggestedMax
+          }
+        }
+      }
+    });
+
+    const dataUrl = offCanvas.toDataURL("image/png", 1.0);
+    tempChart.destroy();
+    return dataUrl;
+  } catch (e) {
+    console.warn("Offscreen chart render error:", e);
+    return "";
+  }
+}
+
 function printBlankWorksheet() {
   currentPrintMode = "blank";
   syncPrintWorksheet("blank");
@@ -2551,6 +2723,32 @@ function syncPrintWorksheet(mode = currentPrintMode) {
     pTableWrapper.innerHTML = tHtml;
   }
 
+  // Populate Controlled Variables & Instrumentation box on Page 1 (eliminates dead space, reinforces CAST)
+  const pTableControlsBox = document.getElementById("pTableControlsBox");
+  if (pTableControlsBox) {
+    const cvs = (Array.isArray(scenario.controlledVariables) && scenario.controlledVariables.length > 0)
+      ? scenario.controlledVariables
+      : ["Habitat background kept constant across all trials", "Standardized sampling time duration", "Identical collection tool used for each generation"];
+    const inst = (Array.isArray(scenario.calibratedInstrumentation) && scenario.calibratedInstrumentation.length > 0)
+      ? scenario.calibratedInstrumentation.join(" • ")
+      : "Calibrated lab instrumentation & digital measurement tools";
+
+    let ctrlHtml = `
+      <div class="p-ctrl-header">🔬 Experimental Controls &amp; Protocol Verification</div>
+      <div class="p-ctrl-section">
+        <span class="p-ctrl-label">Controlled Variables:</span>
+        <ul class="p-ctrl-list">
+          ${cvs.slice(0, 3).map(cv => `<li>${stripHtml(cv)}</li>`).join("")}
+        </ul>
+      </div>
+      <div class="p-ctrl-section" style="margin-top:3px;">
+        <span class="p-ctrl-label">Calibrated Sensors:</span>
+        <span class="p-ctrl-instruments">${stripHtml(inst)}</span>
+      </div>
+    `;
+    pTableControlsBox.innerHTML = ctrlHtml;
+  }
+
   // 4. Plotted Graph Image Snapshot & Accessible Legend
   const pGraphModelBadge = document.getElementById("pGraphModelBadge");
   const pGraphImg = document.getElementById("pGraphImg");
@@ -2566,69 +2764,84 @@ function syncPrintWorksheet(mode = currentPrintMode) {
     }
   }
 
-  // Render light mode snapshot for clean, crisp printing
-  if (chartInstance && pGraphImg) {
-    const wasDark = currentTheme === "dark";
-    if (wasDark) {
-      renderChart("light");
-    }
-    const dataUrl = chartInstance.toBase64Image("image/png", 1.0);
-    pGraphImg.src = dataUrl;
-    if (wasDark) {
-      renderChart("dark");
+  // Render dedicated high-resolution 960x560 print snapshot
+  if (pGraphImg) {
+    const printSnapshotUrl = renderPrintChartSnapshot(scenario);
+    if (printSnapshotUrl) {
+      pGraphImg.src = printSnapshotUrl;
+    } else if (chartInstance) {
+      pGraphImg.src = chartInstance.toBase64Image("image/png", 1.0);
     }
   }
 
-  // Populate Accessible Legend Key on Page 1 (Symbols & Line Patterns for B&W photocopies)
+  // Populate Accessible Legend Key on Page 1 (Structured Table for B&W photocopies)
   if (pGraphAccessLegend) {
     if (scenario.graphConfig && scenario.graphConfig.multiSeries && Array.isArray(scenario.graphConfig.series)) {
       const eqRaw = scenario.graphConfig.equation || "";
-      let legHtml = `<div style="font-size:7.4pt; font-weight:800; color:#334155; text-transform:uppercase; margin-bottom:2px;">Accessible Graph Key (Dual-Coded Symbols &amp; Patterns for Print):</div>`;
-      legHtml += `<div style="display:flex; flex-direction:column; gap:2.5px;">`;
+      let legHtml = `<div class="p-access-heading">Accessible Graph Key (Dual-Coded Symbols &amp; Patterns for B&amp;W Photocopies):</div>`;
+      legHtml += `<table class="p-access-table"><thead><tr>`;
+      legHtml += `<th style="width:32%;">Prey / Series</th>`;
+      legHtml += `<th style="width:40%;">Pattern &amp; Marker</th>`;
+      legHtml += `<th style="width:28%; text-align:right;">Model Rate</th>`;
+      legHtml += `</tr></thead><tbody>`;
 
       scenario.graphConfig.series.forEach((sConfig, idx) => {
         const rawLabel = sConfig.label || `Dataset ${idx + 1}`;
         const cleanLabel = rawLabel.replace(/\s*\([^)]*\)/, "").trim();
+        const displayLabel = cleanLabel.replace(/\s*population/i, "").trim();
         const visuals = resolveSeriesVisuals(cleanLabel, idx, false, sConfig.color, sConfig.pointStyle);
 
         // Find equation or slope snippet matching this series
         let eqSnippet = "";
         if (sConfig.slope !== undefined) {
-          eqSnippet = `Rate: ${sConfig.slope > 0 ? '+' : ''}${sConfig.slope} ${scenario.yAxis.unit}/${scenario.xAxis.unit}`;
+          const sign = sConfig.slope > 0 ? '+' : '';
+          const yU = (scenario.yAxis.unit || '').replace(/organisms/i, 'org').replace(/generations/i, 'gen');
+          const xU = (scenario.xAxis.unit || '').replace(/organisms/i, 'org').replace(/generations/i, 'gen');
+          eqSnippet = `${sign}${sConfig.slope} ${yU}/${xU}`.trim();
         } else if (eqRaw) {
           const parts = eqRaw.split(";");
           const matched = parts.find(p => p.toLowerCase().includes(cleanLabel.toLowerCase()) || p.toLowerCase().includes(cleanLabel.split(" ")[0].toLowerCase()));
           if (matched) {
             eqSnippet = matched.trim().replace(/\s*\*\s*/g, " · ");
+            // Strip redundant series name prefix from eqSnippet if already shown in first column
+            eqSnippet = eqSnippet.replace(new RegExp(`^${cleanLabel}\\s*:\\s*`, 'i'), '');
           }
         }
 
         legHtml += `
-          <div class="p-access-item">
-            <div class="p-access-left">
-              <span class="p-access-symbol" style="color:${visuals.lightColor}; font-size:11pt;">${visuals.symbol}</span>
-              <span class="p-access-label">${cleanLabel}:</span>
-              <span class="p-access-style">Pattern: <strong>${visuals.lineDesc}</strong> (${visuals.shapeDesc})</span>
-            </div>
-            ${eqSnippet ? `<span class="p-access-eq">${eqSnippet}</span>` : ''}
-          </div>
+          <tr>
+            <td>
+              <span class="p-access-symbol" style="color:${visuals.lightColor};">${visuals.symbol}</span>
+              <strong class="p-access-name">${displayLabel}</strong>
+            </td>
+            <td>${visuals.lineDesc.replace(' Line', '')} (${visuals.shapeName})</td>
+            <td style="text-align:right; font-family:monospace; font-weight:700; color:#0369a1;">${eqSnippet}</td>
+          </tr>
         `;
       });
-      legHtml += `</div>`;
+      legHtml += `</tbody></table>`;
       pGraphAccessLegend.innerHTML = legHtml;
     } else {
       const visuals = resolveSeriesVisuals(scenario.yAxis.label, 0, false);
       let eqSnippet = scenario.graphConfig?.equation ? scenario.graphConfig.equation.replace(/\s*\*\s*/g, " · ") : "";
-      pGraphAccessLegend.innerHTML = `
-        <div class="p-access-item">
-          <div class="p-access-left">
-            <span class="p-access-symbol" style="color:${visuals.lightColor}; font-size:11pt;">${visuals.symbol}</span>
-            <span class="p-access-label">${scenario.yAxis.label} (${scenario.yAxis.unit}):</span>
-            <span class="p-access-style">Pattern: <strong>${visuals.lineDesc}</strong> with ${visuals.shapeDesc}</span>
-          </div>
-          ${eqSnippet ? `<span class="p-access-eq">${eqSnippet}</span>` : ''}
-        </div>
+      let legHtml = `<div class="p-access-heading">Accessible Graph Key (Dual-Coded Symbols &amp; Patterns for B&amp;W Photocopies):</div>`;
+      legHtml += `<table class="p-access-table"><thead><tr>`;
+      legHtml += `<th style="width:32%;">Variable / Series</th>`;
+      legHtml += `<th style="width:40%;">Pattern &amp; Marker</th>`;
+      legHtml += `<th style="width:28%; text-align:right;">Model Trend</th>`;
+      legHtml += `</tr></thead><tbody>`;
+      legHtml += `
+        <tr>
+          <td>
+            <span class="p-access-symbol" style="color:${visuals.lightColor};">${visuals.symbol}</span>
+            <strong class="p-access-name">${scenario.yAxis.label}</strong>
+          </td>
+          <td>${visuals.lineDesc.replace(' Line', '')} (${visuals.shapeName})</td>
+          <td style="text-align:right; font-family:monospace; font-weight:700; color:#0369a1;">${eqSnippet}</td>
+        </tr>
       `;
+      legHtml += `</tbody></table>`;
+      pGraphAccessLegend.innerHTML = legHtml;
     }
   }
 
@@ -2666,7 +2879,7 @@ function syncPrintWorksheet(mode = currentPrintMode) {
     }
   }
 
-  // Part 3: Rate of Change / Quantitative Calculation with Setup Work
+  // Part 3: Rate of Change / Quantitative Calculation with Setup Work Box
   const pQ2Header = document.getElementById("pQ2Header");
   const pQ2Prompt = document.getElementById("pQ2Prompt");
   const pQ2Value = document.getElementById("pQ2Value");
@@ -2685,12 +2898,15 @@ function syncPrintWorksheet(mode = currentPrintMode) {
     pQ2Label.textContent = quantQ.slopeSteps?.calcLabel || "Calculated Rate (Slope):";
   }
   if (pQ2Work) {
-    if (!isBlank && quantQ.slopeSteps?.formulaSetup) {
-      pQ2Work.textContent = quantQ.slopeSteps.formulaSetup;
-    } else if (quantQ.slopeSteps?.blankSetupWork) {
-      pQ2Work.textContent = quantQ.slopeSteps.blankSetupWork;
+    if (isBlank) {
+      // NEVER give away answers, coordinates, or numbers on blank student worksheets
+      pQ2Work.textContent = "Setup Work: Δy / Δx = ( ___ − ___ ) / ( ___ − ___ )";
     } else {
-      pQ2Work.textContent = "Δy / Δx = ( _____ − _____ ) / ( _____ − _____ )";
+      if (quantQ.slopeSteps?.formulaSetup) {
+        pQ2Work.textContent = quantQ.slopeSteps.formulaSetup;
+      } else {
+        pQ2Work.textContent = "Setup Work: Δy / Δx = ( ___ − ___ ) / ( ___ − ___ )";
+      }
     }
   }
 
@@ -2857,6 +3073,7 @@ if (typeof module !== "undefined" && module.exports) {
     parseJsonText,
     buildAiPromptPayload,
     setAiSpecialPreset,
-    resolveSeriesVisuals
+    resolveSeriesVisuals,
+    renderPrintChartSnapshot
   };
 }

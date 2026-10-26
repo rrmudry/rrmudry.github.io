@@ -22,6 +22,11 @@ Append-only log tracking pattern changes across recent sessions.
     - **Page 2**: Running Header with Title and Student/Period/Score fields, Question 1 (Graph Reading & Decoding with wide blank), Question 2 (Pattern Selection with `[ ]` checkboxes), Question 3 (Quantitative Rate of Change with boxed Setup Work formula `Δy / Δx = ( ___ − ___ ) / ( ___ − ___ )`), Question 4 (Structured 3-part CER with Claim underline, 6 ruled lines for Evidence, 5 ruled lines for Reasoning, and 4-point Rubric bar), Question 5 (Prediction & Synthesis), and Page 2 Footer (`Page 2 of 2`).
   - Increased base typography from unreadable 6-7pt to clean 8.8–9pt (1.35 line height) with ruled writing guides.
   - Guaranteed clean page breaks (`page-break-after: always` on Page 1, `page-break-before: always` on Page 2).
+    - Added dedicated offscreen canvas snapshot generator (`renderPrintChartSnapshot`, 720×640) rendering bold 9px markers, 15px titles, and filling the 4-inch vertical column without 16:9 letterbox dead space.
+    - Added left-column Experimental Controls & Protocol Verification panel (`#pTableControlsBox`) balancing the page height alongside Table 1.
+    - Converted Accessible Graph Key into a crisp 3-column table (`32%`, `40%`, `28%`) with non-wrapping headers and abbreviated rate units (`org/gen`).
+    - Enforced Productive Pedagogical Friction: blank worksheets strictly output `Setup Work: Δy / Δx = ( ___ − ___ ) / ( ___ − ___ )` with zero coordinate leakage.
+    - Expanded Page 2 CER writing guides to 7 ruled lines for Evidence and 6 ruled lines for Reasoning with exact 10.18in page budgeting.
 - **Automated Validation**:
   - Verified 100% pass on `tests/test_cast_data_practice.js` including new unit tests for `resolveSeriesVisuals`.
   - Verified 2-page print rendering via headless Puppeteer and visual `pdftoppm` inspection.

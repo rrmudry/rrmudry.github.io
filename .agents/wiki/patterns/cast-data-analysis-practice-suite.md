@@ -231,7 +231,46 @@ When multiple datasets are requested:
 ### 4. UI Indicators & 1-Page Printable Worksheet Sync
 - **Metadata Badges**: Header displays `#multiSeriesBadge` (`📈 2 Datasets`) when a multi-series scenario is active.
 - **Dropdown Tagging**: Scenario dropdown prefixes multi-dataset items with `[2 Datasets]` or `[3 Datasets]`.
-- **1-Page Print Worksheet**: Dynamically renders all Y-columns in `.p-table` and captures the multi-series Chart.js canvas snapshot into `#pGraphImg` within the strict 10.36in page budget.
+- **Worksheet Print Engine**: Dynamically renders all Y-columns in `.p-table` and captures the multi-series Chart.js canvas snapshot into `#pGraphImg`.
 
+---
 
+## 8. Two-Page Accessible Printable Worksheet Architecture & B&W Photocopy Standards
 
+To provide students with generous physical writing space for rigorous CER argumentation while ensuring 100% clarity on black-and-white school photocopiers:
+
+### 1. Dual-Coded Semantic Visuals for Black & White Printing
+- **Semantic Color Mapping (`resolveSeriesVisuals`)**: Maps organism/substrate keywords directly to natural colors (e.g. Green Prey `#15803d`, Red Prey `#dc2626`, Blue Prey `#1d4ed8`).
+- **Geometric Marker Dual-Coding**: Points use distinct marker shapes:
+  - Dataset 1: Solid Line with Circle (`●`)
+  - Dataset 2: Dashed Line (`[8, 4]`) with Square (`■`)
+  - Dataset 3: Dotted Line (`[3, 3]`) with Triangle (`▲`)
+  - Dataset 4: Dash-Dot Line with Diamond (`◆`)
+- **Point Sizing**: High-visibility `pointRadius: 9`, `pointBorderWidth: 3` with pure white border ensures points pop on low-contrast photocopies.
+
+### 2. High-Resolution Dedicated Offscreen Canvas Snapshot (`renderPrintChartSnapshot`)
+- Never snapshot the responsive on-screen canvas directly (which is widescreen 16:9 and small).
+- An unattached, offscreen 720×640 canvas (nearly square 1.12:1 aspect ratio) is rendered synchronously with pure white background, 15px bold axis titles, 13px bold tick marks, and 14px bold legend.
+- When placed into the 3.4-inch portrait `.p-graph-content` card, it completely fills the space without letterboxing.
+
+### 3. Structured Accessible Legend Table (`.p-access-table`)
+- Renders as a fixed 3-column table (`32%`, `40%`, `28%`):
+  - Col 1: Symbol & Series Name (e.g. `● Green Prey`)
+  - Col 2: Line & Marker Pattern (e.g. `Solid (Circle)`)
+  - Col 3: Mathematical Model / Rate (e.g. `+5.0 org/gen`)
+- Prevents awkward word wraps or text truncation.
+
+### 4. Zero-Void Evidence Column
+- Table 1 rows are spaced with generous 7px cell padding.
+- Below Table 1, a dedicated **"🔬 Experimental Controls & Protocol Verification"** box renders controlled variables and calibrated instrumentation, turning empty white space into high-value CAST SEP-3 inquiry scaffolding.
+
+### 5. Strict Blank Mode Friction Law (Question 3 Setup Work)
+- In blank worksheet mode (`isBlank === true`), `#pQ2Work` strictly renders placeholder slots: `Setup Work: Δy / Δx = ( ___ − ___ ) / ( ___ − ___ )`.
+- Specific coordinates and answers are NEVER leaked onto student worksheets.
+- Full numerical solutions appear only in completed report mode.
+
+### 6. Expanded Ruled Lines for CER (Page 2)
+- Page 2 is budgeted at `10.18in` with `justify-content: space-between`.
+- Evidence area has `min-height: 1.70in` (7 clean ruled writing lines).
+- Reasoning area has `min-height: 1.45in` (6 clean ruled writing lines).
+- Docks running header, Q1-Q5, 4-point rubric bar, and Page 2 footer cleanly without overflow.
