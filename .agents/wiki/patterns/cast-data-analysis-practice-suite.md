@@ -235,9 +235,9 @@ When multiple datasets are requested:
 
 ---
 
-## 8. Two-Page Accessible Printable Worksheet Architecture & B&W Photocopy Standards
+## 8. Two-Page Low-Stress Printable Worksheet Architecture & B&W Photocopy Standards
 
-To provide students with generous physical writing space for rigorous CER argumentation while ensuring 100% clarity on black-and-white school photocopiers:
+To provide students with generous physical writing space for rigorous CER argumentation, eliminate split-attention cognitive dissonance, and guarantee 100% clarity on black-and-white school photocopiers:
 
 ### 1. Dual-Coded Semantic Visuals for Black & White Printing
 - **Semantic Color Mapping (`resolveSeriesVisuals`)**: Maps organism/substrate keywords directly to natural colors (e.g. Green Prey `#15803d`, Red Prey `#dc2626`, Blue Prey `#1d4ed8`).
@@ -250,27 +250,43 @@ To provide students with generous physical writing space for rigorous CER argume
 
 ### 2. High-Resolution Dedicated Offscreen Canvas Snapshot (`renderPrintChartSnapshot`)
 - Never snapshot the responsive on-screen canvas directly (which is widescreen 16:9 and small).
-- An unattached, offscreen 720×640 canvas (nearly square 1.12:1 aspect ratio) is rendered synchronously with pure white background, 15px bold axis titles, 13px bold tick marks, and 14px bold legend.
-- When placed into the 3.4-inch portrait `.p-graph-content` card, it completely fills the space without letterboxing.
+- An unattached, offscreen 1000×460 landscape canvas (2.17:1 aspect ratio) is rendered synchronously with pure white background, 15px bold axis titles, 13px bold tick marks, and 14px bold legend.
+- When placed into the full-width `.p-graph-content` card on Page 1, it completely fills the space without letterboxing or horizontal distortion.
 
 ### 3. Structured Accessible Legend Table (`.p-access-table`)
 - Renders as a fixed 3-column table (`32%`, `40%`, `28%`):
   - Col 1: Symbol & Series Name (e.g. `● Green Prey`)
   - Col 2: Line & Marker Pattern (e.g. `Solid (Circle)`)
   - Col 3: Mathematical Model / Rate (e.g. `+5.0 org/gen`)
-- Prevents awkward word wraps or text truncation.
+- Prevents awkward word wraps or text truncation on photocopies.
 
-### 4. Zero-Void Evidence Column
-- Table 1 rows are spaced with generous 7px cell padding.
-- Below Table 1, a dedicated **"🔬 Experimental Controls & Protocol Verification"** box renders controlled variables and calibrated instrumentation, turning empty white space into high-value CAST SEP-3 inquiry scaffolding.
+### 4. Low-Stress Layout Heuristics: Page 1 (Stimulus & Evidence Architecture)
+- **Header Reference Bar (`.p-reference-bar`)**: Sits docked at the very top of Page 1 beneath the student metadata header. Displays extracted Model Equations (e.g., `a = F_net / m`) and Controlled Constants (e.g., `Mass: 5.0 kg`), reducing cognitive load and eliminating split-attention.
+- **Concise Context Line**: Background narrative is compressed to a focused 1–2 sentence context banner (`.p-context-compact`), leaving maximum vertical space for authentic scientific data. Splitting uses lookbehind/lookahead `/(?<=[.!?])\s+(?=[A-Z])/` to safely preserve decimal measurements (e.g., `5.0 kg`).
+- **2-Row Investigation Flow**:
+  - **Row 1 (Observation & Controls, ~2.15in)**: Data Table 1 on the left (55–63% width) with generous 7px cell padding; Extracted Experimental Controls & Protocol Verification box on the right (35–43% width).
+  - **Row 2 (Plotted Model & Accessible Key, ~5.2in)**: Full-width landscape Graph snapshot (1000×460) followed by the 3-column Accessible Dual-Coded Legend Table.
+- **Page 1 Footer Bar**: Displays Science Department branding, NGSS standard badge, and `Page 1 of 2`.
 
-### 5. Strict Blank Mode Friction Law (Question 3 Setup Work)
-- In blank worksheet mode (`isBlank === true`), `#pQ2Work` strictly renders placeholder slots: `Setup Work: Δy / Δx = ( ___ − ___ ) / ( ___ − ___ )`.
-- Specific coordinates and answers are NEVER leaked onto student worksheets.
-- Full numerical solutions appear only in completed report mode.
-
-### 6. Expanded Ruled Lines for CER (Page 2)
-- Page 2 is budgeted at `10.18in` with `justify-content: space-between`.
-- Evidence area has `min-height: 1.70in` (7 clean ruled writing lines).
-- Reasoning area has `min-height: 1.45in` (6 clean ruled writing lines).
-- Docks running header, Q1-Q5, 4-point rubric bar, and Page 2 footer cleanly without overflow.
+### 5. Low-Stress Layout Heuristics: Page 2 (Analysis & Argumentation Workspaces)
+Page 2 implements an atomic 5-part progression strictly budgeted within `10.18in` with zero 3rd-page spillover:
+- **Atomic Sub-Prompt Block Format**:
+  - Progress Checkbox: `☐` (`.checkbox`).
+  - Part Label: `(1)`–`(5)` (`.part-label`).
+  - Solid Uppercase Verb Badge: `READ GRAPH`, `CLASSIFY TREND`, `CALCULATE RATE`, `CONSTRUCT CER`, `PREDICT` (`.verb-badge`).
+  - Styled Inline Constraints: `<em class="constraint">` (italic with solid underline) automatically highlighting conditions, constants, and trial ranges.
+- **Dynamic Workspace Archetypes**:
+  - **Question 1 (`ws-short-box`)**: Given X-coordinate pill (`Given: X = ...`) alongside measured Y readout blank with prompt unit (`Measured Y = [ _____ ] [unit]`).
+  - **Question 2**: Multiple-choice options with `[ &nbsp; ]` checkboxes stacked vertically with unbolded regular weight (`font-weight: 400`).
+  - **Question 3 (`ws-zoned-calc`)**:
+    - **Zone 1 (44% width)**: Symbolic Formula & Blank Setup Work fraction: `Δy / Δx = ( ___ − ___ ) / ( ___ − ___ )`.
+    - **Zone 2 (56% width)**: Substitution, Simplification Work area with calculated rate blank and unit pill.
+  - **Question 4 (`ws-cer-box`)**:
+    - **Claim**: Single-line prompt with writing underline.
+    - **Evidence**: Discrete physical ruled lines (`.ruled-line` × 5, `0.24in` line height) with faded scaffold prompt starter (`.faded-scaffold`).
+    - **Reasoning**: Discrete physical ruled lines (`.ruled-line` × 4, `0.24in` line height) with faded scaffold prompt starter (`.faded-scaffold`).
+    - **Compact 4-Point Rubric Bar**: `[ Claim: 1 pt | Evidence: 1 pt | Units: 1 pt | Reasoning: 1 pt ]` and `[ Score: ____ / 4 Pts ]`.
+  - **Question 5**: Synthesis & Misconception Diagnostics with styled constraints and options.
+- **Teacher Key Mode**: Hidden `.teacher-key` containers are populated dynamically for instant teacher grading keys and on-screen teacher view.
+- **Blank Mode Strictness**: In student blank mode, coordinate slots remain `( ___ − ___ ) / ( ___ − ___ )` to preserve productive pedagogical friction.
+- **Page 2 Footer Bar**: Displays Science Department branding, NGSS standard badge, and `Page 2 of 2`.

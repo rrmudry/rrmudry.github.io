@@ -1586,6 +1586,22 @@ function stripHtml(str) {
   return str.replace(/<[^>]*>/g, "").trim();
 }
 
+// Helper to format inline constraints and backticked code for Low-Stress printing
+function formatInlineConstraints(text) {
+  if (!text || typeof text !== "string") return text || "";
+  let esc = stripHtml(text);
+  // Explicit *italic constraints*
+  esc = esc.replace(/\*(.+?)\*/g, '<em class="constraint">$1</em>');
+  // Explicit `code/math`
+  esc = esc.replace(/`(.+?)`/g, '<code>$1</code>');
+  // Automatically signal implicit condition clauses
+  esc = esc.replace(/\b(when [^,.;]+ held constant)\b/gi, '<em class="constraint">$1</em>');
+  esc = esc.replace(/\b(between Trial \d+ [^,.;]+ and Trial \d+ [^,.;]+)\b/gi, '<em class="constraint">$1</em>');
+  esc = esc.replace(/\b(at constant [^,.;]+)\b/gi, '<em class="constraint">$1</em>');
+  esc = esc.replace(/\b(to the same [^,.;]+(?:glider|cart|sample|population|solution))\b/gi, '<em class="constraint">$1</em>');
+  return esc;
+}
+
 // Helper to sanitize literal newlines and control characters inside JSON string literals
 function sanitizeJsonString(str) {
   let result = "";
@@ -2656,6 +2672,30 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   if (pMasteryScore) pMasteryScore.textContent = scoreStr;
   if (pScoreMaxLabel) pScoreMaxLabel.textContent = scoreMaxStr;
 
+  // Low-Stress Reference Bar: Model Equations & Controlled Constants
+  const pRefEquations = document.getElementById("pRefEquations");
+  const pRefConstants = document.getElementById("pRefConstants");
+  if (pRefEquations) {
+    let eqList = [];
+    if (scenario.graphConfig?.equation) {
+      eqList.push(`<code>${stripHtml(scenario.graphConfig.equation.replace(/\s*\*\s*/g, " · "))}</code>`);
+    }
+    eqList.push(`<code>Slope = Δy / Δx = (y₂ − y₁) / (x₂ − x₁)</code>`);
+    pRefEquations.innerHTML = eqList.join(" &nbsp;|&nbsp; ");
+  }
+  if (pRefConstants) {
+    let constList = [];
+    if (Array.isArray(scenario.controlledVariables) && scenario.controlledVariables.length > 0) {
+      scenario.controlledVariables.slice(0, 2).forEach(cv => {
+        let shortCv = cv.replace(/held constant at /i, "= ").replace(/verified to /i, "= ");
+        constList.push(`<code>${stripHtml(shortCv)}</code>`);
+      });
+    } else {
+      constList.push(`<code>Standard Laboratory Controls Verified</code>`);
+    }
+    pRefConstants.innerHTML = constList.join(" &nbsp;|&nbsp; ");
+  }
+
   // Running Header - Page 2
   const pHeaderTitleP2 = document.getElementById("pHeaderTitleP2");
   const pStudentNameP2 = document.getElementById("pStudentNameP2");
@@ -2669,7 +2709,7 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   if (pMasteryScoreP2) pMasteryScoreP2.textContent = scoreStr;
   if (pScoreMaxLabelP2) pScoreMaxLabelP2.textContent = scoreMaxStr;
 
-  // 2. Scenario Narrative
+  // 2. Scenario Narrative (Eliminate Split-Attention: Concise Context Line)
   const pScenarioTitle = document.getElementById("pScenarioTitle");
   const pScenarioText = document.getElementById("pScenarioText");
   if (pScenarioTitle) pScenarioTitle.textContent = "INVESTIGATION PROCEDURE & EXPERIMENTAL SETUP";
@@ -2685,7 +2725,10 @@ function syncPrintWorksheet(mode = currentPrintMode) {
       }
       return match;
     });
-    pScenarioText.textContent = cleanBg;
+    // Extract first 1-2 sentences to avoid cognitive split-attention (avoid splitting on decimal numbers like 5.0 kg)
+    const sentences = cleanBg.split(/(?<=[.!?])\s+(?=[A-Z])/);
+    const shortContext = sentences.slice(0, 2).join(" ").trim();
+    pScenarioText.innerHTML = formatInlineConstraints(shortContext);
   }
 
   // 3. Experimental Data Table
@@ -2863,31 +2906,51 @@ function syncPrintWorksheet(mode = currentPrintMode) {
     }
   }
 
-  // 5. Questions Section (5-Part Pedagogical Structure on Page 2)
-  // Part 1: Graph Reading & Decoding
+  // 5. Questions Section (5-Part Low-Stress Atomic Structure on Page 2)
+  // Part 1: Graph Reading & Decoding (Short Value Box Archetype)
   const anatomy = scenario.questions.anatomy;
   const pQ0Prompt = document.getElementById("pQ0Prompt");
   const pQ0X = document.getElementById("pQ0X");
   const pQ0Y = document.getElementById("pQ0Y");
   const pQ0Value = document.getElementById("pQ0Value");
   const pQ0Unit = document.getElementById("pQ0Unit");
+  const pQ0Key = document.getElementById("pQ0Key");
 
-  if (pQ0Prompt && anatomy) pQ0Prompt.textContent = stripHtml(anatomy.locatorPrompt);
-  if (pQ0X && anatomy) pQ0X.textContent = stripHtml(anatomy.independentVar);
-  if (pQ0Y && anatomy) pQ0Y.textContent = stripHtml(anatomy.dependentVar);
-  if (pQ0Value) pQ0Value.textContent = (!isBlank && resp.anatomyLocatorAnswer) ? resp.anatomyLocatorAnswer : "";
-  if (pQ0Unit && anatomy) pQ0Unit.textContent = stripHtml(anatomy.locatorUnit);
+  if (pQ0Prompt && anatomy) {
+    pQ0Prompt.innerHTML = formatInlineConstraints(anatomy.locatorPrompt);
+  }
+  if (pQ0X && anatomy) {
+    const xUnit = scenario.xAxis?.unit || (anatomy.locatorUnit || '').split('/')[0];
+    pQ0X.innerHTML = `${stripHtml(anatomy.independentVar)}: <code style="font-family:monospace; background:#e2e8f0; padding:1px 4px; border-radius:3px;">${anatomy.expectedLocatorValue} ${stripHtml(xUnit)}</code>`;
+  }
+  if (pQ0Y && anatomy) {
+    pQ0Y.textContent = stripHtml(anatomy.dependentVar);
+  }
+  if (pQ0Value) {
+    pQ0Value.textContent = (!isBlank && resp.anatomyLocatorAnswer) ? resp.anatomyLocatorAnswer : "";
+  }
+  if (pQ0Unit && anatomy) {
+    pQ0Unit.textContent = stripHtml(anatomy.locatorUnit);
+  }
+  if (pQ0Key && anatomy) {
+    const yExpected = (anatomy.expectedLocatorValue * (scenario.graphConfig.slope || 1)).toFixed(1);
+    pQ0Key.innerHTML = `<strong>Teacher Solution:</strong> Value corresponding to x = ${anatomy.expectedLocatorValue}: <code>y = ${yExpected} ${stripHtml(anatomy.locatorUnit)}</code> (±${anatomy.locatorTolerance || 0.2}).`;
+  }
 
-  // Part 2: Trend Pattern
+  // Part 2: Trend Pattern Classification
   const pQ1Prompt = document.getElementById("pQ1Prompt");
   const pQ1Answer = document.getElementById("pQ1Answer");
-  if (pQ1Prompt) pQ1Prompt.textContent = stripHtml(scenario.questions.trend.prompt);
+  const pQ1Key = document.getElementById("pQ1Key");
+
+  if (pQ1Prompt) {
+    pQ1Prompt.innerHTML = formatInlineConstraints(scenario.questions.trend.prompt);
+  }
   if (pQ1Answer) {
     if (!isBlank && resp.trendAnswer !== null && scenario.questions.trend.options[resp.trendAnswer]) {
       const isCor = resp.scores.trend === 1;
       pQ1Answer.innerHTML = `<span style="font-weight:400; color:#1e293b;">Selected Trend: <strong>${stripHtml(scenario.questions.trend.options[resp.trendAnswer])}</strong></span> <span style="color:${isCor ? '#15803d' : '#b91c1c'}; font-weight:700;">(${isCor ? '✓ 1/1 pt' : '0/1 pt'})</span>`;
     } else {
-      const optionsHtml = scenario.questions.trend.options.map(opt => `
+      const optionsHtml = scenario.questions.trend.options.map((opt) => `
         <div class="p-mc-option">
           <span class="p-mc-checkbox">[ &nbsp; ]</span>
           <span class="p-mc-text">${stripHtml(opt)}</span>
@@ -2896,57 +2959,88 @@ function syncPrintWorksheet(mode = currentPrintMode) {
       pQ1Answer.innerHTML = `<div class="p-mc-options-list">${optionsHtml}</div>`;
     }
   }
+  if (pQ1Key) {
+    const corOpt = scenario.questions.trend.options[scenario.questions.trend.correctIndex];
+    pQ1Key.innerHTML = `<strong>Teacher Solution:</strong> Correct classification: <strong>${stripHtml(corOpt)}</strong> &bull; ${stripHtml(scenario.questions.trend.explanation || "")}`;
+  }
 
-  // Part 3: Rate of Change / Quantitative Calculation with Setup Work Box
-  const pQ2Header = document.getElementById("pQ2Header");
+  // Part 3: Rate of Change / Quantitative Calculation (Zoned Calculation Archetype)
   const pQ2Prompt = document.getElementById("pQ2Prompt");
   const pQ2Value = document.getElementById("pQ2Value");
   const pQ2Unit = document.getElementById("pQ2Unit");
   const pQ2Work = document.getElementById("pQ2Work");
   const pQ2Label = document.getElementById("pQ2Label");
+  const pQ2Key = document.getElementById("pQ2Key");
   const quantQ = scenario.questions.quantitative;
 
-  if (pQ2Header) {
-    pQ2Header.textContent = quantQ.title || "3. Calculating Rate of Change (Slope):";
+  if (pQ2Prompt) {
+    pQ2Prompt.innerHTML = formatInlineConstraints(quantQ.prompt);
   }
-  if (pQ2Prompt) pQ2Prompt.textContent = stripHtml(quantQ.prompt);
-  if (pQ2Value) pQ2Value.textContent = (!isBlank && resp.quantAnswer) ? resp.quantAnswer : "";
-  if (pQ2Unit) pQ2Unit.textContent = stripHtml(quantQ.unit);
+  if (pQ2Value) {
+    pQ2Value.textContent = (!isBlank && resp.quantAnswer) ? resp.quantAnswer : "";
+  }
+  if (pQ2Unit) {
+    pQ2Unit.textContent = stripHtml(quantQ.unit);
+  }
   if (pQ2Label) {
-    pQ2Label.textContent = quantQ.slopeSteps?.calcLabel || "Calculated Rate (Slope):";
+    pQ2Label.textContent = quantQ.slopeSteps?.calcLabel || "Calculated Slope:";
   }
   if (pQ2Work) {
     if (isBlank) {
-      // NEVER give away answers, coordinates, or numbers on blank student worksheets
-      pQ2Work.textContent = "Setup Work: Δy / Δx = ( ___ − ___ ) / ( ___ − ___ )";
+      // Clean blank setup fraction
+      pQ2Work.textContent = "Δy / Δx = ( _____ − _____ ) / ( _____ − _____ )";
     } else {
-      if (quantQ.slopeSteps?.formulaSetup) {
-        pQ2Work.textContent = quantQ.slopeSteps.formulaSetup;
-      } else {
-        pQ2Work.textContent = "Setup Work: Δy / Δx = ( ___ − ___ ) / ( ___ − ___ )";
-      }
+      pQ2Work.textContent = quantQ.slopeSteps?.formulaSetup || "Δy / Δx = ( _____ − _____ ) / ( _____ − _____ )";
     }
   }
+  if (pQ2Key) {
+    pQ2Key.innerHTML = `<strong>Teacher Solution:</strong> Setup: <code>${stripHtml(quantQ.slopeSteps?.formulaSetup || "")}</code> = <strong>${quantQ.expectedValue} ${stripHtml(quantQ.unit)}</strong> (${stripHtml(quantQ.slopeSteps?.physicalMeaning || "")})`;
+  }
 
-  // Part 4: Free Response CER & 4-Point Rubric Bar (Structured 2-Page Layout)
+  // Part 4: Free Response CER (Claim, Evidence, Reasoning Archetype with Discrete Ruled Lines)
   const pQ3Prompt = document.getElementById("pQ3Prompt");
+  const pCerClaimScaffold = document.getElementById("pCerClaimScaffold");
   const pCerClaimBox = document.getElementById("pCerClaimBox");
+  const pCerEvidenceScaffold = document.getElementById("pCerEvidenceScaffold");
+  const pCerEvidenceLines = document.getElementById("pCerEvidenceLines");
   const pCerEvidenceBox = document.getElementById("pCerEvidenceBox");
+  const pCerReasoningScaffold = document.getElementById("pCerReasoningScaffold");
+  const pCerReasoningLines = document.getElementById("pCerReasoningLines");
   const pCerReasoningBox = document.getElementById("pCerReasoningBox");
-  const pCerSections = document.querySelector(".p-cer-sections");
+  const pCerSections = document.getElementById("pCerSections");
   const pCerText = document.getElementById("pCerText");
   const pRubClaim = document.getElementById("pRubClaim");
   const pRubEvidence = document.getElementById("pRubEvidence");
   const pRubUnits = document.getElementById("pRubUnits");
   const pRubReasoning = document.getElementById("pRubReasoning");
   const pRubTotal = document.getElementById("pRubTotal");
+  const pQ3Key = document.getElementById("pQ3Key");
 
-  if (pQ3Prompt) pQ3Prompt.textContent = stripHtml(scenario.questions.freeResponse.prompt);
+  if (pQ3Prompt) {
+    pQ3Prompt.innerHTML = formatInlineConstraints(scenario.questions.freeResponse.prompt);
+  }
+
+  const frames = scenario.questions.freeResponse.sentenceFrames || {};
+  if (pCerClaimScaffold) {
+    pCerClaimScaffold.textContent = frames.claimFrame || "When system mass is held constant, the acceleration is [directly / inversely proportional to]...";
+  }
+  if (pCerEvidenceScaffold) {
+    pCerEvidenceScaffold.textContent = frames.evidenceFrame || "As shown in Table 1, when [X] is [Val 1], [Y] is [Val 1]. When [X] increases to [Val 2]...";
+  }
+  if (pCerReasoningScaffold) {
+    pCerReasoningScaffold.textContent = frames.reasoningFrame || "This occurs because according to [scientific law], an unbalanced force causes...";
+  }
+
+  // Populate discrete ruled lines (5 for Evidence, 4 for Reasoning)
+  if (pCerEvidenceLines) {
+    pCerEvidenceLines.innerHTML = '<div class="ruled-line"></div>'.repeat(5);
+  }
+  if (pCerReasoningLines) {
+    pCerReasoningLines.innerHTML = '<div class="ruled-line"></div>'.repeat(4);
+  }
 
   if (isBlank) {
     if (pCerClaimBox) pCerClaimBox.innerHTML = "";
-    if (pCerEvidenceBox) pCerEvidenceBox.innerHTML = "";
-    if (pCerReasoningBox) pCerReasoningBox.innerHTML = "";
     if (pCerSections) pCerSections.style.display = "flex";
     if (pCerText) pCerText.style.display = "none";
   } else {
@@ -2961,8 +3055,6 @@ function syncPrintWorksheet(mode = currentPrintMode) {
       if (pCerSections) pCerSections.style.display = "none";
     } else {
       if (pCerClaimBox) pCerClaimBox.innerHTML = "";
-      if (pCerEvidenceBox) pCerEvidenceBox.innerHTML = "";
-      if (pCerReasoningBox) pCerReasoningBox.innerHTML = "";
       if (pCerSections) pCerSections.style.display = "flex";
       if (pCerText) pCerText.style.display = "none";
     }
@@ -2991,10 +3083,18 @@ function syncPrintWorksheet(mode = currentPrintMode) {
     pRubTotal.style.color = (!isBlank && cerResult.score >= 3) ? '#15803d' : '#0284c7';
   }
 
+  if (pQ3Key) {
+    pQ3Key.innerHTML = `<strong>Teacher Exemplar (4/4 Pts):</strong> ${stripHtml(scenario.questions.freeResponse.exemplar || "")}`;
+  }
+
   // Part 5: Prediction & Real-World Application
   const pQ4Prompt = document.getElementById("pQ4Prompt");
   const pQ4Answer = document.getElementById("pQ4Answer");
-  if (pQ4Prompt) pQ4Prompt.textContent = stripHtml(scenario.questions.synthesis.prompt);
+  const pQ4Key = document.getElementById("pQ4Key");
+
+  if (pQ4Prompt) {
+    pQ4Prompt.innerHTML = formatInlineConstraints(scenario.questions.synthesis.prompt);
+  }
   if (pQ4Answer) {
     if (!isBlank && resp.synAnswer !== null && scenario.questions.synthesis.options[resp.synAnswer]) {
       const isCor = resp.scores.syn === 1;
@@ -3024,6 +3124,10 @@ function syncPrintWorksheet(mode = currentPrintMode) {
         pQ4Answer.innerHTML = `<span style="color:#475569; font-size:7.4pt; font-weight:400;">Prediction: _________________________________________________</span>`;
       }
     }
+  }
+  if (pQ4Key) {
+    const corOpt = scenario.questions.synthesis.options[scenario.questions.synthesis.correctIndex];
+    pQ4Key.innerHTML = `<strong>Teacher Solution:</strong> Predicted value: <strong>${stripHtml(corOpt)}</strong> &bull; ${stripHtml(scenario.questions.synthesis.explanation || "")}`;
   }
 
   // 6. Footer Bars (Page 1 and Page 2)

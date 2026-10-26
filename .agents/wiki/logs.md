@@ -3,6 +3,28 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-25 — CAST Data Practice Suite: Low-Stress Worksheet Integration & Dynamic Workspaces
+**Patterns Updated**: `cast-data-analysis-practice-suite.md`.
+**Files Updated**: `cast-data-practice/index.html`, `cast-data-practice/css/styles.css`, `cast-data-practice/js/app.js`.
+
+**Changes**:
+- **Applied Low-Stress Worksheet Cognitive Heuristics to 2-Page Print Standard**:
+  - **Header Reference Bar (`.p-reference-bar`)**: Docked at top of Page 1 beneath student metadata header, surfacing Model Equations (e.g. `a = F_net / m`) and Controlled Constants (e.g. `Mass: 5.0 kg`), reducing cognitive load and eliminating split-attention.
+  - **Concise Context Line**: Background narrative trimmed to a focused 1–2 sentence context banner (`.p-context-compact`), leaving maximum vertical space for scientific data. Splitting uses lookbehind/lookahead `/(?<=[.!?])\s+(?=[A-Z])/` to safely preserve decimal measurements (e.g. `5.0 kg`).
+  - **2-Row Investigation Flow**:
+    - Row 1: Data Table 1 (55–63%) alongside Extracted Experimental Controls & Protocol Verification (35–43%).
+    - Row 2: Full-width widescreen landscape Graph snapshot (1000×460) with 3-column Accessible Dual-Coded Legend Table.
+  - **Atomic Sub-Prompt Block Progression (Page 2)**:
+    - Structured with progress checkbox `☐`, part label `(1)`–`(5)`, solid uppercase verb badge (`READ GRAPH`, `CLASSIFY TREND`, `CALCULATE RATE`, `CONSTRUCT CER`, `PREDICT`), and styled inline constraints (`<em class="constraint">`).
+  - **Dynamic Workspace Archetypes**:
+    - Question 1 (`ws-short-box`): Given X-coordinate pill (`Given: X = ...`) alongside measured Y readout blank with prompt unit (`Measured Y = [ _____ ] [unit]`).
+    - Question 2: Multiple-choice options with `[ &nbsp; ]` checkboxes stacked vertically with unbolded regular weight (`font-weight: 400`).
+    - Question 3 (`ws-zoned-calc`): Zone 1 (44% width) with Symbolic Formula & Setup fraction `( ___ − ___ ) / ( ___ − ___ )`; Zone 2 (56% width) with Substitution, Simplification Work area and calculated rate unit pill.
+    - Question 4 (`ws-cer-box`): Single-line Claim underline, discrete physical ruled lines (`.ruled-line` × 5 for Evidence, × 4 for Reasoning, 0.24in line height) with faded scaffold prompt starters (`.faded-scaffold`), and compact 4-point rubric bar.
+    - Question 5: Prediction prompt with styled constraints and options.
+  - **Strict Blank Mode & Teacher Key Mode**: Blank worksheet mode strictly outputs empty slots `( ___ − ___ ) / ( ___ − ___ )` with zero coordinate leakage to preserve productive pedagogical friction. Hidden `.teacher-key` containers are populated dynamically for instant teacher grading keys and on-screen teacher view.
+  - **Rigorous 2-Page Letter Budget**: Exact 10.18in height budget per page with zero 3rd-page spillover.
+
 ## 2026-10-25 — Low-Stress Worksheet Generator Skill: Antigravity Skill + Script Architecture
 **Patterns Added**: `low-stress-worksheet-skill.md`.
 **Files Added**: `.agents/skills/low-stress-worksheet/SKILL.md`, `.agents/skills/low-stress-worksheet/resources/worksheet_schema.json`, `.agents/skills/low-stress-worksheet/scripts/render_worksheet.py`, `.agent/skills/low-stress-worksheet` (symlink), `output/test_worksheet.json`, `output/test_worksheet.html`.
