@@ -4726,16 +4726,18 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Day 41 Student Follow-Along Worksheet": "Unit_2/worksheets/Day41_Student_Follow_Along_Worksheet.html",
       "Horizontal Projectile Motion Explorer": "horizontal-projectile-motion/index.html",
       "Describing Motion Presentation": "Unit_2/describing-motion-presentation/index.html"
     },
     "assignments": [
       {
-        "title": "Free Fall & Vector Independence Practice",
-        "typeLabel": "Conceptual Practice Set",
-        "submission": "In-Class Handout / Notebook Check",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Calculate free fall speeds and vertical drop distances using g = 10 m/s², and practice 2-column X/Y problem setups.",
+        "title": "Day 41 Student Follow-Along: Free Fall & Projectile Motion",
+        "url": "Unit_2/worksheets/Day41_Student_Follow_Along_Worksheet.html",
+        "typeLabel": "Guided Follow-Along Worksheet",
+        "submission": "In-Class Handout / Turn In at End of Period",
+        "actionLabel": "Open Printable Worksheet ↗",
+        "description": "Complete predictions, free fall data tables (g = 10 m/s²), visualizer strobe analysis, and the 2-column calculation ladder during class.",
         "status": "active"
       }
     ],

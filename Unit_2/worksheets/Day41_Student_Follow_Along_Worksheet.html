@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Physics Guided Follow-Along: Free Fall & Projectile Motion</title>
+  <style>
+    @page {
+      size: letter portrait;
+      margin: 0.35in 0.45in 0.35in 0.45in;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 8.8pt;
+      line-height: 1.28;
+      color: #0f172a;
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+
+    .page {
+      width: 100%;
+      height: 10.30in;
+      max-height: 10.30in;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      page-break-after: always;
+    }
+
+    .page:last-child {
+      page-break-after: avoid;
+    }
+
+    /* Header */
+    .sheet-header {
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 4px;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .title-group h1 {
+      font-size: 13pt;
+      font-weight: 900;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      color: #0f172a;
+    }
+
+    .title-group .sub {
+      font-size: 8pt;
+      font-weight: 700;
+      color: #b45309;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 1px;
+    }
+
+    .meta-group {
+      font-size: 8.5pt;
+      text-align: right;
+    }
+
+    .student-fields {
+      display: flex;
+      gap: 12px;
+      margin-top: 2px;
+      font-size: 8.5pt;
+    }
+
+    .field-line {
+      border-bottom: 1.5px solid #0f172a;
+      display: inline-block;
+      min-width: 130px;
+    }
+
+    /* Running Header Page 2 */
+    .running-header {
+      border-bottom: 1.5px solid #0f172a;
+      padding-bottom: 3px;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 8pt;
+      font-weight: 700;
+      color: #475569;
+    }
+
+    /* Section Card */
+    .section-card {
+      border: 1.5px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 7px 10px;
+      margin-bottom: 6px;
+      background: #ffffff;
+    }
+
+    .section-card.accent {
+      border-color: #f59e0b;
+      background: #fffbeb;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 3px;
+      margin-bottom: 5px;
+    }
+
+    .section-title {
+      font-size: 9.5pt;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge {
+      font-size: 7.2pt;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      background: #0f172a;
+      color: #ffffff;
+    }
+
+    .badge.gold {
+      background: #b45309;
+      color: #ffffff;
+    }
+
+    /* Two-column layout */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+    }
+
+    /* Question Prompt Row */
+    .prompt-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      margin: 4px 0;
+    }
+
+    .prompt-num {
+      background: #e2e8f0;
+      color: #0f172a;
+      font-weight: 800;
+      font-size: 8pt;
+      padding: 1px 5px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .prompt-text {
+      flex: 1;
+      font-size: 8.6pt;
+    }
+
+    /* Checkbox & Options */
+    .option-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px 10px;
+      margin: 5px 0 3px 18px;
+    }
+
+    .mc-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 8.5pt;
+    }
+
+    .box-square {
+      width: 12px;
+      height: 12px;
+      border: 1.5px solid #0f172a;
+      border-radius: 2px;
+      flex-shrink: 0;
+      display: inline-block;
+    }
+
+    /* Clean fill-in tables */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 4px 0;
+      font-size: 8.3pt;
+    }
+
+    .data-table th, .data-table td {
+      border: 1.2px solid #64748b;
+      padding: 3px 6px;
+      text-align: center;
+    }
+
+    .data-table th {
+      background: #e2e8f0;
+      font-weight: 700;
+    }
+
+    .write-line {
+      display: inline-block;
+      border-bottom: 1px solid #475569;
+      min-width: 60px;
+      height: 14px;
+    }
+
+    .t-chart {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 4px 0;
+      font-size: 8.5pt;
+    }
+
+    .t-chart th, .t-chart td {
+      border: 1.2px solid #0f172a;
+      padding: 5px 8px;
+      vertical-align: top;
+    }
+
+    .t-chart th {
+      background: #f1f5f9;
+      font-weight: 800;
+      width: 50%;
+      text-align: center;
+    }
+
+    .workspace-box {
+      border: 1.2px dashed #64748b;
+      border-radius: 5px;
+      padding: 6px;
+      background: #f8fafc;
+      min-height: 52px;
+      position: relative;
+      margin-top: 4px;
+    }
+
+    .watermark {
+      position: absolute;
+      right: 8px;
+      bottom: 4px;
+      font-size: 7pt;
+      color: #94a3b8;
+      font-style: italic;
+      pointer-events: none;
+    }
+
+    .answer-pill {
+      display: inline-block;
+      border: 1.5px solid #0f172a;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-weight: 700;
+      background: #ffffff;
+      margin-top: 4px;
+    }
+
+    .rule-callout {
+      background: #eff6ff;
+      border-left: 3px solid #2563eb;
+      padding: 4px 8px;
+      margin: 4px 0;
+      font-size: 8.2pt;
+      color: #1e3a8a;
+    }
+
+    .print-btn {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      background: #0284c7;
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      font-size: 10pt;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    @media print {
+      .print-btn { display: none; }
+      body { margin: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <button class="print-btn" onclick="window.print()">🖨️ Print Student Worksheet (2 Pages)</button>
+
+  <!-- ==================== PAGE 1 ==================== -->
+  <div class="page">
+    <div>
+      <div class="sheet-header">
+        <div class="title-group">
+          <h1>Physics Follow-Along: Free Fall &amp; Horizontal Projectiles</h1>
+          <div class="sub">Day 41 // Physics Foundations • Acceleration g = 10 m/s² • 2D Motion</div>
+        </div>
+        <div class="meta-group">
+          <div class="student-fields">
+            <span>Name: <span class="field-line" style="min-width: 150px;"></span></span>
+            <span>Period: <span class="field-line" style="min-width: 45px;"></span></span>
+            <span>Date: <span class="field-line" style="min-width: 70px;"></span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PART 1: PREDICTION -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title">Part 1: The Initial Prediction Challenge</div>
+          <span class="badge">Prediction</span>
+        </div>
+        <div class="prompt-row">
+          <span class="prompt-num">Q1</span>
+          <div class="prompt-text">
+            <strong>The Scenario:</strong> A heavy metal ball is dropped from a 1.0-meter high table. At the exact same second, an identical ball is shot horizontally off the table edge at a high speed of 15 m/s.
+          </div>
+        </div>
+        <div style="margin-left: 24px; font-weight: 700; font-size: 8.5pt;">Which ball hits the flat ground first? (Check your prediction BEFORE the demo):</div>
+        <div class="option-grid">
+          <div class="mc-item"><span class="box-square"></span> [A] Dropped ball hits first (it falls straight down)</div>
+          <div class="mc-item"><span class="box-square"></span> [B] Fired ball hits first (it moves much faster)</div>
+          <div class="mc-item"><span class="box-square"></span> [C] Both balls hit the ground at the exact same instant</div>
+          <div class="mc-item"><span class="box-square"></span> [D] Depends on the mass of the metal balls</div>
+        </div>
+        <div style="margin-top: 4px; padding-left: 24px; font-size: 8.2pt; color: #475569;">
+          Briefly justify your prediction in one sentence: <span class="write-line" style="width: calc(100% - 240px);"></span>
+        </div>
+      </div>
+
+      <!-- PART 2: FREE FALL FOUNDATIONS -->
+      <div class="section-card accent">
+        <div class="section-header">
+          <div class="section-title">Part 2: Free Fall Foundations (g = 10 m/s²)</div>
+          <span class="badge gold">Teacher Demonstration &amp; Pattern</span>
+        </div>
+
+        <div class="prompt-row">
+          <span class="prompt-num">Q2</span>
+          <div class="prompt-text">
+            <strong>The Paper &amp; Textbook Demonstration:</strong> Why did the paper fall slowly when dropped alone, but fall at the exact same rate as the heavy book when placed on top of it?
+          </div>
+        </div>
+        <div style="margin-left: 24px; font-size: 8.4pt;">
+          Fill in the blanks: The flat paper alone is slowed down by <span class="write-line" style="min-width: 90px;"></span>. When placed on the book, the book clears the air, proving that in true free fall, <strong>all objects accelerate at the <span class="write-line" style="min-width: 90px;"></span> rate</strong> regardless of their mass!
+        </div>
+
+        <div style="margin-top: 6px;" class="two-col">
+          <!-- Speed Table -->
+          <div>
+            <div style="font-weight: 700; font-size: 8.2pt; margin-bottom: 2px;">Table A: Free Fall Speed Pattern (v = 10 · t)</div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Time in Free Fall (t)</th>
+                  <th>Downward Speed (v)</th>
+                  <th>Real-World Equivalent</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>0 seconds</td>
+                  <td><strong>0 m/s</strong></td>
+                  <td>Released from rest</td>
+                </tr>
+                <tr>
+                  <td>1 second</td>
+                  <td><span class="write-line" style="min-width: 50px;"></span> m/s</td>
+                  <td>Approx. 22 mph</td>
+                </tr>
+                <tr>
+                  <td>2 seconds</td>
+                  <td><span class="write-line" style="min-width: 50px;"></span> m/s</td>
+                  <td>Approx. 45 mph</td>
+                </tr>
+                <tr>
+                  <td>3 seconds</td>
+                  <td><span class="write-line" style="min-width: 50px;"></span> m/s</td>
+                  <td>Approx. 67 mph (Highway speed)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Distance Table -->
+          <div>
+            <div style="font-weight: 700; font-size: 8.2pt; margin-bottom: 2px;">Table B: Free Fall Drop Distance (Δy = 5 · t²)</div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Time (t)</th>
+                  <th>Calculation: 5 · t²</th>
+                  <th>Total Drop Distance (Δy)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>t = 1 s</td>
+                  <td>5 · (1)² = 5 · 1</td>
+                  <td><strong>5 meters</strong></td>
+                </tr>
+                <tr>
+                  <td>t = 2 s</td>
+                  <td>5 · (2)² = 5 · 4</td>
+                  <td><span class="write-line" style="min-width: 50px;"></span> meters</td>
+                </tr>
+                <tr>
+                  <td>t = 3 s</td>
+                  <td>5 · (3)² = 5 · 9</td>
+                  <td><span class="write-line" style="min-width: 50px;"></span> meters</td>
+                </tr>
+                <tr>
+                  <td>t = 4 s</td>
+                  <td>5 · (4)² = 5 · 16</td>
+                  <td><span class="write-line" style="min-width: 50px;"></span> meters</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="rule-callout" style="margin-top: 5px;">
+          <strong>THE ACCELERATION RULE:</strong> Near Earth's surface, gravity accelerates every falling object at <strong>g = 10 m/s²</strong> downward. Every single second, the object gains exactly <strong>10 m/s</strong> of speed!
+        </div>
+      </div>
+
+      <!-- PART 3: THE DROP VS FIRE DEMO -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title">Part 3: The Live Drop vs. Fire Observation</div>
+          <span class="badge">Auditory Evidence</span>
+        </div>
+        <div class="prompt-row">
+          <span class="prompt-num">Q3</span>
+          <div class="prompt-text">
+            <strong>Listen to the Live Demonstration:</strong> When the teacher triggers the launcher to drop one ball vertically and shoot the second ball horizontally:
+          </div>
+        </div>
+        <div style="margin-left: 24px; font-size: 8.5pt;">
+          How many impact clicks did the class hear on the floor? &nbsp; 
+          <span class="box-square"></span> <strong>ONE single click (*clack*)</strong> &nbsp;&nbsp;&nbsp;&nbsp;
+          <span class="box-square"></span> <strong>TWO separate clicks (*clack... clack*)</strong>
+        </div>
+        <div class="prompt-row" style="margin-top: 4px;">
+          <span class="prompt-num">Q4</span>
+          <div class="prompt-text">
+            <strong>The Scientific Reason:</strong> Why didn't the horizontal speed keep the fired ball in the air longer?
+          </div>
+        </div>
+        <div style="margin-left: 24px; font-size: 8.4pt;">
+          Gravity acts strictly in the <span class="write-line" style="min-width: 80px;"></span> direction. Horizontal speed has <span class="write-line" style="min-width: 40px;"></span> vertical component, so both balls accelerate toward Earth at the exact same rate of <span class="write-line" style="min-width: 60px;"></span> m/s²!
+        </div>
+      </div>
+    </div>
+
+    <!-- Page 1 Footer Notice -->
+    <div style="font-size: 7.5pt; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 2px; text-align: center;">
+      Page 1 of 2 • Continue on Page 2 for Interactive Visualizer &amp; Problem Solving Workshop
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 2 ==================== -->
+  <div class="page">
+    <div>
+      <div class="running-header">
+        <span>Unit 2 Physics: Free Fall &amp; Horizontal Projectiles</span>
+        <span>Student Follow-Along Guide</span>
+        <span>Page 2 of 2</span>
+      </div>
+
+      <!-- PART 4: INTERACTIVE VISUALIZER -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title">Part 4: Digital Trajectory &amp; Strobe Analysis</div>
+          <span class="badge">Visualizer Exploration</span>
+        </div>
+        <div style="font-size: 8.3pt; margin-bottom: 4px;">
+          Observe the projected <strong>Horizontal Projectile Motion Explorer</strong> on the board. Note the equal-time strobe dots:
+        </div>
+
+        <div class="two-col" style="margin-bottom: 5px;">
+          <div style="background: #fff1f2; border: 1px solid #fecdd3; border-radius: 4px; padding: 5px 8px;">
+            <strong style="color: #be123c;">1. Red Marks on Cliff Wall (Vertical Y):</strong>
+            <p style="margin: 2px 0 0 0; font-size: 8.2pt;">
+              As the ball falls, the spacing between dots gets ( <strong>closer together</strong> / <strong>farther apart</strong> ). This proves the vertical motion is <span class="write-line" style="min-width: 100px;"></span>.
+            </p>
+          </div>
+          <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 4px; padding: 5px 8px;">
+            <strong style="color: #0369a1;">2. Blue Marks on Ground (Horizontal X):</strong>
+            <p style="margin: 2px 0 0 0; font-size: 8.2pt;">
+              Along the ground, the spacing between dots is ( <strong>completely equal</strong> / <strong>changing</strong> ). This proves the horizontal motion has a constant speed with acceleration ax = <span class="write-line" style="min-width: 40px;"></span>.
+            </p>
+          </div>
+        </div>
+
+        <div class="prompt-row">
+          <span class="prompt-num">Q5</span>
+          <div class="prompt-text">
+            <strong>The Velocity Slider Test:</strong> When initial height is locked at 50 m, what happens to the flight time when horizontal speed is increased from 10 m/s to 40 m/s?
+          </div>
+        </div>
+        <div style="margin-left: 24px; font-size: 8.4pt;">
+          The flight time remains exactly <span class="write-line" style="min-width: 50px;"></span> seconds! Increasing horizontal speed ONLY increases the horizontal <span class="write-line" style="min-width: 80px;"></span>.
+        </div>
+      </div>
+
+      <!-- PART 5: THE T-CHART -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title">Part 5: The 2-Column Problem Solving Method</div>
+          <span class="badge gold">Golden Rule: Never Mix X and Y Numbers</span>
+        </div>
+
+        <table class="t-chart">
+          <thead>
+            <tr>
+              <th style="color: #0369a1;">HORIZONTAL MOTION (X-AXIS)</th>
+              <th style="color: #be123c;">VERTICAL MOTION (Y-AXIS)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                • Motion Type: <strong>Constant Velocity</strong><br>
+                • Horizontal Acceleration: <strong>ax = 0 m/s²</strong><br>
+                • Velocity Formula: <strong>vx = constant</strong><br>
+                • Distance Formula: <strong>Δx = vx · t</strong>
+              </td>
+              <td>
+                • Motion Type: <strong>Free Fall Accelerated by Gravity</strong><br>
+                • Gravitational Acceleration: <strong>g = 10 m/s² (down)</strong><br>
+                • Initial Vertical Velocity: <strong>v0y = 0 m/s</strong> (starts from rest)<br>
+                • Fall Distance Formula: <strong>Δy = 5 · t²</strong> &nbsp;(or t = √(Δy / 5))
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2" style="background: #f8fafc; text-align: center; font-size: 8.2pt; padding: 4px;">
+                🔗 <strong>THE BRIDGE:</strong> <strong>Time (t)</strong> is the ONLY variable shared between the horizontal and vertical sides!
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PART 6: WORKED PRACTICE -->
+      <div class="section-card" style="margin-bottom: 0;">
+        <div class="section-header">
+          <div class="section-title">Part 6: Guided &amp; Partner Problem Solving</div>
+          <span class="badge">Show All Work</span>
+        </div>
+
+        <!-- Problem 1: Guided -->
+        <div style="margin-bottom: 6px;">
+          <div class="prompt-row">
+            <span class="prompt-num">P1</span>
+            <div class="prompt-text">
+              <strong>Class Guided Problem:</strong> A toy car rolls horizontally off a lab desk that is <strong>0.80 meters high</strong> with a horizontal speed of <strong>2.5 m/s</strong>. How far from the desk leg does it hit the floor?
+            </div>
+          </div>
+          <div class="two-col" style="margin-top: 3px;">
+            <div class="workspace-box">
+              <strong style="color: #be123c; font-size: 8pt;">Step 1: Vertical Side (Find Time t)</strong><br>
+              <span style="font-size: 8pt;">Δy = 5 · t² &nbsp;→&nbsp; 0.80 = 5 · t²<br>
+              t² = 0.80 / 5 = 0.16<br>
+              <strong>t = √(0.16) = ________ s</strong></span>
+              <span class="watermark">Time in free fall</span>
+            </div>
+            <div class="workspace-box">
+              <strong style="color: #0369a1; font-size: 8pt;">Step 2: Horizontal Side (Find Range Δx)</strong><br>
+              <span style="font-size: 8pt;">Δx = vx · t<br>
+              Δx = ( 2.5 m/s ) · ( ________ s )<br>
+              <strong>Δx = ________ meters</strong></span>
+              <span class="watermark">Landing distance</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Problem 2: Independent / Partner -->
+        <div>
+          <div class="prompt-row">
+            <span class="prompt-num">P2</span>
+            <div class="prompt-text">
+              <strong>Partner Challenge Problem:</strong> A marble rolls off a taller demonstration counter that is <strong>1.25 meters high</strong> with a horizontal speed of <strong>3.0 m/s</strong>.
+            </div>
+          </div>
+          <div class="two-col" style="margin-top: 3px;">
+            <div class="workspace-box" style="min-height: 60px;">
+              <strong style="color: #be123c; font-size: 8pt;">Step 1: Vertical Free Fall Time</strong><br>
+              <span style="font-size: 7.8pt; color: #64748b;">Formula: Δy = 5 · t² &nbsp;→&nbsp; t = √(Δy / 5)</span>
+              <div style="margin-top: 14px;">
+                <strong>t = ____________ s</strong>
+              </div>
+              <span class="watermark">Show calculation</span>
+            </div>
+            <div class="workspace-box" style="min-height: 60px;">
+              <strong style="color: #0369a1; font-size: 8pt;">Step 2: Horizontal Landing Distance</strong><br>
+              <span style="font-size: 7.8pt; color: #64748b;">Formula: Δx = vx · t</span>
+              <div style="margin-top: 14px;">
+                <strong>Δx = ____________ m</strong>
+              </div>
+              <span class="watermark">Show calculation</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Exit Ticket Quick Check -->
+        <div style="margin-top: 6px; padding: 4px 8px; background: #f1f5f9; border-radius: 4px; font-size: 8.2pt;">
+          <strong>🎯 EXIT CHECK:</strong> If we launch the marble in Problem 2 at <strong>6.0 m/s</strong> (twice as fast), how does its time in the air change? &nbsp; 
+          <span class="box-square"></span> Doubles &nbsp;&nbsp;&nbsp;&nbsp;
+          <span class="box-square"></span> Cuts in half &nbsp;&nbsp;&nbsp;&nbsp;
+          <span class="box-square"></span> <strong>Does not change (stays identical)</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Page 2 Footer -->
+    <div style="font-size: 7.5pt; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 2px; text-align: center;">
+      Unit 2 Kinematics • Mr. Mudry Physics • Turn in at the end of class
+    </div>
+  </div>
+
+</body>
+</html>
