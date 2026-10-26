@@ -26,7 +26,7 @@ const SCENARIOS = [
     chartType: "scatter",
     xAxis: {
       label: "Net Applied Force",
-      symbol: "F_net",
+      symbol: "F",
       unit: "N",
       min: 0,
       suggestedMax: 35
@@ -42,9 +42,8 @@ const SCENARIOS = [
 
 An optical photogate array linked to a high-speed digital timer measures the glider's acceleration across five consecutive trials. To rigorously isolate the net applied force as the sole independent variable, the team maintains constant controlled variables: total system mass (5.0 kg), track leveling verified with an electronic inclinometer (0.0° inclination), aerodynamic drag profile, and ambient laboratory temperature (21.5°C).`,
     controlledVariables: [
-      "Total system mass held constant at exactly 5.0 kg",
-      "Track leveling verified to 0.0° tilt with electronic inclinometer",
-      "Zero initial velocity (glider released from rest at identical start gate)"
+      "Total system mass held constant at exactly 5.0 kg across all trials",
+      "Dynamics track leveled to 0.0° tilt with frictionless glider release"
     ],
     calibratedInstrumentation: [
       "Photogate array with 0.001 s timing precision",
@@ -72,7 +71,7 @@ An optical photogate array linked to a high-speed digital timer measures the gli
       slope: 0.20,
       intercept: 0.0,
       r2: 1.0,
-      equation: "a = 0.20 F_net + 0.00",
+      equation: "a = 0.20 F + 0.00",
       slopeMeaning: "1 / Mass (1 / 5.0 kg = 0.20 m/s² per N)"
     },
     // -------------------------------------------------------------
@@ -88,7 +87,7 @@ An optical photogate array linked to a high-speed digital timer measures the gli
         expectedLocatorValue: 5.0,
         locatorTolerance: 0.2,
         locatorUnit: "m/s²",
-        interceptPrompt: "At F_net = 0 N, the best-fit line passes through the origin (0, 0). What is the physical meaning of this intercept?",
+        interceptPrompt: "At Net Force F = 0 N, the best-fit line passes through the origin (0, 0). What is the physical meaning of this intercept?",
         interceptOptions: [
           "Without an unbalanced net force, an object at rest remains at rest (zero acceleration)",
           "The glider accelerates on its own due to gravity",
@@ -110,7 +109,7 @@ An optical photogate array linked to a high-speed digital timer measures the gli
           "No relationship (Acceleration remains constant regardless of force)"
         ],
         correctIndex: 0,
-        explanation: "As net force increases from 5 N to 30 N, acceleration increases at a constant linear rate of 0.20 m/s² for each 1 N increase in force (a = F_net / m)."
+        explanation: "As net force increases from 5 N to 30 N, acceleration increases at a constant linear rate of 0.20 m/s² for each 1 N increase in force (a = F<sub>net</sub> / m)."
       },
       // 3. Step-by-Step Guided Rate / Slope Analysis (SEP-5)
       quantitative: {
@@ -134,16 +133,21 @@ An optical photogate array linked to a high-speed digital timer measures the gli
       freeResponse: {
         id: "fr_q",
         type: "cer",
-        prompt: "Construct a scientific explanation (Claim-Evidence-Reasoning) explaining how changing the net force affects the acceleration of the glider. You must: (1) State a clear claim, (2) Cite at least TWO specific data points with units from the table or graph, (3) Compare the values to show the rate of change, and (4) Explain the physical reasoning connecting force, mass, and acceleration.",
+        prompt: "Construct a Claim-Evidence-Reasoning argument explaining how changing the net force affects the acceleration of the glider.",
+        zoneCriteria: {
+          claim: "State how net applied force affects acceleration when mass is held constant.",
+          evidence: ["Cite 2+ data pairs (Force, Acceleration) with units from Table 1.", "Compare values to show the rate of change."],
+          reasoning: "Explain the physical principle connecting force, mass, and acceleration using Newton's Second Law (a = F<sub>net</sub> / m)."
+        },
         targetNumbers: [5.0, 1.0, 10.0, 2.0, 15.0, 3.0, 20.0, 4.0, 25.0, 5.0, 30.0, 6.0, 0.2],
         requiredUnits: ["n", "newton", "m/s²", "m/s^2", "kg"],
         claimKeywords: ["direct", "proportional", "linear", "increases", "greater force", "doubling", "rate"],
         reasoningKeywords: ["newton", "second law", "mass", "f=ma", "net force", "inertia", "unbalanced"],
-        exemplar: "Claim: The acceleration of the glider is directly proportional to the net applied force when mass is held constant. Evidence: At a net force of 10.0 N, the glider accelerated at 2.0 m/s². When the net force was doubled to 20.0 N, the acceleration exactly doubled to 4.0 m/s², maintaining a constant rate of change (slope) of 0.20 (m/s²)/N. Reasoning: According to Newton's Second Law (a = F_net / m), an unbalanced net force causes a proportional acceleration inversely scaled by the object's mass (5.0 kg).",
+        exemplar: "Claim: The acceleration of the glider is directly proportional to the net applied force when mass is held constant. Evidence: At a net force of 10.0 N, the glider accelerated at 2.0 m/s². When the net force was doubled to 20.0 N, the acceleration exactly doubled to 4.0 m/s², maintaining a constant rate of change (slope) of 0.20 (m/s²)/N. Reasoning: According to Newton's Second Law (a = F<sub>net</sub> / m), an unbalanced net force causes a proportional acceleration inversely scaled by the object's mass (5.0 kg).",
         sentenceFrames: {
           claimFrame: "When system mass is held constant at 5.0 kg, the acceleration of the glider is [directly proportional to / inversely proportional to] the net applied force.",
           evidenceFrame: "As shown in the data, when the net force is [Value 1] N, the acceleration is [Value 1] m/s². When the force increases to [Value 2] N, the acceleration reaches [Value 2] m/s², resulting in a rate of change of 0.20 (m/s²)/N.",
-          reasoningFrame: "This occurs because according to Newton's Second Law (F_net = m·a), an unbalanced net force causes an acceleration inversely proportional to the system's [mass / speed], so doubling the force [doubles / halves] the acceleration."
+          reasoningFrame: "This occurs because according to Newton's Second Law (F<sub>net</sub> = m·a), an unbalanced net force causes an acceleration inversely proportional to the system's [mass / speed], so doubling the force [doubles / halves] the acceleration."
         }
       },
       // 5. Synthesis & Diagnostic Misconception Extrapolation
@@ -158,7 +162,7 @@ An optical photogate array linked to a high-speed digital timer measures the gli
           "12.0 m/s²"
         ],
         correctIndex: 1,
-        explanation: "Using a = F_net / m = 40.0 N / 5.0 kg, or extending the slope line: a = (0.20)(40.0) = 8.0 m/s².",
+        explanation: "Using a = F<sub>net</sub> / m = 40.0 N / 5.0 kg, or extending the slope line: a = (0.20)(40.0) = 8.0 m/s².",
         diagnosticPrompt: "A student incorrectly claims: 'If you double the net force from 10 N to 20 N, the acceleration quadruples to 8 m/s² because kinetic energy quadruples.' How does the data refute this misconception?",
         diagnosticOptions: [
           "Acceleration only depends on net force and mass (F=ma is linear), whereas kinetic energy scales with speed squared, not force.",
@@ -167,7 +171,7 @@ An optical photogate array linked to a high-speed digital timer measures the gli
           "Acceleration does quadruple when measured with radar instead of photogates."
         ],
         diagnosticCorrectIndex: 0,
-        diagnosticExplanation: "Newton's second law is strictly linear with net force: a = F_net / m. Kinetic energy depends on the square of velocity (½mv²), not force directly."
+        diagnosticExplanation: "Newton's second law is strictly linear with net force: a = F<sub>net</sub> / m. Kinetic energy depends on the square of velocity (½mv²), not force directly."
       }
     }
   },
@@ -214,7 +218,7 @@ High-resolution GPS telemetry and wheel optical encoders record the exact brakin
       "Calibrated electronic brake pedal transducer"
     ],
     dataTable: {
-      caption: "Table 2: Emergency Braking Distance as a Function of Speed",
+      caption: "Table 1: Emergency Braking Distance as a Function of Speed",
       columns: [
         { key: "speed_mph", label: "Speed (mph)", isText: true },
         { key: "speed", label: "Initial Speed (m/s)", isX: true, unit: "m/s" },
@@ -374,7 +378,7 @@ Uniform filter paper disks saturated with standardized bovine liver homogenate (
       "Calibrated electronic digital pH probe"
     ],
     dataTable: {
-      caption: "Table 3: Catalase Activity as a Function of Environmental Temperature",
+      caption: "Table 1: Catalase Activity as a Function of Environmental Temperature",
       columns: [
         { key: "temp", label: "Temperature (°C)", isX: true, unit: "°C" },
         { key: "rate", label: "Oxygen Produced (mL/min)", isY: true, unit: "mL/min" },
@@ -515,7 +519,7 @@ Uniform filter paper disks saturated with standardized bovine liver homogenate (
     },
     yAxis: {
       label: "Oxygen Production Rate",
-      symbol: "P_rate",
+      symbol: "R",
       unit: "mL/hr",
       min: 0,
       suggestedMax: 18
@@ -535,7 +539,7 @@ A full-spectrum calibrated LED quantum growth lamp illuminates the chamber at co
       "Submersible magnetic stirrer providing uniform solution mixing"
     ],
     dataTable: {
-      caption: "Table 4: Net Photosynthetic Rate Under Varying Light Intensities",
+      caption: "Table 1: Net Photosynthetic Rate Under Varying Light Intensities",
       columns: [
         { key: "intensity", label: "Light Intensity (mW/cm²)", isX: true, unit: "mW/cm²" },
         { key: "oxygen", label: "O₂ Production (mL/hr)", isY: true, unit: "mL/hr" },
@@ -613,7 +617,12 @@ A full-spectrum calibrated LED quantum growth lamp illuminates the chamber at co
       freeResponse: {
         id: "fr_q",
         type: "cer",
-        prompt: "Construct a Claim-Evidence-Reasoning explanation answering: 'Why does increasing light intensity beyond 50 mW/cm² fail to significantly increase the rate of photosynthesis?' You must: (1) State a claim regarding light saturation, (2) Cite at least TWO specific data points with units from the table or graph, (3) Contrast the rate of change before and after 50 mW/cm², and (4) Explain the cellular biochemical reasoning (chlorophyll photon absorption capacity and Rubisco/Calvin cycle enzyme turnover limits).",
+        prompt: "Construct a Claim-Evidence-Reasoning explanation answering: 'Why does increasing light intensity beyond 50 mW/cm² fail to significantly increase the rate of photosynthesis?'",
+        zoneCriteria: {
+          claim: "State how increasing light beyond 50 mW/cm² affects the rate of photosynthesis.",
+          evidence: ["Cite 2+ data pairs (Light, O₂ Production) with units from Table 1.", "Contrast the rate of change before and after 50 mW/cm²."],
+          reasoning: "Explain cellular biochemical limits (chlorophyll light saturation and enzyme turnover capacity)."
+        },
         targetNumbers: [5, 1.5, 10, 3.2, 20, 6.5, 35, 10.8, 50, 14.2, 65, 14.6, 80, 14.7, 0.28],
         requiredUnits: ["mw/cm²", "mw/cm^2", "ml/hr"],
         claimKeywords: ["plateau", "saturation", "limiting factor", "levels off", "no longer increases", "maximum rate"],
@@ -621,7 +630,7 @@ A full-spectrum calibrated LED quantum growth lamp illuminates the chamber at co
         exemplar: "Claim: Photosynthesis reaches a light saturation point around 50 mW/cm², after which light is no longer the limiting reactant. Evidence: Between 5 and 50 mW/cm², oxygen production increased rapidly from 1.5 to 14.2 mL/hr (a gain of 12.7 mL/hr). However, increasing light further from 50 to 80 mW/cm² only increased oxygen output from 14.2 to 14.7 mL/hr (a negligible gain of 0.5 mL/hr). Reasoning: In the light-dependent reactions, chlorophyll reaction centers absorb photons to split water and produce O₂. At high light intensities, all photosystem complexes are saturated with photons and operating at peak capacity; the Calvin cycle enzymes (like Rubisco) cannot fix carbon any faster, making enzyme availability or CO₂ the new limiting factor.",
         sentenceFrames: {
           claimFrame: "Photosynthetic oxygen evolution reaches a distinct [saturation plateau / linear increase] at high light intensities because light ceases to be the rate-limiting reactant.",
-          evidenceFrame: "Between 5 and 50 mW/cm², oxygen output rises from [Low O2] to [Mid O2] mL/hr, but increasing light from 50 to 80 mW/cm² only alters output from 14.2 to [High O2] mL/hr.",
+          evidenceFrame: "Between 5 and 50 mW/cm², oxygen output rises from [Low O₂] to [Mid O₂] mL/hr, but increasing light from 50 to 80 mW/cm² only alters output from 14.2 to [High O₂] mL/hr.",
           reasoningFrame: "This plateau occurs because [photosystem complexes and Calvin cycle enzymes / plant roots and stems] reach their maximum biochemical processing velocity; further increases in photon flux cannot speed up oxygen generation without increasing [temperature or CO₂ concentration / light color]."
         }
       },
@@ -679,7 +688,7 @@ A full-spectrum calibrated LED quantum growth lamp illuminates the chamber at co
       suggestedMax: 4.0
     },
     background: `A high school chemistry class investigates the kinetics of single replacement oxidation-reduction between solid metallic magnesium ribbon and aqueous hydrochloric acid:
-Mg(s) + 2HCl(aq) → MgCl₂(aq) + H₂(g) + Heat
+Mg(s) + 2HCl(aq) → MgCl₂(aq) + H₂(g) + Heat.
 
 In six consecutive quantitative trials, uniform 2.00 cm strips of magnesium ribbon (mass = 0.040 g) are submerged into 50.0 mL of standardized HCl solution at molar concentrations ranging from 0.20 M to 1.20 M. To isolate acid concentration as the sole independent variable, students implement strict controls: all reagent solutions are maintained at an isothermal 21.0°C in a water bath, ribbons are polished with emery cloth to eliminate passivating oxide coatings, and reaction volume is held constant. A digital differential pressure transducer connected to an airtight gas-collection manifold logs initial hydrogen gas evolution (mL/s) over the first 15.0 seconds of reaction.`,
     controlledVariables: [
@@ -694,7 +703,7 @@ In six consecutive quantitative trials, uniform 2.00 cm strips of magnesium ribb
       "Analytical balance (0.001 g resolution)"
     ],
     dataTable: {
-      caption: "Table 5: Initial Rate of H₂ Generation Across Increasing HCl Molarities",
+      caption: "Table 1: Initial Rate of H₂ Generation Across Increasing HCl Molarities",
       columns: [
         { key: "trial", label: "Trial #", isText: true },
         { key: "conc", label: "[HCl] Concentration (M)", isX: true, unit: "M" },
@@ -854,7 +863,7 @@ A digital thermocouple temperature sensor records the temperature of the water s
       "Digital analytical balance (0.01 g precision)"
     ],
     dataTable: {
-      caption: "Table 6: Temperature Progression of Water During Constant Heat Addition",
+      caption: "Table 1: Temperature Progression of Water During Constant Heat Addition",
       columns: [
         { key: "time", label: "Time (min)", isX: true, unit: "min" },
         { key: "temp", label: "Temperature (°C)", isY: true, unit: "°C" },
@@ -987,7 +996,7 @@ A digital thermocouple temperature sensor records the temperature of the water s
     ccc: "CCC-1: Patterns",
     chartType: "scatter",
     xAxis: {
-      label: "Distance from Mid-Ocean Ridge Crest",
+      label: "Distance from Ridge Crest",
       symbol: "x",
       unit: "km",
       min: 0,
@@ -996,24 +1005,23 @@ A digital thermocouple temperature sensor records the temperature of the water s
     yAxis: {
       label: "Oceanic Crust Age",
       symbol: "Age",
-      unit: "Million Years (Ma)",
+      unit: "Ma",
       min: 0,
       suggestedMax: 30
     },
     background: `Oceanographic research vessels equipped with deep-sea core drilling rigs collect basalt core samples across two divergent tectonic plate boundaries: the Mid-Atlantic Ridge (a slow-spreading ridge in the Atlantic Ocean) and the East Pacific Rise (a fast-spreading ridge in the Pacific Ocean).
 
-Radioactive isotope dating of the basalt cores determines the numerical age of oceanic crust in millions of years (Ma) at progressive perpendicular distances from the central volcanic rift valley. To maintain experimental validity, geophysicists select sampling transects perpendicular to magnetic anomaly isochrons, cross-calibrate potassium-argon (K-Ar) and argon-argon (⁴⁰Ar/³⁹Ar) radiometric decay counters against international geological standards, and account for sediment overburden.`,
+Radioactive isotope dating of the basalt cores determines the numerical age of oceanic crust in millions of years (Ma) at progressive distances straight out from the central volcanic rift valley.`,
     controlledVariables: [
-      "Perpendicular distance sampling perpendicular to rift crest isochrons",
-      "Calibrated ⁴⁰Ar/³⁹Ar radiometric mass spectrometry dating",
-      "Basalt layer sampling from uppermost extrusive pillow basalt sequences"
+      "Rock samples collected at equal distances straight out from the ridge center",
+      "Rock ages measured using radiometric dating"
     ],
     calibratedInstrumentation: [
       "Sector-field multi-collector mass spectrometer (±0.05 Ma precision)",
       "Satellite multibeam sonar bathymetry (10 m lateral resolution)"
     ],
     dataTable: {
-      caption: "Table 7: Oceanic Crust Age vs. Distance from Spreading Axis",
+      caption: "Table 1: Oceanic Crust Age vs. Distance from Spreading Axis",
       columns: [
         { key: "distance", label: "Distance from Ridge (km)", isX: true, unit: "km" },
         { key: "atlantic", label: "Mid-Atlantic Crust Age (Ma)", isY: true, unit: "Ma", seriesId: "atlantic" },
@@ -1044,8 +1052,8 @@ Radioactive isotope dating of the basalt cores determines the numerical age of o
       anatomy: {
         id: "anatomy_q",
         independentVar: "Distance from Ridge Crest (km)",
-        dependentVar: "Oceanic Crust Age (Million Years, Ma)",
-        locatorPrompt: "Find 300 km on the horizontal axis. What is the crust age for the East Pacific Rise (orange triangle) on the vertical axis?",
+        dependentVar: "Oceanic Crust Age (Ma)",
+        locatorPrompt: "Find 300 km on the horizontal axis. What is the crust age for the East Pacific Rise (▲ orange triangle) on the vertical axis?",
         expectedLocatorValue: 4.5,
         locatorTolerance: 0.2,
         locatorUnit: "Ma",
@@ -1098,7 +1106,12 @@ Radioactive isotope dating of the basalt cores determines the numerical age of o
       freeResponse: {
         id: "fr_q",
         type: "cer",
-        prompt: "Construct a Claim-Evidence-Reasoning argument supporting the theory of seafloor spreading by contrasting the Mid-Atlantic Ridge and East Pacific Rise. You must: (1) State a claim regarding how crust age relates to ridge distance and spreading speed, (2) Cite at least TWO specific data points with units from each ridge from the table, (3) Quantitatively compare the ages or spreading velocities of the two ridges, and (4) Explain the geological mechanism (magma upwelling, mantle convection, and slab pull).",
+        prompt: "Construct a Claim-Evidence-Reasoning argument explaining how crust age and spreading speed differ between the Mid-Atlantic Ridge and East Pacific Rise.",
+        zoneCriteria: {
+          claim: "State how crust age changes with distance and which ridge spreads faster.",
+          evidence: ["Cite 2+ data pairs (Distance, Age) with units from Table 1.", "Compare the calculated spreading speeds."],
+          reasoning: "Explain the geological mechanism (magma upwelling, mantle convection, and slab pull)."
+        },
         targetNumbers: [0.0, 100, 5.0, 1.5, 200, 10.0, 3.0, 300, 15.0, 4.5, 400, 20.0, 6.0, 500, 25.0, 7.5, 66.67, 20],
         requiredUnits: ["km", "ma", "million years"],
         claimKeywords: ["faster", "spreading", "divergent", "younger", "older", "seafloor spreading", "velocity"],
@@ -1175,7 +1188,7 @@ The dataset quantifies historical trends in anthropogenic greenhouse gas forcing
       "NASA GISS global land-ocean satellite thermal radiometers"
     ],
     dataTable: {
-      caption: "Table 8: Decadal Atmospheric CO₂ and Global Temperature Anomalies",
+      caption: "Table 1: Decadal Atmospheric CO₂ and Global Temperature Anomalies",
       columns: [
         { key: "decade", label: "Year / Decade", isText: true },
         { key: "co2", label: "Atmospheric CO₂ (ppm)", isX: true, unit: "ppm" },

@@ -352,7 +352,12 @@ function renderDataTable(tableData) {
     html += `<tr data-row="${rowIdx}">`;
     tableData.columns.forEach(col => {
       const val = row[col.key];
-      const formatted = typeof val === "number" ? val.toFixed(col.key === "conc" ? 2 : 1) : val;
+      let formatted = val;
+      if (typeof val === "number") {
+        const decimals = (val.toString().split(".")[1] || "").length;
+        const targetDecimals = col.decimals !== undefined ? col.decimals : (col.key === "conc" || decimals >= 2 ? 2 : 1);
+        formatted = val.toFixed(targetDecimals);
+      }
       html += `<td>${formatted}</td>`;
     });
     html += `</tr>`;
@@ -425,8 +430,14 @@ function resolveSeriesVisuals(label, idx, isDark, customColor = null, customPoin
     { pointStyle: "crossRot", symbol: "✕", shapeName: "Cross",    shapeDesc: "Cross (✕)",    borderDash: [14, 5],       lineDesc: "Long-Dash Line" }
   ];
 
-  const styleObj = stylesCatalog[idx % stylesCatalog.length];
-  const pointStyle = customPointStyle || styleObj.pointStyle;
+  let styleObj = null;
+  if (customPointStyle) {
+    styleObj = stylesCatalog.find(s => s.pointStyle === customPointStyle);
+  }
+  if (!styleObj) {
+    styleObj = stylesCatalog[idx % stylesCatalog.length];
+  }
+  const pointStyle = styleObj.pointStyle;
 
   return {
     color: finalColor,
@@ -552,6 +563,7 @@ function renderChart(forceTheme = null) {
         borderColor: isDark ? "#c084fc" : "#7c3aed",
         borderDash: [6, 4],
         borderWidth: 2.5,
+        pointStyle: "line",
         pointRadius: 0,
         fill: false,
         showLine: true
@@ -580,9 +592,22 @@ function renderChart(forceTheme = null) {
             color: textColor,
             font: { size: 12, weight: "700" },
             usePointStyle: true,
-            pointStyleWidth: 16,
-            boxWidth: 16,
-            padding: 12
+            pointStyleWidth: 24,
+            boxWidth: 24,
+            padding: 12,
+            generateLabels: function(chart) {
+              const orig = Chart.defaults.plugins.legend.labels.generateLabels(chart);
+              return orig.map(item => {
+                const ds = chart.data.datasets[item.datasetIndex];
+                if (ds && ds.borderDash && ds.borderDash.length > 0) {
+                  item.pointStyle = "line";
+                  item.lineDash = ds.borderDash;
+                  item.lineWidth = ds.borderWidth || 2.5;
+                  item.strokeStyle = ds.borderColor;
+                }
+                return item;
+              });
+            }
           }
         },
         tooltip: {
@@ -607,7 +632,7 @@ function renderChart(forceTheme = null) {
           type: "linear",
           title: {
             display: true,
-            text: `${scenario.xAxis.label} [${scenario.xAxis.symbol}] (${scenario.xAxis.unit})`,
+            text: `${scenario.xAxis.label}${scenario.xAxis.unit ? ` (${scenario.xAxis.unit})` : ""}`,
             color: textColor,
             font: { size: 13, weight: "800" }
           },
@@ -623,7 +648,7 @@ function renderChart(forceTheme = null) {
           type: "linear",
           title: {
             display: true,
-            text: `${scenario.yAxis.label} [${scenario.yAxis.symbol}] (${scenario.yAxis.unit})`,
+            text: `${scenario.yAxis.label}${scenario.yAxis.unit ? ` (${scenario.yAxis.unit})` : ""}`,
             color: textColor,
             font: { size: 13, weight: "800" }
           },
@@ -1586,10 +1611,36 @@ function stripHtml(str) {
   return str.replace(/<[^>]*>/g, "").trim();
 }
 
+// Helper to sanitize programmer underscore variables (F_net -> F<sub>net</sub>) and chemical formulas
+function sanitizeMathSubscripts(text) {
+  if (!text || typeof text !== "string") return text || "";
+  let s = text;
+  // Clean corrupted duplicate tokens like F_ F_net or F_ F
+  s = s.replace(/\bF_\s*F_net\b/g, "F<sub>net</sub>");
+  s = s.replace(/\bF_\s*F\b/g, "F");
+  // Clean double stacked subscripts like F_net_2 or F_net₂
+  s = s.replace(/\bF_net_([0-9]+)\b/g, "F<sub>$1</sub>");
+  s = s.replace(/\bF_net([₀-₉]+)\b/g, "F$1");
+  // Standardize common physics variables
+  s = s.replace(/\bF_net\b/g, "F<sub>net</sub>");
+  s = s.replace(/\bP_rate\b/g, "R<sub>O₂</sub>");
+  // General underscore variable sanitizer: ([A-Za-z]+)_([A-Za-z0-9]+) -> \1<sub>\2</sub>
+  s = s.replace(/\b([A-Za-z]+)_([A-Za-z0-9]+)\b/g, "$1<sub>$2</sub>");
+  // Chemical formulas: format numbers following chemical symbols as subscripts
+  s = s.replace(/\bNaHCO3\b/g, "NaHCO<sub>3</sub>");
+  s = s.replace(/\bNaHCOs\b/g, "NaHCO<sub>3</sub>");
+  s = s.replace(/\bCO2\b/g, "CO<sub>2</sub>");
+  s = s.replace(/\bO2\b/g, "O<sub>2</sub>");
+  s = s.replace(/\bH2O\b/g, "H<sub>2</sub>O");
+  return s;
+}
+
 // Helper to format inline constraints and backticked code for Low-Stress printing
 function formatInlineConstraints(text) {
   if (!text || typeof text !== "string") return text || "";
   let esc = stripHtml(text);
+  // Sanitize math underscores and chemical formulas first
+  esc = sanitizeMathSubscripts(esc);
   // Explicit *italic constraints*
   esc = esc.replace(/\*(.+?)\*/g, '<em class="constraint">$1</em>');
   // Explicit `code/math`
@@ -2450,7 +2501,7 @@ function renderPrintChartSnapshot(scenario) {
 
   const offCanvas = document.createElement("canvas");
   offCanvas.width = 1000;
-  offCanvas.height = 460;
+  offCanvas.height = 500;
   const offCtx = offCanvas.getContext("2d");
 
   // Fill canvas with pure white background for crisp printing
@@ -2484,7 +2535,7 @@ function renderPrintChartSnapshot(scenario) {
 
       const seriesColor = visuals.lightColor || visuals.color;
       datasets.push({
-        label: `${visuals.symbol} ${cleanLabel} (${visuals.lineDesc})`,
+        label: cleanLabel,
         data: pts,
         backgroundColor: seriesColor,
         borderColor: seriesColor,
@@ -2509,7 +2560,7 @@ function renderPrintChartSnapshot(scenario) {
     const primaryColor = "#0284c7";
 
     datasets.push({
-      label: `${visuals.symbol} ${scenario.yAxis.label} (${scenario.yAxis.unit})`,
+      label: scenario.yAxis.label,
       data: pts,
       backgroundColor: primaryColor,
       borderColor: primaryColor,
@@ -2539,6 +2590,7 @@ function renderPrintChartSnapshot(scenario) {
         borderColor: "#7c3aed",
         borderDash: [8, 5],
         borderWidth: 3,
+        pointStyle: "line",
         pointRadius: 0,
         fill: false,
         showLine: true
@@ -2561,9 +2613,22 @@ function renderPrintChartSnapshot(scenario) {
               color: textColor,
               font: { size: 14, weight: "bold" },
               usePointStyle: true,
-              pointStyleWidth: 18,
-              boxWidth: 18,
-              padding: 10
+              pointStyleWidth: 26,
+              boxWidth: 26,
+              padding: 10,
+              generateLabels: function(chart) {
+                const orig = Chart.defaults.plugins.legend.labels.generateLabels(chart);
+                return orig.map(item => {
+                  const ds = chart.data.datasets[item.datasetIndex];
+                  if (ds && ds.borderDash && ds.borderDash.length > 0) {
+                    item.pointStyle = "line";
+                    item.lineDash = ds.borderDash;
+                    item.lineWidth = ds.borderWidth || 3;
+                    item.strokeStyle = ds.borderColor;
+                  }
+                  return item;
+                });
+              }
             }
           },
           tooltip: { enabled: false }
@@ -2573,7 +2638,7 @@ function renderPrintChartSnapshot(scenario) {
             type: "linear",
             title: {
               display: true,
-              text: `${scenario.xAxis.label} [${scenario.xAxis.symbol}] (${scenario.xAxis.unit})`,
+              text: `${scenario.xAxis.label}${scenario.xAxis.unit ? ` (${scenario.xAxis.unit})` : ""}`,
               color: textColor,
               font: { size: 15, weight: "800" },
               padding: { top: 6 }
@@ -2590,7 +2655,7 @@ function renderPrintChartSnapshot(scenario) {
             type: "linear",
             title: {
               display: true,
-              text: `${scenario.yAxis.label} [${scenario.yAxis.symbol}] (${scenario.yAxis.unit})`,
+              text: `${scenario.yAxis.label}${scenario.yAxis.unit ? ` (${scenario.yAxis.unit})` : ""}`,
               color: textColor,
               font: { size: 15, weight: "800" },
               padding: { bottom: 6 }
@@ -2672,29 +2737,7 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   if (pMasteryScore) pMasteryScore.textContent = scoreStr;
   if (pScoreMaxLabel) pScoreMaxLabel.textContent = scoreMaxStr;
 
-  // Low-Stress Reference Bar: Model Equations & Controlled Constants
-  const pRefEquations = document.getElementById("pRefEquations");
-  const pRefConstants = document.getElementById("pRefConstants");
-  if (pRefEquations) {
-    let eqList = [];
-    if (scenario.graphConfig?.equation) {
-      eqList.push(`<code>${stripHtml(scenario.graphConfig.equation.replace(/\s*\*\s*/g, " · "))}</code>`);
-    }
-    eqList.push(`<code>Slope = Δy / Δx = (y₂ − y₁) / (x₂ − x₁)</code>`);
-    pRefEquations.innerHTML = eqList.join(" &nbsp;|&nbsp; ");
-  }
-  if (pRefConstants) {
-    let constList = [];
-    if (Array.isArray(scenario.controlledVariables) && scenario.controlledVariables.length > 0) {
-      scenario.controlledVariables.slice(0, 2).forEach(cv => {
-        let shortCv = cv.replace(/held constant at /i, "= ").replace(/verified to /i, "= ");
-        constList.push(`<code>${stripHtml(shortCv)}</code>`);
-      });
-    } else {
-      constList.push(`<code>Standard Laboratory Controls Verified</code>`);
-    }
-    pRefConstants.innerHTML = constList.join(" &nbsp;|&nbsp; ");
-  }
+  // Header metadata populated cleanly without teacher equation/constant spoilers
 
   // Running Header - Page 2
   const pHeaderTitleP2 = document.getElementById("pHeaderTitleP2");
@@ -2775,7 +2818,12 @@ function syncPrintWorksheet(mode = currentPrintMode) {
         if (isCompact && cIdx === 0 && typeof val === "string" && val.startsWith("Trial ")) {
           displayVal = val.replace("Trial ", "");
         }
-        const formatted = typeof displayVal === "number" ? displayVal.toFixed(col.key === "conc" ? 2 : 1) : displayVal;
+        let formatted = displayVal;
+        if (typeof displayVal === "number") {
+          const decimals = (displayVal.toString().split(".")[1] || "").length;
+          const targetDecimals = col.decimals !== undefined ? col.decimals : (col.key === "conc" || decimals >= 2 ? 2 : 1);
+          formatted = displayVal.toFixed(targetDecimals);
+        }
         tHtml += `<td>${formatted}</td>`;
       });
       tHtml += `</tr>`;
@@ -2795,16 +2843,12 @@ function syncPrintWorksheet(mode = currentPrintMode) {
       : "Calibrated lab instrumentation & digital measurement tools";
 
     let ctrlHtml = `
-      <div class="p-ctrl-header">🔬 Experimental Controls &amp; Protocol Verification</div>
+      <div class="p-ctrl-header">🔬 Experimental Controls</div>
       <div class="p-ctrl-section">
         <span class="p-ctrl-label">Controlled Variables:</span>
         <ul class="p-ctrl-list">
           ${cvs.slice(0, 3).map(cv => `<li>${stripHtml(cv)}</li>`).join("")}
         </ul>
-      </div>
-      <div class="p-ctrl-section" style="margin-top:3px;">
-        <span class="p-ctrl-label">Calibrated Sensors:</span>
-        <span class="p-ctrl-instruments">${stripHtml(inst)}</span>
       </div>
     `;
     pTableControlsBox.innerHTML = ctrlHtml;
@@ -2818,10 +2862,10 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   if (pGraphModelBadge) {
     if (scenario.graphConfig?.multiSeries) {
       pGraphModelBadge.textContent = "Multi-Series Trends";
+    } else if (scenario.chartType === "scatter" && scenario.graphConfig?.slope !== undefined) {
+      pGraphModelBadge.textContent = "Linear Trendline";
     } else {
-      let eq = scenario.graphConfig?.equation || "Model";
-      eq = eq.replace(/\s*\*\s*/g, " · ");
-      pGraphModelBadge.textContent = eq;
+      pGraphModelBadge.textContent = "Plotted Trend";
     }
   }
 
@@ -2835,81 +2879,10 @@ function syncPrintWorksheet(mode = currentPrintMode) {
     }
   }
 
-  // Populate Accessible Legend Key on Page 1 (Structured Table for B&W photocopies)
+  // Suppress internal accessibility table on student handouts (legend is built into plot graphic)
   if (pGraphAccessLegend) {
-    if (scenario.graphConfig && scenario.graphConfig.multiSeries && Array.isArray(scenario.graphConfig.series)) {
-      const eqRaw = scenario.graphConfig.equation || "";
-      let legHtml = `<div class="p-access-heading">Accessible Graph Key (Dual-Coded Symbols &amp; Patterns for B&amp;W Photocopies):</div>`;
-      legHtml += `<table class="p-access-table"><thead><tr>`;
-      legHtml += `<th style="width:34%;">Dataset / Series</th>`;
-      legHtml += `<th style="width:33%;">Pattern &amp; Marker</th>`;
-      legHtml += `<th style="width:33%; text-align:right;">Model Rate</th>`;
-      legHtml += `</tr></thead><tbody>`;
-
-      scenario.graphConfig.series.forEach((sConfig, idx) => {
-        const rawLabel = sConfig.label || `Dataset ${idx + 1}`;
-        const cleanLabel = rawLabel.replace(/\s*\([^)]*\)/, "").trim();
-        const displayLabel = cleanLabel.replace(/\s*population/i, "").trim();
-        const visuals = resolveSeriesVisuals(cleanLabel, idx, false, sConfig.color, sConfig.pointStyle);
-
-        // Find equation or slope snippet matching this series
-        let eqSnippet = "";
-        if (sConfig.slope !== undefined) {
-          const sign = sConfig.slope > 0 ? '+' : '';
-          const yU = (scenario.yAxis.unit || '').replace(/organisms/i, 'org').replace(/generations/i, 'gen');
-          const xU = (scenario.xAxis.unit || '').replace(/organisms/i, 'org').replace(/generations/i, 'gen');
-          eqSnippet = `${sign}${sConfig.slope} ${yU}/${xU}`.trim();
-        } else if (eqRaw) {
-          const parts = eqRaw.split(";");
-          const matched = parts.find(p => {
-            const pLow = p.toLowerCase();
-            if (sConfig.id && pLow.includes(sConfig.id.toLowerCase())) return true;
-            if (pLow.includes(cleanLabel.toLowerCase())) return true;
-            const words = cleanLabel.toLowerCase().split(/\s+/).filter(w => w.length >= 4);
-            return words.some(w => pLow.includes(w));
-          });
-          if (matched) {
-            eqSnippet = matched.trim().replace(/\s*\*\s*/g, " · ");
-            // Strip redundant series name prefix from eqSnippet if already shown in first column
-            eqSnippet = eqSnippet.replace(/^[A-Za-z\s–—-]+(?:slope|rate)?\s*:\s*/i, '');
-          }
-        }
-
-        legHtml += `
-          <tr>
-            <td>
-              <span class="p-access-symbol" style="color:${visuals.lightColor};">${visuals.symbol}</span>
-              <strong class="p-access-name">${displayLabel}</strong>
-            </td>
-            <td>${visuals.lineDesc.replace(' Line', '')} (${visuals.shapeName})</td>
-            <td style="text-align:right; font-family:monospace; font-weight:700; color:#0369a1;">${eqSnippet}</td>
-          </tr>
-        `;
-      });
-      legHtml += `</tbody></table>`;
-      pGraphAccessLegend.innerHTML = legHtml;
-    } else {
-      const visuals = resolveSeriesVisuals(scenario.yAxis.label, 0, false);
-      let eqSnippet = scenario.graphConfig?.equation ? scenario.graphConfig.equation.replace(/\s*\*\s*/g, " · ") : "";
-      let legHtml = `<div class="p-access-heading">Accessible Graph Key (Dual-Coded Symbols &amp; Patterns for B&amp;W Photocopies):</div>`;
-      legHtml += `<table class="p-access-table"><thead><tr>`;
-      legHtml += `<th style="width:34%;">Variable / Series</th>`;
-      legHtml += `<th style="width:33%;">Pattern &amp; Marker</th>`;
-      legHtml += `<th style="width:33%; text-align:right;">Model Trend</th>`;
-      legHtml += `</tr></thead><tbody>`;
-      legHtml += `
-        <tr>
-          <td>
-            <span class="p-access-symbol" style="color:${visuals.lightColor};">${visuals.symbol}</span>
-            <strong class="p-access-name">${scenario.yAxis.label}</strong>
-          </td>
-          <td>${visuals.lineDesc.replace(' Line', '')} (${visuals.shapeName})</td>
-          <td style="text-align:right; font-family:monospace; font-weight:700; color:#0369a1;">${eqSnippet}</td>
-        </tr>
-      `;
-      legHtml += `</tbody></table>`;
-      pGraphAccessLegend.innerHTML = legHtml;
-    }
+    pGraphAccessLegend.innerHTML = "";
+    pGraphAccessLegend.style.display = "none";
   }
 
   // 5. Questions Section (5-Part Low-Stress Atomic Structure on Page 2)
@@ -2936,7 +2909,7 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   }
   if (pQ0X && anatomy) {
     const xUnit = scenario.xAxis?.unit || (anatomy.locatorUnit || '').split('/')[0];
-    pQ0X.innerHTML = `${stripHtml(anatomy.independentVar)}: <code style="font-family:monospace; background:#e2e8f0; padding:1px 4px; border-radius:3px;">${givenX} ${stripHtml(xUnit)}</code>`;
+    pQ0X.innerHTML = `${stripHtml(anatomy.independentVar)}: <code class="coord-badge">${givenX} ${stripHtml(xUnit)}</code>`;
   }
   if (pQ0Y && anatomy) {
     pQ0Y.textContent = stripHtml(anatomy.dependentVar);
@@ -2963,37 +2936,38 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   if (pQ1Answer) {
     if (!isBlank && resp.trendAnswer !== null && scenario.questions.trend.options[resp.trendAnswer]) {
       const isCor = resp.scores.trend === 1;
-      pQ1Answer.innerHTML = `<span style="font-weight:400; color:#1e293b;">Selected Trend: <strong>${stripHtml(scenario.questions.trend.options[resp.trendAnswer])}</strong></span> <span style="color:${isCor ? '#15803d' : '#b91c1c'}; font-weight:700;">(${isCor ? '✓ 1/1 pt' : '0/1 pt'})</span>`;
+      const cleanSelected = stripHtml(scenario.questions.trend.options[resp.trendAnswer]).replace(/^[☐\s\[\]]+/, '').trim();
+      pQ1Answer.innerHTML = `<span style="font-weight:400; color:#1e293b;">Selected Trend: <strong>${sanitizeMathSubscripts(cleanSelected)}</strong></span> <span style="color:${isCor ? '#15803d' : '#b91c1c'}; font-weight:700;">(${isCor ? '✓ 1/1 pt' : '0/1 pt'})</span>`;
     } else {
-      const optionsHtml = scenario.questions.trend.options.map((opt) => `
+      const optionsHtml = scenario.questions.trend.options.map((opt) => {
+        const cleanOpt = stripHtml(opt).replace(/^[☐\s\[\]]+/, '').trim();
+        return `
         <div class="p-mc-option">
-          <span class="p-mc-checkbox">[ &nbsp; ]</span>
-          <span class="p-mc-text">${stripHtml(opt)}</span>
+          <span class="p-mc-checkbox">☐</span>
+          <span class="p-mc-text">${sanitizeMathSubscripts(cleanOpt)}</span>
         </div>
-      `).join("");
+      `;
+      }).join("");
       pQ1Answer.innerHTML = `<div class="p-mc-options-list">${optionsHtml}</div>`;
     }
   }
   if (pQ1Key) {
     const corOpt = scenario.questions.trend.options[scenario.questions.trend.correctIndex];
-    pQ1Key.innerHTML = `<strong>Teacher Solution:</strong> Correct classification: <strong>${stripHtml(corOpt)}</strong> &bull; ${stripHtml(scenario.questions.trend.explanation || "")}`;
+    const cleanCor = stripHtml(corOpt).replace(/^[☐\s\[\]]+/, '').trim();
+    pQ1Key.innerHTML = `<strong>Teacher Solution:</strong> Correct classification: <strong>${sanitizeMathSubscripts(cleanCor)}</strong> &bull; ${sanitizeMathSubscripts(stripHtml(scenario.questions.trend.explanation || ""))}`;
   }
 
   // Part 3: Rate of Change / Quantitative Calculation (Vertical Fraction & Open Workspace)
   const pQ2Prompt = document.getElementById("pQ2Prompt");
+  const pQ2FormulaPanel = document.getElementById("pQ2FormulaPanel");
   const pQ2Value = document.getElementById("pQ2Value");
   const pQ2Unit = document.getElementById("pQ2Unit");
-  const pQ2FormulaName = document.getElementById("pQ2FormulaName");
-  const pQ2WorkFrac = document.getElementById("pQ2WorkFrac");
   const pQ2Label = document.getElementById("pQ2Label");
   const pQ2Key = document.getElementById("pQ2Key");
   const quantQ = scenario.questions.quantitative;
 
   if (pQ2Prompt) {
     pQ2Prompt.innerHTML = formatInlineConstraints(quantQ.prompt);
-  }
-  if (pQ2FormulaName) {
-    pQ2FormulaName.textContent = quantQ.slopeSteps?.calcLabel?.replace(/:$/, '') || "Rate (Slope):";
   }
   if (pQ2Value) {
     pQ2Value.textContent = (!isBlank && resp.quantAnswer) ? resp.quantAnswer : "";
@@ -3004,34 +2978,78 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   if (pQ2Label) {
     pQ2Label.textContent = quantQ.slopeSteps?.calcLabel || "Calculated Rate:";
   }
-  if (pQ2WorkFrac) {
-    if (isBlank) {
-      pQ2WorkFrac.innerHTML = `
-        <span class="frac-num">( &nbsp; _____ &nbsp; − &nbsp; _____ &nbsp; )</span>
-        <span class="frac-den">( &nbsp; _____ &nbsp; − &nbsp; _____ &nbsp; )</span>
+
+  // Dynamic formula generation matching target units (eliminates formula-vs-unit dissonance)
+  if (pQ2FormulaPanel) {
+    const isVelocity = scenario.id === "earth-seafloor-spreading" ||
+      quantQ.unit === "km/Ma" ||
+      (quantQ.slopeSteps?.formulaSetup && quantQ.slopeSteps.formulaSetup.toLowerCase().includes("distance / age"));
+
+    if (isVelocity) {
+      const subWork = isBlank
+        ? `<div class="v-frac frac-blank-slots" id="pQ2WorkFrac"><span class="frac-num">( &nbsp; ____ &nbsp; − &nbsp; ____ &nbsp; )</span><span class="frac-den">( &nbsp; ____ &nbsp; − &nbsp; ____ &nbsp; )</span></div>`
+        : `<div class="v-frac frac-blank-slots" id="pQ2WorkFrac"><span class="frac-num">( 500 km − 0 km )</span><span class="frac-den">( 7.5 Ma − 0.0 Ma )</span></div>`;
+
+      pQ2FormulaPanel.innerHTML = `
+        <span class="formula-term" id="pQ2FormulaName">Speed:</span>
+        <div class="v-frac">
+          <span class="frac-num">ΔDistance</span>
+          <span class="frac-den">ΔAge</span>
+        </div>
+        <span class="frac-op">=</span>
+        <div class="v-frac">
+          <span class="frac-num">x₂ − x₁</span>
+          <span class="frac-den">y₂ − y₁</span>
+        </div>
+        <span class="frac-op">=</span>
+        ${subWork}
+      `;
+    } else if (quantQ.slopeSteps?.blankSetupWork && !quantQ.slopeSteps.formulaSetup.includes("Slope = (")) {
+      const setupText = quantQ.slopeSteps.blankSetupWork;
+      pQ2FormulaPanel.innerHTML = `
+        <span class="formula-term" id="pQ2FormulaName">${quantQ.slopeSteps.calcLabel?.replace(/:$/, '') || "Rate"}:</span>
+        <span style="font-size:8.2pt; font-family:monospace; font-weight:700; color:#0f172a; margin-left:4px;">
+          ${stripHtml(isBlank ? setupText : quantQ.slopeSteps.formulaSetup)}
+        </span>
       `;
     } else {
-      const stepStr = quantQ.slopeSteps?.formulaSetup || "";
-      const matchFrac = stepStr.match(/\(\s*([^−-]+)\s*[−-]\s*([^)]+)\s*\)\s*\/\s*\(\s*([^−-]+)\s*[−-]\s*([^)]+)\s*\)/);
-      if (matchFrac) {
-        pQ2WorkFrac.innerHTML = `
-          <span class="frac-num">( ${matchFrac[1].trim()} − ${matchFrac[2].trim()} )</span>
-          <span class="frac-den">( ${matchFrac[3].trim()} − ${matchFrac[4].trim()} )</span>
-        `;
+      const ySym = scenario.yAxis?.symbol || "y";
+      const xSym = scenario.xAxis?.symbol || "x";
+      let subWork = "";
+      if (isBlank) {
+        subWork = `<div class="v-frac frac-blank-slots" id="pQ2WorkFrac"><span class="frac-num">( &nbsp; ____ &nbsp; − &nbsp; ____ &nbsp; )</span><span class="frac-den">( &nbsp; ____ &nbsp; − &nbsp; ____ &nbsp; )</span></div>`;
       } else {
-        pQ2WorkFrac.innerHTML = `
-          <span class="frac-num">( &nbsp; _____ &nbsp; − &nbsp; _____ &nbsp; )</span>
-          <span class="frac-den">( &nbsp; _____ &nbsp; − &nbsp; _____ &nbsp; )</span>
-        `;
+        const p1 = quantQ.slopeSteps?.point1 || { x: 0, y: 0 };
+        const p2 = quantQ.slopeSteps?.point2 || { x: 0, y: 0 };
+        subWork = `<div class="v-frac frac-blank-slots" id="pQ2WorkFrac"><span class="frac-num">( ${p2.y} − ${p1.y} )</span><span class="frac-den">( ${p2.x} − ${p1.x} )</span></div>`;
       }
+
+      pQ2FormulaPanel.innerHTML = `
+        <span class="formula-term" id="pQ2FormulaName">Slope:</span>
+        <div class="v-frac">
+          <span class="frac-num">Δ${stripHtml(ySym)}</span>
+          <span class="frac-den">Δ${stripHtml(xSym)}</span>
+        </div>
+        <span class="frac-op">=</span>
+        <div class="v-frac">
+          <span class="frac-num">${stripHtml(ySym)}₂ − ${stripHtml(ySym)}₁</span>
+          <span class="frac-den">${stripHtml(xSym)}₂ − ${stripHtml(xSym)}₁</span>
+        </div>
+        <span class="frac-op">=</span>
+        ${subWork}
+      `;
     }
   }
+
   if (pQ2Key) {
     pQ2Key.innerHTML = `<strong>Teacher Solution:</strong> Setup: <code>${stripHtml(quantQ.slopeSteps?.formulaSetup || "")}</code> = <strong>${quantQ.expectedValue} ${stripHtml(quantQ.unit)}</strong> (${stripHtml(quantQ.slopeSteps?.physicalMeaning || "")})`;
   }
 
   // Part 4: Free Response CER (Claim, Evidence, Reasoning Archetype with Discrete Ruled Lines)
   const pQ3Prompt = document.getElementById("pQ3Prompt");
+  const pCerClaimHeader = document.getElementById("pCerClaimHeader");
+  const pCerEvidenceHeader = document.getElementById("pCerEvidenceHeader");
+  const pCerReasoningHeader = document.getElementById("pCerReasoningHeader");
   const pCerClaimStarter = document.getElementById("pCerClaimStarter");
   const pCerClaimBox = document.getElementById("pCerClaimBox");
   const pCerEvidenceLines = document.getElementById("pCerEvidenceLines");
@@ -3046,7 +3064,46 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   const pQ3Key = document.getElementById("pQ3Key");
 
   if (pQ3Prompt) {
-    pQ3Prompt.innerHTML = formatInlineConstraints(scenario.questions.freeResponse.prompt);
+    let cerPrompt = scenario.questions.freeResponse.prompt || "";
+    const youMustIdx = cerPrompt.indexOf("You must:");
+    if (youMustIdx !== -1) {
+      cerPrompt = cerPrompt.substring(0, youMustIdx).trim();
+    }
+    pQ3Prompt.innerHTML = formatInlineConstraints(cerPrompt);
+  }
+
+  // Populate checkable micro-items in CER zone headers
+  const zc = scenario.questions.freeResponse.zoneCriteria;
+  if (zc) {
+    if (pCerClaimHeader && zc.claim) {
+      let claimText = sanitizeMathSubscripts(stripHtml(zc.claim)).trim();
+      claimText = claimText.replace(/^([☐\s]*ZONE\s*A\s*[-—:]*\s*(?:CLAIM)?:?\s*)/i, '').trim();
+      pCerClaimHeader.innerHTML = `<span class="checkbox">☐</span> <strong>ZONE A — CLAIM:</strong> ${claimText}`;
+    }
+    if (pCerEvidenceHeader && zc.evidence) {
+      const evItems = Array.isArray(zc.evidence) ? zc.evidence : [zc.evidence];
+      const evHtml = evItems.map((item, idx) => {
+        let cleanItem = sanitizeMathSubscripts(stripHtml(item)).trim();
+        cleanItem = cleanItem.replace(/^([☐\s]*ZONE\s*B\s*[-—:]*\s*(?:EVIDENCE)?:?\s*)/i, '').trim();
+        return `<span class="checkbox" ${idx > 0 ? 'style="margin-left:6px;"' : ''}>☐</span> ${cleanItem}`;
+      }).join(" ");
+      pCerEvidenceHeader.innerHTML = `<span class="checkbox">☐</span> <strong>ZONE B — EVIDENCE:</strong> ${evHtml}`;
+    }
+    if (pCerReasoningHeader && zc.reasoning) {
+      let reasoningText = sanitizeMathSubscripts(stripHtml(zc.reasoning)).trim();
+      reasoningText = reasoningText.replace(/^([☐\s]*ZONE\s*C\s*[-—:]*\s*(?:REASONING)?:?\s*)/i, '').trim();
+      pCerReasoningHeader.innerHTML = `<span class="checkbox">☐</span> <strong>ZONE C — REASONING:</strong> ${reasoningText}`;
+    }
+  } else {
+    if (pCerClaimHeader) {
+      pCerClaimHeader.innerHTML = `<span class="checkbox">☐</span> <strong>ZONE A — CLAIM:</strong> State a direct claim answering the scientific question.`;
+    }
+    if (pCerEvidenceHeader) {
+      pCerEvidenceHeader.innerHTML = `<span class="checkbox">☐</span> <strong>ZONE B — EVIDENCE:</strong> <span class="checkbox">☐</span> Cite 2+ data pairs (X, Y) with units from Table 1. <span class="checkbox" style="margin-left:6px;">☐</span> Compare values.`;
+    }
+    if (pCerReasoningHeader) {
+      pCerReasoningHeader.innerHTML = `<span class="checkbox">☐</span> <strong>ZONE C — REASONING:</strong> Connect evidence to scientific principles &amp; causal mechanisms.`;
+    }
   }
 
   // Clean open sentence starter for Claim (no bracketed cloze choices)
@@ -3128,24 +3185,29 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   if (pQ4Answer) {
     if (!isBlank && resp.synAnswer !== null && scenario.questions.synthesis.options[resp.synAnswer]) {
       const isCor = resp.scores.syn === 1;
-      pQ4Answer.innerHTML = `<span style="font-weight:400; color:#1e293b;">Selected Prediction: <strong>${stripHtml(scenario.questions.synthesis.options[resp.synAnswer])}</strong></span> <span style="color:${isCor ? '#15803d' : '#b91c1c'}; font-weight:700;">(${isCor ? '✓ 1/1 pt' : '0/1 pt'})</span>`;
+      const cleanSelected = stripHtml(scenario.questions.synthesis.options[resp.synAnswer]).replace(/^[☐\s\[\]]+/, '').trim();
+      pQ4Answer.innerHTML = `<span style="font-weight:400; color:#1e293b;">Selected Prediction: <strong>${sanitizeMathSubscripts(cleanSelected)}</strong></span> <span style="color:${isCor ? '#15803d' : '#b91c1c'}; font-weight:700;">(${isCor ? '✓ 1/1 pt' : '0/1 pt'})</span>`;
     } else {
       const synOpts = (scenario.questions.synthesis && Array.isArray(scenario.questions.synthesis.options)) ? scenario.questions.synthesis.options : [];
       if (synOpts.length > 0) {
-        const avgLen = synOpts.reduce((sum, o) => sum + o.length, 0) / synOpts.length;
-        if (avgLen <= 18) {
-          const synHtml = synOpts.map(opt => `
-            <span class="p-mc-option" style="display:inline-flex; margin-right:16px;">
-              <span class="p-mc-checkbox">[ &nbsp; ]</span>
-              <span class="p-mc-text">${stripHtml(opt)}</span>
-            </span>
-          `).join("");
-          pQ4Answer.innerHTML = `<div style="margin-top:2px;">${synHtml}</div>`;
-        } else {
-          const synHtml = synOpts.map(opt => `
+        // Strip any leading unicode checkbox or ASCII bracket checkbox to prevent double boxes
+        const cleanedOpts = synOpts.map(opt => stripHtml(opt).replace(/^[☐\s\[\]]+/, '').trim());
+        const avgLen = cleanedOpts.reduce((sum, o) => sum + o.length, 0) / cleanedOpts.length;
+        if (avgLen <= 25) {
+          // Clean 2-column CSS grid for concise options
+          const synHtml = cleanedOpts.map(opt => `
             <div class="p-mc-option">
-              <span class="p-mc-checkbox">[ &nbsp; ]</span>
-              <span class="p-mc-text">${stripHtml(opt)}</span>
+              <span class="p-mc-checkbox">☐</span>
+              <span class="p-mc-text">${sanitizeMathSubscripts(opt)}</span>
+            </div>
+          `).join("");
+          pQ4Answer.innerHTML = `<div class="p-mc-grid-2col">${synHtml}</div>`;
+        } else {
+          // Vertical list for longer prose options
+          const synHtml = cleanedOpts.map(opt => `
+            <div class="p-mc-option">
+              <span class="p-mc-checkbox">☐</span>
+              <span class="p-mc-text">${sanitizeMathSubscripts(opt)}</span>
             </div>
           `).join("");
           pQ4Answer.innerHTML = `<div class="p-mc-options-list">${synHtml}</div>`;
@@ -3157,7 +3219,8 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   }
   if (pQ4Key) {
     const corOpt = scenario.questions.synthesis.options[scenario.questions.synthesis.correctIndex];
-    pQ4Key.innerHTML = `<strong>Teacher Solution:</strong> Predicted value: <strong>${stripHtml(corOpt)}</strong> &bull; ${stripHtml(scenario.questions.synthesis.explanation || "")}`;
+    const cleanCor = stripHtml(corOpt).replace(/^[☐\s\[\]]+/, '').trim();
+    pQ4Key.innerHTML = `<strong>Teacher Solution:</strong> Predicted value: <strong>${sanitizeMathSubscripts(cleanCor)}</strong> &bull; ${sanitizeMathSubscripts(stripHtml(scenario.questions.synthesis.explanation || ""))}`;
   }
 
   // 6. Footer Bars (Page 1 and Page 2)

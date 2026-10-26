@@ -10,18 +10,64 @@ import sys
 from pathlib import Path
 
 
+def sanitize_math_subscripts(text: str) -> str:
+    """Sanitizes programmer underscores (F_net -> F<sub>net</sub>) and chemical formulas."""
+    if not text:
+        return ""
+    s = text
+    # Clean duplicate prefix tokens like F_ F_net or F_ F
+    s = re.sub(r"\bF_\s*F_net\b", "F<sub>net</sub>", s)
+    s = re.sub(r"\bF_\s*F\b", "F", s)
+    s = re.sub(r"\bF_net_([0-9]+)\b", r"F<sub>\1</sub>", s)
+    s = re.sub(r"\bF_net([₀-₉]+)\b", r"F\1", s)
+    s = re.sub(r"\bF_net\b", "F<sub>net</sub>", s)
+    s = re.sub(r"\bP_rate\b", "R<sub>O₂</sub>", s)
+    # General underscore variable: ([A-Za-z]+)_([A-Za-z0-9]+) -> \1<sub>\2</sub>
+    s = re.sub(r"\b([A-Za-z]+)_([A-Za-z0-9]+)\b", r"\1<sub>\2</sub>", s)
+    # Chemical formulas & common compounds (preserving proper element casing)
+    s = re.sub(r"\bNaHCO3\b", "NaHCO<sub>3</sub>", s)
+    s = re.sub(r"\bNaHCOs\b", "NaHCO<sub>3</sub>", s)
+    s = re.sub(r"\bCO2\b", "CO<sub>2</sub>", s)
+    s = re.sub(r"\bO2\b", "O<sub>2</sub>", s)
+    s = re.sub(r"\bH2O\b", "H<sub>2</sub>O", s)
+    s = re.sub(r"\bMgCl2\b", "MgCl<sub>2</sub>", s)
+    s = re.sub(r"\bMgCl₂\b", "MgCl<sub>2</sub>", s)
+    s = re.sub(r"\bH2\b", "H<sub>2</sub>", s)
+    s = re.sub(r"\bH₂\b", "H<sub>2</sub>", s)
+    # Sanitize stray characters before Heat in chemical equations
+    s = re.sub(r"[+\s]+[a-zA-Z\?]\s+Heat\b", " + Heat", s)
+    return s
+
+
 def format_inline_markdown(text: str) -> str:
-    """Converts *italic constraints* and `code/math` into clean HTML."""
+    """Converts *italic constraints*, `code/math`, and subscripts into clean HTML."""
     escaped = html.escape(text)
+    escaped = sanitize_math_subscripts(escaped)
     escaped = re.sub(r"\*(.+?)\*", r"<em class='constraint'>\1</em>", escaped)
     escaped = re.sub(r"`(.+?)`", r"<code>\1</code>", escaped)
     return escaped
 
 
+def sanitize_zone_header(header: str) -> str:
+    """Enforces standard '☐ ZONE [A-C] — [LABEL]: ' formatting and prevents concatenated headers like 'ZONE BEVIDENCE'."""
+    if not header:
+        return ""
+    h = header.strip()
+    # Fix corrupted 'ZONE BEVIDENCE' or 'ZONE CREASONING' or 'ZONE ACLAIM'
+    h = re.sub(r"^☐?\s*ZONE\s*A\s*[-—:]*\s*(?:CLAIM)?:?\s*(.*)$", r"☐ ZONE A — CLAIM: \1", h, flags=re.IGNORECASE)
+    h = re.sub(r"^☐?\s*ZONE\s*B\s*[-—:]*\s*(?:EVIDENCE)?:?\s*(.*)$", r"☐ ZONE B — EVIDENCE: \1", h, flags=re.IGNORECASE)
+    h = re.sub(r"^☐?\s*ZONE\s*C\s*[-—:]*\s*(?:REASONING)?:?\s*(.*)$", r"☐ ZONE C — REASONING: \1", h, flags=re.IGNORECASE)
+    # If it was just '☐ ZONE B — EVIDENCE:' with empty trailing, clean up trailing space
+    h = re.sub(r":\s*$", ":", h)
+    return h
+
+
 def render_zone(zone: dict, ruled_lines: int) -> str:
     pattern = zone.get("surface_pattern", "blank_open")
     width = zone.get("width_pct", 100)
-    header = html.escape(zone.get("zone_header", ""))
+    raw_header = zone.get("zone_header", "")
+    sanitized_header = sanitize_zone_header(raw_header)
+    header = html.escape(sanitized_header)
     scaffold = html.escape(zone.get("faded_scaffold_hint", ""))
 
     lines_html = ""
@@ -48,6 +94,7 @@ def render_sub_prompt(sp: dict) -> str:
     verb = html.escape(sp.get("command_verb", ""))
     text = format_inline_markdown(sp.get("prompt_text", ""))
     ws = sp.get("workspace", {})
+    archetype = html.escape(ws.get("archetype", ""))
     height_in = ws.get("height_in", 1.5)
     ruled_lines = ws.get("ruled_line_count", 0)
     unit_prompt = html.escape(ws.get("answer_unit_prompt", ""))
@@ -66,12 +113,14 @@ def render_sub_prompt(sp: dict) -> str:
     return f"""
     <div class="sub-prompt-block">
       <div class="prompt-line">
-        <span class="checkbox">☐</span>
-        <span class="part-label">({part})</span>
-        <strong class="verb-badge">{verb}</strong>
-        <span class="prompt-body">{text}</span>
+        <div class="prompt-badge-group">
+          <span class="checkbox">☐</span>
+          <span class="part-label">({part})</span>
+          <strong class="verb-badge">{verb}</strong>
+        </div>
+        <div class="prompt-body">{text}</div>
       </div>
-      <div class="workspace-box" style="min-height: {height_in}in;">
+      <div class="workspace-box archetype-{archetype}" style="min-height: {height_in}in;">
         {zones_html}
         {unit_html}
       </div>
@@ -137,13 +186,7 @@ def render_problem(prob: dict) -> str:
 
 def build_html(data: dict) -> str:
     title = html.escape(data.get("worksheet_title", "Worksheet"))
-    ref_bank = data.get("header_reference_bank", {})
-    eqs = " &nbsp;|&nbsp; ".join(
-        f"<code>{html.escape(e)}</code>" for e in ref_bank.get("equations", [])
-    )
-    consts = " &nbsp;|&nbsp; ".join(
-        f"<code>{html.escape(c)}</code>" for c in ref_bank.get("constants", [])
-    )
+    standard = html.escape(data.get("standard_code", ""))
     problems_html = "".join(
         render_problem(p) for p in data.get("problems", [])
     )
@@ -175,16 +218,15 @@ def build_html(data: dict) -> str:
   @media print {{ .toolbar {{ display: none; }} body {{ padding: 0; }} }}
   header {{
     border-bottom: 2px solid #0f172a; padding-bottom: 8px; margin-bottom: 14px;
+    display: flex; justify-content: space-between; align-items: flex-end;
   }}
-  .header-top {{
-    display: flex; justify-content: space-between; align-items: baseline;
+  .header-left h1 {{ font-size: 1.25rem; margin: 0 0 4px 0; }}
+  .standard-tag {{
+    font-size: 0.75rem; background: #f1f5f9; color: #475569;
+    padding: 2px 6px; border-radius: 4px; font-weight: 600; font-family: monospace;
   }}
-  h1 {{ font-size: 1.35rem; margin: 0; }}
-  .student-meta {{ font-size: 0.9rem; color: #334155; }}
-  .reference-bar {{
-    margin-top: 8px; padding: 6px 10px; background: #f1f5f9;
-    border-radius: 4px; font-size: 0.85rem; display: flex;
-    justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  .header-right {{
+    text-align: right; font-size: 0.88rem; color: #334155; line-height: 1.5;
   }}
   .problem-card {{
     break-inside: avoid; page-break-inside: avoid;
@@ -221,12 +263,23 @@ def build_html(data: dict) -> str:
     font-size: 0.78rem; font-family: monospace;
   }}
   .sub-prompt-block {{ margin-top: 12px; }}
-  .prompt-line {{ font-size: 0.95rem; margin-bottom: 6px; }}
-  .checkbox {{ color: #64748b; margin-right: 4px; }}
-  .part-label {{ font-weight: 600; margin-right: 4px; }}
+  .prompt-line {{
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 0.95rem; line-height: 1.35; margin-bottom: 8px;
+  }}
+  .prompt-badge-group {{
+    display: inline-flex; align-items: center; gap: 4px;
+    flex-shrink: 0; white-space: nowrap; padding-top: 1px;
+  }}
+  .checkbox {{ color: #64748b; font-family: monospace; font-weight: 700; }}
+  .part-label {{ font-weight: 700; color: #0f172a; margin-right: 2px; }}
   .verb-badge {{
     background: #0f172a; color: #fff; padding: 1px 6px;
-    border-radius: 3px; font-size: 0.85rem; margin-right: 4px;
+    border-radius: 3px; font-size: 0.75rem; font-weight: 800;
+    letter-spacing: 0.5px; text-transform: uppercase;
+  }}
+  .prompt-body, .prompt-text {{
+    flex: 1; min-width: 0; color: #0f172a; font-weight: 600;
   }}
   .constraint {{
     font-style: italic; text-decoration: underline;
@@ -234,10 +287,24 @@ def build_html(data: dict) -> str:
   }}
   .workspace-box {{
     display: flex; border: 1.5px solid #94a3b8; border-radius: 4px;
-    position: relative; overflow: hidden;
+    position: relative; overflow: hidden; background: #ffffff;
+  }}
+  .archetype-claim_evidence_reasoning {{
+    flex-direction: column;
+  }}
+  .archetype-claim_evidence_reasoning .ws-zone {{
+    border-right: none;
+    border-bottom: 1px dashed #cbd5e1;
+    width: 100% !important;
+  }}
+  .archetype-claim_evidence_reasoning .ws-zone:last-of-type {{
+    border-bottom: none;
   }}
   .ws-zone {{
     padding: 6px 10px; border-right: 1px dashed #cbd5e1; position: relative;
+    box-sizing: border-box;
+    font-variant-numeric: normal;
+    font-feature-settings: "zero" 0;
   }}
   .ws-zone:last-of-type {{ border-right: none; }}
   .zone-header {{
@@ -250,6 +317,10 @@ def build_html(data: dict) -> str:
   .surface-dot_grid {{
     background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
     background-size: 14px 14px;
+  }}
+  .surface-pre_drawn_axes {{
+    background-color: #f8fafc;
+    position: relative;
   }}
   .ruled-line {{
     border-bottom: 1px solid #cbd5e1; height: 0.32in; width: 100%;
@@ -274,13 +345,13 @@ def build_html(data: dict) -> str:
     <button onclick="window.print()">Print / Save PDF</button>
   </div>
   <header>
-    <div class="header-top">
+    <div class="header-left">
       <h1>{title}</h1>
-      <div class="student-meta">Name: ______________________ &nbsp; Period: ____ &nbsp; Date: ________</div>
+      <div><span class="standard-tag">Standard: {standard}</span></div>
     </div>
-    <div class="reference-bar">
-      <div><strong>Equations:</strong> {eqs or "None"}</div>
-      <div><strong>Constants:</strong> {consts or "None"}</div>
+    <div class="header-right">
+      <div>Name: ______________________</div>
+      <div>Period: ____ &nbsp; Date: ________</div>
     </div>
   </header>
   <main>
@@ -314,3 +385,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    

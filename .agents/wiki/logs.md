@@ -3,6 +3,43 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-25 — Worksheet Generator & Templates: 5 Targeted Cognitive Dissonance & Precision Fixes
+**Patterns Updated**: `low-stress-worksheet-skill.md`, `cast-data-analysis-practice-suite.md`.
+**Files Updated**: `.agents/skills/low-stress-worksheet/SKILL.md`, `.agents/skills/low-stress-worksheet/scripts/render_worksheet.py`, `cast-data-practice/index.html`, `cast-data-practice/css/styles.css`, `cast-data-practice/js/app.js`, `cast-data-practice/js/scenarios.js`.
+
+**Changes**:
+- **Fixed String Concatenation in Custom CER Zone Headers (`ZONE BEVIDENCE` Bug)**: All CER code paths (both default template and custom override branches in `app.js` and `render_worksheet.py`) now enforce strict prefix formatting: `"☐ ZONE A — CLAIM: "`, `"☐ ZONE B — EVIDENCE: "`, and `"☐ ZONE C — REASONING: "` with an explicit space/em-dash separator, stripping any malformed leading prefix from custom prompts.
+- **Synchronized Numeric Precision Between Data Tables and Question Prompts**: Updated Table 1 numeric formatting in both screen and print views (`app.js`) to dynamically detect decimal precision or use column overrides, ensuring 2-decimal values (e.g. Chemical Kinetics Trial 5 rate `2.75 mL/s`) display with full precision rather than truncating to `2.8` while Question 5 cites `2.75 mL/s`.
+- **Dynamic Clearance for 2-Line Question Prompts (Q3 Overlap Fix)**: Expanded `.prompt-line` bottom margin to `8px` (`line-height: 1.35;`) and added `margin-top: 6px; clear: both;` to `.ws-calc-box`, ensuring multi-line prompts never collide with calculation workspace borders.
+- **Standardized Symmetrical Blank Substitution Fraction in Q3**: Standardized blank fill-in slots across HTML and JS templates to `= ( ____ − ____ ) / ( ____ − ____ )` with uniform widths, and verified the helper watermark reads `"Show work: substitution, arithmetic & unit simplification"`.
+- **Sanitized Chemical Equations & Preserved Case-Sensitive Element Formulas in Titles**: Cleaned chemical reaction strings (`Mg(s) + 2HCl(aq) → MgCl₂(aq) + H₂(g) + Heat.`) and removed `text-transform: uppercase` from `#pTableCaption` to ensure formulas like `HCl` and `MgCl₂` never get corrupted into `HCL` or `MGCL₂`.
+- **Dashed Line Segment for Trendline Legend Key**: Configured custom Chart.js legend label generators in both the screen and print snapshot engines (`app.js`) to render dashed line segments (`- -`) for best-fit trendline series (`borderDash: [8, 5]`, `pointStyle: 'line'`) rather than circular point markers, establishing 1:1 visual fidelity between the legend and the plotted line.
+
+## 2026-10-25 — Worksheet Generator Agent & Rendering Pipeline: Subscripts, Checkboxes, Table Numbering & Font Legibility
+**Patterns Updated**: `low-stress-worksheet-skill.md`, `cast-data-analysis-practice-suite.md`.
+**Files Updated**: `.agents/skills/low-stress-worksheet/SKILL.md`, `.agents/skills/low-stress-worksheet/scripts/render_worksheet.py`, `cast-data-practice/index.html`, `cast-data-practice/css/styles.css`, `cast-data-practice/js/app.js`, `cast-data-practice/js/scenarios.js`.
+
+**Changes**:
+- **Banned Programmer Underscore Variables & Enforced Scientific Subscripts**: Replaced all instances of `F_net` and `P_rate` with standard symbols (`F`, $F_{\text{net}}$ / `F<sub>net</sub>`, and $R_{\text{O}_2}$ / `R<sub>O₂</sub>`), and formatted chemical formulas (`O₂`, `CO₂`, `NaHCO₃`, `H₂O`). Added a post-processing regex sanitizer (`([A-Za-z]+)_([A-Za-z0-9]+) -> \1<sub>\2</sub>`) in both JS (`app.js`) and Python (`render_worksheet.py`) that scrubs duplicate prefix tokens (`F_ F_net`).
+- **Fixed Missing Spaces in CER Zone Headers**: Updated zone headers in HTML and JS to ensure consistent em-dash separators and spacing (`ZONE A — CLAIM:`, `ZONE B — EVIDENCE:`, `ZONE C — REASONING:`).
+- **Isolated Multi-Line Prompt Containers from Workspace Boxes**: Ensured `.prompt-line` has `height: auto; overflow: visible; margin-bottom: 6px;` and verified calculation scratch watermark text reads `"Show work: substitution, arithmetic & unit simplification"` with zero typo bugs.
+- **Eliminated Double Checkboxes & Added 2-Column Grid for Q5 Options**: Stripped any leading `☐` or `[ ]` characters from option strings before rendering, ensuring exactly one checkbox is prepended. Formatted concise options into a responsive 2-column CSS grid (`grid-template-columns: 1fr 1fr; gap: 4px 16px;`).
+- **Synchronized Table 1 Numbering Across All Scenarios**: Standardized all primary experimental data tables on Page 1 as `Table 1: [Title]` across all 8 scenarios so Page 1 tables match the `"from Table 1"` prompt reference in Question 4.
+- **Suppressed Slashed Zeros on Coordinate Readouts**: Applied `font-variant-numeric: normal; font-feature-settings: "zero" 0;` and a clean sans-serif font stack (`Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`) on all coordinate boxes, values, and numerals so zeros render as crisp open ovals rather than slashed zeros resembling Greek theta ($\theta$).
+
+## 2026-10-25 — Worksheet Generator Agent & HTML/CSS Template: 7 Layout & Cognitive Dissonance Invariants
+**Patterns Updated**: `low-stress-worksheet-skill.md`, `cast-data-analysis-practice-suite.md`.
+**Files Updated**: `.agents/skills/low-stress-worksheet/SKILL.md`, `.agents/skills/low-stress-worksheet/scripts/render_worksheet.py`, `cast-data-practice/index.html`, `cast-data-practice/css/styles.css`, `cast-data-practice/js/app.js`, `cast-data-practice/js/scenarios.js`.
+
+**Changes**:
+- **Fixed Prompt Text Wrapping & Flex Alignment (CSS Bug)**: Converted all `.prompt-line` blocks to 2-column flex rows (`align-items: flex-start; gap: 8px;`) with `.prompt-badge-group` (`flex-shrink: 0; white-space: nowrap;`) holding `☐ (N) VERB` and `.prompt-body` holding text, preventing wrapped lines from rendering above numbers or checkboxes.
+- **Eliminated Formula-vs-Unit Dissonance in Q3 (CALCULATE)**: Replaced hardcoded `Δy / Δx` with dynamic symbolic formula generation matching target units (e.g., `Speed = ΔDistance / ΔAge = (x₂ − x₁) / (y₂ − y₁)` for `km/Ma`, vs `Slope = Δa / ΔF = (a₂ − a₁) / (F₂ − F₁)` for `(m/s²)/N`).
+- **Simplified Page 1 "Experimental Controls"**: Limited controls to at most 2 plain-English bullet points at an 8th-to-10th grade reading level, stripping out sensor tolerances and equipment jargon.
+- **Cleaned Up Graph Axis Labels & Duplicate Legend Symbols**: Formatted axis labels strictly as `[Variable Name] ([Unit Symbol])` (e.g. `Oceanic Crust Age (Ma)` and `Distance from Ridge Crest (km)`); matched single geometric point style per series across data table, graph legend, and prompt text.
+- **Unpacked Q4 CER Paragraph into Embedded Zone Checklists**: Truncated main Q4 prompt to 1 single sentence; placed checkable criteria micro-items (`☐`) directly into headers of `ZONE A — CLAIM`, `ZONE B — EVIDENCE`, and `ZONE C — REASONING`.
+- **Fixed Sub-Header Typos & Standardized Unicode Ballot Boxes**: Cleaned Zone C header text and replaced ASCII `[ ]` brackets in Q2 and Q5 with uniform Unicode ballot boxes (`☐`).
+- **Removed Redundant Header Repetition on Page 2**: Replaced multi-line title banners on Page 2 with a compact single-line running header (`Title | Student: _____ | Period: ___ | Page 2 of 2`), freeing 0.75+ inches of vertical handwriting space.
+
 ## 2026-10-25 — CAST Data Practice Suite: Cognitive Dissonance Layout Fixes & Low-Stress Worksheet Integration
 **Patterns Updated**: `cast-data-analysis-practice-suite.md`.
 **Files Updated**: `cast-data-practice/index.html`, `cast-data-practice/css/styles.css`, `cast-data-practice/js/app.js`.

@@ -1215,6 +1215,46 @@ table.scientific-table tbody tr.active-row {
     letter-spacing: 0.3px;
   }
 
+  /* Compact Single-Line Running Header (Page 2) */
+  .p-header-running-compact {
+    padding-bottom: 2px;
+    margin-bottom: 5px;
+    border-bottom: 1.5px solid #0f172a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .p-header-running-compact .p-run-left {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .p-header-running-compact .p-running-title {
+    font-size: 9pt;
+    font-weight: 900;
+    color: #0f172a;
+    text-transform: uppercase;
+  }
+  .p-header-running-compact .p-run-sub {
+    font-size: 7.4pt;
+    color: #475569;
+    font-weight: 600;
+  }
+  .p-header-running-compact .p-run-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 7.8pt;
+    color: #334155;
+    font-weight: 700;
+  }
+  .p-header-running-compact .p-run-right .p-field-line {
+    display: inline-block;
+    border-bottom: 1.5px solid #334155;
+    vertical-align: baseline;
+    height: 1.1em;
+  }
+
   .p-header-meta {
     font-size: 8pt;
     text-align: right;
@@ -1411,6 +1451,10 @@ table.scientific-table tbody tr.active-row {
     margin-bottom: 3.5px;
   }
 
+  #pTableCaption {
+    text-transform: none !important;
+  }
+
   .p-box-header span:first-child {
     font-size: 7.8pt;
     line-height: 1.2;
@@ -1508,14 +1552,14 @@ table.scientific-table tbody tr.active-row {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 2.6in;
-    max-height: 3.3in;
+    min-height: 3.2in;
+    max-height: 4.1in;
     overflow: hidden;
   }
   .p-graph-img {
     width: 100%;
     height: 100%;
-    max-height: 3.25in;
+    max-height: 4.05in;
     object-fit: contain;
     display: block;
   }
@@ -1634,12 +1678,23 @@ table.scientific-table tbody tr.active-row {
 
   .prompt-line {
     display: flex;
-    align-items: baseline;
-    gap: 4px;
+    align-items: flex-start;
+    gap: 8px;
     font-size: 8.5pt;
-    line-height: 1.30;
-    margin-bottom: 3px;
+    line-height: 1.35;
+    height: auto;
+    overflow: visible;
+    margin-bottom: 8px;
     color: #0f172a;
+  }
+
+  .prompt-badge-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding-top: 1px;
   }
 
   .checkbox {
@@ -1670,8 +1725,10 @@ table.scientific-table tbody tr.active-row {
     margin-right: 3px;
   }
 
-  .prompt-body {
+  .prompt-body,
+  .prompt-text {
     flex: 1;
+    min-width: 0;
     font-weight: 600;
     color: #0f172a;
   }
@@ -1740,11 +1797,16 @@ table.scientific-table tbody tr.active-row {
     min-height: 0.52in;
     align-items: stretch;
     background: #fcfcfd;
+    font-variant-numeric: normal;
+    font-feature-settings: "zero" 0;
   }
   .zone-val-text {
     font-size: 8.5pt;
     color: #0f172a;
     margin-top: 2px;
+    font-variant-numeric: normal;
+    font-feature-settings: "zero" 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
   .zone-val-content {
     display: flex;
@@ -1752,11 +1814,24 @@ table.scientific-table tbody tr.active-row {
     gap: 4px;
     font-size: 8.5pt;
     margin-top: 2px;
+    font-variant-numeric: normal;
+    font-feature-settings: "zero" 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
   .zone-val-content .var-name {
     font-weight: 700;
     color: #475569;
     font-size: 8pt;
+  }
+  .coord-badge {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-variant-numeric: normal;
+    font-feature-settings: "zero" 0;
+    font-weight: 700;
+    color: #0f172a;
+    background: #e2e8f0;
+    padding: 1px 5px;
+    border-radius: 3px;
   }
 
   .p-inline-blank {
@@ -1769,13 +1844,23 @@ table.scientific-table tbody tr.active-row {
     text-align: center;
     padding: 0 4px;
     margin: 0 2px;
+    font-variant-numeric: normal;
+    font-feature-settings: "zero" 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
 
-  /* Q2: Multiple Choice Pattern Options */
+  /* Q2 & Q5: Multiple Choice Pattern Options */
   .p-mc-options-list {
     display: flex;
     flex-direction: column;
     gap: 2.5px;
+    margin-top: 2px;
+    padding-left: 2px;
+  }
+  .p-mc-grid-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 16px;
     margin-top: 2px;
     padding-left: 2px;
   }
@@ -1788,11 +1873,12 @@ table.scientific-table tbody tr.active-row {
     color: #1e293b;
   }
   .p-mc-checkbox {
-    font-family: monospace;
-    font-weight: 700;
-    font-size: 8.5pt;
-    color: #0f172a;
+    font-size: 9.5pt;
+    color: #475569;
     flex-shrink: 0;
+    line-height: 1;
+    margin-right: 2px;
+    font-family: inherit;
   }
   .p-mc-text {
     font-weight: 400;
@@ -1841,7 +1927,8 @@ table.scientific-table tbody tr.active-row {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    margin-top: 3px;
+    margin-top: 6px;
+    clear: both;
   }
   .ws-calc-top-row {
     display: flex;
@@ -1914,6 +2001,32 @@ table.scientific-table tbody tr.active-row {
   }
   .ws-cer-zone:last-child {
     border-bottom: none;
+  }
+  .ws-cer-zone .zone-header {
+    font-size: 7.2pt;
+    text-transform: none;
+    letter-spacing: normal;
+    color: #1e293b;
+    font-weight: 500;
+    margin-bottom: 2px;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 1.5px;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.3;
+  }
+  .ws-cer-zone .zone-header strong {
+    font-size: 7.2pt;
+    font-weight: 800;
+    color: #0f172a;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .ws-cer-zone .zone-header .checkbox {
+    font-size: 8.5pt;
+    color: #475569;
+    margin-right: 3px;
   }
   .ws-cer-claim {
     min-height: 0.42in;
