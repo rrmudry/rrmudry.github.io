@@ -1,0 +1,172 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LowStressWorksheetSchema",
+  "description": "Schema for low-stress, cognitively optimized physics and science worksheets.",
+  "type": "object",
+  "required": ["worksheet_title", "problems"],
+  "properties": {
+    "worksheet_title": {
+      "type": "string",
+      "description": "Title of the worksheet or assessment task."
+    },
+    "header_reference_bank": {
+      "type": "object",
+      "description": "Reference bank containing formulas and physical constants at the top of the worksheet.",
+      "properties": {
+        "equations": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Key formulas using plain text and Unicode (zero LaTeX)."
+        },
+        "constants": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Physical constants (e.g. g = 9.8 m/s²)."
+        }
+      }
+    },
+    "problems": {
+      "type": "array",
+      "description": "List of atomic problem cards.",
+      "items": {
+        "type": "object",
+        "required": [
+          "problem_number",
+          "stimulus",
+          "sub_prompts",
+          "estimated_total_height_in"
+        ],
+        "properties": {
+          "problem_number": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "is_worked_pair": {
+            "type": "boolean",
+            "default": false,
+            "description": "True if this problem is a guided/faded scaffold problem."
+          },
+          "keep_together_atomic": {
+            "type": "boolean",
+            "default": true,
+            "description": "Ensure the entire problem card fits on a single printed page."
+          },
+          "estimated_total_height_in": {
+            "type": "number",
+            "maximum": 8.0,
+            "description": "Estimated vertical height in inches; must not exceed 8.0in to prevent page overflow."
+          },
+          "stimulus": {
+            "type": "object",
+            "required": ["context_line", "extracted_givens"],
+            "properties": {
+              "context_line": {
+                "type": "string",
+                "description": "Phenomenon or setup narrative (maximum 2 sentences to prevent split attention)."
+              },
+              "extracted_givens": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Isolated numerical variables and initial conditions extracted from the scenario."
+              },
+              "diagram_spec": {
+                "type": "object",
+                "properties": {
+                  "needed": { "type": "boolean", "default": false },
+                  "description": { "type": "string" },
+                  "embedded_labels": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "sub_prompts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "part_label",
+                "command_verb",
+                "prompt_text",
+                "step_count",
+                "teacher_solution_steps",
+                "workspace"
+              ],
+              "properties": {
+                "part_label": {
+                  "type": "string",
+                  "description": "Part identifier (e.g. a, b, c)."
+                },
+                "command_verb": {
+                  "type": "string",
+                  "description": "Single action verb (e.g. Calculate, Identify, Draw, Explain)."
+                },
+                "prompt_text": {
+                  "type": "string",
+                  "description": "Question prompt with constraints wrapped in asterisks (*at constant speed*)."
+                },
+                "step_count": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Number of sequential cognitive/math steps required to solve."
+                },
+                "teacher_solution_steps": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "Numbered solution steps worked out before workspace sizing."
+                },
+                "workspace": {
+                  "type": "object",
+                  "required": ["height_in"],
+                  "properties": {
+                    "height_in": {
+                      "type": "number",
+                      "minimum": 0.5,
+                      "description": "Vertical height in inches allocated for student work."
+                    },
+                    "ruled_line_count": {
+                      "type": "integer",
+                      "default": 0,
+                      "description": "Number of ruled writing guide lines for prose explanations."
+                    },
+                    "answer_unit_prompt": {
+                      "type": "string",
+                      "description": "Unit prompt tag displayed in the lower right (e.g. [ N ], [ m/s² ])."
+                    },
+                    "zones": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "surface_pattern": {
+                            "type": "string",
+                            "enum": ["blank_open", "ruled_lines", "dot_grid"],
+                            "default": "blank_open"
+                          },
+                          "width_pct": {
+                            "type": "number",
+                            "minimum": 10,
+                            "maximum": 100,
+                            "default": 100
+                          },
+                          "zone_header": {
+                            "type": "string"
+                          },
+                          "faded_scaffold_hint": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

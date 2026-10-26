@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Newton&#x27;s Second Law &amp; Friction: Guided Practice</title>
+<style>
+  @page { size: letter; margin: 0.5in; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    color: #0f172a;
+    line-height: 1.4;
+    max-width: 8.0in;
+    margin: 0 auto;
+    padding: 0.25in;
+    background: #fff;
+  }
+  .toolbar {
+    display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 16px;
+  }
+  .toolbar button {
+    padding: 6px 12px; border: 1px solid #334155; background: #f8fafc;
+    border-radius: 4px; cursor: pointer; font-weight: 600;
+  }
+  @media print { .toolbar { display: none; } body { padding: 0; } }
+  header {
+    border-bottom: 2px solid #0f172a; padding-bottom: 8px; margin-bottom: 14px;
+  }
+  .header-top {
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  h1 { font-size: 1.35rem; margin: 0; }
+  .student-meta { font-size: 0.9rem; color: #334155; }
+  .reference-bar {
+    margin-top: 8px; padding: 6px 10px; background: #f1f5f9;
+    border-radius: 4px; font-size: 0.85rem; display: flex;
+    justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  }
+  .problem-card {
+    break-inside: avoid; page-break-inside: avoid;
+    border: 1px solid #cbd5e1; border-radius: 6px;
+    padding: 14px; margin-bottom: 20px; background: #ffffff;
+  }
+  .problem-header {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 8px;
+  }
+  .problem-header h2 { font-size: 1.05rem; margin: 0; }
+  .scaffold-badge {
+    font-size: 0.75rem; background: #e0f2fe; color: #0369a1;
+    padding: 2px 8px; border-radius: 12px; font-weight: 600;
+  }
+  .context-line { margin: 0 0 10px 0; font-size: 0.95rem; }
+  .stimulus-grid {
+    display: flex; gap: 12px; margin-bottom: 12px; align-items: stretch;
+  }
+  .givens-card {
+    flex: 1; background: #f8fafc; border-left: 3px solid #475569;
+    padding: 8px 12px; font-size: 0.85rem;
+  }
+  .givens-title { font-weight: 700; margin-bottom: 4px; color: #334155; }
+  .givens-card ul { margin: 0; padding-left: 18px; }
+  .diagram-box {
+    flex: 1.2; border: 1px dashed #94a3b8; border-radius: 4px;
+    padding: 8px; display: flex; flex-direction: column;
+    justify-content: center; align-items: center; background: #fcfcfd;
+  }
+  .diagram-placeholder { font-size: 0.8rem; color: #64748b; margin-bottom: 6px; text-align: center; }
+  .diag-tag {
+    background: #e2e8f0; padding: 1px 6px; border-radius: 3px;
+    font-size: 0.78rem; font-family: monospace;
+  }
+  .sub-prompt-block { margin-top: 12px; }
+  .prompt-line { font-size: 0.95rem; margin-bottom: 6px; }
+  .checkbox { color: #64748b; margin-right: 4px; }
+  .part-label { font-weight: 600; margin-right: 4px; }
+  .verb-badge {
+    background: #0f172a; color: #fff; padding: 1px 6px;
+    border-radius: 3px; font-size: 0.85rem; margin-right: 4px;
+  }
+  .constraint {
+    font-style: italic; text-decoration: underline;
+    text-decoration-color: #94a3b8;
+  }
+  .workspace-box {
+    display: flex; border: 1.5px solid #94a3b8; border-radius: 4px;
+    position: relative; overflow: hidden;
+  }
+  .ws-zone {
+    padding: 6px 10px; border-right: 1px dashed #cbd5e1; position: relative;
+  }
+  .ws-zone:last-of-type { border-right: none; }
+  .zone-header {
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em;
+    color: #475569; font-weight: 700; margin-bottom: 4px;
+  }
+  .faded-scaffold {
+    color: #94a3b8; font-style: italic; font-size: 0.9rem; margin-top: 4px;
+  }
+  .surface-dot_grid {
+    background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+    background-size: 14px 14px;
+  }
+  .ruled-line {
+    border-bottom: 1px solid #cbd5e1; height: 0.32in; width: 100%;
+  }
+  .unit-prompt {
+    position: absolute; bottom: 6px; right: 10px;
+    background: rgba(255,255,255,0.9); padding: 2px 6px;
+    font-weight: 600; font-size: 0.9rem; border-radius: 3px;
+  }
+  .teacher-key {
+    margin-top: 6px; padding: 8px 12px; background: #fef9c3;
+    border-left: 3px solid #eab308; font-size: 0.82rem;
+  }
+  .teacher-key ol { margin: 4px 0 0 0; padding-left: 18px; }
+</style>
+</head>
+<body>
+  <div class="toolbar">
+    <button onclick="document.querySelectorAll('.teacher-key').forEach(el => el.hidden = !el.hidden)">
+      Toggle Teacher Key
+    </button>
+    <button onclick="window.print()">Print / Save PDF</button>
+  </div>
+  <header>
+    <div class="header-top">
+      <h1>Newton&#x27;s Second Law &amp; Friction: Guided Practice</h1>
+      <div class="student-meta">Name: ______________________ &nbsp; Period: ____ &nbsp; Date: ________</div>
+    </div>
+    <div class="reference-bar">
+      <div><strong>Equations:</strong> <code>F_net = m · a</code> &nbsp;|&nbsp; <code>F_friction = μ · F_N</code> &nbsp;|&nbsp; <code>F_g = m · g</code></div>
+      <div><strong>Constants:</strong> <code>g = 9.8 m/s²</code> &nbsp;|&nbsp; <code>1 N = 1 kg·m/s²</code></div>
+    </div>
+  </header>
+  <main>
+    
+    <section class="problem-card">
+      <div class="problem-header">
+        <h2>Problem 1</h2>
+        <span class="scaffold-badge">Guided Scaffold</span>
+      </div>
+      <p class="context-line">A 4.0 kg cart is pulled across a smooth laboratory track by a horizontal tension cable. Friction between the cart wheels and track is <em class='constraint'>negligibly small</em>.</p>
+      <div class="stimulus-grid">
+        <div class="givens-card">
+          <div class="givens-title">Extracted Givens</div>
+          <ul><li>Mass (m) = 4.0 kg</li><li>Horizontal Tension (F_T) = 12.0 N</li><li>Friction force (F_f) = 0 N</li></ul>
+        </div>
+        
+        <div class="diagram-box">
+          <div class="diagram-placeholder">[Diagram: Cart on horizontal track pulled to the right by tension F_T with vertical normal force F_N and gravity F_g balanced.]</div>
+          <div class="embedded-labels"><span class="diag-tag">F_N (up)</span> • <span class="diag-tag">F_g = 39.2 N (down)</span> • <span class="diag-tag">F_T = 12.0 N (right)</span></div>
+        </div>
+        
+      </div>
+      <div class="sub-prompts-container">
+        
+    <div class="sub-prompt-block">
+      <div class="prompt-line">
+        <span class="checkbox">☐</span>
+        <span class="part-label">(a)</span>
+        <strong class="verb-badge">Draw</strong>
+        <span class="prompt-body">Construct a labeled free-body diagram for the 4.0 kg cart <em class='constraint'>while accelerating horizontally</em>.</span>
+      </div>
+      <div class="workspace-box" style="min-height: 1.75in;">
+        
+    <div class="ws-zone surface-dot_grid" style="width: 100%;">
+      <div class="zone-header">Free-Body Diagram Canvas (1 grid unit = 4 N)</div>
+      <div class="faded-scaffold">• Cart Center (start arrows from center dot)</div>
+      
+    </div>
+    
+        
+      </div>
+      <div class="teacher-key" hidden>
+        <strong>Teacher Solution (2 steps):</strong>
+        <ol><li>Draw upward normal force arrow F_N and downward gravity arrow F_g equal in length.</li><li>Draw rightward horizontal tension arrow F_T = 12.0 N with no opposing friction arrow.</li></ol>
+      </div>
+    </div>
+    
+    <div class="sub-prompt-block">
+      <div class="prompt-line">
+        <span class="checkbox">☐</span>
+        <span class="part-label">(b)</span>
+        <strong class="verb-badge">Calculate</strong>
+        <span class="prompt-body">Determine the horizontal acceleration of the cart <em class='constraint'>assuming zero friction</em>.</span>
+      </div>
+      <div class="workspace-box" style="min-height: 1.5in;">
+        
+    <div class="ws-zone surface-blank_open" style="width: 35%;">
+      <div class="zone-header">1. Symbolic Setup</div>
+      <div class="faded-scaffold">a = F_net / m</div>
+      
+    </div>
+    
+    <div class="ws-zone surface-blank_open" style="width: 65%;">
+      <div class="zone-header">2. Substitution &amp; Evaluation</div>
+      <div class="faded-scaffold">a = ( 12.0 N ) / ( 4.0 kg ) = </div>
+      
+    </div>
+    
+        <div class="unit-prompt">[ m/s² ]</div>
+      </div>
+      <div class="teacher-key" hidden>
+        <strong>Teacher Solution (3 steps):</strong>
+        <ol><li>Identify F_net = F_T = 12.0 N.</li><li>Rearrange formula: a = F_net / m.</li><li>Substitute values: a = 12.0 N / 4.0 kg = 3.0 m/s².</li></ol>
+      </div>
+    </div>
+    
+      </div>
+    </section>
+    
+    <section class="problem-card">
+      <div class="problem-header">
+        <h2>Problem 2</h2>
+        
+      </div>
+      <p class="context-line">A student pushes an 8.0 kg wooden crate across a rough linoleum floor with a steady horizontal force of 38.0 N. Kinetic friction opposes the motion.</p>
+      <div class="stimulus-grid">
+        <div class="givens-card">
+          <div class="givens-title">Extracted Givens</div>
+          <ul><li>Mass (m) = 8.0 kg</li><li>Applied Force (F_app) = 38.0 N (right)</li><li>Friction Force (F_f) = 14.0 N (left)</li></ul>
+        </div>
+        
+        <div class="diagram-box">
+          <div class="diagram-placeholder">[Diagram: Crate on floor with forward applied push and backward opposing friction.]</div>
+          <div class="embedded-labels"><span class="diag-tag">F_app = 38.0 N</span> • <span class="diag-tag">F_f = 14.0 N</span> • <span class="diag-tag">m = 8.0 kg</span></div>
+        </div>
+        
+      </div>
+      <div class="sub-prompts-container">
+        
+    <div class="sub-prompt-block">
+      <div class="prompt-line">
+        <span class="checkbox">☐</span>
+        <span class="part-label">(a)</span>
+        <strong class="verb-badge">Calculate</strong>
+        <span class="prompt-body">Determine the net horizontal force (F_net) acting on the crate <em class='constraint'>in the direction of motion</em>.</span>
+      </div>
+      <div class="workspace-box" style="min-height: 1.25in;">
+        
+    <div class="ws-zone surface-blank_open" style="width: 40%;">
+      <div class="zone-header">1. Vector Sum Setup</div>
+      
+      
+    </div>
+    
+    <div class="ws-zone surface-blank_open" style="width: 60%;">
+      <div class="zone-header">2. Calculation</div>
+      
+      
+    </div>
+    
+        <div class="unit-prompt">[ N ]</div>
+      </div>
+      <div class="teacher-key" hidden>
+        <strong>Teacher Solution (2 steps):</strong>
+        <ol><li>F_net = F_app − F_f</li><li>F_net = 38.0 N − 14.0 N = 24.0 N</li></ol>
+      </div>
+    </div>
+    
+    <div class="sub-prompt-block">
+      <div class="prompt-line">
+        <span class="checkbox">☐</span>
+        <span class="part-label">(b)</span>
+        <strong class="verb-badge">Calculate</strong>
+        <span class="prompt-body">Calculate the resulting horizontal acceleration of the crate <em class='constraint'>while the push is applied</em>.</span>
+      </div>
+      <div class="workspace-box" style="min-height: 1.5in;">
+        
+    <div class="ws-zone surface-blank_open" style="width: 35%;">
+      <div class="zone-header">1. Symbolic Formula</div>
+      
+      
+    </div>
+    
+    <div class="ws-zone surface-blank_open" style="width: 65%;">
+      <div class="zone-header">2. Value Substitution &amp; Answer</div>
+      
+      
+    </div>
+    
+        <div class="unit-prompt">[ m/s² ]</div>
+      </div>
+      <div class="teacher-key" hidden>
+        <strong>Teacher Solution (3 steps):</strong>
+        <ol><li>Use Newton&#x27;s 2nd Law: a = F_net / m</li><li>Substitute: a = 24.0 N / 8.0 kg</li><li>Evaluate: a = 3.0 m/s²</li></ol>
+      </div>
+    </div>
+    
+    <div class="sub-prompt-block">
+      <div class="prompt-line">
+        <span class="checkbox">☐</span>
+        <span class="part-label">(c)</span>
+        <strong class="verb-badge">Explain</strong>
+        <span class="prompt-body">Explain what happens to the crate&#x27;s acceleration if the student <em class='constraint'>doubles the applied push to 76.0 N</em> while friction remains 14.0 N.</span>
+      </div>
+      <div class="workspace-box" style="min-height: 1.35in;">
+        
+    <div class="ws-zone surface-ruled_lines" style="width: 100%;">
+      <div class="zone-header">Scientific Explanation (Claim &amp; Evidence)</div>
+      
+      <div class="ruled-line"></div><div class="ruled-line"></div><div class="ruled-line"></div>
+    </div>
+    
+        
+      </div>
+      <div class="teacher-key" hidden>
+        <strong>Teacher Solution (3 steps):</strong>
+        <ol><li>State new net force: F_net = 76 N − 14 N = 62 N.</li><li>Note that F_net more than doubles (from 24 N to 62 N, a 2.58x increase).</li><li>Conclude that acceleration increases by more than double (a = 62 / 8 = 7.75 m/s²).</li></ol>
+      </div>
+    </div>
+    
+      </div>
+    </section>
+    
+  </main>
+</body>
+</html>

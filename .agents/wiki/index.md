@@ -42,5 +42,7 @@
 | [cast-data-analysis-practice-suite](patterns/cast-data-analysis-practice-suite.md) | CAST, data-analysis, graphing, evidence-checker, cer, rubric, multi-disciplinary, firestore | 2026-10-19 | Science department CAST practice suite: 8 multi-disciplinary phenomena, dynamic Chart.js graphing, 4-point real-time CER evidence checker, teacher mode, and printable reports |
 | [physics-word-search-quest](patterns/physics-word-search-quest.md) | word-search, substitute-plan, kinematics, dynamics, aerospace, web-audio, touch-drag, firestore | 2026-10-21 | Interactive 3-mission physics word search quest with 8-way vector drag, concept clue mode, zero-asset Web Audio synthesizer, sub worksheet print, and auto-graded Firestore sync |
 | [epic-3d-ttt-and-qubic](patterns/epic-3d-ttt-and-qubic.md) | 3d-game, tic-tac-toe, qubic, spatial-geometry, canvas, css-3d, web-audio, accessibility | 2026-10-22 | 3D Tic-Tac-Toe & 4x4x4 Qubic engine: real 3D perspective cube, exploded layer slices, unbeatable AI, threat radar, and high-contrast light mode |
+| [low-stress-worksheet-skill](patterns/low-stress-worksheet-skill.md) | worksheet, printable, pdf, cognitive-load, atomic-container, split-attention, skill, python-renderer, no-latex | 2026-10-25 | Low-stress worksheet generator skill: Skill+Script architecture, atomic problem containers, split-attention elimination, dynamic workspace sizing heuristics, zero-dependency Python HTML compiler |
+
 
 

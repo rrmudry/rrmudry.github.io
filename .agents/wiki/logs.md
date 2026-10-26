@@ -3,6 +3,28 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-25 — Low-Stress Worksheet Generator Skill: Antigravity Skill + Script Architecture
+**Patterns Added**: `low-stress-worksheet-skill.md`.
+**Files Added**: `.agents/skills/low-stress-worksheet/SKILL.md`, `.agents/skills/low-stress-worksheet/resources/worksheet_schema.json`, `.agents/skills/low-stress-worksheet/scripts/render_worksheet.py`, `.agent/skills/low-stress-worksheet` (symlink), `output/test_worksheet.json`, `output/test_worksheet.html`.
+
+**Changes**:
+- **Integrated Antigravity Native Skill + Script Architecture**:
+  - Implemented the three-tier split: `SKILL.md` (instructions & cognitive heuristics), `resources/worksheet_schema.json` (declarative contract), and `scripts/render_worksheet.py` (deterministic compiler).
+  - Maintained discovery in `.agents/skills/low-stress-worksheet/` with `.agent/skills/` symlink compatibility.
+- **Enforced Hard Formatting Invariants**:
+  - **Atomic Containers**: Enforced `estimated_total_height_in <= 8.0` inches per problem card (`keep_together_atomic: true`), backed by automated CLI exit code `2` failure if a problem exceeds page bounds.
+  - **Split-Attention Elimination**: Stimulus context restricted to $\le 2$ sentences, with extracted givens cards and embedded diagram tags.
+  - **One Verb Per Prompt**: Enforced atomic command verbs (`Calculate`, `Sketch`, `Identify`) per sub-prompt.
+  - **Signal Constraints**: Automatic conversion of `*italic constraints*` to styled inline constraint elements.
+  - **Strict No-LaTeX Policy**: Integrated site-wide Unicode standard (`Δ`, `²`, `³`, `·`, `−`, `x₀`) across JSON schema and HTML output.
+- **Dynamic Workspace Sizing Heuristics ("Solve Before Sizing")**:
+  - Enforced that teacher solutions and step counts are drafted before workspace heights are calculated.
+  - Built archetypes: `zoned_calculation` (`max(1.25, step_count * 0.55)` in), `dot_grid_canvas` (radial gradient dot grids), `ruled_prose` (`ruled_line_count = step_count + 1`), `claim_evidence_reasoning`, and `short_value_box`.
+  - Added faded scaffolding stems on Problem 1 with independent graduation on Problem 2.
+- **Deterministic Python Compiler (`render_worksheet.py`)**:
+  - Zero external dependencies (`html`, `json`, `re`, `sys`, `pathlib`).
+  - Compiled and verified a 2-problem test worksheet (`output/test_worksheet.html`, `output/test_worksheet.pdf`) confirming multi-column zoned flex boxes, 14px radial dot grids, and screen-only teacher key toggle.
+
 ## 2026-10-25 — CAST Data Practice Suite: 2-Page Print Standard, Semantic Colors & B&W Accessibility
 **Patterns Updated**: `cast-data-analysis-practice-suite.md`.
 **Files Updated**: `cast-data-practice/index.html`, `cast-data-practice/css/styles.css`, `cast-data-practice/js/app.js`, `tests/test_cast_data_practice.js`, `partials/footer.html`.
