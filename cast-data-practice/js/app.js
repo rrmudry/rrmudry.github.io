@@ -2927,7 +2927,7 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   }
   let givenX = "";
   if (anatomy) {
-    const promptMatch = (anatomy.locatorPrompt || '').match(/Find\s+([0-9.]+)\s*(\S+)?/i);
+    const promptMatch = (anatomy.locatorPrompt || '').match(/Find\s+(?:[a-zA-Z]+\s+)?([0-9.]+)/i);
     if (promptMatch) {
       givenX = promptMatch[1];
     } else {
