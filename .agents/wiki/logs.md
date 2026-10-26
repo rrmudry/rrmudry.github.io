@@ -3,27 +3,18 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
-## 2026-10-25 — CAST Data Practice Suite: Low-Stress Worksheet Integration & Dynamic Workspaces
+## 2026-10-25 — CAST Data Practice Suite: Cognitive Dissonance Layout Fixes & Low-Stress Worksheet Integration
 **Patterns Updated**: `cast-data-analysis-practice-suite.md`.
 **Files Updated**: `cast-data-practice/index.html`, `cast-data-practice/css/styles.css`, `cast-data-practice/js/app.js`.
 
 **Changes**:
-- **Applied Low-Stress Worksheet Cognitive Heuristics to 2-Page Print Standard**:
-  - **Header Reference Bar (`.p-reference-bar`)**: Docked at top of Page 1 beneath student metadata header, surfacing Model Equations (e.g. `a = F_net / m`) and Controlled Constants (e.g. `Mass: 5.0 kg`), reducing cognitive load and eliminating split-attention.
-  - **Concise Context Line**: Background narrative trimmed to a focused 1–2 sentence context banner (`.p-context-compact`), leaving maximum vertical space for scientific data. Splitting uses lookbehind/lookahead `/(?<=[.!?])\s+(?=[A-Z])/` to safely preserve decimal measurements (e.g. `5.0 kg`).
-  - **2-Row Investigation Flow**:
-    - Row 1: Data Table 1 (55–63%) alongside Extracted Experimental Controls & Protocol Verification (35–43%).
-    - Row 2: Full-width widescreen landscape Graph snapshot (1000×460) with 3-column Accessible Dual-Coded Legend Table.
-  - **Atomic Sub-Prompt Block Progression (Page 2)**:
-    - Structured with progress checkbox `☐`, part label `(1)`–`(5)`, solid uppercase verb badge (`READ GRAPH`, `CLASSIFY TREND`, `CALCULATE RATE`, `CONSTRUCT CER`, `PREDICT`), and styled inline constraints (`<em class="constraint">`).
-  - **Dynamic Workspace Archetypes**:
-    - Question 1 (`ws-short-box`): Given X-coordinate pill (`Given: X = ...`) alongside measured Y readout blank with prompt unit (`Measured Y = [ _____ ] [unit]`).
-    - Question 2: Multiple-choice options with `[ &nbsp; ]` checkboxes stacked vertically with unbolded regular weight (`font-weight: 400`).
-    - Question 3 (`ws-zoned-calc`): Zone 1 (44% width) with Symbolic Formula & Setup fraction `( ___ − ___ ) / ( ___ − ___ )`; Zone 2 (56% width) with Substitution, Simplification Work area and calculated rate unit pill.
-    - Question 4 (`ws-cer-box`): Single-line Claim underline, discrete physical ruled lines (`.ruled-line` × 5 for Evidence, × 4 for Reasoning, 0.24in line height) with faded scaffold prompt starters (`.faded-scaffold`), and compact 4-point rubric bar.
-    - Question 5: Prediction prompt with styled constraints and options.
-  - **Strict Blank Mode & Teacher Key Mode**: Blank worksheet mode strictly outputs empty slots `( ___ − ___ ) / ( ___ − ___ )` with zero coordinate leakage to preserve productive pedagogical friction. Hidden `.teacher-key` containers are populated dynamically for instant teacher grading keys and on-screen teacher view.
-  - **Rigorous 2-Page Letter Budget**: Exact 10.18in height budget per page with zero 3rd-page spillover.
+- **Eliminated Cognitive Dissonance & Friction Points on Printed 2-Page Worksheets**:
+  - **Stacked Table-Graph Proximity & Zero Truncation (Page 1)**: Moved Investigation Narrative and Experimental Controls side-by-side into a compact Setup Grid (`.p-setup-grid`), enabling Table 1 to span full page width directly stacked above the Graph. All 6 trials (including `500.0 km`) fit with generous padding and zero row clipping.
+  - **Clean Vertical Fraction & Open Scratch Area (Question 3)**: Replaced cramped text strings (`Δy/Δx = ( )/( )`) with a true vertical fraction template (`\frac{y_2 - y_1}{x_2 - x_1} = \frac{(___ - ___)}{(___ - ___)}`) with horizontal fraction bars, followed by an open, unlined calculation workspace box with subtle italic watermark for student scratch work.
+  - **Open Scaffolding for CER Argumentation (Question 4)**: Completely eliminated confusing bracketed cloze choices (`[faster than / slower than]`, `[Atlantic Age] Ma old`) from student print copies. Replaced with a clean single-line Claim starter (`Claim: ...`), explicit rubric guidance cues, and discrete physical ruled lines for Evidence and Reasoning.
+  - **Coordinate Locator Accuracy (Question 1)**: Corrected given X coordinate extraction from `anatomy.locatorPrompt` (e.g. `300 km`), preventing Y values (e.g. `4.5`) from incorrectly displaying as the given X coordinate.
+  - **Accessible Graph Key Accuracy**: Renamed `Prey / Series` to `Dataset / Series` for multi-disciplinary validity (Earth Science, Physics, Chemistry). Fixed multi-word series slope matcher so rates (e.g. `0.050 Ma/km (20 km/Ma)`) populate into the `Model Rate` column without blank cells.
+  - **Strict 2-Page Budgeting**: Guaranteed exact 2-page fit with zero 3rd-page spillover.
 
 ## 2026-10-25 — Low-Stress Worksheet Generator Skill: Antigravity Skill + Script Architecture
 **Patterns Added**: `low-stress-worksheet-skill.md`.

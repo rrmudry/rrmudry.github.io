@@ -534,43 +534,39 @@
           <div class="p-ref-item"><strong>Controlled Constants:</strong> <span id="pRefConstants"></span></div>
         </div>
 
-        <!-- Scenario Background Narrative Box -->
-        <div class="p-scenario-container">
-          <div class="p-scenario-title" id="pScenarioTitle">INVESTIGATION PROCEDURE &amp; EXPERIMENTAL SETUP</div>
-          <div class="p-scenario-text" id="pScenarioText">...</div>
+        <!-- Scenario Background Narrative Box & Experimental Controls Grid -->
+        <div class="p-setup-grid" id="pSetupGrid">
+          <div class="p-scenario-container">
+            <div class="p-scenario-title" id="pScenarioTitle">INVESTIGATION PROCEDURE &amp; EXPERIMENTAL SETUP</div>
+            <div class="p-scenario-text" id="pScenarioText">...</div>
+          </div>
+          <div class="p-controls-container" id="pControlsCol">
+            <div id="pTableControlsBox" class="p-table-controls-box"></div>
+          </div>
         </div>
 
-        <!-- Evidence Middle Section: 2-Row Sequential Investigation Layout -->
+        <!-- Evidence Middle Section: Stacked Data Table directly above Plotted Graph -->
         <div class="p-evidence-container" id="pEvidenceContainer">
-          <!-- ROW 1: Raw Experimental Data & Protocol Verification -->
-          <div class="p-evidence-row1" id="pEvidenceRow1">
-            <div class="p-table-box" id="pTableBox">
-              <div class="p-box-header">
-                <span>📊 Experimental Data</span>
-                <span id="pTableCaption" style="font-size:7.5pt; color:#64748b; font-weight:600;">Table 1</span>
-              </div>
-              <div id="pTableWrapper" class="p-table-wrapper"></div>
+          <!-- Stacked Section 1: Raw Experimental Data Table (Full Width) -->
+          <div class="p-table-box" id="pTableBox">
+            <div class="p-box-header">
+              <span>📊 Experimental Data</span>
+              <span id="pTableCaption" style="font-size:7.5pt; color:#64748b; font-weight:600;">Table 1</span>
             </div>
-
-            <!-- Experimental Controls & Verification Box (Sits directly alongside raw data) -->
-            <div class="p-controls-col" id="pControlsCol">
-              <div id="pTableControlsBox" class="p-table-controls-box"></div>
-            </div>
+            <div id="pTableWrapper" class="p-table-wrapper"></div>
           </div>
 
-          <!-- ROW 2: Plotted Graph & Mathematical Model Key (Full-Width Landscape) -->
-          <div class="p-evidence-row2" id="pEvidenceRow2">
-            <div class="p-graph-box">
-              <div class="p-box-header">
-                <span>📈 Plotted Graph &amp; Trendline</span>
-                <span id="pGraphModelBadge" class="p-badge p-badge-blue">Model</span>
-              </div>
-              <div class="p-graph-content">
-                <img id="pGraphImg" class="p-graph-img" src="" alt="Plotted Scientific Graph">
-              </div>
-              <!-- Accessible Legend (Dual-Coded Symbols & Line Styles for B&W Photocopies) -->
-              <div class="p-graph-access-legend" id="pGraphAccessLegend"></div>
+          <!-- Stacked Section 2: Plotted Graph & Accessible Model Key (Full Width) -->
+          <div class="p-graph-box" id="pGraphBox">
+            <div class="p-box-header">
+              <span>📈 Plotted Graph &amp; Trendline</span>
+              <span id="pGraphModelBadge" class="p-badge p-badge-blue">Model</span>
             </div>
+            <div class="p-graph-content">
+              <img id="pGraphImg" class="p-graph-img" src="" alt="Plotted Scientific Graph">
+            </div>
+            <!-- Accessible Legend (Dual-Coded Symbols & Line Styles for B&W Photocopies) -->
+            <div class="p-graph-access-legend" id="pGraphAccessLegend"></div>
           </div>
         </div>
       </div>
@@ -644,7 +640,7 @@
             <div class="teacher-key" id="pQ1Key" hidden></div>
           </div>
 
-          <!-- Question 3: Rate of Change / Quantitative Calculation (Zoned Calculation Archetype) -->
+          <!-- Question 3: Rate of Change / Quantitative Calculation (Clean Vertical Fraction & Open Workspace) -->
           <div class="sub-prompt-block p-q-item">
             <div class="prompt-line">
               <span class="checkbox">☐</span>
@@ -652,20 +648,33 @@
               <strong class="verb-badge">CALCULATE RATE</strong>
               <span class="prompt-body" id="pQ2Prompt"></span>
             </div>
-            <div class="workspace-box ws-zoned-calc">
-              <div class="ws-zone ws-zone-setup" style="width:44%;">
-                <div class="zone-header">1. Symbolic Formula &amp; Coordinate Setup (x₁, y₁) → (x₂, y₂)</div>
-                <div class="faded-scaffold">Rate (Slope) = Δy / Δx = ( y₂ − y₁ ) / ( x₂ − x₁ )</div>
-                <div class="p-work-formula" id="pQ2Work">Δy / Δx = ( _____ − _____ ) / ( _____ − _____ )</div>
-              </div>
-              <div class="ws-zone ws-zone-math" style="width:56%; position:relative;">
-                <div class="zone-header">2. Substitution, Simplification &amp; Unit</div>
-                <div class="faded-scaffold">= ( Δy ) / ( Δx ) = </div>
-                <div class="p-calc-result-row">
-                  <strong class="result-label" id="pQ2Label">Calculated Slope:</strong>
-                  <span class="p-inline-blank" id="pQ2Value" style="min-width:75px;"></span>
+            <div class="workspace-box ws-calc-box">
+              <div class="ws-calc-top-row">
+                <div class="ws-calc-formula-panel">
+                  <span class="formula-term" id="pQ2FormulaName">Rate (Slope):</span>
+                  <div class="v-frac">
+                    <span class="frac-num">Δy</span>
+                    <span class="frac-den">Δx</span>
+                  </div>
+                  <span class="frac-op">=</span>
+                  <div class="v-frac">
+                    <span class="frac-num">y₂ − y₁</span>
+                    <span class="frac-den">x₂ − x₁</span>
+                  </div>
+                  <span class="frac-op">=</span>
+                  <div class="v-frac frac-blank-slots" id="pQ2WorkFrac">
+                    <span class="frac-num">( &nbsp; _____ &nbsp; − &nbsp; _____ &nbsp; )</span>
+                    <span class="frac-den">( &nbsp; _____ &nbsp; − &nbsp; _____ &nbsp; )</span>
+                  </div>
+                </div>
+                <div class="ws-calc-final-panel">
+                  <strong class="result-label" id="pQ2Label">Calculated Rate:</strong>
+                  <span class="p-inline-blank" id="pQ2Value" style="min-width:90px;"></span>
                   <span class="unit-tag" id="pQ2Unit"></span>
                 </div>
+              </div>
+              <div class="ws-calc-scratch-area">
+                <span class="calc-scratch-watermark">Show work: coordinate substitution, arithmetic &amp; unit simplification</span>
               </div>
             </div>
             <div class="teacher-key" id="pQ2Key" hidden></div>
@@ -683,18 +692,21 @@
             <div class="workspace-box ws-cer-box" id="pCerSections">
               <div class="ws-cer-zone ws-cer-claim">
                 <div class="zone-header">Zone A &bull; Claim (Direct, 1-sentence answer to the scientific question)</div>
-                <div class="faded-scaffold" id="pCerClaimScaffold"></div>
-                <div class="p-cer-field-claim" id="pCerClaimBox"></div>
+                <div class="cer-starter-line">
+                  <span class="cer-starter-tag">Claim:</span>
+                  <span class="cer-starter-text" id="pCerClaimStarter">The data shows that</span>
+                  <span class="cer-claim-underline"></span>
+                </div>
               </div>
               <div class="ws-cer-zone ws-cer-evidence">
                 <div class="zone-header">Zone B &bull; Evidence (Cite 2+ specific numerical data pairs from Table 1 and graph slope with units)</div>
-                <div class="faded-scaffold" id="pCerEvidenceScaffold"></div>
+                <div class="cer-guidance-cue">&bull; Cite at least TWO specific data pairs (X, Y) and calculated rate with units:</div>
                 <div class="p-ruled-lines" id="pCerEvidenceLines"></div>
                 <div class="p-cer-field-area" id="pCerEvidenceBox" style="display:none;"></div>
               </div>
               <div class="ws-cer-zone ws-cer-reasoning">
                 <div class="zone-header">Zone C &bull; Reasoning (Connect evidence to physical/biological laws and causal mechanisms)</div>
-                <div class="faded-scaffold" id="pCerReasoningScaffold"></div>
+                <div class="cer-guidance-cue">&bull; Explain the scientific cause/mechanism (why this relationship occurs):</div>
                 <div class="p-ruled-lines" id="pCerReasoningLines"></div>
                 <div class="p-cer-field-area" id="pCerReasoningBox" style="display:none;"></div>
               </div>

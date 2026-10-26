@@ -2841,7 +2841,7 @@ function syncPrintWorksheet(mode = currentPrintMode) {
       const eqRaw = scenario.graphConfig.equation || "";
       let legHtml = `<div class="p-access-heading">Accessible Graph Key (Dual-Coded Symbols &amp; Patterns for B&amp;W Photocopies):</div>`;
       legHtml += `<table class="p-access-table"><thead><tr>`;
-      legHtml += `<th style="width:34%;">Prey / Series</th>`;
+      legHtml += `<th style="width:34%;">Dataset / Series</th>`;
       legHtml += `<th style="width:33%;">Pattern &amp; Marker</th>`;
       legHtml += `<th style="width:33%; text-align:right;">Model Rate</th>`;
       legHtml += `</tr></thead><tbody>`;
@@ -2861,11 +2861,17 @@ function syncPrintWorksheet(mode = currentPrintMode) {
           eqSnippet = `${sign}${sConfig.slope} ${yU}/${xU}`.trim();
         } else if (eqRaw) {
           const parts = eqRaw.split(";");
-          const matched = parts.find(p => p.toLowerCase().includes(cleanLabel.toLowerCase()) || p.toLowerCase().includes(cleanLabel.split(" ")[0].toLowerCase()));
+          const matched = parts.find(p => {
+            const pLow = p.toLowerCase();
+            if (sConfig.id && pLow.includes(sConfig.id.toLowerCase())) return true;
+            if (pLow.includes(cleanLabel.toLowerCase())) return true;
+            const words = cleanLabel.toLowerCase().split(/\s+/).filter(w => w.length >= 4);
+            return words.some(w => pLow.includes(w));
+          });
           if (matched) {
             eqSnippet = matched.trim().replace(/\s*\*\s*/g, " · ");
             // Strip redundant series name prefix from eqSnippet if already shown in first column
-            eqSnippet = eqSnippet.replace(new RegExp(`^${cleanLabel}\\s*:\\s*`, 'i'), '');
+            eqSnippet = eqSnippet.replace(/^[A-Za-z\s–—-]+(?:slope|rate)?\s*:\s*/i, '');
           }
         }
 
@@ -2919,9 +2925,18 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   if (pQ0Prompt && anatomy) {
     pQ0Prompt.innerHTML = formatInlineConstraints(anatomy.locatorPrompt);
   }
+  let givenX = "";
+  if (anatomy) {
+    const promptMatch = (anatomy.locatorPrompt || '').match(/Find\s+([0-9.]+)\s*(\S+)?/i);
+    if (promptMatch) {
+      givenX = promptMatch[1];
+    } else {
+      givenX = anatomy.expectedLocatorValue;
+    }
+  }
   if (pQ0X && anatomy) {
     const xUnit = scenario.xAxis?.unit || (anatomy.locatorUnit || '').split('/')[0];
-    pQ0X.innerHTML = `${stripHtml(anatomy.independentVar)}: <code style="font-family:monospace; background:#e2e8f0; padding:1px 4px; border-radius:3px;">${anatomy.expectedLocatorValue} ${stripHtml(xUnit)}</code>`;
+    pQ0X.innerHTML = `${stripHtml(anatomy.independentVar)}: <code style="font-family:monospace; background:#e2e8f0; padding:1px 4px; border-radius:3px;">${givenX} ${stripHtml(xUnit)}</code>`;
   }
   if (pQ0Y && anatomy) {
     pQ0Y.textContent = stripHtml(anatomy.dependentVar);
@@ -2933,8 +2948,8 @@ function syncPrintWorksheet(mode = currentPrintMode) {
     pQ0Unit.textContent = stripHtml(anatomy.locatorUnit);
   }
   if (pQ0Key && anatomy) {
-    const yExpected = (anatomy.expectedLocatorValue * (scenario.graphConfig.slope || 1)).toFixed(1);
-    pQ0Key.innerHTML = `<strong>Teacher Solution:</strong> Value corresponding to x = ${anatomy.expectedLocatorValue}: <code>y = ${yExpected} ${stripHtml(anatomy.locatorUnit)}</code> (±${anatomy.locatorTolerance || 0.2}).`;
+    const xUnit = scenario.xAxis?.unit || "";
+    pQ0Key.innerHTML = `<strong>Teacher Solution:</strong> Value corresponding to x = ${givenX} ${stripHtml(xUnit)}: <code>y = ${anatomy.expectedLocatorValue} ${stripHtml(anatomy.locatorUnit)}</code> (±${anatomy.locatorTolerance || 0.2}).`;
   }
 
   // Part 2: Trend Pattern Classification
@@ -2964,17 +2979,21 @@ function syncPrintWorksheet(mode = currentPrintMode) {
     pQ1Key.innerHTML = `<strong>Teacher Solution:</strong> Correct classification: <strong>${stripHtml(corOpt)}</strong> &bull; ${stripHtml(scenario.questions.trend.explanation || "")}`;
   }
 
-  // Part 3: Rate of Change / Quantitative Calculation (Zoned Calculation Archetype)
+  // Part 3: Rate of Change / Quantitative Calculation (Vertical Fraction & Open Workspace)
   const pQ2Prompt = document.getElementById("pQ2Prompt");
   const pQ2Value = document.getElementById("pQ2Value");
   const pQ2Unit = document.getElementById("pQ2Unit");
-  const pQ2Work = document.getElementById("pQ2Work");
+  const pQ2FormulaName = document.getElementById("pQ2FormulaName");
+  const pQ2WorkFrac = document.getElementById("pQ2WorkFrac");
   const pQ2Label = document.getElementById("pQ2Label");
   const pQ2Key = document.getElementById("pQ2Key");
   const quantQ = scenario.questions.quantitative;
 
   if (pQ2Prompt) {
     pQ2Prompt.innerHTML = formatInlineConstraints(quantQ.prompt);
+  }
+  if (pQ2FormulaName) {
+    pQ2FormulaName.textContent = quantQ.slopeSteps?.calcLabel?.replace(/:$/, '') || "Rate (Slope):";
   }
   if (pQ2Value) {
     pQ2Value.textContent = (!isBlank && resp.quantAnswer) ? resp.quantAnswer : "";
@@ -2983,14 +3002,28 @@ function syncPrintWorksheet(mode = currentPrintMode) {
     pQ2Unit.textContent = stripHtml(quantQ.unit);
   }
   if (pQ2Label) {
-    pQ2Label.textContent = quantQ.slopeSteps?.calcLabel || "Calculated Slope:";
+    pQ2Label.textContent = quantQ.slopeSteps?.calcLabel || "Calculated Rate:";
   }
-  if (pQ2Work) {
+  if (pQ2WorkFrac) {
     if (isBlank) {
-      // Clean blank setup fraction
-      pQ2Work.textContent = "Δy / Δx = ( _____ − _____ ) / ( _____ − _____ )";
+      pQ2WorkFrac.innerHTML = `
+        <span class="frac-num">( &nbsp; _____ &nbsp; − &nbsp; _____ &nbsp; )</span>
+        <span class="frac-den">( &nbsp; _____ &nbsp; − &nbsp; _____ &nbsp; )</span>
+      `;
     } else {
-      pQ2Work.textContent = quantQ.slopeSteps?.formulaSetup || "Δy / Δx = ( _____ − _____ ) / ( _____ − _____ )";
+      const stepStr = quantQ.slopeSteps?.formulaSetup || "";
+      const matchFrac = stepStr.match(/\(\s*([^−-]+)\s*[−-]\s*([^)]+)\s*\)\s*\/\s*\(\s*([^−-]+)\s*[−-]\s*([^)]+)\s*\)/);
+      if (matchFrac) {
+        pQ2WorkFrac.innerHTML = `
+          <span class="frac-num">( ${matchFrac[1].trim()} − ${matchFrac[2].trim()} )</span>
+          <span class="frac-den">( ${matchFrac[3].trim()} − ${matchFrac[4].trim()} )</span>
+        `;
+      } else {
+        pQ2WorkFrac.innerHTML = `
+          <span class="frac-num">( &nbsp; _____ &nbsp; − &nbsp; _____ &nbsp; )</span>
+          <span class="frac-den">( &nbsp; _____ &nbsp; − &nbsp; _____ &nbsp; )</span>
+        `;
+      }
     }
   }
   if (pQ2Key) {
@@ -2999,14 +3032,10 @@ function syncPrintWorksheet(mode = currentPrintMode) {
 
   // Part 4: Free Response CER (Claim, Evidence, Reasoning Archetype with Discrete Ruled Lines)
   const pQ3Prompt = document.getElementById("pQ3Prompt");
-  const pCerClaimScaffold = document.getElementById("pCerClaimScaffold");
+  const pCerClaimStarter = document.getElementById("pCerClaimStarter");
   const pCerClaimBox = document.getElementById("pCerClaimBox");
-  const pCerEvidenceScaffold = document.getElementById("pCerEvidenceScaffold");
   const pCerEvidenceLines = document.getElementById("pCerEvidenceLines");
-  const pCerEvidenceBox = document.getElementById("pCerEvidenceBox");
-  const pCerReasoningScaffold = document.getElementById("pCerReasoningScaffold");
   const pCerReasoningLines = document.getElementById("pCerReasoningLines");
-  const pCerReasoningBox = document.getElementById("pCerReasoningBox");
   const pCerSections = document.getElementById("pCerSections");
   const pCerText = document.getElementById("pCerText");
   const pRubClaim = document.getElementById("pRubClaim");
@@ -3020,20 +3049,21 @@ function syncPrintWorksheet(mode = currentPrintMode) {
     pQ3Prompt.innerHTML = formatInlineConstraints(scenario.questions.freeResponse.prompt);
   }
 
-  const frames = scenario.questions.freeResponse.sentenceFrames || {};
-  if (pCerClaimScaffold) {
-    pCerClaimScaffold.textContent = frames.claimFrame || "When system mass is held constant, the acceleration is [directly / inversely proportional to]...";
-  }
-  if (pCerEvidenceScaffold) {
-    pCerEvidenceScaffold.textContent = frames.evidenceFrame || "As shown in Table 1, when [X] is [Val 1], [Y] is [Val 1]. When [X] increases to [Val 2]...";
-  }
-  if (pCerReasoningScaffold) {
-    pCerReasoningScaffold.textContent = frames.reasoningFrame || "This occurs because according to [scientific law], an unbalanced force causes...";
+  // Clean open sentence starter for Claim (no bracketed cloze choices)
+  if (pCerClaimStarter) {
+    const rawFrame = scenario.questions.freeResponse.sentenceFrames?.claimFrame || "";
+    const bracketIdx = rawFrame.indexOf('[');
+    if (bracketIdx > 8) {
+      let cleanStarter = rawFrame.slice(0, bracketIdx).trim().replace(/,\s*with the\s*$/i, '').trim();
+      pCerClaimStarter.textContent = cleanStarter.length > 5 ? cleanStarter : "The data shows that";
+    } else {
+      pCerClaimStarter.textContent = "The evidence demonstrates that";
+    }
   }
 
-  // Populate discrete ruled lines (5 for Evidence, 4 for Reasoning)
+  // Populate discrete ruled lines (4 for Evidence, 4 for Reasoning)
   if (pCerEvidenceLines) {
-    pCerEvidenceLines.innerHTML = '<div class="ruled-line"></div>'.repeat(5);
+    pCerEvidenceLines.innerHTML = '<div class="ruled-line"></div>'.repeat(4);
   }
   if (pCerReasoningLines) {
     pCerReasoningLines.innerHTML = '<div class="ruled-line"></div>'.repeat(4);

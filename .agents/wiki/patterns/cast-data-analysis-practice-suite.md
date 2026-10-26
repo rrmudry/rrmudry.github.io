@@ -254,18 +254,19 @@ To provide students with generous physical writing space for rigorous CER argume
 - When placed into the full-width `.p-graph-content` card on Page 1, it completely fills the space without letterboxing or horizontal distortion.
 
 ### 3. Structured Accessible Legend Table (`.p-access-table`)
-- Renders as a fixed 3-column table (`32%`, `40%`, `28%`):
-  - Col 1: Symbol & Series Name (e.g. `● Green Prey`)
-  - Col 2: Line & Marker Pattern (e.g. `Solid (Circle)`)
-  - Col 3: Mathematical Model / Rate (e.g. `+5.0 org/gen`)
-- Prevents awkward word wraps or text truncation on photocopies.
+- Renders as a fixed 3-column table (`34%`, `33%`, `33%`):
+  - Col 1: Symbol & Dataset Name (e.g. `● Mid-Atlantic Ridge`, `■ East Pacific Rise`)
+  - Col 2: Line & Marker Pattern (e.g. `Solid (Circle)`, `Dashed (Square)`)
+  - Col 3: Mathematical Model / Rate (e.g. `0.050 Ma/km (20 km/Ma)`)
+- Multi-word series slope matcher extracts rate models cleanly without empty cells or redundant prefixes.
+- Header uses neutral `Dataset / Series` for multi-disciplinary scientific validity.
 
 ### 4. Low-Stress Layout Heuristics: Page 1 (Stimulus & Evidence Architecture)
 - **Header Reference Bar (`.p-reference-bar`)**: Sits docked at the very top of Page 1 beneath the student metadata header. Displays extracted Model Equations (e.g., `a = F_net / m`) and Controlled Constants (e.g., `Mass: 5.0 kg`), reducing cognitive load and eliminating split-attention.
-- **Concise Context Line**: Background narrative is compressed to a focused 1–2 sentence context banner (`.p-context-compact`), leaving maximum vertical space for authentic scientific data. Splitting uses lookbehind/lookahead `/(?<=[.!?])\s+(?=[A-Z])/` to safely preserve decimal measurements (e.g., `5.0 kg`).
-- **2-Row Investigation Flow**:
-  - **Row 1 (Observation & Controls, ~2.15in)**: Data Table 1 on the left (55–63% width) with generous 7px cell padding; Extracted Experimental Controls & Protocol Verification box on the right (35–43% width).
-  - **Row 2 (Plotted Model & Accessible Key, ~5.2in)**: Full-width landscape Graph snapshot (1000×460) followed by the 3-column Accessible Dual-Coded Legend Table.
+- **Unified Setup Grid (`.p-setup-grid`)**: The concise 1–2 sentence Investigation Procedure narrative is placed alongside the Experimental Controls & Protocol Verification box in a compact 2-column header grid.
+- **Directly Stacked Table & Graph**:
+  - **Table 1: Experimental Data**: Spans the full printable page width directly stacked above the graph. All 6 trials fit comfortably with zero clipping, generous line height, and aligned column headers with dual-coded symbols (`●`, `■`).
+  - **Plotted Graph & Trendline Box**: Directly stacked below Table 1, allowing students to trace coordinates directly downwards from columns to plotted points.
 - **Page 1 Footer Bar**: Displays Science Department branding, NGSS standard badge, and `Page 1 of 2`.
 
 ### 5. Low-Stress Layout Heuristics: Page 2 (Analysis & Argumentation Workspaces)
@@ -276,15 +277,16 @@ Page 2 implements an atomic 5-part progression strictly budgeted within `10.18in
   - Solid Uppercase Verb Badge: `READ GRAPH`, `CLASSIFY TREND`, `CALCULATE RATE`, `CONSTRUCT CER`, `PREDICT` (`.verb-badge`).
   - Styled Inline Constraints: `<em class="constraint">` (italic with solid underline) automatically highlighting conditions, constants, and trial ranges.
 - **Dynamic Workspace Archetypes**:
-  - **Question 1 (`ws-short-box`)**: Given X-coordinate pill (`Given: X = ...`) alongside measured Y readout blank with prompt unit (`Measured Y = [ _____ ] [unit]`).
+  - **Question 1 (`ws-short-box`)**: Given X-coordinate pill (`Given: Distance = 300 km`) parsed directly from `locatorPrompt`, alongside measured Y readout blank with prompt unit (`Measured Y = [ _____ ] [unit]`).
   - **Question 2**: Multiple-choice options with `[ &nbsp; ]` checkboxes stacked vertically with unbolded regular weight (`font-weight: 400`).
-  - **Question 3 (`ws-zoned-calc`)**:
-    - **Zone 1 (44% width)**: Symbolic Formula & Blank Setup Work fraction: `Δy / Δx = ( ___ − ___ ) / ( ___ − ___ )`.
-    - **Zone 2 (56% width)**: Substitution, Simplification Work area with calculated rate blank and unit pill.
+  - **Question 3 (`ws-calc-box`)**:
+    - **Top Row**: Clean vertical fraction template with horizontal fraction bars: `Rate (Slope): Δy / Δx = (y₂ − y₁) / (x₂ − x₁) = ( _____ − _____ ) / ( _____ − _____ )` on left, and final answer blank on right (`Calculated Rate: [ _________ ] [unit]`).
+    - **Open Scratch Area**: Open, unlined calculation workspace box with subtle italic watermark (`Show work: coordinate substitution, arithmetic & unit simplification`), providing ample room for arithmetic without overlapping strings.
   - **Question 4 (`ws-cer-box`)**:
-    - **Claim**: Single-line prompt with writing underline.
-    - **Evidence**: Discrete physical ruled lines (`.ruled-line` × 5, `0.24in` line height) with faded scaffold prompt starter (`.faded-scaffold`).
-    - **Reasoning**: Discrete physical ruled lines (`.ruled-line` × 4, `0.24in` line height) with faded scaffold prompt starter (`.faded-scaffold`).
+    - **Open Scaffolding Law**: Completely eliminates pre-written cloze paragraphs and bracketed fill-in choices (`[faster than / slower than]`) on student print copies.
+    - **Claim**: Single-line prompt with authentic open sentence starter (`Claim: Oceanic crust age increases linearly with distance...`) and bold writing underline.
+    - **Evidence**: Explicit rubric cue (`• Cite at least TWO specific data pairs (X, Y) and calculated rate with units:`) with 4 discrete physical ruled lines.
+    - **Reasoning**: Explicit scientific principle cue (`• Explain the scientific cause/mechanism (why this relationship occurs):`) with 4 discrete physical ruled lines.
     - **Compact 4-Point Rubric Bar**: `[ Claim: 1 pt | Evidence: 1 pt | Units: 1 pt | Reasoning: 1 pt ]` and `[ Score: ____ / 4 Pts ]`.
   - **Question 5**: Synthesis & Misconception Diagnostics with styled constraints and options.
 - **Teacher Key Mode**: Hidden `.teacher-key` containers are populated dynamically for instant teacher grading keys and on-screen teacher view.
