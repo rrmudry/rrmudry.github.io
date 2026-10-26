@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Fall Explorer</title>
+    <!-- Companion to horizontal-projectile-motion/: same palette, fixed-scale scene, ghost
+         comparisons and a presentation mode sized for classroom TVs. g = 10 m/s² on Earth. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../assets/ngss-helper.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            outline: none;
+            border-radius: 9999px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #d97706;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #d97706;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        pre.formula {
+            background-color: #f8fafc;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            color: #374151;
+            white-space: pre;
+            overflow-x: auto;
+        }
+        .choice {
+            border: 2px solid #d6d3d1;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            line-height: 1.25;
+        }
+        input:checked + .choice {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+        input:focus-visible + .choice {
+            outline: 2px solid #b45309;
+            outline-offset: 2px;
+        }
+        .choice .sub {
+            display: block;
+            font-size: 0.8em;
+            color: #78716c;
+        }
+
+        /* ---------- Lab bench: scene + two graphs + comparison table ---------- */
+        #bench {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: 1fr;
+            grid-template-areas: "scene" "pos" "vel" "table";
+        }
+        #scene-wrap { grid-area: scene; height: 380px; }
+        #pos-wrap { grid-area: pos; height: 220px; }
+        #vel-wrap { grid-area: vel; height: 220px; }
+        #table-wrap { grid-area: table; overflow-x: auto; }
+        @media (min-width: 900px) {
+            #bench {
+                grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+                grid-template-rows: 230px 230px auto;
+                grid-template-areas: "scene pos" "scene vel" "table table";
+            }
+            #scene-wrap, #pos-wrap, #vel-wrap { height: auto; }
+        }
+        .canvas-wrap {
+            position: relative;
+            min-height: 0;
+        }
+        .canvas-wrap canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        #drop-table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 0.9rem;
+        }
+        #drop-table th, #drop-table td {
+            padding: 0.25em 0.6em;
+            text-align: right;
+            white-space: nowrap;
+        }
+        #drop-table th {
+            color: #78716c;
+            font-weight: 600;
+            border-bottom: 1px solid #e7e5e4;
+        }
+        #drop-table th:nth-child(-n+3), #drop-table td:nth-child(-n+3) {
+            text-align: left;
+        }
+        #drop-table .t-col {
+            font-weight: 700;
+        }
+        #drop-table .swatch {
+            display: inline-block;
+            width: 1.3em;
+            height: 0.3em;
+            border-radius: 2px;
+            vertical-align: middle;
+        }
+
+        /* ---------- Presentation mode (classroom TVs) ---------- */
+        #pres-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            background: #fffbeb;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2vh;
+            padding: 1.5vh 1.5vw;
+        }
+        #pres-overlay.hidden {
+            display: none;
+        }
+        #pres-top #results-container {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 1vw;
+            margin: 0;
+        }
+        #pres-top #results-container > div {
+            padding: 0.8vh 1vw;
+        }
+        #pres-top #results-container .text-sm {
+            font-size: clamp(1rem, 1.5vw, 1.9rem);
+        }
+        #pres-top #results-container [id^="output-"] {
+            font-size: clamp(1.75rem, 3.4vw, 4.25rem);
+            line-height: 1.15;
+        }
+        #pres-main {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+        }
+        #pres-main #bench {
+            flex: 1;
+            min-height: 0;
+            gap: 1vh 1.5vw;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+            grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) auto;
+            grid-template-areas: "scene pos" "scene vel" "scene table";
+        }
+        #pres-main #scene-wrap, #pres-main #pos-wrap, #pres-main #vel-wrap {
+            height: auto;
+        }
+        #pres-main #drop-table {
+            font-size: clamp(0.95rem, 1.15vw, 1.45rem);
+        }
+        #pres-main #drop-table th, #pres-main #drop-table td {
+            padding: 0.1em 0.5em;
+        }
+        #pres-note {
+            text-align: center;
+            font-size: clamp(0.9rem, 1.2vw, 1.5rem);
+            color: #44403c;
+        }
+        #pres-keys {
+            margin-left: 2vw;
+            font-size: 0.8em;
+            color: #78716c;
+        }
+        #pres-keys kbd {
+            border: 1px solid #d6d3d1;
+            border-bottom-width: 2px;
+            border-radius: 4px;
+            padding: 0 0.3em;
+            margin-left: 0.6em;
+            background: #fff;
+        }
+        #pres-controls {
+            display: flex;
+            align-items: flex-end;
+            gap: 1.3vw;
+            font-size: clamp(0.95rem, 1.2vw, 1.5rem);
+        }
+        #pres-controls > div {
+            min-width: 0;
+        }
+        #pres-controls #planet-group { flex: 2.2; }
+        #pres-controls #object-group { flex: 1.7; }
+        #pres-controls #height-input-container { flex: 1.3; }
+        #pres-controls .group-label,
+        #pres-controls .step-num {
+            display: none;
+        }
+        #pres-controls .choice {
+            padding: 0.6vh 0.4vw;
+        }
+        #pres-controls label.text-lg {
+            font-size: inherit;
+            white-space: nowrap;
+        }
+        #pres-controls input[type="range"] {
+            height: 14px;
+        }
+        #pres-controls input[type="range"]::-webkit-slider-thumb {
+            width: 34px;
+            height: 34px;
+        }
+        #pres-controls input[type="range"]::-moz-range-thumb {
+            width: 34px;
+            height: 34px;
+        }
+        #pres-controls button {
+            flex: 0 0 auto;
+            width: auto;
+            font-size: inherit;
+            padding: 1.6vh 1.5vw;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        amber: {
+                            50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 300: '#fcd34d', 400: '#fbbf24',
+                            500: '#f59e0b', 600: '#d97706', 700: '#b45309', 800: '#92400e', 900: '#78350f',
+                        },
+                        stone: { 800: '#292524' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-amber-50 text-stone-800 antialiased">
+
+    <div class="container mx-auto p-4 py-8 md:p-12">
+
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-amber-800">Free Fall Explorer</h1>
+            <p class="text-lg text-amber-700 mt-2">Drop objects on different worlds and compare how they fall.</p>
+            <div class="mt-3"><span data-ngss="HS-PS2-1"></span></div>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Controls -->
+            <section id="controls-panel" class="bg-white p-6 rounded-2xl shadow-lg">
+                <h2 class="text-2xl font-bold text-amber-800 mb-4 border-b border-amber-200 pb-2">Controls</h2>
+                <div class="space-y-6">
+                    <div id="planet-group">
+                        <p class="group-label text-lg font-semibold mb-2">1. Choose a World</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label><input type="radio" name="planet" value="earth" class="sr-only" checked><div class="choice">🌍 Earth<span class="sub">g = 10 m/s²</span></div></label>
+                            <label><input type="radio" name="planet" value="moon" class="sr-only"><div class="choice">🌕 Moon<span class="sub">g = 1.6 m/s²</span></div></label>
+                            <label><input type="radio" name="planet" value="mars" class="sr-only"><div class="choice">🔴 Mars<span class="sub">g = 3.7 m/s²</span></div></label>
+                            <label><input type="radio" name="planet" value="jupiter" class="sr-only"><div class="choice">🪐 Jupiter<span class="sub">g = 24.8 m/s²</span></div></label>
+                        </div>
+                    </div>
+
+                    <div id="object-group">
+                        <p class="group-label text-lg font-semibold mb-2">2. Choose an Object</p>
+                        <div class="grid grid-cols-3 gap-2">
+                            <label><input type="radio" name="object" value="bowling" class="sr-only" checked><div class="choice">🎳 Bowling ball<span class="sub">7.0 kg</span></div></label>
+                            <label><input type="radio" name="object" value="hammer" class="sr-only"><div class="choice">🔨 Hammer<span class="sub">1.3 kg</span></div></label>
+                            <label><input type="radio" name="object" value="feather" class="sr-only"><div class="choice">🪶 Feather<span class="sub">0.03 kg</span></div></label>
+                        </div>
+                    </div>
+
+                    <div id="height-input-container" class="space-y-2">
+                        <label for="height-slider" class="flex justify-between gap-2 text-lg font-semibold">
+                            <span><span class="step-num">3. </span>Drop Height (x<sub>o</sub>)</span>
+                            <span id="height-value" class="font-bold text-amber-700 whitespace-nowrap">50 m</span>
+                        </label>
+                        <input type="range" id="height-slider" min="1" max="100" value="50" step="1">
+                    </div>
+
+                    <button id="drop-btn" class="w-full bg-amber-600 text-white font-bold text-lg py-3 px-6 rounded-lg shadow-md hover:bg-amber-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        Drop!
+                    </button>
+                    <p class="text-sm text-gray-500">No air resistance: every object falls as it would in a vacuum.</p>
+                </div>
+            </section>
+
+            <!-- Results -->
+            <section id="results-panel" class="bg-white p-6 rounded-2xl shadow-lg lg:col-span-2">
+                <h2 class="text-2xl font-bold text-amber-800 mb-4 border-b border-amber-200 pb-2">Results</h2>
+                <div id="results-container" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-amber-50 p-4 rounded-lg text-center shadow">
+                        <span class="text-sm text-amber-800 block">Time to Fall (t)</span>
+                        <span id="output-time" class="text-xl sm:text-2xl font-bold text-amber-700 whitespace-nowrap">-- s</span>
+                    </div>
+                    <div class="bg-amber-50 p-4 rounded-lg text-center shadow">
+                        <span class="text-sm text-amber-800 block">Final Velocity (v<sub>f</sub>)</span>
+                        <span id="output-velocity" class="text-xl sm:text-2xl font-bold text-amber-700 whitespace-nowrap">-- m/s</span>
+                    </div>
+                    <div class="bg-amber-50 p-4 rounded-lg text-center shadow">
+                        <span class="text-sm text-amber-800 block">Acceleration (a)</span>
+                        <span id="output-accel" class="text-xl sm:text-2xl font-bold text-amber-700 whitespace-nowrap">-- m/s²</span>
+                    </div>
+                    <div class="bg-amber-50 p-4 rounded-lg text-center shadow">
+                        <span class="text-sm text-amber-800 block">Mass (m)</span>
+                        <span id="output-mass" class="text-xl sm:text-2xl font-bold text-amber-700 whitespace-nowrap">-- kg</span>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4">
+                    Everything below is drawn to a fixed scale, so you can compare drops directly.
+                    Your last 3 drops stay on screen in their own columns.
+                </p>
+            <!-- Lab bench (moved into the overlay in presentation mode) -->
+                <div id="bench">
+                    <div id="scene-wrap" class="canvas-wrap">
+                        <canvas id="scene-canvas" role="img" aria-label="Side view of the drops, drawn to scale, with a dot every second"></canvas>
+                    </div>
+                    <div id="pos-wrap" class="canvas-wrap">
+                        <canvas id="pos-canvas" role="img" aria-label="Graph of height versus time"></canvas>
+                    </div>
+                    <div id="vel-wrap" class="canvas-wrap">
+                        <canvas id="vel-canvas" role="img" aria-label="Graph of velocity versus time"></canvas>
+                    </div>
+                    <div id="table-wrap" aria-live="polite"></div>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-3 mt-4 text-sm text-gray-600">
+                    <p>Dots mark the object's position <strong>every second</strong>. The shaded bands show how far it fell during each second.</p>
+                    <div class="flex gap-2">
+                        <button id="clear-btn" class="px-3 py-1.5 rounded-lg border border-amber-400 text-amber-800 font-semibold hover:bg-amber-50">Clear drops</button>
+                        <button id="pres-enter-btn" class="px-3 py-1.5 rounded-lg bg-stone-800 text-white font-semibold hover:bg-stone-700">📺 Presentation mode</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- About -->
+        <footer class="bg-white p-6 rounded-2xl shadow-lg mt-8">
+            <h2 class="text-2xl font-bold text-amber-800 mb-4 border-b border-amber-200 pb-2">About the Physics</h2>
+            <p class="text-gray-600 mb-4">
+                An object in free fall speeds up at a constant rate: the acceleration due to gravity. Down is negative,
+                so on Earth a = −10 m/s². Every object is dropped from rest (v<sub>o</sub> = 0). Without air resistance,
+                the object's mass does not change how it falls. Astronaut David Scott showed this on the Moon in 1971
+                by dropping a hammer and a feather together. They hit the ground at the same time.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-semibold text-lg text-amber-700">Position</h3>
+                    <p class="text-gray-600">Used to find the time to fall (x<sub>f</sub> = 0 at the ground).</p>
+                    <pre class="formula">x<sub>f</sub> = x<sub>o</sub> + v<sub>o</sub>t + (1/2)at<sup>2</sup></pre>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-lg text-amber-700">Velocity</h3>
+                    <p class="text-gray-600">Used to find the final velocity. It is the slope of the position graph.</p>
+                    <pre class="formula">v<sub>f</sub> = v<sub>o</sub> + at</pre>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Presentation mode overlay. The live readouts, bench and controls are moved in
+         here while presenting and moved back on exit. -->
+    <div id="pres-overlay" class="hidden" role="dialog" aria-label="Presentation mode">
+        <div id="pres-top"></div>
+        <div id="pres-main"></div>
+        <p id="pres-note">
+            Dots = position <strong>every second</strong> · shaded bands = distance fallen during each second
+            <span id="pres-keys"><kbd>Space</kbd> drop <kbd>C</kbd> clear <kbd>Esc</kbd> exit</span>
+        </p>
+        <div id="pres-controls">
+            <button id="pres-exit-btn" class="rounded-lg border-2 border-stone-400 text-stone-700 font-semibold hover:bg-stone-100">✕ Exit</button>
+        </div>
+    </div>
+
+    <script>
+        const PLANETS = {
+            earth:   { name: 'Earth',   icon: '🌍', g: 10 },
+            moon:    { name: 'Moon',    icon: '🌕', g: 1.6 },
+            mars:    { name: 'Mars',    icon: '🔴', g: 3.7 },
+            jupiter: { name: 'Jupiter', icon: '🪐', g: 24.8 },
+        };
+        const OBJECTS = {
+            bowling: { name: 'Bowling ball', icon: '🎳', m: 7.0 },
+            hammer:  { name: 'Hammer',       icon: '🔨', m: 1.3 },
+            feather: { name: 'Feather',      icon: '🪶', m: 0.03 },
+        };
+
+        // Fixed axes for every world and height, so differences show up as real size changes.
+        // Slowest drop: Moon from 100 m = 11.2 s. Fastest impact: Jupiter from 100 m = −70.4 m/s.
+        const Y_MAX = 110, T_MAX = 12, V_MIN = -80;
+        const STROBE_DT = 1;    // one dot per whole second
+        const MAX_GHOSTS = 3;
+        const NOW_COLOR = '#d97706';
+        const GHOST_COLORS = ['#0f766e', '#7c3aed', '#64748b'];
+        const EMOJI_FONT = '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        let current = null;   // active drop: { h, g, planet, object, t }
+        let ghosts = [];      // earlier drops, newest first: same shape + color
+        let elapsed = 0;      // seconds of the active drop shown so far
+        let animId = null;
+        let presenting = false;
+        let k = 1;            // size multiplier for text/lines/dots (grows in presentation mode)
+
+        const fmt = (n, d) => n.toFixed(d).replace('-', '−');
+        const heightAt = (d, t) => Math.max(0, d.h - 0.5 * d.g * t * t);
+        const velocityAt = (d, t) => -d.g * Math.min(t, d.t);
+        const strobeTimes = tEnd => {
+            const ts = [];
+            for (let t = 0; t <= tEnd + 1e-9; t += STROBE_DT) ts.push(t);
+            return ts;
+        };
+
+        // ---------- Canvas helpers ----------
+        function prepCanvas(id) {
+            const cv = document.getElementById(id);
+            const w = cv.clientWidth, h = cv.clientHeight;
+            const dpr = window.devicePixelRatio || 1;
+            if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) {
+                cv.width = Math.round(w * dpr);
+                cv.height = Math.round(h * dpr);
+            }
+            const ctx = cv.getContext('2d');
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.clearRect(0, 0, w, h);
+            return { ctx, w, h };
+        }
+        const font = (size, bold) => `${bold ? 'bold ' : ''}${size * k}px Inter, sans-serif`;
+        function dot(ctx, x, y, r) {
+            ctx.beginPath();
+            ctx.arc(x, y, r * k, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // ---------- Scene: one column per drop, drawn to scale ----------
+        function drawScene() {
+            const { ctx, w, h } = prepCanvas('scene-canvas');
+            if (!w || !h) return;
+            const m = { left: 40 * k, right: 8 * k, top: 26 * k, bottom: 10 * k };
+            const scale = (h - m.top - m.bottom) / Y_MAX;
+            const py = y => m.top + (Y_MAX - y) * scale;
+            const plotW = w - m.left - m.right;
+
+            ctx.fillStyle = '#f0f9ff';
+            ctx.fillRect(m.left, py(Y_MAX), plotW, Y_MAX * scale);
+
+            // Height ruler every 10 m
+            ctx.font = font(11);
+            ctx.textAlign = 'right';
+            ctx.strokeStyle = '#e0f2fe';
+            ctx.lineWidth = k;
+            for (let y = 0; y <= 100; y += 10) {
+                ctx.beginPath(); ctx.moveTo(m.left, py(y)); ctx.lineTo(m.left + plotW, py(y)); ctx.stroke();
+                ctx.fillStyle = '#57534e';
+                ctx.fillText(y, m.left - 5 * k, py(y) + 4 * k);
+            }
+            ctx.save();
+            ctx.translate(10 * k, py(Y_MAX / 2));
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = 'center';
+            ctx.font = font(11, true);
+            ctx.fillText('Height (m)', 0, 0);
+            ctx.restore();
+
+            // Ground
+            ctx.fillStyle = '#65a30d';
+            ctx.fillRect(m.left, py(0) - 2 * k, plotW, 4 * k);
+
+            // The "Now" lane is wider than the ghost lanes to leave room for its distance labels
+            const lanes = [current, ...ghosts].filter(Boolean);
+            const NOW_UNITS = 2.6;  // width of the "Now" lane in ghost-lane units
+            const unit = plotW / (NOW_UNITS + MAX_GHOSTS);
+            const deltaLabels = [];
+            lanes.forEach((d, i) => {
+                const isNow = i === 0 && d === current;
+                const color = isNow ? NOW_COLOR : d.color;
+                const laneW = unit;
+                const cx = isNow ? m.left + unit * 0.5 : m.left + unit * (NOW_UNITS + i - (current ? 1 : 0) + 0.5);
+                const tShown = isNow ? elapsed : d.t;
+
+                // Release ledge + support
+                ctx.fillStyle = '#d6d3d1';
+                ctx.fillRect(cx - laneW * 0.42, py(d.h), laneW * 0.12, d.h * scale);
+                ctx.fillStyle = '#78716c';
+                ctx.fillRect(cx - laneW * 0.42, py(d.h) - 2 * k, laneW * 0.42, 4 * k);
+
+                // Lane label: world + object
+                ctx.font = `${13 * k}px ${EMOJI_FONT}`;
+                ctx.textAlign = 'center';
+                ctx.fillStyle = color;
+                ctx.fillText(`${PLANETS[d.planet].icon}${OBJECTS[d.object].icon}`, cx, m.top - 8 * k);
+
+                // Whole-second bands: shade the distance fallen during each second (1 : 3 : 5 : 7 …)
+                // and label it. A band appears as each second finishes; the last partial second is lighter.
+                if (isNow) {
+                    const bandL = cx - 7 * k, bandR = m.left + unit * NOW_UNITS - 4 * k;
+                    for (let sec = 1; sec - 1 < tShown - 1e-9; sec++) {
+                        const tEnd = Math.min(sec, d.t);
+                        if (tEnd > tShown + 1e-9) break;           // second not finished yet
+                        const partial = tEnd < sec;
+                        const yA = heightAt(d, sec - 1), yB = heightAt(d, tEnd);
+                        ctx.fillStyle = partial ? 'rgba(120, 113, 108, 0.10)'
+                                                : (sec % 2 ? 'rgba(217, 119, 6, 0.20)' : 'rgba(217, 119, 6, 0.09)');
+                        ctx.fillRect(bandL, py(yA), bandR - bandL, (yA - yB) * scale);
+                        if ((yA - yB) * scale > 9 * k) {
+                            const text = partial ? `${(tEnd - sec + 1).toFixed(2)} s: ${fmt(yA - yB, 1)} m`
+                                                 : `sec ${sec}: ${fmt(yA - yB, 1)} m`;
+                            deltaLabels.push([text, cx + 10 * k, py((yA + yB) / 2) + 4 * k, partial]);
+                        }
+                    }
+                }
+
+                // One outlined dot per whole second
+                ctx.globalAlpha = isNow ? 1 : 0.55;
+                strobeTimes(tShown).forEach(t => {
+                    const y = py(heightAt(d, t));
+                    ctx.fillStyle = color;
+                    dot(ctx, cx, y, isNow ? 6 : 4.5);
+                    ctx.strokeStyle = '#1c1917';
+                    ctx.lineWidth = 1.5 * k;
+                    ctx.beginPath(); ctx.arc(cx, y, (isNow ? 6 : 4.5) * k, 0, Math.PI * 2); ctx.stroke();
+                });
+                ctx.globalAlpha = 1;
+
+                // The falling object itself
+                const y = heightAt(d, tShown);
+                ctx.font = `${(isNow ? 22 : 16) * k}px ${EMOJI_FONT}`;
+                ctx.textAlign = 'center';
+                ctx.globalAlpha = isNow ? 1 : 0.6;
+                ctx.fillText(OBJECTS[d.object].icon, cx, py(y) - 4 * k);
+                ctx.globalAlpha = 1;
+            });
+
+            ctx.font = font(9.5, true);
+            ctx.textAlign = 'left';
+            deltaLabels.forEach(([text, x, y, partial]) => {
+                ctx.fillStyle = partial ? '#78716c' : '#92400e';
+                ctx.fillText(text, x, y);
+            });
+
+            // Clock
+            if (current) {
+                ctx.font = font(13, true);
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#1c1917';
+                ctx.fillText(`t = ${elapsed.toFixed(2)} s`, w - m.right - 4 * k, py(Y_MAX) + 16 * k);
+            }
+        }
+
+        // ---------- Graphs: height vs time and velocity vs time ----------
+        function drawGraph(id, kind) {
+            const { ctx, w, h } = prepCanvas(id);
+            if (!w || !h) return;
+            const isPos = kind === 'pos';
+            const kFull = k;
+            k = Math.min(k, 1.6);  // graphs are short; keep their margins and text from crowding the plot
+            const yMin = isPos ? 0 : V_MIN, yMax = isPos ? Y_MAX : 0, yStep = 20;
+            const m = { left: 50 * k, right: 12 * k, top: 10 * k, bottom: (isPos ? 20 : 34) * k };
+            const plotW = w - m.left - m.right, plotH = h - m.top - m.bottom;
+            const gx = t => m.left + (t / T_MAX) * plotW;
+            const gy = v => m.top + ((yMax - v) / (yMax - yMin)) * plotH;
+            const valueAt = isPos ? heightAt : velocityAt;
+
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(m.left, m.top, plotW, plotH);
+            ctx.strokeStyle = '#e7e5e4';
+            ctx.lineWidth = k;
+            ctx.font = font(11);
+            ctx.fillStyle = '#57534e';
+            ctx.textAlign = 'center';
+            for (let t = 0; t <= T_MAX; t += 2) {
+                ctx.beginPath(); ctx.moveTo(gx(t), m.top); ctx.lineTo(gx(t), m.top + plotH); ctx.stroke();
+                ctx.fillText(t, gx(t), m.top + plotH + 15 * k);
+            }
+            ctx.textAlign = 'right';
+            for (let v = Math.ceil(yMin / yStep) * yStep; v <= (isPos ? 100 : 0); v += yStep) {
+                ctx.beginPath(); ctx.moveTo(m.left, gy(v)); ctx.lineTo(m.left + plotW, gy(v)); ctx.stroke();
+                ctx.fillText(String(v).replace('-', '−'), m.left - 5 * k, gy(v) + 4 * k);
+            }
+            ctx.strokeStyle = '#a8a29e';
+            ctx.strokeRect(m.left, m.top, plotW, plotH);
+            ctx.font = font(11, true);
+            ctx.textAlign = 'center';
+            if (!isPos) ctx.fillText('Time (s)', m.left + plotW / 2, h - 5 * k);
+            ctx.save();
+            ctx.translate(12 * k, m.top + plotH / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText(isPos ? 'Height (m)' : 'Velocity (m/s)', 0, 0);
+            ctx.restore();
+
+            const curve = (d, tEnd, color, width) => {
+                ctx.strokeStyle = color;
+                ctx.lineWidth = width * k;
+                ctx.beginPath();
+                const steps = 80;
+                for (let i = 0; i <= steps; i++) {
+                    const t = (tEnd * i) / steps;
+                    i === 0 ? ctx.moveTo(gx(t), gy(valueAt(d, t))) : ctx.lineTo(gx(t), gy(valueAt(d, t)));
+                }
+                ctx.stroke();
+                ctx.fillStyle = color;
+                strobeTimes(tEnd).forEach(t => dot(ctx, gx(t), gy(valueAt(d, t)), width > 2 ? 5 : 3.5));
+            };
+            [...ghosts].reverse().forEach(d => {
+                ctx.globalAlpha = 0.5;
+                curve(d, d.t, d.color, 2);
+                ctx.globalAlpha = 1;
+            });
+            if (!current) {
+                k = kFull;
+                return;
+            }
+            curve(current, elapsed, NOW_COLOR, 3);
+
+            // Once landed, label the key result next to the end of the curve
+            if (elapsed >= current.t) {
+                const ex = gx(current.t), ey = gy(valueAt(current, current.t));
+                const label = isPos
+                    ? `lands at t = ${current.t.toFixed(2)} s`
+                    : `slope = a = ${fmt(-current.g, 1)} m/s²`;
+                ctx.font = font(12, true);
+                ctx.fillStyle = NOW_COLOR;
+                const fitsRight = ex + ctx.measureText(label).width + 10 * k <= m.left + plotW;
+                if (fitsRight) {
+                    ctx.textAlign = 'left';
+                    ctx.fillText(label, ex + 8 * k, isPos ? ey - 8 * k : Math.max(ey, m.top + 14 * k));
+                } else {
+                    // Long drops end near the right edge: use the empty corner instead of covering the curve
+                    // (top-right of the height graph, bottom-right of the velocity graph)
+                    ctx.textAlign = 'right';
+                    ctx.fillText(label, m.left + plotW - 8 * k, isPos ? m.top + 18 * k : m.top + plotH - 10 * k);
+                }
+            }
+            k = kFull;
+        }
+
+        // ---------- Comparison table ----------
+        function updateTable() {
+            const row = (d, color, label) =>
+                `<tr><td><span class="swatch" style="background:${color}"></span> ${label}</td>` +
+                `<td>${PLANETS[d.planet].icon} ${PLANETS[d.planet].name}</td>` +
+                `<td>${OBJECTS[d.object].icon} ${OBJECTS[d.object].m} kg</td>` +
+                `<td>${d.h} m</td><td>${fmt(-d.g, 1)} m/s²</td>` +
+                `<td class="t-col">${d.t.toFixed(2)} s</td><td>${fmt(-d.g * d.t, 1)} m/s</td></tr>`;
+            let rows = current ? row(current, NOW_COLOR, '<strong>Now</strong>') : '';
+            ghosts.forEach(d => { rows += row(d, d.color, ''); });
+            document.getElementById('table-wrap').innerHTML = rows
+                ? `<table id="drop-table"><thead><tr><th></th><th>World</th><th>Object (m)</th>` +
+                  `<th>x<sub>o</sub></th><th>a</th><th>t</th><th>v<sub>f</sub></th></tr></thead><tbody>${rows}</tbody></table>`
+                : '';
+        }
+
+        function drawAll() {
+            k = presenting ? Math.min(2.4, Math.max(1.3, window.innerHeight / 480)) : 1;
+            drawScene();
+            drawGraph('pos-canvas', 'pos');
+            drawGraph('vel-canvas', 'vel');
+        }
+
+        // ---------- Drop ----------
+        function selected(name) {
+            return document.querySelector(`input[name="${name}"]:checked`).value;
+        }
+
+        function drop() {
+            const h = parseFloat(document.getElementById('height-slider').value);
+            const planet = selected('planet'), object = selected('object');
+            const g = PLANETS[planet].g;
+            const t = Math.sqrt((2 * h) / g);
+
+            document.getElementById('output-time').textContent = t.toFixed(2) + ' s';
+            document.getElementById('output-velocity').textContent = fmt(-g * t, 2) + ' m/s';
+            document.getElementById('output-accel').textContent = fmt(-g, 1) + ' m/s²';
+            document.getElementById('output-mass').textContent = OBJECTS[object].m + ' kg';
+
+            if (animId) cancelAnimationFrame(animId);
+            if (current) {
+                ghosts.unshift(current);
+                ghosts = ghosts.slice(0, MAX_GHOSTS).map((d, i) => ({ ...d, color: GHOST_COLORS[i] }));
+            }
+            current = { h, g, planet, object, t };
+            updateTable();
+            if (reduceMotion) {
+                elapsed = t;
+                animId = null;
+                drawAll();
+                return;
+            }
+            elapsed = 0;
+            const start = performance.now();
+            const step = now => {
+                elapsed = Math.min(t, (now - start) / 1000);  // real time: a Moon drop really takes longer
+                drawAll();
+                animId = elapsed < t ? requestAnimationFrame(step) : null;
+            };
+            animId = requestAnimationFrame(step);
+        }
+
+        function clearDrops() {
+            if (animId) cancelAnimationFrame(animId);
+            animId = null;
+            current = null;
+            ghosts = [];
+            elapsed = 0;
+            ['output-time', 'output-velocity', 'output-accel', 'output-mass'].forEach((id, i) => {
+                document.getElementById(id).textContent = ['-- s', '-- m/s', '-- m/s²', '-- kg'][i];
+            });
+            updateTable();
+            drawAll();
+        }
+
+        // ---------- Presentation mode ----------
+        const PRES_SLOTS = [
+            ['results-container', 'pres-top'],
+            ['bench', 'pres-main'],
+            ['planet-group', 'pres-controls'],
+            ['object-group', 'pres-controls'],
+            ['height-input-container', 'pres-controls'],
+            ['drop-btn', 'pres-controls'],
+            ['clear-btn', 'pres-controls'],
+        ];
+        let presPlaceholders = [];
+
+        function enterPresentation() {
+            if (presenting) return;
+            presenting = true;
+            presPlaceholders = PRES_SLOTS.map(([id, slotId]) => {
+                const el = document.getElementById(id);
+                const marker = document.createComment(id);
+                el.replaceWith(marker);
+                document.getElementById(slotId).appendChild(el);
+                return [marker, el];
+            });
+            document.getElementById('pres-controls').appendChild(document.getElementById('pres-exit-btn'));
+            document.getElementById('pres-overlay').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            }
+            drawAll();
+        }
+
+        function exitPresentation() {
+            if (!presenting) return;
+            presenting = false;
+            presPlaceholders.forEach(([marker, el]) => marker.replaceWith(el));
+            presPlaceholders = [];
+            document.getElementById('pres-overlay').classList.add('hidden');
+            document.body.style.overflow = '';
+            if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+            drawAll();
+        }
+
+        function onPresentationKey(e) {
+            if (!presenting || e.ctrlKey || e.metaKey || e.altKey) return;
+            const onButton = e.target.tagName === 'BUTTON';  // let a focused button handle its own Space/Enter
+            if (e.key === 'Escape') {
+                exitPresentation();
+            } else if ((e.key === ' ' || e.key === 'Enter') && !onButton) {
+                e.preventDefault();
+                drop();
+            } else if (e.key === 'c' || e.key === 'C') {
+                clearDrops();
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const slider = document.getElementById('height-slider');
+            slider.addEventListener('input', () => {
+                document.getElementById('height-value').textContent = slider.value + ' m';
+            });
+            document.getElementById('drop-btn').addEventListener('click', drop);
+            document.getElementById('clear-btn').addEventListener('click', clearDrops);
+            document.getElementById('pres-enter-btn').addEventListener('click', enterPresentation);
+            document.getElementById('pres-exit-btn').addEventListener('click', exitPresentation);
+            document.addEventListener('keydown', onPresentationKey);
+            document.addEventListener('fullscreenchange', () => {
+                // Esc in fullscreen is consumed by the browser; leaving fullscreen also leaves presentation mode
+                if (!document.fullscreenElement && presenting) exitPresentation();
+            });
+
+            // Redraw whenever a canvas changes size (window resize, entering/leaving presentation)
+            const ro = new ResizeObserver(() => { if (!animId) drawAll(); });
+            ['scene-wrap', 'pos-wrap', 'vel-wrap'].forEach(id => ro.observe(document.getElementById(id)));
+
+            drop();
+        });
+    </script>
+</body>
+</html>
