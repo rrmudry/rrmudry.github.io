@@ -3656,49 +3656,53 @@ const lessonsData = [
     "day": 29,
     "date": "2026-10-08",
     "unit": 2,
-    "title": "The Reality of Friction: Static vs. Kinetic",
-    "topic": "Friction Forces (F<sub>f</sub> = μ · F<sub>N</sub>), Surface Interfaces, and Energy Dissipation",
+    "title": "Newton's 2nd Law: Acceleration Analysis & Friction Synthesis",
+    "topic": "System Acceleration Dynamics, Net Force Balance, and Friction Fundamentals",
     "dok": 2,
-    "type": "Lab / Activity",
+    "type": "Guided Practice / Analysis",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Investigate why real-world objects slow down: surface microscopic interactions, static friction threshold vs kinetic sliding friction, and normal force dependence.",
-    "activity": "Friction Block Pull Lab: Dragging wooden blocks with varying mass across sandpaper, vinyl, and felt with spring scales. Measuring peak static friction vs steady kinetic friction; computing friction coefficients (μ).",
-    "essentialQuestion": "Why does it always require more force to start an object sliding than to keep it sliding?",
+    "summary": "Students finalize their Modified Atwood Carriage acceleration trials, linearize a vs 1/m curves, and examine the real-world friction and air resistance factors that cause empirical accelerations to fall slightly below theoretical predictions.",
+    "activity": "Atwood Acceleration Ladder Synthesis & Friction Conceptual Analysis: Students compute system acceleration across varying mass ratios, compare experimental accelerations against frictionless theoretical predictions (a = m_hang · g / m_total), and identify the contact friction and track resistance acting as resisting forces.",
+    "essentialQuestion": "Why does real laboratory equipment experience slightly less acceleration than frictionless theoretical predictions?",
     "standards": [
       "HS-PS2-1"
     ],
     "wicor": {
-      "Writing": "Explaining the molecular mechanism of microscopic asperities interlocking between surface interfaces.",
-      "Inquiry": "Measuring the instant of breakaway to identify peak static friction vs steady kinetic dragging force.",
-      "Collaboration": "Partner trials measuring force readouts across 3 different textures.",
-      "Organization": "Calculating friction coefficients (μ = F<sub>f</sub> / F<sub>N</sub>) across trials in structured data tables.",
-      "Reading": "Reading spring scale calibrations and force vs time graphs."
+      "Writing": "Writing mathematical justifications comparing empirical carriage acceleration to theoretical a = F_net / m_total.",
+      "Inquiry": "Diagnosing systematic discrepancy caused by wheel bearing resistance and surface friction.",
+      "Collaboration": "Reviewing and reconciling group acceleration trials and mass configurations.",
+      "Organization": "Completing the multi-tier acceleration calculation ladder and slope verification.",
+      "Reading": "Reading data curves and force sensor telemetry."
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "Why does a heavy couch require a tremendous initial shove to start moving across a carpeted floor, but feels significantly easier to keep sliding once it is already moving?",
-      "explanation": "Static friction (which locks surfaces together at rest) has a higher coefficient than kinetic sliding friction. Once motion begins, microscopic surface ridges skip over one another, requiring less force to sustain sliding.",
+      "promptQuestion": "Why does a real cart rolling on a level track eventually come to a stop if no continuous force pushes it forward, and how does this relate to Newton's First and Second Laws?",
+      "explanation": "Newton's First Law states an object in motion remains in motion unless acted upon by an external net force. On a real track, external resisting forces like wheel-axle friction and air drag create a backward net force, producing a deceleration (Newton's 2nd Law) until velocity reaches zero.",
       "defaultDuration": 3
     },
-    "links": {},
+    "links": {
+      "Hall's Carriage Modified Atwood Lab": "Unit_2/halls_carriage_lab/index.html",
+      "Newton's 2nd Law Studio": "Unit_2/newtons_second_law_studio/index.html",
+      "Science of Friction Presentation": "Unit_2/describing-motion-presentation/index.html"
+    },
     "assignments": [
       {
-        "title": "Tabletop Friction Coefficient Inquiry Lab",
-        "typeLabel": "Graded Lab",
-        "submission": "In-Class Handout (Subject to Pacing)",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Measure friction forces across varying surface textures and normal forces to calculate μ<sub>s</sub> and μ<sub>k</sub>.",
-        "status": "planned"
+        "title": "Modified Atwood Carriage Acceleration Synthesis",
+        "url": "Unit_2/halls_carriage_lab/index.html",
+        "typeLabel": "Laboratory Analysis & Synthesis",
+        "submission": "Turn In via Lab Workbench / Classroom",
+        "actionLabel": "Open Lab Workbench",
+        "description": "Complete your 5 carriage acceleration trials, plot a vs 1/m, and synthesize empirical findings.",
+        "status": "active"
       }
     ],
     "resources": [
       {
-        "title": "Friction Coefficients Reference Table",
-        "typeLabel": "Reference Chart",
-        "description": "Standard engineering friction coefficients for tires, wood, steel, and ice.",
-        "status": "planned",
-        "actionLabel": "In-Class Resource Notice"
+        "title": "Science of Friction & Resistive Forces Slides",
+        "url": "Unit_2/describing-motion-presentation/index.html",
+        "typeLabel": "Review Slide Deck",
+        "description": "Exploration of contact asperities, rolling resistance, and net force retardation."
       }
     ]
   },
@@ -4492,25 +4496,26 @@ const lessonsData = [
     "day": 40,
     "date": "2026-10-23",
     "unit": 2,
-    "title": "Unit 2 Summative Assessment",
-    "topic": "Comprehensive Exam on 1D Kinematics & Newton's Laws of Motion",
+    "title": "Unit 2 Project Completion, Rocket Phase 2 Launch & Catch-Up Day",
+    "topic": "Engineering Refinement, Telemetry Re-Testing, and Lab Deliverable Completion",
     "dok": 3,
-    "type": "Assessment",
+    "type": "Lab Launch & Catch-Up Studio",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Full summative evaluation assessing DOK 1-3 mastery across 1D kinematics (x, v, a, graphs, UAM, free fall) and Newtonian dynamics (Inertia, FBDs, F<sub>net</sub> = m · a, Friction, Action-Reaction, and Crash Engineering).",
-    "activity": "Comprehensive Unit 2 Examination featuring conceptual diagnostic questions, coordinate graph slope and area calculations, Free-Body Diagram construction, and multi-step dynamics and stopping-distance word problems.",
-    "essentialQuestion": "How effectively can we calculate, model, and justify the motion and interaction of physical systems?",
+    "summary": "Students finalize, test, and submit all weekly engineering and inquiry deliverables: Periods 0, 4, 5, 6 execute Phase 2 cardstock rocket re-flights with redesigned aerodynamic fins and record improved hang-times, while Periods 1, 2, 3 complete final trials for the Hot Wheels Air Resistance and Coasting friction labs.",
+    "activity": "Project Completion & Final Launch Re-Trials: Outdoor launch pad operations for redesigned cardstock rockets (P0, 4, 5, 6) calculating improved hang-time telemetry and apogee. Indoor lab workbench completion for Hot Wheels wind resistance air brakes and coasting baseline trials (P1, 2, 3). Students audit grades and submit outstanding lab reports.",
+    "essentialQuestion": "How do iterative design modifications and empirical re-testing produce measurable performance improvements in physical systems?",
     "standards": [
       "HS-PS2-1",
-      "HS-ETS1-2"
+      "HS-ETS1-2",
+      "HS-ETS1-3"
     ],
     "wicor": {
-      "Writing": "Writing formal mathematical derivations and explaining physical concepts clearly.",
-      "Inquiry": "Applying Newtonian mechanics to novel, unseen engineering and motion scenarios.",
-      "Collaboration": "Conducting post-assessment reflection on individual and class-wide growth.",
-      "Organization": "Managing assessment time effectively across conceptual and computational sections.",
-      "Reading": "Carefully reading exam prompts to identify constraints and coordinate conventions."
+      "Writing": "Synthesizing engineering iterations and telemetry comparisons into final lab conclusions.",
+      "Inquiry": "Testing modified fin geometries and mass balance configurations against baseline hang-times.",
+      "Collaboration": "Operating launch safety protocols, pneumatic pump stations, and multi-timer tracking teams.",
+      "Organization": "Auditing and turning in all Unit 2 digital inquiry workbenches and late deliverables.",
+      "Reading": "Reviewing rubrics and submission checklists on the Missing Work Portal."
     },
     "bellRinger": {
       "type": "cast_challenge",
@@ -4640,24 +4645,804 @@ const lessonsData = [
         }
       ]
     },
-    "links": {},
+    "links": {
+      "Cardstock Rocket Phase 2 (Periods 0, 4, 5, 6)": "Unit_2/cardstock_rocket_phase2/index.html",
+      "Hot Wheels Wind Resistance (Periods 1, 2, 3)": "Unit_2/hot_wheels_air_resistance/index.html",
+      "Hot Wheels Coasting (Periods 1, 2, 3)": "Unit_2/hot_wheels_coasting/index.html",
+      "Cardstock Rocket Lab Guide (PDF)": "Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf",
+      "Missing Work & Grade Portal": "missing-work.html"
+    },
     "assignments": [
       {
-        "title": "Unit 2 Summative Examination",
-        "typeLabel": "Summative Exam",
-        "submission": "In-Class Handout (Subject to Pacing)",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Comprehensive unit exam covering 1D Kinematics and Newton's Laws of Motion (DOK 1-3).",
-        "status": "planned"
+        "title": "Cardstock Rocket Engineering: Phase 2 Final Launch & Telemetry (Periods 0, 4, 5, 6)",
+        "url": "Unit_2/cardstock_rocket_phase2/index.html",
+        "typeLabel": "Engineering Synthesis & Redesign",
+        "submission": "Auto-Saved on Google Sign-In (10 pts) / Turn In in Classroom",
+        "actionLabel": "Open Phase 2 Studio ↗",
+        "description": "Periods 0, 4, 5, 6: Log outdoor Phase 2 launch hang-times, calculate improved apogee height, and complete your aerodynamic modification analysis.",
+        "status": "active"
+      },
+      {
+        "title": "Hot Wheels Wind Resistance & Air Brake Lab Finalization (Periods 1, 2, 3)",
+        "url": "Unit_2/hot_wheels_air_resistance/index.html",
+        "typeLabel": "Laboratory Catch-Up & Mastery",
+        "submission": "Auto-Saved on Google Sign-In (10 pts) / Turn In in Classroom",
+        "actionLabel": "Open Air Brake Lab ↗",
+        "description": "Periods 1, 2, 3: Finalize trials across all 4 fan speed settings, review stopping distances, and complete your net deceleration force analysis.",
+        "status": "active"
+      },
+      {
+        "title": "Hot Wheels Coasting Baseline: Deceleration & Friction Finalization (Periods 1, 2, 3)",
+        "url": "Unit_2/hot_wheels_coasting/index.html",
+        "typeLabel": "Laboratory Catch-Up & Mastery",
+        "submission": "Auto-Saved on Google Sign-In (10 pts) / Turn In in Classroom",
+        "actionLabel": "Open Coasting Lab ↗",
+        "description": "Periods 1, 2, 3: Complete your 3-car shootout, penny ballast friction analysis, and deceleration calculation revisions.",
+        "status": "active"
       }
     ],
     "resources": [
       {
-        "title": "Unit 2 Reference Formula Sheet",
-        "typeLabel": "Formula & Constant Sheet",
-        "description": "Standard physics formula sheet including kinematics models, Newton's laws, and metric conversions.",
-        "status": "planned",
-        "actionLabel": "In-Class Resource Notice"
+        "title": "Cardstock Rocket Lab Guide (PDF)",
+        "url": "Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf",
+        "typeLabel": "Engineering Lab Protocol",
+        "description": "Periods 0, 4, 5, 6: Official launch pad protocol, safety rules, multi-timer telemetry table, and apogee formulas."
+      },
+      {
+        "title": "Student Missing Work & Assignment Portal",
+        "url": "missing-work.html",
+        "typeLabel": "Classroom Tool",
+        "description": "Direct student portal to audit pending assignments, review scores, and catch up on missing lab submissions."
+      }
+    ]
+  },
+  {
+    "day": 41,
+    "date": "2026-10-26",
+    "unit": 2,
+    "title": "2D Motion: Vector Independence & Horizontal Projectiles",
+    "topic": "Independence of Perpendicular Vector Components (Horizontal vs. Vertical)",
+    "dok": 2,
+    "type": "Direct Instruction / Demonstration",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Introduce 2D kinematics by demonstrating that horizontal motion at constant velocity is completely independent of vertical gravitational free fall.",
+    "activity": "Simultaneous Drop vs. Fire Demonstration & Conceptual Dissection: Comparing a coin or marble dropped vertically from rest with one launched horizontally at high speed. Students analyze strobe photos, track time-of-flight equality, and establish the foundational principle: gravity accelerates the vertical axis (a_y = -9.8 m/s²) without altering horizontal speed (a_x = 0).",
+    "essentialQuestion": "Why does a bullet fired horizontally hit the ground at the exact same instant as a bullet dropped from the same height?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Writing formal justifications explaining why horizontal velocity does not prolong or shorten vertical hang-time.",
+      "Inquiry": "Analyzing simultaneous two-dimensional motion vectors and decomposing velocity into perpendicular components.",
+      "Collaboration": "Partner prediction showdowns comparing drop vs horizontal launch flight times.",
+      "Organization": "Separating 2D kinematics problems into distinct horizontal (x) and vertical (y) parameter tables.",
+      "Reading": "Interpreting 2D vector diagrams and simultaneous stroboscopic motion photographs."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "A heavy metal ball is dropped from a table 1.0 meter high. At the exact same second, another identical ball is shot horizontally off the table at 15 m/s. Which ball hits the ground first? Explain your reasoning.",
+      "explanation": "Both balls hit the ground at the exact same instant. Because gravity acts only in the vertical direction (downward), the vertical acceleration (g = 9.8 m/s²) and vertical distance (1.0 m) are identical for both balls. Horizontal velocity has zero vertical component and cannot alter falling time.",
+      "defaultDuration": 3
+    },
+    "links": {
+      "Horizontal Projectile Motion Explorer": "horizontal-projectile-motion/index.html",
+      "Describing Motion Presentation": "Unit_2/describing-motion-presentation/index.html"
+    },
+    "assignments": [
+      {
+        "title": "Horizontal Vector Independence Practice",
+        "typeLabel": "Conceptual Practice Set",
+        "submission": "In-Class Handout / Notebook Check",
+        "actionLabel": "In-Class Activity Notice",
+        "description": "Decompose 2D trajectories into independent x and y components and calculate flight times.",
+        "status": "active"
+      }
+    ],
+    "resources": [
+      {
+        "title": "Horizontal Projectile Motion Explorer",
+        "url": "horizontal-projectile-motion/index.html",
+        "typeLabel": "Simulation Tool",
+        "description": "Interactive trajectory simulator with real-time range, flight time, and velocity calculations."
+      }
+    ]
+  },
+  {
+    "day": 42,
+    "date": "2026-10-27",
+    "unit": 2,
+    "title": "Horizontal Projectile Mathematics: Flight Time & Horizontal Range",
+    "topic": "Connecting Vertical Free-Fall Time to Horizontal Range (Δx = v_x · t)",
+    "dok": 2,
+    "type": "Guided Practice / Problem Solving",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Master the 2-step mathematical procedure for horizontally launched projectiles: calculate time of flight from height (t = √(2Δy / g)), then calculate landing distance (Δx = v_x · t).",
+    "activity": "Two-Column Coordinate Problem Solving: Students solve horizontal projectile challenge problems using dual-column T-charts (X-axis uniform motion vs. Y-axis gravitational acceleration). Exploring dynamic trajectories using the Horizontal Projectile Motion Explorer.",
+    "essentialQuestion": "How does vertical drop height dictate how far an object travels horizontally before impact?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Deriving flight time symbolically and explaining step-by-step mathematical reasoning.",
+      "Inquiry": "Predicting how doubling table height vs doubling initial velocity affects landing range.",
+      "Collaboration": "Whiteboard problem-solving pairs solving horizontal launch word problems.",
+      "Organization": "Structuring data into standard X/Y kinematic variable charts.",
+      "Reading": "Deconstructing physics word problems to isolate horizontal speed from initial vertical velocity."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "An archer fires an arrow horizontally from a cliff 20 meters high. If g ≈ 10 m/s², how many seconds does it take for the arrow to hit the ground below?",
+      "explanation": "Using Δy = ½gt²: 20 m = ½(10 m/s²)t² = 5t², so t² = 4, meaning t = 2.0 seconds. The arrow remains airborne for 2.0 seconds regardless of its horizontal speed.",
+      "defaultDuration": 3
+    },
+    "links": {
+      "Horizontal Projectile Motion Explorer": "horizontal-projectile-motion/index.html"
+    },
+    "assignments": [
+      {
+        "title": "Horizontal Projectile Problem Set 1",
+        "typeLabel": "Problem Set",
+        "submission": "Turn In in Classroom / Notebook Check",
+        "actionLabel": "In-Class Activity Notice",
+        "description": "Solve 6 guided problems finding flight time and horizontal range from given launch heights and velocities.",
+        "status": "active"
+      }
+    ],
+    "resources": [
+      {
+        "title": "Horizontal Projectile Motion Explorer",
+        "url": "horizontal-projectile-motion/index.html",
+        "typeLabel": "Interactive Calculator",
+        "description": "Test calculations with real-time trajectory curves and flight metrics."
+      }
+    ]
+  },
+  {
+    "day": 43,
+    "date": "2026-10-28",
+    "unit": 2,
+    "title": "Tabletop Marble Launch Lab: The Target Cup Challenge",
+    "topic": "Empirical Measurement of Horizontal Velocity & Target Range Prediction",
+    "dok": 3,
+    "type": "Laboratory Investigation",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Student teams measure marble tabletop launch speed using photogates or rulers, mathematically predict the exact floor landing position, and place a target cup for a single live trial.",
+    "activity": "Tabletop Projectile Target Lab: Teams release marbles down an incline ramp onto a level tabletop. Using distance and time on the table, they determine horizontal launch velocity (v_x). They measure table height (Δy), calculate predicted floor landing position (Δx), tape a target cup to the floor, and execute a live confirmation drop.",
+    "essentialQuestion": "Can mathematical kinematic models accurately predict the physical landing position of a projectile in the real world?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Recording experimental procedures, derivations, and percentage error explanations.",
+      "Inquiry": "Calculating predicted landing coordinates without any trial drops onto the floor.",
+      "Collaboration": "Lab teams coordinating release timing, photogate alignment, and floor target placement.",
+      "Organization": "Tabulating multiple table velocity trials to determine mean launch speed.",
+      "Reading": "Reading meter sticks and plumb-bob reference points on the floor."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "If your marble rolls across a 1.2 m tabletop in 0.6 seconds, what is its horizontal launch speed (v_x) when it leaves the edge?",
+      "explanation": "v_x = Δx / Δt = 1.2 m / 0.6 s = 2.0 m/s.",
+      "defaultDuration": 3
+    },
+    "links": {
+      "Horizontal Projectile Motion Explorer": "horizontal-projectile-motion/index.html"
+    },
+    "assignments": [
+      {
+        "title": "Tabletop Marble Projectile Lab Report",
+        "typeLabel": "Laboratory Report",
+        "submission": "Turn In in Classroom",
+        "actionLabel": "In-Class Activity Notice",
+        "description": "Empirical launch speed measurement, theoretical range calculation, and target accuracy verification.",
+        "status": "active"
+      }
+    ],
+    "resources": [
+      {
+        "title": "Horizontal Projectile Motion Explorer",
+        "url": "horizontal-projectile-motion/index.html",
+        "typeLabel": "Lab Simulator Companion",
+        "description": "Verify predicted flight trajectories and impact velocities."
+      }
+    ]
+  },
+  {
+    "day": 44,
+    "date": "2026-10-29",
+    "unit": 2,
+    "title": "Projectile Trajectory Forensics: Systematic Errors & Air Resistance",
+    "topic": "Experimental Discrepancy, Plumb-Line Error, and Velocity Variations",
+    "dok": 3,
+    "type": "Data Analysis / Review",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Analyze lab results from the Tabletop Challenge, investigate why marbles landed slightly short or long, and explore how launch speed variability affects landing spread.",
+    "activity": "Target Accuracy Forensics: Teams pool class landing error data, calculate standard deviation and mean error, and analyze systematic error sources: table dip, rotational kinetic energy loss, plumb line misalignment, and air resistance.",
+    "essentialQuestion": "What physical mechanisms cause experimental projectiles to deviate from idealized kinematic equations?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Writing an error audit memo distinguishing random human measurement errors from systematic mechanical errors.",
+      "Inquiry": "Investigating whether rotational motion of the sphere absorbs energy that idealized point-mass equations ignore.",
+      "Collaboration": "Classwide data pooling comparing photogate accuracy vs manual stopwatch timing.",
+      "Organization": "Plotting class hit/miss distributions around the target bullseye.",
+      "Reading": "Reading scientific diagrams of rotational inertia and rolling without slipping."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "In yesterday's lab, almost every marble landed 1 to 2 cm shorter than the theoretical math predicted. What physical factors might cause this consistent under-prediction?",
+      "explanation": "Some initial potential energy is converted into rotational kinetic energy (making the sphere spin) rather than pure linear velocity. In addition, slight table-edge bounce, friction, and air drag all reduce effective horizontal speed.",
+      "defaultDuration": 3
+    },
+    "links": {
+      "Horizontal Projectile Motion Explorer": "horizontal-projectile-motion/index.html"
+    },
+    "assignments": [
+      {
+        "title": "Projectile Error Forensics & Review Sheet",
+        "typeLabel": "Analysis Worksheet",
+        "submission": "Notebook Check / Turn In in Classroom",
+        "actionLabel": "In-Class Activity Notice",
+        "description": "Analyze classwide target dispersion and evaluate mechanical error sources.",
+        "status": "active"
+      }
+    ],
+    "resources": [
+      {
+        "title": "Horizontal Projectile Motion Explorer",
+        "url": "horizontal-projectile-motion/index.html",
+        "typeLabel": "Simulation Tool",
+        "description": "Test velocity sensitivity and trajectory envelopes."
+      }
+    ]
+  },
+  {
+    "day": 45,
+    "date": "2026-10-30",
+    "unit": 2,
+    "title": "Artillery Duel Showdown: Angles, Power & Wind Vectors",
+    "topic": "Gamified 2D Projectile Showdown & Trajectory Optimization",
+    "dok": 3,
+    "type": "Inquiry / Gamified Challenge",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Students apply their understanding of projectile physics in head-to-head artillery duels, adjusting launch angle, power, and accounting for wind acceleration vectors.",
+    "activity": "Artillery Duel Competition: Partner teams compete in the digital Artillery Duel simulator. Students must calculate trajectory adjustments under fluctuating wind conditions, balance high-arc vs direct-fire strategies, and log winning angle/power pairings.",
+    "essentialQuestion": "How does adjusting launch angle and accounting for external wind force vectors optimize projectile impact coordinates?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-ETS1-2"
+    ],
+    "wicor": {
+      "Writing": "Logging firing coordinates and articulating angle adjustment strategies in game journals.",
+      "Inquiry": "Iterating fire parameters under variable wind conditions to bracket target coordinates.",
+      "Collaboration": "Head-to-head partner showdowns with real-time tactical adjustments.",
+      "Organization": "Recording angle, muzzle velocity, wind speed, and landing offset per round.",
+      "Reading": "Reading real-time telemetry readouts, wind gauges, and coordinate distances."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "If you want a cannonball to travel the maximum possible horizontal distance across flat ground with no wind, what launch angle should you use? Why?",
+      "explanation": "45 degrees provides the maximum horizontal range. It provides the optimal balance between high vertical velocity (maximizing time in the air) and high horizontal velocity (maximizing distance covered per second).",
+      "defaultDuration": 3
+    },
+    "links": {
+      "Artillery Duel Game": "Cannon_duel/index.html",
+      "Horizontal Projectile Motion Explorer": "horizontal-projectile-motion/index.html"
+    },
+    "assignments": [
+      {
+        "title": "Artillery Duel Trajectory Log & Strategy Writeup",
+        "url": "Cannon_duel/index.html",
+        "typeLabel": "Gamified Physics Lab",
+        "submission": "Turn In in Classroom / Notebook Check",
+        "actionLabel": "Open Artillery Duel ↗",
+        "description": "Log 5 competitive rounds, record successful trajectory solutions across wind variations, and explain angle physics.",
+        "status": "active"
+      }
+    ],
+    "resources": [
+      {
+        "title": "Artillery Duel Simulator",
+        "url": "Cannon_duel/index.html",
+        "typeLabel": "Interactive Challenge",
+        "description": "Two-player physics artillery simulation with angle, power, and wind vector controls."
+      }
+    ]
+  },
+  {
+    "day": 46,
+    "date": "2026-11-02",
+    "unit": 2,
+    "title": "Angled Projectiles: Resolving Initial Velocity Vectors",
+    "topic": "Trigonometric Velocity Decomposition (v_0x = v_0 cos θ, v_0y = v_0 sin θ)",
+    "dok": 2,
+    "type": "Direct Instruction / Guided Practice",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Transition from horizontal launches to angled launches. Learn to break diagonal launch velocities into perpendicular components using sine and cosine.",
+    "activity": "Trigonometric Velocity Decomposition Workshop: Students construct right triangles from launch vectors, calculate initial horizontal and vertical velocities, and analyze how launch angle dictates the allocation of energy between horizontal speed and vertical loft.",
+    "essentialQuestion": "How does trigonometry allow physicists to analyze complex diagonal motion as two simple, independent 1D problems?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Writing trigonometric derivations and defining component vector notation.",
+      "Inquiry": "Investigating how changing angle from 30° to 60° shifts velocity from the x-axis to the y-axis.",
+      "Collaboration": "Paired vector resolution drills and whiteboard problem sets.",
+      "Organization": "Structuring angled projectile problems into standard vector resolution diagrams.",
+      "Reading": "Interpreting right-triangle trigonometry and vector arrows."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "A soccer ball is kicked at 20 m/s at an angle of 30° above the horizontal. (sin 30° = 0.50, cos 30° = 0.87). What are its initial horizontal and vertical velocities?",
+      "explanation": "v_0x = 20 m/s · cos(30°) = 20 · 0.87 = 17.4 m/s. v_0y = 20 m/s · sin(30°) = 20 · 0.50 = 10.0 m/s.",
+      "defaultDuration": 3
+    },
+    "links": {
+      "Interactive Projectile Motion Tutorial": "interactive-projectile-motion-tutorial/index.html"
+    },
+    "assignments": [
+      {
+        "title": "Angled Vector Decomposition Practice Sheet",
+        "typeLabel": "Guided Practice Set",
+        "submission": "Turn In in Classroom",
+        "actionLabel": "In-Class Activity Notice",
+        "description": "Resolve 8 launch vectors into horizontal and vertical components across varying angles.",
+        "status": "active"
+      }
+    ],
+    "resources": [
+      {
+        "title": "Interactive Projectile Motion Tutorial",
+        "url": "interactive-projectile-motion-tutorial/index.html",
+        "typeLabel": "Interactive Tutorial",
+        "description": "Explore velocity decomposition vectors, component arrows, and trajectory paths."
+      }
+    ]
+  },
+  {
+    "day": 47,
+    "date": "2026-11-03",
+    "unit": 2,
+    "title": "Apogee Kinematics: Peak Height, Hang-Time & Trajectory Symmetry",
+    "topic": "Vertical Velocity at Peak (v_y = 0), Flight Time Symmetry, and Maximum Height",
+    "dok": 2,
+    "type": "Guided Practice / Problem Solving",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Analyze the vertical trajectory of angled projectiles: at peak apogee v_y = 0, time to rise equals time to fall, and total hang-time is t_total = 2v_0y / g.",
+    "activity": "Apogee Kinematics Derivation & Rocket Telemetry Re-Analysis: Students connect angled apogee formulas back to their cardstock rocket pneumatic flight data. Deriving maximum height (h_max = v_0y² / 2g) and proving parabolic symmetry.",
+    "essentialQuestion": "Why must vertical velocity drop to exactly zero at the highest point of an arc, and how does that unlock the entire flight trajectory?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Explaining why instantaneous vertical velocity is zero at apogee while horizontal velocity remains non-zero.",
+      "Inquiry": "Deriving the relationship between initial vertical velocity, peak height, and total hang-time.",
+      "Collaboration": "Partner problem solving finding peak apogee heights and total ranges.",
+      "Organization": "Step-by-step problem-solving templates for 3-stage projectile motion.",
+      "Reading": "Reading trajectory height vs distance graphs."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "A baseball is hit straight upward with an initial vertical velocity of 30 m/s. If g ≈ 10 m/s², how long does it take to reach its highest point, and what is its vertical velocity at that instant?",
+      "explanation": "At its peak, vertical velocity is momentarily 0 m/s. Using v_y = v_0y - gt: 0 = 30 - 10t, so t = 3.0 seconds to reach the top. Total hang-time back to ground level is 6.0 seconds.",
+      "defaultDuration": 3
+    },
+    "links": {
+      "Interactive Projectile Motion Tutorial": "interactive-projectile-motion-tutorial/index.html"
+    },
+    "assignments": [
+      {
+        "title": "Apogee & Hang-Time Problem Set",
+        "typeLabel": "Problem Set",
+        "submission": "Turn In in Classroom",
+        "actionLabel": "In-Class Activity Notice",
+        "description": "Calculate time-to-peak, total flight time, maximum height, and horizontal landing range.",
+        "status": "active"
+      }
+    ],
+    "resources": [
+      {
+        "title": "Interactive Projectile Motion Tutorial",
+        "url": "interactive-projectile-motion-tutorial/index.html",
+        "typeLabel": "Interactive Model",
+        "description": "Visualize apogee inflection points and vector arrow transformations during flight."
+      }
+    ]
+  },
+  {
+    "day": 48,
+    "date": "2026-11-04",
+    "unit": 2,
+    "title": "Complementary Launch Angles & Range Maximization Studio",
+    "topic": "Complementary Angle Symmetry (θ and 90° - θ Produce Identical Range)",
+    "dok": 3,
+    "type": "Inquiry / Simulation Studio",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Discover the complementary angle theorem of projectile motion: any two launch angles that add to 90 degrees produce the exact same horizontal range on level ground.",
+    "activity": "Complementary Angle Virtual Inquiry: Using the Interactive Projectile Motion Tutorial and Cannon Duel simulators, students test angle pairs (15° and 75°, 30° and 60°, 20° and 70°). They analyze why 30° has high horizontal speed but low hang-time, while 60° has high hang-time but low horizontal speed—resulting in the exact same product Δx = v_x · t.",
+    "essentialQuestion": "Why do two completely different launch angles, like 30° and 60°, land in the exact same spot on level ground?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Synthesizing the mathematical product of v_x and t_hang to explain range equality for complementary angles.",
+      "Inquiry": "Formulating hypotheses about launch angle vs distance and systematically testing 15° increments.",
+      "Collaboration": "Lab partners recording and comparing trajectory profiles across angle sets.",
+      "Organization": "Creating comparative tables of launch angle, hang time, max height, and landing distance.",
+      "Reading": "Interpreting multi-trajectory overlay graphs."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "A water cannon shoots water at 30° above horizontal and lands 40 meters away. Without changing launch speed, what other launch angle will land at the exact same 40-meter mark? Which angle stays in the air longer?",
+      "explanation": "60° produces the exact same 40-meter range because 30° and 60° are complementary angles (sum to 90°). The 60° launch reaches a higher peak and stays in the air significantly longer.",
+      "defaultDuration": 3
+    },
+    "links": {
+      "Interactive Projectile Motion Tutorial": "interactive-projectile-motion-tutorial/index.html",
+      "Artillery Duel Game": "Cannon_duel/index.html"
+    },
+    "assignments": [
+      {
+        "title": "Complementary Angles Inquiry Lab Report",
+        "typeLabel": "Digital Investigation",
+        "submission": "Turn In in Classroom",
+        "actionLabel": "In-Class Activity Notice",
+        "description": "Document 5 complementary angle trials, graph range vs angle, and justify the 45-degree maximum.",
+        "status": "active"
+      }
+    ],
+    "resources": [
+      {
+        "title": "Interactive Projectile Motion Tutorial",
+        "url": "interactive-projectile-motion-tutorial/index.html",
+        "typeLabel": "Inquiry Sandbox",
+        "description": "Multi-angle trajectory overlay tool with flight statistics."
+      }
+    ]
+  },
+  {
+    "day": 49,
+    "date": "2026-11-05",
+    "unit": 2,
+    "title": "CAST 2D Projectile Performance Task: Emergency Cargo Air-Drop",
+    "topic": "3D Science Assessment: Calculating Release Distance for Airborne Aid Delivery",
+    "dok": 3,
+    "type": "CAST 3D Performance Task / Problem Solving",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Apply 2D projectile physics to an authentic emergency scenario: calculating the exact release coordinates for a cargo relief aircraft flying at constant speed and altitude.",
+    "activity": "Relief Plane Air-Drop Performance Task: Students receive drone and aircraft flight telemetry (altitude h = 500 m, velocity v = 80 m/s). Using the 2-step projectile protocol, they calculate time to fall, horizontal release distance before the target zone, and construct an evidence-based claim defending why cargo cannot simply be dropped directly above the target.",
+    "essentialQuestion": "Why must emergency relief pilots release cargo packages kilometers before reaching the drop zone?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-ETS1-2"
+    ],
+    "wicor": {
+      "Writing": "Drafting an evidence-based flight controller report justifying the computed release lead distance.",
+      "Inquiry": "Modeling the forward momentum of released cargo and predicting impact coordinates.",
+      "Collaboration": "Peer auditing of cargo drop flight plans and unit conversions.",
+      "Organization": "Completing standardized CAST multi-tier calculation rubrics.",
+      "Reading": "Reading aviation telemetry tables and topographic landing charts."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "A cargo plane flying horizontally at 100 m/s drops an emergency food crate directly above a rescue island. Where does the crate land relative to the island? Why?",
+      "explanation": "The crate lands far past the island (downrange). Due to inertia, when the crate is released from the plane it continues moving forward at 100 m/s while falling, traveling forward hundreds of meters before hitting the ground.",
+      "defaultDuration": 3
+    },
+    "links": {
+      "Horizontal Projectile Motion Explorer": "horizontal-projectile-motion/index.html"
+    },
+    "assignments": [
+      {
+        "title": "Emergency Air-Drop 2D Kinematics Performance Task",
+        "typeLabel": "CAST Performance Task",
+        "submission": "Turn In in Classroom / Auto-Saved Score",
+        "actionLabel": "In-Class Activity Notice",
+        "description": "Calculate falling time, horizontal lead distance, and write CER justification for air-drop coordinates.",
+        "status": "active"
+      }
+    ],
+    "resources": [
+      {
+        "title": "Horizontal Projectile Motion Explorer",
+        "url": "horizontal-projectile-motion/index.html",
+        "typeLabel": "Aviation Sandbox",
+        "description": "Simulate high-altitude horizontal drops and impact offsets."
+      }
+    ]
+  },
+  {
+    "day": 50,
+    "date": "2026-11-06",
+    "unit": 2,
+    "title": "2D Kinematics Synthesis & Projectile Trajectory Checkpoint",
+    "topic": "Summative Synthesis: 1D vs 2D Motion Comparison & Vector Mastery",
+    "dok": 3,
+    "type": "Assessment / Workshop",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Formative checkpoint evaluating student mastery across horizontal and angled projectile motion, vector decomposition, and trajectory predictions before entering circular dynamics.",
+    "activity": "Projectile Motion Mastery Checkpoint & Workshop: Students complete a formative diagnostic covering horizontal drops, angled launches, and vector arithmetic, followed by targeted peer tutoring and simulation corrections.",
+    "essentialQuestion": "How completely can we model and predict any two-dimensional path under the influence of gravity?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Writing clear mathematical derivations and justifying vector sign conventions.",
+      "Inquiry": "Reflecting on formative assessment feedback and diagnosing vector calculation errors.",
+      "Collaboration": "Small-group workshop stations reviewing launch calculations.",
+      "Organization": "Consolidating 1D and 2D kinematic equations into a unified formula reference sheet.",
+      "Reading": "Interpreting multi-step engineering prompts and velocity vector diagrams."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "What are the two most fundamental rules you must always remember when solving any projectile motion problem?",
+      "explanation": "1. Horizontal motion is constant velocity (a_x = 0, Δx = v_x · t). 2. Vertical motion is free fall accelerated by gravity (a_y = -9.8 m/s²). Time (t) is the only variable shared by both dimensions.",
+      "defaultDuration": 3
+    },
+    "links": {
+      "Horizontal Projectile Motion Explorer": "horizontal-projectile-motion/index.html",
+      "Interactive Projectile Motion Tutorial": "interactive-projectile-motion-tutorial/index.html"
+    },
+    "assignments": [
+      {
+        "title": "Projectile Motion Mastery Checkpoint",
+        "typeLabel": "Formative Checkpoint",
+        "submission": "In-Class Handout",
+        "actionLabel": "In-Class Activity Notice",
+        "description": "Evaluate mastery of horizontal and angled projectile calculations and vector decomposition.",
+        "status": "active"
+      }
+    ],
+    "resources": [
+      {
+        "title": "2D Kinematics Formula & Vector Sheet",
+        "url": "horizontal-projectile-motion/index.html",
+        "typeLabel": "Reference Resource",
+        "description": "Comprehensive formula card for horizontal and angled projectile trajectories."
+      }
+    ]
+  },
+  {
+    "day": 51,
+    "date": "2026-11-09",
+    "unit": 2,
+    "title": "Circular Motion: The Centripetal Acceleration Concept",
+    "topic": "Velocity as a Vector: Why Changing Direction Requires Acceleration (a_c = v² / r)",
+    "dok": 2,
+    "type": "Direct Instruction / Demonstration",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Explore why an object moving in a circle at constant speed is continuously accelerating: velocity is a vector, and changing direction requires a continuous center-directed acceleration.",
+    "activity": "Centripetal Sensation & Tangential Velocity Demos: Whirling a stopper on a string, analyzing stroboscopic circular paths, and observing what happens when the string is cut (the mass flies off along a straight tangent line, NOT outward). Deriving centripetal acceleration a_c = v² / r.",
+    "essentialQuestion": "How can an object accelerate if its speedometer reading never changes?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Explaining why velocity vector direction change constitutes true acceleration under Newton's laws.",
+      "Inquiry": "Predicting the path of a released object in circular motion (Newton's 1st Law tangent line vs centrifugal myth).",
+      "Collaboration": "Hands-on whirling stopper trials and circular radius observations.",
+      "Organization": "Constructing vector difference diagrams (Δv = v_2 - v_1) showing inward acceleration.",
+      "Reading": "Reading circular trajectory diagrams and radial acceleration vectors."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "A racecar drives around a circular track at a constant speed of 50 mph. Is the car accelerating? Why or why not?",
+      "explanation": "Yes, the car is accelerating. Acceleration is the rate of change of velocity, and velocity is a vector (speed AND direction). Because the car is constantly changing its direction of travel to stay on the circle, it experiences continuous centripetal acceleration toward the center of the track.",
+      "defaultDuration": 3
+    },
+    "links": {
+      "Rotation Oracle": "Rotation_Oracle/index.html"
+    },
+    "assignments": [
+      {
+        "title": "Centripetal Acceleration Conceptual Workshop",
+        "typeLabel": "Concept Practice Set",
+        "submission": "Turn In in Classroom",
+        "actionLabel": "In-Class Activity Notice",
+        "description": "Calculate centripetal acceleration for varying speeds and radii, and sketch velocity and acceleration vectors.",
+        "status": "active"
+      }
+    ],
+    "resources": [
+      {
+        "title": "Rotation Oracle",
+        "url": "Rotation_Oracle/index.html",
+        "typeLabel": "Rotational Simulator",
+        "description": "Explore rotational dynamics, tangential speed, and centripetal vector orientation."
+      }
+    ]
+  },
+  {
+    "day": 52,
+    "date": "2026-11-10",
+    "unit": 2,
+    "title": "Centripetal Force & Free-Body Diagrams: What Pulls It In?",
+    "topic": "Identifying Physical Center-Directed Forces (F_c = m · a_c = m · v² / r)",
+    "dok": 2,
+    "type": "Guided Practice / Problem Solving",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Apply Newton's 2nd Law to circular motion: centripetal force is not a magical new force, but a label for the real net inward force (tension, friction, gravity, or normal force).",
+    "activity": "Circular Free-Body Diagram Construction & Force Analysis: Constructing FBDs for real circular systems: a car rounding a flat turn (friction F_f), a planet orbiting the sun (gravity F_g), a tetherball (tension F_T), and a loop-the-loop coaster (normal force F_N). Calculating required inward force F_c = mv² / r.",
+    "essentialQuestion": "What physical forces keep objects moving along curved paths, and what happens when that force disappears?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Articulating why centrifugal force is an apparent inertial sensation rather than an actual physical force.",
+      "Inquiry": "Identifying which real physical contact or field force provides the centripetal acceleration in different scenarios.",
+      "Collaboration": "Whiteboard FBD pairs mapping forces acting on curved trajectories.",
+      "Organization": "Setting up circular dynamics equations: F_net,radial = m · v² / r.",
+      "Reading": "Reading Free-Body Diagrams of circular systems."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "When a car turns sharply to the left, passengers feel pushed outward to the right against the car door. What real force is acting on them, and why do they feel this sensation?",
+      "explanation": "There is NO outward force. The passenger's body simply wants to continue moving in a straight line at constant speed due to inertia (Newton's 1st Law). The car turns left around them, and the car door must push INWARD on the passenger to force them into the circular path.",
+      "defaultDuration": 3
+    },
+    "links": {
+      "Rotation Oracle": "Rotation_Oracle/index.html"
+    },
+    "assignments": [
+      {
+        "title": "Centripetal Force & FBD Practice Sheet",
+        "typeLabel": "Problem Set",
+        "submission": "Turn In in Classroom",
+        "actionLabel": "In-Class Activity Notice",
+        "description": "Construct 5 circular FBDs and calculate required centripetal forces across vehicle and planetary systems.",
+        "status": "active"
+      }
+    ],
+    "resources": [
+      {
+        "title": "Rotation Oracle",
+        "url": "Rotation_Oracle/index.html",
+        "typeLabel": "Simulation Tool",
+        "description": "Interactive rotational and circular dynamics laboratory."
+      }
+    ]
+  },
+  {
+    "day": 53,
+    "date": "2026-11-11",
+    "unit": 2,
+    "title": "Veterans Day Observance (No School)",
+    "topic": "School Holiday",
+    "dok": 1,
+    "type": "Holiday",
+    "semester": 1,
+    "isFeatured": false,
+    "summary": "No school in honor of Veterans Day.",
+    "activity": "Veterans Day holiday — campus closed.",
+    "essentialQuestion": "How does our community honor the service of military veterans?",
+    "standards": [],
+    "wicor": {
+      "Writing": "N/A",
+      "Inquiry": "N/A",
+      "Collaboration": "N/A",
+      "Organization": "N/A",
+      "Reading": "N/A"
+    },
+    "links": {},
+    "assignments": [],
+    "resources": []
+  },
+  {
+    "day": 54,
+    "date": "2026-11-12",
+    "unit": 2,
+    "title": "Highway Curve Safety & Road Banking Engineering Investigation",
+    "topic": "Centripetal Friction Limits, Safe Cornering Speeds, and Road Banking Angles",
+    "dok": 3,
+    "type": "Engineering Design / Investigation",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Investigate the physics of highway safety: calculating maximum safe turn speeds without skidding (v_max = √(μ · g · r)) and analyzing how banked turns use the normal force to prevent accidents.",
+    "activity": "Highway Curve Safety Specification Challenge: Students act as transportation safety engineers. Given a highway off-ramp curve of radius r = 50 m and tire-asphalt friction coefficients for dry (μ = 0.8) vs icy (μ = 0.1) conditions, teams calculate maximum non-skid cornering speeds and determine the optimal roadway banking angle θ.",
+    "essentialQuestion": "How do civil engineers use centripetal force and friction limits to design safe roadway curves and speed limits?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-ETS1-2"
+    ],
+    "wicor": {
+      "Writing": "Drafting a civil engineering speed limit and roadway banking recommendation report.",
+      "Inquiry": "Deriving the maximum speed equation by equating centripetal force to maximum static friction: m v² / r = μ m g.",
+      "Collaboration": "Engineering design teams calculating safety margins and weather-dependent speed envelopes.",
+      "Organization": "Structuring parametric data tables comparing turning radius vs safe speed across weather conditions.",
+      "Reading": "Interpreting highway geometry schematics and Department of Transportation curvature guidelines."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "Why does a car need to slow down when taking a sharp highway curve, and why is this even more critical when the road is wet or icy?",
+      "explanation": "To turn in a circle, the tires must provide a centripetal force F_c = m v² / r. The maximum available force is limited by static friction (F_f = μ m g). If speed is too high or wet pavement lowers μ, the tires cannot provide enough inward force, and the car skids outward tangentially.",
+      "defaultDuration": 3
+    },
+    "links": {
+      "Two-Car Intercept Challenge": "Unit_2/two_car_intercept/index.html",
+      "Rotation Oracle": "Rotation_Oracle/index.html"
+    },
+    "assignments": [
+      {
+        "title": "Highway Curve Safety & Road Banking Report",
+        "typeLabel": "Engineering Design Task",
+        "submission": "Turn In in Classroom",
+        "actionLabel": "In-Class Activity Notice",
+        "description": "Calculate maximum curve speeds across friction coefficients and determine optimal road banking angles.",
+        "status": "active"
+      }
+    ],
+    "resources": [
+      {
+        "title": "Two-Car Intercept & Stopping Simulator",
+        "url": "Unit_2/two_car_intercept/index.html",
+        "typeLabel": "Simulation Tool",
+        "description": "Simulate vehicle deceleration, friction coefficients, and roadway stopping dynamics."
+      }
+    ]
+  },
+  {
+    "day": 55,
+    "date": "2026-11-13",
+    "unit": 2,
+    "title": "Unit 2 Comprehensive Summative Assessment",
+    "topic": "Kinematics, Dynamics, 2D Projectiles & Circular Motion Evaluation",
+    "dok": 3,
+    "type": "Assessment",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Comprehensive summative evaluation covering full mechanics mastery: 1D kinematics (graphs, UAM), Newton's laws (inertia, F_net = ma, friction, action-reaction), 2D horizontal and angled projectile motion, and centripetal dynamics.",
+    "activity": "Comprehensive Unit 2 Mechanics Examination: Featuring conceptual diagnostic questions, coordinate graph slope/area calculations, projectile flight predictions, circular FBDs, and multi-step dynamics word problems.",
+    "essentialQuestion": "How effectively can we calculate, model, and justify the motion, interactions, and trajectory of physical systems in one and two dimensions?",
+    "standards": [
+      "HS-PS2-1",
+      "HS-ETS1-2"
+    ],
+    "wicor": {
+      "Writing": "Writing formal mathematical derivations, explaining vector conventions, and completing CER responses.",
+      "Inquiry": "Applying 1D, 2D, and circular mechanics principles to novel physical and engineering scenarios.",
+      "Collaboration": "Post-assessment student reflection on personal and classwide mechanics mastery.",
+      "Organization": "Allocating exam time effectively across conceptual, computational, and diagrammatic sections.",
+      "Reading": "Carefully analyzing exam prompts, coordinate conventions, and engineering constraints."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "What is one mechanics concept from Unit 2 that you feel most confident explaining, and what is one concept you want to double-check before beginning the exam?",
+      "explanation": "Metacognitive reflection: Activating prior knowledge across kinematics (speed, velocity, acceleration), Newton's Laws, projectile independence, and centripetal force.",
+      "defaultDuration": 3
+    },
+    "links": {
+      "Describing Motion Presentation": "Unit_2/describing-motion-presentation/index.html",
+      "Horizontal Projectile Motion Explorer": "horizontal-projectile-motion/index.html"
+    },
+    "assignments": [
+      {
+        "title": "Unit 2 Comprehensive Mechanics Examination",
+        "typeLabel": "Summative Exam",
+        "submission": "In-Class Handout",
+        "actionLabel": "In-Class Activity Notice",
+        "description": "Comprehensive evaluation covering 1D/2D Kinematics, Newton's Laws of Motion, Projectiles, and Circular Dynamics.",
+        "status": "active"
+      }
+    ],
+    "resources": [
+      {
+        "title": "Unit 2 Comprehensive Mechanics Formula Sheet",
+        "url": "Unit_2/describing-motion-presentation/index.html",
+        "typeLabel": "Formula & Reference Sheet",
+        "description": "Complete physics reference sheet covering 1D UAM, Newton's Laws, 2D Projectiles, and Circular Motion."
       }
     ]
   },
