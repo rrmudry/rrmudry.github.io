@@ -22,7 +22,8 @@ Append-only log tracking pattern changes across recent sessions.
     - **Page 2**: Running Header with Title and Student/Period/Score fields, Question 1 (Graph Reading & Decoding with wide blank), Question 2 (Pattern Selection with `[ ]` checkboxes), Question 3 (Quantitative Rate of Change with boxed Setup Work formula `Δy / Δx = ( ___ − ___ ) / ( ___ − ___ )`), Question 4 (Structured 3-part CER with Claim underline, 6 ruled lines for Evidence, 5 ruled lines for Reasoning, and 4-point Rubric bar), Question 5 (Prediction & Synthesis), and Page 2 Footer (`Page 2 of 2`).
   - Increased base typography from unreadable 6-7pt to clean 8.8–9pt (1.35 line height) with ruled writing guides.
   - Guaranteed clean page breaks (`page-break-after: always` on Page 1, `page-break-before: always` on Page 2).
-    - Added dedicated offscreen canvas snapshot generator (`renderPrintChartSnapshot`, 720×640) rendering bold 9px markers, 15px titles, and filling the 4-inch vertical column without 16:9 letterbox dead space.
+    - Upgraded Page 1 to a **2-Row Sequential Investigation Layout**: Row 1 contains the Data Table (55–63%) and Experimental Controls (35–43%) side-by-side; Row 2 contains the full-width widescreen landscape Graph snapshot (1000×460, 2:1 aspect ratio) and 3-column Accessible Graph Key with zero text truncation.
+    - Synchronized dual-coded marker symbols (●, ■, ▲) into Table 1 column headers in both on-screen and print modes to bridge the semantic gap between tabular data and graph lines.
     - Added left-column Experimental Controls & Protocol Verification panel (`#pTableControlsBox`) balancing the page height alongside Table 1.
     - Converted Accessible Graph Key into a crisp 3-column table (`32%`, `40%`, `28%`) with non-wrapping headers and abbreviated rate units (`org/gen`).
     - Enforced Productive Pedagogical Friction: blank worksheets strictly output `Setup Work: Δy / Δx = ( ___ − ___ ) / ( ___ − ___ )` with zero coordinate leakage.

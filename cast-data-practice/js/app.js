@@ -332,9 +332,19 @@ function renderDataTable(tableData) {
 
   if (!container) return;
 
+  const scenario = getCurrentScenario();
+  const yCols = scenario?.dataTable?.columns?.filter(c => c.isY) || [];
   let html = `<table class="scientific-table"><thead><tr>`;
-  tableData.columns.forEach(col => {
-    html += `<th>${col.label}</th>`;
+  tableData.columns.forEach((col) => {
+    let iconPrefix = "";
+    if (scenario && scenario.graphConfig?.multiSeries && col.isY) {
+      const sIdx = Math.max(0, yCols.indexOf(col));
+      const sConfig = scenario.graphConfig.series ? scenario.graphConfig.series[sIdx] : null;
+      const cleanL = col.label.replace(/\s*\([^)]*\)/, "").trim();
+      const visuals = resolveSeriesVisuals(cleanL, sIdx, currentTheme === "dark", sConfig?.color, sConfig?.pointStyle);
+      iconPrefix = `<span style="color:${visuals.color}; font-size:0.95rem; margin-right:4px;">${visuals.symbol}</span>`;
+    }
+    html += `<th>${iconPrefix}${col.label}</th>`;
   });
   html += `</tr></thead><tbody>`;
 
@@ -2423,8 +2433,8 @@ function renderPrintChartSnapshot(scenario) {
   if (!scenario || typeof Chart === "undefined" || typeof document === "undefined") return "";
 
   const offCanvas = document.createElement("canvas");
-  offCanvas.width = 720;
-  offCanvas.height = 640;
+  offCanvas.width = 1000;
+  offCanvas.height = 460;
   const offCtx = offCanvas.getContext("2d");
 
   // Fill canvas with pure white background for crisp printing
@@ -2681,26 +2691,34 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   // 3. Experimental Data Table
   const pTableCaption = document.getElementById("pTableCaption");
   const pTableWrapper = document.getElementById("pTableWrapper");
-  const pEvidenceGrid = document.querySelector(".p-evidence-container");
+  const pEvidenceRow1 = document.getElementById("pEvidenceRow1");
   const numCols = scenario.dataTable?.columns ? scenario.dataTable.columns.length : 3;
 
-  if (pEvidenceGrid) {
-    pEvidenceGrid.classList.toggle("grid-cols-4", numCols === 4);
-    pEvidenceGrid.classList.toggle("grid-cols-5", numCols >= 5);
+  if (pEvidenceRow1) {
+    pEvidenceRow1.classList.toggle("wide-table", numCols >= 4);
   }
 
   if (pTableCaption) pTableCaption.textContent = stripHtml(scenario.dataTable.caption);
   if (pTableWrapper) {
     const isCompact = numCols >= 4;
     let tHtml = `<table class="p-table ${isCompact ? 'p-table-compact' : ''}"><thead><tr>`;
-    scenario.dataTable.columns.forEach(col => {
+    const yCols = scenario.dataTable.columns.filter(c => c.isY);
+    scenario.dataTable.columns.forEach((col) => {
       let colLabel = col.label;
       if (col.isX && scenario.xAxis?.unit && !colLabel.includes("(") && !colLabel.toLowerCase().includes(scenario.xAxis.unit.toLowerCase())) {
         colLabel = `${colLabel} (${scenario.xAxis.unit})`;
       } else if (col.isY && scenario.yAxis?.unit && !colLabel.includes("(") && !colLabel.toLowerCase().includes(scenario.yAxis.unit.toLowerCase())) {
         colLabel = `${colLabel} (${scenario.yAxis.unit})`;
       }
-      tHtml += `<th>${stripHtml(colLabel)}</th>`;
+      let iconPrefix = "";
+      if (scenario.graphConfig?.multiSeries && col.isY) {
+        const sIdx = Math.max(0, yCols.indexOf(col));
+        const sConfig = scenario.graphConfig.series ? scenario.graphConfig.series[sIdx] : null;
+        const cleanL = col.label.replace(/\s*\([^)]*\)/, "").trim();
+        const visuals = resolveSeriesVisuals(cleanL, sIdx, false, sConfig?.color, sConfig?.pointStyle);
+        iconPrefix = `<span style="color:${visuals.lightColor}; font-size:9pt; margin-right:3px;">${visuals.symbol}</span> `;
+      }
+      tHtml += `<th>${iconPrefix}${stripHtml(colLabel)}</th>`;
     });
     tHtml += `</tr></thead><tbody>`;
     scenario.dataTable.rows.forEach(r => {
@@ -2780,9 +2798,9 @@ function syncPrintWorksheet(mode = currentPrintMode) {
       const eqRaw = scenario.graphConfig.equation || "";
       let legHtml = `<div class="p-access-heading">Accessible Graph Key (Dual-Coded Symbols &amp; Patterns for B&amp;W Photocopies):</div>`;
       legHtml += `<table class="p-access-table"><thead><tr>`;
-      legHtml += `<th style="width:32%;">Prey / Series</th>`;
-      legHtml += `<th style="width:40%;">Pattern &amp; Marker</th>`;
-      legHtml += `<th style="width:28%; text-align:right;">Model Rate</th>`;
+      legHtml += `<th style="width:34%;">Prey / Series</th>`;
+      legHtml += `<th style="width:33%;">Pattern &amp; Marker</th>`;
+      legHtml += `<th style="width:33%; text-align:right;">Model Rate</th>`;
       legHtml += `</tr></thead><tbody>`;
 
       scenario.graphConfig.series.forEach((sConfig, idx) => {
@@ -2826,9 +2844,9 @@ function syncPrintWorksheet(mode = currentPrintMode) {
       let eqSnippet = scenario.graphConfig?.equation ? scenario.graphConfig.equation.replace(/\s*\*\s*/g, " · ") : "";
       let legHtml = `<div class="p-access-heading">Accessible Graph Key (Dual-Coded Symbols &amp; Patterns for B&amp;W Photocopies):</div>`;
       legHtml += `<table class="p-access-table"><thead><tr>`;
-      legHtml += `<th style="width:32%;">Variable / Series</th>`;
-      legHtml += `<th style="width:40%;">Pattern &amp; Marker</th>`;
-      legHtml += `<th style="width:28%; text-align:right;">Model Trend</th>`;
+      legHtml += `<th style="width:34%;">Variable / Series</th>`;
+      legHtml += `<th style="width:33%;">Pattern &amp; Marker</th>`;
+      legHtml += `<th style="width:33%; text-align:right;">Model Trend</th>`;
       legHtml += `</tr></thead><tbody>`;
       legHtml += `
         <tr>

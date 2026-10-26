@@ -98,7 +98,7 @@ In adherence to repository security rules:
      - **Page 1 (Experimental Evidence & Plotted Graph Key)**:
        - Header block with Title, Discipline & NGSS Expectation badge, Student Name, Period, Date, and Score (`X / 8 Pts` with `white-space: nowrap`).
        - Background Narrative callout box with blue left accent bar (`border-left: 3.5px solid #0284c7; background: #f8fafc; font-size: 8.8pt; line-height: 1.35;`).
-       - Evidence Grid (`min-height: 5.6in`): Side-by-side Data Table on left (46–58%) and large high-resolution Graph snapshot on right (40–52%, graph height `4.2in` to `4.8in`).
+       - **2-Row Sequential Investigation Layout**: Upgraded from vertical columns to an intuitive 2-row layout (Row 1: Data Table on left at 55–63% and Protocol Controls on right at 35–43%; Row 2: Full-width widescreen landscape Graph snapshot at 1000×460 and 3-column Accessible Key with zero text truncation).
        - **Accessible Graph Key (`#pGraphAccessLegend`)**: Dual-coded symbols (●, ■, ▲, ◆, ✕), line patterns (Solid, Dashed, Dotted), and individual trendline equations/slopes for 100% readability on black-and-white photocopiers.
        - Page 1 Footer bar with Science Department branding and `Page 1 of 2`.
      - **Page 2 (Scientific Data Analysis, Calculations & Structured CER)**:
