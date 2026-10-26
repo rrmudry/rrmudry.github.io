@@ -94,7 +94,7 @@ if (vagueResult.score > 2) {
 // Test Teacher Whitelist and Authorization Logic
 // -------------------------------------------------------------
 console.log('\n--- Testing Teacher Mode Whitelist & Auth Logic ---');
-const { AUTHORIZED_TEACHERS, isAuthorizedTeacher, parseJsonText, buildAiPromptPayload, setAiSpecialPreset } = require('../cast-data-practice/js/app.js');
+const { AUTHORIZED_TEACHERS, isAuthorizedTeacher, parseJsonText, buildAiPromptPayload, setAiSpecialPreset, resolveSeriesVisuals } = require('../cast-data-practice/js/app.js');
 
 const EXPECTED_TEACHERS = [
   "cchurney@orangeusd.org",
@@ -322,6 +322,41 @@ if (global.document.getElementById('aiGradeLevelSelect').value !== 'High School 
   failed = true;
 } else {
   console.log("✓ setAiSpecialPreset('clear') properly resets grade level, dataset count to 1, and special requests.");
+}
+
+console.log('\n--- Testing Semantic Color & B&W Accessibility Visuals ---');
+const greenVis = resolveSeriesVisuals('Green Prey Population', 0, false);
+const redVis = resolveSeriesVisuals('Red Prey Population', 1, false);
+const blueVis = resolveSeriesVisuals('Blue Prey Population', 2, false);
+
+if (greenVis.lightColor !== '#15803d' || greenVis.symbol !== '●' || greenVis.borderDash.length !== 0) {
+  console.error('FAIL: Green Prey visuals mismatch', greenVis);
+  failed = true;
+} else {
+  console.log('✓ Green Prey resolved to green (#15803d), solid line, and circle (●).');
+}
+
+if (redVis.lightColor !== '#dc2626' || redVis.symbol !== '■' || redVis.borderDash.length === 0) {
+  console.error('FAIL: Red Prey visuals mismatch', redVis);
+  failed = true;
+} else {
+  console.log('✓ Red Prey resolved to red (#dc2626), dashed line, and square (■).');
+}
+
+if (blueVis.lightColor !== '#1d4ed8' || blueVis.symbol !== '▲' || blueVis.borderDash.length === 0) {
+  console.error('FAIL: Blue Prey visuals mismatch', blueVis);
+  failed = true;
+} else {
+  console.log('✓ Blue Prey resolved to blue (#1d4ed8), dotted line, and triangle (▲).');
+}
+
+// Test dark mode color adaptation
+const greenDark = resolveSeriesVisuals('Green Prey Population', 0, true);
+if (greenDark.color !== '#22c55e') {
+  console.error('FAIL: Green dark mode color adaptation', greenDark);
+  failed = true;
+} else {
+  console.log('✓ Green Prey adapted to vibrant dark mode green (#22c55e).');
 }
 
 if (failed) {

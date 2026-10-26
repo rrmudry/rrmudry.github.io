@@ -3,6 +3,29 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-25 — CAST Data Practice Suite: 2-Page Print Standard, Semantic Colors & B&W Accessibility
+**Patterns Updated**: `cast-data-analysis-practice-suite.md`.
+**Files Updated**: `cast-data-practice/index.html`, `cast-data-practice/css/styles.css`, `cast-data-practice/js/app.js`, `tests/test_cast_data_practice.js`, `partials/footer.html`.
+
+**Changes**:
+- **Semantic Prey / Condition Color Mapping (`resolveSeriesVisuals`)**:
+  - Solved color mismatch where series colors were assigned arbitrarily by array index (e.g. Green Prey plotted as cyan, Blue Prey plotted as green).
+  - Implemented dynamic semantic color detector scanning series labels for natural color keywords (`green`/`emerald`, `red`/`crimson`, `blue`/`azure`, `yellow`/`amber`, `orange`, `purple`, `pink`, `black`/`dark`) with high-contrast WCAG AAA light and dark mode adaptations.
+- **Black & White / Photocopy Accessibility & Dual-Coding**:
+  - Added distinct geometric marker shapes (`circle ●`, `rect ■`, `triangle ▲`, `rectRot ◆`, `crossRot ✕`) and distinct line dash patterns (`Solid []`, `Dashed [8, 4]`, `Dotted [3, 3]`, `Dash-Dot [10, 3, 2, 3]`, `Long-Dash [14, 5]`).
+  - Increased marker point size to `pointRadius: 8`, `pointHoverRadius: 11`, with `pointBorderWidth: 2.5` white borders for crisp visual separation even when curves overlap.
+  - Formatted Chart.js legend with marker symbols and line style text (e.g. `● Green Prey (Solid Line)`).
+  - Added dedicated **Accessible Graph Key** (`#pGraphAccessLegend`) beneath the graph on Page 1 explicitly listing marker symbols, dataset names, line patterns, and rate of change models.
+- **2-Page Printable Worksheet Architecture (`#printWorksheet`)**:
+  - Replaced cramped 1-page layout with a structured, professional **2-Page Letter Portrait Standard** (`@page { size: letter portrait; margin: 0.38in 0.45in; }`):
+    - **Page 1**: Header block, Investigation Procedure & Setup narrative, Evidence Grid (Data Table + Large Graph Box scaled from 1.85in up to 4.8in + Accessible Legend Key), and Page 1 Footer (`Page 1 of 2`).
+    - **Page 2**: Running Header with Title and Student/Period/Score fields, Question 1 (Graph Reading & Decoding with wide blank), Question 2 (Pattern Selection with `[ ]` checkboxes), Question 3 (Quantitative Rate of Change with boxed Setup Work formula `Δy / Δx = ( ___ − ___ ) / ( ___ − ___ )`), Question 4 (Structured 3-part CER with Claim underline, 6 ruled lines for Evidence, 5 ruled lines for Reasoning, and 4-point Rubric bar), Question 5 (Prediction & Synthesis), and Page 2 Footer (`Page 2 of 2`).
+  - Increased base typography from unreadable 6-7pt to clean 8.8–9pt (1.35 line height) with ruled writing guides.
+  - Guaranteed clean page breaks (`page-break-after: always` on Page 1, `page-break-before: always` on Page 2).
+- **Automated Validation**:
+  - Verified 100% pass on `tests/test_cast_data_practice.js` including new unit tests for `resolveSeriesVisuals`.
+  - Verified 2-page print rendering via headless Puppeteer and visual `pdftoppm` inspection.
+
 ## 2026-10-23 — Curriculum Progression: Day 40 CAST 3D Performance Task Bell-Ringer (`assets/lessons-data.js` & `Unit_2/outline.md`)
 **Patterns Updated**: `bell-ringer-config.md`.
 **Files Updated**: `assets/lessons-data.js`, `Unit_2/outline.md`, `unit2-dashboard.html`, `partials/footer.html`.

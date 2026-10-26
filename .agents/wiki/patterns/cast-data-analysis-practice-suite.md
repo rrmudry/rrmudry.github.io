@@ -93,20 +93,27 @@ In adherence to repository security rules:
      - 5-part question architecture (Anatomy with locator & intercept decoding, Trend identification, Guided Slope calculation with step breakdown, Scaffolded CER with sentence frames & target evidence numbers, and Synthesis with diagnostic misconception check).
    - Auto-populates the builder form fields, adds the scenario to the active dropdown with grade tag prefix (e.g. `[Middle School]`), displays the grade level badge (`#gradeBadge`), saves to `localStorage`, and displays the target grade in 1-page printable worksheet headers.
 
-3. **Honors 1-Page Printable PDF Design & Height Budgeting**:
-   - Structured after `Honors_Kinematics_Graphing_Challenges_1_and_2.html` with a strict **1-Page Letter Portrait budget** (`height: 10.36in; max-height: 10.36in; margin: 0.32in 0.40in;`).
-   - Clean, uncluttered visual hierarchy:
-     - Header block with Title, NGSS Performance Expectation badge, Student Name, Period, Date, and Score (`X / 8 Pts` with `white-space: nowrap`).
-     - Background Phenomenon callout box with blue left accent bar (`border-left: 3.5px solid #0284c7; background: #f8fafc; font-size: 7.1pt; max-height: 0.90in; line-height: 1.22;`).
-     - Evidence Grid (`height: 2.25in`): Balanced side-by-side with Data Table on left (46%) and high-resolution base64 Graph snapshot on right (52%, max-height `1.85in`). Reclaimed 0.50 vertical inches to ensure Question 5 options are never clipped.
-     - Questions container with 5 parts (`justify-content: space-between; padding: 5px 8px; margin-bottom: 5px;`):
-       - Question 1: Decoding Mechanics (Independent / Dependent variables + Coordinate Locator).
+3. **Department 2-Page Printable PDF Design & Height Budgeting**:
+   - Upgraded from cramped 1-page format to a clean, spacious **2-Page Letter Portrait Standard** (`@page { size: letter portrait; margin: 0.38in 0.45in; }`):
+     - **Page 1 (Experimental Evidence & Plotted Graph Key)**:
+       - Header block with Title, Discipline & NGSS Expectation badge, Student Name, Period, Date, and Score (`X / 8 Pts` with `white-space: nowrap`).
+       - Background Narrative callout box with blue left accent bar (`border-left: 3.5px solid #0284c7; background: #f8fafc; font-size: 8.8pt; line-height: 1.35;`).
+       - Evidence Grid (`min-height: 5.6in`): Side-by-side Data Table on left (46–58%) and large high-resolution Graph snapshot on right (40–52%, graph height `4.2in` to `4.8in`).
+       - **Accessible Graph Key (`#pGraphAccessLegend`)**: Dual-coded symbols (●, ■, ▲, ◆, ✕), line patterns (Solid, Dashed, Dotted), and individual trendline equations/slopes for 100% readability on black-and-white photocopiers.
+       - Page 1 Footer bar with Science Department branding and `Page 1 of 2`.
+     - **Page 2 (Scientific Data Analysis, Calculations & Structured CER)**:
+       - Running Header block with Scenario Title, Student Name, Period, and Score fields so detached sheets remain identifiable.
+       - Question 1: Graph Reading & Decoding with spacious fill-in blanks.
        - Question 2: Trend Selection with clean checkboxes (`[ ]`) rendered as dedicated stacked option rows with regular unbolded text (`font-weight: 400`).
-       - Question 3: Quantitative Calculation with adaptive Setup Work line (`blankSetupWork`, e.g. slope `Δy / Δx = ( ___ − ___ ) / ( ___ − ___ )`, rate drop `Δy = Rate_37 − Rate_55 = ( ___ − ___ )`, or ratio `Factor = d₂ / d₁ = ( ___ / ___ )`) to maintain authentic pedagogical friction without mathematical contradictions.
-       - Question 4: Student written CER explanation box (`flex: 1`, min-height `1.35in`) dynamically absorbing leftover vertical space and compact 4-Point Evidence Rubric (`[ ____ / 4 Pts ]`).
-       - Question 5: Model Synthesis & Misconception Diagnostics with regular unbolded options (stacked vertically for sentence options, horizontal inline for short numeric values).
-     - Footer bar with Orange High School Science Department branding and `Page 1 of 1`.
-   - Guarantees zero spillover onto page 2, whether printed with student answers or printed blank as a student classroom worksheet.
+       - Question 3: Quantitative Calculation with boxed Setup Work line (`blankSetupWork`, e.g. slope `Setup Work: ( _____ − _____ ) / ( _____ − _____ )`) and calculated rate.
+       - Question 4: Structured 3-part CER writing sections:
+         - **Claim**: Single-line prompt with writing line.
+         - **Evidence**: 1.45in box with repeating ruled guide lines (`repeating-linear-gradient`) prompting for 2+ data points and units.
+         - **Reasoning**: 1.30in box with repeating ruled guide lines prompting for scientific laws and mechanisms.
+         - Compact 4-Point Evidence Rubric bar (`[ Claim: 1 pt | Evidence: 1 pt | Units: 1 pt | Reasoning: 1 pt ]` and `[ ____ / 4 Pts ]`).
+       - Question 5: Model Synthesis & Misconception Diagnostics with regular unbolded options.
+       - Page 2 Footer bar with Science Department branding and `Page 2 of 2`.
+   - Guaranteed clean page break (`page-break-after: always` on Page 1, `page-break-before: always` on Page 2) with zero accidental 3rd page spillover.
 
 ---
 

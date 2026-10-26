@@ -23,7 +23,8 @@ I will:
 5. Skip submissions already up-to-date in 0ms without consuming write quota.
 6. Provide a Master Executive Summary table across all assignments and periods.
 
-## 🛡️ Grade Protection: Rule B ("Higher Score Wins")
+## 🛡️ Grade Protection: Rule B & Missing Status Protection
+- **Only Push Scores > 1**: Any calculated score $\le 1$ (e.g. 0 or 1 point) is completely skipped. Submissions remain un-scored so Google Classroom retains its natural **"Missing"** alert for students and parents.
 - **Manual Classroom Grades Are Safe**: Any score manually input into Google Classroom (for paper submissions, modified tasks, or teacher adjustments like on `Digital Fantasy Map Distance Displacement`) is protected. The sync will never overwrite a higher or equal manual grade with a lower app score.
 - **Late Work & Retakes**: If a student turns in work late or retakes an assignment and achieves a higher score, the system automatically elevates the grade and returns it to the student.
 - **Manual Assignments Excluded**: Assignments created manually in Google Classroom (without the API, such as `Accuracy_Precision_Emoji_Art`) are automatically bypassed so no `@ProjectPermissionDenied` errors occur.

@@ -353,8 +353,83 @@ function renderDataTable(tableData) {
 }
 
 // ==========================================================================
-// 5. CHART.JS GRAPHING ENGINE WITH ADAPTIVE THEME
+// 5. CHART.JS GRAPHING ENGINE WITH ADAPTIVE THEME & ACCESSIBLE DUAL-CODING
 // ==========================================================================
+
+/**
+ * Resolves semantic colors, distinct geometric marker styles, and line patterns
+ * for accessible visualization on screen and in black-and-white print/photocopy.
+ */
+function resolveSeriesVisuals(label, idx, isDark, customColor = null, customPointStyle = null) {
+  const normLabel = (label || "").toLowerCase();
+
+  // 1. Semantic Color Detection (Matches prey/substrate/condition names to natural colors)
+  let lightColor = null;
+  let darkColor = null;
+
+  if (normLabel.includes("green") || normLabel.includes("lime") || normLabel.includes("emerald")) {
+    lightColor = "#15803d"; // deep emerald green
+    darkColor = "#22c55e";  // bright emerald
+  } else if (normLabel.includes("red") || normLabel.includes("crimson") || normLabel.includes("scarlet") || normLabel.includes("ruby")) {
+    lightColor = "#dc2626"; // deep red
+    darkColor = "#ef4444";  // vibrant red
+  } else if (normLabel.includes("blue") || normLabel.includes("cyan") || normLabel.includes("azure") || normLabel.includes("navy")) {
+    lightColor = "#1d4ed8"; // rich royal blue
+    darkColor = "#38bdf8";  // sky blue
+  } else if (normLabel.includes("yellow") || normLabel.includes("amber") || normLabel.includes("gold")) {
+    lightColor = "#b45309"; // readable dark amber/gold on white
+    darkColor = "#fbbf24";  // bright amber
+  } else if (normLabel.includes("orange")) {
+    lightColor = "#c2410c"; // burnt orange
+    darkColor = "#fb923c";  // bright orange
+  } else if (normLabel.includes("purple") || normLabel.includes("violet")) {
+    lightColor = "#7e22ce"; // deep purple
+    darkColor = "#c084fc";  // lavender purple
+  } else if (normLabel.includes("pink") || normLabel.includes("rose") || normLabel.includes("magenta")) {
+    lightColor = "#be185d"; // deep rose/pink
+    darkColor = "#f43f5e";  // bright pink
+  } else if (normLabel.includes("black") || normLabel.includes("gray") || normLabel.includes("grey") || normLabel.includes("dark")) {
+    lightColor = "#0f172a"; // slate 900
+    darkColor = "#94a3b8";  // slate 400
+  }
+
+  // Fallback high-contrast palette if no semantic color was detected
+  if (!lightColor) {
+    const defaultLight = ["#1d4ed8", "#dc2626", "#15803d", "#7e22ce", "#c2410c", "#0891b2"];
+    const defaultDark = ["#38bdf8", "#ef4444", "#22c55e", "#c084fc", "#fb923c", "#22d3ee"];
+    lightColor = defaultLight[idx % defaultLight.length];
+    darkColor = defaultDark[idx % defaultDark.length];
+  }
+
+  let finalColor = isDark ? darkColor : lightColor;
+  if (customColor && !normLabel.match(/green|red|blue|yellow|orange|purple|pink|black|gray|dark/)) {
+    finalColor = customColor;
+  }
+
+  // 2. Distinct Geometric Marker Shapes & Line Dash Patterns for B&W Accessibility
+  const stylesCatalog = [
+    { pointStyle: "circle",   symbol: "●", shapeDesc: "Circle (●)",   borderDash: [],            lineDesc: "Solid Line" },
+    { pointStyle: "rect",     symbol: "■", shapeDesc: "Square (■)",   borderDash: [8, 4],        lineDesc: "Dashed Line" },
+    { pointStyle: "triangle", symbol: "▲", shapeDesc: "Triangle (▲)", borderDash: [3, 3],        lineDesc: "Dotted Line" },
+    { pointStyle: "rectRot",  symbol: "◆", shapeDesc: "Diamond (◆)",  borderDash: [10, 3, 2, 3], lineDesc: "Dash-Dot Line" },
+    { pointStyle: "crossRot", symbol: "✕", shapeDesc: "Cross (✕)",    borderDash: [14, 5],       lineDesc: "Long-Dash Line" }
+  ];
+
+  const styleObj = stylesCatalog[idx % stylesCatalog.length];
+  const pointStyle = customPointStyle || styleObj.pointStyle;
+
+  return {
+    color: finalColor,
+    lightColor,
+    darkColor,
+    pointStyle: pointStyle,
+    symbol: styleObj.symbol,
+    shapeDesc: styleObj.shapeDesc,
+    borderDash: styleObj.borderDash,
+    lineDesc: styleObj.lineDesc
+  };
+}
+
 function renderChart(forceTheme = null) {
   const canvas = document.getElementById("scenarioChart");
   if (!canvas) return;
@@ -376,21 +451,17 @@ function renderChart(forceTheme = null) {
   const datasets = [];
 
   if (scenario.graphConfig && scenario.graphConfig.multiSeries && Array.isArray(scenario.graphConfig.series)) {
-    // Multi-series rendering with dynamic X detection & adaptive palette (supports 2 to 5 series)
-    const seriesColorsLight = ["#0284c7", "#ea580c", "#10b981", "#7c3aed", "#e11d48"];
-    const seriesColorsDark = ["#38bdf8", "#fb923c", "#34d399", "#c084fc", "#f43f5e"];
-    const seriesStyles = ["circle", "triangle", "rectRot", "cross", "star"];
-
+    // Multi-series rendering with dynamic X detection, semantic colors & distinct line/point patterns
     const xCol = scenario.dataTable.columns.find(c => c.isX) || scenario.dataTable.columns.find(c => !c.isText && !c.isY) || scenario.dataTable.columns[1];
     const xKey = xCol ? xCol.key : "x";
     const yCols = scenario.dataTable.columns.filter(c => c.isY);
 
     scenario.graphConfig.series.forEach((sConfig, idx) => {
-      const color = isDark
-        ? seriesColorsDark[idx % seriesColorsDark.length]
-        : seriesColorsLight[idx % seriesColorsLight.length];
-
       const dataKey = sConfig.key || sConfig.id || (yCols[idx] ? yCols[idx].key : `y${idx + 1}`);
+      const rawLabel = sConfig.label || (yCols[idx] ? yCols[idx].label : `Dataset ${idx + 1}`);
+      const cleanLabel = rawLabel.replace(/\s*\([^)]*\)/, "").trim();
+
+      const visuals = resolveSeriesVisuals(cleanLabel, idx, isDark, sConfig.color, sConfig.pointStyle);
 
       const pts = scenario.dataTable.rows.map(r => {
         const xVal = typeof r[xKey] === "number" ? r[xKey] : (typeof r.x === "number" ? r.x : 0);
@@ -402,23 +473,29 @@ function renderChart(forceTheme = null) {
         return { x: xVal, y: yVal };
       });
 
+      // Dual-coded label with marker symbol and line pattern description
+      const accessibleLabel = `${visuals.symbol} ${cleanLabel} (${visuals.lineDesc})`;
+
       datasets.push({
-        label: sConfig.label || (yCols[idx] ? yCols[idx].label : `Dataset ${idx + 1}`),
+        label: accessibleLabel,
+        rawLabel: cleanLabel,
         data: pts,
-        backgroundColor: color,
-        borderColor: color,
-        pointBackgroundColor: color,
+        backgroundColor: visuals.color,
+        borderColor: visuals.color,
+        borderDash: visuals.borderDash,
+        pointBackgroundColor: visuals.color,
         pointBorderColor: isDark ? "#0f172a" : "#ffffff",
-        pointBorderWidth: 2,
-        pointRadius: 6,
-        pointHoverRadius: 8,
-        pointStyle: sConfig.pointStyle || seriesStyles[idx % seriesStyles.length],
+        pointBorderWidth: 2.5,
+        pointRadius: 8,
+        pointHoverRadius: 11,
+        pointStyle: visuals.pointStyle,
         showLine: true,
-        borderWidth: 2.5
+        borderWidth: 2.5,
+        visuals: visuals
       });
     });
   } else {
-    // Single-series rendering
+    // Single-series rendering with distinct marker and accessible styling
     const xCol = scenario.dataTable.columns.find(c => c.isX);
     const yCol = scenario.dataTable.columns.find(c => c.isY);
 
@@ -427,19 +504,25 @@ function renderChart(forceTheme = null) {
       y: r[yCol.key]
     }));
 
+    const visuals = resolveSeriesVisuals(scenario.yAxis.label, 0, isDark);
+
     datasets.push({
-      label: `${scenario.yAxis.label} (${scenario.yAxis.unit})`,
+      label: `${visuals.symbol} ${scenario.yAxis.label} (${scenario.yAxis.unit})`,
+      rawLabel: `${scenario.yAxis.label} (${scenario.yAxis.unit})`,
       data: pts,
       backgroundColor: primaryColor,
       borderColor: primaryColor,
+      borderDash: [],
       pointBackgroundColor: primaryColor,
       pointBorderColor: isDark ? "#0f172a" : "#ffffff",
-      pointBorderWidth: 2,
-      pointRadius: 6,
-      pointHoverRadius: 9,
+      pointBorderWidth: 2.5,
+      pointRadius: 8,
+      pointHoverRadius: 11,
+      pointStyle: visuals.pointStyle,
       showLine: scenario.chartType === "line",
       tension: scenario.chartType === "line" ? 0.2 : 0,
-      borderWidth: 2.5
+      borderWidth: 2.5,
+      visuals: visuals
     });
 
     // Optional linear best-fit line
@@ -450,14 +533,14 @@ function renderChart(forceTheme = null) {
       const b = scenario.graphConfig.intercept || 0;
 
       datasets.push({
-        label: "Linear Best-Fit Trendline",
+        label: "Linear Best-Fit Trendline (Dashed)",
         data: [
           { x: minX, y: m * minX + b },
           { x: maxX, y: m * maxX + b }
         ],
-        borderColor: isDark ? "#a855f7" : "#7c3aed",
-        borderDash: [6, 6],
-        borderWidth: 2,
+        borderColor: isDark ? "#c084fc" : "#7c3aed",
+        borderDash: [6, 4],
+        borderWidth: 2.5,
         pointRadius: 0,
         fill: false,
         showLine: true
@@ -485,7 +568,10 @@ function renderChart(forceTheme = null) {
           labels: {
             color: textColor,
             font: { size: 12, weight: "700" },
-            boxWidth: 14
+            usePointStyle: true,
+            pointStyleWidth: 16,
+            boxWidth: 16,
+            padding: 12
           }
         },
         tooltip: {
@@ -499,7 +585,8 @@ function renderChart(forceTheme = null) {
             label: function(ctx) {
               const xVal = ctx.parsed.x;
               const yVal = ctx.parsed.y;
-              return `${ctx.dataset.label || ''}: (${xVal} ${scenario.xAxis.unit}, ${yVal} ${scenario.yAxis.unit})`;
+              const lbl = ctx.dataset.rawLabel || ctx.dataset.label || '';
+              return `${lbl}: (${xVal} ${scenario.xAxis.unit}, ${yVal} ${scenario.yAxis.unit})`;
             }
           }
         }
@@ -586,8 +673,8 @@ function renderStepQuestions(scenario, resp) {
     }
   }
 
-  if (intPrompt && anatomy) intPrompt.textContent = anatomy.interceptPrompt;
-  if (intOptions && anatomy) {
+  if (intPrompt && anatomy) intPrompt.textContent = anatomy.interceptPrompt || "";
+  if (intOptions && anatomy && Array.isArray(anatomy.interceptOptions)) {
     intOptions.innerHTML = anatomy.interceptOptions.map((opt, idx) => `
       <label class="mcq-label ${resp.anatomyInterceptAnswer === idx ? 'selected' : ''}" onclick="selectAnatomyInterceptOption(${idx})">
         <input type="radio" name="interceptRadio" class="mcq-radio" ${resp.anatomyInterceptAnswer === idx ? 'checked' : ''}>
@@ -647,9 +734,13 @@ function renderStepQuestions(scenario, resp) {
   }
 
   if (slopeSteps) {
-    if (slopeCoordDisplay) slopeCoordDisplay.textContent = `${slopeSteps.point1.label}  •  ${slopeSteps.point2.label}`;
-    if (slopeFormulaDisplay) slopeFormulaDisplay.textContent = slopeSteps.formulaSetup;
-    if (slopeMeaningDisplay) slopeMeaningDisplay.textContent = slopeSteps.physicalMeaning;
+    if (slopeCoordDisplay) {
+      const p1Lbl = slopeSteps.point1 ? (slopeSteps.point1.label || `(${slopeSteps.point1.x}, ${slopeSteps.point1.y})`) : "";
+      const p2Lbl = slopeSteps.point2 ? (slopeSteps.point2.label || `(${slopeSteps.point2.x}, ${slopeSteps.point2.y})`) : "";
+      slopeCoordDisplay.textContent = p1Lbl && p2Lbl ? `${p1Lbl}  •  ${p2Lbl}` : (p1Lbl || p2Lbl);
+    }
+    if (slopeFormulaDisplay) slopeFormulaDisplay.textContent = slopeSteps.formulaSetup || "";
+    if (slopeMeaningDisplay) slopeMeaningDisplay.textContent = slopeSteps.physicalMeaning || "";
   }
 
   if (quantPrompt) quantPrompt.textContent = scenario.questions.quantitative.prompt;
@@ -710,14 +801,16 @@ function renderStepQuestions(scenario, resp) {
     }
   }
 
-  if (diagPrompt) diagPrompt.textContent = scenario.questions.synthesis.diagnosticPrompt;
-  if (diagOptions) {
+  if (diagPrompt) diagPrompt.textContent = scenario.questions.synthesis.diagnosticPrompt || "";
+  if (diagOptions && scenario.questions.synthesis && Array.isArray(scenario.questions.synthesis.diagnosticOptions)) {
     diagOptions.innerHTML = scenario.questions.synthesis.diagnosticOptions.map((opt, idx) => `
       <label class="mcq-label ${resp.diagnosticAnswer === idx ? 'selected' : ''}" onclick="selectDiagnosticOption(${idx})">
         <input type="radio" name="diagnosticRadio" class="mcq-radio" ${resp.diagnosticAnswer === idx ? 'checked' : ''}>
         <span>${opt}</span>
       </label>
     `).join("");
+  } else if (diagOptions) {
+    diagOptions.innerHTML = "";
   }
   if (diagFeedback) {
     if (resp.diagnosticAnswer !== null) {
@@ -2351,7 +2444,7 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   const maxTotal = 8;
   const pct = Math.round((total / maxTotal) * 100);
 
-  // 1. Header Block
+  // 1. Header Block - Page 1
   const pHeaderTitle = document.getElementById("pHeaderTitle");
   const pHeaderSub = document.getElementById("pHeaderSub");
   const pHeaderNgss = document.getElementById("pHeaderNgss");
@@ -2359,6 +2452,7 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   const pStudentPeriod = document.getElementById("pStudentPeriod");
   const pCurrentDate = document.getElementById("pCurrentDate");
   const pMasteryScore = document.getElementById("pMasteryScore");
+  const pScoreMaxLabel = document.getElementById("pScoreMaxLabel");
 
   if (pHeaderTitle) pHeaderTitle.textContent = scenario.title;
   let sub = `${scenario.disciplineBadge} Investigation • ${scenario.ngssTitle} (${scenario.ngssCode})`;
@@ -2368,23 +2462,30 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   if (pHeaderSub) pHeaderSub.textContent = sub;
   if (pHeaderNgss) pHeaderNgss.textContent = `${scenario.ngssCode} • SEP-4 • SEP-7`;
 
-  const pScoreMaxLabel = document.getElementById("pScoreMaxLabel");
+  const studentNameStr = (!isBlank && currentStudent) ? (currentStudent.displayName || currentStudent.email.split("@")[0]) : "";
+  const studentPeriodStr = (!isBlank && currentStudent && currentStudent.period) ? currentStudent.period : "";
+  const dateStr = !isBlank ? new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "";
+  const scoreStr = !isBlank ? `${total}` : "";
+  const scoreMaxStr = !isBlank ? `/ ${maxTotal} Pts (${pct}%)` : `/ ${maxTotal} Pts`;
 
-  if (pStudentName) {
-    pStudentName.textContent = (!isBlank && currentStudent) ? (currentStudent.displayName || currentStudent.email.split("@")[0]) : "";
-  }
-  if (pStudentPeriod) {
-    pStudentPeriod.textContent = (!isBlank && currentStudent && currentStudent.period) ? currentStudent.period : "";
-  }
-  if (pCurrentDate) {
-    pCurrentDate.textContent = !isBlank ? new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "";
-  }
-  if (pMasteryScore) {
-    pMasteryScore.textContent = !isBlank ? `${total}` : "";
-  }
-  if (pScoreMaxLabel) {
-    pScoreMaxLabel.textContent = !isBlank ? `/ ${maxTotal} Pts (${pct}%)` : `/ ${maxTotal} Pts`;
-  }
+  if (pStudentName) pStudentName.textContent = studentNameStr;
+  if (pStudentPeriod) pStudentPeriod.textContent = studentPeriodStr;
+  if (pCurrentDate) pCurrentDate.textContent = dateStr;
+  if (pMasteryScore) pMasteryScore.textContent = scoreStr;
+  if (pScoreMaxLabel) pScoreMaxLabel.textContent = scoreMaxStr;
+
+  // Running Header - Page 2
+  const pHeaderTitleP2 = document.getElementById("pHeaderTitleP2");
+  const pStudentNameP2 = document.getElementById("pStudentNameP2");
+  const pStudentPeriodP2 = document.getElementById("pStudentPeriodP2");
+  const pMasteryScoreP2 = document.getElementById("pMasteryScoreP2");
+  const pScoreMaxLabelP2 = document.getElementById("pScoreMaxLabelP2");
+
+  if (pHeaderTitleP2) pHeaderTitleP2.textContent = scenario.title;
+  if (pStudentNameP2) pStudentNameP2.textContent = studentNameStr;
+  if (pStudentPeriodP2) pStudentPeriodP2.textContent = studentPeriodStr;
+  if (pMasteryScoreP2) pMasteryScoreP2.textContent = scoreStr;
+  if (pScoreMaxLabelP2) pScoreMaxLabelP2.textContent = scoreMaxStr;
 
   // 2. Scenario Narrative
   const pScenarioTitle = document.getElementById("pScenarioTitle");
@@ -2408,7 +2509,7 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   // 3. Experimental Data Table
   const pTableCaption = document.getElementById("pTableCaption");
   const pTableWrapper = document.getElementById("pTableWrapper");
-  const pEvidenceGrid = document.querySelector(".p-evidence-grid");
+  const pEvidenceGrid = document.querySelector(".p-evidence-container");
   const numCols = scenario.dataTable?.columns ? scenario.dataTable.columns.length : 3;
 
   if (pEvidenceGrid) {
@@ -2450,15 +2551,22 @@ function syncPrintWorksheet(mode = currentPrintMode) {
     pTableWrapper.innerHTML = tHtml;
   }
 
-  // 4. Plotted Graph Image Snapshot
+  // 4. Plotted Graph Image Snapshot & Accessible Legend
   const pGraphModelBadge = document.getElementById("pGraphModelBadge");
   const pGraphImg = document.getElementById("pGraphImg");
+  const pGraphAccessLegend = document.getElementById("pGraphAccessLegend");
+
   if (pGraphModelBadge) {
-    let eq = scenario.graphConfig.equation || "Model";
-    eq = eq.replace(/\s*\*\s*/g, " · ");
-    pGraphModelBadge.textContent = eq;
+    if (scenario.graphConfig?.multiSeries) {
+      pGraphModelBadge.textContent = "Multi-Series Trends";
+    } else {
+      let eq = scenario.graphConfig?.equation || "Model";
+      eq = eq.replace(/\s*\*\s*/g, " · ");
+      pGraphModelBadge.textContent = eq;
+    }
   }
 
+  // Render light mode snapshot for clean, crisp printing
   if (chartInstance && pGraphImg) {
     const wasDark = currentTheme === "dark";
     if (wasDark) {
@@ -2471,7 +2579,60 @@ function syncPrintWorksheet(mode = currentPrintMode) {
     }
   }
 
-  // 5. Questions Section (5-Part Pedagogical Structure)
+  // Populate Accessible Legend Key on Page 1 (Symbols & Line Patterns for B&W photocopies)
+  if (pGraphAccessLegend) {
+    if (scenario.graphConfig && scenario.graphConfig.multiSeries && Array.isArray(scenario.graphConfig.series)) {
+      const eqRaw = scenario.graphConfig.equation || "";
+      let legHtml = `<div style="font-size:7.4pt; font-weight:800; color:#334155; text-transform:uppercase; margin-bottom:2px;">Accessible Graph Key (Dual-Coded Symbols &amp; Patterns for Print):</div>`;
+      legHtml += `<div style="display:flex; flex-direction:column; gap:2.5px;">`;
+
+      scenario.graphConfig.series.forEach((sConfig, idx) => {
+        const rawLabel = sConfig.label || `Dataset ${idx + 1}`;
+        const cleanLabel = rawLabel.replace(/\s*\([^)]*\)/, "").trim();
+        const visuals = resolveSeriesVisuals(cleanLabel, idx, false, sConfig.color, sConfig.pointStyle);
+
+        // Find equation or slope snippet matching this series
+        let eqSnippet = "";
+        if (sConfig.slope !== undefined) {
+          eqSnippet = `Rate: ${sConfig.slope > 0 ? '+' : ''}${sConfig.slope} ${scenario.yAxis.unit}/${scenario.xAxis.unit}`;
+        } else if (eqRaw) {
+          const parts = eqRaw.split(";");
+          const matched = parts.find(p => p.toLowerCase().includes(cleanLabel.toLowerCase()) || p.toLowerCase().includes(cleanLabel.split(" ")[0].toLowerCase()));
+          if (matched) {
+            eqSnippet = matched.trim().replace(/\s*\*\s*/g, " · ");
+          }
+        }
+
+        legHtml += `
+          <div class="p-access-item">
+            <div class="p-access-left">
+              <span class="p-access-symbol" style="color:${visuals.lightColor}; font-size:11pt;">${visuals.symbol}</span>
+              <span class="p-access-label">${cleanLabel}:</span>
+              <span class="p-access-style">Pattern: <strong>${visuals.lineDesc}</strong> (${visuals.shapeDesc})</span>
+            </div>
+            ${eqSnippet ? `<span class="p-access-eq">${eqSnippet}</span>` : ''}
+          </div>
+        `;
+      });
+      legHtml += `</div>`;
+      pGraphAccessLegend.innerHTML = legHtml;
+    } else {
+      const visuals = resolveSeriesVisuals(scenario.yAxis.label, 0, false);
+      let eqSnippet = scenario.graphConfig?.equation ? scenario.graphConfig.equation.replace(/\s*\*\s*/g, " · ") : "";
+      pGraphAccessLegend.innerHTML = `
+        <div class="p-access-item">
+          <div class="p-access-left">
+            <span class="p-access-symbol" style="color:${visuals.lightColor}; font-size:11pt;">${visuals.symbol}</span>
+            <span class="p-access-label">${scenario.yAxis.label} (${scenario.yAxis.unit}):</span>
+            <span class="p-access-style">Pattern: <strong>${visuals.lineDesc}</strong> with ${visuals.shapeDesc}</span>
+          </div>
+          ${eqSnippet ? `<span class="p-access-eq">${eqSnippet}</span>` : ''}
+        </div>
+      `;
+    }
+  }
+
+  // 5. Questions Section (5-Part Pedagogical Structure on Page 2)
   // Part 1: Graph Reading & Decoding
   const anatomy = scenario.questions.anatomy;
   const pQ0Prompt = document.getElementById("pQ0Prompt");
@@ -2495,7 +2656,6 @@ function syncPrintWorksheet(mode = currentPrintMode) {
       const isCor = resp.scores.trend === 1;
       pQ1Answer.innerHTML = `<span style="font-weight:400; color:#1e293b;">Selected Trend: <strong>${stripHtml(scenario.questions.trend.options[resp.trendAnswer])}</strong></span> <span style="color:${isCor ? '#15803d' : '#b91c1c'}; font-weight:700;">(${isCor ? '✓ 1/1 pt' : '0/1 pt'})</span>`;
     } else {
-      // Clean options: each on its own line, unbolded normal text, clear checkbox
       const optionsHtml = scenario.questions.trend.options.map(opt => `
         <div class="p-mc-option">
           <span class="p-mc-checkbox">[ &nbsp; ]</span>
@@ -2534,8 +2694,12 @@ function syncPrintWorksheet(mode = currentPrintMode) {
     }
   }
 
-  // Part 4: Free Response CER & 4-Point Rubric Bar
+  // Part 4: Free Response CER & 4-Point Rubric Bar (Structured 2-Page Layout)
   const pQ3Prompt = document.getElementById("pQ3Prompt");
+  const pCerClaimBox = document.getElementById("pCerClaimBox");
+  const pCerEvidenceBox = document.getElementById("pCerEvidenceBox");
+  const pCerReasoningBox = document.getElementById("pCerReasoningBox");
+  const pCerSections = document.querySelector(".p-cer-sections");
   const pCerText = document.getElementById("pCerText");
   const pRubClaim = document.getElementById("pRubClaim");
   const pRubEvidence = document.getElementById("pRubEvidence");
@@ -2544,13 +2708,29 @@ function syncPrintWorksheet(mode = currentPrintMode) {
   const pRubTotal = document.getElementById("pRubTotal");
 
   if (pQ3Prompt) pQ3Prompt.textContent = stripHtml(scenario.questions.freeResponse.prompt);
-  if (pCerText) {
-    if (!isBlank && resp.frAnswer && resp.frAnswer.trim().length > 0) {
-      pCerText.textContent = resp.frAnswer;
-      pCerText.style.fontStyle = "normal";
-      pCerText.style.color = "#0f172a";
+
+  if (isBlank) {
+    if (pCerClaimBox) pCerClaimBox.innerHTML = "";
+    if (pCerEvidenceBox) pCerEvidenceBox.innerHTML = "";
+    if (pCerReasoningBox) pCerReasoningBox.innerHTML = "";
+    if (pCerSections) pCerSections.style.display = "flex";
+    if (pCerText) pCerText.style.display = "none";
+  } else {
+    // Report mode with student response
+    if (resp.frAnswer && resp.frAnswer.trim().length > 0) {
+      if (pCerText) {
+        pCerText.textContent = resp.frAnswer;
+        pCerText.style.display = "block";
+        pCerText.style.fontStyle = "normal";
+        pCerText.style.color = "#0f172a";
+      }
+      if (pCerSections) pCerSections.style.display = "none";
     } else {
-      pCerText.innerHTML = "";
+      if (pCerClaimBox) pCerClaimBox.innerHTML = "";
+      if (pCerEvidenceBox) pCerEvidenceBox.innerHTML = "";
+      if (pCerReasoningBox) pCerReasoningBox.innerHTML = "";
+      if (pCerSections) pCerSections.style.display = "flex";
+      if (pCerText) pCerText.style.display = "none";
     }
   }
 
@@ -2612,9 +2792,14 @@ function syncPrintWorksheet(mode = currentPrintMode) {
     }
   }
 
-  // 6. Footer Bar
+  // 6. Footer Bars (Page 1 and Page 2)
   const pFooterNgss = document.getElementById("pFooterNgss");
-  if (pFooterNgss) pFooterNgss.textContent = `${scenario.ngssCode} • ${scenario.sep} • ${scenario.ccc}`;
+  const pFooterNgssP2 = document.getElementById("pFooterNgssP2");
+  const sepShort = (scenario.sep || "SEP-4").split(":")[0].trim();
+  const cccShort = (scenario.ccc || "CCC-1").split(":")[0].trim();
+  const footerText = `${scenario.ngssCode} • ${sepShort} • ${cccShort}`;
+  if (pFooterNgss) pFooterNgss.textContent = footerText;
+  if (pFooterNgssP2) pFooterNgssP2.textContent = footerText;
 }
 
 // ==========================================================================
@@ -2638,7 +2823,7 @@ function setupEventListeners() {
       debounceTimer = setTimeout(() => {
         evaluateFreeResponseLive();
         syncPrintWorksheet();
-      }, 350);
+      }, 300);
     });
   }
 
@@ -2671,6 +2856,7 @@ if (typeof module !== "undefined" && module.exports) {
     isAuthorizedTeacher,
     parseJsonText,
     buildAiPromptPayload,
-    setAiSpecialPreset
+    setAiSpecialPreset,
+    resolveSeriesVisuals
   };
 }

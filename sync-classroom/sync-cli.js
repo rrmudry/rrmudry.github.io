@@ -758,6 +758,12 @@ async function syncAssignment({
       }
       totalScore += scaledScore;
 
+      // Skip scores <= 1: do not push zeroes or near-zeroes into Google Classroom.
+      // Keeps the submission un-scored so it retains its natural 'Missing' status.
+      if (scaledScore <= 1) {
+        continue;
+      }
+
       const email = (student.email || '').toLowerCase().trim();
       const sId = student.studentId;
       const lookupKey = classroomStudentMap.get(email) || 

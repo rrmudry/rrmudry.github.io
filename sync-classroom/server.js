@@ -1015,6 +1015,15 @@ app.post('/api/sync-grade', checkAuth, async (req, res) => {
       console.warn("Could not fetch coursework maxPoints:", e.message);
     }
 
+    // Skip scores <= 1: do not push zeroes or near-zeroes into Google Classroom.
+    if (finalScore <= 1) {
+      return res.json({
+        success: true,
+        skipped: true,
+        message: `Score of ${finalScore} <= 1 was skipped to maintain Missing status in Google Classroom.`
+      });
+    }
+
     // 3. Patch grades (draft and assigned)
     const patchResponse = await classroom.courses.courseWork.studentSubmissions.patch({
       courseId,

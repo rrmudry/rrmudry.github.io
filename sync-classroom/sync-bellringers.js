@@ -583,6 +583,16 @@ async function main() {
       };
       if (topicId) cwPayload.topicId = topicId;
 
+      let dueDateObj = null;
+      let dueTimeObj = null;
+      if (options.endDate) {
+        const [year, month, day] = options.endDate.split('-').map(Number);
+        if (year && month && day) {
+          dueDateObj = { year, month, day };
+          dueTimeObj = { hours: 23, minutes: 59, seconds: 0 };
+        }
+      }
+
       try {
         const createRes = await classroom.courses.courseWork.create({
           courseId: course.courseId,
@@ -591,6 +601,24 @@ async function main() {
         cwId = createRes.data.id;
         courseworkIds[course.courseId] = cwId;
         console.log(`   ✅ Period ${course.period}: Created coursework (ID: ${cwId})`);
+
+        // If a due date is specified (e.g. past Friday), patch it onto the created coursework
+        if (dueDateObj) {
+          try {
+            await classroom.courses.courseWork.patch({
+              courseId: course.courseId,
+              id: cwId,
+              updateMask: 'dueDate,dueTime',
+              requestBody: {
+                dueDate: dueDateObj,
+                dueTime: dueTimeObj
+              }
+            });
+            console.log(`      ↳ Set due date to ${options.endDate} 23:59.`);
+          } catch (patchDueErr) {
+            console.warn(`      ⚠️ Could not set due date:`, patchDueErr.message);
+          }
+        }
       } catch (e) {
         console.error(`   ❌ Period ${course.period}: Failed to create coursework:`, e.message);
         continue;
@@ -677,6 +705,13 @@ async function main() {
 
     for (const student of pStudents) {
       const targetScore = student.score;
+
+      // Skip scores <= 1: do not push zeroes or near-zeroes into Google Classroom.
+      // Keeps the submission un-scored so it retains its natural 'Missing' status.
+      if (targetScore <= 1) {
+        continue;
+      }
+
       const lookupKey = studentUserMap.get(student.email) ||
                         studentUserMap.get(`${student.id}@orangeusd.org`) ||
                         studentUserMap.get(student.name.toLowerCase());

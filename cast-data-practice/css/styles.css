@@ -1108,14 +1108,15 @@ table.scientific-table tbody tr.active-row {
    ========================================================================== */
 
 /* Hidden on screen */
-.print-worksheet-page {
+.print-worksheet-root,
+.print-page {
   display: none;
 }
 
 @media print {
   @page {
     size: letter portrait;
-    margin: 0.32in 0.40in 0.32in 0.40in;
+    margin: 0.38in 0.45in 0.38in 0.45in;
   }
 
   * {
@@ -1130,8 +1131,8 @@ table.scientific-table tbody tr.active-row {
     margin: 0 !important;
     padding: 0 !important;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-    font-size: 8pt !important;
-    line-height: 1.25 !important;
+    font-size: 9pt !important;
+    line-height: 1.35 !important;
   }
 
   /* Hide screen elements entirely */
@@ -1144,41 +1145,68 @@ table.scientific-table tbody tr.active-row {
     display: none !important;
   }
 
-  /* 1-Page Fixed Budget Container */
-  .print-worksheet-page {
+  /* ==========================================================================
+     HONORS 2-PAGE PRINTABLE WORKSHEET ROOT & PAGE BUDGETS
+     ========================================================================== */
+  .print-worksheet-root {
+    display: block !important;
+    width: 100% !important;
+    background: #ffffff !important;
+  }
+
+  .print-page {
     display: flex !important;
     flex-direction: column;
     justify-content: space-between;
     width: 100%;
-    height: 10.36in;
-    max-height: 10.36in;
-    overflow: hidden;
-    page-break-after: avoid;
-    page-break-inside: avoid;
+    min-height: 10.15in;
+    max-height: 10.22in;
+    box-sizing: border-box;
     background: #ffffff;
+    overflow: hidden;
   }
 
-  /* Header */
+  .p-page-1 {
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+
+  .p-page-2 {
+    page-break-before: always !important;
+    break-before: page !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  .p-page-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ==========================================================================
+     PAGE 1: INVESTIGATION PROCEDURE, DATA TABLE & PLOTTED GRAPH
+     ========================================================================== */
   .p-header {
     border-bottom: 2px solid #0f172a;
-    padding-bottom: 3px;
-    margin-bottom: 5px;
+    padding-bottom: 4px;
+    margin-bottom: 6px;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
   }
 
   .p-header-titles h1 {
-    font-size: 12.5pt;
+    font-size: 13.5pt;
     font-weight: 900;
     color: #0f172a;
-    margin: 0 0 1px 0;
+    margin: 0 0 2px 0;
     text-transform: uppercase;
     letter-spacing: -0.2px;
   }
 
   .p-header-titles .p-sub {
-    font-size: 7.5pt;
+    font-size: 8pt;
     font-weight: 700;
     color: #0284c7;
     margin: 0;
@@ -1187,7 +1215,7 @@ table.scientific-table tbody tr.active-row {
   }
 
   .p-header-meta {
-    font-size: 7.5pt;
+    font-size: 8pt;
     text-align: right;
     display: flex;
     flex-direction: column;
@@ -1203,9 +1231,9 @@ table.scientific-table tbody tr.active-row {
 
   .p-badge {
     display: inline-block;
-    padding: 1px 5px;
+    padding: 2px 6px;
     border-radius: 3px;
-    font-size: 6.8pt;
+    font-size: 7.2pt;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.3px;
@@ -1217,7 +1245,7 @@ table.scientific-table tbody tr.active-row {
     display: flex;
     align-items: baseline;
     gap: 10px;
-    font-size: 7.8pt;
+    font-size: 8.5pt;
   }
 
   .p-field-group {
@@ -1237,9 +1265,9 @@ table.scientific-table tbody tr.active-row {
     display: inline-block;
     color: #0f172a;
     font-weight: 600;
-    height: 1.15em;
+    height: 1.2em;
     vertical-align: baseline;
-    padding: 0 3px;
+    padding: 0 4px;
     box-sizing: border-box;
   }
 
@@ -1250,45 +1278,45 @@ table.scientific-table tbody tr.active-row {
     border-top: 1px solid #e2e8f0;
     border-right: 1px solid #e2e8f0;
     border-bottom: 1px solid #e2e8f0;
-    padding: 3px 6px;
-    font-size: 7.1pt;
-    margin-bottom: 4px;
+    padding: 6px 10px;
+    font-size: 8.8pt;
+    margin-bottom: 8px;
     border-radius: 0 4px 4px 0;
-    line-height: 1.22;
-    max-height: 0.90in;
-    overflow: hidden;
+    line-height: 1.35;
   }
 
   .p-scenario-title {
     font-weight: 800;
     color: #0f172a;
-    font-size: 7.6pt;
-    margin-bottom: 1px;
+    font-size: 8.5pt;
+    margin-bottom: 2px;
     text-transform: uppercase;
+    letter-spacing: 0.2px;
   }
 
-  /* Middle Row: Data Table & Graph (Balanced Side-by-Side) */
-  .p-evidence-grid {
+  /* Middle Evidence Section: Data Table & Plotted Graph */
+  .p-evidence-container {
     display: grid;
-    grid-template-columns: 48% 50%;
+    grid-template-columns: 46% 52%;
     gap: 2%;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
     align-items: stretch;
-    height: 2.25in;
+    flex: 1;
+    min-height: 5.6in;
   }
 
-  .p-evidence-grid.grid-cols-4 {
-    grid-template-columns: 54% 44%;
+  .p-evidence-container.grid-cols-4 {
+    grid-template-columns: 50% 48%;
   }
 
-  .p-evidence-grid.grid-cols-5 {
-    grid-template-columns: 58% 40%;
+  .p-evidence-container.grid-cols-5 {
+    grid-template-columns: 53% 45%;
   }
 
   .p-table-box, .p-graph-box {
     border: 1.5px solid #cbd5e1;
     border-radius: 5px;
-    padding: 3px 5px;
+    padding: 6px 8px;
     background: #ffffff;
     display: flex;
     flex-direction: column;
@@ -1296,7 +1324,7 @@ table.scientific-table tbody tr.active-row {
   }
 
   .p-box-header {
-    font-size: 7.0pt;
+    font-size: 7.8pt;
     font-weight: 800;
     color: #0f172a;
     text-transform: uppercase;
@@ -1304,30 +1332,34 @@ table.scientific-table tbody tr.active-row {
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #e2e8f0;
-    padding-bottom: 2px;
-    margin-bottom: 2px;
+    padding-bottom: 4px;
+    margin-bottom: 6px;
   }
 
   .p-box-header span:first-child {
-    font-size: 6.8pt;
-    line-height: 1.15;
+    font-size: 7.8pt;
+    line-height: 1.2;
     white-space: normal;
-    overflow: visible;
   }
 
   /* Table styling */
+  .p-table-wrapper {
+    flex: 1;
+    overflow: hidden;
+  }
+
   table.p-table {
     width: 100%;
     table-layout: auto;
     border-collapse: collapse;
-    font-size: 6.7pt;
-    line-height: 1.10;
+    font-size: 8.5pt;
+    line-height: 1.25;
   }
   table.p-table th {
     background: #f1f5f9;
     color: #0f172a;
     font-weight: 800;
-    padding: 2px 3px;
+    padding: 4px 6px;
     border: 1px solid #cbd5e1;
     text-align: left;
     white-space: normal;
@@ -1336,7 +1368,7 @@ table.scientific-table tbody tr.active-row {
     vertical-align: bottom;
   }
   table.p-table td {
-    padding: 1.5px 3px;
+    padding: 3.5px 6px;
     border: 1px solid #e2e8f0;
     color: #1e293b;
     word-break: normal;
@@ -1346,26 +1378,25 @@ table.scientific-table tbody tr.active-row {
   table.p-table td:first-child {
     text-align: center;
     white-space: nowrap;
-    width: 12%;
+    width: 13%;
   }
 
-  /* Compact modifier for 4+ columns (e.g. multi-dataset comparisons) */
+  /* Compact modifier for 4+ columns */
   table.p-table.p-table-compact {
-    font-size: 6.1pt;
-    line-height: 1.08;
+    font-size: 7.8pt;
+    line-height: 1.20;
   }
   table.p-table.p-table-compact th {
-    padding: 1.5px 2px;
-    font-size: 5.9pt;
-    line-height: 1.05;
+    padding: 3px 4px;
+    font-size: 7.5pt;
   }
   table.p-table.p-table-compact td {
-    padding: 1px 2px;
-    font-size: 6.1pt;
+    padding: 2.5px 4px;
+    font-size: 7.8pt;
   }
   table.p-table.p-table-compact th:first-child,
   table.p-table.p-table-compact td:first-child {
-    width: 9%;
+    width: 10%;
   }
 
   /* Graph image box */
@@ -1374,53 +1405,125 @@ table.scientific-table tbody tr.active-row {
     display: flex;
     align-items: center;
     justify-content: center;
+    min-height: 4.2in;
+    max-height: 4.8in;
     overflow: hidden;
   }
   .p-graph-img {
     width: 100%;
     height: 100%;
-    max-height: 1.85in;
+    max-height: 4.6in;
     object-fit: contain;
     display: block;
+  }
+
+  /* Accessible Visual Key / Legend for Black & White Printing */
+  .p-graph-access-legend {
+    margin-top: 4px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    border-radius: 3px;
+    padding: 4px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5px;
+  }
+
+  .p-access-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 8pt;
+    color: #1e293b;
+  }
+
+  .p-access-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .p-access-symbol {
+    font-family: monospace;
+    font-weight: 900;
+    font-size: 9pt;
+    width: 14px;
+    text-align: center;
+  }
+
+  .p-access-label {
+    font-weight: 700;
+  }
+
+  .p-access-style {
+    font-size: 7.2pt;
+    color: #64748b;
+    font-weight: 600;
+  }
+
+  .p-access-eq {
+    font-family: monospace;
+    font-size: 7.8pt;
+    font-weight: 700;
+    color: #0369a1;
+  }
+
+  /* ==========================================================================
+     PAGE 2: SCIENTIFIC DATA ANALYSIS, RATE CALCULATIONS & EXPANDED CER
+     ========================================================================== */
+  .p-header-running {
+    border-bottom: 1.5px solid #0f172a;
+    padding-bottom: 3px;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .p-running-title {
+    font-size: 11pt;
+    font-weight: 800;
+    color: #0f172a;
+    text-transform: uppercase;
+    letter-spacing: -0.2px;
   }
 
   /* Questions Box */
   .p-questions-container {
     border: 1.5px solid #cbd5e1;
     border-radius: 5px;
-    padding: 7px 11px;
+    padding: 8px 12px;
     background: #ffffff;
     flex: 1;
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     overflow: hidden;
   }
 
   .p-questions-title {
-    font-size: 7.5pt;
+    font-size: 8pt;
     font-weight: 800;
     color: #0f172a;
     text-transform: uppercase;
     display: flex;
     justify-content: space-between;
     border-bottom: 1px solid #e2e8f0;
-    padding-bottom: 2.5px;
-    margin-bottom: 8px;
+    padding-bottom: 3px;
+    margin-bottom: 6px;
   }
 
   .p-q-item {
-    margin-bottom: 12px;
-    font-size: 7.4pt;
+    margin-bottom: 7px;
+    font-size: 8.5pt;
     line-height: 1.30;
-  }
-  .p-q-item:last-child {
-    margin-bottom: 0;
   }
 
   .p-q-prompt {
     font-weight: 800;
     color: #0f172a;
-    margin-bottom: 3px;
+    font-size: 8.8pt;
+    margin-bottom: 2px;
   }
   .p-q-answer {
     padding-left: 4px;
@@ -1431,8 +1534,8 @@ table.scientific-table tbody tr.active-row {
   .p-inline-blank {
     display: inline-block;
     border-bottom: 1.5px solid #334155;
-    min-width: 50px;
-    height: 1.1em;
+    min-width: 60px;
+    height: 1.2em;
     vertical-align: baseline;
     font-weight: 700;
     text-align: center;
@@ -1440,52 +1543,154 @@ table.scientific-table tbody tr.active-row {
     margin: 0 2px;
   }
 
-  /* Multiple Choice Options List for Printable Worksheet */
+  /* Multiple Choice Options List */
   .p-mc-options-list {
     display: flex;
     flex-direction: column;
-    gap: 2.5px;
+    gap: 3px;
     margin-top: 2px;
   }
   .p-mc-option {
     display: flex;
     align-items: baseline;
     gap: 6px;
-    font-size: 7.3pt;
+    font-size: 8.2pt;
     line-height: 1.25;
     color: #1e293b;
-    font-weight: 400; /* Regular normal weight, not bold */
+    font-weight: 400;
   }
   .p-mc-checkbox {
     font-family: monospace;
     font-weight: 700;
-    font-size: 7.8pt;
+    font-size: 8.5pt;
     color: #0f172a;
     flex-shrink: 0;
   }
   .p-mc-text {
-    font-weight: 400; /* Regular normal weight */
+    font-weight: 400;
     color: #1e293b;
   }
 
-  /* Question 4 Flex Expansion */
-  .p-q-cer {
+  /* Question 3 Slope Container */
+  .p-q-slope-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 5px 10px;
+    margin-top: 2px;
+  }
+
+  .p-slope-work-box {
+    font-size: 8.2pt;
+    color: #334155;
+  }
+
+  .p-work-label {
+    font-size: 7.5pt;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+  }
+
+  .p-work-formula {
+    font-family: monospace;
+    font-size: 8.8pt;
+    font-weight: 700;
+    color: #0f172a;
+    margin-top: 1px;
+  }
+
+  .p-slope-result-box {
+    font-size: 8.8pt;
+    color: #0f172a;
+    white-space: nowrap;
+  }
+
+  /* Question 4 CER Block with Structured Writing Sections */
+  .p-q-cer-block {
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-height: 0;
+    min-height: 4.1in;
+    margin-bottom: 6px;
   }
 
-  /* Free Response CER Writing Box */
+  .p-cer-instruction {
+    font-size: 7.8pt;
+    color: #475569;
+    margin-bottom: 4px;
+    line-height: 1.25;
+  }
+
+  .p-cer-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+  }
+
+  .p-cer-section-row {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .p-cer-label {
+    font-size: 8.2pt;
+    color: #0f172a;
+    margin-bottom: 1px;
+  }
+
+  .p-cer-label em {
+    font-size: 7.5pt;
+    color: #64748b;
+    font-style: italic;
+    font-weight: normal;
+    margin-left: 4px;
+  }
+
+  .p-cer-field-claim {
+    border-bottom: 1.5px solid #334155;
+    min-height: 22px;
+    padding: 1px 4px;
+    font-size: 8.8pt;
+    line-height: 1.30;
+  }
+
+  .p-cer-field-area {
+    border: 1.5px solid #94a3b8;
+    border-radius: 4px;
+    padding: 5px 8px;
+    font-size: 8.5pt;
+    line-height: 1.35;
+    background: #ffffff;
+    box-sizing: border-box;
+  }
+
+  /* Lined guide for paper student worksheets */
+  .p-cer-evidence-area {
+    min-height: 1.45in;
+    background: repeating-linear-gradient(transparent, transparent 21px, #e2e8f0 21px, #e2e8f0 22px);
+  }
+
+  .p-cer-reasoning-area {
+    min-height: 1.30in;
+    background: repeating-linear-gradient(transparent, transparent 21px, #e2e8f0 21px, #e2e8f0 22px);
+  }
+
+  /* Legacy single CER box fallback for pre-filled report */
   .p-cer-box {
     border: 1.5px solid #94a3b8;
     border-radius: 4px;
     padding: 6px 8px;
     background: #ffffff;
     flex: 1;
-    min-height: 1.35in;
-    font-size: 7.2pt;
-    line-height: 1.25;
+    min-height: 2.5in;
+    font-size: 8.5pt;
+    line-height: 1.35;
     margin-top: 3px;
     white-space: pre-wrap;
     overflow: hidden;
@@ -1497,12 +1702,12 @@ table.scientific-table tbody tr.active-row {
     background: #f1f5f9;
     border: 1px solid #cbd5e1;
     border-radius: 3px;
-    padding: 2px 6px;
-    margin-top: 3px;
+    padding: 3px 8px;
+    margin-top: 4px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 6.8pt;
+    font-size: 7.5pt;
     font-weight: 700;
   }
 
@@ -1518,16 +1723,22 @@ table.scientific-table tbody tr.active-row {
     color: #15803d;
   }
 
+  .p-q-syn-block {
+    margin-bottom: 0;
+  }
+
   /* Footer Bar */
   .p-footer-bar {
     border-top: 1px solid #cbd5e1;
-    padding-top: 2px;
+    padding-top: 2.5px;
     margin-top: 4px;
-    font-size: 7pt;
+    font-size: 7.2pt;
     color: #64748b;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    white-space: nowrap;
   }
 }
+
 
