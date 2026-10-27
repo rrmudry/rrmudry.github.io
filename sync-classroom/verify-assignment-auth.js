@@ -160,6 +160,7 @@ async function runPreFlightCheck() {
   // 5. Inspect auth.js in codebase if provided
   console.log('\n5️⃣ Static code analysis for unsafe undefined payload patterns in app...');
   const possiblePaths = [
+    path.join(__dirname, '..', 'Unit_2', 'horizontal_projectile_workbench', 'js', 'auth.js'),
     path.join(__dirname, '..', 'Unit_2', 'newtons_second_law_studio', 'js', 'auth.js'),
     path.join(__dirname, '..', 'Unit_2', 'mass_weight_studio', 'js', 'auth.js'),
     path.join(__dirname, '..', 'Unit_2', 'halls_carriage_lab', 'js', 'auth_manager.js'),

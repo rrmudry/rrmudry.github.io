@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projectile Target Arena</title>
+  <meta name="description" content="Horizontal projectile workbench: read the cliff height and photogate speed, solve the vertical and horizontal motion in two steps, place the bucket, and launch.">
+  <link rel="icon" type="image/svg+xml" href="../../assets/unit2-favicon.svg">
+  <script>
+    // Apply saved theme + projector mode before first paint to avoid a flash
+    try {
+      const proj = localStorage.getItem('hpw_projector') === 'on';
+      if (proj) document.documentElement.classList.add('projector');
+      else if (localStorage.getItem('hpw_theme') === 'dark') document.documentElement.classList.add('theme-dark');
+    } catch (e) { /* storage blocked */ }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Firebase (compat SDK, same as the rest of the site) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
+  <!-- Desmos Scientific Calculator API (same key as the other Unit 2 labs) -->
+  <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+  <script src="../../assets/ngss-helper.js" defer></script>
+</head>
+<body>
+
+  <!-- Sign-in gate: sign in with a school Google account, or continue as an ungraded guest -->
+  <div id="loginGate" class="login-gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+    <div class="gate-card">
+      <div class="gate-icon" aria-hidden="true">🎯</div>
+      <h1 id="gateTitle" class="gate-title">Projectile Target Arena</h1>
+      <p class="gate-sub">Unit 2 · Days 42–45 · Horizontal Projectiles</p>
+      <p class="gate-text">Sign in with your <strong>@orangeusd.org</strong> Google account. Your answers save to your account automatically, so you can pick up where you left off on any Chromebook.</p>
+      <div class="gate-grading">
+        <div><span class="gate-pts">📈</span> Lab 1: test launch speed, graph it, predict (3 pts)</div>
+        <div><span class="gate-pts">🔬</span> Lab 2: measure a strobe photo, read your graphs (2 pts)</div>
+        <div><span class="gate-pts">🎯</span> Target Missions: calculate, place the bucket, launch (5 pts)</div>
+      </div>
+      <button type="button" id="btnGateSignIn" class="btn-google">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" width="20" height="20">
+        Sign in with Google
+      </button>
+      <div class="gate-guest">
+        <button type="button" id="btnGateGuest" class="btn-guest">Continue as Guest</button>
+        <p class="gate-guest-note">Guest progress stays on this device only and is <strong>not graded</strong>.</p>
+      </div>
+      <p id="gateStatus" class="gate-status" aria-live="polite"></p>
+      <p id="gateError" class="gate-error" role="alert" hidden></p>
+      <div class="gate-ngss" data-ngss="HS-PS2-1"></div>
+    </div>
+  </div>
+
+  <header class="app-header">
+    <div class="header-row">
+      <div class="header-left">
+        <span class="app-icon" aria-hidden="true">🎯</span>
+        <div>
+          <h1 class="app-title">Projectile Target Arena</h1>
+          <p class="app-subtitle">Horizontal launch · <span class="formula">t = √(Δy ÷ 5)</span> · <span class="formula">Δx = v<sub>x</sub> × t</span> · g = 10 m/s²</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <label id="viewWrap" class="view-wrap" hidden>View as
+          <select id="viewSelect" aria-label="Teacher: view the workbench as">
+            <option value="teacher">Teacher (all + reveal)</option>
+            <option value="support">P1–3 student (extra support)</option>
+            <option value="cp">P4–6 student</option>
+            <option value="honors">Honors student (P0)</option>
+          </select>
+        </label>
+        <button id="btn-projector-mode" class="btn-tool" title="Big text and extra contrast for the classroom projector">🖥️ Projector</button>
+        <button id="btn-theme-toggle" class="btn-tool" title="Toggle light / dark theme">🌙 Dark</button>
+        <button id="btnAudio" class="btn-tool" title="Toggle sound effects">🔊 On</button>
+        <a href="../../unit2-dashboard.html" class="btn-tool" title="Back to Unit 2 Dashboard">🏠 Unit 2</a>
+        <div id="userChip" class="user-chip" hidden>
+          <span id="saveIndicator" class="save-indicator save-busy" aria-live="polite">⏳ Saving…</span>
+          <span id="userName" class="user-name"></span>
+          <span id="userTrack" class="user-track"></span>
+          <button type="button" id="btnSignOut" class="btn-signout" title="Sign out">Sign out</button>
+          <button type="button" id="btnChipSignIn" class="btn-signout btn-chip-signin" title="Sign in to get credit" hidden>Sign in for credit</button>
+        </div>
+      </div>
+    </div>
+    <nav id="missionStrip" class="mission-strip" aria-label="Missions"></nav>
+  </header>
+
+  <main class="workbench">
+    <!-- LEFT: the apparatus, or (in the labs) graphs of the student's own data -->
+    <div class="left-col">
+      <div id="leftTabs" class="left-tabs" role="tablist" aria-label="Left panel" hidden>
+        <button id="tabStage" class="left-tab active" role="tab">🔭 Apparatus</button>
+        <button id="tabGraphs" class="left-tab" role="tab" disabled>📈 Graphs of my data</button>
+      </div>
+      <section id="stageCard" class="card stage-card" aria-label="Launch apparatus">
+        <div class="canvas-wrap">
+          <canvas id="simCanvas" tabindex="0" aria-label="Cliff, launcher with photogate, floor runway. Arrow keys move the bucket or the measuring crosshair."></canvas>
+        </div>
+        <div class="stage-bar">
+          <button id="btnLaunch" class="btn-launch" disabled>🚀 LAUNCH</button>
+          <div id="bucketCtl" class="bucket-ctl">
+            <span id="bucketLabel" class="bucket-label">🎯 Target position:</span>
+            <button id="btnLeft" class="btn-nudge" aria-label="Move bucket left" disabled>◀</button>
+            <output id="bucketReadout" class="bucket-readout">--</output>
+            <button id="btnRight" class="btn-nudge" aria-label="Move bucket right" disabled>▶</button>
+          </div>
+          <div class="stage-opts">
+            <label class="toggle-inline"><input type="checkbox" id="chkStrobe" checked> Strobe ghosts</label>
+            <div class="speed-group" role="group" aria-label="Playback speed">
+              <button class="speed-pill active" data-speed="1">1×</button>
+              <button class="speed-pill" data-speed="0.5">½×</button>
+              <button class="speed-pill" data-speed="0.25">¼×</button>
+            </div>
+          </div>
+        </div>
+        <p id="simStatus" class="sim-status" role="status" aria-live="polite">🔍 Move your mouse over a ruler or a display to zoom in. Click to pin the zoom.</p>
+      </section>
+      <section id="graphsCard" class="card graphs-card" aria-label="Graphs of your data" hidden>
+        <div id="plotWrapA" class="plot-wrap"><canvas id="plotA"></canvas></div>
+        <div id="plotWrapB" class="plot-wrap"><canvas id="plotB"></canvas></div>
+        <p class="graph-note">Points come from YOUR data table. Move your mouse over a graph: the red dashed lines show where to read each axis.</p>
+      </section>
+    </div>
+
+    <!-- RIGHT: one guided task at a time, with the T-chart (missions) or data table (labs) -->
+    <section class="card task-card" id="taskCard" aria-live="polite"></section>
+  </main>
+
+  <!-- Floating calculator (kept off the T-chart so nothing needed scrolls away) -->
+  <div id="calcPanel" class="calc-panel" hidden>
+    <div class="calc-head"><strong>🧮 Calculator</strong><button id="btnCloseCalc" class="btn-close" aria-label="Close calculator">✕</button></div>
+    <div id="calcHost" class="calc-host"></div>
+  </div>
+
+  <script src="js/text.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/calculation-engine.js"></script>
+  <script src="js/missions.js"></script>
+  <script src="js/labs.js"></script>
+  <script src="js/graph.js"></script>
+  <script src="js/canvas-sim.js"></script>
+  <script src="js/measurement-tool.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>
