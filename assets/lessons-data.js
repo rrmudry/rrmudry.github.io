@@ -4926,6 +4926,7 @@ const lessonsData = [
     },
     "links": {
       "Projectile Target Arena": "Unit_2/horizontal_projectile_workbench/index.html",
+      "Impact Velocity & Vector Angle Workbench": "Unit_2/impact_velocity_workbench/index.html",
       "Horizontal Projectile Motion Explorer": "horizontal-projectile-motion/index.html"
     },
     "assignments": [
@@ -4953,6 +4954,12 @@ const lessonsData = [
         url: "Unit_2/horizontal_projectile_workbench/index.html",
         typeLabel: "Interactive Lab & Target Range",
         description: "Virtual launch bench with strobe analysis, variable height cliff, and bucket landing missions."
+      },
+      {
+        "title": "Impact Velocity & Vector Angle Workbench",
+        url: "Unit_2/impact_velocity_workbench/index.html",
+        typeLabel: "Interactive Vector Studio",
+        description: "Master final vertical velocity v_y, resultant impact speed v, and landing vector angle θ with interactive right triangles and instant feedback."
       },
       {
         "title": "Horizontal Projectile Motion Explorer",

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Impact Velocity &amp; Vector Angle Workbench — 2D Projectile Motion</title>
+  <meta name="description" content="Master 2D projectile impact velocity, final speed, and impact angle θ using horizontal and vertical motion T-charts and interactive vector triangles.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Sticky Header Navigation -->
+  <header class="top-nav">
+    <div class="brand-section">
+      <a href="../../unit2-dashboard.html" class="back-link">
+        <span>←</span> Unit 2 Dashboard
+      </a>
+      <h1 class="app-title">
+        <span>Impact Velocity &amp; Vector Angle Workbench</span>
+        <span class="app-badge" id="appBadge">Honors &amp; Standard</span>
+      </h1>
+    </div>
+
+    <div class="nav-actions">
+      <label for="levelSelect" style="font-size: 0.85rem; font-weight: 700;">Scenario:</label>
+      <select id="levelSelect" class="level-select"></select>
+
+      <button type="button" class="nav-btn" id="btnReadToMe" title="Read current scenario out loud">
+        🔊 Read to me
+      </button>
+      <button type="button" class="nav-btn" id="btnMute" title="Toggle audio synthesis">
+        🔊 Sound FX
+      </button>
+      <button type="button" class="nav-btn" id="btnProjector" title="Toggle large-font classroom projector mode">
+        🖥️ Projector
+      </button>
+      <button type="button" class="nav-btn" id="btnTheme" title="Toggle High-Contrast Light and Dark themes">
+        🌓 Theme
+      </button>
+    </div>
+  </header>
+
+  <!-- Main 2-Column Split Workspace -->
+  <main class="main-layout">
+    
+    <!-- Left Column: Canvas Apparatus -->
+    <section class="apparatus-column" aria-label="Physics Apparatus Simulation">
+      <div class="canvas-card">
+        <div class="canvas-container" id="canvasWrap">
+          <canvas id="simCanvas"></canvas>
+        </div>
+
+        <!-- Apparatus Toolbar -->
+        <div class="apparatus-toolbar">
+          <button type="button" class="launch-btn" id="btnLaunch">
+            🚀 LAUNCH
+          </button>
+
+          <div class="target-adjust">
+            <span class="target-badge-label">🎯 Target:</span>
+            <button type="button" class="target-btn" id="btnTargetMinus" title="Move bucket left">◀</button>
+            <span class="target-val" id="targetPosDisplay">1.20 m</span>
+            <button type="button" class="target-btn" id="btnTargetPlus" title="Move bucket right">▶</button>
+          </div>
+
+          <div class="sim-toggles">
+            <label class="checkbox-label">
+              <input type="checkbox" id="chkStrobe" checked>
+              <span>Strobe ghosts (0.5s)</span>
+            </label>
+
+            <div class="speed-group" role="group" aria-label="Playback speed">
+              <button type="button" class="speed-btn active" data-speed="1.0">1x</button>
+              <button type="button" class="speed-btn" data-speed="0.5">½x</button>
+              <button type="button" class="speed-btn" data-speed="0.1">⅒x</button>
+            </div>
+
+            <button type="button" class="nav-btn" id="btnZoomVectors" title="Inspect magnified 2D vector triangle at ground landing">
+              🔍 Vector Triangle Zoom
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="zoom-hint-banner">
+        <span>🔍</span>
+        <span>Click <strong>Vector Triangle Zoom</strong> or hover over the landing impact point to inspect the right-triangle components (v_x, v_y, resultant v, and angle θ).</span>
+      </div>
+    </section>
+
+    <!-- Right Column: Question & Motion T-Chart Cards -->
+    <section class="question-column" aria-label="Question Workspace">
+      
+      <!-- Scenario Title & Progress Card -->
+      <div class="question-header-card">
+        <div class="level-top-row">
+          <div style="display: flex; align-items: center; gap: 0.6rem;">
+            <span class="level-pill-badge" id="levelBadge">★ HONORS H1</span>
+            <span class="level-title-text" id="levelTitle">Impact Velocity: Tabletop</span>
+          </div>
+          <div class="level-dots-wrap" id="levelDots"></div>
+        </div>
+
+        <div class="question-prompt">
+          <span class="prompt-icon">⭐</span>
+          <span id="questionSubtitle">Impact · Part C. At what angle below the ground does the ball hit?</span>
+        </div>
+
+        <div class="formula-hint-banner">
+          Measure from the horizontal: <span class="formula">θ = tan⁻¹(v_y ÷ v_x)</span>
+        </div>
+      </div>
+
+      <!-- 2-Column T-Chart Split -->
+      <div class="t-chart-grid">
+        
+        <!-- Column 1: Vertical Motion (Y) -->
+        <div class="chart-card vertical">
+          <div class="card-header-bar">
+            <div class="card-title">⬇ VERTICAL MOTION (Y)</div>
+            <div class="card-subtitle">Free fall: a = 10 m/s² down</div>
+          </div>
+
+          <div class="step-row">
+            <span class="step-label">GIVEN</span>
+            <div class="step-input-wrap">
+              <span class="math-var">Δy =</span>
+              <input type="text" class="ans-input correct" id="inputDy" readonly>
+              <span class="unit-tag">m</span>
+            </div>
+            <span class="check-indicator ok" id="checkDy">✓</span>
+          </div>
+
+          <div class="step-row">
+            <span class="step-label">FORMULA</span>
+            <div class="step-formula-box">t = √(Δy ÷ 5)</div>
+            <span></span>
+          </div>
+
+          <div class="step-row">
+            <span class="step-label">STEP 1</span>
+            <div class="step-input-wrap">
+              <span class="math-var">t =</span>
+              <input type="text" class="ans-input" id="inputT" placeholder="?" inputmode="decimal">
+              <span class="unit-tag">s</span>
+            </div>
+            <span class="check-indicator" id="checkT">?</span>
+          </div>
+        </div>
+
+        <!-- Column 2: Horizontal Motion (X) -->
+        <div class="chart-card horizontal">
+          <div class="card-header-bar">
+            <div class="card-title">➡ HORIZONTAL MOTION (X)</div>
+            <div class="card-subtitle">Constant speed: a = 0</div>
+          </div>
+
+          <div class="step-row">
+            <span class="step-label">GIVEN</span>
+            <div class="step-input-wrap">
+              <span class="math-var">v_x =</span>
+              <input type="text" class="ans-input correct" id="inputVx" readonly>
+              <span class="unit-tag">m/s</span>
+            </div>
+            <span class="check-indicator ok" id="checkVx">✓</span>
+          </div>
+
+          <div class="step-row">
+            <span class="step-label">FORMULA</span>
+            <div class="step-formula-box">Δx = v_x × t</div>
+            <span></span>
+          </div>
+
+          <div class="step-row">
+            <span class="step-label">STEP 2</span>
+            <div class="step-input-wrap">
+              <span class="math-var">Δx =</span>
+              <input type="text" class="ans-input" id="inputDx" placeholder="?" inputmode="decimal">
+              <span class="unit-tag">m</span>
+            </div>
+            <span class="check-indicator" id="checkDx">?</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Hero Impact Velocity Card (The focal problem type) -->
+      <div class="impact-hero-card">
+        <div class="impact-hero-header">
+          <div>
+            <div class="impact-hero-title">
+              <span>⭐ IMPACT VELOCITY</span>
+            </div>
+            <div class="impact-hero-sub">The instant before it lands on the ground</div>
+          </div>
+          <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent-purple);">
+            Resultant 2D Vector
+          </span>
+        </div>
+
+        <div class="impact-body-split">
+          <!-- Formulas list -->
+          <div class="impact-formulas-list">
+            <div class="impact-formula-item">
+              <span class="formula-bullet"></span>
+              <span>v_y = 10 × t</span>
+            </div>
+            <div class="impact-formula-item">
+              <span class="formula-bullet"></span>
+              <span>v = √(v_x² + v_y²)</span>
+            </div>
+            <div class="impact-formula-item">
+              <span class="formula-bullet"></span>
+              <span>θ = tan⁻¹(v_y ÷ v_x)</span>
+            </div>
+          </div>
+
+          <!-- Answer inputs -->
+          <div class="impact-inputs-list">
+            <div class="impact-input-row">
+              <span class="math-var">v_y =</span>
+              <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <input type="text" class="ans-input" id="inputVy" placeholder="?" inputmode="decimal">
+                <span class="unit-tag">m/s</span>
+                <span class="check-indicator" id="checkVy">?</span>
+              </div>
+            </div>
+
+            <div class="impact-input-row">
+              <span class="math-var">v =</span>
+              <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <input type="text" class="ans-input" id="inputV" placeholder="?" inputmode="decimal">
+                <span class="unit-tag">m/s</span>
+                <span class="check-indicator" id="checkV">?</span>
+              </div>
+            </div>
+
+            <div class="impact-input-row">
+              <span class="math-var">θ =</span>
+              <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <input type="text" class="ans-input" id="inputTheta" placeholder="?" inputmode="decimal">
+                <span class="unit-tag">°</span>
+                <span class="check-indicator" id="checkTheta">?</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="action-toolbar">
+        <button type="button" class="btn-primary-check" id="btnCheck">
+          Check ✓
+        </button>
+        <button type="button" class="btn-calc-toggle" id="btnCalcToggle">
+          🧮 Calculator
+        </button>
+        <button type="button" class="btn-hint" id="btnHint">
+          Show a hint (3 left)
+        </button>
+        <button type="button" class="btn-reveal" id="btnReveal">
+          Reveal Worked Steps
+        </button>
+      </div>
+
+      <!-- Feedback container -->
+      <div class="feedback-box" id="feedbackBox"></div>
+
+    </section>
+
+  </main>
+
+  <!-- Interactive Vector Sandbox Section -->
+  <section class="sandbox-card" id="sandboxPanel" aria-label="Interactive Vector Triangle Sandbox">
+    <div class="sandbox-header">
+      <div class="sandbox-title">
+        <span>🔬 Interactive Vector Triangle Sandbox</span>
+      </div>
+      <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-dim);">
+        Explore how cliff height Δy and horizontal launch speed v_x shape the impact triangle!
+      </span>
+    </div>
+
+    <div class="sandbox-sliders-grid">
+      <div class="slider-group">
+        <div class="slider-label-row">
+          <span>Cliff Height (Δy):</span>
+          <span id="valSliderDy" style="font-family: var(--font-mono); color: var(--accent-orange);">0.8 m</span>
+        </div>
+        <input type="range" class="slider-range" id="sliderDy" min="0.2" max="45.0" step="0.1" value="0.8">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-label-row">
+          <span>Horizontal Launch Speed (v_x):</span>
+          <span id="valSliderVx" style="font-family: var(--font-mono); color: var(--accent-cyan);">3.0 m/s</span>
+        </div>
+        <input type="range" class="slider-range" id="sliderVx" min="1.0" max="40.0" step="0.5" value="3.0">
+      </div>
+    </div>
+  </section>
+
+  <!-- Floating Scientific Calculator Modal -->
+  <div class="calc-modal-wrapper" id="calcModal" role="dialog" aria-label="Scientific Calculator">
+    <div class="calc-header">
+      <div class="calc-title">
+        <span>🧮 Scientific Calculator (DEG)</span>
+      </div>
+      <button type="button" class="calc-close-btn" id="btnCalcClose" title="Close calculator">×</button>
+    </div>
+    <div id="calcContainer"></div>
+  </div>
+
+  <!-- Scripts (Zero unpkg, Zero Babel) -->
+  <script src="js/audio.js"></script>
+  <script src="js/calculation-engine.js"></script>
+  <script src="js/calculator.js"></script>
+  <script src="js/scenarios.js"></script>
+  <script src="js/canvas-sim.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>

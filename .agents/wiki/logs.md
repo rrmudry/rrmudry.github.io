@@ -3,6 +3,18 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-27 — Impact Velocity & Vector Angle Workbench: Dedicated 2D Vector Simulator & Diagnostic Suite
+**Patterns Updated**: `cast-aligned-webapp-design.md`, `classroom-projection-and-high-contrast-theming.md`.
+**Files Added/Updated**: `Unit_2/impact_velocity_workbench/` (all 6 files: `index.html`, `css/style.css`, `js/audio.js`, `js/calculation-engine.js`, `js/calculator.js`, `js/canvas-sim.js`, `js/scenarios.js`, `js/app.js`), `impact-velocity/index.html`, `assets/lessons-data.js`, `partials/footer.html`.
+
+**Changes**:
+- **Dedicated Impact Velocity & Angle Interactive Workbench**: Created an inquiry simulation focused exclusively on 2D horizontal projectile impact velocity ($v_y = 10 \times t$, $v = \sqrt{v_x^2 + v_y^2}$, $\theta = \tan^{-1}(v_y \div v_x)$).
+- **Strictly Zero LaTeX Notation**: Applied clean plain-text/Unicode formulas throughout (`Δy`, `Δx`, `v = √(v_x² + v_y²)`, `θ = tan⁻¹(v_y ÷ v_x)`).
+- **Hero Magnified 2D Vector Triangle**: Canvas simulation visualizes the real-time right triangle with component vectors ($v_x$ blue, $v_y$ orange, resultant $v$ purple, angle $\theta$ green arc) upon ground impact. Includes interactive hover/click 2.5x magnifier.
+- **Embedded DEG-Mode Scientific Calculator**: Built-in keypad with degree-mode inverse tangent (`tan⁻¹`), square root (`√`), square (`x²`), and 1-click `⏎ Insert to Active Field` button.
+- **Cognitive Misconception Diagnostics**: Targeted hints recognize when students linearly add $v_x + v_y$, omit square roots, have calculators in radians mode, or measure from the vertical wall.
+- **High-Contrast Light Mode (WCAG AAA) & Projector Mode**: High-contrast saturated accents, dynamic canvas palette re-rendering, text scaling, Web Audio synthesizer, and speech synthesis narration.
+
 ## 2026-10-27 — Horizontal Projectile Workbench: Student Progress Sync & Firestore Rules Verification
 **Patterns Updated**: `cast-aligned-webapp-design.md`, `classroom-projection-and-high-contrast-theming.md`.
 **Files Added/Updated**: `Unit_2/horizontal_projectile_workbench/` (all 12 app files), `sync-classroom/verify-assignment-auth.js`, `partials/footer.html`.
@@ -113,6 +125,26 @@ Append-only log tracking pattern changes across recent sessions.
 - **Automated Validation**:
   - Verified 100% pass on `tests/test_cast_data_practice.js` including new unit tests for `resolveSeriesVisuals`.
   - Verified 2-page print rendering via headless Puppeteer and visual `pdftoppm` inspection.
+
+## 2026-10-23 — Student Data Audit: Hot Wheels Air Brake Lab Forensics & Remediation Protocol (`admin/reports/`)
+**Patterns Updated**: `student-data-audit-report.md`.
+**Files Created/Updated**: `admin/reports/Hot_Wheels_Air_Brake_Lab_Data_Audit_Report.html`, `admin/reports/Hot_Wheels_Air_Brake_Lab_Data_Audit_Report.pdf`, `admin/reports/index.html`, `scripts/compile-hot-wheels-report-pdf.js`.
+
+**Changes**:
+- **Comprehensive Cross-Period Telemetry Audit (Periods 1, 2, 3)**:
+  - Audited 35 student datasets from `student_results/unit2_day37_hot_wheels_air_resistance` joined with `roster` schema.
+  - Established Period 1 baseline benchmark: **Zayd Abuebaid (403767)** (`159.7 → 105.7 → 94.0 → 78.0 cm`, -51.2% monotonic aerodynamic decay).
+  - Detected and categorized 7 anomalous/corrupted datasets across sections:
+    - **Period 1 (1 anomaly)**: Airan Morales (385835) recorded stopwatch seconds/meters (`1.1, 1.0, 1.0, 0.5`) rather than track centimeters.
+    - **Period 2 (2 anomalies)**: Anthony Baez (389113) entered partner decimal typo `1.07` vs `107 cm` (Pod 2C); Jacqueline Cabrera (425747) experienced sudden Fan 3 crash/stall to `13.7 cm` vs `126.3 cm`.
+    - **Period 3 (4 anomalies in Pod 3D + 1 corrupted draft)**: Pod 3D (Lesslie Enriquez Rodriguez, Emily Miranda Silio, Jimena Herrera Morales, Marleny Vazquez Ibarra) recorded unphysical Fan 2 surge (`175.0 cm > 161.0 cm`), Lesslie entered mixed units, Marleny entered partner typo `1` on Fan 1, and Kimberly Bonola-Pinto (397380) submitted a stray single-entry draft.
+- **Engineered Standardized 2-Page Letter Report**:
+  - Generated `admin/reports/Hot_Wheels_Air_Brake_Lab_Data_Audit_Report.html` following strict Print CSS budget (`@page { size: letter portrait; margin: 0.22in 0.28in; }`, zero overflow).
+  - **Page 1**: Telemetry KPIs (35 analyzed, 21 authentic [60%], 7 flagged [20%], 7 drafts [20%]), Section Pacing Matrix, and Master Anomaly Directory strictly sorted by period (P1 &rarr; P2 &rarr; P3).
+  - **Page 2**: Dedicated In-Class Teacher Remediation Protocol in a 2-column layout (Morning P1/P2 vs P3/Pedagogical Anchors) featuring exact student-desk verbal coaching scripts and draft checklists.
+  - Compiled exact 2-page PDF `admin/reports/Hot_Wheels_Air_Brake_Lab_Data_Audit_Report.pdf` via Puppeteer.
+- **Reports Vault Integration**:
+  - Linked interactive web report and downloadable PDF card at top of `admin/reports/index.html`.
 
 ## 2026-10-23 — Curriculum Progression: Day 40 CAST 3D Performance Task Bell-Ringer (`assets/lessons-data.js` & `Unit_2/outline.md`)
 **Patterns Updated**: `bell-ringer-config.md`.
