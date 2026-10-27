@@ -200,6 +200,249 @@
       animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
 
+        /* ====================================================================
+       100M SPRINT TRACK STYLES
+       ==================================================================== */
+    .sprint-arena {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1.25rem;
+      padding: 1.25rem;
+      overflow-x: auto;
+      position: relative;
+    }
+
+    .track-surface {
+      min-width: 900px;
+      position: relative;
+      background: linear-gradient(180deg, rgba(30, 27, 46, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+      border: 2px solid var(--border-color);
+      border-radius: 1rem;
+      padding: 1rem 0;
+      overflow: hidden;
+    }
+    html.theme-light .track-surface {
+      background: linear-gradient(180deg, #fef2f2 0%, #fee2e2 100%);
+      border-color: #fca5a5;
+    }
+
+    /* Distance Scale Header */
+    .distance-scale-header {
+      display: flex;
+      margin-left: 210px; /* space for lane info column */
+      margin-right: 56px; /* space for finish tape */
+      border-bottom: 2px solid var(--border-strong);
+      padding-bottom: 0.6rem;
+      position: relative;
+      height: 28px;
+    }
+    .scale-mark {
+      position: absolute;
+      transform: translateX(-50%);
+      font-size: 0.72rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+    .scale-mark::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      width: 1px;
+      height: 8px;
+      background: var(--border-strong);
+    }
+    .scale-mark.mark-milestone {
+      color: var(--accent-cyan);
+    }
+    .scale-mark.mark-finish {
+      color: #eab308;
+      font-weight: 900;
+    }
+
+    /* Track Lane */
+    .track-lane {
+      position: relative;
+      display: flex;
+      align-items: center;
+      height: 74px;
+      border-bottom: 1px dashed var(--border-color);
+      transition: background-color 0.2s ease;
+    }
+    .track-lane:last-child {
+      border-bottom: none;
+    }
+    .track-lane:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    html.theme-light .track-lane:hover {
+      background: rgba(0, 0, 0, 0.02);
+    }
+
+    /* Lane Identity Info Card (Left) */
+    .lane-info {
+      width: 210px;
+      flex-shrink: 0;
+      padding: 0 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      z-index: 10;
+      background: var(--bg-card);
+      border-right: 2px solid var(--border-color);
+      height: 100%;
+      justify-content: center;
+    }
+    html.theme-light .lane-info {
+      background: #ffffff;
+    }
+
+    /* Lane Running Zone */
+    .lane-runway {
+      position: relative;
+      flex: 1;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      padding-right: 56px; /* space for finish line tape */
+    }
+
+    /* Progress trail bar in lane */
+    .lane-trail-bg {
+      position: absolute;
+      left: 0;
+      right: 56px;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 9999px;
+    }
+    html.theme-light .lane-trail-bg {
+      background: rgba(0, 0, 0, 0.08);
+    }
+
+    .lane-trail-fill {
+      position: absolute;
+      left: 0;
+      height: 100%;
+      border-radius: 9999px;
+      background: linear-gradient(90deg, rgba(6, 182, 212, 0.25), var(--accent-cyan));
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+      transition: width 1.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .lane-trail-fill.trail-finished {
+      background: linear-gradient(90deg, rgba(234, 179, 8, 0.4), #eab308);
+      box-shadow: 0 0 16px rgba(234, 179, 8, 0.7);
+    }
+
+    /* Vertical grid tick guides at milestones across all lanes */
+    .milestone-guide {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      border-left: 1px dashed rgba(255, 255, 255, 0.08);
+      pointer-events: none;
+      z-index: 2;
+    }
+    html.theme-light .milestone-guide {
+      border-left-color: rgba(0, 0, 0, 0.08);
+    }
+
+    /* The Moving Sprinter */
+    .sprinter {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: left 1.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 6;
+      transform: translateX(-50%);
+      cursor: pointer;
+    }
+
+    .sprinter-avatar {
+      font-size: 1.85rem;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+      animation: runner-bob 0.7s infinite ease-in-out alternate;
+      line-height: 1;
+    }
+
+    @keyframes runner-bob {
+      from { transform: translateY(0) scale(1); }
+      to { transform: translateY(-5px) scale(1.06); }
+    }
+
+    .sprinter-badge {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 800;
+      background: var(--bg-page);
+      color: var(--text-main);
+      border: 1px solid var(--border-strong);
+      border-radius: 9999px;
+      padding: 0.1rem 0.5rem;
+      white-space: nowrap;
+      margin-top: 2px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+    .sprinter-badge.finished-badge {
+      border-color: #eab308;
+      color: #eab308;
+      background: rgba(234, 179, 8, 0.15);
+      font-weight: 900;
+    }
+
+    /* Checkered Finish Line */
+    .finish-tape {
+      position: absolute;
+      right: 50px;
+      top: 0;
+      bottom: 0;
+      width: 24px;
+      background-image:
+        linear-gradient(45deg, #000 25%, transparent 25%),
+        linear-gradient(-45deg, #000 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #000 75%),
+        linear-gradient(-45deg, transparent 75%, #000 75%);
+      background-size: 12px 12px;
+      background-position: 0 0, 0 6px, 6px -6px, -6px 0px;
+      background-color: #fff;
+      opacity: 0.4;
+      z-index: 4;
+      border-left: 2px solid #ef4444;
+      border-right: 2px solid #ef4444;
+    }
+    html.theme-light .finish-tape {
+      opacity: 0.7;
+    }
+
+    /* Victory Celebration */
+    @keyframes victory-glow {
+      0%, 100% { filter: drop-shadow(0 0 8px rgba(234, 179, 8, 0.6)); }
+      50% { filter: drop-shadow(0 0 20px rgba(234, 179, 8, 1)); }
+    }
+    .victory-sprinter .sprinter-avatar {
+      animation: victory-glow 1.2s infinite alternate, runner-bob 0.45s infinite alternate;
+    }
+
+    /* View Switcher button active state */
+    .view-toggle-btn {
+      color: var(--text-muted);
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+    .view-toggle-btn.active {
+      background: var(--accent-cyan);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(6, 182, 212, 0.4);
+    }
+    html.theme-light .view-toggle-btn.active {
+      background: #0284c7;
+      color: #ffffff;
+    }
+
     /* Table custom scroll */
     .custom-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
     .custom-scroll::-webkit-scrollbar-track { background: var(--bg-page); }
@@ -297,6 +540,30 @@
       </div>
     </div>
 
+    <!-- View Mode Switcher -->
+    <div class="flex items-center justify-between gap-3 flex-wrap bg-[var(--bg-card)] p-2.5 sm:p-3 rounded-2xl border border-[var(--border-color)]">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-black uppercase tracking-wider text-[var(--text-muted)]">Display View:</span>
+        <div class="inline-flex p-1 rounded-xl bg-[var(--bg-subcard)] border border-[var(--border-color)] text-xs font-extrabold" role="tablist">
+          <button id="viewBtnTrack" class="view-toggle-btn px-3 py-1.5 rounded-lg active" data-view="track">
+            🏃 100m Sprint Track
+          </button>
+          <button id="viewBtnCards" class="view-toggle-btn px-3 py-1.5 rounded-lg" data-view="cards">
+            👑 Podium Cards
+          </button>
+          <button id="viewBtnSplit" class="view-toggle-btn px-3 py-1.5 rounded-lg" data-view="split">
+            ✨ Split View
+          </button>
+        </div>
+      </div>
+
+      <div class="text-xs font-mono font-bold text-[var(--text-dim)] flex items-center gap-2">
+        <span>⚡ 10 pts = 100m Finish Line</span>
+        <span class="hidden sm:inline">·</span>
+        <span class="hidden sm:inline">1 pt = 10m sprint progress</span>
+      </div>
+    </div>
+
     <!-- Period Live Summary Metrics Ribbon -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
       <div class="glass-card p-4 space-y-1 border-l-4 border-[var(--accent-cyan)]">
@@ -324,8 +591,57 @@
       </div>
     </div>
 
+    <!-- ================= 100M SPRINT TRACK SECTION ================= -->
+    <section id="sprintTrackSection" class="space-y-3">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div class="flex items-center gap-2.5">
+          <h2 class="text-lg sm:text-xl font-black tracking-tight flex items-center gap-2">
+            <span>🏃</span> 100m Sprint Track // Top 10 Hard Workers
+          </h2>
+          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-black uppercase tracking-wider bg-rose-500/20 text-rose-400 border border-rose-500/40">
+            Live Race
+          </span>
+        </div>
+        <div class="text-xs text-[var(--text-dim)] font-mono font-bold">
+          <span>🏁 Finish: Mission 5 Mastery (10/10)</span>
+        </div>
+      </div>
+
+      <div class="sprint-arena">
+        <div class="track-surface">
+          <!-- Distance Scale Header -->
+          <div class="distance-scale-header">
+            <span class="scale-mark" style="left: 0%;">0m (START)</span>
+            <span class="scale-mark mark-milestone" style="left: 30%;">30m (Lab 1)</span>
+            <span class="scale-mark mark-milestone" style="left: 50%;">50m (Lab 2)</span>
+            <span class="scale-mark mark-milestone" style="left: 60%;">60m (M1)</span>
+            <span class="scale-mark mark-milestone" style="left: 70%;">70m (M2)</span>
+            <span class="scale-mark mark-milestone" style="left: 80%;">80m (M3)</span>
+            <span class="scale-mark mark-milestone" style="left: 90%;">90m (M4)</span>
+            <span class="scale-mark mark-finish" style="left: 100%;">🏁 100m (FINISH)</span>
+          </div>
+
+          <!-- Vertical Guide Lines across all lanes -->
+          <div class="milestone-guide" style="left: calc(210px + (100% - 266px) * 0.30);"></div>
+          <div class="milestone-guide" style="left: calc(210px + (100% - 266px) * 0.50);"></div>
+          <div class="milestone-guide" style="left: calc(210px + (100% - 266px) * 0.60);"></div>
+          <div class="milestone-guide" style="left: calc(210px + (100% - 266px) * 0.70);"></div>
+          <div class="milestone-guide" style="left: calc(210px + (100% - 266px) * 0.80);"></div>
+          <div class="milestone-guide" style="left: calc(210px + (100% - 266px) * 0.90);"></div>
+          <div class="finish-tape"></div>
+
+          <!-- Lanes 1 to 10 Container -->
+          <div id="sprintLanesContainer" class="space-y-0">
+            <div class="p-12 text-center text-[var(--text-dim)] font-mono font-bold text-xs">
+              Initializing Sprint Lanes...
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ================= TOP 3 PODIUM SECTION ================= -->
-    <section class="space-y-3">
+    <section id="podiumSection" class="space-y-3">
       <div class="flex items-center justify-between">
         <h2 class="text-lg sm:text-xl font-black tracking-tight flex items-center gap-2">
           <span>👑</span> Podium Leaders
@@ -342,7 +658,7 @@
     </section>
 
     <!-- ================= RANKS 4 THROUGH 10 LEADERBOARD ================= -->
-    <section class="space-y-3">
+    <section id="ranksSection" class="space-y-3">
       <div class="flex items-center justify-between">
         <h2 class="text-lg sm:text-xl font-black tracking-tight flex items-center gap-2">
           <span>🔥</span> Hard Workers (Ranks 4–10)
@@ -669,6 +985,114 @@
       // ----------------------------------------------------------------------
       // Dashboard UI Rendering
       // ----------------------------------------------------------------------
+      
+      // Sprinter icons by rank
+      const SPRINTER_ICONS = ['🐆', '🚀', '🏎️', '🏃', '⚡', '🦅', '🚴', '🐎', '🛸', '🎯'];
+
+      // View Mode Toggle Controller
+      let currentView = localStorage.getItem('hpw_monitor_view') || 'track';
+
+      function initViewMode() {
+        const buttons = document.querySelectorAll('.view-toggle-btn');
+        function setView(v) {
+          currentView = v;
+          localStorage.setItem('hpw_monitor_view', v);
+          buttons.forEach(b => b.classList.toggle('active', b.dataset.view === v));
+
+          const trackEl = document.getElementById('sprintTrackSection');
+          const podiumEl = document.getElementById('podiumSection');
+          const ranksEl = document.getElementById('ranksSection');
+
+          if (v === 'track') {
+            trackEl.classList.remove('hidden');
+            podiumEl.classList.add('hidden');
+            ranksEl.classList.add('hidden');
+          } else if (v === 'cards') {
+            trackEl.classList.add('hidden');
+            podiumEl.classList.remove('hidden');
+            ranksEl.classList.remove('hidden');
+          } else if (v === 'split') {
+            trackEl.classList.remove('hidden');
+            podiumEl.classList.remove('hidden');
+            ranksEl.classList.remove('hidden');
+          }
+        }
+
+        buttons.forEach(b => {
+          b.addEventListener('click', () => setView(b.dataset.view));
+        });
+
+        const p = new URLSearchParams(window.location.search).get('view');
+        if (p && ['track', 'cards', 'split'].includes(p)) currentView = p;
+        setView(currentView);
+      }
+
+      function renderSprintTrack(top10) {
+        const container = document.getElementById('sprintLanesContainer');
+        if (!container) return;
+        if (!top10 || top10.length === 0) {
+          container.innerHTML = `
+            <div class="p-12 text-center text-[var(--text-dim)] font-mono font-bold text-xs">
+              No active sprinters in Period ${currentPeriod} yet.
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = top10.map((s, idx) => {
+          const laneNum = idx + 1;
+          const pct = Math.min(100, Math.max(0, (s.score / 10) * 100));
+          const icon = SPRINTER_ICONS[idx % SPRINTER_ICONS.length];
+          const isFinished = s.score >= 10;
+          const firstName = s.name.split(' ')[0] || s.name;
+          const stationText = friendlyStation(s.currentStation).replace('Solving ', '');
+
+          let laneBadgeClass = 'bg-[var(--bg-subcard)] text-[var(--text-main)] border border-[var(--border-color)]';
+          if (laneNum === 1) laneBadgeClass = 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/50';
+          else if (laneNum === 2) laneBadgeClass = 'bg-slate-400/20 text-slate-300 border border-slate-400/50';
+          else if (laneNum === 3) laneBadgeClass = 'bg-amber-600/20 text-amber-500 border border-amber-600/50';
+
+          return `
+            <div class="track-lane ${isFinished ? 'lane-complete' : ''}" data-student-id="${s.id}">
+              <!-- Lane Info (Left) -->
+              <div class="lane-info">
+                <div class="flex items-center justify-between gap-1">
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-black ${laneBadgeClass}">
+                    LANE ${laneNum}
+                  </span>
+                  <span class="text-[10px] font-mono font-bold text-[var(--text-dim)]">P${s.period}</span>
+                </div>
+                <p class="font-bold text-xs sm:text-sm text-[var(--text-main)] truncate" title="${s.name}">
+                  ${s.name}
+                </p>
+                <div class="flex items-center justify-between text-[11px] font-mono font-extrabold text-[var(--text-dim)]">
+                  <span class="text-[var(--accent-cyan)] font-black">${Math.round(s.score * 10)}m</span>
+                  <span>${s.score}/10 pts</span>
+                </div>
+              </div>
+
+              <!-- Lane Runway (Right) -->
+              <div class="lane-runway">
+                <!-- Background track line -->
+                <div class="lane-trail-bg">
+                  <div class="lane-trail-fill ${isFinished ? 'trail-finished' : ''}" style="width: ${pct}%;"></div>
+                </div>
+
+                <!-- Sprinter Avatar -->
+                <div class="sprinter ${isFinished ? 'victory-sprinter' : ''}" style="left: ${pct}%;" title="${s.name}: ${s.score}/10 pts (${Math.round(s.score * 10)}m) - ${friendlyStation(s.currentStation)}">
+                  <span class="sprinter-avatar" role="img" aria-label="Runner icon">
+                    ${isFinished ? '🏆' : icon}
+                  </span>
+                  <span class="sprinter-badge ${isFinished ? 'finished-badge' : ''}">
+                    ${firstName} · ${Math.round(s.score * 10)}m ${isFinished ? '🏁' : ''}
+                  </span>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
       function renderDashboard() {
         const students = getFilteredStudents();
         const podiumContainer = document.getElementById('podiumContainer');
@@ -710,6 +1134,10 @@
           document.getElementById('statAvgPct').textContent = '0% average';
           document.getElementById('statFinishersCount').textContent = '0';
         }
+
+        // 1. Render Top 3 Podium
+        // Render 100m Sprint Track (Top 10)
+        renderSprintTrack(students.slice(0, 10));
 
         // 1. Render Top 3 Podium
         const top3 = students.slice(0, 3);
@@ -915,6 +1343,7 @@
       document.addEventListener('DOMContentLoaded', () => {
         initTheming();
         setupPeriodFilters();
+        initViewMode();
         checkAuth();
       });
 
