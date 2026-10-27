@@ -4774,10 +4774,155 @@ const lessonsData = [
       "Reading": "Deconstructing physics word problems to isolate horizontal speed from initial vertical velocity."
     },
     "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "An archer fires an arrow horizontally from a cliff 20 meters high. Using g = 10 m/s², how many seconds does it take for the arrow to hit the ground below?",
-      "explanation": "Using Δy = ½ · g · t² = 5 · t²: 20 m = 5 · t², so t² = 4, meaning t = 2.0 seconds. The arrow remains airborne for 2.0 seconds regardless of its horizontal speed.",
-      "defaultDuration": 3
+      "type": "cast_challenge",
+      "title": "CAST 3D Performance Task: Horizontal Projectile Launch vs. Free Fall",
+      "defaultDuration": 5,
+      "standards": {
+        "dci": "HS-PS2.A: Forces & Motion",
+        "sep": "SEP-4: Analyzing & Interpreting Data",
+        "ccc": "CCC-2: Cause & Effect / Independence of Coordinates"
+      },
+      "phenomenon": {
+        "title": "Photogate Launch vs. Vertical Free Fall Telemetry",
+        "type": "data_table",
+        "text": "In a physics inquiry lab, a precision horizontal launcher at the edge of a cliff (height Δy = 20.0 m) fires metal spheres at various horizontal velocities (v_x). A synchronized drop mechanism releases an identical sphere from rest at the exact same instant from the same 20.0 m height. Photogates and floor impact sensors record the time of flight (Δt) and landing distance (Δx) for four separate trials.",
+        "dataTable": {
+          "caption": "Horizontal Launch vs. Vertical Free Fall Telemetry Log (g = 10 m/s²)",
+          "headers": [
+            "Trial #",
+            "Launch Condition",
+            "Cliff Height (Δy)",
+            "Horizontal Speed (v_x)",
+            "Time to Hit Floor (Δt)",
+            "Floor Landing Distance (Δx)"
+          ],
+          "rows": [
+            {
+              "col_0": "Trial 1",
+              "col_1": "Low-Speed Horizontal Launch",
+              "col_2": "20.0 m",
+              "col_3": "2.0 m/s",
+              "col_4": "2.00 s",
+              "col_5": "4.0 m"
+            },
+            {
+              "col_0": "Trial 2",
+              "col_1": "Medium-Speed Horizontal Launch",
+              "col_2": "20.0 m",
+              "col_3": "6.0 m/s",
+              "col_4": "2.00 s",
+              "col_5": "12.0 m"
+            },
+            {
+              "col_0": "Trial 3",
+              "col_1": "High-Speed Horizontal Launch",
+              "col_2": "20.0 m",
+              "col_3": "10.0 m/s",
+              "col_4": "2.00 s",
+              "col_5": "20.0 m"
+            },
+            {
+              "col_0": "Trial 4",
+              "col_1": "Pure Vertical Drop (From Rest)",
+              "col_2": "20.0 m",
+              "col_3": "0.0 m/s",
+              "col_4": "2.00 s",
+              "col_5": "0.0 m (Directly Below)"
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "stepId": "step_1",
+          "type": "cloze_dropdown",
+          "title": "Part 1: Analyzing Telemetry & Coordinate Independence",
+          "prompt": "Analyze the experimental telemetry comparing the horizontal launch trials to the pure vertical drop:",
+          "text": "Comparing Trials 1, 2, and 3, increasing the horizontal launch speed from 2.0 m/s to 10.0 m/s caused the flight time to [blank1]. Comparing the high-speed launch (Trial 3) to the pure vertical drop from rest (Trial 4), both spheres remained airborne for [blank2]. This demonstrates that horizontal velocity has [blank3] on vertical downward acceleration. Physically, this occurs because gravity exerts a force exclusively in the [blank4] direction.",
+          "blanks": {
+            "blank1": {
+              "correct": "remain exactly constant at 2.00 s",
+              "options": [
+                "remain exactly constant at 2.00 s",
+                "decrease significantly because faster objects reach the ground sooner",
+                "increase because horizontal velocity lifts the projectile upward"
+              ]
+            },
+            "blank2": {
+              "correct": "the exact same time (2.00 s)",
+              "options": [
+                "the exact same time (2.00 s)",
+                "a much longer time for the dropped sphere",
+                "a much longer time for the launched sphere"
+              ]
+            },
+            "blank3": {
+              "correct": "no effect whatsoever",
+              "options": [
+                "no effect whatsoever",
+                "a direct proportional effect",
+                "an inverse proportional effect"
+              ]
+            },
+            "blank4": {
+              "correct": "vertical (downward)",
+              "options": [
+                "vertical (downward)",
+                "horizontal (forward)",
+                "diagonal (along the curve)"
+              ]
+            }
+          }
+        },
+        {
+          "stepId": "step_2",
+          "type": "cloze_dropdown",
+          "title": "Part 2: Cause-and-Effect Trajectory Predictions",
+          "prompt": "Evaluate how modifying experimental launch conditions affects projectile trajectories without calculations:",
+          "text": "If the launcher apparatus is moved to a cliff with twice the vertical height (Δy = 40.0 m), the projectile's time in the air will [blank1], and its horizontal landing distance will [blank2]. If the original trial from 20.0 m is repeated with a sphere made of lead having twice the mass launched at the same 10.0 m/s speed, its time of flight will [blank3] and its landing distance will [blank4] because all objects in free fall accelerate at g = 10 m/s² regardless of mass.",
+          "blanks": {
+            "blank1": {
+              "correct": "increase (greater vertical distance to fall)",
+              "options": [
+                "increase (greater vertical distance to fall)",
+                "remain exactly 2.00 s",
+                "decrease (falls faster from higher elevations)"
+              ]
+            },
+            "blank2": {
+              "correct": "increase (more time to travel horizontally)",
+              "options": [
+                "increase (more time to travel horizontally)",
+                "remain exactly 20.0 m",
+                "decrease"
+              ]
+            },
+            "blank3": {
+              "correct": "remain unchanged (2.00 s)",
+              "options": [
+                "remain unchanged (2.00 s)",
+                "cut in half because heavy objects drop faster",
+                "double because heavier mass creates more inertia"
+              ]
+            },
+            "blank4": {
+              "correct": "remain unchanged (20.0 m)",
+              "options": [
+                "remain unchanged (20.0 m)",
+                "cut in half",
+                "double"
+              ]
+            }
+          }
+        },
+        {
+          "stepId": "step_3",
+          "type": "ai_reasoning_chat",
+          "title": "Part 3: Defending the Why with the AI Physics Mentor",
+          "prompt": "Chat with your AI Physics Mentor. Defend why horizontal launch speed does NOT change how long a ball takes to hit the floor, and explain how a student in the Target Arena webapp decides where to place the landing bucket.",
+          "openingMessage": "Awesome work analyzing the launch telemetry! A common misconception is that firing a projectile faster 'keeps it in the air longer.' Based on your evidence, why is that false, and in our Target Arena webapp, how does changing launch speed change where the bucket must be placed?"
+        }
+      ]
     },
     "links": {
       "Projectile Target Arena": "Unit_2/horizontal_projectile_workbench/index.html",
