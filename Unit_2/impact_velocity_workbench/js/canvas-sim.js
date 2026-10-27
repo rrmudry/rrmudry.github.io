@@ -456,7 +456,7 @@
       // Small photogate label
       ctx.fillStyle = '#94a3b8';
       ctx.font = `bold ${Math.max(8, 9 * this.scaleUi)}px sans-serif`;
-      ctx.fillText('PHOTOGATE (v_x)', ledX + ledW / 2, ledY - 6);
+      this.drawSubText('PHOTOGATE (v_x)', ledX + ledW / 2, ledY - 6, 'center');
     }
 
     drawTargetBucket() {
@@ -618,16 +618,14 @@
       this.drawArrow(ox, oy, ox + lenX, oy, this.pal.vx, 3.5);
       ctx.fillStyle = this.pal.vx;
       ctx.font = `bold ${Math.max(11, 12 * this.scaleUi)}px "JetBrains Mono", sans-serif`;
-      ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
-      ctx.fillText(`v_x = ${fmtExact(this.scenario.vx)} m/s`, ox + lenX / 2, oy - 6);
+      this.drawSubText(`v_x = ${fmtExact(this.scenario.vx)} m/s`, ox + lenX / 2, oy - 6, 'center');
 
       // 2. Vertical Vector Component: v_y (Orange arrow, pointing DOWN)
       this.drawArrow(ox + lenX, oy, ox + lenX, oy + lenY, this.pal.vy, 3.5);
       ctx.fillStyle = this.pal.vy;
-      ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
-      ctx.fillText(`v_y = ${fmtAns(this.scenario.vy)} m/s`, ox + lenX + 8, oy + lenY / 2);
+      this.drawSubText(`v_y = ${fmtAns(this.scenario.vy)} m/s`, ox + lenX + 8, oy + lenY / 2, 'left');
 
       // 3. Resultant Impact Velocity: v (Purple arrow, along hypotenuse)
       this.drawArrow(ox, oy, ox + lenX, oy + lenY, this.pal.v, 4.5);
@@ -735,18 +733,16 @@
       this.drawArrow(ox, oy, ox + lenX, oy, this.pal.vx, 2.5);
       ctx.fillStyle = this.pal.vx;
       ctx.font = `bold ${Math.max(8.5, 9 * scale)}px monospace`;
-      ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
-      ctx.fillText(`v_x = ${fmtExact(vx)}`, ox + lenX / 2, oy - 2);
+      this.drawSubText(`v_x = ${fmtExact(vx)}`, ox + lenX / 2, oy - 2, 'center');
 
       // 2. Vertical Vector: v_y (Orange, pointing down)
       if (lenY > 4) {
         this.drawArrow(ox + lenX, oy, ox + lenX, oy + lenY, this.pal.vy, 2.5);
         ctx.fillStyle = this.pal.vy;
         ctx.font = `bold ${Math.max(8.5, 9 * scale)}px monospace`;
-        ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
-        ctx.fillText(`v_y = ${fmtAns(vy)}`, ox + lenX + 4, oy + lenY / 2);
+        this.drawSubText(`v_y = ${fmtAns(vy)}`, ox + lenX + 4, oy + lenY / 2, 'left');
       }
 
       // 3. Resultant Vector: v (Purple, along hypotenuse)
@@ -825,6 +821,70 @@
       ctx.lineTo(toX - headLen * Math.cos(angle + Math.PI / 6), toY - headLen * Math.sin(angle + Math.PI / 6));
       ctx.closePath();
       ctx.fill();
+    }
+
+    // Helper to render proper mathematical subscripts on HTML5 Canvas
+    drawSubText(fullStr, x, y, align = 'center') {
+      const { ctx } = this;
+      const baseFont = ctx.font;
+      const m = baseFont.match(/(\d+(?:\.\d+)?)\s*px/);
+      const baseSize = m ? parseFloat(m[1]) : 12;
+      const subSize = Math.max(7, Math.round(baseSize * 0.75));
+      const fontName = baseFont.replace(/\d+(?:\.\d+)?\s*px/, '').trim();
+      const subFont = `${fontName.includes('bold') ? 'bold ' : ''}${subSize}px ${fontName.replace('bold', '').trim()}`;
+
+      // Break string into base text and subscript tokens (e.g. v_x, v_y, v_0)
+      const segments = [];
+      const regex = /([a-zA-ZΔθ]+)_([xyz0-9]+)/g;
+      let lastIdx = 0;
+      let match;
+      while ((match = regex.exec(fullStr)) !== null) {
+        if (match.index > lastIdx) {
+          segments.push({ text: fullStr.slice(lastIdx, match.index), isSub: false });
+        }
+        segments.push({ text: match[1], isSub: false });
+        segments.push({ text: match[2], isSub: true });
+        lastIdx = regex.lastIndex;
+      }
+      if (lastIdx < fullStr.length) {
+        segments.push({ text: fullStr.slice(lastIdx), isSub: false });
+      }
+
+      if (!segments.some(s => s.isSub)) {
+        const prevA = ctx.textAlign;
+        ctx.textAlign = align;
+        ctx.fillText(fullStr, x, y);
+        ctx.textAlign = prevA;
+        return;
+      }
+
+      // Compute total width
+      let totalW = 0;
+      segments.forEach(seg => {
+        ctx.font = seg.isSub ? subFont : baseFont;
+        totalW += ctx.measureText(seg.text).width;
+      });
+
+      let startX = x;
+      if (align === 'center') startX = x - totalW / 2;
+      else if (align === 'right') startX = x - totalW;
+
+      const origAlign = ctx.textAlign;
+      ctx.textAlign = 'left';
+
+      // Drop subscript downwards
+      const yOffset = baseSize * 0.30;
+
+      let curX = startX;
+      segments.forEach(seg => {
+        ctx.font = seg.isSub ? subFont : baseFont;
+        const curY = seg.isSub ? y + yOffset : y;
+        ctx.fillText(seg.text, curX, curY);
+        curX += ctx.measureText(seg.text).width;
+      });
+
+      ctx.font = baseFont;
+      ctx.textAlign = origAlign;
     }
 
     drawParticles() {

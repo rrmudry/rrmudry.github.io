@@ -51,10 +51,10 @@
   // Step-by-step worked solutions for student feedback
   const work = {
     t: sc => `t = √(Δy ÷ 5) = √(${fmtExact(sc.dy)} ÷ 5) = √${fmtExact(sc.dy / 5, 3)} = ${fmtAns(sc.t)} s`,
-    dx: sc => `Δx = v_x × t = ${fmtExact(sc.vx)} m/s × ${fmtAns(sc.t)} s = ${fmtAns(sc.dx)} m`,
-    vy: sc => `v_y = 10 × t = 10 m/s² × ${fmtAns(sc.t)} s = ${fmtAns(sc.vy)} m/s`,
-    v: sc => `v = √(v_x² + v_y²) = √(${fmtExact(sc.vx)}² + ${fmtAns(sc.vy)}²) = √(${fmtExact(sc.vx * sc.vx)} + ${fmtExact(sc.vy * sc.vy)}) = ${fmtAns(sc.v)} m/s`,
-    theta: sc => `θ = tan⁻¹(v_y ÷ v_x) = tan⁻¹(${fmtAns(sc.vy)} ÷ ${fmtExact(sc.vx)}) = tan⁻¹(${fmtExact(sc.vy / sc.vx, 3)}) = ${fmt(sc.theta, 1)}°`
+    dx: sc => `Δx = v<sub>x</sub> × t = ${fmtExact(sc.vx)} m/s × ${fmtAns(sc.t)} s = ${fmtAns(sc.dx)} m`,
+    vy: sc => `v<sub>y</sub> = 10 × t = 10 m/s² × ${fmtAns(sc.t)} s = ${fmtAns(sc.vy)} m/s`,
+    v: sc => `v = √(v<sub>x</sub>² + v<sub>y</sub>²) = √(${fmtExact(sc.vx)}² + ${fmtAns(sc.vy)}²) = √(${fmtExact(sc.vx * sc.vx)} + ${fmtExact(sc.vy * sc.vy)}) = ${fmtAns(sc.v)} m/s`,
+    theta: sc => `θ = tan⁻¹(v<sub>y</sub> ÷ v<sub>x</sub>) = tan⁻¹(${fmtAns(sc.vy)} ÷ ${fmtExact(sc.vx)}) = tan⁻¹(${fmtExact(sc.vy / sc.vx, 3)}) = ${fmt(sc.theta, 1)}°`
   };
 
   // Targeted misconceptions catalog
@@ -68,29 +68,29 @@
       [(v, s) => near(v, Math.sqrt(s.dy * 5)), () => `You multiplied by 5 instead of dividing. Use t = √(Δy ÷ 5).`]
     ],
     dx: [
-      [(v, s) => near(v, s.vx * s.dy), () => `Watch your variables: you multiplied launch speed by cliff height Δy. Horizontal distance requires time in the air: Δx = v_x × t.`],
-      [(v, s) => near(v, s.vx / s.t), () => `You divided speed by time. Distance equals speed multiplied by time: Δx = v_x × t.`],
-      [(v, s) => near(v, 0.5 * s.vx * s.t), () => `You included ½. That's only for accelerated motion. Sideways motion has zero acceleration (a = 0), so Δx = v_x × t with no ½.`],
-      [(v, s) => near(v, s.vx * s.t * s.t), () => `You squared the time. Time is only squared vertically (Δy = 5t²). Sideways distance is simply Δx = v_x × t.`]
+      [(v, s) => near(v, s.vx * s.dy), () => `Watch your variables: you multiplied launch speed by cliff height Δy. Horizontal distance requires time in the air: Δx = v<sub>x</sub> × t.`],
+      [(v, s) => near(v, s.vx / s.t), () => `You divided speed by time. Distance equals speed multiplied by time: Δx = v<sub>x</sub> × t.`],
+      [(v, s) => near(v, 0.5 * s.vx * s.t), () => `You included ½. That's only for accelerated motion. Sideways motion has zero acceleration (a = 0), so Δx = v<sub>x</sub> × t with no ½.`],
+      [(v, s) => near(v, s.vx * s.t * s.t), () => `You squared the time. Time is only squared vertically (Δy = 5t²). Sideways distance is simply Δx = v<sub>x</sub> × t.`]
     ],
     vy: [
-      [(v, s) => near(v, 5 * s.t), () => `You used 5 × t. "5" belongs in distance (Δy = 5t²). Speed increases by 10 m/s every second: v_y = 10 × t.`],
-      [(v, s) => near(v, s.dy / s.t), () => `That is the AVERAGE falling speed. Starting from 0 m/s, final downward speed is twice that: v_y = 10 × t.`],
-      [(v, s) => near(v, s.vx), () => `That is the horizontal speed. Horizontal and vertical motions are independent! Use v_y = 10 × t.`],
-      [(v, s) => near(v, 10), () => `10 m/s² is the acceleration rate. Multiply by the seconds of fall: v_y = 10 × t.`]
+      [(v, s) => near(v, 5 * s.t), () => `You used 5 × t. "5" belongs in distance (Δy = 5t²). Speed increases by 10 m/s every second: v<sub>y</sub> = 10 × t.`],
+      [(v, s) => near(v, s.dy / s.t), () => `That is the AVERAGE falling speed. Starting from 0 m/s, final downward speed is twice that: v<sub>y</sub> = 10 × t.`],
+      [(v, s) => near(v, s.vx), () => `That is the horizontal speed. Horizontal and vertical motions are independent! Use v<sub>y</sub> = 10 × t.`],
+      [(v, s) => near(v, 10), () => `10 m/s² is the acceleration rate. Multiply by the seconds of fall: v<sub>y</sub> = 10 × t.`]
     ],
     v: [
-      [(v, s) => near(v, s.vx + s.vy), () => `You added v_x and v_y like simple numbers! They meet at a right angle (90°), so you must combine them with the Pythagorean theorem: v = √(v_x² + v_y²).`],
-      [(v, s) => near(v, s.vx * s.vx + s.vy * s.vy), () => `You calculated v_x² + v_y², but forgot to take the square root (√) at the end!`],
-      [(v, s) => near(v, s.vy), () => `That is only the vertical component (v_y). The ball is also moving sideways at v_x! Combine both: v = √(v_x² + v_y²).`],
-      [(v, s) => near(v, s.vx), () => `That is only the horizontal component (v_x). Combine both horizontal and vertical components: v = √(v_x² + v_y²).`],
-      [(v, s) => near(v, Math.abs(s.vy - s.vx)), () => `You subtracted the components. Perpendicular vectors combine via v = √(v_x² + v_y²).`]
+      [(v, s) => near(v, s.vx + s.vy), () => `You added v<sub>x</sub> and v<sub>y</sub> like simple numbers! They meet at a right angle (90°), so you must combine them with the Pythagorean theorem: v = √(v<sub>x</sub>² + v<sub>y</sub>²).`],
+      [(v, s) => near(v, s.vx * s.vx + s.vy * s.vy), () => `You calculated v<sub>x</sub>² + v<sub>y</sub>², but forgot to take the square root (√) at the end!`],
+      [(v, s) => near(v, s.vy), () => `That is only the vertical component (v<sub>y</sub>). The ball is also moving sideways at v<sub>x</sub>! Combine both: v = √(v<sub>x</sub>² + v<sub>y</sub>²).`],
+      [(v, s) => near(v, s.vx), () => `That is only the horizontal component (v<sub>x</sub>). Combine both horizontal and vertical components: v = √(v<sub>x</sub>² + v<sub>y</sub>²).`],
+      [(v, s) => near(v, Math.abs(s.vy - s.vx)), () => `You subtracted the components. Perpendicular vectors combine via v = √(v<sub>x</sub>² + v<sub>y</sub>²).`]
     ],
     theta: [
-      [(v, s) => near(v, 90 - s.theta, 0.05, 1.2), () => `You found the angle from the VERTICAL wall. Measure from the horizontal ground: θ = tan⁻¹(v_y ÷ v_x).`],
+      [(v, s) => near(v, 90 - s.theta, 0.05, 1.2), () => `You found the angle from the VERTICAL wall. Measure from the horizontal ground: θ = tan⁻¹(v<sub>y</sub> ÷ v<sub>x</sub>).`],
       [(v, s) => near(v, s.theta * (Math.PI / 180), 0.08, 0.05), () => `Your calculator is in RADIANS mode! Switch to DEGREES (DEG) or multiply by 180 ÷ π.`],
-      [(v, s) => near(v, s.vy / s.vx), () => `That is the ratio (v_y ÷ v_x). Now press tan⁻¹ (inverse tangent) of that ratio to get the angle in degrees!`],
-      [(v, s) => near(v, Math.atan(s.vx / s.vy) * 180 / Math.PI, 0.05, 1.0), () => `You inverted the fraction: tangent is opposite over adjacent (v_y ÷ v_x), not (v_x ÷ v_y). Use θ = tan⁻¹(v_y ÷ v_x).`]
+      [(v, s) => near(v, s.vy / s.vx), () => `That is the ratio (v<sub>y</sub> ÷ v<sub>x</sub>). Now press tan⁻¹ (inverse tangent) of that ratio to get the angle in degrees!`],
+      [(v, s) => near(v, Math.atan(s.vx / s.vy) * 180 / Math.PI, 0.05, 1.0), () => `You inverted the fraction: tangent is opposite over adjacent (v<sub>y</sub> ÷ v<sub>x</sub>), not (v<sub>x</sub> ÷ v<sub>y</sub>). Use θ = tan⁻¹(v<sub>y</sub> ÷ v<sub>x</sub>).`]
     ]
   };
 

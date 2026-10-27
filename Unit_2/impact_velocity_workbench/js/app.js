@@ -315,7 +315,7 @@
           this.valSliderVx.textContent = `${vx.toFixed(1)} m/s`;
           const custom = Scenarios.buildScenario({
             id: 'sandbox_custom',
-            title: `Sandbox: Δy = ${dy} m, v_x = ${vx} m/s`,
+            title: `Sandbox: Δy = ${dy} m, v<sub>x</sub> = ${vx} m/s`,
             subtitle: 'Real-time 2D projectile & impact vector triangle simulator.',
             dy,
             vx,
@@ -416,7 +416,7 @@
       const vx = parseFloat(this.sliderVx.value || '4.0');
       const custom = Scenarios.buildScenario({
         id: 'sandbox_custom',
-        title: `Vector Sandbox: Δy = ${dy} m, v_x = ${vx} m/s`,
+        title: `Vector Sandbox: Δy = ${dy} m, v<sub>x</sub> = ${vx} m/s`,
         subtitle: 'Drag the sliders below to see the impact vector triangle dynamically stretch and rotate.',
         dy,
         vx,
@@ -519,7 +519,7 @@
         this.showFeedback('success', `
           🎉 <strong>Spot-on accuracy!</strong> All motion variables and impact vector components verified.
           <div style="margin-top: 0.4rem;">
-            Horizontal: <strong>v_x = ${fmtExact(sc.vx)} m/s</strong> · Vertical: <strong>v_y = ${fmtAns(sc.vy)} m/s</strong><br>
+            Horizontal: <strong>v<sub>x</sub> = ${fmtExact(sc.vx)} m/s</strong> · Vertical: <strong>v<sub>y</sub> = ${fmtAns(sc.vy)} m/s</strong><br>
             Resultant Speed: <strong>v = ${fmtAns(sc.v)} m/s</strong> at <strong>θ = ${sc.theta.toFixed(1)}°</strong> below horizontal.
           </div>
         `);
@@ -550,9 +550,9 @@
       this.btnHint.textContent = `Show a hint (${left} left)`;
 
       const hints = [
-        `<strong>Hint 1 (Vertical Time):</strong> Vertical motion starts with zero downward speed (v_y0 = 0). Use formula <code>t = √(Δy ÷ 5)</code>. Notice how horizontal speed does not affect fall time!`,
-        `<strong>Hint 2 (Final Downward Speed):</strong> Gravity increases downward speed by 10 m/s each second. Use <code>v_y = 10 × t</code>. Sideways speed <code>v_x = ${fmtExact(sc.vx)} m/s</code> stays constant.`,
-        `<strong>Hint 3 (Pythagorean Theorem & Angle):</strong> Combine horizontal and vertical speeds with <code>v = √(v_x² + v_y²)</code>. Then find angle <code>θ = tan⁻¹(v_y ÷ v_x)</code> in Degree mode!`
+        `<strong>Hint 1 (Vertical Time):</strong> Vertical motion starts with zero downward speed (v<sub>y0</sub> = 0). Use formula <code>t = √(Δy ÷ 5)</code>. Notice how horizontal speed does not affect fall time!`,
+        `<strong>Hint 2 (Final Downward Speed):</strong> Gravity increases downward speed by 10 m/s each second. Use <code>v<sub>y</sub> = 10 × t</code>. Sideways speed <code>v<sub>x</sub> = ${fmtExact(sc.vx)} m/s</code> stays constant.`,
+        `<strong>Hint 3 (Pythagorean Theorem & Angle):</strong> Combine horizontal and vertical speeds with <code>v = √(v<sub>x</sub>² + v<sub>y</sub>²)</code>. Then find angle <code>θ = tan⁻¹(v<sub>y</sub> ÷ v<sub>x</sub>)</code> in Degree mode!`
       ];
 
       this.showFeedback('info', hints[this.hintsUsed - 1]);
@@ -566,9 +566,9 @@
           <strong>Worked Solutions for this Scenario:</strong>
           <ul style="margin: 0.5rem 0 0.5rem 1.2rem; display: flex; flex-direction: column; gap: 0.35rem;">
             <li><strong>Vertical Fall Time:</strong> ${CalculationEngine.work.t(sc)}</li>
-            <li><strong>Horizontal Range:</strong> ${CalculationEngine.work.dx(sc)}</li>
-            <li><strong>Final Downward Speed:</strong> ${CalculationEngine.work.vy(sc)}</li>
-            <li><strong>Total Impact Speed:</strong> ${CalculationEngine.work.v(sc)}</li>
+            <li><strong>Horizontal Range (Δx = v<sub>x</sub> × t):</strong> ${CalculationEngine.work.dx(sc)}</li>
+            <li><strong>Final Downward Speed (v<sub>y</sub>):</strong> ${CalculationEngine.work.vy(sc)}</li>
+            <li><strong>Total Impact Speed (v):</strong> ${CalculationEngine.work.v(sc)}</li>
             <li><strong>Landing Angle θ:</strong> ${CalculationEngine.work.theta(sc)}</li>
           </ul>
         </div>

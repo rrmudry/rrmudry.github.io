@@ -16,7 +16,7 @@
     return {
       id: id || `sc_${Math.random().toString(36).substring(2, 7)}`,
       title,
-      subtitle: subtitle || 'Measure from the horizontal: θ = tan⁻¹(v_y ÷ v_x)',
+      subtitle: subtitle || 'Measure from the horizontal: θ = tan⁻¹(v<sub>y</sub> ÷ v<sub>x</sub>)',
       dy,
       vx,
       t,
@@ -35,7 +35,7 @@
     {
       id: 'level-1',
       title: 'Level 1: Lab Tabletop (3-4-5 Triangle)',
-      subtitle: 'Part C: At what angle below the ground does the ball hit? Measure from the horizontal: θ = tan⁻¹(v_y ÷ v_x)',
+      subtitle: 'Part C: At what angle below the ground does the ball hit? Measure from the horizontal: θ = tan⁻¹(v<sub>y</sub> ÷ v<sub>x</sub>)',
       dy: 0.8,
       vx: 3.0,
       badge: '★ HONORS H1',
@@ -53,7 +53,7 @@
     {
       id: 'level-3',
       title: 'Level 3: Classroom Balcony (6-8-10 Triangle)',
-      subtitle: 'Compare with Level 2: swapping v_x and v_y makes the landing angle steeper!',
+      subtitle: 'Compare with Level 2: swapping v<sub>x</sub> and v<sub>y</sub> makes the landing angle steeper!',
       dy: 3.2,
       vx: 6.0,
       badge: 'Level 3',
@@ -71,7 +71,7 @@
     {
       id: 'level-5',
       title: 'Level 5: 45° Symmetry Impact',
-      subtitle: 'When vertical speed v_y equals horizontal speed v_x, what must the angle θ be?',
+      subtitle: 'When vertical speed v<sub>y</sub> equals horizontal speed v<sub>x</sub>, what must the angle θ be?',
       dy: 20.0,
       vx: 20.0,
       badge: 'Level 5',
@@ -120,7 +120,7 @@
 
     return buildScenario({
       id: `rand_${Date.now()}`,
-      title: `Random Challenge: Δy = ${dy} m, v_x = ${vx} m/s`,
+      title: `Random Challenge: Δy = ${dy} m, v<sub>x</sub> = ${vx} m/s`,
       subtitle: 'Solve all steps: find fall time, landing distance, final vertical speed, total speed, and angle θ.',
       dy,
       vx,
