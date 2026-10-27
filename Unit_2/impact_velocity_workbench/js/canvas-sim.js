@@ -16,6 +16,8 @@
       this.particles = [];
       this.impactReached = false;
       this.inspectZoom = false; // toggle magnified vector overlay
+      this.showPip = true; // Picture-in-Picture vector view
+      this.onTimeUpdate = null; // callback(t, maxT)
 
       this.pal = {};
       this.refreshPalette();
@@ -118,11 +120,20 @@
 
     setScenario(sc) {
       this.scenario = sc;
-      this.flight = null;
+      this.flight = {
+        t: 0,
+        maxT: sc.t,
+        active: false,
+        ghosts: [],
+        lastGhostT: 0
+      };
       this.particles = [];
       this.impactReached = false;
       this.computeLayout();
       this.draw();
+      if (this.onTimeUpdate) {
+        this.onTimeUpdate(0, sc.t);
+      }
     }
 
     computeLayout() {
@@ -174,10 +185,83 @@
     }
 
     reset() {
-      this.flight = null;
+      if (!this.scenario) return;
+      this.flight = {
+        t: 0,
+        maxT: this.scenario.t,
+        active: false,
+        ghosts: [],
+        lastGhostT: 0
+      };
       this.particles = [];
       this.impactReached = false;
       this.draw();
+      if (this.onTimeUpdate) {
+        this.onTimeUpdate(0, this.scenario.t);
+      }
+    }
+
+    setTime(t) {
+      if (!this.scenario) return;
+      const maxT = this.scenario.t;
+      const clampedT = Math.max(0, Math.min(t, maxT));
+      if (!this.flight) {
+        this.flight = {
+          t: clampedT,
+          maxT,
+          active: false,
+          ghosts: [],
+          lastGhostT: 0
+        };
+      } else {
+        this.flight.t = clampedT;
+        this.flight.active = false; // pause when manually scrubbing
+      }
+
+      // Rebuild strobe ghosts up to clampedT
+      this.flight.ghosts = [];
+      if (this.showStrobe) {
+        for (let st = 0.5; st <= clampedT; st += 0.5) {
+          const curY = Math.max(0, this.scenario.dy - 5 * (st * st));
+          const curX = this.scenario.vx * st;
+          this.flight.ghosts.push({ x: curX, y: curY, t: st });
+        }
+      }
+
+      this.impactReached = (clampedT >= maxT - 0.001);
+      this.draw();
+      if (this.onTimeUpdate) {
+        this.onTimeUpdate(clampedT, maxT);
+      }
+    }
+
+    togglePlay(onImpactCallback) {
+      if (!this.scenario) return false;
+      if (!this.flight) {
+        this.launch(onImpactCallback);
+        return true;
+      }
+      if (this.flight.active) {
+        this.flight.active = false;
+        return false;
+      } else {
+        if (this.flight.t >= this.flight.maxT - 0.001) {
+          this.flight.t = 0;
+          this.flight.ghosts = [];
+          this.flight.lastGhostT = 0;
+          this.impactReached = false;
+        }
+        this.flight.active = true;
+        if (onImpactCallback) this.flight.onImpact = onImpactCallback;
+        this.animate();
+        return true;
+      }
+    }
+
+    togglePip() {
+      this.showPip = !this.showPip;
+      this.draw();
+      return this.showPip;
     }
 
     toggleZoom() {
@@ -207,6 +291,10 @@
         this.impactReached = true;
         this.spawnImpactParticles();
         if (this.flight.onImpact) this.flight.onImpact();
+      }
+
+      if (this.onTimeUpdate) {
+        this.onTimeUpdate(this.flight.t, this.flight.maxT);
       }
 
       this.draw();
@@ -256,6 +344,7 @@
       this.drawBallAndVectors();
       this.drawParticles();
       this.drawImpactVectorTriangle();
+      this.drawPipVectorInset();
 
       ctx.restore();
     }
@@ -468,7 +557,7 @@
       ctx.stroke();
 
       // In-flight velocity vectors
-      if (this.showVectors && this.flight && this.flight.active) {
+      if (this.showVectors && (t > 0 || (this.flight && this.flight.active))) {
         const vxM = this.scenario.vx;
         const vyM = 10 * t; // accelerates downward
 
@@ -565,6 +654,151 @@
       const labelX = ox + (arcR + 10) * Math.cos(textAngle);
       const labelY = oy + (arcR + 10) * Math.sin(textAngle);
       ctx.fillText(`θ = ${fmt(this.scenario.theta, 1)}°`, labelX, labelY);
+
+      ctx.restore();
+    }
+
+    // PICTURE-IN-PICTURE (PiP) Velocity Vector HUD & Real-time Triangle
+    drawPipVectorInset() {
+      if (!this.showPip || !this.scenario) return;
+
+      const { ctx, W, H } = this;
+      const t = this.flight ? this.flight.t : 0;
+      const vx = this.scenario.vx;
+      const vy = 10 * t; // downward speed accelerates dynamically
+      const v = Math.hypot(vx, vy);
+      const thetaDeg = Math.atan2(vy, vx) * (180 / Math.PI);
+
+      const scale = this.scaleUi;
+      const pipW = Math.min(270, Math.max(200, W * 0.35));
+      const pipH = Math.min(190, Math.max(145, H * 0.38));
+      const pipX = W - pipW - (12 * scale);
+      const pipY = 10 * scale;
+
+      ctx.save();
+
+      // Card Body (High-contrast glassmorphic fill)
+      const isLight = this.pal.bg === '#ffffff';
+      ctx.fillStyle = isLight ? 'rgba(255, 255, 255, 0.94)' : 'rgba(15, 23, 42, 0.94)';
+      ctx.beginPath();
+      ctx.roundRect(pipX, pipY, pipW, pipH, 10 * scale);
+      ctx.fill();
+
+      // Card Border with Resultant Accent
+      ctx.strokeStyle = this.pal.v;
+      ctx.lineWidth = 1.8;
+      ctx.stroke();
+
+      // Top Header Bar
+      const headerH = 24 * scale;
+      ctx.fillStyle = isLight ? '#f1f5f9' : '#1e293b';
+      ctx.beginPath();
+      ctx.roundRect(pipX, pipY, pipW, headerH, [10 * scale, 10 * scale, 0, 0]);
+      ctx.fill();
+
+      // Header Text
+      ctx.fillStyle = this.pal.v;
+      ctx.font = `bold ${Math.max(9, 10 * scale)}px sans-serif`;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('📐 VELOCITY VECTORS (PiP)', pipX + 8 * scale, pipY + headerH / 2);
+
+      // Current Time Badge
+      ctx.fillStyle = this.pal.ink;
+      ctx.font = `bold ${Math.max(9, 9.5 * scale)}px monospace`;
+      ctx.textAlign = 'right';
+      ctx.fillText(`t = ${t.toFixed(2)}s`, pipX + pipW - 8 * scale, pipY + headerH / 2);
+
+      // PiP Vector Triangle Canvas Origin
+      const ox = pipX + 24 * scale;
+      const oy = pipY + headerH + 18 * scale;
+      const availW = pipW - (50 * scale);
+      const availH = pipH - headerH - (44 * scale);
+
+      // Max vector scaling factor
+      const maxVy = 10 * this.scenario.t;
+      const maxVx = this.scenario.vx;
+      const vecScale = Math.min(availW / (maxVx * 1.15 || 1), availH / (maxVy * 1.15 || 1));
+
+      const lenX = Math.max(16, vx * vecScale);
+      const lenY = Math.max(0, vy * vecScale);
+
+      // Right-angle square at corner (ox + lenX, oy)
+      if (lenY > 10 * scale) {
+        const sq = Math.min(8 * scale, lenY * 0.35, lenX * 0.35);
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(ox + lenX - sq, oy, sq, sq);
+      }
+
+      // 1. Horizontal Vector: v_x (Blue)
+      this.drawArrow(ox, oy, ox + lenX, oy, this.pal.vx, 2.5);
+      ctx.fillStyle = this.pal.vx;
+      ctx.font = `bold ${Math.max(8.5, 9 * scale)}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText(`v_x = ${fmtExact(vx)}`, ox + lenX / 2, oy - 2);
+
+      // 2. Vertical Vector: v_y (Orange, pointing down)
+      if (lenY > 4) {
+        this.drawArrow(ox + lenX, oy, ox + lenX, oy + lenY, this.pal.vy, 2.5);
+        ctx.fillStyle = this.pal.vy;
+        ctx.font = `bold ${Math.max(8.5, 9 * scale)}px monospace`;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`v_y = ${fmtAns(vy)}`, ox + lenX + 4, oy + lenY / 2);
+      }
+
+      // 3. Resultant Vector: v (Purple, along hypotenuse)
+      this.drawArrow(ox, oy, ox + lenX, oy + lenY, this.pal.v, 3.2);
+
+      // 4. Angle Arc θ (Emerald)
+      if (lenY > 6) {
+        const arcR = Math.min(22 * scale, lenX * 0.45);
+        const rad = Math.atan2(lenY, lenX);
+        ctx.strokeStyle = this.pal.theta;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(ox, oy, arcR, 0, rad);
+        ctx.stroke();
+
+        ctx.fillStyle = this.pal.theta;
+        ctx.font = `bold ${Math.max(8.5, 9 * scale)}px sans-serif`;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        const midA = rad / 2;
+        ctx.fillText(`θ=${thetaDeg.toFixed(1)}°`, ox + (arcR + 4) * Math.cos(midA), oy + (arcR + 4) * Math.sin(midA));
+      }
+
+      // Origin Ball Icon
+      ctx.fillStyle = this.pal.ball;
+      ctx.beginPath();
+      ctx.arc(ox, oy, 4.5 * scale, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Bottom Telemetry Bar
+      const footerY = pipY + pipH - (18 * scale);
+      ctx.fillStyle = isLight ? '#f8fafc' : '#0f172a';
+      ctx.fillRect(pipX, footerY, pipW, 18 * scale);
+      ctx.strokeStyle = isLight ? '#cbd5e1' : '#334155';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(pipX, footerY);
+      ctx.lineTo(pipX + pipW, footerY);
+      ctx.stroke();
+
+      ctx.font = `bold ${Math.max(8.5, 9 * scale)}px monospace`;
+      ctx.textBaseline = 'middle';
+
+      // Left: Resultant speed v
+      ctx.fillStyle = this.pal.v;
+      ctx.textAlign = 'left';
+      ctx.fillText(`v = ${fmtAns(v)} m/s`, pipX + 8 * scale, footerY + 9 * scale);
+
+      // Right: Angle θ
+      ctx.fillStyle = this.pal.theta;
+      ctx.textAlign = 'right';
+      ctx.fillText(`θ = ${thetaDeg.toFixed(1)}°`, pipX + pipW - 8 * scale, footerY + 9 * scale);
 
       ctx.restore();
     }

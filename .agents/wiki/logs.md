@@ -9,6 +9,8 @@ Append-only log tracking pattern changes across recent sessions.
 
 **Changes**:
 - **Dedicated Impact Velocity & Angle Interactive Workbench**: Created an inquiry simulation focused exclusively on 2D horizontal projectile impact velocity ($v_y = 10 \times t$, $v = \sqrt{v_x^2 + v_y^2}$, $\theta = \tan^{-1}(v_y \div v_x)$).
+- **Picture-in-Picture (PiP) Velocity Vector HUD**: Added a real-time inset card pinned to the top-right of the canvas, continuously rendering the right triangle components ($v_x$, $v_y = 10 \times t$, hypotenuse $v$, and angle $\theta$) as time advances. Features a PiP toggle button for full canvas visibility.
+- **Continuous Simulation Time Slider & Playback Scrubber**: Added a high-precision timeline scrubber bar allowing students to scrub flight time backward and forward ($t = 0.00\text{ s}$ to $t_{\text{impact}}$), step by $\pm 0.05\text{ s}$, or play/pause to observe the dynamic elongation of vertical speed $v_y$ at any millisecond.
 - **Strictly Zero LaTeX Notation**: Applied clean plain-text/Unicode formulas throughout (`Δy`, `Δx`, `v = √(v_x² + v_y²)`, `θ = tan⁻¹(v_y ÷ v_x)`).
 - **Hero Magnified 2D Vector Triangle**: Canvas simulation visualizes the real-time right triangle with component vectors ($v_x$ blue, $v_y$ orange, resultant $v$ purple, angle $\theta$ green arc) upon ground impact. Includes interactive hover/click 2.5x magnifier.
 - **Embedded DEG-Mode Scientific Calculator**: Built-in keypad with degree-mode inverse tangent (`tan⁻¹`), square root (`√`), square (`x²`), and 1-click `⏎ Insert to Active Field` button.

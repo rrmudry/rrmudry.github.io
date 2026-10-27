@@ -70,6 +70,15 @@
       this.chkStrobe = document.getElementById('chkStrobe');
       this.speedButtons = document.querySelectorAll('.speed-btn');
 
+      // Time scrubber & PiP controls
+      this.timeSlider = document.getElementById('timeSlider');
+      this.timeScrubReadout = document.getElementById('timeScrubReadout');
+      this.btnScrubPlay = document.getElementById('btnScrubPlay');
+      this.btnScrubReset = document.getElementById('btnScrubReset');
+      this.btnScrubStepBack = document.getElementById('btnScrubStepBack');
+      this.btnScrubStepFwd = document.getElementById('btnScrubStepFwd');
+      this.btnTogglePip = document.getElementById('btnTogglePip');
+
       // Sandbox sliders
       this.sliderDy = document.getElementById('sliderDy');
       this.sliderVx = document.getElementById('sliderVx');
@@ -97,6 +106,20 @@
     initSim() {
       const canvasEl = document.getElementById('simCanvas');
       this.sim = new ImpactSimCanvas(canvasEl);
+      this.sim.onTimeUpdate = (t, maxT) => {
+        if (this.timeSlider) {
+          this.timeSlider.value = t;
+        }
+        if (this.timeScrubReadout) {
+          this.timeScrubReadout.textContent = `t = ${t.toFixed(2)} s / ${fmtAns(maxT)} s`;
+        }
+        if (this.btnScrubPlay) {
+          this.btnScrubPlay.textContent = this.sim.flight && this.sim.flight.active ? '⏸ Pause' : '▶ Play';
+        }
+        if (t >= maxT && this.btnLaunch) {
+          this.btnLaunch.disabled = false;
+        }
+      };
     }
 
     initCalculator() {
@@ -203,6 +226,62 @@
         this.btnZoomVectors.textContent = active ? '🔍 Exit Zoom' : '🔍 Vector Triangle Zoom';
       });
 
+      // Time scrubber slider (real-time scrubbing)
+      if (this.timeSlider) {
+        this.timeSlider.addEventListener('input', (e) => {
+          const tVal = parseFloat(e.target.value);
+          this.sim.setTime(tVal);
+        });
+      }
+
+      // Scrubber Play / Pause toggle
+      if (this.btnScrubPlay) {
+        this.btnScrubPlay.addEventListener('click', () => {
+          SoundFX.play('click');
+          const isPlaying = this.sim.togglePlay(() => {
+            SoundFX.play('impact');
+            this.btnLaunch.disabled = false;
+          });
+          this.btnScrubPlay.textContent = isPlaying ? '⏸ Pause' : '▶ Play';
+        });
+      }
+
+      // Scrubber Reset to t = 0
+      if (this.btnScrubReset) {
+        this.btnScrubReset.addEventListener('click', () => {
+          SoundFX.play('click');
+          this.sim.setTime(0);
+          this.btnLaunch.disabled = false;
+        });
+      }
+
+      // Step Back -0.05s
+      if (this.btnScrubStepBack) {
+        this.btnScrubStepBack.addEventListener('click', () => {
+          SoundFX.play('click');
+          const curT = this.sim.flight ? this.sim.flight.t : 0;
+          this.sim.setTime(curT - 0.05);
+        });
+      }
+
+      // Step Forward +0.05s
+      if (this.btnScrubStepFwd) {
+        this.btnScrubStepFwd.addEventListener('click', () => {
+          SoundFX.play('click');
+          const curT = this.sim.flight ? this.sim.flight.t : 0;
+          this.sim.setTime(curT + 0.05);
+        });
+      }
+
+      // PiP toggle
+      if (this.btnTogglePip) {
+        this.btnTogglePip.addEventListener('click', () => {
+          SoundFX.play('click');
+          const active = this.sim.togglePip();
+          this.btnTogglePip.classList.toggle('active', active);
+        });
+      }
+
       // Bucket target adjustment buttons
       this.btnTargetMinus.addEventListener('click', () => {
         this.adjustTarget(-0.1);
@@ -308,6 +387,20 @@
 
       // Update target bucket position display
       this.targetPosDisplay.textContent = `${fmtExact(sc.dx)} m`;
+
+      // Configure time scrubber bounds
+      if (this.timeSlider) {
+        this.timeSlider.min = 0;
+        this.timeSlider.max = sc.t;
+        this.timeSlider.step = Math.max(0.005, sc.t / 100);
+        this.timeSlider.value = 0;
+      }
+      if (this.timeScrubReadout) {
+        this.timeScrubReadout.textContent = `t = 0.00 s / ${fmtAns(sc.t)} s`;
+      }
+      if (this.btnScrubPlay) {
+        this.btnScrubPlay.textContent = '▶ Play';
+      }
 
       // Pass scenario to canvas
       this.sim.setScenario(sc);
