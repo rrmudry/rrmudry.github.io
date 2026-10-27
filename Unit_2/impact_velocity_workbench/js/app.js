@@ -3,7 +3,7 @@
 // g = 10 m/s² Earth standard gravity
 
 (function () {
-  const { CalculationEngine, Scenarios, SoundFX, ImpactSimCanvas, ScientificCalculator } = window;
+  const { CalculationEngine, Scenarios, SoundFX, ImpactSimCanvas } = window;
   const { fmtExact, fmtAns, checkField } = CalculationEngine;
 
   class ImpactWorkbenchApp {
@@ -62,6 +62,7 @@
       this.btnMute = document.getElementById('btnMute');
       this.btnCalcToggle = document.getElementById('btnCalcToggle');
       this.btnCalcClose = document.getElementById('btnCalcClose');
+      this.btnCalcClear = document.getElementById('btnCalcClear');
       this.calcModal = document.getElementById('calcModal');
       this.btnZoomVectors = document.getElementById('btnZoomVectors');
       this.targetPosDisplay = document.getElementById('targetPosDisplay');
@@ -123,10 +124,41 @@
     }
 
     initCalculator() {
-      const container = document.getElementById('calcContainer');
-      this.calc = new ScientificCalculator(container, (num) => {
-        this.insertToActiveField(num);
-      });
+      this.desmosCalc = null;
+      if (this.btnCalcClear) {
+        this.btnCalcClear.addEventListener('click', () => {
+          if (this.desmosCalc && this.desmosCalc.setBlank) {
+            this.desmosCalc.setBlank();
+          }
+        });
+      }
+    }
+
+    toggleCalculator(force) {
+      const open = force !== undefined ? force : !this.calcModal.classList.contains('open');
+      if (open) {
+        this.calcModal.classList.add('open');
+        const container = document.getElementById('calcContainer');
+        if (!window.Desmos) {
+          container.innerHTML = '<p class="calc-missing" style="padding: 1.5rem; color: var(--text-dim); font-style: italic;">The Desmos calculator did not load. Please check your network connection.</p>';
+          return;
+        }
+        if (!this.desmosCalc) {
+          try {
+            this.desmosCalc = Desmos.ScientificCalculator(container, {
+              degreeMode: true,
+              invertedColors: document.documentElement.classList.contains('theme-dark'),
+              fontSize: Desmos.FontSizes ? Desmos.FontSizes.LARGE : undefined
+            });
+          } catch (e) {
+            console.error('Failed to mount Desmos calculator:', e);
+          }
+        } else if (this.desmosCalc.resize) {
+          this.desmosCalc.resize();
+        }
+      } else {
+        this.calcModal.classList.remove('open');
+      }
     }
 
     initEvents() {
@@ -193,6 +225,9 @@
         const isDark = document.documentElement.classList.toggle('theme-dark');
         localStorage.setItem('impact_theme', isDark ? 'dark' : 'light');
         this.sim.refreshPalette();
+        if (this.desmosCalc && this.desmosCalc.updateSettings) {
+          this.desmosCalc.updateSettings({ invertedColors: isDark });
+        }
       });
 
       // Projector mode toggle
@@ -201,6 +236,9 @@
         const isProj = document.documentElement.classList.toggle('projector');
         this.btnProjector.classList.toggle('active', isProj);
         this.sim.refreshPalette();
+        if (this.desmosCalc && this.desmosCalc.resize) {
+          this.desmosCalc.resize();
+        }
       });
 
       // Mute toggle
@@ -212,10 +250,11 @@
       // Calculator toggle & close
       this.btnCalcToggle.addEventListener('click', () => {
         SoundFX.play('click');
-        this.calcModal.classList.toggle('open');
+        this.toggleCalculator();
       });
       this.btnCalcClose.addEventListener('click', () => {
-        this.calcModal.classList.remove('open');
+        SoundFX.play('click');
+        this.toggleCalculator(false);
       });
 
       // Magnified Vector Inspector toggle

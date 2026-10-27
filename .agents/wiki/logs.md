@@ -13,7 +13,7 @@ Append-only log tracking pattern changes across recent sessions.
 - **Continuous Simulation Time Slider & Playback Scrubber**: Added a high-precision timeline scrubber bar allowing students to scrub flight time backward and forward ($t = 0.00\text{ s}$ to $t_{\text{impact}}$), step by $\pm 0.05\text{ s}$, or play/pause to observe the dynamic elongation of vertical speed $v_y$ at any millisecond.
 - **Strictly Zero LaTeX Notation**: Applied clean plain-text/Unicode formulas throughout (`Δy`, `Δx`, `v = √(v_x² + v_y²)`, `θ = tan⁻¹(v_y ÷ v_x)`).
 - **Hero Magnified 2D Vector Triangle**: Canvas simulation visualizes the real-time right triangle with component vectors ($v_x$ blue, $v_y$ orange, resultant $v$ purple, angle $\theta$ green arc) upon ground impact. Includes interactive hover/click 2.5x magnifier.
-- **Embedded DEG-Mode Scientific Calculator**: Built-in keypad with degree-mode inverse tangent (`tan⁻¹`), square root (`√`), square (`x²`), and 1-click `⏎ Insert to Active Field` button.
+- **Embedded Desmos Scientific Calculator**: Integrated the standard district-approved Desmos Scientific Calculator (`https://www.desmos.com/api/v1.9/calculator.js`) with DEG degree-mode preset, dark/light adaptive theming, large touch targets, and expression clearing.
 - **Cognitive Misconception Diagnostics**: Targeted hints recognize when students linearly add $v_x + v_y$, omit square roots, have calculators in radians mode, or measure from the vertical wall.
 - **High-Contrast Light Mode (WCAG AAA) & Projector Mode**: High-contrast saturated accents, dynamic canvas palette re-rendering, text scaling, Web Audio synthesizer, and speech synthesis narration.
 
