@@ -800,33 +800,43 @@
 
       const { ctx, W, H } = this;
       const t = this.flight ? this.flight.t : 0;
-      const vx = this.scenario.vx;
-      const vy = 10 * t; // downward speed accelerates dynamically
-      const v = Math.hypot(vx, vy);
-      const thetaDeg = Math.atan2(vy, vx) * (180 / Math.PI);
+      const isLanded = this.impactReached || (this.flight && t >= this.flight.maxT - 0.001);
+      const isIdle = (t < 0.001 && (!this.flight || !this.flight.active));
+
+      // Scenario target values (impact velocity vectors)
+      const targetVx = this.scenario.vx;
+      const targetVy = 10 * this.scenario.t;
+      const targetV = Math.hypot(targetVx, targetVy);
+      const targetTheta = Math.atan2(targetVy, targetVx) * (180 / Math.PI);
+
+      // Active display values: show full impact triangle when idle/landed, or live dynamic values during flight
+      const dispVx = targetVx;
+      const dispVy = isIdle ? targetVy : (10 * t);
+      const dispV = isIdle ? targetV : Math.hypot(dispVx, dispVy);
+      const dispTheta = isIdle ? targetTheta : Math.atan2(dispVy, dispVx) * (180 / Math.PI);
 
       const scale = this.scaleUi;
-      const pipW = Math.min(270, Math.max(200, W * 0.35));
-      const pipH = Math.min(190, Math.max(145, H * 0.38));
+      const pipW = Math.min(300, Math.max(230, W * 0.38));
+      const pipH = Math.min(215, Math.max(165, H * 0.42));
       const pipX = W - pipW - (12 * scale);
       const pipY = 10 * scale;
 
       ctx.save();
 
-      // Card Body (High-contrast glassmorphic fill)
+      // 1. Card Body (High-contrast glassmorphic fill)
       const isLight = this.pal.bg === '#ffffff';
-      ctx.fillStyle = isLight ? 'rgba(255, 255, 255, 0.94)' : 'rgba(15, 23, 42, 0.94)';
+      ctx.fillStyle = isLight ? 'rgba(255, 255, 255, 0.96)' : 'rgba(15, 23, 42, 0.96)';
       ctx.beginPath();
       ctx.roundRect(pipX, pipY, pipW, pipH, 10 * scale);
       ctx.fill();
 
       // Card Border with Resultant Accent
       ctx.strokeStyle = this.pal.v;
-      ctx.lineWidth = 1.8;
+      ctx.lineWidth = 2.0;
       ctx.stroke();
 
-      // Top Header Bar
-      const headerH = 24 * scale;
+      // 2. Top Header Bar
+      const headerH = 25 * scale;
       ctx.fillStyle = isLight ? '#f1f5f9' : '#1e293b';
       ctx.beginPath();
       ctx.roundRect(pipX, pipY, pipW, headerH, [10 * scale, 10 * scale, 0, 0]);
@@ -834,86 +844,143 @@
 
       // Header Text
       ctx.fillStyle = this.pal.v;
-      ctx.font = `bold ${Math.max(9, 10 * scale)}px sans-serif`;
+      ctx.font = `bold ${Math.max(9.5, 10.5 * scale)}px sans-serif`;
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
-      ctx.fillText('📐 VELOCITY VECTORS (PiP)', pipX + 8 * scale, pipY + headerH / 2);
+      const headerTitle = isLanded ? '🎯 IMPACT VECTORS (PiP)' : (isIdle ? '📐 IMPACT VECTORS (PiP)' : '📐 LIVE VECTORS (PiP)');
+      ctx.fillText(headerTitle, pipX + 8 * scale, pipY + headerH / 2);
 
-      // Current Time Badge
+      // Status / Time Badge
       ctx.fillStyle = this.pal.ink;
       ctx.font = `bold ${Math.max(9, 9.5 * scale)}px monospace`;
       ctx.textAlign = 'right';
-      ctx.fillText(`t = ${t.toFixed(2)}s`, pipX + pipW - 8 * scale, pipY + headerH / 2);
+      const timeBadge = isLanded ? 'Landed' : (isIdle ? 'Preview' : `t = ${t.toFixed(2)}s`);
+      ctx.fillText(timeBadge, pipX + pipW - 8 * scale, pipY + headerH / 2);
 
-      // PiP Vector Triangle Canvas Origin
-      const ox = pipX + 24 * scale;
-      const oy = pipY + headerH + 18 * scale;
-      const availW = pipW - (50 * scale);
-      const availH = pipH - headerH - (44 * scale);
+      // 3. Coordinate Setup for Vector Triangle
+      const footerH = 22 * scale;
+      const ox = pipX + 26 * scale;
+      const oy = pipY + headerH + 20 * scale;
+      const availW = pipW - (68 * scale);
+      const availH = pipH - headerH - footerH - (26 * scale);
 
-      // Max vector scaling factor
-      const maxVy = 10 * this.scenario.t;
-      const maxVx = this.scenario.vx;
-      const vecScale = Math.min(availW / (maxVx * 1.15 || 1), availH / (maxVy * 1.15 || 1));
+      // Scaling factor: ensure full target right triangle always fits inside card
+      const vecScale = Math.min(availW / (targetVx * 1.15 || 1), availH / (targetVy * 1.15 || 1));
+      const targetLenX = Math.max(22 * scale, targetVx * vecScale);
+      const targetLenY = Math.max(16 * scale, targetVy * vecScale);
 
-      const lenX = Math.max(16, vx * vecScale);
-      const lenY = Math.max(0, vy * vecScale);
+      const lenX = targetLenX;
+      const lenY = Math.max(isIdle ? 16 * scale : 0, dispVy * vecScale);
 
-      // Right-angle square at corner (ox + lenX, oy)
-      if (lenY > 10 * scale) {
+      // 4. Background Target Guide (when in flight, shows where the vector triangle is heading)
+      if (!isIdle && !isLanded && lenY < targetLenY - 4) {
+        ctx.strokeStyle = isLight ? 'rgba(217, 119, 6, 0.35)' : 'rgba(251, 191, 36, 0.35)';
+        ctx.lineWidth = 1.2;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.moveTo(ox + targetLenX, oy);
+        ctx.lineTo(ox + targetLenX, oy + targetLenY);
+        ctx.stroke();
+
+        ctx.strokeStyle = isLight ? 'rgba(124, 58, 237, 0.35)' : 'rgba(192, 132, 252, 0.35)';
+        ctx.beginPath();
+        ctx.moveTo(ox, oy);
+        ctx.lineTo(ox + targetLenX, oy + targetLenY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // 5. Right-angle square indicator at corner (ox + lenX, oy)
+      if (lenY > 8 * scale) {
         const sq = Math.min(8 * scale, lenY * 0.35, lenX * 0.35);
         ctx.strokeStyle = '#94a3b8';
         ctx.lineWidth = 1;
         ctx.strokeRect(ox + lenX - sq, oy, sq, sq);
       }
 
-      // 1. Horizontal Vector: v_x (Blue)
+      // 6. Component 1: Horizontal Vector v_x (Blue)
       this.drawArrow(ox, oy, ox + lenX, oy, this.pal.vx, 2.5);
       ctx.fillStyle = this.pal.vx;
-      ctx.font = `bold ${Math.max(8.5, 9 * scale)}px monospace`;
+      ctx.font = `bold ${Math.max(8.5, 9.5 * scale)}px monospace`;
       ctx.textBaseline = 'bottom';
-      this.drawSubText(`v_x = ${fmtExact(vx)}`, ox + lenX / 2, oy - 2, 'center');
+      this.drawSubText(`v_x = ${fmtExact(dispVx)} m/s`, ox + lenX / 2, oy - 3, 'center');
 
-      // 2. Vertical Vector: v_y (Orange, pointing down)
-      if (lenY > 4) {
+      // 7. Component 2: Vertical Vector v_y (Orange, pointing down)
+      if (lenY > 3) {
         this.drawArrow(ox + lenX, oy, ox + lenX, oy + lenY, this.pal.vy, 2.5);
         ctx.fillStyle = this.pal.vy;
-        ctx.font = `bold ${Math.max(8.5, 9 * scale)}px monospace`;
+        ctx.font = `bold ${Math.max(8.5, 9.5 * scale)}px monospace`;
         ctx.textBaseline = 'middle';
-        this.drawSubText(`v_y = ${fmtAns(vy)}`, ox + lenX + 4, oy + lenY / 2, 'left');
+        this.drawSubText(`v_y = ${fmtAns(dispVy)} m/s`, ox + lenX + 6, oy + lenY / 2, 'left');
       }
 
-      // 3. Resultant Vector: v (Purple, along hypotenuse)
-      this.drawArrow(ox, oy, ox + lenX, oy + lenY, this.pal.v, 3.2);
+      // 8. HERO RESULTANT VECTOR: v (Purple, along hypotenuse)
+      this.drawArrow(ox, oy, ox + lenX, oy + lenY, this.pal.v, 3.8);
 
-      // 4. Angle Arc θ (Emerald)
-      if (lenY > 6) {
-        const arcR = Math.min(22 * scale, lenX * 0.45);
+      // Resultant Vector Label alongside Hypotenuse
+      if (lenY > 4 || isIdle) {
+        const midHypX = ox + lenX * 0.44;
+        const midHypY = oy + lenY * 0.44;
+        const hypAngle = Math.atan2(lenY, lenX);
+
+        // Perpendicular offset towards top-left so it floats neatly beside hypotenuse
+        const perpOffset = 14 * scale;
+        const lblX = midHypX - perpOffset * Math.sin(hypAngle);
+        const lblY = midHypY + perpOffset * Math.cos(hypAngle) * 0.4 - (6 * scale);
+
+        const vStr = `v = ${fmtAns(dispV)} m/s`;
+        ctx.font = `bold ${Math.max(9, 10 * scale)}px "JetBrains Mono", monospace`;
+        const vMetrics = ctx.measureText(vStr);
+        const pillW = vMetrics.width + (8 * scale);
+        const pillH = 16 * scale;
+        const pillLeft = lblX - pillW;
+        const pillTop = lblY - pillH / 2;
+
+        // Card pill background
+        ctx.fillStyle = isLight ? '#ffffff' : '#0f172a';
+        ctx.strokeStyle = this.pal.v;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(pillLeft, pillTop, pillW, pillH, 3);
+        else ctx.rect(pillLeft, pillTop, pillW, pillH);
+        ctx.fill();
+        ctx.stroke();
+
+        // Subscript text on Resultant arrow
+        ctx.fillStyle = this.pal.v;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        this.drawSubText(vStr, pillLeft + pillW / 2, pillTop + pillH / 2, 'center');
+      }
+
+      // 9. Angle Arc θ (Emerald, between horizontal and hypotenuse)
+      if (lenY > 4 || isIdle) {
+        const arcR = Math.min(24 * scale, lenX * 0.42);
         const rad = Math.atan2(lenY, lenX);
         ctx.strokeStyle = this.pal.theta;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2.2;
         ctx.beginPath();
         ctx.arc(ox, oy, arcR, 0, rad);
         ctx.stroke();
 
         ctx.fillStyle = this.pal.theta;
-        ctx.font = `bold ${Math.max(8.5, 9 * scale)}px sans-serif`;
+        ctx.font = `bold ${Math.max(8.5, 9.5 * scale)}px sans-serif`;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
         const midA = rad / 2;
-        ctx.fillText(`θ=${thetaDeg.toFixed(1)}°`, ox + (arcR + 4) * Math.cos(midA), oy + (arcR + 4) * Math.sin(midA));
+        ctx.fillText(`θ = ${dispTheta.toFixed(1)}°`, ox + (arcR + 4) * Math.cos(midA), oy + (arcR + 4) * Math.sin(midA));
       }
 
-      // Origin Ball Icon
+      // 10. Origin Ball Icon
       ctx.fillStyle = this.pal.ball;
       ctx.beginPath();
       ctx.arc(ox, oy, 4.5 * scale, 0, Math.PI * 2);
       ctx.fill();
 
-      // Bottom Telemetry Bar
-      const footerY = pipY + pipH - (18 * scale);
-      ctx.fillStyle = isLight ? '#f8fafc' : '#0f172a';
-      ctx.fillRect(pipX, footerY, pipW, 18 * scale);
+      // 11. Bottom Telemetry Bar
+      const footerY = pipY + pipH - footerH;
+      ctx.fillStyle = isLight ? '#f1f5f9' : '#0f172a';
+      ctx.fillRect(pipX, footerY, pipW, footerH);
       ctx.strokeStyle = isLight ? '#cbd5e1' : '#334155';
       ctx.lineWidth = 1;
       ctx.beginPath();
@@ -921,18 +988,18 @@
       ctx.lineTo(pipX + pipW, footerY);
       ctx.stroke();
 
-      ctx.font = `bold ${Math.max(8.5, 9 * scale)}px monospace`;
+      ctx.font = `bold ${Math.max(9, 10 * scale)}px "JetBrains Mono", monospace`;
       ctx.textBaseline = 'middle';
 
-      // Left: Resultant speed v
+      // Left: Resultant speed v (Purple)
       ctx.fillStyle = this.pal.v;
       ctx.textAlign = 'left';
-      ctx.fillText(`v = ${fmtAns(v)} m/s`, pipX + 8 * scale, footerY + 9 * scale);
+      this.drawSubText(`v = ${fmtAns(dispV)} m/s`, pipX + 10 * scale, footerY + footerH / 2, 'left');
 
-      // Right: Angle θ
+      // Right: Angle θ (Emerald)
       ctx.fillStyle = this.pal.theta;
       ctx.textAlign = 'right';
-      ctx.fillText(`θ = ${thetaDeg.toFixed(1)}°`, pipX + pipW - 8 * scale, footerY + 9 * scale);
+      ctx.fillText(`θ = ${dispTheta.toFixed(1)}°`, pipX + pipW - 10 * scale, footerY + footerH / 2);
 
       ctx.restore();
     }
