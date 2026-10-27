@@ -900,13 +900,13 @@
       </div>
       <div class="dots" aria-label="Progress">${dots}</div>
       <div class="prompt">${t.text(c, s)}</div>
+      ${hintsHTML(t, s)}
       ${body}
       ${!lab && t.type !== 'info' ? tchartHTML() : ''}
       ${lab ? tableHTML() : ''}
       ${actions ? `<div class="task-actions">${actions}</div>` : ''}
       <p class="task-flash" aria-live="assertive"></p>
-      ${fb}
-      ${hintsHTML(t, s)}`);
+      ${fb}`);
 
     const dial = $('dial');
     if (dial) dial.addEventListener('input', () => setDial(parseFloat(dial.value)));
@@ -1322,6 +1322,7 @@
       try { view = localStorage.getItem('hpw_view') || 'teacher'; } catch (e) { view = 'teacher'; }
       $('viewSelect').value = view;
       $('viewWrap').hidden = false;
+      if ($('btnMonitor')) $('btnMonitor').hidden = false;
     }
     syncButtons();
     refreshPalette();

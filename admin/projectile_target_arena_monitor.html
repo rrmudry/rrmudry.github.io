@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projectile Target Arena // Top 10 Hard Workers</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/unit2-favicon.svg">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script>
+    (function() {
+      const origWarn = console.warn;
+      console.warn = function(...args) {
+        if (typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com should not be used in production')) return;
+        origWarn.apply(console, args);
+      };
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Firebase SDKs (Compat Mode) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
+
+  <style>
+    /* WCAG AAA High Contrast Theming & Universal Root Font Scaling */
+    :root {
+      --bg-page: #030712;
+      --bg-card: rgba(17, 24, 39, 0.85);
+      --bg-card-hover: rgba(31, 41, 55, 0.9);
+      --bg-subcard: rgba(31, 41, 55, 0.6);
+      --border-color: rgba(75, 85, 99, 0.4);
+      --border-strong: rgba(107, 114, 128, 0.7);
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --text-dim: #6b7280;
+      --accent-cyan: #06b6d4;
+      --accent-violet: #8b5cf6;
+      --accent-amber: #f59e0b;
+      --accent-emerald: #10b981;
+      --accent-rose: #f43f5e;
+      --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    }
+
+    html.theme-light {
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f1f5f9;
+      --bg-subcard: #f8fafc;
+      --border-color: #cbd5e1;
+      --border-strong: #94a3b8;
+      --text-main: #0f172a;
+      --text-muted: #334155;
+      --text-dim: #64748b;
+      --accent-cyan: #0284c7;
+      --accent-violet: #6d28d9;
+      --accent-amber: #b45309;
+      --accent-emerald: #047857;
+      --accent-rose: #be123c;
+    }
+
+    /* Universal Root Font Scaling for Classroom Projectors */
+    html.projector { font-size: 20px; }
+    html.projector-large { font-size: 24px; }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      min-height: 100vh;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .font-mono { font-family: var(--font-mono); }
+
+    /* Glass card effects */
+    .glass-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    }
+
+    html.theme-light .glass-card {
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+
+    /* Podium Card Animations & Colors */
+    .podium-1 {
+      border: 2px solid #eab308;
+      background: linear-gradient(135deg, rgba(234, 179, 8, 0.15) 0%, var(--bg-card) 60%);
+      box-shadow: 0 0 25px rgba(234, 179, 8, 0.25);
+    }
+    .podium-2 {
+      border: 2px solid #94a3b8;
+      background: linear-gradient(135deg, rgba(148, 163, 184, 0.15) 0%, var(--bg-card) 60%);
+      box-shadow: 0 0 20px rgba(148, 163, 184, 0.2);
+    }
+    .podium-3 {
+      border: 2px solid #d97706;
+      background: linear-gradient(135deg, rgba(217, 119, 6, 0.15) 0%, var(--bg-card) 60%);
+      box-shadow: 0 0 20px rgba(217, 119, 6, 0.2);
+    }
+
+    /* Rank Badge styling */
+    .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      border-radius: 9999px;
+    }
+
+    /* Unit Tag styling */
+    .unit-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      white-space: nowrap;
+    }
+    .unit-tag-lab1 { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid var(--accent-emerald); }
+    .unit-tag-lab2 { background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
+    .unit-tag-mission { background: rgba(139, 92, 246, 0.15); color: var(--accent-violet); border: 1px solid var(--accent-violet); }
+    .unit-tag-honors { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
+
+    /* Period Filter Pills */
+    .period-btn {
+      transition: all 0.15s ease-in-out;
+      border: 2px solid var(--border-color);
+      background: var(--bg-subcard);
+      color: var(--text-main);
+      font-weight: 800;
+      font-size: 0.9rem;
+      border-radius: 9999px;
+      padding: 0.35rem 0.9rem;
+      cursor: pointer;
+    }
+    .period-btn:hover {
+      border-color: var(--accent-cyan);
+      transform: translateY(-1px);
+    }
+    .period-btn.active {
+      background: var(--accent-cyan);
+      color: #ffffff;
+      border-color: var(--accent-cyan);
+      box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35);
+    }
+    html.theme-light .period-btn.active {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #0284c7;
+    }
+
+    /* Pulse beacon */
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.3); opacity: 0; }
+      100% { transform: scale(0.95); opacity: 0; }
+    }
+    .pulse-dot {
+      position: relative;
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: #10b981;
+      border-radius: 50%;
+    }
+    .pulse-dot::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 2px solid #10b981;
+      animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    /* Table custom scroll */
+    .custom-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+    .custom-scroll::-webkit-scrollbar-track { background: var(--bg-page); }
+    .custom-scroll::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+  </style>
+</head>
+
+<body class="p-3 sm:p-6 lg:p-8">
+
+  <!-- ================= AUTH GATE OVERLAY (FOR TEACHER) ================= -->
+  <div id="authGate" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300 hidden">
+    <div class="glass-card max-w-md w-full p-6 sm:p-8 text-center space-y-5 border-2 border-cyan-500/50 shadow-2xl">
+      <div class="w-16 h-16 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center mx-auto text-3xl">
+        🎯
+      </div>
+      <div>
+        <h2 class="text-2xl font-black tracking-tight text-white">Teacher Command Access</h2>
+        <p class="text-sm text-slate-300 mt-1">Sign in with your <strong>rmudry@orangeusd.org</strong> account to monitor live student work.</p>
+      </div>
+      <button id="btnGoogleSignIn" class="w-full bg-white hover:bg-slate-100 text-slate-900 font-extrabold py-3.5 px-6 rounded-xl flex items-center justify-center gap-3 transition-all shadow-lg hover:scale-[1.02] active:scale-[0.98]">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google logo">
+        Sign In with Google
+      </button>
+      <p id="authError" class="text-xs text-rose-400 font-bold hidden"></p>
+    </div>
+  </div>
+
+  <!-- ================= MAIN CONTAINER ================= -->
+  <div class="max-w-7xl mx-auto space-y-6">
+
+    <!-- Top App Navigation & Controls Header -->
+    <header class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 pb-4 border-b border-[var(--border-color)]">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <span class="text-2xl sm:text-3xl" aria-hidden="true">🎯</span>
+          <h1 class="text-2xl sm:text-3xl font-black tracking-tight">Projectile Target Arena</h1>
+          <span class="px-2.5 py-0.5 rounded-full text-xs font-black uppercase tracking-wider bg-cyan-500/20 text-[var(--accent-cyan)] border border-[var(--accent-cyan)]">
+            Top 10 Hard Workers
+          </span>
+        </div>
+        <p class="text-xs sm:text-sm text-[var(--text-muted)] font-medium">
+          Horizontal Launch Inquiry · <span class="font-mono">t = √(Δy ÷ 5)</span> · <span class="font-mono">Δx = v<sub>x</sub> × t</span> · Live Student Stream
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-2 flex-wrap self-end lg:self-auto">
+        <!-- Live Status Badge -->
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-xs font-bold font-mono">
+          <span class="pulse-dot"></span>
+          <span id="liveStatusText">Streaming Live</span>
+          <span id="updateCountBadge" class="text-[var(--text-dim)]">(0 recs)</span>
+        </div>
+
+        <!-- Projector Scaling Toggle -->
+        <button id="btn-projector-mode" class="px-3 py-1.5 rounded-lg border border-[var(--border-color)] bg-[var(--bg-card)] hover:border-[var(--border-strong)] text-xs font-extrabold transition-all" title="Enlarge display for classroom overhead projector">
+          🖥️ Projector
+        </button>
+
+        <!-- Theme Toggle -->
+        <button id="btn-theme-toggle" class="px-3 py-1.5 rounded-lg border border-[var(--border-color)] bg-[var(--bg-card)] hover:border-[var(--border-strong)] text-xs font-extrabold transition-all" title="Toggle High-Contrast Light / Dark Mode">
+          🌙 Dark
+        </button>
+
+        <!-- Workbench Direct Link -->
+        <a href="../Unit_2/horizontal_projectile_workbench/index.html" target="_blank" class="px-3 py-1.5 rounded-lg border border-cyan-500/40 bg-cyan-500/10 hover:bg-cyan-500/20 text-[var(--accent-cyan)] text-xs font-extrabold transition-all">
+          🚀 Open Lab
+        </a>
+
+        <!-- Unit 2 Dashboard Link -->
+        <a href="../unit2-dashboard.html" class="px-3 py-1.5 rounded-lg border border-[var(--border-color)] bg-[var(--bg-card)] hover:border-[var(--border-strong)] text-xs font-extrabold transition-all">
+          🏠 Unit 2
+        </a>
+      </div>
+    </header>
+
+    <!-- Period Selection Strip -->
+    <div class="glass-card p-3 sm:p-4 space-y-3">
+      <div class="flex items-center justify-between gap-2 flex-wrap">
+        <span class="text-xs font-black uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-1.5">
+          <span>🔍</span> Select Class Period
+        </span>
+        <span id="periodRosterCount" class="text-xs font-mono text-[var(--text-dim)] font-bold">Roster loaded</span>
+      </div>
+
+      <div class="flex items-center gap-2 overflow-x-auto pb-1 custom-scroll" role="group" aria-label="Filter by Period">
+        <button class="period-btn" data-period="ALL">All Periods</button>
+        <button class="period-btn" data-period="0">Period 0 (Honors)</button>
+        <button class="period-btn" data-period="1">Period 1</button>
+        <button class="period-btn" data-period="2">Period 2</button>
+        <button class="period-btn" data-period="3">Period 3</button>
+        <button class="period-btn" data-period="4">Period 4</button>
+        <button class="period-btn active" data-period="5">Period 5</button>
+        <button class="period-btn" data-period="6">Period 6</button>
+      </div>
+    </div>
+
+    <!-- Period Live Summary Metrics Ribbon -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+      <div class="glass-card p-4 space-y-1 border-l-4 border-[var(--accent-cyan)]">
+        <p class="text-[10px] font-black uppercase tracking-wider text-[var(--text-dim)]">Active In Period</p>
+        <p id="statActiveCount" class="text-2xl sm:text-3xl font-black font-mono text-[var(--text-main)]">0</p>
+        <p id="statRosterPct" class="text-[11px] text-[var(--text-muted)] font-medium">0% of roster started</p>
+      </div>
+
+      <div class="glass-card p-4 space-y-1 border-l-4 border-[var(--accent-amber)]">
+        <p class="text-[10px] font-black uppercase tracking-wider text-[var(--text-dim)]">Leading Score</p>
+        <p id="statLeadingScore" class="text-2xl sm:text-3xl font-black font-mono text-[var(--accent-amber)]">-- / 10</p>
+        <p id="statLeaderName" class="text-[11px] text-[var(--text-muted)] font-medium truncate">No entries yet</p>
+      </div>
+
+      <div class="glass-card p-4 space-y-1 border-l-4 border-[var(--accent-violet)]">
+        <p class="text-[10px] font-black uppercase tracking-wider text-[var(--text-dim)]">Period Average</p>
+        <p id="statAvgScore" class="text-2xl sm:text-3xl font-black font-mono text-[var(--accent-violet)]">0.0</p>
+        <p id="statAvgPct" class="text-[11px] text-[var(--text-muted)] font-medium">0% average mastery</p>
+      </div>
+
+      <div class="glass-card p-4 space-y-1 border-l-4 border-[var(--accent-emerald)]">
+        <p class="text-[10px] font-black uppercase tracking-wider text-[var(--text-dim)]">10/10 Perfect Finishers</p>
+        <p id="statFinishersCount" class="text-2xl sm:text-3xl font-black font-mono text-[var(--accent-emerald)]">0</p>
+        <p class="text-[11px] text-[var(--text-muted)] font-medium">Bullseye Masters</p>
+      </div>
+    </div>
+
+    <!-- ================= TOP 3 PODIUM SECTION ================= -->
+    <section class="space-y-3">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg sm:text-xl font-black tracking-tight flex items-center gap-2">
+          <span>👑</span> Podium Leaders
+        </h2>
+        <span class="text-xs text-[var(--text-dim)] font-mono font-bold">Top 3 Standings</span>
+      </div>
+
+      <div id="podiumContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Injected dynamically -->
+        <div class="col-span-full glass-card p-8 text-center text-[var(--text-muted)] font-bold">
+          Loading student achievements...
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= RANKS 4 THROUGH 10 LEADERBOARD ================= -->
+    <section class="space-y-3">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg sm:text-xl font-black tracking-tight flex items-center gap-2">
+          <span>🔥</span> Hard Workers (Ranks 4–10)
+        </h2>
+        <span class="text-xs text-[var(--text-dim)] font-mono font-bold">Mastery Sprint</span>
+      </div>
+
+      <div id="ranksContainer" class="space-y-2.5">
+        <!-- Injected dynamically -->
+      </div>
+    </section>
+
+    <!-- ================= EXPANDABLE FULL ROSTER PROGRESS TABLE ================= -->
+    <section class="glass-card p-4 sm:p-6 space-y-4">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <h2 class="text-base sm:text-lg font-black tracking-tight flex items-center gap-2">
+            <span>📋</span> Complete Period Activity Directory
+          </h2>
+          <p class="text-xs text-[var(--text-muted)]">Real-time status for every registered student in the selected period.</p>
+        </div>
+        <button id="btnToggleFullRoster" class="px-3.5 py-1.5 rounded-lg border border-[var(--border-color)] bg-[var(--bg-subcard)] hover:border-[var(--border-strong)] text-xs font-bold transition-all">
+          Hide Full Directory ▼
+        </button>
+      </div>
+
+      <div id="fullRosterWrapper" class="overflow-x-auto custom-scroll">
+        <table class="w-full text-left text-sm border-collapse">
+          <thead>
+            <tr class="border-b border-[var(--border-color)] text-[11px] font-black uppercase tracking-wider text-[var(--text-dim)]">
+              <th class="py-2.5 px-3">#</th>
+              <th class="py-2.5 px-3">Student Name</th>
+              <th class="py-2.5 px-3">Period</th>
+              <th class="py-2.5 px-3">Score / 10</th>
+              <th class="py-2.5 px-3">Progress</th>
+              <th class="py-2.5 px-3">Units Finished</th>
+              <th class="py-2.5 px-3">Active On</th>
+              <th class="py-2.5 px-3 text-right">Last Sync</th>
+            </tr>
+          </thead>
+          <tbody id="fullRosterBody" class="divide-y divide-[var(--border-color)] font-medium">
+            <tr>
+              <td colspan="8" class="py-6 text-center text-xs text-[var(--text-muted)] font-mono">Connecting to datastream...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Application Logic -->
+  <script>
+    // firestore-audit: teacher-only
+    (function() {
+      const db = firebase.firestore();
+      const ASSIGNMENT_ID = 'unit2_day42_horizontal_projectile_workbench';
+      const TEACHER_EMAILS = ['rmudry@orangeusd.org', 'ryan.mudry@gmail.com', 'ryanmudry@gmail.com'];
+
+      // App state
+      let currentPeriod = '5'; // default requested by teacher
+      let rosterMap = new Map(); // studentId -> { id, name, period }
+      let allSubmissions = []; // raw array from firestore
+      let unsubscribeSnapshot = null;
+      let recordCounter = 0;
+      let fullRosterVisible = true;
+
+      // Unit definitions for friendly display
+      const UNIT_META = {
+        'lab1': { label: '📈 Lab 1', name: 'Speed Test Lab', type: 'lab1' },
+        'lab2': { label: '🔬 Lab 2', name: 'Strobe Photo Lab', type: 'lab2' },
+        'm1': { label: '🎯 M1', name: 'Target Mission 1', type: 'mission' },
+        'm2': { label: '🎯 M2', name: 'Target Mission 2', type: 'mission' },
+        'm3': { label: '🎯 M3', name: 'Target Mission 3', type: 'mission' },
+        'm4': { label: '🎯 M4', name: 'Target Mission 4', type: 'mission' },
+        'm5': { label: '🎯 M5', name: 'Target Mission 5', type: 'mission' },
+        'h1': { label: '⭐ H1', name: 'Honors Mission 1', type: 'honors' },
+        'h2': { label: '⭐ H2', name: 'Honors Mission 2', type: 'honors' }
+      };
+
+      // ----------------------------------------------------------------------
+      // Theme & Projector Scaling Controller
+      // ----------------------------------------------------------------------
+      const root = document.documentElement;
+      const btnTheme = document.getElementById('btn-theme-toggle');
+      const btnProjector = document.getElementById('btn-projector-mode');
+
+      function initTheming() {
+        // Saved theme
+        const savedTheme = localStorage.getItem('hpw_monitor_theme');
+        if (savedTheme === 'light') {
+          root.classList.add('theme-light');
+          btnTheme.textContent = '☀️ Light';
+        } else {
+          btnTheme.textContent = '🌙 Dark';
+        }
+
+        // Saved projector scaling
+        const savedProj = localStorage.getItem('hpw_monitor_proj');
+        if (savedProj === 'projector') {
+          root.classList.add('projector');
+          btnProjector.classList.add('border-cyan-500', 'text-cyan-400');
+        } else if (savedProj === 'projector-large') {
+          root.classList.add('projector-large');
+          btnProjector.classList.add('border-cyan-500', 'text-cyan-400');
+        }
+
+        btnTheme.addEventListener('click', () => {
+          const isLight = root.classList.toggle('theme-light');
+          localStorage.setItem('hpw_monitor_theme', isLight ? 'light' : 'dark');
+          btnTheme.textContent = isLight ? '☀️ Light' : '🌙 Dark';
+        });
+
+        btnProjector.addEventListener('click', () => {
+          if (!root.classList.contains('projector') && !root.classList.contains('projector-large')) {
+            root.classList.add('projector');
+            localStorage.setItem('hpw_monitor_proj', 'projector');
+            btnProjector.textContent = '🖥️ Large (20px)';
+            btnProjector.classList.add('border-cyan-500', 'text-cyan-400');
+          } else if (root.classList.contains('projector')) {
+            root.classList.remove('projector');
+            root.classList.add('projector-large');
+            localStorage.setItem('hpw_monitor_proj', 'projector-large');
+            btnProjector.textContent = '🖥️ Huge (24px)';
+          } else {
+            root.classList.remove('projector-large');
+            localStorage.removeItem('hpw_monitor_proj');
+            btnProjector.textContent = '🖥️ Projector';
+            btnProjector.classList.remove('border-cyan-500', 'text-cyan-400');
+          }
+        });
+      }
+
+      // ----------------------------------------------------------------------
+      // Auth & Initialization
+      // ----------------------------------------------------------------------
+      function checkAuth() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('preview') || params.has('demo')) {
+          document.getElementById('authGate').classList.add('hidden');
+          loadDemoData();
+          return;
+        }
+
+        firebase.auth().onAuthStateChanged(user => {
+          if (user) {
+            document.getElementById('authGate').classList.add('hidden');
+            initDataStream();
+          } else {
+            // Check if we can sign in or prompt gate
+            document.getElementById('authGate').classList.remove('hidden');
+          }
+        });
+
+        document.getElementById('btnGoogleSignIn').addEventListener('click', () => {
+          const provider = new firebase.auth.GoogleAuthProvider();
+          provider.setCustomParameters({ hd: 'orangeusd.org', prompt: 'select_account' });
+          firebase.auth().signInWithPopup(provider).catch(err => {
+            const errEl = document.getElementById('authError');
+            errEl.textContent = `Sign in error: ${err.message}`;
+            errEl.classList.remove('hidden');
+          });
+        });
+      }
+
+      function loadDemoData() {
+        document.getElementById('liveStatusText').textContent = 'Preview Mode';
+        document.getElementById('updateCountBadge').textContent = '(25 demo recs)';
+
+        const demoList = [
+          { id: '393188', name: 'Joshua Escobar', period: '5', score: 9, percentage: 90, unitsDone: ['lab1', 'lab2', 'm1', 'm2', 'm3', 'm4'], unitsCount: 6, currentStation: 'm5', timestamp: new Date(), isCompleted: false },
+          { id: '430124', name: 'Anya Segura', period: '5', score: 8, percentage: 80, unitsDone: ['lab1', 'lab2', 'm1', 'm2', 'm3'], unitsCount: 5, currentStation: 'm4', timestamp: new Date(Date.now() - 60000), isCompleted: false },
+          { id: '397387', name: 'Giovanni Castillo Santos', period: '5', score: 7, percentage: 70, unitsDone: ['lab1', 'lab2', 'm1', 'm2'], unitsCount: 4, currentStation: 'm3', timestamp: new Date(Date.now() - 300000), isCompleted: false },
+          { id: '437926', name: 'Skyler Cooper', period: '5', score: 5, percentage: 50, unitsDone: ['lab1', 'lab2'], unitsCount: 2, currentStation: 'm1', timestamp: new Date(Date.now() - 600000), isCompleted: false },
+          { id: '398566', name: 'Giovanni Sotelo', period: '5', score: 3, percentage: 30, unitsDone: ['lab1'], unitsCount: 1, currentStation: 'lab2', timestamp: new Date(Date.now() - 120000), isCompleted: false },
+          { id: '396616', name: 'Dariana De La O', period: '5', score: 3, percentage: 30, unitsDone: ['lab1'], unitsCount: 1, currentStation: 'lab2', timestamp: new Date(Date.now() - 150000), isCompleted: false },
+          { id: '427227', name: 'Valentina Gonzalez', period: '5', score: 3, percentage: 30, unitsDone: ['lab1'], unitsCount: 1, currentStation: 'lab2', timestamp: new Date(Date.now() - 150000), isCompleted: false },
+          { id: '395763', name: 'Kevin Alvarado', period: '5', score: 3, percentage: 30, unitsDone: ['lab1'], unitsCount: 1, currentStation: 'lab2', timestamp: new Date(Date.now() - 200000), isCompleted: false },
+          { id: '431061', name: 'Ann Marie Rojas Sanchez', period: '5', score: 3, percentage: 30, unitsDone: ['lab1'], unitsCount: 1, currentStation: 'lab2', timestamp: new Date(Date.now() - 250000), isCompleted: false },
+          { id: '393254', name: 'Damien Contreras', period: '5', score: 3, percentage: 30, unitsDone: ['lab1'], unitsCount: 1, currentStation: 'lab2', timestamp: new Date(Date.now() - 300000), isCompleted: false },
+          { id: '395643', name: 'Alexander Rosas', period: '5', score: 3, percentage: 30, unitsDone: ['lab1'], unitsCount: 1, currentStation: 'lab2', timestamp: new Date(Date.now() - 400000), isCompleted: false },
+          { id: '426089', name: 'Emiliano Millan Davila', period: '5', score: 0, percentage: 0, unitsDone: [], unitsCount: 0, currentStation: 'lab1', timestamp: new Date(Date.now() - 500000), isCompleted: false },
+          { id: '395490', name: 'Tianna Calderon', period: '5', score: 0, percentage: 0, unitsDone: [], unitsCount: 0, currentStation: 'lab1', timestamp: new Date(Date.now() - 600000), isCompleted: false },
+          { id: '392861', name: 'Elisabeth Tirado', period: '5', score: 0, percentage: 0, unitsDone: [], unitsCount: 0, currentStation: 'lab1', timestamp: new Date(Date.now() - 700000), isCompleted: false },
+          { id: '389920', name: 'Kevin Velazquez', period: '5', score: 0, percentage: 0, unitsDone: [], unitsCount: 0, currentStation: 'lab1', timestamp: new Date(Date.now() - 800000), isCompleted: false },
+          { id: '430265', name: 'Anthony Padua', period: '5', score: 0, percentage: 0, unitsDone: [], unitsCount: 0, currentStation: 'lab1', timestamp: new Date(Date.now() - 900000), isCompleted: false },
+          { id: '398199', name: 'Joseph Guillen', period: '5', score: 0, percentage: 0, unitsDone: [], unitsCount: 0, currentStation: 'lab1', timestamp: new Date(Date.now() - 1000000), isCompleted: false },
+          { id: '437688', name: 'Britany Pamela Cruz Ramirez', period: '5', score: 0, percentage: 0, unitsDone: [], unitsCount: 0, currentStation: 'lab1', timestamp: new Date(Date.now() - 1100000), isCompleted: false },
+          { id: '423621', name: 'Niah Cadero', period: '5', score: 0, percentage: 0, unitsDone: [], unitsCount: 0, currentStation: 'lab1', timestamp: new Date(Date.now() - 1200000), isCompleted: false },
+          { id: '391057', name: 'Omar Olivares Benites', period: '5', score: 0, percentage: 0, unitsDone: [], unitsCount: 0, currentStation: 'lab1', timestamp: new Date(Date.now() - 1300000), isCompleted: false },
+          { id: '396327', name: 'Anthony Cruz Cruz', period: '5', score: 0, percentage: 0, unitsDone: [], unitsCount: 0, currentStation: 'lab1', timestamp: new Date(Date.now() - 1400000), isCompleted: false },
+          { id: '438589', name: 'Jeremiah Lopez Menjivar', period: '5', score: 0, percentage: 0, unitsDone: [], unitsCount: 0, currentStation: 'lab1', timestamp: new Date(Date.now() - 1500000), isCompleted: false },
+          { id: '445225', name: 'Yaretzy Solis Ruiz', period: '5', score: 0, percentage: 0, unitsDone: [], unitsCount: 0, currentStation: 'lab1', timestamp: new Date(Date.now() - 1600000), isCompleted: false }
+        ];
+
+        rosterMap.clear();
+        demoList.forEach(s => rosterMap.set(s.id, { id: s.id, name: s.name, period: s.period }));
+        document.getElementById('periodRosterCount').textContent = '40 students on roster (Period 5 demo)';
+
+        allSubmissions = demoList;
+        renderDashboard();
+      }
+
+      // ----------------------------------------------------------------------
+      // Data Stream (Roster + Real-Time Submissions)
+      // ----------------------------------------------------------------------
+      async function initDataStream() {
+        try {
+          // 1. Fetch Roster
+          const rosterSnap = await db.collection('roster').get();
+          rosterMap.clear();
+          rosterSnap.forEach(doc => {
+            const d = doc.data();
+            const period = String(d.period ?? d.class_period ?? '');
+            const name = d.name || `${d.first_name || ''} ${d.last_name || ''}`.trim() || doc.id;
+            rosterMap.set(doc.id, {
+              id: doc.id,
+              name: name,
+              period: period
+            });
+          });
+          document.getElementById('periodRosterCount').textContent = `${rosterMap.size} students on roster`;
+
+          // 2. Attach Live onSnapshot to Projectile Workbench submissions
+          const subCol = db.collection('student_results').doc(ASSIGNMENT_ID).collection('students');
+          
+          if (unsubscribeSnapshot) unsubscribeSnapshot();
+          unsubscribeSnapshot = subCol.onSnapshot(snap => {
+            recordCounter = snap.size;
+            document.getElementById('updateCountBadge').textContent = `(${recordCounter} recs)`;
+            
+            allSubmissions = snap.docs.map(doc => {
+              const data = doc.data();
+              const studentId = doc.id;
+              const rosterInfo = rosterMap.get(studentId);
+              
+              // Normalize period
+              let resolvedPeriod = data.class_period !== undefined && data.class_period !== null
+                ? String(data.class_period)
+                : (rosterInfo ? String(rosterInfo.period) : 'Unknown');
+
+              // Normalize name
+              const studentName = data.student_name && data.student_name !== 'Student'
+                ? data.student_name
+                : (rosterInfo ? rosterInfo.name : studentId);
+
+              // Normalize score & units
+              const score = typeof data.score === 'number' ? data.score : 0;
+              const unitsDone = Array.isArray(data.units_done) ? data.units_done : [];
+              const state = data.workbenchState || {};
+              const currentStation = state.current || (unitsDone.length === 0 ? 'lab1' : 'active');
+              const timestamp = data.timestamp ? data.timestamp.toDate() : null;
+
+              return {
+                id: studentId,
+                name: studentName,
+                period: resolvedPeriod,
+                score: score,
+                percentage: data.percentage || Math.round((score / 10) * 100),
+                unitsDone: unitsDone,
+                unitsCount: unitsDone.length,
+                currentStation: currentStation,
+                timestamp: timestamp,
+                isCompleted: score >= 10 || data.isCompleted
+              };
+            });
+
+            renderDashboard();
+          }, err => {
+            console.error('Firestore subscription error:', err);
+            document.getElementById('liveStatusText').textContent = 'Sync Stalled';
+          });
+
+        } catch (e) {
+          console.error('Error starting data stream:', e);
+        }
+      }
+
+      // ----------------------------------------------------------------------
+      // Filtering & Sorting Logic
+      // ----------------------------------------------------------------------
+      function getFilteredStudents() {
+        let list = allSubmissions.slice();
+
+        // Filter by period
+        if (currentPeriod !== 'ALL') {
+          list = list.filter(s => s.period === currentPeriod || s.period === `P${currentPeriod}`);
+        }
+
+        // Sort by:
+        // 1. Score (descending)
+        // 2. Units completed count (descending)
+        // 3. Most recently active (descending)
+        list.sort((a, b) => {
+          if (b.score !== a.score) return b.score - a.score;
+          if (b.unitsCount !== a.unitsCount) return b.unitsCount - a.unitsCount;
+          return (b.timestamp || 0) - (a.timestamp || 0);
+        });
+
+        return list;
+      }
+
+      function formatTime(d) {
+        if (!d) return '--';
+        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      }
+
+      function friendlyStation(st) {
+        if (!st) return 'In Progress';
+        if (UNIT_META[st]) return `Solving ${UNIT_META[st].label}`;
+        if (st === 'done' || st === 'finished') return '🏆 Completed All!';
+        return `Station ${st}`;
+      }
+
+      function renderUnitBadges(units) {
+        if (!units || !units.length) return '<span class="text-xs text-[var(--text-dim)] font-mono">None yet</span>';
+        return units.map(u => {
+          const meta = UNIT_META[u] || { label: u, type: 'mission' };
+          const cls = `unit-tag-${meta.type || 'mission'}`;
+          return `<span class="unit-tag ${cls}" title="${meta.name || u}">${meta.label}</span>`;
+        }).join(' ');
+      }
+
+      // ----------------------------------------------------------------------
+      // Dashboard UI Rendering
+      // ----------------------------------------------------------------------
+      function renderDashboard() {
+        const students = getFilteredStudents();
+        const podiumContainer = document.getElementById('podiumContainer');
+        const ranksContainer = document.getElementById('ranksContainer');
+        const fullRosterBody = document.getElementById('fullRosterBody');
+
+        // Update Summary Stats
+        const count = students.length;
+        document.getElementById('statActiveCount').textContent = count;
+
+        // Calculate period roster total if specific period selected
+        if (currentPeriod !== 'ALL') {
+          let rosterCountForPeriod = 0;
+          rosterMap.forEach(r => {
+            if (r.period === currentPeriod || r.period === `P${currentPeriod}`) rosterCountForPeriod++;
+          });
+          const pct = rosterCountForPeriod ? Math.round((count / rosterCountForPeriod) * 100) : 0;
+          document.getElementById('statRosterPct').textContent = `${pct}% of ${rosterCountForPeriod} enrolled students`;
+        } else {
+          document.getElementById('statRosterPct').textContent = `${count} total across all periods`;
+        }
+
+        if (count > 0) {
+          const topStudent = students[0];
+          document.getElementById('statLeadingScore').textContent = `${topStudent.score} / 10`;
+          document.getElementById('statLeaderName').textContent = `Leader: ${topStudent.name}`;
+
+          const sum = students.reduce((acc, s) => acc + s.score, 0);
+          const avg = (sum / count).toFixed(1);
+          document.getElementById('statAvgScore').textContent = `${avg}`;
+          document.getElementById('statAvgPct').textContent = `${Math.round((avg / 10) * 100)}% period mastery avg`;
+
+          const finishers = students.filter(s => s.score >= 10).length;
+          document.getElementById('statFinishersCount').textContent = finishers;
+        } else {
+          document.getElementById('statLeadingScore').textContent = '-- / 10';
+          document.getElementById('statLeaderName').textContent = 'No submissions';
+          document.getElementById('statAvgScore').textContent = '0.0';
+          document.getElementById('statAvgPct').textContent = '0% average';
+          document.getElementById('statFinishersCount').textContent = '0';
+        }
+
+        // 1. Render Top 3 Podium
+        const top3 = students.slice(0, 3);
+        if (top3.length === 0) {
+          podiumContainer.innerHTML = `
+            <div class="col-span-full glass-card p-12 text-center space-y-2">
+              <span class="text-4xl">⏳</span>
+              <p class="text-base font-bold text-[var(--text-muted)]">No active student submissions in Period ${currentPeriod} yet.</p>
+              <p class="text-xs text-[var(--text-dim)]">Scores stream here the moment students record their lab observations.</p>
+            </div>
+          `;
+        } else {
+          const podiumOrder = [
+            { pos: 1, student: top3[0], medal: '🥇 1st Place', borderCls: 'podium-1', badgeCls: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/50' },
+            { pos: 2, student: top3[1], medal: '🥈 2nd Place', borderCls: 'podium-2', badgeCls: 'bg-slate-400/20 text-slate-300 border border-slate-400/50' },
+            { pos: 3, student: top3[2], medal: '🥉 3rd Place', borderCls: 'podium-3', badgeCls: 'bg-amber-600/20 text-amber-500 border border-amber-600/50' }
+          ];
+
+          podiumContainer.innerHTML = podiumOrder.map(item => {
+            if (!item.student) return '';
+            const s = item.student;
+            const pct = Math.min(100, Math.round((s.score / 10) * 100));
+            return `
+              <div class="glass-card ${item.borderCls} p-5 sm:p-6 space-y-4 flex flex-col justify-between transition-all duration-300 hover:scale-[1.01]">
+                <div class="flex items-center justify-between">
+                  <span class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${item.badgeCls}">
+                    ${item.medal}
+                  </span>
+                  <span class="text-xs font-mono font-bold text-[var(--text-dim)]">P${s.period} · ${formatTime(s.timestamp)}</span>
+                </div>
+
+                <div class="space-y-1">
+                  <h3 class="text-xl sm:text-2xl font-black tracking-tight text-[var(--text-main)] truncate" title="${s.name}">
+                    ${s.name}
+                  </h3>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-[var(--accent-cyan)] font-mono flex items-center gap-1">
+                      <span>⚡</span> ${friendlyStation(s.currentStation)}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Score bar -->
+                <div class="space-y-1.5">
+                  <div class="flex justify-between items-baseline font-mono">
+                    <span class="text-xs font-bold text-[var(--text-dim)]">Mastery Score</span>
+                    <span class="text-lg font-black text-[var(--text-main)]">${s.score} <span class="text-xs text-[var(--text-dim)]">/ 10</span> (${pct}%)</span>
+                  </div>
+                  <div class="w-full h-3 rounded-full bg-[var(--bg-subcard)] overflow-hidden p-0.5 border border-[var(--border-color)]">
+                    <div class="h-full rounded-full bg-gradient-to-r from-[var(--accent-cyan)] to-[var(--accent-emerald)] transition-all duration-700" style="width: ${pct}%"></div>
+                  </div>
+                </div>
+
+                <!-- Completed units list -->
+                <div class="space-y-1.5 pt-2 border-t border-[var(--border-color)]">
+                  <span class="text-[10px] font-black uppercase tracking-wider text-[var(--text-dim)]">Units Logged (${s.unitsCount})</span>
+                  <div class="flex flex-wrap gap-1.5">
+                    ${renderUnitBadges(s.unitsDone)}
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        // 2. Render Ranks 4 to 10
+        const ranks4to10 = students.slice(3, 10);
+        if (ranks4to10.length === 0) {
+          ranksContainer.innerHTML = top3.length > 0
+            ? `<div class="glass-card p-6 text-center text-xs font-bold text-[var(--text-dim)] font-mono">More workers will appear here as they complete additional stations.</div>`
+            : '';
+        } else {
+          ranksContainer.innerHTML = ranks4to10.map((s, idx) => {
+            const rank = idx + 4;
+            const pct = Math.min(100, Math.round((s.score / 10) * 100));
+            return `
+              <div class="glass-card p-3 sm:p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 transition-all hover:bg-[var(--bg-card-hover)]">
+                <div class="flex items-center gap-3 min-w-0 flex-1">
+                  <div class="w-8 h-8 rounded-full bg-[var(--bg-subcard)] border border-[var(--border-color)] font-mono font-black text-sm flex items-center justify-center shrink-0">
+                    #${rank}
+                  </div>
+                  <div class="min-w-0 space-y-0.5">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <h4 class="font-bold text-sm sm:text-base text-[var(--text-main)] truncate">${s.name}</h4>
+                      <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[var(--bg-subcard)] text-[var(--text-dim)] border border-[var(--border-color)]">
+                        P${s.period}
+                      </span>
+                    </div>
+                    <p class="text-xs text-[var(--accent-cyan)] font-mono font-semibold truncate flex items-center gap-1">
+                      <span>⚡</span> ${friendlyStation(s.currentStation)}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Mid: Progress bar + Badges -->
+                <div class="flex items-center gap-3 w-full md:w-auto md:min-w-[280px] lg:min-w-[340px]">
+                  <div class="flex-1 space-y-1">
+                    <div class="flex justify-between text-xs font-mono font-bold">
+                      <span class="text-[var(--text-dim)]">Units: ${s.unitsCount}</span>
+                      <span class="text-[var(--text-main)]">${s.score}/10 pts</span>
+                    </div>
+                    <div class="w-full h-2 rounded-full bg-[var(--bg-subcard)] overflow-hidden border border-[var(--border-color)]">
+                      <div class="h-full rounded-full bg-[var(--accent-cyan)] transition-all duration-500" style="width: ${pct}%"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right: Badges + Timestamp -->
+                <div class="flex items-center gap-2 justify-between md:justify-end w-full md:w-auto shrink-0">
+                  <div class="flex flex-wrap gap-1 max-w-[200px] justify-start md:justify-end">
+                    ${renderUnitBadges(s.unitsDone)}
+                  </div>
+                  <span class="text-[11px] font-mono text-[var(--text-dim)] shrink-0 ml-2">
+                    ${formatTime(s.timestamp)}
+                  </span>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        // 3. Render Full Class Roster Directory Table
+        if (students.length === 0) {
+          fullRosterBody.innerHTML = `
+            <tr>
+              <td colspan="8" class="py-8 text-center text-xs text-[var(--text-dim)] font-mono">
+                No recorded attempts yet for Period ${currentPeriod}.
+              </td>
+            </tr>
+          `;
+        } else {
+          fullRosterBody.innerHTML = students.map((s, idx) => {
+            const rank = idx + 1;
+            const pct = Math.min(100, Math.round((s.score / 10) * 100));
+            return `
+              <tr class="hover:bg-[var(--bg-card-hover)] transition-colors">
+                <td class="py-2.5 px-3 font-mono font-bold text-xs text-[var(--text-dim)]">${rank}</td>
+                <td class="py-2.5 px-3 font-bold text-sm text-[var(--text-main)]">${s.name}</td>
+                <td class="py-2.5 px-3 font-mono text-xs text-[var(--text-dim)]">P${s.period}</td>
+                <td class="py-2.5 px-3 font-mono font-bold text-sm text-[var(--accent-emerald)]">${s.score}</td>
+                <td class="py-2.5 px-3">
+                  <div class="w-24 h-2 rounded-full bg-[var(--bg-subcard)] overflow-hidden border border-[var(--border-color)]">
+                    <div class="h-full bg-[var(--accent-cyan)]" style="width: ${pct}%"></div>
+                  </div>
+                </td>
+                <td class="py-2.5 px-3">
+                  <div class="flex flex-wrap gap-1">${renderUnitBadges(s.unitsDone)}</div>
+                </td>
+                <td class="py-2.5 px-3 font-mono text-xs text-[var(--accent-cyan)] font-semibold">${friendlyStation(s.currentStation)}</td>
+                <td class="py-2.5 px-3 font-mono text-xs text-[var(--text-dim)] text-right">${formatTime(s.timestamp)}</td>
+              </tr>
+            `;
+          }).join('');
+        }
+      }
+
+      // ----------------------------------------------------------------------
+      // Period Selection Handlers
+      // ----------------------------------------------------------------------
+      function setupPeriodFilters() {
+        const buttons = document.querySelectorAll('.period-btn');
+        buttons.forEach(btn => {
+          btn.addEventListener('click', () => {
+            buttons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentPeriod = btn.dataset.period;
+            
+            // Update URL search query without reloading
+            const url = new URL(window.location);
+            url.searchParams.set('period', currentPeriod);
+            window.history.replaceState({}, '', url);
+
+            renderDashboard();
+          });
+        });
+
+        // Read URL param if present
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('period')) {
+          const p = params.get('period');
+          const targetBtn = document.querySelector(`.period-btn[data-period="${p}"]`);
+          if (targetBtn) {
+            buttons.forEach(b => b.classList.remove('active'));
+            targetBtn.classList.add('active');
+            currentPeriod = p;
+          }
+        }
+      }
+
+      // ----------------------------------------------------------------------
+      // Toggle Full Roster
+      // ----------------------------------------------------------------------
+      document.getElementById('btnToggleFullRoster').addEventListener('click', function() {
+        fullRosterVisible = !fullRosterVisible;
+        const wrapper = document.getElementById('fullRosterWrapper');
+        wrapper.classList.toggle('hidden', !fullRosterVisible);
+        this.textContent = fullRosterVisible ? 'Hide Full Directory ▼' : 'Show Full Directory ▶';
+      });
+
+      // ----------------------------------------------------------------------
+      // Bootstrap on Page Load
+      // ----------------------------------------------------------------------
+      document.addEventListener('DOMContentLoaded', () => {
+        initTheming();
+        setupPeriodFilters();
+        checkAuth();
+      });
+
+    })();
+  </script>
+</body>
+</html>
