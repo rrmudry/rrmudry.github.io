@@ -4780,9 +4780,19 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Projectile Target Arena": "Unit_2/horizontal_projectile_workbench/index.html",
       "Horizontal Projectile Motion Explorer": "horizontal-projectile-motion/index.html"
     },
     "assignments": [
+      {
+        "title": "Projectile Target Arena",
+        url: "Unit_2/horizontal_projectile_workbench/index.html",
+        typeLabel: "Interactive Workbench & Missions",
+        submission: "Automatic Classroom Sync (10 pts)",
+        actionLabel: "Launch Target Arena",
+        description: "Complete photogate launch speed calibration, strobe photo trajectory analysis, and guided target launch missions.",
+        status: "active"
+      },
       {
         "title": "Horizontal Projectile Problem Set 1",
         typeLabel: "Problem Set",
@@ -4793,6 +4803,12 @@ const lessonsData = [
       }
     ],
     "resources": [
+      {
+        "title": "Projectile Target Arena",
+        url: "Unit_2/horizontal_projectile_workbench/index.html",
+        typeLabel: "Interactive Lab & Target Range",
+        description: "Virtual launch bench with strobe analysis, variable height cliff, and bucket landing missions."
+      },
       {
         "title": "Horizontal Projectile Motion Explorer",
         url: "horizontal-projectile-motion/index.html",
