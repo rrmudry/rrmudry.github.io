@@ -100,10 +100,34 @@ class SoundFX {
     [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => this._tone(f, 0.45, 'sine', 0.15, null, i * 0.08));
   }
 
-  // Incorrect attempt thud
-  playError() {
-    this._tone(180, 0.25, 'sawtooth', 0.18, 90);
+  // Master play dispatcher
+  play(type) {
+    if (!this.enabled) return;
+    switch (type) {
+      case 'click': this.playClick(); break;
+      case 'beep': this.playBeep(); break;
+      case 'launch': this.playLaunch(); break;
+      case 'strobe': this.playStrobePing(); break;
+      case 'impact': this.playImpact(); break;
+      case 'clang': this.playClang(); break;
+      case 'fanfare':
+      case 'success': this.playSuccess(); break;
+      case 'error': this.playError(); break;
+      default: this.playClick(); break;
+    }
+  }
+
+  toggleMute() {
+    this.setEnabled(!this.enabled);
+    return !this.enabled;
   }
 }
+
+// Singleton helper with static delegates
+const soundInstance = new SoundFX();
+SoundFX.play = (type) => soundInstance.play(type);
+SoundFX.toggleMute = () => soundInstance.toggleMute();
+SoundFX.setEnabled = (on) => soundInstance.setEnabled(on);
+SoundFX.instance = soundInstance;
 
 window.SoundFX = SoundFX;

@@ -2,7 +2,7 @@
 // 60 FPS Parabolic Trajectory, In-Flight Vector HUD, and Landing Vector Triangle Inspector
 
 (function () {
-  const { Phys, fmtExact, fmtAns } = window.CalculationEngine;
+  const { Phys, fmt, fmtExact, fmtAns } = window.CalculationEngine;
 
   class ImpactSimCanvas {
     constructor(canvasEl) {
@@ -178,6 +178,12 @@
       this.particles = [];
       this.impactReached = false;
       this.draw();
+    }
+
+    toggleZoom() {
+      this.inspectZoom = !this.inspectZoom;
+      this.draw();
+      return this.inspectZoom;
     }
 
     animate() {
@@ -366,7 +372,8 @@
 
     drawTargetBucket() {
       const { ctx } = this;
-      const pos = this.worldToScreen(this.scenario.dx, 0);
+      const targetM = this.targetBucketX !== undefined && this.targetBucketX !== null ? this.targetBucketX : this.scenario.dx;
+      const pos = this.worldToScreen(targetM, 0);
       const bW = 28 * this.scaleUi;
       const bH = 22 * this.scaleUi;
 
@@ -392,7 +399,7 @@
       ctx.font = `bold ${Math.max(9, 9.5 * this.scaleUi)}px sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(`Target: ${fmtAns(this.scenario.dx)}m`, pos.x, pos.y - 20 * this.scaleUi);
+      ctx.fillText(`Target: ${fmtAns(targetM)}m`, pos.x, pos.y - 20 * this.scaleUi);
 
       // Downward pointer arrow
       ctx.strokeStyle = '#ea580c';
