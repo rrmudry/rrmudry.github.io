@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projectile Target Range — 2-Step Kinematics Workbench</title>
+  <meta name="description" content="Calculate vertical free fall time, solve horizontal landing range, aim the target bucket, and launch. Aligned to NGSS HS-PS2-1.">
+  <link rel="icon" type="image/svg+xml" href="../../assets/unit2-favicon.svg">
+
+  <script>
+    // Apply saved theme before paint
+    try {
+      if (localStorage.getItem('ptr_theme') === 'dark') {
+        document.documentElement.classList.add('theme-dark');
+      }
+    } catch (e) { /* ignore */ }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Firebase Compat SDK (School domain auth & score logging) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
+  <script src="../../assets/ngss-helper.js" defer></script>
+</head>
+<body>
+
+  <!-- Google Sign-In Gate -->
+  <div id="loginGate" class="login-gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+    <div class="gate-card">
+      <div class="gate-icon">🎯</div>
+      <h1 id="gateTitle" class="gate-title">Projectile Target Range</h1>
+      <p class="gate-sub">Unit 2 · Horizontal Projectile Motion & Target Kinematics</p>
+      
+      <div class="gate-info">
+        <div><strong>1. Read:</strong> Cliff height & photogate speed.</div>
+        <div><strong>2. Calculate:</strong> Vertical hang time, then horizontal distance.</div>
+        <div><strong>3. Aim & Fire:</strong> Place the bucket, hit launch, and score points!</div>
+      </div>
+
+      <button type="button" id="btnGoogleSignIn" class="btn-google">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" width="20" height="20">
+        Sign in with School Google
+      </button>
+
+      <div class="gate-guest">
+        <button type="button" id="btnGuestMode" class="btn-guest">Continue as Guest (Practice Mode)</button>
+      </div>
+
+      <p id="gateStatus" class="gate-status"></p>
+      <div class="gate-ngss" data-ngss="HS-PS2-1" style="margin-top: 1rem;"></div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-top">
+      <div class="brand-area">
+        <span class="brand-icon">🎯</span>
+        <div>
+          <h1 class="app-title">Projectile Target Range</h1>
+          <p class="app-subtitle">2-Step Kinematics: Vertical Free Fall (t = √(Δy / 5)) → Horizontal Coasting (Δx = vx · t)</p>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <label class="track-select-wrap">
+          <span>Level:</span>
+          <select id="trackSelect">
+            <option value="conceptual">Conceptual (Mental Math)</option>
+            <option value="regular">Regular Physics (Lab Decimals)</option>
+            <option value="honors">Honors (Vector Impact)</option>
+          </select>
+        </label>
+
+        <button type="button" id="btnProjector" class="btn-ctrl" title="High contrast 22px text for overhead TV projection">🖥️ Projector</button>
+        <button type="button" id="btnTheme" class="btn-ctrl" title="Toggle Light / Dark mode">🌙 Dark</button>
+        <button type="button" id="btnSound" class="btn-ctrl" title="Toggle Sound FX">🔊 Sound: ON</button>
+        <button type="button" id="btnTeacherReveal" class="btn-ctrl" title="Model problem for the class (Teacher Mode)">👁️ Model</button>
+        <a href="../../unit2-dashboard.html" class="btn-ctrl" title="Return to Unit 2 Dashboard">🏠 Unit 2</a>
+
+        <div id="userChip" class="user-chip" hidden>
+          <span id="userDisplay">Loading…</span>
+          <span id="saveIndicator" class="save-status status-ok">☁️ Saved</span>
+          <button type="button" id="btnSignOut" class="btn-signout" title="Sign out">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mission Navigator Strip -->
+    <div class="mission-bar">
+      <div id="missionStrip" class="mission-strip"></div>
+      <div id="scoreBadge" class="score-badge">0 / 10 pts</div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-layout">
+    
+    <!-- Stage Card: The Apparatus -->
+    <section class="card stage-card">
+      <div class="canvas-container">
+        <canvas id="targetCanvas" aria-label="Interactive Projectile Motion Apparatus"></canvas>
+      </div>
+
+      <div class="stage-toolbar">
+        <button type="button" id="btnLaunch" class="btn-launch" disabled>🚀 LAUNCH BALL</button>
+
+        <div class="bucket-control-area">
+          <strong>Target Bucket:</strong>
+          <button type="button" id="btnNudgeLeft" class="btn-nudge" title="Nudge Bucket Left">◀</button>
+          <span id="bucketPosReadout" class="bucket-pos-readout">0.0 m</span>
+          <button type="button" id="btnNudgeRight" class="btn-nudge" title="Nudge Bucket Right">▶</button>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.85rem; font-weight: 700;">
+          <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+            <input type="checkbox" id="chkStrobe" checked> 0.5s Strobe Ghosts
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mission Briefing & Dual-Column Scaffold -->
+    <section class="card">
+      <div class="mission-brief">
+        <h2 id="missionTitle" class="mission-title">Mission 1</h2>
+        <p id="missionDesc" class="mission-desc">Loading scenario…</p>
+      </div>
+
+      <!-- Scaffolding Dual-Column T-Chart -->
+      <div class="tchart-container" style="margin-top: 1rem;">
+        
+        <!-- Column 1: Vertical World -->
+        <div id="step1Container" class="tchart-col tchart-vert">
+          <div class="col-header">
+            <div class="col-title" style="color: var(--accent-amber);">
+              <span>⬇️</span> 1. VERTICAL WORLD
+            </div>
+            <div class="col-sub">Free Fall with Gravity (g = 10 m/s² down)</div>
+          </div>
+
+          <div class="tchart-row">
+            <span>Cliff Height (Δy):</span>
+            <strong id="valDy" class="formula-pill">-- m</strong>
+          </div>
+
+          <div class="tchart-row">
+            <span>Time Formula:</span>
+            <span class="formula-pill">t = √(Δy ÷ 5)</span>
+          </div>
+
+          <div class="tchart-row" style="margin-top: 0.5rem;">
+            <strong>Calculate Hang Time (t):</strong>
+            <div class="calc-slot">
+              <input type="text" id="inTime" placeholder="t = ?" inputmode="decimal">
+              <span>seconds</span>
+              <button type="button" id="btnCheckStep1" class="btn-check">Check ✓</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 2: Horizontal World -->
+        <div id="step2Container" class="tchart-col tchart-horiz step-locked">
+          <div class="col-header">
+            <div class="col-title" style="color: var(--accent-cyan);">
+              <span>➡️</span> 2. HORIZONTAL WORLD
+            </div>
+            <div class="col-sub">Constant Speed Coasting (a = 0)</div>
+          </div>
+
+          <div class="tchart-row">
+            <span id="horizLabelGiven">Launch Speed (vx):</span>
+            <strong id="valHorizGiven" class="formula-pill">-- m/s</strong>
+          </div>
+
+          <div class="tchart-row">
+            <span>Range Formula:</span>
+            <span id="horizFormula" class="formula-pill">Δx = vx · t</span>
+          </div>
+
+          <div class="tchart-row" style="margin-top: 0.5rem;">
+            <strong id="horizLabelPrompt">Calculate Landing Range (Δx):</strong>
+            <div class="calc-slot">
+              <input type="text" id="inStep2" placeholder="?" inputmode="decimal">
+              <span id="horizUnit">meters</span>
+              <button type="button" id="btnCheckStep2" class="btn-check">Check ✓</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Honors Impact Speed Section (Shown only in Honors Mode) -->
+      <div id="honorsBox" class="honors-impact-box step-locked" hidden>
+        <div class="col-title" style="color: var(--accent-violet); margin-bottom: 0.5rem;">
+          <span>⭐</span> 3. HONORS VECTOR IMPACT TELEMETRY
+        </div>
+        <div class="tchart-row">
+          <span>Formulas:</span>
+          <span><span class="formula-pill">vy = 10 · t</span> &nbsp; <span class="formula-pill">v = √(vx² + vy²)</span></span>
+        </div>
+        <div class="tchart-row" style="margin-top: 0.5rem;">
+          <strong>Calculate Final Impact Speed (v):</strong>
+          <div class="calc-slot">
+            <input type="text" id="inVimpact" placeholder="v = ?" inputmode="decimal">
+            <span>m/s</span>
+            <button type="button" id="btnCheckStep3" class="btn-check" style="background: var(--accent-violet);">Check ✓</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reverse Mode Speed Dial (Shown only in Reverse Mission) -->
+      <div id="reverseDialContainer" style="margin-top: 1rem; padding: 0.75rem; background: var(--bg-subcard); border-radius: 0.5rem;" hidden>
+        <strong>🎛️ Launcher Speed Dial:</strong>
+        <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.4rem;">
+          <input type="range" id="dialSpeedInput" min="0" max="25" step="0.5" value="0" style="flex: 1;">
+          <strong id="dialSpeedReadout" style="font-family: var(--font-mono); font-size: 1.1rem; min-width: 5rem;">0.0 m/s</strong>
+        </div>
+      </div>
+
+      <!-- Feedback Banner -->
+      <div id="stepFeedback" class="feedback-box"></div>
+    </section>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/missions-data.js"></script>
+  <script src="js/sim-canvas.js"></script>
+  <script src="js/auth-manager.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
