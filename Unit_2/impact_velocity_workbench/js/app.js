@@ -69,6 +69,7 @@
       this.btnTargetMinus = document.getElementById('btnTargetMinus');
       this.btnTargetPlus = document.getElementById('btnTargetPlus');
       this.chkStrobe = document.getElementById('chkStrobe');
+      this.lblStrobe = document.getElementById('lblStrobe');
       this.speedButtons = document.querySelectorAll('.speed-btn');
 
       // Time scrubber & PiP controls
@@ -443,6 +444,11 @@
 
       // Pass scenario to canvas
       this.sim.setScenario(sc);
+
+      // Update strobe checkbox label with scenario dt
+      if (this.lblStrobe && this.sim.strobeDt) {
+        this.lblStrobe.textContent = `Strobe ghosts (Δt = ${fmtExact(this.sim.strobeDt())}s)`;
+      }
     }
 
     enterSandboxMode() {

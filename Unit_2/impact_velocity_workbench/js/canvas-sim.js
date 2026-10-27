@@ -41,7 +41,10 @@
           rulerInk: '#000000',
           ball: '#0f172a',
           ballGlow: 'rgba(15, 23, 42, 0.2)',
-          ghost: '#94a3b8',
+          ghost: '#0284c7',
+          ghostBg: '#ffffff',
+          ghostFill: 'rgba(2, 132, 199, 0.25)',
+          ghostPreview: 'rgba(15, 23, 42, 0.28)',
           vx: '#0284c7',   // blue
           vy: '#d97706',   // orange
           v: '#7c3aed',    // purple
@@ -49,7 +52,8 @@
           bucket: '#ea580c',
           ledBg: '#022c22',
           ledText: '#22c55e',
-          arcLine: '#0284c7'
+          arcLine: '#0284c7',
+          arcLineGuide: 'rgba(2, 132, 199, 0.22)'
         };
       } else if (isDark) {
         this.pal = {
@@ -63,7 +67,10 @@
           rulerInk: '#0f172a',
           ball: '#ffffff',
           ballGlow: 'rgba(56, 189, 248, 0.4)',
-          ghost: '#64748b',
+          ghost: '#38bdf8',
+          ghostBg: '#0f172a',
+          ghostFill: 'rgba(56, 189, 248, 0.35)',
+          ghostPreview: 'rgba(148, 163, 184, 0.32)',
           vx: '#38bdf8',
           vy: '#fbbf24',
           v: '#c084fc',
@@ -71,7 +78,8 @@
           bucket: '#fb923c',
           ledBg: '#052e16',
           ledText: '#4ade80',
-          arcLine: '#38bdf8'
+          arcLine: '#38bdf8',
+          arcLineGuide: 'rgba(56, 189, 248, 0.25)'
         };
       } else {
         // High contrast light mode (WCAG AAA)
@@ -86,7 +94,10 @@
           rulerInk: '#0f172a',
           ball: '#0f172a',
           ballGlow: 'rgba(2, 132, 199, 0.2)',
-          ghost: '#94a3b8',
+          ghost: '#0284c7',
+          ghostBg: '#ffffff',
+          ghostFill: 'rgba(2, 132, 199, 0.25)',
+          ghostPreview: 'rgba(100, 116, 139, 0.28)',
           vx: '#0284c7',
           vy: '#d97706',
           v: '#7c3aed',
@@ -94,10 +105,21 @@
           bucket: '#ea580c',
           ledBg: '#064e3b',
           ledText: '#34d399',
-          arcLine: '#0284c7'
+          arcLine: '#0284c7',
+          arcLineGuide: 'rgba(2, 132, 199, 0.2)'
         };
       }
       this.draw();
+    }
+
+    // Dynamic adaptive strobe interval: 4-8 distinct visible ghosts across all flight durations
+    strobeDt() {
+      if (!this.scenario) return 0.2;
+      const T = this.scenario.t;
+      if (T >= 2.5) return 0.5;
+      if (T >= 1.2) return 0.25;
+      if (T >= 0.6) return 0.2;
+      return 0.1;
     }
 
     resize() {
@@ -123,9 +145,7 @@
       this.flight = {
         t: 0,
         maxT: sc.t,
-        active: false,
-        ghosts: [],
-        lastGhostT: 0
+        active: false
       };
       this.particles = [];
       this.impactReached = false;
@@ -175,8 +195,6 @@
         t: 0,
         maxT: this.scenario.t,
         active: true,
-        ghosts: [],
-        lastGhostT: 0,
         onImpact: onImpactCallback
       };
       this.particles = [];
@@ -189,9 +207,7 @@
       this.flight = {
         t: 0,
         maxT: this.scenario.t,
-        active: false,
-        ghosts: [],
-        lastGhostT: 0
+        active: false
       };
       this.particles = [];
       this.impactReached = false;
@@ -209,23 +225,11 @@
         this.flight = {
           t: clampedT,
           maxT,
-          active: false,
-          ghosts: [],
-          lastGhostT: 0
+          active: false
         };
       } else {
         this.flight.t = clampedT;
         this.flight.active = false; // pause when manually scrubbing
-      }
-
-      // Rebuild strobe ghosts up to clampedT
-      this.flight.ghosts = [];
-      if (this.showStrobe) {
-        for (let st = 0.5; st <= clampedT; st += 0.5) {
-          const curY = Math.max(0, this.scenario.dy - 5 * (st * st));
-          const curX = this.scenario.vx * st;
-          this.flight.ghosts.push({ x: curX, y: curY, t: st });
-        }
       }
 
       this.impactReached = (clampedT >= maxT - 0.001);
@@ -247,8 +251,6 @@
       } else {
         if (this.flight.t >= this.flight.maxT - 0.001) {
           this.flight.t = 0;
-          this.flight.ghosts = [];
-          this.flight.lastGhostT = 0;
           this.impactReached = false;
         }
         this.flight.active = true;
@@ -274,14 +276,17 @@
       if (!this.flight || !this.flight.active) return;
 
       const dt = 0.016 * this.playbackSpeed;
+      const prevT = this.flight.t;
       this.flight.t += dt;
 
-      // Record 0.5s strobe ghost
-      if (this.showStrobe && (this.flight.t - this.flight.lastGhostT >= 0.5)) {
-        this.flight.lastGhostT = this.flight.t;
-        const curY = Math.max(0, this.scenario.dy - 5 * (this.flight.t * this.flight.t));
-        const curX = this.scenario.vx * this.flight.t;
-        this.flight.ghosts.push({ x: curX, y: curY, t: this.flight.t });
+      // Play audio ping when clock crosses each strobe mark
+      if (this.showStrobe) {
+        const sdt = this.strobeDt();
+        const prevK = Math.floor(prevT / sdt + 1e-9);
+        const currK = Math.floor(this.flight.t / sdt + 1e-9);
+        if (currK > prevK && currK * sdt <= this.flight.maxT + 1e-5) {
+          SoundFX.play('strobe');
+        }
       }
 
       // Check impact
@@ -501,41 +506,174 @@
 
     drawTrajectoryTrail() {
       const { ctx } = this;
-      ctx.strokeStyle = this.pal.arcLine;
-      ctx.lineWidth = 2;
-      ctx.setLineDash([5, 5]);
-
-      ctx.beginPath();
       const start = this.worldToScreen(0, this.scenario.dy);
-      ctx.moveTo(start.x, start.y);
 
-      const maxT = this.flight ? this.flight.t : this.scenario.t;
-      for (let t = 0; t <= maxT + 1e-5; t += 0.04) {
+      // 1. Full predicted trajectory guide arc (faint dashed arc)
+      ctx.strokeStyle = this.pal.arcLineGuide;
+      ctx.lineWidth = 1.8;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(start.x, start.y);
+      for (let t = 0; t <= this.scenario.t + 1e-5; t += 0.04) {
         const xM = this.scenario.vx * t;
         const yM = Math.max(0, this.scenario.dy - 5 * (t * t));
         const pt = this.worldToScreen(xM, yM);
         ctx.lineTo(pt.x, pt.y);
       }
       ctx.stroke();
+
+      // 2. Active traveled path (bold dashed arc)
+      const currentT = this.flight ? this.flight.t : 0;
+      if (currentT > 0.005) {
+        ctx.strokeStyle = this.pal.arcLine;
+        ctx.lineWidth = 2.5;
+        ctx.setLineDash([6, 3]);
+        ctx.beginPath();
+        ctx.moveTo(start.x, start.y);
+        for (let t = 0; t <= currentT + 1e-5; t += 0.04) {
+          const xM = this.scenario.vx * t;
+          const yM = Math.max(0, this.scenario.dy - 5 * (t * t));
+          const pt = this.worldToScreen(xM, yM);
+          ctx.lineTo(pt.x, pt.y);
+        }
+        ctx.stroke();
+      }
       ctx.setLineDash([]);
     }
 
     drawStrobeGhosts() {
-      if (!this.flight || !this.showStrobe) return;
-      const { ctx } = this;
+      if (!this.showStrobe || !this.scenario) return;
+      const { ctx, W } = this;
+      const sdt = this.strobeDt();
+      const currentT = this.flight ? this.flight.t : 0;
+      const isLanded = this.impactReached || (this.flight && currentT >= this.flight.maxT - 0.001);
 
-      this.flight.ghosts.forEach((g, idx) => {
+      // Collect all strobe time markers along entire flight
+      const allGhosts = [];
+      // Ghost 0: launcher release point at t = 0
+      allGhosts.push({
+        t: 0,
+        x: 0,
+        y: this.scenario.dy,
+        index: 0
+      });
+
+      for (let st = sdt; st <= this.scenario.t + 1e-5; st += sdt) {
+        allGhosts.push({
+          t: st,
+          x: this.scenario.vx * st,
+          y: Math.max(0, this.scenario.dy - 5 * (st * st)),
+          index: Math.round(st / sdt)
+        });
+      }
+
+      // Add landing ghost if landed and not exactly on a strobe tick
+      if (isLanded) {
+        const last = allGhosts[allGhosts.length - 1];
+        if (!last || Math.abs(last.t - this.scenario.t) > 0.04) {
+          allGhosts.push({
+            t: this.scenario.t,
+            x: this.scenario.dx,
+            y: 0,
+            index: allGhosts.length,
+            isImpact: true
+          });
+        }
+      }
+
+      const r = 6.5 * this.scaleUi;
+
+      allGhosts.forEach(g => {
         const pt = this.worldToScreen(g.x, g.y);
-        ctx.fillStyle = this.pal.ghost;
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 4.5 * this.scaleUi, 0, Math.PI * 2);
-        ctx.fill();
+        const isActive = isLanded || (currentT >= g.t - 0.001);
 
-        // Strobe second label
-        ctx.fillStyle = this.pal.ink;
-        ctx.font = `600 ${Math.max(8, 8.5 * this.scaleUi)}px monospace`;
-        ctx.textAlign = 'left';
-        ctx.fillText(`t=${fmtExact(g.t)}s`, pt.x + 6, pt.y - 4);
+        if (isActive) {
+          // 1. Ghost ball body
+          ctx.fillStyle = this.pal.ghostFill;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, r, 0, Math.PI * 2);
+          ctx.fill();
+
+          // 2. Ghost ball border
+          ctx.strokeStyle = this.pal.ghost;
+          ctx.lineWidth = 1.8;
+          ctx.stroke();
+
+          // 3. Center crosshair point
+          ctx.fillStyle = this.pal.ghost;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, 2, 0, Math.PI * 2);
+          ctx.fill();
+
+          // 4. Strobe time pill: e.g. "t=0.2s"
+          const lbl = `t=${fmtExact(g.t)}s`;
+          const fontSz = Math.max(9, Math.round(10 * this.scaleUi));
+          ctx.font = `bold ${fontSz}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+          const textW = ctx.measureText(lbl).width;
+          const padX = 5 * this.scaleUi;
+          const padY = 2.5 * this.scaleUi;
+          const pillW = textW + padX * 2;
+          const pillH = fontSz + padY * 2;
+          const pillX = (pt.x + pillW + 12 > W - 10) ? pt.x - pillW - 8 : pt.x + 8;
+          const pillY = Math.max(10, pt.y - pillH / 2);
+
+          // Card background
+          ctx.fillStyle = this.pal.ghostBg;
+          ctx.strokeStyle = this.pal.ghost;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          if (ctx.roundRect) {
+            ctx.roundRect(pillX, pillY, pillW, pillH, 4);
+          } else {
+            ctx.rect(pillX, pillY, pillW, pillH);
+          }
+          ctx.fill();
+          ctx.stroke();
+
+          // Card text
+          ctx.fillStyle = this.pal.ink;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(lbl, pillX + pillW / 2, pillY + pillH / 2);
+
+          // 5. Strobe projections onto axes:
+          // A) Horizontal projection on floor (equal horizontal spacing Δx = vx * Δt)
+          const floorPt = this.worldToScreen(g.x, 0);
+          ctx.fillStyle = this.pal.vx;
+          ctx.beginPath();
+          ctx.moveTo(floorPt.x, this.floorY);
+          ctx.lineTo(floorPt.x - 3.5 * this.scaleUi, this.floorY + 6 * this.scaleUi);
+          ctx.lineTo(floorPt.x + 3.5 * this.scaleUi, this.floorY + 6 * this.scaleUi);
+          ctx.closePath();
+          ctx.fill();
+
+          // B) Vertical projection on ruler (accelerating downward spacing Δy = 5 t²)
+          const rulerX = this.marginL + this.rulerW;
+          ctx.fillStyle = this.pal.vy;
+          ctx.beginPath();
+          ctx.moveTo(rulerX, pt.y);
+          ctx.lineTo(rulerX - 6 * this.scaleUi, pt.y - 3.5 * this.scaleUi);
+          ctx.lineTo(rulerX - 6 * this.scaleUi, pt.y + 3.5 * this.scaleUi);
+          ctx.closePath();
+          ctx.fill();
+
+        } else {
+          // Preview ghost along predicted path
+          ctx.strokeStyle = this.pal.ghostPreview;
+          ctx.lineWidth = 1.2;
+          ctx.setLineDash([2, 2]);
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, r, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // Faint index number
+          ctx.fillStyle = this.pal.ghostPreview;
+          ctx.font = `bold ${Math.max(8, 8.5 * this.scaleUi)}px sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(String(g.index), pt.x, pt.y);
+        }
       });
     }
 
