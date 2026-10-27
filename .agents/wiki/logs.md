@@ -3,6 +3,16 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-27 — Horizontal Projectile Workbench: Student Progress Sync & Firestore Rules Verification
+**Patterns Updated**: `cast-aligned-webapp-design.md`, `classroom-projection-and-high-contrast-theming.md`.
+**Files Added/Updated**: `Unit_2/horizontal_projectile_workbench/` (all 12 app files), `sync-classroom/verify-assignment-auth.js`, `partials/footer.html`.
+
+**Changes**:
+- **Added Horizontal Projectile Workbench Webapp**: Comprehensive student inquiry apparatus combining strobe photogate data collection (Lab 1 & 2) and guided 2-step target launch missions (M1–M6, H1–H2).
+- **Verified Firestore Student-Permission Compliance**: Document ID strictly adheres to `studentId = email.split('@')[0]` with subcollection path `student_results/unit2_day42_horizontal_projectile_workbench/students/{studentId}`. Zero parent document writes from student sessions.
+- **Immediate & Debounced Progress Saving**: Hard actions (step submissions, answers, mission advances, hints) flush immediately (`queueSave(true)`) to prevent lost work. User input modifications (data entry, sliders, crosshairs) debounce 800ms. Tab switching and Chromebook lid close immediately flush via `visibilitychange`, `pagehide`, and `beforeunload`.
+- **Pre-Flight Verification**: Passed synthetic student authentication write and read-back against deployed Firestore security rules with zero permission or `undefined` payload errors.
+
 ## 2026-10-25 — Worksheet Generator & Templates: 5 Targeted Cognitive Dissonance & Precision Fixes
 **Patterns Updated**: `low-stress-worksheet-skill.md`, `cast-data-analysis-practice-suite.md`.
 **Files Updated**: `.agents/skills/low-stress-worksheet/SKILL.md`, `.agents/skills/low-stress-worksheet/scripts/render_worksheet.py`, `cast-data-practice/index.html`, `cast-data-practice/css/styles.css`, `cast-data-practice/js/app.js`, `cast-data-practice/js/scenarios.js`.
