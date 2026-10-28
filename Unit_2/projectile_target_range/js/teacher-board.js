@@ -14,6 +14,7 @@
 
   let activePeriod = 0;
   let universalTargetCm = 130.0;
+  let tableTargets = {}; // Keyed by 'table_1', 'table_2', etc.
   let tableSubmissions = {}; // Keyed by tableNumber (1-9)
   let activeScoringTable = null;
 
@@ -50,6 +51,7 @@
     els.scoreModal = document.getElementById('scoreModal');
     els.modalTableTitle = document.getElementById('modalTableTitle');
     els.modalTeamNames = document.getElementById('modalTeamNames');
+    els.modalTargetDist = document.getElementById('modalTargetDist');
     els.modalPredHeight = document.getElementById('modalPredHeight');
     els.inputActualDistance = document.getElementById('inputActualDistance');
     els.btnSaveExactDistance = document.getElementById('btnSaveExactDistance');
@@ -59,6 +61,7 @@
   function initFirebase() {
     if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
       fbDb = firebase.firestore();
+      attachConfigListener();
       firebase.auth().onAuthStateChanged(user => {
         currentTeacher = user;
         updateTeacherAuthUI();
@@ -95,6 +98,7 @@
           btn.classList.add('active');
           activePeriod = parseInt(btn.dataset.period);
           tableSubmissions = {};
+          attachConfigListener();
           attachSubmissionsListener();
         });
       });
@@ -256,6 +260,30 @@
     }
   }
 
+  let unsubscribeConfig = null;
+  function attachConfigListener() {
+    if (!fbDb) return;
+    try {
+      if (unsubscribeConfig) unsubscribeConfig();
+      unsubscribeConfig = fbDb.collection('student_results')
+        .doc(ASSIGNMENT_ID)
+        .onSnapshot(doc => {
+          if (!doc.exists) return;
+          const data = doc.data() || {};
+          if (typeof data.universalTargetCm === 'number') {
+            universalTargetCm = data.universalTargetCm;
+            if (els.dispTargetCm) els.dispTargetCm.textContent = `${universalTargetCm.toFixed(1)} cm`;
+          }
+          const periodKey = `tableTargets_p${activePeriod}`;
+          tableTargets = data[periodKey] || data.tableTargets || {};
+          renderTargetStrip();
+          renderLeaderboard();
+        }, err => console.warn('Config listen notice:', err.message));
+    } catch (e) {
+      console.warn('Could not attach config listener', e);
+    }
+  }
+
   function broadcastTargetDistance(distanceCm) {
     if (!fbDb || !isTeacher(currentTeacher)) return;
     fbDb.collection('student_results')
@@ -272,8 +300,8 @@
   }
 
   function assignRandomizedTableDistances() {
-    // Unique clean target distances between 95 cm and 160 cm
-    const pool = [105.0, 115.0, 120.0, 128.0, 135.0, 142.0, 150.0, 158.0, 165.0];
+    // Unique clean target distances between 95 cm and 165 cm
+    const pool = [95.0, 105.0, 115.0, 120.0, 128.0, 135.0, 142.0, 150.0, 158.0, 165.0];
     const shuffled = pool.sort(() => Math.random() - 0.5);
 
     const assignments = {};
@@ -281,17 +309,25 @@
       assignments[`table_${t}`] = shuffled[t - 1];
     }
 
+    tableTargets = assignments;
+
     if (fbDb && isTeacher(currentTeacher)) {
+      const periodKey = `tableTargets_p${activePeriod}`;
       fbDb.collection('student_results')
         .doc(ASSIGNMENT_ID)
         .set({
           tableTargets: assignments,
+          [periodKey]: assignments,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true })
         .then(() => {
           if (window.SoundFX) SoundFX.play('fanfare');
-          alert('Assigned unique mystery distances to Tables 1–9.');
+          renderTargetStrip();
+          renderLeaderboard();
         });
+    } else {
+      renderTargetStrip();
+      renderLeaderboard();
     }
   }
 
@@ -391,12 +427,19 @@
         }
       }
 
+      const assignedTarget = tableTargets[`table_${r.tableNum}`] || universalTargetCm;
+
       tr.innerHTML = `
         <td style="width: 55px; text-align: center;">
           <div class="rank-badge">${idx + 1}</div>
         </td>
         <td>
-          <div style="font-weight: 800; font-size: 1.05rem;">Table ${r.tableNum}</div>
+          <div style="font-weight: 800; font-size: 1.05rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <span>Table ${r.tableNum}</span>
+            <span style="font-size: 0.72rem; font-weight: 700; color: var(--accent-cyan); background: var(--bg-card-sub); border: 1px solid var(--border-color); padding: 0.12rem 0.4rem; border-radius: 4px;">
+              🎯 ${assignedTarget.toFixed(1)} cm
+            </span>
+          </div>
           <div style="font-size: 0.8rem; color: var(--text-dim);">${sub && sub.teamMembers ? sub.teamMembers : 'Awaiting members...'}</div>
         </td>
         <td style="font-family: var(--font-mono); font-size: 0.95rem;">
@@ -442,9 +485,11 @@
   function openScoringModal(tableNumber) {
     activeScoringTable = tableNumber;
     const sub = tableSubmissions[tableNumber] || {};
+    const targetCm = (sub && sub.targetDistCm) || tableTargets[`table_${tableNumber}`] || universalTargetCm;
 
     if (els.modalTableTitle) els.modalTableTitle.textContent = `Score Live Drop: Table ${tableNumber}`;
     if (els.modalTeamNames) els.modalTeamNames.textContent = sub.teamMembers || 'Lab Team';
+    if (els.modalTargetDist) els.modalTargetDist.textContent = `${targetCm.toFixed(1)} cm`;
     if (els.modalPredHeight) els.modalPredHeight.textContent = sub.predictedReleaseHeightCm ? `${sub.predictedReleaseHeightCm} cm` : 'Not submitted yet';
     if (els.inputActualDistance) els.inputActualDistance.value = '';
 

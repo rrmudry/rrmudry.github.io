@@ -58,6 +58,7 @@
     els.readoutValues = document.getElementById('readoutValues');
 
     els.inputTargetDist = document.getElementById('inputTargetDist');
+    els.assignedTargetBadge = document.getElementById('assignedTargetBadge');
     els.inputReleaseHeight = document.getElementById('inputReleaseHeight');
     els.graphFeedbackMsg = document.getElementById('graphFeedbackMsg');
 
@@ -76,6 +77,7 @@
   function initFirebase() {
     if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
       fbDb = firebase.firestore();
+      listenToAssignmentConfig();
       firebase.auth().onAuthStateChanged(user => {
         currentUser = user;
         updateAuthUI();
@@ -138,11 +140,13 @@
     if (els.periodSelect) els.periodSelect.addEventListener('change', () => {
       state.period = parseInt(els.periodSelect.value) || 0;
       saveLocalState();
+      updateTargetFromConfig();
     });
 
     if (els.tableSelect) els.tableSelect.addEventListener('change', () => {
       state.tableNum = parseInt(els.tableSelect.value) || 1;
       saveLocalState();
+      updateTargetFromConfig();
     });
 
     if (els.teamInput) els.teamInput.addEventListener('input', () => {
@@ -765,6 +769,54 @@
         }
       })
       .catch(err => console.warn('Sync notice', err));
+  }
+
+  let unsubscribeConfig = null;
+  let assignmentConfigData = null;
+
+  function updateTargetFromConfig() {
+    if (!assignmentConfigData) return;
+    const periodKey = `tableTargets_p${state.period}`;
+    const periodTargets = assignmentConfigData[periodKey] || assignmentConfigData.tableTargets;
+    const tblKey = `table_${state.tableNum}`;
+
+    if (periodTargets && typeof periodTargets[tblKey] === 'number') {
+      const assigned = periodTargets[tblKey];
+      state.targetDistCm = assigned;
+      if (els.inputTargetDist) els.inputTargetDist.value = assigned;
+      if (els.assignedTargetBadge) {
+        els.assignedTargetBadge.textContent = `🎯 Table ${state.tableNum} Target: ${assigned.toFixed(1)} cm`;
+        els.assignedTargetBadge.style.color = 'var(--accent-emerald)';
+      }
+      saveLocalState();
+      renderPlot();
+    } else if (typeof assignmentConfigData.universalTargetCm === 'number') {
+      const assigned = assignmentConfigData.universalTargetCm;
+      state.targetDistCm = assigned;
+      if (els.inputTargetDist) els.inputTargetDist.value = assigned;
+      if (els.assignedTargetBadge) {
+        els.assignedTargetBadge.textContent = `🎯 Class Target: ${assigned.toFixed(1)} cm`;
+        els.assignedTargetBadge.style.color = 'var(--accent-cyan)';
+      }
+      saveLocalState();
+      renderPlot();
+    }
+  }
+
+  function listenToAssignmentConfig() {
+    if (!fbDb) return;
+    try {
+      if (unsubscribeConfig) unsubscribeConfig();
+      unsubscribeConfig = fbDb.collection('student_results')
+        .doc('unit2_projectile_target_range')
+        .onSnapshot(doc => {
+          if (!doc.exists) return;
+          assignmentConfigData = doc.data() || {};
+          updateTargetFromConfig();
+        }, err => console.warn('Config listen notice', err));
+    } catch (e) {
+      console.warn('Error listening to assignment config', e);
+    }
   }
 
   // Auto-init on DOM ready
