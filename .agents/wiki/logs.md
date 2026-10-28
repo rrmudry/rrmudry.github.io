@@ -3,6 +3,15 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-27 — Impact Velocity Workbench: Subscript HTML Rendering & CSS Typography Normalization
+**Patterns Updated**: `classroom-projection-and-high-contrast-theming.md`.
+**Files Updated**: `Unit_2/impact_velocity_workbench/js/app.js`, `Unit_2/impact_velocity_workbench/css/style.css`, `partials/footer.html`.
+
+**Changes**:
+- **Fixed Subscript HTML Escaping in Scenario Header**: Resolved raw literal `<sub>` tag rendering (`v<sub>y</sub> ÷ v<sub>x</sub>`) in `.question-prompt` and `#levelTitle` by changing `.textContent` to `.innerHTML` in `app.js` (`loadScenario`).
+- **Normalized `<sub>` and `<sup>` Baseline Typography**: Added standardized CSS typography rules (`font-size: 78%; line-height: 0; position: relative; vertical-align: baseline; bottom: -0.22em`) to `style.css` to prevent subscript elements from disrupting line-heights or creating uneven vertical gaps across desktop and Chromebook screens.
+
+
 ## 2026-10-27 — Impact Velocity & Vector Angle Workbench: Dedicated 2D Vector Simulator & Diagnostic Suite
 **Patterns Updated**: `cast-aligned-webapp-design.md`, `classroom-projection-and-high-contrast-theming.md`.
 **Files Added/Updated**: `Unit_2/impact_velocity_workbench/` (all 6 files: `index.html`, `css/style.css`, `js/audio.js`, `js/calculation-engine.js`, `js/calculator.js`, `js/canvas-sim.js`, `js/scenarios.js`, `js/app.js`), `impact-velocity/index.html`, `assets/lessons-data.js`, `partials/footer.html`.

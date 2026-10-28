@@ -391,8 +391,8 @@
 
       // Update header
       this.levelBadge.textContent = sc.badge || (sc.isHonors ? '★ HONORS' : 'Standard');
-      this.levelTitle.textContent = sc.title;
-      this.questionSubtitle.textContent = sc.subtitle;
+      this.levelTitle.innerHTML = sc.title;
+      this.questionSubtitle.innerHTML = sc.subtitle;
 
       // Render dots
       this.renderProgressDots();
