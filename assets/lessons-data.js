@@ -4996,12 +4996,12 @@ const lessonsData = [
     },
     "assignments": [
       {
-        "title": "Tabletop Marble Projectile Lab Report",
-        typeLabel: "Laboratory Report",
-        submission: "Turn In in Classroom",
-        actionLabel: "In-Class Activity Notice",
-        description: "Empirical launch speed measurement, theoretical range calculation using g = 10 m/s², and target accuracy verification.",
-        status: "active"
+        "title": "Target Range Solver & Empirical Curve Calibrator",
+        "url": "Unit_2/projectile_target_range/index.html",
+        "typeLabel": "Interactive Lab Workbench",
+        "submission": "Cloud Auto-Saved ✓ & Live Drop",
+        "description": "Log ramp calibration heights vs floor distances, plot your empirical calibration curve, and lock in your team's blind target release height prediction.",
+        "status": "active"
       }
     ],
     "resources": [
@@ -5065,6 +5065,14 @@ const lessonsData = [
         "submission": "In-Class Demonstration & Handout Turn-In",
         "actionLabel": "Open Engineering Handout 📄",
         "description": "Design, build, and verify a cardstock roller coaster meeting all 3 constraints: hill > 20 cm, vertical loop, and finish 20 cm above lowest point.",
+        "status": "active"
+      },
+      {
+        "title": "Target Range Solver & Empirical Curve Calibrator (P0 Honors)",
+        "url": "Unit_2/projectile_target_range/index.html",
+        "typeLabel": "Interactive Lab Workbench (Period 0)",
+        "submission": "Cloud Auto-Saved ✓ & Live Drop",
+        "description": "Log ramp calibration heights vs floor distances, plot your empirical calibration curve, and lock in your team's blind target release height prediction.",
         "status": "active"
       }
     ],

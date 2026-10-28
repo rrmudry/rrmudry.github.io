@@ -3,6 +3,14 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-28 — Unit 2 Dashboard & Lesson Data Link Integration for Projectile Target Range Lab
+**Patterns Updated**: `dashboard-layout.md`.
+**Files Updated**: `unit2-dashboard.html`, `assets/lessons-data.js`, `Unit_2/projectile_target_range/index.html`, `partials/footer.html`.
+
+**Changes**:
+- **Unit 2 Dashboard Link & Cache-Busting**: Added prominent Hero action button (`🎯 Target Range Solver & Calibration Lab ↗`) on `unit2-dashboard.html`, refreshed the `assets/lessons-data.js?v=20261028` cache-buster query string, and linked `Unit_2/projectile_target_range/index.html` directly inside the `assignments` array for Day 43 (`2026-10-28`) and Day 44 (`2026-10-29`) so it renders as an active clickable assignment card rather than a planned notice.
+- **Navigation Fix**: Updated the `← Unit 2` back-link in `Unit_2/projectile_target_range/index.html` to point to `../../unit2-dashboard.html`.
+
 ## 2026-10-28 — Paper Roller Coaster Engineering Challenge (Day 44 P1, 3, 5)
 **Patterns Updated**: low-stress-worksheet-skill.md, classroom-projection-and-high-contrast-theming.md, cast-aligned-webapp-design.md.
 **Files Added/Updated**: assets/lessons-data.js, Unit_2/worksheets/Day44_Paper_Roller_Coaster_Challenge.html, Unit_2/paper_roller_coaster/index.html, partials/footer.html.
