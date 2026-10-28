@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Empirical Tabletop Velocity Calibration &amp; Target Solver | Physics</title>
+  <meta name="description" content="Interactive student laboratory workbench: Calibrate tabletop marble ramp velocity, generate empirical square-root curves, and solve blind target range landing predictions.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+
+  <!-- Google Fonts: Outfit, JetBrains Mono, Space Grotesk -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Outfit:wght@400;600;700;800;900&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Desmos Scientific Calculator API -->
+  <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+
+  <!-- Firebase Compat SDKs (Official gstatic CDN) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <!-- Firebase App Initialization -->
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Sticky Header -->
+  <header class="top-nav">
+    <div class="brand-section">
+      <a href="../outline.html" class="back-link">← Unit 2</a>
+      <div class="app-title">
+        <span>🎯 Target Solver</span>
+        <span class="app-badge">HS-PS2-1</span>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <!-- Desmos Toggle -->
+      <button type="button" class="btn-icon" id="btnToggleCalc" title="Toggle Desmos Scientific Calculator">
+        🧮 <span>Calculator</span>
+      </button>
+
+      <!-- Theme Toggle -->
+      <button type="button" class="btn-icon" id="themeToggle" title="Toggle Light/Dark Theme">
+        ☀️ / 🌙
+      </button>
+
+      <!-- User Auth Profile -->
+      <span class="auth-badge" id="userBadge" style="display: none;">👤 Guest</span>
+      <button type="button" class="btn-icon" id="btnLogin" style="background: var(--accent-cyan); color: #fff; border-color: var(--accent-cyan);">
+        Google Sign-In
+      </button>
+
+      <!-- Link to Teacher Arena -->
+      <a href="dashboard.html" class="btn-icon" style="text-decoration: none;" title="Open Teacher Competition Arena">
+        🏆 <span>Class Board</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Desmos Calculator Drawer -->
+  <div id="calcDrawer" style="display: none; background: var(--bg-card); border-bottom: 2px solid var(--border-color); padding: 0.75rem 1.25rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+      <span style="font-weight: 800; font-size: 0.9rem;">Desmos Scientific Calculator (Degree Mode)</span>
+      <button type="button" class="btn-icon" id="btnCloseCalc" style="padding: 0.2rem 0.5rem;">✕ Close</button>
+    </div>
+    <div id="desmosContainer" style="width: 100%; height: 320px; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-color);"></div>
+  </div>
+
+  <!-- Main App Container -->
+  <main class="app-container split-view">
+
+    <!-- Left Column: Setup & Calibration Table -->
+    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+
+      <!-- Team Registration Card -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="step-num">1</span>
+            <span>Team &amp; Table Setup</span>
+          </div>
+          <span class="card-subtitle">Identify your lab group</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label" for="periodSelect">Class Period</label>
+            <select class="form-input" id="periodSelect">
+              <option value="0">Period 0 (Honors)</option>
+              <option value="1">Period 1</option>
+              <option value="2">Period 2</option>
+              <option value="3">Period 3</option>
+              <option value="4">Period 4</option>
+              <option value="5">Period 5</option>
+              <option value="6">Period 6</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="tableSelect">Table Number</label>
+            <select class="form-input" id="tableSelect">
+              <option value="1">Table 1</option>
+              <option value="2">Table 2</option>
+              <option value="3">Table 3</option>
+              <option value="4">Table 4</option>
+              <option value="5">Table 5</option>
+              <option value="6">Table 6</option>
+              <option value="7">Table 7</option>
+              <option value="8">Table 8</option>
+              <option value="9">Table 9</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="teamInput">Team Member Names</label>
+          <input type="text" class="form-input" id="teamInput" placeholder="e.g. Maya, Julian, Ethan, Sarah">
+        </div>
+
+        <!-- Tabletop Height -->
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 1rem; align-items: end;">
+          <div class="form-group">
+            <label class="form-label" for="inputTableHeight">
+              <span>Table Height (Δy)</span>
+              <span style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: 800;">Floor to tabletop</span>
+            </label>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <input type="number" step="0.5" min="20" max="200" class="form-input" id="inputTableHeight" value="85.0">
+              <span style="font-weight: 800; font-family: var(--font-mono);">cm</span>
+            </div>
+          </div>
+
+          <div class="result-card" style="margin-bottom: 2px;">
+            <span class="result-label">Theoretical Air Time</span>
+            <span class="result-value" id="dispAirTime" style="font-size: 1.25rem;">0.412 s</span>
+            <span style="font-size: 0.72rem; color: var(--text-dim);">t = √(2Δy ÷ 10)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 2: Calibration Data Table -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="step-num">2</span>
+            <span>Ramp Calibration Trials</span>
+          </div>
+          <button type="button" class="btn-secondary" id="btnAddRow" style="padding: 0.35rem 0.75rem; font-size: 0.82rem;">
+            + Add Trial Row
+          </button>
+        </div>
+
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
+          Release the marble from various vertical heights on your cardstock ramp. Use a plumb-bob to mark the floor origin (0 cm) right below the table edge, and record the landing distance.
+        </p>
+
+        <div class="cal-table-wrap">
+          <table class="cal-table">
+            <thead>
+              <tr>
+                <th style="width: 45px;">#</th>
+                <th>Ramp Height h (cm)</th>
+                <th>Floor Distance Δx (cm)</th>
+                <th style="width: 40px; text-align: center;">✕</th>
+              </tr>
+            </thead>
+            <tbody id="calTableBody">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Real-time Curve Fit Metrics -->
+        <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-card-sub); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem 1rem; flex-wrap: wrap; gap: 0.5rem;">
+          <div>
+            <span style="font-size: 0.75rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Calibration Model</span>
+            <div id="fitEquation" style="font-family: var(--font-mono); font-size: 1.15rem; font-weight: 800; color: var(--accent-cyan);">
+              Δx = -- × √h
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <span style="font-size: 0.75rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Fit Quality</span>
+            <div id="fitR2" style="font-family: var(--font-mono); font-size: 1.15rem; font-weight: 800; color: var(--accent-emerald);">
+              R² = --
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Right Column: Live Plot & Target Solver -->
+    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+
+      <!-- Step 3: Interactive Scatter Plot -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="step-num">3</span>
+            <span>Empirical Curve (Δx vs h)</span>
+          </div>
+          <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent-cyan);">Square-Root Power Law</span>
+        </div>
+
+        <div class="canvas-wrap">
+          <canvas id="plotCanvas"></canvas>
+        </div>
+      </section>
+
+      <!-- Step 4: The Blind Target Solver (Hero Card) -->
+      <section class="card" style="border-color: var(--accent-purple);">
+        <div class="card-header">
+          <div class="card-title" style="color: var(--accent-purple);">
+            <span class="step-num" style="background: var(--accent-purple);">4</span>
+            <span>The Blind Target Solver</span>
+          </div>
+          <span class="app-badge" style="background: var(--accent-purple-bg); color: var(--accent-purple);">Official Challenge</span>
+        </div>
+
+        <div class="callout-banner">
+          <span class="callout-icon">🎯</span>
+          <span>
+            When the teacher announces your mystery target distance (or assigns your table a custom distance), type it below. Your ramp curve will compute the <strong>exact release height</strong> to drop the marble from!
+          </span>
+        </div>
+
+        <!-- Target Distance Input -->
+        <div class="form-group">
+          <label class="form-label" for="inputTargetDist">
+            <span>Target Distance (Δx)</span>
+            <span style="font-size: 0.75rem; color: var(--accent-purple); font-weight: 800;">Table edge to target cup</span>
+          </label>
+          <div style="display: flex; align-items: center; gap: 0.6rem;">
+            <input type="number" step="0.5" min="10" max="400" class="form-input" id="inputTargetDist" value="60.0" style="font-size: 1.25rem;">
+            <span style="font-weight: 800; font-family: var(--font-mono); font-size: 1.1rem;">cm</span>
+          </div>
+        </div>
+
+        <!-- Tier 2 Elevated Target Toggle -->
+        <div style="background: var(--bg-card-sub); padding: 0.75rem 1rem; border-radius: var(--radius-md); border: 1px dashed var(--border-color); display: flex; flex-direction: column; gap: 0.6rem;">
+          <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; font-size: 0.88rem; font-weight: 700;">
+            <input type="checkbox" id="chkElevation">
+            <span>Tier 2 Challenge: Elevated Target Cup (Stool / Book Stack)</span>
+          </label>
+
+          <div id="wrapElevation" style="display: none; align-items: center; gap: 0.75rem; margin-top: 0.25rem;">
+            <span style="font-size: 0.82rem; font-weight: 700; color: var(--text-dim);">Stool / Elevation Height:</span>
+            <input type="number" step="0.5" min="1" max="150" class="table-input" id="inputElevation" value="0.0">
+            <span style="font-family: var(--font-mono); font-weight: 700;">cm above floor</span>
+          </div>
+        </div>
+
+        <!-- Result Cards -->
+        <div class="solver-result-grid">
+          <div class="result-card highlight">
+            <span class="result-label">Required Ramp Release Height</span>
+            <span class="result-value" id="predReleaseHeight">--</span>
+            <span style="font-size: 0.72rem; color: var(--text-dim);">Measure vertically from table</span>
+          </div>
+
+          <div class="result-card">
+            <span class="result-label">Expected Launch Speed (v<sub>x</sub>)</span>
+            <span class="result-value" id="predSpeed">--</span>
+            <span style="font-size: 0.72rem; color: var(--text-dim);">Horizontal off table</span>
+          </div>
+
+          <div class="result-card">
+            <span class="result-label">Predicted Flight Time (t)</span>
+            <span class="result-value" id="predAirTime">--</span>
+            <span style="font-size: 0.72rem; color: var(--text-dim);">Time in the air</span>
+          </div>
+        </div>
+
+        <!-- Lock in & Submit Button -->
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+          <button type="button" class="btn-success" id="btnSubmitPrediction">
+            🚀 Lock In &amp; Submit Prediction to Class Board
+          </button>
+          <div id="submitStatus" style="font-size: 0.85rem; text-align: center; min-height: 1.4rem;"></div>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- Site Footer -->
+  <footer style="margin-top: auto; border-top: 1px solid var(--border-color); background: var(--bg-card); padding: 0.75rem 1.25rem; font-size: 0.75rem; color: var(--text-dim); text-align: center;">
+    Empirical Tabletop Velocity Calibration &amp; Blind Target Range Prediction &bull; NGSS HS-PS2-1 &bull; Strictly No LaTeX
+  </footer>
+
+  <script src="js/audio-synth.js"></script>
+  <script src="js/student-app.js"></script>
+  <script>
+    // Desmos Scientific Calculator Drawer Controller
+    (function () {
+      let desmosCalc = null;
+      const drawer = document.getElementById('calcDrawer');
+      const btnToggle = document.getElementById('btnToggleCalc');
+      const btnClose = document.getElementById('btnCloseCalc');
+      const container = document.getElementById('desmosContainer');
+
+      function toggle() {
+        if (drawer.style.display === 'none') {
+          drawer.style.display = 'block';
+          if (!desmosCalc && typeof Desmos !== 'undefined') {
+            desmosCalc = Desmos.ScientificCalculator(container, {
+              fontSize: 16,
+              degreeMode: true
+            });
+          }
+        } else {
+          drawer.style.display = 'none';
+        }
+      }
+
+      if (btnToggle) btnToggle.addEventListener('click', toggle);
+      if (btnClose) btnClose.addEventListener('click', toggle);
+    })();
+  </script>
+</body>
+</html>

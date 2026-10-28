@@ -3,6 +3,17 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-27 — Projectile Target Range: 2-Page Student Workbench & Teacher Projector Arena
+**Patterns Updated**: `cast-aligned-webapp-design.md`, `classroom-projection-and-high-contrast-theming.md`.
+**Files Added/Updated**: `Unit_2/projectile_target_range/index.html`, `Unit_2/projectile_target_range/dashboard.html`, `Unit_2/projectile_target_range/css/style.css`, `Unit_2/projectile_target_range/js/student-app.js`, `Unit_2/projectile_target_range/js/teacher-board.js`, `Unit_2/projectile_target_range/js/audio-synth.js`, `assets/lessons-data.js`, `partials/footer.html`.
+
+**Changes**:
+- **Separated Student Workbench & Teacher Projector Board Architecture**:
+  - `index.html` (Student Tool): Zero-clutter lab calculator on Chromebooks/phones. Auto-calculates theoretical air time ($t_{\text{air}} = \sqrt{2\Delta y / 10}$), dynamically fits empirical ramp release curve ($\Delta x = k\sqrt{h}$ with $R^2$ fit quality), solves blind target release height $h_{\text{pred}}$, supports Tier 2 elevated targets, and locks in predictions with real-time Firestore sync.
+  - `dashboard.html` (Teacher Arena): Projector-ready whole-room board (`font-projector` scaling). Controls active period (P0–P6), broadcasts universal or randomized table distances (preventing cross-table copying), renders a live 1D floor impact target radar strip with table pins, features 1-click live drop scoring (Swish, Rim, Rings, Miss) or metric error entry ($\pm\text{cm}$), and drives live class energy with zero-asset Web Audio API sound FX (metallic clink, fanfare arpeggio, rim bounce, buzzer).
+- **Strict Compliance**: Pure Vanilla JS, zero `unpkg.com`, zero in-browser Babel, WCAG AAA high-contrast light mode with ink-slate text on crisp white cards, and strictly zero LaTeX notation throughout.
+
+
 ## 2026-10-27 — Impact Velocity Workbench: Subscript HTML Rendering & CSS Typography Normalization
 **Patterns Updated**: `classroom-projection-and-high-contrast-theming.md`.
 **Files Updated**: `Unit_2/impact_velocity_workbench/js/app.js`, `Unit_2/impact_velocity_workbench/css/style.css`, `partials/footer.html`.

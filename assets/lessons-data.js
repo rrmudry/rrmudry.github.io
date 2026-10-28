@@ -4991,6 +4991,7 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Target Range Solver & Calibration Tool": "Unit_2/projectile_target_range/index.html",
       "Horizontal Projectile Motion Explorer": "horizontal-projectile-motion/index.html"
     },
     "assignments": [
@@ -5004,6 +5005,12 @@ const lessonsData = [
       }
     ],
     "resources": [
+      {
+        "title": "Target Range Solver & Empirical Curve Calibrator",
+        "url": "Unit_2/projectile_target_range/index.html",
+        "typeLabel": "Interactive Lab Workbench",
+        "description": "Log ramp calibration heights vs floor distances, fit empirical curves, and calculate blind target landing predictions."
+      },
       {
         "title": "Horizontal Projectile Motion Explorer",
         url: "horizontal-projectile-motion/index.html",
@@ -5042,6 +5049,7 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Target Range Solver & Calibration Tool": "Unit_2/projectile_target_range/index.html",
       "Horizontal Projectile Motion Explorer": "horizontal-projectile-motion/index.html"
     },
     "assignments": [
@@ -5055,6 +5063,12 @@ const lessonsData = [
       }
     ],
     "resources": [
+      {
+        "title": "Target Range Solver & Empirical Curve Calibrator",
+        "url": "Unit_2/projectile_target_range/index.html",
+        "typeLabel": "Interactive Lab Workbench",
+        "description": "Log ramp calibration heights vs floor distances, fit empirical curves, and calculate blind target landing predictions."
+      },
       {
         "title": "Horizontal Projectile Motion Explorer",
         "url": "horizontal-projectile-motion/index.html",
