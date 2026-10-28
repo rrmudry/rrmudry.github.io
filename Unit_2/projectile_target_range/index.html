@@ -236,10 +236,83 @@
           <span class="app-badge" style="background: var(--accent-purple-bg); color: var(--accent-purple);">Official Shot</span>
         </div>
 
+        <!-- Student 4-Round Scorecard Deck -->
+        <div class="student-scorecard-wrap">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+              <span id="studentActiveRoundBadge" class="round-status-badge round-badge-active">
+                🎯 Round 1 of 3
+              </span>
+              <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-dim);" id="roundStatusSubtitle">
+                Match teacher target to read release height
+              </span>
+            </div>
+            <div class="student-total-score-box">
+              <span style="font-size: 0.75rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Total Score:</span>
+              <span id="studentTotalScore" style="font-family: var(--font-mono); font-size: 1.25rem; font-weight: 900; color: var(--accent-purple);">0</span>
+              <span style="font-size: 0.82rem; font-weight: 800; color: var(--text-dim);">/ 30 pts</span>
+              <span id="studentTbScorePill" style="display: none; font-size: 0.75rem; font-weight: 800; background: var(--accent-gold); color: #fff; padding: 0.12rem 0.4rem; border-radius: 4px;">
+                TB: 10
+              </span>
+            </div>
+          </div>
+
+          <!-- 4 Round Cards -->
+          <div class="student-scorecard-grid">
+            <div class="scorecard-round-box active" id="cardRound1" data-round="1">
+              <div class="sc-header">
+                <span class="sc-title">Round 1</span>
+                <span class="sc-pts" id="scPtsR1">-- / 10</span>
+              </div>
+              <div class="sc-details">
+                <span id="scTargetR1">Δx: 110.0 cm</span>
+                <span id="scPredR1">h: -- cm</span>
+              </div>
+              <div class="sc-status" id="scStatusR1">Active</div>
+            </div>
+
+            <div class="scorecard-round-box" id="cardRound2" data-round="2">
+              <div class="sc-header">
+                <span class="sc-title">Round 2</span>
+                <span class="sc-pts" id="scPtsR2">-- / 10</span>
+              </div>
+              <div class="sc-details">
+                <span id="scTargetR2">Δx: 130.0 cm</span>
+                <span id="scPredR2">h: -- cm</span>
+              </div>
+              <div class="sc-status" id="scStatusR2">Upcoming</div>
+            </div>
+
+            <div class="scorecard-round-box" id="cardRound3" data-round="3">
+              <div class="sc-header">
+                <span class="sc-title">Round 3</span>
+                <span class="sc-pts" id="scPtsR3">-- / 10</span>
+              </div>
+              <div class="sc-details">
+                <span id="scTargetR3">Δx: 150.0 cm</span>
+                <span id="scPredR3">h: -- cm</span>
+              </div>
+              <div class="sc-status" id="scStatusR3">Upcoming</div>
+            </div>
+
+            <div class="scorecard-round-box scorecard-tb" id="cardRound4" data-round="4">
+              <div class="sc-header">
+                <span class="sc-title">🏆 Tie-Breaker</span>
+                <span class="sc-pts" id="scPtsR4">-- / 10</span>
+              </div>
+              <div class="sc-details">
+                <span id="scTargetR4">Δx: 165.0 cm</span>
+                <span id="scPredR4">h: -- cm</span>
+              </div>
+              <div class="sc-status" id="scStatusR4">If Needed</div>
+            </div>
+          </div>
+        </div>
+
         <div class="callout-banner">
           <span class="callout-icon">🎯</span>
           <span>
-            When your teacher announces the mystery target distance, find that distance on the <strong>vertical axis (Δx)</strong> of your graph, trace across horizontally to your curve, and look straight down to the <strong>horizontal axis (h)</strong> to read your required release height!
+            Find your target distance on the <strong>vertical axis (Δx)</strong> of your graph, trace across to your calibration curve, and read straight down to the <strong>horizontal axis (h)</strong> for your release height!
           </span>
         </div>
 
@@ -247,11 +320,11 @@
           <!-- Target Distance Input -->
           <div class="form-group">
             <label class="form-label" for="inputTargetDist">
-              <span>Target Distance (Δx)</span>
+              <span id="labelTargetDist">Target Distance (Δx)</span>
               <span id="assignedTargetBadge" style="font-size: 0.75rem; color: var(--accent-purple); font-weight: 800;">Table edge to cup</span>
             </label>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <input type="number" step="0.5" min="10" max="400" class="form-input" id="inputTargetDist" value="60.0" style="font-size: 1.15rem;">
+              <input type="number" step="0.5" min="10" max="400" class="form-input" id="inputTargetDist" value="110.0" style="font-size: 1.15rem;">
               <span style="font-weight: 800; font-family: var(--font-mono);">cm</span>
             </div>
           </div>
@@ -259,7 +332,7 @@
           <!-- Student's Release Height Read From Graph -->
           <div class="form-group">
             <label class="form-label" for="inputReleaseHeight">
-              <span>Release Height (h) Read From Graph</span>
+              <span id="labelReleaseHeight">Release Height (h) Read From Graph</span>
               <span style="font-size: 0.75rem; color: var(--accent-purple); font-weight: 800;">Vertical on ramp</span>
             </label>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
@@ -296,7 +369,7 @@
         <!-- Lock in & Submit Button -->
         <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
           <button type="button" class="btn-success" id="btnSubmitPrediction">
-            🚀 Lock In &amp; Submit Team Prediction to Class Board
+            🚀 Lock In &amp; Submit Round 1 Prediction to Class Board
           </button>
           <div id="submitStatus" style="font-size: 0.85rem; text-align: center; min-height: 1.4rem;"></div>
         </div>

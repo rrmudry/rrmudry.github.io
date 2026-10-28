@@ -3,6 +3,25 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-28 — Projectile Target Range: Round-Based Accuracy Scoring System (3 Rounds + Tie-Breaker)
+**Patterns Updated**: cast-aligned-webapp-design.md, classroom-projection-and-high-contrast-theming.md.
+**Files Added/Updated**: Unit_2/projectile_target_range/index.html, Unit_2/projectile_target_range/dashboard.html, Unit_2/projectile_target_range/css/style.css, Unit_2/projectile_target_range/js/student-app.js, Unit_2/projectile_target_range/js/teacher-board.js, partials/footer.html.
+
+**Changes**:
+- **Round-Based Accuracy Scoring Architecture (0–10 Points)**:
+  - Transitioned scoring from single 100-pt drops to a multi-round tournament structure: 3 base rounds (max 30 pts) plus an optional Round 4 (Tie-Breaker) to settle ties between top lab tables.
+  - Points awarded per round based on accuracy: 10 pts (Bullseye / direct in cup, error <= 1.5cm), 9 pts (Lip / rim-in <= 3.5cm), 8 pts (Rim graze <= 6cm), 7 pts (<= 9cm), 6 pts (<= 12cm), 5 pts (<= 16cm), 4 pts (<= 20cm), 3 pts (<= 25cm), 2 pts (<= 30cm), 1 pt (<= 35cm), 0 pts (Miss > 35cm).
+- **Teacher Projector Dashboard (dashboard.html & teacher-board.js)**:
+  - Added dedicated Round Navigation Deck: Round 1, Round 2, Round 3, and Tie-Breaker (R4) tab controls with instant Firestore broadcasting.
+  - Round-specific target controls: Universal target setting and randomized table distance generation (Tables 1–9) tailored to each round.
+  - Multi-Round Table Leaderboard: Renders individual round scores (R1, R2, R3), cumulative Total Score (out of 30 pts), and Tie-Breaker column with active round column highlighting and gold rank medals.
+  - Fast Drop Scoring Modal: Complete 0–10 quick accuracy point button grid with real-time measured distance calculator (error delta x and auto-scoring preview as teacher types).
+- **Student Workbench (index.html & student-app.js)**:
+  - Live Round Scorecard Deck: Displays real-time round statuses, individual round targets and predictions, points earned (0–10), and running total (out of 30 pts) + Tie-Breaker indicator.
+  - Auto-synchronizes with teacher broadcast round: automatically updates target distance and prediction inputs, preserving previous rounds scores.
+  - Real-time graph reading verification and submission lock-in.
+- **Strict Compliance**: Zero LaTeX notation throughout, zero unpkg.com, zero in-browser Babel, and WCAG AAA high-contrast light mode.
+
 ## 2026-10-27 — Projectile Target Range: 2-Page Student Workbench & Teacher Projector Arena
 **Patterns Updated**: `cast-aligned-webapp-design.md`, `classroom-projection-and-high-contrast-theming.md`.
 **Files Added/Updated**: `Unit_2/projectile_target_range/index.html`, `Unit_2/projectile_target_range/dashboard.html`, `Unit_2/projectile_target_range/css/style.css`, `Unit_2/projectile_target_range/js/student-app.js`, `Unit_2/projectile_target_range/js/teacher-board.js`, `Unit_2/projectile_target_range/js/audio-synth.js`, `assets/lessons-data.js`, `partials/footer.html`.

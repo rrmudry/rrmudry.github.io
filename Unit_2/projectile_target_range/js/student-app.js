@@ -1,5 +1,6 @@
 // Student Workbench Application Logic
 // Projectile Target Range: Empirical Graph Reading & Target Interpolation
+// Round-Based Accuracy Scoring System: 3 Rounds (0–10 pts each, Max 30 pts) + Tie-Breaker Round 4
 // Earth gravity: g = 10 m/s², strictly zero LaTeX
 
 (function () {
@@ -20,8 +21,16 @@
       { h: 30, dx: 66 },
       { h: 40, dx: 76 }
     ],
-    targetDistCm: 60.0,
-    studentReleaseHeightCm: '',
+    currentActiveRound: 1, // Synced with teacher
+    viewingRound: 1, // Currently viewed/edited round (1, 2, 3, or 4)
+    rounds: {
+      1: { targetDistCm: 110.0, studentReleaseHeightCm: '', score: null, shotResult: null, status: 'active' },
+      2: { targetDistCm: 130.0, studentReleaseHeightCm: '', score: null, shotResult: null, status: 'upcoming' },
+      3: { targetDistCm: 150.0, studentReleaseHeightCm: '', score: null, shotResult: null, status: 'upcoming' },
+      4: { targetDistCm: 165.0, studentReleaseHeightCm: '', score: null, shotResult: null, status: 'if_needed' }
+    },
+    totalScore: 0,
+    tieBreakerScore: null,
     elevationCm: 0.0,
     isElevated: false,
     k: null
@@ -30,6 +39,7 @@
   let currentUser = null;
   let fbDb = null;
   let hoverInspector = null; // { h, dx, hCurve }
+  let assignmentConfigData = null;
 
   // DOM Elements Cache
   const els = {};
@@ -40,6 +50,7 @@
     loadLocalState();
     bindEvents();
     recalculate();
+    updateScorecardUI();
     renderPlot();
   }
 
@@ -57,8 +68,52 @@
     els.plotCanvas = document.getElementById('plotCanvas');
     els.readoutValues = document.getElementById('readoutValues');
 
+    // Round Scorecard Elements
+    els.studentActiveRoundBadge = document.getElementById('studentActiveRoundBadge');
+    els.roundStatusSubtitle = document.getElementById('roundStatusSubtitle');
+    els.studentTotalScore = document.getElementById('studentTotalScore');
+    els.studentTbScorePill = document.getElementById('studentTbScorePill');
+
+    els.cards = {
+      1: document.getElementById('cardRound1'),
+      2: document.getElementById('cardRound2'),
+      3: document.getElementById('cardRound3'),
+      4: document.getElementById('cardRound4')
+    };
+
+    els.scPts = {
+      1: document.getElementById('scPtsR1'),
+      2: document.getElementById('scPtsR2'),
+      3: document.getElementById('scPtsR3'),
+      4: document.getElementById('scPtsR4')
+    };
+
+    els.scTarget = {
+      1: document.getElementById('scTargetR1'),
+      2: document.getElementById('scTargetR2'),
+      3: document.getElementById('scTargetR3'),
+      4: document.getElementById('scTargetR4')
+    };
+
+    els.scPred = {
+      1: document.getElementById('scPredR1'),
+      2: document.getElementById('scPredR2'),
+      3: document.getElementById('scPredR3'),
+      4: document.getElementById('scPredR4')
+    };
+
+    els.scStatus = {
+      1: document.getElementById('scStatusR1'),
+      2: document.getElementById('scStatusR2'),
+      3: document.getElementById('scStatusR3'),
+      4: document.getElementById('scStatusR4')
+    };
+
+    // Step 4 Form Inputs
+    els.labelTargetDist = document.getElementById('labelTargetDist');
     els.inputTargetDist = document.getElementById('inputTargetDist');
     els.assignedTargetBadge = document.getElementById('assignedTargetBadge');
+    els.labelReleaseHeight = document.getElementById('labelReleaseHeight');
     els.inputReleaseHeight = document.getElementById('inputReleaseHeight');
     els.graphFeedbackMsg = document.getElementById('graphFeedbackMsg');
 
@@ -111,6 +166,14 @@
       if (raw) {
         const parsed = JSON.parse(raw);
         state = Object.assign(state, parsed);
+        if (!state.rounds) {
+          state.rounds = {
+            1: { targetDistCm: 110.0, studentReleaseHeightCm: '', score: null, shotResult: null, status: 'active' },
+            2: { targetDistCm: 130.0, studentReleaseHeightCm: '', score: null, shotResult: null, status: 'upcoming' },
+            3: { targetDistCm: 150.0, studentReleaseHeightCm: '', score: null, shotResult: null, status: 'upcoming' },
+            4: { targetDistCm: 165.0, studentReleaseHeightCm: '', score: null, shotResult: null, status: 'if_needed' }
+          };
+        }
       }
     } catch (e) {
       console.warn('Could not load local state', e);
@@ -121,12 +184,11 @@
     if (els.tableSelect) els.tableSelect.value = state.tableNum;
     if (els.teamInput) els.teamInput.value = state.teamMembers || '';
     if (els.inputTableHeight) els.inputTableHeight.value = state.tableHeightCm;
-    if (els.inputTargetDist) els.inputTargetDist.value = state.targetDistCm;
-    if (els.inputReleaseHeight) els.inputReleaseHeight.value = state.studentReleaseHeightCm || '';
     if (els.chkElevation) els.chkElevation.checked = state.isElevated;
     if (els.wrapElevation) els.wrapElevation.style.display = state.isElevated ? 'flex' : 'none';
     if (els.inputElevation) els.inputElevation.value = state.elevationCm;
 
+    selectViewingRound(state.viewingRound || 1);
     renderTableRows();
   }
 
@@ -134,6 +196,118 @@
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch (e) {}
+  }
+
+  function selectViewingRound(rNum) {
+    state.viewingRound = Math.max(1, Math.min(4, rNum));
+    const r = state.viewingRound;
+    if (!state.rounds[r]) {
+      state.rounds[r] = { targetDistCm: 120.0, studentReleaseHeightCm: '', score: null, shotResult: null, status: 'upcoming' };
+    }
+
+    const rData = state.rounds[r];
+
+    // Update form inputs for this round
+    if (els.inputTargetDist) {
+      els.inputTargetDist.value = rData.targetDistCm || '';
+    }
+    if (els.inputReleaseHeight) {
+      els.inputReleaseHeight.value = rData.studentReleaseHeightCm !== undefined && rData.studentReleaseHeightCm !== '' ? rData.studentReleaseHeightCm : '';
+    }
+
+    // Update badges and labels
+    const rTitle = r === 4 ? '🏆 Tie-Breaker (Round 4)' : `Round ${r} of 3`;
+    if (els.studentActiveRoundBadge) {
+      els.studentActiveRoundBadge.textContent = `🎯 ${rTitle}`;
+      els.studentActiveRoundBadge.className = `round-status-badge ${r === 4 ? 'round-badge-tb' : 'round-badge-active'}`;
+    }
+
+    if (els.btnSubmitPrediction) {
+      const isTB = r === 4;
+      els.btnSubmitPrediction.textContent = `🚀 Lock In & Submit ${isTB ? 'Tie-Breaker' : `Round ${r}`} Prediction to Class Board`;
+    }
+
+    updateScorecardUI();
+    renderPlot();
+  }
+
+  function updateScorecardUI() {
+    let total = 0;
+    let hasAnyScore = false;
+
+    for (let r = 1; r <= 4; r++) {
+      const rData = state.rounds[r] || { targetDistCm: '--', studentReleaseHeightCm: '', score: null };
+      const card = els.cards[r];
+      if (!card) continue;
+
+      card.classList.toggle('active', r === state.viewingRound);
+      const isScored = typeof rData.score === 'number';
+      card.classList.toggle('scored', isScored);
+
+      // Points badge
+      if (els.scPts[r]) {
+        els.scPts[r].textContent = isScored ? `${rData.score} / 10` : '-- / 10';
+      }
+
+      // Target readout
+      if (els.scTarget[r]) {
+        const tVal = typeof rData.targetDistCm === 'number' ? `${rData.targetDistCm.toFixed(1)} cm` : '-- cm';
+        els.scTarget[r].textContent = `Δx: ${tVal}`;
+      }
+
+      // Prediction readout
+      if (els.scPred[r]) {
+        const pVal = rData.studentReleaseHeightCm ? `${rData.studentReleaseHeightCm} cm` : '-- cm';
+        els.scPred[r].textContent = `h: ${pVal}`;
+      }
+
+      // Status
+      if (els.scStatus[r]) {
+        if (isScored) {
+          els.scStatus[r].textContent = `✓ Scored (${rData.score} pts)`;
+        } else if (rData.status === 'ready_to_launch') {
+          els.scStatus[r].textContent = '🚀 Ready to Launch';
+        } else if (r === state.currentActiveRound) {
+          els.scStatus[r].textContent = 'Active Round';
+        } else if (r === 4) {
+          els.scStatus[r].textContent = 'If Needed';
+        } else {
+          els.scStatus[r].textContent = 'Upcoming';
+        }
+      }
+
+      // Tally total score (R1 + R2 + R3, max 30)
+      if (r <= 3 && isScored) {
+        total += rData.score;
+        hasAnyScore = true;
+      }
+    }
+
+    state.totalScore = total;
+    if (els.studentTotalScore) {
+      els.studentTotalScore.textContent = total;
+    }
+
+    // Tie-breaker pill
+    if (els.studentTbScorePill) {
+      const tbData = state.rounds[4];
+      if (tbData && typeof tbData.score === 'number') {
+        els.studentTbScorePill.textContent = `TB: ${tbData.score}/10`;
+        els.studentTbScorePill.style.display = 'inline-block';
+      } else {
+        els.studentTbScorePill.style.display = 'none';
+      }
+    }
+
+    // Update active round subtitle / scored notification
+    const activeData = state.rounds[state.viewingRound];
+    if (activeData && typeof activeData.score === 'number' && els.submitStatus) {
+      els.submitStatus.innerHTML = `
+        <span style="color: var(--accent-purple); font-weight: 800;">
+          🎯 Round ${state.viewingRound === 4 ? 'Tie-Breaker' : state.viewingRound} Scored: <strong>${activeData.score} / 10 pts</strong>! Total Score: <strong>${total} / 30 pts</strong>.
+        </span>
+      `;
+    }
   }
 
   function bindEvents() {
@@ -168,14 +342,32 @@
       recalculate();
     });
 
+    // Scorecard Round Click Events
+    for (let r = 1; r <= 4; r++) {
+      const card = els.cards[r];
+      if (card) {
+        card.addEventListener('click', () => {
+          selectViewingRound(r);
+        });
+      }
+    }
+
     if (els.inputTargetDist) els.inputTargetDist.addEventListener('input', () => {
-      state.targetDistCm = parseFloat(els.inputTargetDist.value) || 0;
+      const val = parseFloat(els.inputTargetDist.value) || 0;
+      const r = state.viewingRound;
+      if (!state.rounds[r]) state.rounds[r] = {};
+      state.rounds[r].targetDistCm = val;
+      updateScorecardUI();
       saveLocalState();
       renderPlot();
     });
 
     if (els.inputReleaseHeight) els.inputReleaseHeight.addEventListener('input', () => {
-      state.studentReleaseHeightCm = els.inputReleaseHeight.value === '' ? '' : parseFloat(els.inputReleaseHeight.value);
+      const val = els.inputReleaseHeight.value === '' ? '' : parseFloat(els.inputReleaseHeight.value);
+      const r = state.viewingRound;
+      if (!state.rounds[r]) state.rounds[r] = {};
+      state.rounds[r].studentReleaseHeightCm = val;
+      updateScorecardUI();
       saveLocalState();
       renderPlot();
     });
@@ -344,6 +536,18 @@
     renderPlot();
   }
 
+  function getCurrentRoundTarget() {
+    const r = state.viewingRound;
+    const rData = state.rounds[r];
+    return (rData && typeof rData.targetDistCm === 'number') ? rData.targetDistCm : 110.0;
+  }
+
+  function getCurrentRoundStudentH() {
+    const r = state.viewingRound;
+    const rData = state.rounds[r];
+    return (rData && typeof rData.studentReleaseHeightCm === 'number') ? rData.studentReleaseHeightCm : null;
+  }
+
   function getPlotBounds(w, h) {
     const padL = 60;
     const padB = 45;
@@ -360,10 +564,13 @@
       if (p.dx > maxDx) maxDx = p.dx;
     });
 
-    if (typeof state.studentReleaseHeightCm === 'number' && state.studentReleaseHeightCm > maxH) {
-      maxH = state.studentReleaseHeightCm * 1.15;
+    const studentH = getCurrentRoundStudentH();
+    const targetX = getCurrentRoundTarget();
+
+    if (typeof studentH === 'number' && studentH > maxH) {
+      maxH = studentH * 1.15;
     }
-    if (state.targetDistCm > maxDx) maxDx = state.targetDistCm * 1.15;
+    if (targetX > maxDx) maxDx = targetX * 1.15;
     maxH = Math.ceil(maxH / 10) * 10 + 10;
     maxDx = Math.ceil(maxDx / 20) * 20 + 20;
 
@@ -531,8 +738,8 @@
       ctx.fill();
     }
 
-    // Target Distance (Δx) Horizontal Reference Line & Curve Intersection Guide
-    const targetX = state.targetDistCm;
+    // Target Distance (Δx) Horizontal Reference Line for viewingRound
+    const targetX = getCurrentRoundTarget();
     let expectedH = null;
     if (state.k && state.k > 0 && targetX > 0) {
       expectedH = Math.pow(targetX / state.k, 2);
@@ -552,10 +759,12 @@
       ctx.setLineDash([]);
 
       // Label at right edge
+      const rNum = state.viewingRound;
+      const rTag = rNum === 4 ? 'Tie-Breaker' : `R${rNum}`;
       ctx.fillStyle = colorTarget;
       ctx.font = 'bold 11px Outfit, sans-serif';
       ctx.textAlign = 'right';
-      ctx.fillText(`Target Δx = ${targetX.toFixed(1)} cm`, w - b.padR - 4, targetY - 6);
+      ctx.fillText(`${rTag} Target Δx = ${targetX.toFixed(1)} cm`, w - b.padR - 4, targetY - 6);
 
       // If curve intersects within bounds, draw a guide indicator on the curve
       if (expectedH !== null && expectedH <= b.maxH) {
@@ -577,8 +786,8 @@
       }
     }
 
-    // Student's Entered Release Height Prediction Pin
-    const studentH = state.studentReleaseHeightCm;
+    // Student's Entered Release Height Prediction Pin for viewingRound
+    const studentH = getCurrentRoundStudentH();
     if (typeof studentH === 'number' && studentH > 0 && targetX > 0) {
       if (studentH <= b.maxH && targetX <= b.maxDx) {
         const px = toX(studentH);
@@ -686,8 +895,13 @@
       return;
     }
 
-    if (!state.studentReleaseHeightCm || state.studentReleaseHeightCm <= 0) {
-      alert("Please read and enter your team's predicted release height (h) from your graph before submitting to the class board.");
+    const r = state.viewingRound;
+    const rData = state.rounds[r] || {};
+    const predH = rData.studentReleaseHeightCm;
+    const targetDist = rData.targetDistCm;
+
+    if (!predH || predH <= 0) {
+      alert(`Please read and enter your team's predicted release height (h) for Round ${r === 4 ? 'Tie-Breaker' : r} from your graph before submitting.`);
       if (els.inputReleaseHeight) els.inputReleaseHeight.focus();
       return;
     }
@@ -699,6 +913,11 @@
     const period = parseInt(els.periodSelect.value) || 0;
     const tableNum = parseInt(els.tableSelect.value) || 1;
 
+    // Update round status locally
+    rData.status = 'ready_to_launch';
+    state.rounds[r] = rData;
+    updateScorecardUI();
+
     const payload = {
       studentId: studentId,
       studentEmail: email,
@@ -708,8 +927,10 @@
       teamMembers: teamNames,
       tableHeightCm: state.tableHeightCm,
       airTimeSec: tAir,
-      targetDistCm: state.targetDistCm,
-      predictedReleaseHeightCm: state.studentReleaseHeightCm,
+      currentRound: r,
+      rounds: state.rounds,
+      targetDistCm: targetDist,
+      predictedReleaseHeightCm: predH,
       isElevated: state.isElevated,
       elevationCm: state.elevationCm,
       status: 'ready_to_launch',
@@ -727,9 +948,10 @@
       .then(() => {
         if (window.SoundFX) SoundFX.play('click');
         els.btnSubmitPrediction.disabled = false;
+        const rName = r === 4 ? 'Tie-Breaker' : `Round ${r}`;
         els.submitStatus.innerHTML = `
           <span style="color: var(--accent-emerald); font-weight: 800;">
-            ✓ Prediction of h = ${state.studentReleaseHeightCm} cm locked in! Call the teacher to your table for your official live drop.
+            ✓ ${rName} Prediction of h = ${predH} cm locked in! Call the teacher to Table ${tableNum} for your live drop.
           </span>
         `;
       })
@@ -750,54 +972,82 @@
       .doc(studentId)
       .get()
       .then(doc => {
-        if (doc.exists) {
-          const data = doc.data();
-          if (data.teamMembers && els.teamInput) els.teamInput.value = data.teamMembers;
-          if (data.tableNumber && els.tableSelect) els.tableSelect.value = data.tableNumber;
-          if (data.period !== undefined && els.periodSelect) els.periodSelect.value = data.period;
-          if (data.predictedReleaseHeightCm && els.inputReleaseHeight) {
-            els.inputReleaseHeight.value = data.predictedReleaseHeightCm;
-            state.studentReleaseHeightCm = data.predictedReleaseHeightCm;
-          }
-          if (data.status === 'scored') {
-            els.submitStatus.innerHTML = `
-              <span style="color: var(--accent-purple); font-weight: 800;">
-                🎯 Official Shot Logged: Score = ${data.score || 0} pts (Ranked on class board!)
-              </span>
-            `;
+        if (!doc.exists) return;
+        const data = doc.data();
+        if (data.teamMembers && els.teamInput) {
+          els.teamInput.value = data.teamMembers;
+          state.teamMembers = data.teamMembers;
+        }
+        if (data.tableNumber && els.tableSelect) {
+          els.tableSelect.value = data.tableNumber;
+          state.tableNum = data.tableNumber;
+        }
+        if (data.period !== undefined && els.periodSelect) {
+          els.periodSelect.value = data.period;
+          state.period = data.period;
+        }
+
+        if (data.rounds && typeof data.rounds === 'object') {
+          for (let r = 1; r <= 4; r++) {
+            if (data.rounds[r]) {
+              state.rounds[r] = Object.assign(state.rounds[r] || {}, data.rounds[r]);
+            } else if (data.rounds[String(r)]) {
+              state.rounds[r] = Object.assign(state.rounds[r] || {}, data.rounds[String(r)]);
+            }
           }
         }
+
+        updateScorecardUI();
+        selectViewingRound(state.viewingRound || 1);
       })
       .catch(err => console.warn('Sync notice', err));
   }
 
   let unsubscribeConfig = null;
-  let assignmentConfigData = null;
 
   function updateTargetFromConfig() {
     if (!assignmentConfigData) return;
-    const periodKey = `tableTargets_p${state.period}`;
-    const periodTargets = assignmentConfigData[periodKey] || assignmentConfigData.tableTargets;
-    const tblKey = `table_${state.tableNum}`;
 
-    if (periodTargets && typeof periodTargets[tblKey] === 'number') {
-      const assigned = periodTargets[tblKey];
-      state.targetDistCm = assigned;
+    // Check if teacher switched active round
+    if (typeof assignmentConfigData.currentRound === 'number' && assignmentConfigData.currentRound >= 1 && assignmentConfigData.currentRound <= 4) {
+      if (assignmentConfigData.currentRound !== state.currentActiveRound) {
+        state.currentActiveRound = assignmentConfigData.currentRound;
+        selectViewingRound(state.currentActiveRound);
+      }
+    }
+
+    const r = state.viewingRound;
+    const roundTargets = assignmentConfigData.roundTargets || {};
+    const periodTargetsKey = `tableTargets_p${state.period}`;
+    const periodTargets = assignmentConfigData[periodTargetsKey] || assignmentConfigData.tableTargets || {};
+
+    const specificKey = `p${state.period}_r${r}_table_${state.tableNum}`;
+    const roundKey = `r${r}_table_${state.tableNum}`;
+    const genericKey = `table_${state.tableNum}`;
+
+    let assigned = null;
+    if (typeof periodTargets[specificKey] === 'number') {
+      assigned = periodTargets[specificKey];
+    } else if (typeof periodTargets[roundKey] === 'number') {
+      assigned = periodTargets[roundKey];
+    } else if (r === state.currentActiveRound && typeof periodTargets[genericKey] === 'number') {
+      assigned = periodTargets[genericKey];
+    } else if (typeof roundTargets[r] === 'number') {
+      assigned = roundTargets[r];
+    } else if (typeof assignmentConfigData.universalTargetCm === 'number') {
+      assigned = assignmentConfigData.universalTargetCm;
+    }
+
+    if (assigned !== null) {
+      if (!state.rounds[r]) state.rounds[r] = {};
+      state.rounds[r].targetDistCm = assigned;
       if (els.inputTargetDist) els.inputTargetDist.value = assigned;
       if (els.assignedTargetBadge) {
-        els.assignedTargetBadge.textContent = `🎯 Table ${state.tableNum} Target: ${assigned.toFixed(1)} cm`;
+        const rName = r === 4 ? 'Tie-Breaker' : `R${r}`;
+        els.assignedTargetBadge.textContent = `🎯 ${rName} Table ${state.tableNum} Target: ${assigned.toFixed(1)} cm`;
         els.assignedTargetBadge.style.color = 'var(--accent-emerald)';
       }
-      saveLocalState();
-      renderPlot();
-    } else if (typeof assignmentConfigData.universalTargetCm === 'number') {
-      const assigned = assignmentConfigData.universalTargetCm;
-      state.targetDistCm = assigned;
-      if (els.inputTargetDist) els.inputTargetDist.value = assigned;
-      if (els.assignedTargetBadge) {
-        els.assignedTargetBadge.textContent = `🎯 Class Target: ${assigned.toFixed(1)} cm`;
-        els.assignedTargetBadge.style.color = 'var(--accent-cyan)';
-      }
+      updateScorecardUI();
       saveLocalState();
       renderPlot();
     }
