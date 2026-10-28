@@ -153,6 +153,30 @@ service cloud.firestore {
       allow create: if true;
       allow update, delete: if isAdmin();
     }
+
+    // 12. Cannon Duel online class battles (Cannon_duel/js/online.js)
+    // The teacher (admin) creates lobbies and matches. Each signed-in team writes only its own
+    // team doc, and only the teams in a match may update it (pairing fields stay fixed).
+    function isSchoolUser() {
+      return request.auth != null && request.auth.token.email != null && isAuthorizedEmail(request.auth.token.email);
+    }
+    match /cannon_lobbies/{code} {
+      allow read: if isSchoolUser();
+      allow write: if isAdmin();
+    }
+    match /cannon_lobbies/{code}/teams/{uid} {
+      allow read: if isSchoolUser();
+      allow create, update: if isSchoolUser() && request.auth.uid == uid && request.resource.data.uid == uid;
+      allow delete: if isSchoolUser() && request.auth.uid == uid;
+    }
+    match /cannon_lobbies/{code}/matches/{matchId} {
+      allow read: if isSchoolUser();
+      allow update: if isSchoolUser() && request.auth.uid in resource.data.uids &&
+                       request.resource.data.uids == resource.data.uids &&
+                       request.resource.data.teams == resource.data.teams &&
+                       request.resource.data.seed == resource.data.seed &&
+                       request.resource.data.round == resource.data.round;
+    }
   }
 }
 

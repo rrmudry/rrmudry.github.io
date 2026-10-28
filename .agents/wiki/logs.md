@@ -14,6 +14,16 @@ Append-only log tracking pattern changes across recent sessions.
 - **Strict Compliance**: Pure Vanilla JS, zero `unpkg.com`, zero in-browser Babel, WCAG AAA high-contrast light mode with ink-slate text on crisp white cards, and strictly zero LaTeX notation throughout.
 
 
+## 2026-10-27 — Cannon Duel Rebuild: Projectile Battles with Online Class Lobby
+**Files Added/Updated**: `Cannon_duel/` (`index.html`, `css/style.css`, `js/engine.js`, `js/game.js`, `js/online.js`, `js/mock-firebase.js`; old game kept as `classic.html`), `firestore.rules` (section 12), `games.html`.
+
+**Changes**:
+- **Modes**: Single player vs Cannonbot (Easy/Medium/Hard, aims by simulation and improves each shot), two players on one device, and online class battles.
+- **Physics**: g = 10 m/s², no air resistance, launch from the cannon pivot. Recon/📐 gives Δx and Δy pivot to pivot; landing flags report meters short/long; faded ghost paths show the last 3 shots. Heavy and triple ammo follow the same trajectory (mass independence).
+- **Online**: `cannon_lobbies/{CODE}` (teacher-only create), `/teams/{uid}` (each team writes its own), `/matches/{id}` (only its teams update; pairing fields locked by rules). The shooter resolves a shot and stores it in a transaction that checks the turn; everyone replays the stored result. Turn timer with auto-skip, odd team plays Cannonbot, pairing avoids rematches, standings computed from match docs. `?join=CODE` links and reload auto-rejoin.
+- **Testing**: `?mock=1&user=<name>` swaps in a localStorage Firebase stand-in so multiple tabs can play each other without sign-in (`user=rmudry` = teacher).
+
+
 ## 2026-10-27 — Impact Velocity Workbench: Subscript HTML Rendering & CSS Typography Normalization
 **Patterns Updated**: `classroom-projection-and-high-contrast-theming.md`.
 **Files Updated**: `Unit_2/impact_velocity_workbench/js/app.js`, `Unit_2/impact_velocity_workbench/css/style.css`, `partials/footer.html`.
