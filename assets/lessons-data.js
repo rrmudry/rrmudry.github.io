@@ -4938,14 +4938,6 @@ const lessonsData = [
         actionLabel: "Launch Target Arena",
         description: "Complete photogate launch speed calibration, strobe photo trajectory analysis, and guided target launch missions.",
         status: "active"
-      },
-      {
-        "title": "Horizontal Projectile Problem Set 1",
-        typeLabel: "Problem Set",
-        submission: "Turn In in Classroom / Notebook Check",
-        actionLabel: "In-Class Activity Notice",
-        description: "Solve 6 guided problems finding flight time and horizontal range using g = 10 m/s².",
-        status: "active"
       }
     ],
     "resources": [
