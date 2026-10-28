@@ -5019,61 +5019,73 @@ const lessonsData = [
       }
     ]
   },
-  {
+    {
     "day": 44,
     "date": "2026-10-29",
     "unit": 2,
-    "title": "Tabletop Marble Launch Lab: The Target Cup Challenge (Block: Periods 0, 1, 3, 5)",
-    "topic": "Empirical Tabletop Velocity Calibration & Blind Target Range Prediction",
+    "title": "Paper Roller Coaster Engineering Challenge (Block: Periods 1, 3, 5) & Target Range Tournament (P0)",
+    "topic": "Energy Conservation, Centripetal Loops & Structural Roller Coaster Engineering",
     "dok": 3,
-    "type": "Laboratory Investigation (Block)",
+    "type": "Engineering Challenge & Laboratory Investigation (Block)",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Block Schedule (Periods 0, 1, 3, 5 - 105 min): Mirror of Wednesday block. Student teams calibrate marble tabletop speed, predict floor landing distance using g = 10 m/s², place a target cup, and analyze error sources.",
-    "activity": "Tabletop Projectile Target Lab (105-Min Block): Mirror block for Periods 1, 3, 5. Teams release marbles down an incline ramp onto a level tabletop, determine launch velocity (v_x), measure table height (Δy), predict floor landing distance (Δx), tape a target cup to the floor, execute a live confirmation drop, and evaluate rotational inertia vs air drag error sources. Period 0 completes classwide error pooling and hit/miss distributions.",
-    "essentialQuestion": "What physical mechanisms cause experimental projectiles to deviate from idealized kinematic equations?",
+    "summary": "Block Schedule (Periods 1, 3, 5 - 105 min): Hands-on cardstock roller coaster engineering challenge. Student teams design and construct a functional paper marble coaster satisfying 3 strict non-negotiable requirements: a hill > 20 cm, a vertical loop, and a finish elevation at least 20 cm above the lowest track point. Period 0 completes their advanced target range tournament.",
+    "activity": "Paper Roller Coaster Engineering Build (105-Min Block for Periods 1, 3, 5): Student teams design, fabricate, and test cardstock tracks, support columns, curves, and vertical loops. Requirements: (1) Hill height > 20 cm to convert gravitational potential energy into kinetic energy (E_p = mgh), (2) A functional vertical loop where marble velocity maintains centripetal normal force without falling (v_top ≥ √(g·r)), and (3) Track must rise to finish at least 20 cm above its lowest point, demonstrating mechanical energy preservation against track friction. Teams draft scaled blueprints, record elevation metrics, test iteratively, and achieve 3 official consecutive trial runs for teacher verification.",
+    "essentialQuestion": "How do gravitational potential energy, track friction, and centripetal acceleration dictate whether a roller coaster can complete a vertical loop and climb a 20 cm uphill finish?",
     "standards": [
+      "HS-PS3-2",
+      "HS-PS3-3",
+      "HS-ETS1-2",
       "HS-PS2-1"
     ],
     "wicor": {
-      "Writing": "Writing an error audit memo distinguishing random human measurement errors from systematic mechanical errors.",
-      "Inquiry": "Investigating whether rotational motion of the sphere absorbs energy that idealized point-mass equations ignore.",
-      "Collaboration": "Classwide data pooling comparing photogate accuracy vs manual stopwatch timing.",
-      "Organization": "Plotting class hit/miss distributions around the target bullseye.",
-      "Reading": "Reading scientific diagrams of rotational inertia and rolling without slipping."
+      "Writing": "Documenting engineering modifications and explaining mechanical energy transformations in the design log.",
+      "Inquiry": "Iterating track bank angles and loop curvatures to prevent marble derailment while preserving kinetic energy.",
+      "Collaboration": "Coordinating pillar fabrication, track leveling, and joint taping within partner engineering teams.",
+      "Organization": "Recording elevation heights, loop radii, and 3-trial success metrics on the verification checklist.",
+      "Reading": "Reading engineering constraint specifications and metric ruler scales."
     },
     "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "In yesterday's lab, almost every marble landed 1 to 2 cm shorter than the theoretical math predicted. What physical factors might cause this consistent under-prediction?",
-      "explanation": "Some initial potential energy is converted into rotational kinetic energy (making the sphere spin) rather than pure linear velocity. In addition, slight table-edge bounce, friction, and air drag all reduce effective horizontal speed.",
+      "type": "concept_chat",
+      "promptQuestion": "You are designing a paper roller coaster with a vertical loop and an uphill finish. Why MUST your starting hill be significantly taller than both the loop and the finish ramp? Where does energy go as the marble rolls?",
+      "explanation": "Total mechanical energy is conserved minus losses to friction and sound. Initial gravitational potential energy (mgh) must provide both the kinetic energy needed to stay on the loop (v ≥ √(gr)) and the potential energy to climb 20 cm at the finish. Friction continuously siphons energy away as thermal energy, so the start must be the highest point.",
+      "chatSystemInstruction": "You are a warm, adaptive, and relatable physics mentor chatting with a student over SMS/text. Your goal is to explore a physics concept together without being overly formal or using forced slang.\n\nCRITICAL RULES:\n1. NO FISHING / PIVOT TO TEACHING: Never try to \"force\" or repeatedly nudge a student toward a specific technical answer or physics term. If you ask a conceptual question and the student guesses wrong, focuses on a different variable (like friction/roughness), or says \"I don't know,\" DO NOT ask a follow-up question trying to correct their guess. Instead, pivot immediately to teaching: validate their logic, briefly explain the physics concept directly using a relatable analogy, and move on.\n2. NO SOCRATIC TRAPS: Do not get stuck in a loop asking the student to explain the same thing over and over. If they answer correctly, understand a concept, or say \"yes\"/\"obvious\", validate it briefly and immediately MOVE FORWARD to a new dimension or a real-world application.\n3. MOVE DYNAMICALLY: Keep the conversation fluid. Once a basic idea is established, introduce a fun twist, a new scenario, or a practical question (e.g., \"What happens if we try this in space?\" or \"How does that affect a rollercoaster?\"). \n4. CHAT TONE & LENGTH: Keep replies highly conversational and natural—like a text message from a knowledgeable peer. Limit replies to 1–3 short sentences max. Never send multiple distinct thoughts, lists, or bullet points in one message.\n5. CONTINUING THE CONVERSATION: Never end the conversation abruptly or push the student to stop chatting. Even after the student demonstrates understanding or has engaged in multiple turns, keep the conversation flowing naturally by offering intriguing follow-up thoughts, fun scenario twists, or real-world applications. You may let them know they can click the Finish Session button whenever they are ready to submit, but always leave the door open for them to continue chatting.",
       "defaultDuration": 3
     },
     "links": {
-      "Target Range Solver & Calibration Tool": "Unit_2/projectile_target_range/index.html",
-      "Horizontal Projectile Motion Explorer": "horizontal-projectile-motion/index.html"
+      "Paper Roller Coaster Challenge Guide": "Unit_2/worksheets/Day44_Paper_Roller_Coaster_Challenge.html",
+      "Paper Roller Coaster Classroom Arena": "Unit_2/paper_roller_coaster/index.html",
+      "Target Range Solver (P0 Honors)": "Unit_2/projectile_target_range/index.html"
     },
     "assignments": [
       {
-        "title": "Projectile Error Forensics & Review Sheet",
-        "typeLabel": "Analysis Worksheet",
-        "submission": "Notebook Check / Turn In in Classroom",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Analyze classwide target dispersion and evaluate mechanical error sources.",
+        "title": "Paper Roller Coaster Engineering Challenge: Blueprint & Verification Audit",
+        "url": "Unit_2/worksheets/Day44_Paper_Roller_Coaster_Challenge.html",
+        "typeLabel": "Engineering Build Challenge",
+        "submission": "In-Class Demonstration & Handout Turn-In",
+        "actionLabel": "Open Engineering Handout 📄",
+        "description": "Design, build, and verify a cardstock roller coaster meeting all 3 constraints: hill > 20 cm, vertical loop, and finish 20 cm above lowest point.",
         "status": "active"
       }
     ],
     "resources": [
       {
-        "title": "Target Range Solver & Empirical Curve Calibrator",
-        "url": "Unit_2/projectile_target_range/index.html",
-        "typeLabel": "Interactive Lab Workbench",
-        "description": "Log ramp calibration heights vs floor distances, fit empirical curves, and calculate blind target landing predictions."
+        "title": "Paper Roller Coaster Challenge Brief & Blueprint Sheet",
+        "url": "Unit_2/worksheets/Day44_Paper_Roller_Coaster_Challenge.html",
+        "typeLabel": "Printable Worksheet (2-Page)",
+        "description": "Print-ready student worksheet: 3 non-negotiable constraints, track elevation data table, blueprint grid, and teacher sign-off."
       },
       {
-        "title": "Horizontal Projectile Motion Explorer",
-        "url": "horizontal-projectile-motion/index.html",
-        "typeLabel": "Simulation Tool",
-        "description": "Test velocity sensitivity and trajectory envelopes."
+        "title": "Classroom Build Deck & Countdown Timer",
+        "url": "Unit_2/paper_roller_coaster/index.html",
+        "typeLabel": "Teacher Projector Dashboard",
+        "description": "High-contrast projector board with the 3 visual requirements, build countdown timer, and live team verification scoreboard."
+      },
+      {
+        "title": "Coaster Physics Energy Simulator",
+        "url": "coaster-physics/index.html",
+        "typeLabel": "Interactive Simulation",
+        "description": "Explore mechanical energy conservation, velocity, and loop forces."
       }
     ]
   },

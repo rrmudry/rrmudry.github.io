@@ -3,6 +3,25 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-28 — Paper Roller Coaster Engineering Challenge (Day 44 P1, 3, 5)
+**Patterns Updated**: low-stress-worksheet-skill.md, classroom-projection-and-high-contrast-theming.md, cast-aligned-webapp-design.md.
+**Files Added/Updated**: assets/lessons-data.js, Unit_2/worksheets/Day44_Paper_Roller_Coaster_Challenge.html, Unit_2/paper_roller_coaster/index.html, partials/footer.html.
+
+**Changes**:
+- **Day 44 Lesson Plan Differentiation (assets/lessons-data.js)**:
+  - Pivoted Day 44 regular physics (Periods 1, 3, 5) from the tabletop projectile target lab to a hands-on Paper Roller Coaster Engineering Challenge.
+  - Codified the 3 strict non-negotiable engineering requirements: (1) Hill drop > 20 cm, (2) Complete 360-degree vertical loop without falling, (3) Uphill finish climbing >= 20 cm above the lowest track point.
+  - Configured energy conservation AI mentor concept chat bell-ringer and aligned NGSS standards (HS-PS3-2, HS-PS3-3, HS-ETS1-2, HS-PS2-1).
+- **Print-Ready Low-Stress Student Worksheet (Day44_Paper_Roller_Coaster_Challenge.html)**:
+  - Strict 2-page letter print layout with atomic budgets and zero second-page spillover.
+  - Page 1: Student metadata header, 3 design constraint callouts, physics core formulas (E_p = mgh, E_k = 0.5mv^2, v_top >= sqrt(gr)), track elevation Table 1 with rule checks, and scaled engineering blueprint dot-grid canvas.
+  - Page 2: Compact running header, 3-step iteration & troubleshooting log, 3-run official verification table, official teacher sign-off card, and CER energy accounting conclusion.
+- **Teacher Projector Arena & Build Deck (Unit_2/paper_roller_coaster/index.html)**:
+  - High-contrast classroom projector dashboard with giant visual requirements banner (Hill > 20 cm, Vertical Loop, Finish >= 20 cm).
+  - Classroom countdown build timer with 15m, 30m, 45m, 60m, 75m presets and Web Audio chime alert.
+  - Live Table Verification Tracker (Tables 1-9) with 3-checkbox verification and instant 1-click teacher certify button with audio fanfare.
+  - Physical loop energy architecture SVG schematic illustrating potential vs kinetic energy trade-offs.
+
 ## 2026-10-28 — Projectile Target Range: Round-Based Accuracy Scoring System (3 Rounds + Tie-Breaker)
 **Patterns Updated**: cast-aligned-webapp-design.md, classroom-projection-and-high-contrast-theming.md.
 **Files Added/Updated**: Unit_2/projectile_target_range/index.html, Unit_2/projectile_target_range/dashboard.html, Unit_2/projectile_target_range/css/style.css, Unit_2/projectile_target_range/js/student-app.js, Unit_2/projectile_target_range/js/teacher-board.js, partials/footer.html.

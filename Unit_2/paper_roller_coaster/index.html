@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎢 Paper Roller Coaster Engineering Challenge | Classroom Arena &amp; Build Deck</title>
+  <!-- firestore-audit: teacher-only -->
+  <meta name="description" content="Classroom projector dashboard, build countdown timer, and live team verification tracker for the Day 44 Paper Roller Coaster Engineering Challenge.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎢</text></svg>">
+
+  <!-- Google Fonts: Outfit, JetBrains Mono, Space Grotesk -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800;900&family=Outfit:wght@500;700;800;900&family=Space+Grotesk:wght@700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+      --font-display: 'Space Grotesk', var(--font-main);
+      --base-size: 16px;
+
+      /* High-Contrast WCAG AAA Light Mode Default */
+      --bg-app: #f1f5f9;
+      --bg-card: #ffffff;
+      --bg-card-sub: #f8fafc;
+      --bg-hover: #e2e8f0;
+      --border-color: #cbd5e1;
+      --border-dark: #0f172a;
+
+      --text-main: #0f172a;
+      --text-muted: #334155;
+      --text-dim: #64748b;
+
+      --accent-cyan: #0284c7;
+      --accent-cyan-bg: #e0f2fe;
+      --accent-emerald: #059669;
+      --accent-emerald-bg: #d1fae5;
+      --accent-orange: #d97706;
+      --accent-orange-bg: #fef3c7;
+      --accent-purple: #7c3aed;
+      --accent-purple-bg: #ede9fe;
+      --accent-rose: #e11d48;
+      --accent-rose-bg: #ffe4e6;
+      --accent-gold: #b45309;
+
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+
+    /* Dark Mode Tokens */
+    html.theme-dark {
+      --bg-app: #0b1120;
+      --bg-card: #151e32;
+      --bg-card-sub: #1e293b;
+      --bg-hover: #334155;
+      --border-color: #334155;
+      --border-dark: #cbd5e1;
+
+      --text-main: #f8fafc;
+      --text-muted: #cbd5e1;
+      --text-dim: #94a3b8;
+
+      --accent-cyan: #38bdf8;
+      --accent-cyan-bg: rgba(56, 189, 248, 0.15);
+      --accent-emerald: #34d399;
+      --accent-emerald-bg: rgba(52, 211, 153, 0.15);
+      --accent-orange: #fbbf24;
+      --accent-orange-bg: rgba(251, 191, 36, 0.15);
+      --accent-purple: #c084fc;
+      --accent-purple-bg: rgba(192, 132, 252, 0.15);
+      --accent-rose: #fb7185;
+      --accent-rose-bg: rgba(251, 113, 133, 0.15);
+    }
+
+    /* Classroom Projector Scaling */
+    html.font-projector {
+      --base-size: 20px;
+    }
+    html.font-projector-lg {
+      --base-size: 24px;
+    }
+
+    html {
+      font-size: var(--base-size);
+      box-sizing: border-box;
+    }
+    *, *::before, *::after {
+      box-sizing: inherit;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background: var(--bg-app);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.4;
+    }
+
+    /* Subscripts and superscripts */
+    sub, sup {
+      font-size: 78%;
+      line-height: 0;
+      position: relative;
+      vertical-align: baseline;
+    }
+    sub { bottom: -0.22em; }
+    sup { top: -0.45em; }
+
+    /* Sticky Top Header */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-card);
+      border-bottom: 2px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      padding: 0.6rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      color: var(--accent-cyan);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 0.35rem 0.7rem;
+      border-radius: var(--radius-sm);
+      background: var(--accent-cyan-bg);
+      transition: all 0.15s ease;
+    }
+    .back-link:hover {
+      filter: brightness(1.1);
+      text-decoration: underline;
+    }
+
+    .app-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-icon {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 0.4rem 0.75rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.15s ease;
+    }
+    .btn-icon:hover {
+      background: var(--bg-hover);
+      border-color: var(--accent-cyan);
+    }
+
+    .app-container {
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      flex: 1;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* Big Projector Hero Banner: The 3 Requirements */
+    .hero-banner {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #ffffff;
+      padding: 1.25rem 1.5rem;
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      box-shadow: var(--shadow-md);
+    }
+
+    .hero-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .req-hero-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    @media (max-width: 860px) {
+      .req-hero-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .req-hero-card {
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    .req-hero-card:hover {
+      border-color: #38bdf8;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .req-badge {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      display: inline-block;
+      width: fit-content;
+    }
+    .badge-hill { background: #d97706; color: #fff; }
+    .badge-loop { background: #059669; color: #fff; }
+    .badge-finish { background: #7c3aed; color: #fff; }
+
+    .req-val {
+      font-family: var(--font-display);
+      font-size: 1.65rem;
+      font-weight: 900;
+      color: #38bdf8;
+      line-height: 1.15;
+    }
+
+    .req-text {
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      line-height: 1.35;
+    }
+
+    /* Build Countdown Deck */
+    .timer-deck {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .timer-display {
+      font-family: var(--font-mono);
+      font-size: 3.2rem;
+      font-weight: 900;
+      color: var(--accent-cyan);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .timer-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-timer {
+      padding: 0.55rem 1rem;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 0.88rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      border: 1.5px solid var(--border-color);
+      background: var(--bg-card-sub);
+      color: var(--text-main);
+      transition: all 0.15s ease;
+    }
+    .btn-timer:hover {
+      border-color: var(--accent-cyan);
+      background: var(--bg-hover);
+    }
+    .btn-timer.active {
+      background: var(--accent-cyan);
+      color: #ffffff;
+      border-color: var(--accent-cyan);
+    }
+
+    .btn-primary {
+      background: var(--accent-cyan);
+      color: #ffffff;
+      border: none;
+      font-family: var(--font-main);
+      font-size: 1rem;
+      font-weight: 800;
+      padding: 0.65rem 1.25rem;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .btn-primary:hover {
+      filter: brightness(1.1);
+    }
+
+    /* Squad Verification Tracker (Tables 1–9) */
+    .squad-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .squad-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      transition: all 0.2s ease;
+    }
+    .squad-card:hover {
+      border-color: var(--accent-cyan);
+    }
+    .squad-card.verified {
+      border-color: var(--accent-emerald);
+      background: var(--accent-emerald-bg);
+      box-shadow: 0 0 12px rgba(5, 150, 105, 0.2);
+    }
+
+    .squad-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .squad-title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--text-main);
+    }
+
+    .squad-check-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .check-label {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      cursor: pointer;
+    }
+    .check-label input {
+      width: 17px;
+      height: 17px;
+      accent-color: var(--accent-emerald);
+      cursor: pointer;
+    }
+
+    .squad-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border-color);
+      padding-top: 0.5rem;
+      margin-top: 0.25rem;
+    }
+
+    .status-badge {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+    .status-building { background: var(--bg-hover); color: var(--text-dim); }
+    .status-verified { background: var(--accent-emerald); color: #ffffff; font-weight: 900; }
+
+    .btn-verify {
+      background: var(--accent-emerald);
+      color: #ffffff;
+      border: none;
+      font-family: var(--font-main);
+      font-size: 0.82rem;
+      font-weight: 800;
+      padding: 0.35rem 0.75rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-verify:hover {
+      filter: brightness(1.1);
+    }
+
+    /* Physics Loop Visualizer Card */
+    .physics-diagram-card {
+      background: var(--bg-card-sub);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .diagram-svg-wrap {
+      width: 100%;
+      height: 200px;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Sticky Header -->
+  <header class="top-nav">
+    <div class="brand-section">
+      <a href="../outline.html" class="back-link">← Unit 2 Outline</a>
+      <div class="app-title">
+        <span>🎢 Paper Roller Coaster Challenge</span>
+        <span style="font-size: 0.75rem; font-family: var(--font-mono); background: var(--accent-cyan-bg); color: var(--accent-cyan); padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 800;">Periods 1, 3, 5</span>
+      </div>
+    </div>
+
+    <!-- Utilities -->
+    <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+      <a href="../worksheets/Day44_Paper_Roller_Coaster_Challenge.html" class="btn-icon" target="_blank" style="text-decoration: none; color: var(--accent-purple); border-color: var(--accent-purple);" title="Open Printable Student Worksheet">
+        📄 <span>Printable Handout</span>
+      </a>
+
+      <button type="button" class="btn-icon" id="btnProjectorScale" title="Cycle font size for projector">
+        🖥️ Text: Normal
+      </button>
+
+      <button type="button" class="btn-icon" id="btnMute" title="Toggle Sound FX">
+        🔊 Sound FX
+      </button>
+
+      <button type="button" class="btn-icon" id="themeToggle" title="Toggle Light/Dark Theme">
+        ☀️ / 🌙
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-container">
+
+    <!-- Big Hero Banner: The 3 Non-Negotiable Requirements -->
+    <section class="hero-banner">
+      <div class="hero-header">
+        <div class="hero-title">
+          <span>🎢 Engineering Constraints &amp; Deliverables</span>
+        </div>
+        <span style="font-family: var(--font-mono); font-size: 0.85rem; color: #38bdf8; font-weight: 800; background: rgba(56, 189, 248, 0.15); padding: 0.25rem 0.65rem; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.3);">
+          All 3 Must Pass Live Verification
+        </span>
+      </div>
+
+      <div class="req-hero-grid">
+        <!-- Constraint 1: The Hill -->
+        <div class="req-hero-card">
+          <span class="req-badge badge-hill">Requirement 1</span>
+          <div class="req-val">Hill &gt; 20 cm</div>
+          <p class="req-desc">
+            Your initial drop hill must have a vertical height difference of <strong>at least 20.0 cm</strong> measured with a ruler from peak to valley.
+          </p>
+        </div>
+
+        <!-- Constraint 2: The Loop -->
+        <div class="req-hero-card">
+          <span class="req-badge badge-loop">Requirement 2</span>
+          <div class="req-val">Vertical Loop</div>
+          <p class="req-desc">
+            The marble must complete a full <strong>360° vertical loop</strong> without derailing or losing track contact. Velocity at the top must stay high enough so gravity does not pull it off!
+          </p>
+        </div>
+
+        <!-- Constraint 3: The Uphill Finish -->
+        <div class="req-hero-card">
+          <span class="req-badge badge-finish">Requirement 3</span>
+          <div class="req-val">Finish ≥ 20 cm</div>
+          <p class="req-desc">
+            Your coaster must rise back up to finish <strong>at least 20.0 cm above the lowest point</strong> on the track! Proves your team preserved mechanical energy against friction.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Classroom Countdown Timer Deck -->
+    <section class="timer-deck">
+      <div>
+        <span style="font-size: 0.8rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em;">
+          Classroom Build &amp; Test Countdown
+        </span>
+        <div class="timer-display" id="dispTimer">45:00</div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;">
+        <!-- Presets -->
+        <div class="timer-controls">
+          <button type="button" class="btn-timer" data-mins="15">15 Min</button>
+          <button type="button" class="btn-timer" data-mins="30">30 Min</button>
+          <button type="button" class="btn-timer active" data-mins="45">45 Min</button>
+          <button type="button" class="btn-timer" data-mins="60">60 Min</button>
+          <button type="button" class="btn-timer" data-mins="75">75 Min</button>
+        </div>
+
+        <!-- Playback Controls -->
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <button type="button" class="btn-primary" id="btnStartTimer">
+            ▶ Start Timer
+          </button>
+          <button type="button" class="btn-timer" id="btnPauseTimer">
+            ⏸ Pause
+          </button>
+          <button type="button" class="btn-timer" id="btnResetTimer">
+            ↺ Reset
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Table Squad Live Verification Tracker -->
+    <section class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div>
+          <h2 style="font-family: var(--font-display); font-size: 1.2rem; font-weight: 900; margin: 0; color: var(--text-main);">
+            🏆 Table Verification Tracker (Periods 1, 3, 5)
+          </h2>
+          <span style="font-size: 0.85rem; color: var(--text-dim);">
+            Call teacher to table for official live test runs
+          </span>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <div style="text-align: right;">
+            <span style="font-family: var(--font-mono); font-size: 1.4rem; font-weight: 900; color: var(--accent-emerald);" id="verifiedCount">0 / 9</span>
+            <div style="font-size: 0.72rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Tables Certified</div>
+          </div>
+          <button type="button" class="btn-timer" id="btnResetAllTables" style="font-size: 0.78rem;">
+            Reset All
+          </button>
+        </div>
+      </div>
+
+      <!-- 9 Squad Cards -->
+      <div class="squad-grid" id="squadGrid">
+        <!-- Dynamically rendered via JS -->
+      </div>
+    </section>
+
+    <!-- Physics Energy Architecture Visual Guide -->
+    <section class="physics-diagram-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+        <span style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 900; color: var(--text-main);">
+          📐 The Physics: Why Does Starting Height MUST Exceed Finish Height?
+        </span>
+        <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent-cyan); font-family: var(--font-mono);">
+          E<sub>start</sub> = E<sub>finish</sub> + W<sub>friction</sub> + W<sub>sound</sub>
+        </span>
+      </div>
+
+      <div class="diagram-svg-wrap">
+        <svg viewBox="0 0 900 200" style="width: 100%; height: 100%;">
+          <!-- Ground / Lowest Point Line -->
+          <line x1="50" y1="170" x2="850" y2="170" stroke="#94a3b8" stroke-dasharray="4,4" stroke-width="1.5" />
+          <text x="60" y="185" fill="#64748b" font-size="11" font-family="monospace" font-weight="700">Lowest Point (h_lowest = 0 cm Reference Line)</text>
+
+          <!-- Starting Hill Drop -->
+          <path d="M 80 30 Q 150 170, 270 170" fill="none" stroke="#d97706" stroke-width="4" stroke-linecap="round" />
+          <!-- Vertical Loop -->
+          <path d="M 270 170 C 370 170, 390 60, 350 60 C 310 60, 320 170, 430 170" fill="none" stroke="#059669" stroke-width="4" stroke-linecap="round" />
+          <!-- Uphill Finish Ramp -->
+          <path d="M 430 170 Q 560 170, 680 90" fill="none" stroke="#7c3aed" stroke-width="4" stroke-linecap="round" />
+
+          <!-- Height Guide Arrows -->
+          <!-- Hill Height -->
+          <line x1="80" y1="30" x2="80" y2="170" stroke="#d97706" stroke-dasharray="2,3" stroke-width="1.5" />
+          <text x="90" y="45" fill="#d97706" font-size="12" font-family="sans-serif" font-weight="800">Start: h &gt; 20 cm (Potential Energy Reservoir)</text>
+
+          <!-- Loop Height -->
+          <line x1="350" y1="60" x2="350" y2="170" stroke="#059669" stroke-dasharray="2,3" stroke-width="1.5" />
+          <text x="360" y="80" fill="#059669" font-size="11" font-family="sans-serif" font-weight="800">Loop Apex: v ≥ √(gr)</text>
+
+          <!-- Finish Height -->
+          <line x1="680" y1="90" x2="680" y2="170" stroke="#7c3aed" stroke-dasharray="2,3" stroke-width="1.5" />
+          <text x="690" y="105" fill="#7c3aed" font-size="12" font-family="sans-serif" font-weight="800">Finish: ≥ 20 cm Above Lowest</text>
+        </svg>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Site Footer -->
+  <footer style="margin-top: auto; border-top: 1px solid var(--border-color); background: var(--bg-card); padding: 0.75rem 1.25rem; font-size: 0.75rem; color: var(--text-dim); text-align: center;">
+    Paper Roller Coaster Engineering Challenge &bull; NGSS HS-PS3-2, HS-ETS1-2 &bull; Strictly Zero LaTeX
+  </footer>
+
+  <!-- Synthesizer Audio Engine & Classroom Logic -->
+  <script>
+    (function () {
+      'use strict';
+
+      // 1. Web Audio Synthesizer
+      let audioCtx = null;
+      let isMuted = false;
+
+      function getAudioContext() {
+        if (!audioCtx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) audioCtx = new AudioCtx();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        return audioCtx;
+      }
+
+      function playSound(type) {
+        if (isMuted) return;
+        const c = getAudioContext();
+        if (!c) return;
+        const now = c.currentTime;
+
+        if (type === 'fanfare') {
+          // 4-note victory arpeggio: C5 -> E5 -> G5 -> C6
+          [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+            const osc = c.createOscillator();
+            const gain = c.createGain();
+            const t = now + i * 0.1;
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.3, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+            osc.connect(gain);
+            gain.connect(c.destination);
+            osc.start(t);
+            osc.stop(t + 0.5);
+          });
+        } else if (type === 'bell') {
+          // Time expired chime
+          const osc = c.createOscillator();
+          const gain = c.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, now);
+          gain.gain.setValueAtTime(0.5, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+          osc.connect(gain);
+          gain.connect(c.destination);
+          osc.start(now);
+          osc.stop(now + 1.25);
+        } else if (type === 'click') {
+          const osc = c.createOscillator();
+          const gain = c.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(600, now);
+          osc.frequency.exponentialRampToValueAtTime(300, now + 0.04);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+          osc.connect(gain);
+          gain.connect(c.destination);
+          osc.start(now);
+          osc.stop(now + 0.06);
+        }
+      }
+
+      // 2. Countdown Timer Logic
+      let totalSeconds = 45 * 60;
+      let timerInterval = null;
+      let isRunning = false;
+
+      const dispTimer = document.getElementById('dispTimer');
+      const btnStart = document.getElementById('btnStartTimer');
+      const btnPause = document.getElementById('btnPauseTimer');
+      const btnReset = document.getElementById('btnResetTimer');
+
+      function formatTime(sec) {
+        const m = Math.floor(sec / 60);
+        const s = sec % 60;
+        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }
+
+      function updateTimerDisplay() {
+        dispTimer.textContent = formatTime(totalSeconds);
+      }
+
+      function startTimer() {
+        if (isRunning) return;
+        isRunning = true;
+        btnStart.textContent = '⏳ Running...';
+        btnStart.style.background = 'var(--accent-emerald)';
+
+        timerInterval = setInterval(() => {
+          if (totalSeconds > 0) {
+            totalSeconds--;
+            updateTimerDisplay();
+          } else {
+            clearInterval(timerInterval);
+            isRunning = false;
+            btnStart.textContent = '▶ Start Timer';
+            btnStart.style.background = 'var(--accent-cyan)';
+            playSound('bell');
+            alert('⏰ Build Time Expired! Final testing and teacher verification!');
+          }
+        }, 1000);
+      }
+
+      function pauseTimer() {
+        if (!isRunning) return;
+        clearInterval(timerInterval);
+        isRunning = false;
+        btnStart.textContent = '▶ Resume';
+        btnStart.style.background = 'var(--accent-cyan)';
+      }
+
+      function resetTimer(seconds) {
+        pauseTimer();
+        btnStart.textContent = '▶ Start Timer';
+        if (seconds !== undefined) totalSeconds = seconds;
+        updateTimerDisplay();
+      }
+
+      btnStart.addEventListener('click', startTimer);
+      btnPause.addEventListener('click', pauseTimer);
+      btnReset.addEventListener('click', () => resetTimer(45 * 60));
+
+      document.querySelectorAll('.btn-timer[data-mins]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.btn-timer[data-mins]').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const mins = parseInt(btn.dataset.mins);
+          resetTimer(mins * 60);
+          playSound('click');
+        });
+      });
+
+      // 3. Table Squad Verification Tracker
+      const STORAGE_KEY = 'paper_roller_coaster_tables_state';
+      let tableState = {};
+
+      function loadTableState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) tableState = JSON.parse(raw);
+        } catch (e) {}
+
+        for (let t = 1; t <= 9; t++) {
+          if (!tableState[t]) {
+            tableState[t] = {
+              hill: false,
+              loop: false,
+              finish: false,
+              verified: false
+            };
+          }
+        }
+      }
+
+      function saveTableState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(tableState));
+        } catch (e) {}
+      }
+
+      function renderSquadGrid() {
+        const grid = document.getElementById('squadGrid');
+        if (!grid) return;
+        grid.innerHTML = '';
+
+        let verifiedCount = 0;
+
+        for (let t = 1; t <= 9; t++) {
+          const s = tableState[t];
+          const isVer = s.verified || (s.hill && s.loop && s.finish);
+          if (isVer) verifiedCount++;
+
+          const card = document.createElement('div');
+          card.className = `squad-card ${isVer ? 'verified' : ''}`;
+          card.innerHTML = `
+            <div class="squad-card-header">
+              <span class="squad-title">Table ${t}</span>
+              <span class="status-badge ${isVer ? 'status-verified' : 'status-building'}">
+                ${isVer ? '🏆 VERIFIED' : 'Building...'}
+              </span>
+            </div>
+
+            <div class="squad-check-list">
+              <label class="check-label">
+                <input type="checkbox" class="chk-rule" data-table="${t}" data-rule="hill" ${s.hill ? 'checked' : ''}>
+                <span>1. Hill Drop &gt; 20 cm</span>
+              </label>
+
+              <label class="check-label">
+                <input type="checkbox" class="chk-rule" data-table="${t}" data-rule="loop" ${s.loop ? 'checked' : ''}>
+                <span>2. Vertical Loop Cleared</span>
+              </label>
+
+              <label class="check-label">
+                <input type="checkbox" class="chk-rule" data-table="${t}" data-rule="finish" ${s.finish ? 'checked' : ''}>
+                <span>3. Finish ≥ 20 cm Above Lowest</span>
+              </label>
+            </div>
+
+            <div class="squad-footer">
+              <span style="font-size: 0.75rem; font-weight: 800; color: var(--text-dim);">
+                ${isVer ? 'Score: 10 / 10' : 'Score: Incomplete'}
+              </span>
+              <button type="button" class="btn-verify" data-table="${t}">
+                ${isVer ? 'Re-Verify' : '✓ Certify Table'}
+              </button>
+            </div>
+          `;
+
+          // Bind checkbox toggles
+          card.querySelectorAll('.chk-rule').forEach(inp => {
+            inp.addEventListener('change', () => {
+              const rule = inp.dataset.rule;
+              tableState[t][rule] = inp.checked;
+              if (tableState[t].hill && tableState[t].loop && tableState[t].finish) {
+                tableState[t].verified = true;
+                playSound('fanfare');
+              } else {
+                tableState[t].verified = false;
+                playSound('click');
+              }
+              saveTableState();
+              renderSquadGrid();
+            });
+          });
+
+          // Quick certify button
+          card.querySelector('.btn-verify').addEventListener('click', () => {
+            const nextState = !tableState[t].verified;
+            tableState[t].hill = nextState;
+            tableState[t].loop = nextState;
+            tableState[t].finish = nextState;
+            tableState[t].verified = nextState;
+            if (nextState) playSound('fanfare');
+            else playSound('click');
+            saveTableState();
+            renderSquadGrid();
+          });
+
+          grid.appendChild(card);
+        }
+
+        const dispCount = document.getElementById('verifiedCount');
+        if (dispCount) dispCount.textContent = `${verifiedCount} / 9`;
+      }
+
+      document.getElementById('btnResetAllTables').addEventListener('click', () => {
+        if (!confirm('Reset all 9 table verification stamps?')) return;
+        for (let t = 1; t <= 9; t++) {
+          tableState[t] = { hill: false, loop: false, finish: false, verified: false };
+        }
+        saveTableState();
+        renderSquadGrid();
+      });
+
+      // 4. Projector Font & Theme Controls
+      const btnScale = document.getElementById('btnProjectorScale');
+      if (btnScale) {
+        btnScale.addEventListener('click', () => {
+          const docEl = document.documentElement;
+          if (docEl.classList.contains('font-projector-lg')) {
+            docEl.classList.remove('font-projector-lg');
+            docEl.classList.remove('font-projector');
+            btnScale.textContent = '🖥️ Text: Normal';
+          } else if (docEl.classList.contains('font-projector')) {
+            docEl.classList.add('font-projector-lg');
+            btnScale.textContent = '🖥️ Text: Giant';
+          } else {
+            docEl.classList.add('font-projector');
+            btnScale.textContent = '🖥️ Text: Projector';
+          }
+        });
+      }
+
+      const themeToggle = document.getElementById('themeToggle');
+      if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+          document.documentElement.classList.toggle('theme-dark');
+        });
+      }
+
+      const btnMute = document.getElementById('btnMute');
+      if (btnMute) {
+        btnMute.addEventListener('click', () => {
+          isMuted = !isMuted;
+          btnMute.textContent = isMuted ? '🔇 Muted' : '🔊 Sound FX';
+        });
+      }
+
+      // Initialize
+      loadTableState();
+      renderSquadGrid();
+      updateTimerDisplay();
+    })();
+  </script>
+</body>
+</html>

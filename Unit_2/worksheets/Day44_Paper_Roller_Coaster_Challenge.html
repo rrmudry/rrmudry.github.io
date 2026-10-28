@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Day 44: Paper Roller Coaster Engineering Challenge</title>
+  <style>
+    @page {
+      size: letter portrait;
+      margin: 0.28in 0.38in 0.28in 0.38in;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 10pt;
+      line-height: 1.35;
+      color: #000000;
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+      font-variant-numeric: normal;
+      font-feature-settings: "zero" 0;
+    }
+
+    .worksheet-page {
+      width: 100%;
+      height: 10.44in;
+      max-height: 10.44in;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      page-break-after: always;
+      background: #ffffff;
+    }
+
+    .worksheet-page:last-child {
+      page-break-after: avoid;
+    }
+
+    /* Page 1 Header */
+    .sheet-header {
+      border-bottom: 2px solid #000000;
+      padding-bottom: 4px;
+      margin-bottom: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .title-group h1 {
+      font-size: 13pt;
+      font-weight: 900;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      color: #000000;
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+
+    .title-group .sub {
+      font-size: 8.5pt;
+      font-weight: 700;
+      color: #000000;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      margin-top: 1px;
+    }
+
+    .student-fields {
+      display: flex;
+      gap: 12px;
+      font-size: 9pt;
+      font-weight: 700;
+      padding-bottom: 2px;
+      white-space: nowrap;
+    }
+
+    .field-line {
+      border-bottom: 1.5px solid #000000;
+      display: inline-block;
+      vertical-align: baseline;
+    }
+
+    /* Page 2 Running Header */
+    .running-header {
+      border-bottom: 2px solid #000000;
+      padding-bottom: 4px;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 9pt;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    /* Requirement Badges & Boxes */
+    .req-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .req-card {
+      border: 2px solid #000000;
+      border-radius: 4px;
+      padding: 6px 8px;
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .req-tag {
+      font-size: 8pt;
+      font-weight: 900;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .req-desc {
+      font-size: 8.5pt;
+      font-weight: 600;
+      line-height: 1.25;
+      color: #0f172a;
+    }
+
+    .physics-anchor-box {
+      border: 1.5px solid #000000;
+      border-radius: 4px;
+      padding: 5px 8px;
+      background: #ffffff;
+      font-size: 8.5pt;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .anchor-item {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .anchor-item strong {
+      font-size: 8pt;
+      text-transform: uppercase;
+    }
+
+    /* Data Table */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9pt;
+      margin-bottom: 6px;
+    }
+
+    .data-table th, .data-table td {
+      border: 1.5px solid #000000;
+      padding: 4px 6px;
+      text-align: left;
+    }
+
+    .data-table th {
+      background: #f1f5f9;
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 8pt;
+    }
+
+    .data-table td.center {
+      text-align: center;
+    }
+
+    .fill-blank {
+      min-width: 50px;
+      display: inline-block;
+      border-bottom: 1.5px solid #000000;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    /* Dot Grid Blueprint Canvas */
+    .blueprint-wrap {
+      border: 2px solid #000000;
+      border-radius: 4px;
+      padding: 6px 8px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-height: 180px;
+      background: #ffffff;
+    }
+
+    .blueprint-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 8.5pt;
+      font-weight: 800;
+      text-transform: uppercase;
+      border-bottom: 1px dashed #94a3b8;
+      padding-bottom: 3px;
+    }
+
+    .dot-grid {
+      flex: 1;
+      width: 100%;
+      background-image: radial-gradient(#64748b 1px, transparent 1px);
+      background-size: 14px 14px;
+      background-position: 7px 7px;
+      border-radius: 2px;
+      position: relative;
+    }
+
+    /* Page 2 Iteration Containers */
+    .section-title {
+      font-size: 9.5pt;
+      font-weight: 900;
+      text-transform: uppercase;
+      border-bottom: 1.5px solid #000000;
+      padding-bottom: 2px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .iteration-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 6px;
+    }
+
+    .iteration-box {
+      border: 1.5px solid #000000;
+      border-radius: 4px;
+      padding: 5px 8px;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .iter-prompt {
+      font-size: 8.5pt;
+      font-weight: 800;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .iter-lines {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      padding-top: 4px;
+    }
+    .iter-line {
+      border-bottom: 1px solid #94a3b8;
+      height: 12px;
+    }
+
+    /* Verification Run Grid */
+    .verification-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.5pt;
+      margin-bottom: 6px;
+    }
+    .verification-table th, .verification-table td {
+      border: 1.5px solid #000000;
+      padding: 4px 6px;
+      text-align: center;
+    }
+    .verification-table th {
+      background: #f1f5f9;
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 7.8pt;
+    }
+
+    /* Sign-Off & CER Grid */
+    .bottom-split {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 6px;
+      margin-top: auto;
+    }
+
+    .cer-box {
+      border: 2px solid #000000;
+      border-radius: 4px;
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      font-size: 8.5pt;
+    }
+
+    .cer-zone {
+      border-bottom: 1px dashed #cbd5e1;
+      padding-bottom: 3px;
+      margin-bottom: 2px;
+    }
+    .cer-zone:last-child {
+      border-bottom: none;
+    }
+    .cer-zone strong {
+      font-size: 8pt;
+      text-transform: uppercase;
+    }
+
+    .signoff-card {
+      border: 2px solid #000000;
+      border-radius: 4px;
+      padding: 6px 8px;
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 4px;
+    }
+
+    .stamp-box {
+      border: 2px dashed #000000;
+      border-radius: 4px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8.5pt;
+      font-weight: 800;
+      color: #334155;
+      text-transform: uppercase;
+      background: #ffffff;
+    }
+
+    /* Print utility button */
+    .print-bar {
+      background: #0f172a;
+      color: #ffffff;
+      padding: 6px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 9pt;
+      font-weight: 700;
+    }
+    .btn-print {
+      background: #0284c7;
+      color: #ffffff;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    @media print {
+      .print-bar { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Browser Print Helper Bar -->
+  <div class="print-bar">
+    <span>📄 Day 44 Paper Roller Coaster Engineering Challenge • High-Contrast 2-Page Print Layout</span>
+    <button type="button" class="btn-print" onclick="window.print()">🖨️ Print Worksheet (Ctrl+P / ⌘+P)</button>
+  </div>
+
+  <!-- =========================================================================
+       PAGE 1: CHALLENGE REQUIREMENTS, METRIC ELEVATIONS & BLUEPRINT
+       ========================================================================= -->
+  <div class="worksheet-page" id="page1">
+
+    <!-- Header Block -->
+    <div>
+      <div class="sheet-header">
+        <div class="title-group">
+          <h1>🎢 Paper Roller Coaster Engineering Challenge</h1>
+          <div class="sub">Conservation of Energy, Vertical Loops &amp; The Uphill Finish &bull; NGSS HS-PS3-2, HS-ETS1-2</div>
+        </div>
+
+        <div class="student-fields">
+          <span>Student Name: <span class="field-line" style="width: 170px;">&nbsp;</span></span>
+          <span>Period: <span class="field-line" style="width: 45px;">&nbsp;</span></span>
+          <span>Table/Squad: <span class="field-line" style="width: 60px;">&nbsp;</span></span>
+          <span>Date: <span class="field-line" style="width: 90px;">&nbsp;</span></span>
+        </div>
+      </div>
+
+      <!-- The 3 Non-Negotiable Requirements -->
+      <div class="req-grid">
+        <div class="req-card">
+          <div class="req-tag">☐ Constraint 1: The Hill</div>
+          <div class="req-desc">
+            <strong>Drop Height &gt; 20.0 cm</strong><br>
+            Your initial drop or hill descent must exceed 20.0 cm to build sufficient kinetic energy: (h<sub>start</sub> − h<sub>lowest</sub> &gt; 20 cm).
+          </div>
+        </div>
+
+        <div class="req-card">
+          <div class="req-tag">☐ Constraint 2: The Loop</div>
+          <div class="req-desc">
+            <strong>360° Vertical Loop</strong><br>
+            Marble must execute a complete vertical loop without falling off the track. Centripetal normal force must satisfy (v<sub>top</sub> ≥ √(gr)).
+          </div>
+        </div>
+
+        <div class="req-card">
+          <div class="req-tag">☐ Constraint 3: Uphill Finish</div>
+          <div class="req-desc">
+            <strong>Finish ≥ 20.0 cm Above Lowest Point</strong><br>
+            Track must climb back uphill to finish at least 20.0 cm higher than the coaster's lowest point: (h<sub>finish</sub> − h<sub>lowest</sub> ≥ 20 cm).
+          </div>
+        </div>
+      </div>
+
+      <!-- Physics Core Concept Anchor Box -->
+      <div class="physics-anchor-box">
+        <div class="anchor-item">
+          <strong>1. Gravitational Potential Energy</strong>
+          <span>E<sub>p</sub> = m · g · h (g = 10 m/s²)</span>
+        </div>
+        <div class="anchor-item">
+          <strong>2. Kinetic Energy at Speed v</strong>
+          <span>E<sub>k</sub> = ½ · m · v²</span>
+        </div>
+        <div class="anchor-item">
+          <strong>3. Centripetal Loop Condition</strong>
+          <span>v<sub>top</sub> ≥ √(10 · r) to prevent falling</span>
+        </div>
+        <div class="anchor-item">
+          <strong>4. Energy Lost to Friction &amp; Sound</strong>
+          <span>E<sub>initial</sub> = E<sub>finish</sub> + W<sub>friction</sub></span>
+        </div>
+      </div>
+
+      <!-- Table 1: Track Elevation Measurements -->
+      <div style="font-size: 8.5pt; font-weight: 800; text-transform: uppercase; margin-bottom: 2px;">
+        Table 1: Physical Track Elevation &amp; Constraint Verification
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width: 80px;">Track Station</th>
+            <th>Physical Location on Paper Coaster</th>
+            <th style="width: 140px;">Measured Height (cm)</th>
+            <th style="width: 160px;">Constraint Rule Check</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Point A</strong></td>
+            <td>Release Point (Top of Starting Hill)</td>
+            <td class="center">h<sub>start</sub> = <span class="fill-blank" style="width: 60px;"></span> cm</td>
+            <td>Starting Energy Reservoir (mgh<sub>start</sub>)</td>
+          </tr>
+          <tr>
+            <td><strong>Point B</strong></td>
+            <td>Lowest Point on Coaster (Track Base/Valley)</td>
+            <td class="center">h<sub>lowest</sub> = <span class="fill-blank" style="width: 60px;"></span> cm</td>
+            <td>Maximum Speed &amp; Kinetic Energy Point</td>
+          </tr>
+          <tr>
+            <td><strong>Point C</strong></td>
+            <td>Top of Vertical Loop</td>
+            <td class="center">h<sub>loop</sub> = <span class="fill-blank" style="width: 60px;"></span> cm</td>
+            <td>Loop Radius: r = (h<sub>loop</sub> − h<sub>lowest</sub>) ÷ 2</td>
+          </tr>
+          <tr>
+            <td><strong>Point D</strong></td>
+            <td>Secondary Hill Apex (if included)</td>
+            <td class="center">h<sub>hill</sub> = <span class="fill-blank" style="width: 60px;"></span> cm</td>
+            <td>Must satisfy h<sub>hill</sub> &lt; h<sub>start</sub></td>
+          </tr>
+          <tr>
+            <td><strong>Point E</strong></td>
+            <td>Final Finish Cup / Track Termination</td>
+            <td class="center">h<sub>finish</sub> = <span class="fill-blank" style="width: 60px;"></span> cm</td>
+            <td>Energy Remaining After Friction</td>
+          </tr>
+          <tr style="background: #f8fafc; font-weight: 800;">
+            <td colspan="2"><strong>CALCULATED DROP HEIGHT:</strong> (h<sub>start</sub> − h<sub>lowest</sub>)</td>
+            <td class="center">= <span class="fill-blank" style="width: 60px;"></span> cm</td>
+            <td>☐ PASS (&gt; 20.0 cm) &nbsp; ☐ FAIL</td>
+          </tr>
+          <tr style="background: #f8fafc; font-weight: 800;">
+            <td colspan="2"><strong>CALCULATED UPHILL CLIMB:</strong> (h<sub>finish</sub> − h<sub>lowest</sub>)</td>
+            <td class="center">= <span class="fill-blank" style="width: 60px;"></span> cm</td>
+            <td>☐ PASS (≥ 20.0 cm) &nbsp; ☐ FAIL</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Blueprint Canvas / Dot Grid Box -->
+    <div class="blueprint-wrap">
+      <div class="blueprint-header">
+        <span>📐 Coaster Elevation Blueprint: Side Profile &amp; Support Columns</span>
+        <span>Scale: 1 Dot Grid = Approx. 5 cm &bull; Label Points A, B, C, E with Heights</span>
+      </div>
+      <div class="dot-grid"></div>
+    </div>
+
+  </div>
+
+  <!-- =========================================================================
+       PAGE 2: ITERATION LOG, 3 VERIFICATION RUNS, TEACHER STAMP & CER AUDIT
+       ========================================================================= -->
+  <div class="worksheet-page" id="page2">
+
+    <!-- Compact Running Header -->
+    <div class="running-header">
+      <span>Day 44: Paper Roller Coaster Engineering Challenge</span>
+      <span>Student: <span class="field-line" style="width: 140px;">&nbsp;</span></span>
+      <span>Period: <span class="field-line" style="width: 40px;">&nbsp;</span></span>
+      <span>Page 2 of 2</span>
+    </div>
+
+    <!-- Part 2: Engineering Troubleshooting & Iteration Log -->
+    <div class="section-title">
+      <span>Part 2: Engineering Troubleshooting &amp; Iteration Log</span>
+      <span style="font-size: 8pt; font-weight: 700; color: #475569;">Document 3 real design challenges your team solved</span>
+    </div>
+
+    <div class="iteration-grid">
+      <!-- Iteration 1: The Loop -->
+      <div class="iteration-box">
+        <div class="iter-prompt">
+          <span>☐ CHALLENGE 1 — THE VERTICAL LOOP:</span>
+          <span style="font-size: 7.8pt; font-weight: 600; color: #475569;">Did marble stall at apex or fly off track? How did you modify loop shape/banking?</span>
+        </div>
+        <div class="iter-lines">
+          <div class="iter-line"></div>
+          <div class="iter-line"></div>
+        </div>
+      </div>
+
+      <!-- Iteration 2: The Uphill Finish -->
+      <div class="iteration-box">
+        <div class="iter-prompt">
+          <span>☐ CHALLENGE 2 — THE 20 CM UPHILL FINISH:</span>
+          <span style="font-size: 7.8pt; font-weight: 600; color: #475569;">Did the marble run out of speed before climbing 20 cm? How did you reduce friction or increase start height?</span>
+        </div>
+        <div class="iter-lines">
+          <div class="iter-line"></div>
+          <div class="iter-line"></div>
+        </div>
+      </div>
+
+      <!-- Iteration 3: Column Stability -->
+      <div class="iteration-box">
+        <div class="iter-prompt">
+          <span>☐ CHALLENGE 3 — STRUCTURAL STABILITY &amp; TRACK WOBBLE:</span>
+          <span style="font-size: 7.8pt; font-weight: 600; color: #475569;">How did you brace the support columns to prevent energy absorption from track sway?</span>
+        </div>
+        <div class="iter-lines">
+          <div class="iter-line"></div>
+          <div class="iter-line"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Part 3: Official 3-Trial Verification -->
+    <div class="section-title">
+      <span>Part 3: Official Performance Verification (3 Consecutive Runs)</span>
+      <span style="font-size: 8pt; font-weight: 700; color: #475569;">Marble must navigate loop AND climb 20 cm uphill to finish</span>
+    </div>
+
+    <table class="verification-table">
+      <thead>
+        <tr>
+          <th style="width: 60px;">Trial #</th>
+          <th style="width: 140px;">Loop Cleared?</th>
+          <th style="width: 160px;">Uphill Finish Reached?</th>
+          <th style="width: 110px;">Transit Time (s)</th>
+          <th>Engineering Observations &amp; Behavior</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Run 1</strong></td>
+          <td>☐ YES &nbsp; ☐ Derail</td>
+          <td>☐ YES (≥ 20 cm) &nbsp; ☐ Short</td>
+          <td><span class="fill-blank" style="width: 45px;"></span> s</td>
+          <td style="text-align: left; padding-left: 8px;">Smooth entry / slight track vibration</td>
+        </tr>
+        <tr>
+          <td><strong>Run 2</strong></td>
+          <td>☐ YES &nbsp; ☐ Derail</td>
+          <td>☐ YES (≥ 20 cm) &nbsp; ☐ Short</td>
+          <td><span class="fill-blank" style="width: 45px;"></span> s</td>
+          <td style="text-align: left; padding-left: 8px;">&nbsp;</td>
+        </tr>
+        <tr>
+          <td><strong>Run 3</strong></td>
+          <td>☐ YES &nbsp; ☐ Derail</td>
+          <td>☐ YES (≥ 20 cm) &nbsp; ☐ Short</td>
+          <td><span class="fill-blank" style="width: 45px;"></span> s</td>
+          <td style="text-align: left; padding-left: 8px;">&nbsp;</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Bottom Split: CER Physics Energy Audit + Teacher Verification Sign-Off -->
+    <div class="bottom-split">
+
+      <!-- CER Energy Audit -->
+      <div class="cer-box">
+        <div style="font-size: 8.5pt; font-weight: 900; text-transform: uppercase;">
+          Part 4: Energy Accounting CER Argument
+        </div>
+        <div style="font-size: 7.8pt; color: #334155; line-height: 1.2;">
+          Why must starting height h<sub>start</sub> be significantly taller than finish height h<sub>finish</sub>?
+        </div>
+
+        <div class="cer-zone">
+          <strong>☐ Zone A — Claim:</strong>
+          <span style="font-size: 8pt; color: #475569;">State the relationship between initial potential energy and final energy.</span>
+          <div class="iter-line" style="margin-top: 4px;"></div>
+        </div>
+
+        <div class="cer-zone">
+          <strong>☐ Zone B — Evidence:</strong>
+          <span style="font-size: 8pt; color: #475569;">Cite your measured h<sub>start</sub> and h<sub>finish</sub> from Table 1.</span>
+          <div class="iter-line" style="margin-top: 4px;"></div>
+        </div>
+
+        <div class="cer-zone">
+          <strong>☐ Zone C — Reasoning:</strong>
+          <span style="font-size: 8pt; color: #475569;">Explain how the Law of Conservation of Energy and friction work (W = F<sub>f</sub> · d) account for the difference.</span>
+          <div class="iter-line" style="margin-top: 4px;"></div>
+        </div>
+      </div>
+
+      <!-- Teacher Sign-Off Card -->
+      <div class="signoff-card">
+        <div style="font-size: 9pt; font-weight: 900; text-transform: uppercase; text-align: center;">
+          🏆 Teacher Verification Sign-Off
+        </div>
+
+        <div style="font-size: 8pt; font-weight: 700; display: flex; flex-direction: column; gap: 3px;">
+          <div>☐ Constraint 1: Hill Drop &gt; 20.0 cm Verified</div>
+          <div>☐ Constraint 2: Vertical Loop Completed Live</div>
+          <div>☐ Constraint 3: Finish ≥ 20.0 cm Above Lowest Pt</div>
+        </div>
+
+        <div class="stamp-box">
+          Official Inspector Stamp / Initials
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 8.5pt; font-weight: 800; border-top: 1.5px solid #000000; padding-top: 3px;">
+          <span>FINAL SCORE:</span>
+          <span style="font-size: 11pt; font-family: monospace;">10 / 10 pts</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</body>
+</html>
