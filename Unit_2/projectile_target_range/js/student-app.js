@@ -1,5 +1,5 @@
 // Student Workbench Application Logic
-// Projectile Target Range: Empirical Calibration & Student Target Calculation
+// Projectile Target Range: Empirical Graph Reading & Target Interpolation
 // Earth gravity: g = 10 m/s², strictly zero LaTeX
 
 (function () {
@@ -22,16 +22,14 @@
     ],
     targetDistCm: 60.0,
     studentReleaseHeightCm: '',
-    studentVx: '',
-    calculationMethod: 'curve_algebra',
     elevationCm: 0.0,
     isElevated: false,
-    k: null,
-    r2: null
+    k: null
   };
 
   let currentUser = null;
   let fbDb = null;
+  let hoverInspector = null; // { h, dx, hCurve }
 
   // DOM Elements Cache
   const els = {};
@@ -54,14 +52,14 @@
 
     els.tableBody = document.getElementById('calTableBody');
     els.btnAddRow = document.getElementById('btnAddRow');
+    els.graphStatusMsg = document.getElementById('graphStatusMsg');
 
-    els.fitEquation = document.getElementById('fitEquation');
-    els.fitR2 = document.getElementById('fitR2');
+    els.plotCanvas = document.getElementById('plotCanvas');
+    els.readoutValues = document.getElementById('readoutValues');
 
     els.inputTargetDist = document.getElementById('inputTargetDist');
     els.inputReleaseHeight = document.getElementById('inputReleaseHeight');
-    els.selectMethod = document.getElementById('selectMethod');
-    els.inputStudentVx = document.getElementById('inputStudentVx');
+    els.graphFeedbackMsg = document.getElementById('graphFeedbackMsg');
 
     els.chkElevation = document.getElementById('chkElevation');
     els.wrapElevation = document.getElementById('wrapElevation');
@@ -70,7 +68,6 @@
     els.btnSubmitPrediction = document.getElementById('btnSubmitPrediction');
     els.submitStatus = document.getElementById('submitStatus');
 
-    els.plotCanvas = document.getElementById('plotCanvas');
     els.themeToggle = document.getElementById('themeToggle');
     els.userBadge = document.getElementById('userBadge');
     els.btnLogin = document.getElementById('btnLogin');
@@ -124,8 +121,6 @@
     if (els.inputTableHeight) els.inputTableHeight.value = state.tableHeightCm;
     if (els.inputTargetDist) els.inputTargetDist.value = state.targetDistCm;
     if (els.inputReleaseHeight) els.inputReleaseHeight.value = state.studentReleaseHeightCm || '';
-    if (els.selectMethod) els.selectMethod.value = state.calculationMethod || 'curve_algebra';
-    if (els.inputStudentVx) els.inputStudentVx.value = state.studentVx || '';
     if (els.chkElevation) els.chkElevation.checked = state.isElevated;
     if (els.wrapElevation) els.wrapElevation.style.display = state.isElevated ? 'flex' : 'none';
     if (els.inputElevation) els.inputElevation.value = state.elevationCm;
@@ -181,16 +176,6 @@
       renderPlot();
     });
 
-    if (els.selectMethod) els.selectMethod.addEventListener('change', () => {
-      state.calculationMethod = els.selectMethod.value;
-      saveLocalState();
-    });
-
-    if (els.inputStudentVx) els.inputStudentVx.addEventListener('input', () => {
-      state.studentVx = els.inputStudentVx.value;
-      saveLocalState();
-    });
-
     if (els.chkElevation) els.chkElevation.addEventListener('change', () => {
       state.isElevated = els.chkElevation.checked;
       els.wrapElevation.style.display = state.isElevated ? 'flex' : 'none';
@@ -229,6 +214,33 @@
         document.documentElement.classList.toggle('theme-dark');
         renderPlot();
       });
+    }
+
+    // Interactive Graph Inspector (Pointer / Touch)
+    if (els.plotCanvas) {
+      const handlePointer = e => {
+        const rect = els.plotCanvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const x = clientX - rect.left;
+        const y = clientY - rect.top;
+
+        updateInspectorAt(x, y, rect.width, rect.height);
+      };
+
+      els.plotCanvas.addEventListener('mousemove', handlePointer);
+      els.plotCanvas.addEventListener('touchmove', handlePointer, { passive: true });
+
+      const clearInspector = () => {
+        hoverInspector = null;
+        if (els.readoutValues) {
+          els.readoutValues.textContent = 'Hover or tap curve to trace values';
+        }
+        renderPlot();
+      };
+
+      els.plotCanvas.addEventListener('mouseleave', clearInspector);
+      els.plotCanvas.addEventListener('touchend', clearInspector);
     }
 
     window.addEventListener('resize', () => {
@@ -298,45 +310,90 @@
       els.dispAirTime.textContent = `${tAir.toFixed(3)} s`;
     }
 
-    // 2. Empirical Curve Fit: Δx = k * √h
-    // Collect valid pairs (both h > 0 and dx > 0)
+    // 2. Compute smooth empirical curve connecting data points
     const validPairs = state.dataRows.filter(r => typeof r.h === 'number' && typeof r.dx === 'number' && r.h > 0 && r.dx > 0);
 
     if (validPairs.length >= 2) {
       let sumSqrtH_dx = 0;
       let sumH = 0;
-      let sumDx = 0;
 
       validPairs.forEach(p => {
         const sqrtH = Math.sqrt(p.h);
         sumSqrtH_dx += sqrtH * p.dx;
         sumH += p.h; // (sqrt(h))² = h
-        sumDx += p.dx;
       });
 
-      const k = sumH > 0 ? (sumSqrtH_dx / sumH) : 0;
-      state.k = k;
+      state.k = sumH > 0 ? (sumSqrtH_dx / sumH) : 0;
 
-      // Compute R² (coefficient of determination)
-      const meanDx = sumDx / validPairs.length;
-      let ssTot = 0;
-      let ssRes = 0;
-      validPairs.forEach(p => {
-        const pred = k * Math.sqrt(p.h);
-        ssTot += Math.pow(p.dx - meanDx, 2);
-        ssRes += Math.pow(p.dx - pred, 2);
-      });
-
-      const r2 = ssTot > 0 ? Math.max(0, 1 - (ssRes / ssTot)) : 1.0;
-      state.r2 = r2;
-
-      if (els.fitEquation) els.fitEquation.innerHTML = `Δx = <strong>${k.toFixed(2)}</strong> × √h`;
-      if (els.fitR2) els.fitR2.textContent = `R² = ${r2.toFixed(3)}`;
+      if (els.graphStatusMsg) {
+        els.graphStatusMsg.innerHTML = `
+          <span style="color: var(--accent-emerald);">✓ Calibration curve ready</span> (${validPairs.length} trials plotted). Trace from target distance Δx over to your curve to read release height h!
+        `;
+      }
     } else {
       state.k = null;
-      state.r2 = null;
-      if (els.fitEquation) els.fitEquation.textContent = 'Enter at least 2 data points';
-      if (els.fitR2) els.fitR2.textContent = 'R² = --';
+      if (els.graphStatusMsg) {
+        els.graphStatusMsg.textContent = 'Enter at least 2 data points to generate your calibration curve.';
+      }
+    }
+
+    renderPlot();
+  }
+
+  function getPlotBounds(w, h) {
+    const padL = 60;
+    const padB = 45;
+    const padT = 20;
+    const padR = 25;
+    const plotW = w - padL - padR;
+    const plotH = h - padT - padB;
+
+    const validPairs = state.dataRows.filter(r => typeof r.h === 'number' && typeof r.dx === 'number' && r.h > 0 && r.dx > 0);
+    let maxH = 50;
+    let maxDx = 100;
+    validPairs.forEach(p => {
+      if (p.h > maxH) maxH = p.h;
+      if (p.dx > maxDx) maxDx = p.dx;
+    });
+
+    if (typeof state.studentReleaseHeightCm === 'number' && state.studentReleaseHeightCm > maxH) {
+      maxH = state.studentReleaseHeightCm * 1.15;
+    }
+    if (state.targetDistCm > maxDx) maxDx = state.targetDistCm * 1.15;
+    maxH = Math.ceil(maxH / 10) * 10 + 10;
+    maxDx = Math.ceil(maxDx / 20) * 20 + 20;
+
+    return { padL, padB, padT, padR, plotW, plotH, maxH, maxDx };
+  }
+
+  function updateInspectorAt(px, py, w, h) {
+    const b = getPlotBounds(w, h);
+    if (px < b.padL || px > w - b.padR || py < b.padT || py > h - b.padB) {
+      hoverInspector = null;
+      renderPlot();
+      return;
+    }
+
+    const valH = ((px - b.padL) / b.plotW) * b.maxH;
+    const valDx = ((h - b.padB - py) / b.plotH) * b.maxDx;
+
+    let hOnCurve = null;
+    if (state.k && state.k > 0) {
+      hOnCurve = Math.pow(valDx / state.k, 2);
+    }
+
+    hoverInspector = {
+      h: Math.max(0, valH),
+      dx: Math.max(0, valDx),
+      hCurve: hOnCurve
+    };
+
+    if (els.readoutValues) {
+      if (hOnCurve !== null && hOnCurve > 0) {
+        els.readoutValues.innerHTML = `Target Distance: <strong>Δx = ${valDx.toFixed(1)} cm</strong> ➔ Ramp Height: <strong>h ≈ ${hOnCurve.toFixed(1)} cm</strong>`;
+      } else {
+        els.readoutValues.innerHTML = `Cursor: h = ${valH.toFixed(1)} cm, Δx = ${valDx.toFixed(1)} cm`;
+      }
     }
 
     renderPlot();
@@ -364,99 +421,78 @@
     const colorCurve = isDark ? '#38bdf8' : '#0284c7';
     const colorPoint = '#e11d48';
     const colorTarget = isDark ? '#c084fc' : '#7c3aed';
+    const colorInspector = isDark ? '#facc15' : '#d97706';
 
     // Clear background
     ctx.fillStyle = colorBg;
     ctx.fillRect(0, 0, w, h);
 
-    const padL = 60;
-    const padB = 45;
-    const padT = 20;
-    const padR = 25;
-    const plotW = w - padL - padR;
-    const plotH = h - padT - padB;
+    const b = getPlotBounds(w, h);
+    const toX = valH => b.padL + (valH / b.maxH) * b.plotW;
+    const toY = valDx => (h - b.padB) - (valDx / b.maxDx) * b.plotH;
 
-    // Bounds determination
-    const validPairs = state.dataRows.filter(r => typeof r.h === 'number' && typeof r.dx === 'number' && r.h > 0 && r.dx > 0);
-    let maxH = 50;
-    let maxDx = 100;
-    validPairs.forEach(p => {
-      if (p.h > maxH) maxH = p.h;
-      if (p.dx > maxDx) maxDx = p.dx;
-    });
-
-    if (typeof state.studentReleaseHeightCm === 'number' && state.studentReleaseHeightCm > maxH) {
-      maxH = state.studentReleaseHeightCm * 1.15;
-    }
-    if (state.targetDistCm > maxDx) maxDx = state.targetDistCm * 1.15;
-    maxH = Math.ceil(maxH / 10) * 10 + 10;
-    maxDx = Math.ceil(maxDx / 20) * 20 + 20;
-
-    const toX = valH => padL + (valH / maxH) * plotW;
-    const toY = valDx => (h - padB) - (valDx / maxDx) * plotH;
-
-    // Draw Grid Lines
+    // Draw Grid Lines (Crisp Graph Paper Style)
     ctx.strokeStyle = colorGrid;
     ctx.lineWidth = 1;
 
     // Vertical grid
-    const stepH = maxH > 100 ? 20 : 10;
-    for (let gh = 0; gh <= maxH; gh += stepH) {
+    const stepH = b.maxH > 100 ? 20 : 10;
+    for (let gh = 0; gh <= b.maxH; gh += stepH) {
       const gx = toX(gh);
       ctx.beginPath();
-      ctx.moveTo(gx, padT);
-      ctx.lineTo(gx, h - padB);
+      ctx.moveTo(gx, b.padT);
+      ctx.lineTo(gx, h - b.padB);
       ctx.stroke();
 
       ctx.fillStyle = colorAxis;
       ctx.font = '11px SFMono-Regular, Consolas, monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(gh, gx, h - padB + 16);
+      ctx.fillText(gh, gx, h - b.padB + 16);
     }
 
     // Horizontal grid
-    const stepDx = maxDx > 150 ? 50 : 20;
-    for (let gdx = 0; gdx <= maxDx; gdx += stepDx) {
+    const stepDx = b.maxDx > 150 ? 50 : 20;
+    for (let gdx = 0; gdx <= b.maxDx; gdx += stepDx) {
       const gy = toY(gdx);
       ctx.beginPath();
-      ctx.moveTo(padL, gy);
-      ctx.lineTo(w - padR, gy);
+      ctx.moveTo(b.padL, gy);
+      ctx.lineTo(w - b.padR, gy);
       ctx.stroke();
 
       ctx.fillStyle = colorAxis;
       ctx.font = '11px SFMono-Regular, Consolas, monospace';
       ctx.textAlign = 'right';
-      ctx.fillText(gdx, padL - 8, gy + 4);
+      ctx.fillText(gdx, b.padL - 8, gy + 4);
     }
 
     // Axes Lines
     ctx.strokeStyle = colorAxis;
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(padL, padT);
-    ctx.lineTo(padL, h - padB);
-    ctx.lineTo(w - padR, h - padB);
+    ctx.moveTo(b.padL, b.padT);
+    ctx.lineTo(b.padL, h - b.padB);
+    ctx.lineTo(w - b.padR, h - b.padB);
     ctx.stroke();
 
     // Axis Labels
     ctx.fillStyle = colorText;
     ctx.font = 'bold 12px Outfit, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Release Height h on Ramp (cm)', padL + plotW / 2, h - 8);
+    ctx.fillText('Ramp Release Height h (cm)', b.padL + b.plotW / 2, h - 8);
 
     ctx.save();
-    ctx.translate(16, padT + plotH / 2);
+    ctx.translate(16, b.padT + b.plotH / 2);
     ctx.rotate(-Math.PI / 2);
     ctx.textAlign = 'center';
     ctx.fillText('Floor Landing Range Δx (cm)', 0, 0);
     ctx.restore();
 
-    // Draw Smooth Fitted Curve: Δx = k * √h
+    // Draw Smooth Fitted Empirical Curve
     if (state.k && state.k > 0) {
       ctx.strokeStyle = colorCurve;
       ctx.lineWidth = 3;
       ctx.beginPath();
-      for (let ch = 0; ch <= maxH; ch += 0.5) {
+      for (let ch = 0; ch <= b.maxH; ch += 0.5) {
         const cdx = state.k * Math.sqrt(ch);
         const px = toX(ch);
         const py = toY(cdx);
@@ -466,11 +502,81 @@
       ctx.stroke();
     }
 
-    // Student's Calculated Shot Prediction Pin (Visualizes their own calculation)
-    const studentH = state.studentReleaseHeightCm;
+    // Interactive Hover/Touch Inspector Crosshairs
+    if (hoverInspector && hoverInspector.hCurve !== null && hoverInspector.hCurve <= b.maxH) {
+      const cPx = toX(hoverInspector.hCurve);
+      const cPy = toY(hoverInspector.dx);
+
+      ctx.setLineDash([3, 3]);
+      ctx.strokeStyle = colorInspector;
+      ctx.lineWidth = 1.5;
+
+      // Horizontal line from Δx axis to curve
+      ctx.beginPath();
+      ctx.moveTo(b.padL, cPy);
+      ctx.lineTo(cPx, cPy);
+      // Vertical line down to h axis
+      ctx.lineTo(cPx, h - b.padB);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Point on curve
+      ctx.fillStyle = colorInspector;
+      ctx.beginPath();
+      ctx.arc(cPx, cPy, 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Target Distance (Δx) Horizontal Reference Line & Curve Intersection Guide
     const targetX = state.targetDistCm;
+    let expectedH = null;
+    if (state.k && state.k > 0 && targetX > 0) {
+      expectedH = Math.pow(targetX / state.k, 2);
+    }
+
+    if (typeof targetX === 'number' && targetX > 0 && targetX <= b.maxDx) {
+      const targetY = toY(targetX);
+
+      // Horizontal dashed guide from Δx axis across the plot
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = colorTarget;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(b.padL, targetY);
+      ctx.lineTo(w - b.padR, targetY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Label at right edge
+      ctx.fillStyle = colorTarget;
+      ctx.font = 'bold 11px Outfit, sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(`Target Δx = ${targetX.toFixed(1)} cm`, w - b.padR - 4, targetY - 6);
+
+      // If curve intersects within bounds, draw a guide indicator on the curve
+      if (expectedH !== null && expectedH <= b.maxH) {
+        const cPx = toX(expectedH);
+        ctx.fillStyle = colorTarget;
+        ctx.beginPath();
+        ctx.arc(cPx, targetY, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Faint drop line to h axis
+        ctx.setLineDash([2, 4]);
+        ctx.strokeStyle = colorTarget;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(cPx, targetY);
+        ctx.lineTo(cPx, h - b.padB);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+
+    // Student's Entered Release Height Prediction Pin
+    const studentH = state.studentReleaseHeightCm;
     if (typeof studentH === 'number' && studentH > 0 && targetX > 0) {
-      if (studentH <= maxH && targetX <= maxDx) {
+      if (studentH <= b.maxH && targetX <= b.maxDx) {
         const px = toX(studentH);
         const py = toY(targetX);
 
@@ -478,11 +584,10 @@
         ctx.strokeStyle = colorTarget;
         ctx.lineWidth = 2;
 
-        // Vertical drop line to axis
+        // Vertical drop line from pin to axis
         ctx.beginPath();
-        ctx.moveTo(px, h - padB);
+        ctx.moveTo(px, h - b.padB);
         ctx.lineTo(px, py);
-        ctx.lineTo(padL, py);
         ctx.stroke();
         ctx.setLineDash([]);
 
@@ -502,7 +607,41 @@
       }
     }
 
+    // Dynamic Live Feedback: Verifies Student Graph Reading
+    if (els.graphFeedbackMsg) {
+      if (typeof studentH === 'number' && studentH > 0 && targetX > 0) {
+        if (expectedH !== null) {
+          const diff = Math.abs(studentH - expectedH);
+          if (diff <= 1.0) {
+            els.graphFeedbackMsg.innerHTML = `
+              <span style="color: var(--accent-emerald); font-weight: 800;">✓ Excellent graph reading!</span>
+              Your prediction pin at <strong>h = ${studentH.toFixed(1)} cm</strong> lands directly on your calibration curve for <strong>Δx = ${targetX.toFixed(1)} cm</strong>.
+            `;
+          } else if (diff <= 3.0) {
+            els.graphFeedbackMsg.innerHTML = `
+              <span style="color: var(--accent-cyan); font-weight: 800;">≈ Close alignment!</span>
+              Your pin is at <strong>h = ${studentH.toFixed(1)} cm</strong> (the curve crosses Δx = ${targetX.toFixed(1)} cm at <strong>h ≈ ${expectedH.toFixed(1)} cm</strong>). Double check your grid reading before launching.
+            `;
+          } else {
+            els.graphFeedbackMsg.innerHTML = `
+              <span style="color: var(--accent-rose); font-weight: 800;">⚠️ Check your graph reading:</span>
+              Your pin at <strong>h = ${studentH.toFixed(1)} cm</strong> does not sit on the curve. Tracing across from Δx = ${targetX.toFixed(1)} cm gives <strong>h ≈ ${expectedH.toFixed(1)} cm</strong>. Check your horizontal axis scale!
+            `;
+          }
+        } else {
+          els.graphFeedbackMsg.innerHTML = `
+            Target: <strong>Δx = ${targetX.toFixed(1)} cm</strong>, Your Release Height: <strong>h = ${studentH.toFixed(1)} cm</strong>. Plot at least 2 calibration points to display your curve.
+          `;
+        }
+      } else {
+        els.graphFeedbackMsg.innerHTML = `
+          As you type your release height, watch your graph! Your team's prediction pin will appear at <strong>(h, Δx)</strong> with dashed guide lines. If your point sits directly on your curve, your reading is accurate and ready for launch!
+        `;
+      }
+    }
+
     // Plot Measured Data Points
+    const validPairs = state.dataRows.filter(r => typeof r.h === 'number' && typeof r.dx === 'number' && r.h > 0 && r.dx > 0);
     validPairs.forEach((p, idx) => {
       const px = toX(p.h);
       const py = toY(p.dx);
@@ -530,8 +669,9 @@
       return;
     }
 
-    if (!state.k || state.k <= 0) {
-      alert('Please enter at least 2 calibration data points to establish your ramp calibration curve.');
+    const validPairs = state.dataRows.filter(r => typeof r.h === 'number' && typeof r.dx === 'number' && r.h > 0 && r.dx > 0);
+    if (validPairs.length < 2) {
+      alert('Please enter at least 2 calibration data points to plot your ramp curve.');
       return;
     }
 
@@ -543,7 +683,7 @@
     }
 
     if (!state.studentReleaseHeightCm || state.studentReleaseHeightCm <= 0) {
-      alert("Please calculate and enter your team's predicted release height (h) before submitting to the class board.");
+      alert("Please read and enter your team's predicted release height (h) from your graph before submitting to the class board.");
       if (els.inputReleaseHeight) els.inputReleaseHeight.focus();
       return;
     }
@@ -564,12 +704,8 @@
       teamMembers: teamNames,
       tableHeightCm: state.tableHeightCm,
       airTimeSec: tAir,
-      calibrationK: state.k,
-      fitR2: state.r2,
       targetDistCm: state.targetDistCm,
       predictedReleaseHeightCm: state.studentReleaseHeightCm,
-      calculationMethod: state.calculationMethod || 'curve_algebra',
-      studentPredictedVx: state.studentVx ? parseFloat(state.studentVx) : null,
       isElevated: state.isElevated,
       elevationCm: state.elevationCm,
       status: 'ready_to_launch',

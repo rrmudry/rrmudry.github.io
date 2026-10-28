@@ -186,20 +186,17 @@
           </table>
         </div>
 
-        <!-- Real-time Curve Fit Metrics -->
-        <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-card-sub); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem 1rem; flex-wrap: wrap; gap: 0.5rem;">
-          <div>
-            <span style="font-size: 0.75rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Calibration Model</span>
-            <div id="fitEquation" style="font-family: var(--font-mono); font-size: 1.15rem; font-weight: 800; color: var(--accent-cyan);">
-              Δx = -- × √h
-            </div>
+        <!-- Graph Reading & Interpolation Guide -->
+        <div style="background: var(--bg-card-sub); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.25rem;">
+          <span style="font-size: 0.78rem; font-weight: 800; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 0.04em;">
+            📈 Graph Calibration Status
+          </span>
+          <div id="graphStatusMsg" style="font-size: 0.88rem; font-weight: 700; color: var(--text-main);">
+            Enter at least 2 data points to generate your calibration curve.
           </div>
-          <div style="text-align: right;">
-            <span style="font-size: 0.75rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Fit Quality</span>
-            <div id="fitR2" style="font-family: var(--font-mono); font-size: 1.15rem; font-weight: 800; color: var(--accent-emerald);">
-              R² = --
-            </div>
-          </div>
+          <span style="font-size: 0.75rem; color: var(--text-dim);">
+            Move your cursor or finger over the graph on the right to trace and read values directly off your curve.
+          </span>
         </div>
       </section>
 
@@ -208,27 +205,33 @@
     <!-- Right Column: Live Plot & Target Solver -->
     <div style="display: flex; flex-direction: column; gap: 1.25rem;">
 
-      <!-- Step 3: Interactive Scatter Plot -->
+      <!-- Step 3: Interactive Scatter Plot & Calibration Graph -->
       <section class="card">
         <div class="card-header">
           <div class="card-title">
             <span class="step-num">3</span>
-            <span>Empirical Curve (Δx vs h)</span>
+            <span>Empirical Calibration Graph</span>
           </div>
-          <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent-cyan);">Square-Root Power Law</span>
+          <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent-cyan);">Floor Distance vs Ramp Height</span>
         </div>
 
         <div class="canvas-wrap">
           <canvas id="plotCanvas"></canvas>
         </div>
+
+        <!-- Interactive Coordinate Readout Banner under Canvas -->
+        <div id="plotReadout" style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-card-sub); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.5rem 0.8rem; font-family: var(--font-mono); font-size: 0.85rem; flex-wrap: wrap; gap: 0.4rem;">
+          <span style="color: var(--text-dim); font-weight: 700;">Graph Inspector:</span>
+          <span id="readoutValues" style="font-weight: 800; color: var(--accent-cyan);">Hover or tap curve to trace values</span>
+        </div>
       </section>
 
-      <!-- Step 4: The Blind Target Challenge (Student Calculation & Prediction) -->
+      <!-- Step 4: The Blind Target Challenge (Read Your Graph) -->
       <section class="card" style="border-color: var(--accent-purple);">
         <div class="card-header">
           <div class="card-title" style="color: var(--accent-purple);">
             <span class="step-num" style="background: var(--accent-purple);">4</span>
-            <span>Blind Target Challenge: Your Calculation</span>
+            <span>Blind Target Challenge: Read Your Graph</span>
           </div>
           <span class="app-badge" style="background: var(--accent-purple-bg); color: var(--accent-purple);">Official Shot</span>
         </div>
@@ -236,7 +239,7 @@
         <div class="callout-banner">
           <span class="callout-icon">🎯</span>
           <span>
-            When your teacher announces the mystery target distance, enter it below. Then use your empirical curve, graph, or kinematics math to <strong>calculate your team's required release height</strong>!
+            When your teacher announces the mystery target distance, find that distance on the <strong>vertical axis (Δx)</strong> of your graph, trace across horizontally to your curve, and look straight down to the <strong>horizontal axis (h)</strong> to read your required release height!
           </span>
         </div>
 
@@ -253,47 +256,28 @@
             </div>
           </div>
 
-          <!-- Student's Calculated Release Height Input -->
+          <!-- Student's Release Height Read From Graph -->
           <div class="form-group">
             <label class="form-label" for="inputReleaseHeight">
-              <span>Your Calculated Release Height (h)</span>
+              <span>Release Height (h) Read From Graph</span>
               <span style="font-size: 0.75rem; color: var(--accent-purple); font-weight: 800;">Vertical on ramp</span>
             </label>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <input type="number" step="0.1" min="1" max="250" class="form-input" id="inputReleaseHeight" placeholder="Calculate h..." style="font-size: 1.15rem; border-color: var(--accent-purple); font-weight: 800;">
+              <input type="number" step="0.5" min="1" max="250" class="form-input" id="inputReleaseHeight" placeholder="Read h from curve..." style="font-size: 1.15rem; border-color: var(--accent-purple); font-weight: 800;">
               <span style="font-weight: 800; font-family: var(--font-mono);">cm</span>
             </div>
           </div>
         </div>
 
-        <!-- Mathematical Model & Work -->
-        <div style="background: var(--bg-card-sub); padding: 0.85rem 1rem; border-radius: var(--radius-md); border: 1.5px solid var(--border-color); display: flex; flex-direction: column; gap: 0.75rem;">
+        <!-- Graph Verification Notice -->
+        <div style="background: var(--bg-card-sub); padding: 0.85rem 1rem; border-radius: var(--radius-md); border: 1.5px solid var(--border-color); display: flex; flex-direction: column; gap: 0.6rem;">
           <div style="font-size: 0.82rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">
-            Show Work: Mathematical Model &amp; Reasoning
+            Visual Graph Verification
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-            <div class="form-group">
-              <label class="form-label" for="selectMethod" style="font-size: 0.82rem;">Calculation Method Used</label>
-              <select class="form-input" id="selectMethod" style="font-size: 0.88rem; padding: 0.4rem 0.6rem;">
-                <option value="curve_algebra">Inverse Empirical Curve: h = (Δx ÷ k)²</option>
-                <option value="graph_read">Graph Interpolation: Read h off the curve</option>
-                <option value="kinematics">Kinematics: v_x = Δx/t, then h = v_x²/(2g)</option>
-                <option value="proportions">Proportions &amp; Ratios</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="inputStudentVx" style="font-size: 0.82rem;">
-                <span>Your Predicted Speed (v<sub>x</sub>)</span>
-                <span style="font-size: 0.72rem; color: var(--text-dim);">Optional check: Δx ÷ t<sub>air</sub></span>
-              </label>
-              <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <input type="number" step="0.01" min="0.1" max="15" class="table-input" id="inputStudentVx" placeholder="m/s" style="flex: 1; text-align: left;">
-                <span style="font-size: 0.85rem; font-weight: 700; font-family: var(--font-mono);">m/s</span>
-              </div>
-            </div>
-          </div>
+          <p id="graphFeedbackMsg" style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
+            As you type your release height, watch your graph! Your team's prediction pin will appear at <strong>(h, Δx)</strong> with dashed guide lines. If your point sits directly on your curve, your reading is accurate and ready for launch!
+          </p>
 
           <!-- Tier 2 Elevated Target Toggle -->
           <div style="margin-top: 0.25rem;">
