@@ -1,5 +1,5 @@
 // Student Workbench Application Logic
-// Projectile Target Range: Empirical Calibration & Target Solver
+// Projectile Target Range: Empirical Calibration & Student Target Calculation
 // Earth gravity: g = 10 m/s², strictly zero LaTeX
 
 (function () {
@@ -21,6 +21,9 @@
       { h: 40, dx: 76 }
     ],
     targetDistCm: 60.0,
+    studentReleaseHeightCm: '',
+    studentVx: '',
+    calculationMethod: 'curve_algebra',
     elevationCm: 0.0,
     isElevated: false,
     k: null,
@@ -56,13 +59,13 @@
     els.fitR2 = document.getElementById('fitR2');
 
     els.inputTargetDist = document.getElementById('inputTargetDist');
+    els.inputReleaseHeight = document.getElementById('inputReleaseHeight');
+    els.selectMethod = document.getElementById('selectMethod');
+    els.inputStudentVx = document.getElementById('inputStudentVx');
+
     els.chkElevation = document.getElementById('chkElevation');
     els.wrapElevation = document.getElementById('wrapElevation');
     els.inputElevation = document.getElementById('inputElevation');
-
-    els.predReleaseHeight = document.getElementById('predReleaseHeight');
-    els.predSpeed = document.getElementById('predSpeed');
-    els.predAirTime = document.getElementById('predAirTime');
 
     els.btnSubmitPrediction = document.getElementById('btnSubmitPrediction');
     els.submitStatus = document.getElementById('submitStatus');
@@ -120,6 +123,9 @@
     if (els.teamInput) els.teamInput.value = state.teamMembers || '';
     if (els.inputTableHeight) els.inputTableHeight.value = state.tableHeightCm;
     if (els.inputTargetDist) els.inputTargetDist.value = state.targetDistCm;
+    if (els.inputReleaseHeight) els.inputReleaseHeight.value = state.studentReleaseHeightCm || '';
+    if (els.selectMethod) els.selectMethod.value = state.calculationMethod || 'curve_algebra';
+    if (els.inputStudentVx) els.inputStudentVx.value = state.studentVx || '';
     if (els.chkElevation) els.chkElevation.checked = state.isElevated;
     if (els.wrapElevation) els.wrapElevation.style.display = state.isElevated ? 'flex' : 'none';
     if (els.inputElevation) els.inputElevation.value = state.elevationCm;
@@ -166,7 +172,23 @@
     if (els.inputTargetDist) els.inputTargetDist.addEventListener('input', () => {
       state.targetDistCm = parseFloat(els.inputTargetDist.value) || 0;
       saveLocalState();
-      recalculate();
+      renderPlot();
+    });
+
+    if (els.inputReleaseHeight) els.inputReleaseHeight.addEventListener('input', () => {
+      state.studentReleaseHeightCm = els.inputReleaseHeight.value === '' ? '' : parseFloat(els.inputReleaseHeight.value);
+      saveLocalState();
+      renderPlot();
+    });
+
+    if (els.selectMethod) els.selectMethod.addEventListener('change', () => {
+      state.calculationMethod = els.selectMethod.value;
+      saveLocalState();
+    });
+
+    if (els.inputStudentVx) els.inputStudentVx.addEventListener('input', () => {
+      state.studentVx = els.inputStudentVx.value;
+      saveLocalState();
     });
 
     if (els.chkElevation) els.chkElevation.addEventListener('change', () => {
@@ -317,30 +339,6 @@
       if (els.fitR2) els.fitR2.textContent = 'R² = --';
     }
 
-    // 3. Target Solver
-    const targetX = state.targetDistCm;
-    if (state.k && state.k > 0 && targetX > 0) {
-      // Effective height drop if target elevated
-      const effDyM = state.isElevated ? Math.max(0.05, (state.tableHeightCm - state.elevationCm) / 100.0) : dyMeters;
-      const effAirTime = Math.sqrt((2.0 * effDyM) / G);
-
-      // If elevated, the floor distance for that speed scales by time ratio:
-      // dx_floor = v_x * t_floor; dx_elev = v_x * t_elev => dx_floor_equiv = dx_elev * (t_floor / t_elev)
-      const equivFloorDx = targetX * (tAir / effAirTime);
-
-      // Required ramp height: h = (equivFloorDx / k)²
-      const predH = Math.pow(equivFloorDx / state.k, 2);
-      const reqSpeed = (targetX / 100.0) / effAirTime;
-
-      if (els.predReleaseHeight) els.predReleaseHeight.textContent = `${predH.toFixed(1)} cm`;
-      if (els.predSpeed) els.predSpeed.textContent = `${reqSpeed.toFixed(2)} m/s`;
-      if (els.predAirTime) els.predAirTime.textContent = `${effAirTime.toFixed(3)} s`;
-    } else {
-      if (els.predReleaseHeight) els.predReleaseHeight.textContent = '--';
-      if (els.predSpeed) els.predSpeed.textContent = '--';
-      if (els.predAirTime) els.predAirTime.textContent = '--';
-    }
-
     renderPlot();
   }
 
@@ -386,6 +384,10 @@
       if (p.h > maxH) maxH = p.h;
       if (p.dx > maxDx) maxDx = p.dx;
     });
+
+    if (typeof state.studentReleaseHeightCm === 'number' && state.studentReleaseHeightCm > maxH) {
+      maxH = state.studentReleaseHeightCm * 1.15;
+    }
     if (state.targetDistCm > maxDx) maxDx = state.targetDistCm * 1.15;
     maxH = Math.ceil(maxH / 10) * 10 + 10;
     maxDx = Math.ceil(maxDx / 20) * 20 + 20;
@@ -464,18 +466,12 @@
       ctx.stroke();
     }
 
-    // Target Prediction Crosshairs
+    // Student's Calculated Shot Prediction Pin (Visualizes their own calculation)
+    const studentH = state.studentReleaseHeightCm;
     const targetX = state.targetDistCm;
-    if (state.k && targetX > 0) {
-      const dyMeters = state.tableHeightCm / 100.0;
-      const tAir = Math.sqrt((2.0 * dyMeters) / G);
-      const effDyM = state.isElevated ? Math.max(0.05, (state.tableHeightCm - state.elevationCm) / 100.0) : dyMeters;
-      const effAirTime = Math.sqrt((2.0 * effDyM) / G);
-      const equivFloorDx = targetX * (tAir / effAirTime);
-      const predH = Math.pow(equivFloorDx / state.k, 2);
-
-      if (predH <= maxH && targetX <= maxDx) {
-        const px = toX(predH);
+    if (typeof studentH === 'number' && studentH > 0 && targetX > 0) {
+      if (studentH <= maxH && targetX <= maxDx) {
+        const px = toX(studentH);
         const py = toY(targetX);
 
         ctx.setLineDash([5, 4]);
@@ -502,7 +498,7 @@
         ctx.fillStyle = colorTarget;
         ctx.font = 'bold 11px Outfit, sans-serif';
         ctx.textAlign = 'left';
-        ctx.fillText(`TARGET: h = ${predH.toFixed(1)} cm`, px + 10, py - 6);
+        ctx.fillText(`YOUR SHOT: h = ${studentH.toFixed(1)} cm`, px + 10, py - 6);
       }
     }
 
@@ -546,14 +542,14 @@
       return;
     }
 
+    if (!state.studentReleaseHeightCm || state.studentReleaseHeightCm <= 0) {
+      alert("Please calculate and enter your team's predicted release height (h) before submitting to the class board.");
+      if (els.inputReleaseHeight) els.inputReleaseHeight.focus();
+      return;
+    }
+
     const dyMeters = state.tableHeightCm / 100.0;
     const tAir = Math.sqrt((2.0 * dyMeters) / G);
-    const effDyM = state.isElevated ? Math.max(0.05, (state.tableHeightCm - state.elevationCm) / 100.0) : dyMeters;
-    const effAirTime = Math.sqrt((2.0 * effDyM) / G);
-    const equivFloorDx = state.targetDistCm * (tAir / effAirTime);
-    const predH = Math.pow(equivFloorDx / state.k, 2);
-    const reqSpeed = (state.targetDistCm / 100.0) / effAirTime;
-
     const email = currentUser.email || '';
     const studentId = email.split('@')[0];
     const period = parseInt(els.periodSelect.value) || 0;
@@ -571,10 +567,11 @@
       calibrationK: state.k,
       fitR2: state.r2,
       targetDistCm: state.targetDistCm,
+      predictedReleaseHeightCm: state.studentReleaseHeightCm,
+      calculationMethod: state.calculationMethod || 'curve_algebra',
+      studentPredictedVx: state.studentVx ? parseFloat(state.studentVx) : null,
       isElevated: state.isElevated,
       elevationCm: state.elevationCm,
-      predictedReleaseHeightCm: Math.round(predH * 10) / 10,
-      expectedVelocityMps: Math.round(reqSpeed * 100) / 100,
       status: 'ready_to_launch',
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
@@ -592,7 +589,7 @@
         els.btnSubmitPrediction.disabled = false;
         els.submitStatus.innerHTML = `
           <span style="color: var(--accent-emerald); font-weight: 800;">
-            ✓ Prediction locked in! Call the teacher to your table for your official live shot.
+            ✓ Prediction of h = ${state.studentReleaseHeightCm} cm locked in! Call the teacher to your table for your official live drop.
           </span>
         `;
       })
@@ -618,6 +615,10 @@
           if (data.teamMembers && els.teamInput) els.teamInput.value = data.teamMembers;
           if (data.tableNumber && els.tableSelect) els.tableSelect.value = data.tableNumber;
           if (data.period !== undefined && els.periodSelect) els.periodSelect.value = data.period;
+          if (data.predictedReleaseHeightCm && els.inputReleaseHeight) {
+            els.inputReleaseHeight.value = data.predictedReleaseHeightCm;
+            state.studentReleaseHeightCm = data.predictedReleaseHeightCm;
+          }
           if (data.status === 'scored') {
             els.submitStatus.innerHTML = `
               <span style="color: var(--accent-purple); font-weight: 800;">

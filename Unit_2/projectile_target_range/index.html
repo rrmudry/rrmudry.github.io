@@ -223,74 +223,96 @@
         </div>
       </section>
 
-      <!-- Step 4: The Blind Target Solver (Hero Card) -->
+      <!-- Step 4: The Blind Target Challenge (Student Calculation & Prediction) -->
       <section class="card" style="border-color: var(--accent-purple);">
         <div class="card-header">
           <div class="card-title" style="color: var(--accent-purple);">
             <span class="step-num" style="background: var(--accent-purple);">4</span>
-            <span>The Blind Target Solver</span>
+            <span>Blind Target Challenge: Your Calculation</span>
           </div>
-          <span class="app-badge" style="background: var(--accent-purple-bg); color: var(--accent-purple);">Official Challenge</span>
+          <span class="app-badge" style="background: var(--accent-purple-bg); color: var(--accent-purple);">Official Shot</span>
         </div>
 
         <div class="callout-banner">
           <span class="callout-icon">🎯</span>
           <span>
-            When the teacher announces your mystery target distance (or assigns your table a custom distance), type it below. Your ramp curve will compute the <strong>exact release height</strong> to drop the marble from!
+            When your teacher announces the mystery target distance, enter it below. Then use your empirical curve, graph, or kinematics math to <strong>calculate your team's required release height</strong>!
           </span>
         </div>
 
-        <!-- Target Distance Input -->
-        <div class="form-group">
-          <label class="form-label" for="inputTargetDist">
-            <span>Target Distance (Δx)</span>
-            <span style="font-size: 0.75rem; color: var(--accent-purple); font-weight: 800;">Table edge to target cup</span>
-          </label>
-          <div style="display: flex; align-items: center; gap: 0.6rem;">
-            <input type="number" step="0.5" min="10" max="400" class="form-input" id="inputTargetDist" value="60.0" style="font-size: 1.25rem;">
-            <span style="font-weight: 800; font-family: var(--font-mono); font-size: 1.1rem;">cm</span>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <!-- Target Distance Input -->
+          <div class="form-group">
+            <label class="form-label" for="inputTargetDist">
+              <span>Target Distance (Δx)</span>
+              <span style="font-size: 0.75rem; color: var(--accent-purple); font-weight: 800;">Table edge to cup</span>
+            </label>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <input type="number" step="0.5" min="10" max="400" class="form-input" id="inputTargetDist" value="60.0" style="font-size: 1.15rem;">
+              <span style="font-weight: 800; font-family: var(--font-mono);">cm</span>
+            </div>
+          </div>
+
+          <!-- Student's Calculated Release Height Input -->
+          <div class="form-group">
+            <label class="form-label" for="inputReleaseHeight">
+              <span>Your Calculated Release Height (h)</span>
+              <span style="font-size: 0.75rem; color: var(--accent-purple); font-weight: 800;">Vertical on ramp</span>
+            </label>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <input type="number" step="0.1" min="1" max="250" class="form-input" id="inputReleaseHeight" placeholder="Calculate h..." style="font-size: 1.15rem; border-color: var(--accent-purple); font-weight: 800;">
+              <span style="font-weight: 800; font-family: var(--font-mono);">cm</span>
+            </div>
           </div>
         </div>
 
-        <!-- Tier 2 Elevated Target Toggle -->
-        <div style="background: var(--bg-card-sub); padding: 0.75rem 1rem; border-radius: var(--radius-md); border: 1px dashed var(--border-color); display: flex; flex-direction: column; gap: 0.6rem;">
-          <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; font-size: 0.88rem; font-weight: 700;">
-            <input type="checkbox" id="chkElevation">
-            <span>Tier 2 Challenge: Elevated Target Cup (Stool / Book Stack)</span>
-          </label>
-
-          <div id="wrapElevation" style="display: none; align-items: center; gap: 0.75rem; margin-top: 0.25rem;">
-            <span style="font-size: 0.82rem; font-weight: 700; color: var(--text-dim);">Stool / Elevation Height:</span>
-            <input type="number" step="0.5" min="1" max="150" class="table-input" id="inputElevation" value="0.0">
-            <span style="font-family: var(--font-mono); font-weight: 700;">cm above floor</span>
-          </div>
-        </div>
-
-        <!-- Result Cards -->
-        <div class="solver-result-grid">
-          <div class="result-card highlight">
-            <span class="result-label">Required Ramp Release Height</span>
-            <span class="result-value" id="predReleaseHeight">--</span>
-            <span style="font-size: 0.72rem; color: var(--text-dim);">Measure vertically from table</span>
+        <!-- Mathematical Model & Work -->
+        <div style="background: var(--bg-card-sub); padding: 0.85rem 1rem; border-radius: var(--radius-md); border: 1.5px solid var(--border-color); display: flex; flex-direction: column; gap: 0.75rem;">
+          <div style="font-size: 0.82rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">
+            Show Work: Mathematical Model &amp; Reasoning
           </div>
 
-          <div class="result-card">
-            <span class="result-label">Expected Launch Speed (v<sub>x</sub>)</span>
-            <span class="result-value" id="predSpeed">--</span>
-            <span style="font-size: 0.72rem; color: var(--text-dim);">Horizontal off table</span>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label" for="selectMethod" style="font-size: 0.82rem;">Calculation Method Used</label>
+              <select class="form-input" id="selectMethod" style="font-size: 0.88rem; padding: 0.4rem 0.6rem;">
+                <option value="curve_algebra">Inverse Empirical Curve: h = (Δx ÷ k)²</option>
+                <option value="graph_read">Graph Interpolation: Read h off the curve</option>
+                <option value="kinematics">Kinematics: v_x = Δx/t, then h = v_x²/(2g)</option>
+                <option value="proportions">Proportions &amp; Ratios</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="inputStudentVx" style="font-size: 0.82rem;">
+                <span>Your Predicted Speed (v<sub>x</sub>)</span>
+                <span style="font-size: 0.72rem; color: var(--text-dim);">Optional check: Δx ÷ t<sub>air</sub></span>
+              </label>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <input type="number" step="0.01" min="0.1" max="15" class="table-input" id="inputStudentVx" placeholder="m/s" style="flex: 1; text-align: left;">
+                <span style="font-size: 0.85rem; font-weight: 700; font-family: var(--font-mono);">m/s</span>
+              </div>
+            </div>
           </div>
 
-          <div class="result-card">
-            <span class="result-label">Predicted Flight Time (t)</span>
-            <span class="result-value" id="predAirTime">--</span>
-            <span style="font-size: 0.72rem; color: var(--text-dim);">Time in the air</span>
+          <!-- Tier 2 Elevated Target Toggle -->
+          <div style="margin-top: 0.25rem;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem; font-weight: 700;">
+              <input type="checkbox" id="chkElevation">
+              <span>Tier 2 Add-On: Elevated Target Cup (Stool / Book Stack)</span>
+            </label>
+            <div id="wrapElevation" style="display: none; align-items: center; gap: 0.6rem; margin-top: 0.4rem;">
+              <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-dim);">Cup Elevation Height:</span>
+              <input type="number" step="0.5" min="1" max="150" class="table-input" id="inputElevation" value="0.0">
+              <span style="font-family: var(--font-mono); font-weight: 700; font-size: 0.85rem;">cm above floor</span>
+            </div>
           </div>
         </div>
 
         <!-- Lock in & Submit Button -->
         <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
           <button type="button" class="btn-success" id="btnSubmitPrediction">
-            🚀 Lock In &amp; Submit Prediction to Class Board
+            🚀 Lock In &amp; Submit Team Prediction to Class Board
           </button>
           <div id="submitStatus" style="font-size: 0.85rem; text-align: center; min-height: 1.4rem;"></div>
         </div>
