@@ -81,6 +81,14 @@
     els.teammateLookupStatus = document.getElementById('teammateLookupStatus');
     els.btnStartStep1 = document.getElementById('btnStartStep1');
 
+    // Already Claimed Banner
+    els.alreadyClaimedBanner = document.getElementById('alreadyClaimedBanner');
+    els.claimedGroupHeading = document.getElementById('claimedGroupHeading');
+    els.claimedGroupDesc = document.getElementById('claimedGroupDesc');
+    els.claimedGroupDetails = document.getElementById('claimedGroupDetails');
+    els.btnClaimedViewTeam = document.getElementById('btnClaimedViewTeam');
+    els.btnClaimedLeaveTeam = document.getElementById('btnClaimedLeaveTeam');
+
     // Step 1
     els.step1Checkboxes = document.querySelectorAll('.chk-step1');
     els.btnNextFrom1 = document.getElementById('btnNextFrom1');
@@ -252,6 +260,7 @@
 
     // Attach real-time listener to own student_results document
     attachStudentDocListener(studentId);
+    checkStudentClaimStatus();
     saveLocalState();
     renderAll();
   }
@@ -429,6 +438,38 @@
           docEl.classList.add('font-projector');
         }
         renderPlot();
+      });
+    }
+
+    // Already Claimed Banner Actions
+    if (els.btnClaimedViewTeam) {
+      els.btnClaimedViewTeam.addEventListener('click', () => {
+        const email = (currentUser && currentUser.email ? currentUser.email : '').toLowerCase();
+        const studentId = email.split('@')[0];
+        const claimedMap = (assignmentConfigData && assignmentConfigData['claimedStudents_p' + state.period]) || {};
+        const claim = claimedMap[studentId];
+        if (claim && claim.currentStep) {
+          unlockAndGoToStep(claim.currentStep);
+        } else {
+          unlockAndGoToStep(1);
+        }
+      });
+    }
+
+    if (els.btnClaimedLeaveTeam) {
+      els.btnClaimedLeaveTeam.addEventListener('click', () => {
+        if (!confirm('Leave this team and start your own group?')) return;
+        if (els.alreadyClaimedBanner) els.alreadyClaimedBanner.style.display = 'none';
+        const email = (currentUser && currentUser.email ? currentUser.email : '').toLowerCase();
+        const studentId = email.split('@')[0];
+        state.groupMembers = [{
+          studentId: studentId,
+          name: currentUser.displayName || studentId,
+          isPrimary: true
+        }];
+        saveLocalState();
+        renderGroupMembers();
+        syncProgressToFirestore();
       });
     }
 
@@ -655,6 +696,37 @@
     });
   }
 
+
+  function checkStudentClaimStatus() {
+    if (!currentUser || !assignmentConfigData) return;
+    const email = (currentUser.email || '').toLowerCase();
+    const studentId = email.split('@')[0];
+    const isTeacherUser = email === 'rmudry@orangeusd.org' || email === 'ryan.mudry@gmail.com' || email === 'ryanmudry@gmail.com';
+    if (isTeacherUser) return;
+
+    const claimedMap = assignmentConfigData['claimedStudents_p' + state.period] || {};
+    const claim = claimedMap[studentId];
+
+    if (claim && claim.primaryStudentId && String(claim.primaryStudentId).toLowerCase() !== studentId.toLowerCase()) {
+      if (els.alreadyClaimedBanner) {
+        els.alreadyClaimedBanner.style.display = 'flex';
+        if (els.claimedGroupHeading) {
+          els.claimedGroupHeading.textContent = '👥 You are registered in ' + claim.leadName + '\'s Group!';
+        }
+        if (els.claimedGroupDesc) {
+          els.claimedGroupDesc.innerHTML = 'Your team: <strong>' + escapeHtml(claim.groupNames) + '</strong> (Currently at <strong>Step ' + claim.currentStep + ' of 9</strong>).';
+        }
+        if (els.claimedGroupDetails) {
+          els.claimedGroupDetails.textContent = 'Since only 1 computer per team enters data, please work together on ' + claim.leadName + '\'s Chromebook.';
+        }
+      }
+    } else {
+      if (els.alreadyClaimedBanner) {
+        els.alreadyClaimedBanner.style.display = 'none';
+      }
+    }
+  }
+
   function getRosterCandidates() {
     if (!assignmentConfigData || !assignmentConfigData.rosterDirectory) return [];
     const dir = assignmentConfigData.rosterDirectory;
@@ -681,6 +753,7 @@
     const candidates = getRosterCandidates();
     const myEmail = (currentUser && currentUser.email ? currentUser.email : '').toLowerCase();
     const myId = myEmail ? myEmail.split('@')[0] : '';
+    const claimedMap = (assignmentConfigData && assignmentConfigData['claimedStudents_p' + state.period]) || {};
 
     dl.innerHTML = '';
     candidates.forEach(st => {
@@ -689,7 +762,12 @@
         return;
       }
       const opt = document.createElement('option');
-      opt.value = st.name;
+      const claim = claimedMap[st.id];
+      if (claim && claim.primaryStudentId && claim.primaryStudentId !== myId) {
+        opt.value = st.name + ' (Already in ' + claim.leadName + '\'s group)';
+      } else {
+        opt.value = st.name;
+      }
       dl.appendChild(opt);
     });
   }
@@ -711,7 +789,8 @@
       return;
     }
 
-    const norm = rawName.toLowerCase();
+    const cleanRaw = rawName.replace(/\s*\(Already in .*?\)\s*$/, '').trim();
+    const norm = cleanRaw.toLowerCase();
     // 1. Check exact full_name match (case-insensitive)
     let matches = candidates.filter(st => String(st.name || '').trim().toLowerCase() === norm);
     // 2. If no exact match, check partial match ONLY if it contains both first & last name or uniquely identifies 1 student
@@ -737,6 +816,19 @@
     }
 
     const matched = matches[0];
+    const claimedMap = (assignmentConfigData && assignmentConfigData['claimedStudents_p' + state.period]) || {};
+    const claim = claimedMap[matched.id];
+    const myEmail = (currentUser && currentUser.email ? currentUser.email : '').toLowerCase();
+    const myId = myEmail ? myEmail.split('@')[0] : '';
+
+    if (claim && claim.primaryStudentId && claim.primaryStudentId !== myId) {
+      if (els.teammateLookupStatus) {
+        els.teammateLookupStatus.innerHTML = `<span style="color: var(--accent-rose); font-weight: 800;">⚠️ ${escapeHtml(matched.name)} is already in ${escapeHtml(claim.leadName)}'s group! Students cannot be in multiple groups.</span>`;
+      }
+      els.inputTeammateName.focus();
+      return;
+    }
+
     const exists = state.groupMembers.some(
       m => String(m.studentId) === String(matched.id) || String(m.name || '').trim().toLowerCase() === matched.name.toLowerCase()
     );

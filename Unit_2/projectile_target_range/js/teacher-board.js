@@ -33,6 +33,8 @@
   let activeScoringTable = null;
   let activeScoringRound = 1;
   let activeGroupModalTable = null;
+  let activeConflicts = {}; // studentId -> [list of group objects]
+  let orphanSubsetGroups = []; // list of groups that are strict subsets of other active groups
 
   const els = {};
 
@@ -108,6 +110,18 @@
     els.btnAddRosterStudent = document.getElementById('btnAddRosterStudent');
     els.groupModalCalData = document.getElementById('groupModalCalData');
     els.btnCloseGroupModal = document.getElementById('btnCloseGroupModal');
+    els.btnDisbandModalGroup = document.getElementById('btnDisbandModalGroup');
+
+    // Conflict Banner & Modal
+    els.conflictAlertBanner = document.getElementById('conflictAlertBanner');
+    els.conflictAlertTitle = document.getElementById('conflictAlertTitle');
+    els.conflictAlertDesc = document.getElementById('conflictAlertDesc');
+    els.btnAutoResolveOrphans = document.getElementById('btnAutoResolveOrphans');
+    els.btnOpenConflictModal = document.getElementById('btnOpenConflictModal');
+    els.conflictModal = document.getElementById('conflictModal');
+    els.conflictModalPeriod = document.getElementById('conflictModalPeriod');
+    els.conflictModalContent = document.getElementById('conflictModalContent');
+    els.btnCloseConflictModal = document.getElementById('btnCloseConflictModal');
   }
 
   function initFirebase() {
@@ -385,6 +399,26 @@
         Object.keys(tableSubmissions).forEach(t => {
           approveTableCheckpoint(parseInt(t, 10), 6, true);
         });
+      });
+    }
+
+    // Conflict Banner & Modal Buttons
+    if (els.btnOpenConflictModal) {
+      els.btnOpenConflictModal.addEventListener('click', () => openConflictModal());
+    }
+    if (els.btnAutoResolveOrphans) {
+      els.btnAutoResolveOrphans.addEventListener('click', autoCleanOrphanSubsets);
+    }
+    if (els.btnCloseConflictModal) {
+      els.btnCloseConflictModal.addEventListener('click', () => {
+        if (els.conflictModal) els.conflictModal.classList.remove('active');
+      });
+    }
+    if (els.btnDisbandModalGroup) {
+      els.btnDisbandModalGroup.addEventListener('click', () => {
+        if (activeGroupModalTable) {
+          disbandGroup(activeGroupModalTable);
+        }
       });
     }
 
@@ -679,25 +713,22 @@
         .collection('students')
         .where('period', '==', activePeriod)
         .onSnapshot(snapshot => {
-          tableSubmissions = {};
-          const byGroupKey = {};
+          const rawList = [];
           snapshot.forEach(doc => {
-            const data = doc.data();
-            const gKey = String(data.primaryStudentId || doc.id);
-            const existing = byGroupKey[gKey];
-            if (!existing || doc.id === gKey) {
-              byGroupKey[gKey] = Object.assign({ docId: gKey, primaryStudentId: gKey }, existing || {}, data);
-            }
+            const data = doc.data() || {};
+            const hasMembers = Array.isArray(data.groupMembers) && data.groupMembers.length > 0;
+            const hasData = Array.isArray(data.dataRows) && data.dataRows.some(r => r.dx !== '' && r.dx !== undefined);
+            if (!hasMembers && !data.teamMembers && !data.studentName && !data.currentStep && !hasData) return;
+            rawList.push(Object.assign({ docId: doc.id }, data));
           });
-          const sortedKeys = Object.keys(byGroupKey).sort();
-          sortedKeys.forEach((gKey, idx) => {
-            const slot = idx + 1;
-            tableSubmissions[slot] = byGroupKey[gKey];
-          });
+
+          consolidateSubmissions(rawList);
+          broadcastClaimedStudents();
           renderApprovalQueue();
           updateSummaryMetrics();
           renderTargetStrip();
           renderLeaderboard();
+          renderConflictBanner();
           if (activeGroupModalTable) {
             renderGroupModalContent(activeGroupModalTable);
           }
@@ -707,6 +738,418 @@
     } catch (e) {
       console.warn('Could not attach submissions listener', e);
     }
+  }
+
+  // Consolidate submissions: Deduplicate identical rosters, absorb student subsets & detect cross-group conflicts
+  function consolidateSubmissions(rawList) {
+    tableSubmissions = {};
+    activeConflicts = {};
+    orphanSubsetGroups = [];
+
+    // Step 1: Normalize resolved member IDs for each doc
+    const prepared = rawList.map(doc => {
+      const members = getResolvedGroupMembers(doc);
+      const memberIds = [...new Set(members.map(m => String(m.studentId || m.name).trim().toLowerCase()))].sort();
+      const rosterSig = memberIds.length > 0 ? memberIds.join('::') : String(doc.docId).toLowerCase();
+      const calCount = Array.isArray(doc.calibrationData) ? doc.calibrationData.length : 0;
+      const dataRowsFilled = Array.isArray(doc.dataRows) ? doc.dataRows.filter(r => r.dx !== '' && r.dx !== undefined).length : 0;
+      const stepNum = Number(doc.currentStep) || 0;
+      const totalScore = Math.max(Number(doc.totalScore) || 0, Number(doc.score) || 0);
+      const updatedMs = doc.updatedAt && doc.updatedAt.toMillis ? doc.updatedAt.toMillis() : 0;
+
+      return {
+        doc: doc,
+        members: members,
+        memberIds: memberIds,
+        rosterSig: rosterSig,
+        stepNum: stepNum,
+        calCount: calCount,
+        dataRowsFilled: dataRowsFilled,
+        totalScore: totalScore,
+        updatedMs: updatedMs
+      };
+    });
+
+    // Step 2: Merge docs with the EXACT same roster signature
+    const groupsBySig = {};
+    prepared.forEach(item => {
+      const sig = item.rosterSig;
+      if (!groupsBySig[sig]) {
+        groupsBySig[sig] = {
+          sig: sig,
+          memberIds: item.memberIds,
+          members: item.members,
+          canonicalDoc: Object.assign({}, item.doc),
+          linkedDocIds: [item.doc.docId],
+          allDocs: [item.doc],
+          mergedCount: 1,
+          stepNum: item.stepNum,
+          totalScore: item.totalScore
+        };
+      } else {
+        const g = groupsBySig[sig];
+        g.linkedDocIds.push(item.doc.docId);
+        g.allDocs.push(item.doc);
+        g.mergedCount++;
+
+        // Select canonical doc with highest progress / most data
+        const curCan = g.canonicalDoc;
+        const curStep = Number(curCan.currentStep) || 0;
+        const curCal = Array.isArray(curCan.calibrationData) ? curCan.calibrationData.length : 0;
+        const curRows = Array.isArray(curCan.dataRows) ? curCan.dataRows.filter(r => r.dx !== '' && r.dx !== undefined).length : 0;
+
+        const isBetter = (item.stepNum > curStep) ||
+                         (item.stepNum === curStep && item.calCount > curCal) ||
+                         (item.stepNum === curStep && item.dataRowsFilled > curRows) ||
+                         (item.stepNum === curStep && item.updatedMs > (curCan.updatedAt?.toMillis ? curCan.updatedAt.toMillis() : 0));
+
+        if (isBetter) {
+          const s3 = g.canonicalDoc.step3Approved || item.doc.step3Approved;
+          const s6 = g.canonicalDoc.step6Approved || item.doc.step6Approved;
+          const rounds = Object.assign({}, g.canonicalDoc.rounds || {}, item.doc.rounds || {});
+          const totalScore = Math.max(Number(g.canonicalDoc.totalScore) || 0, Number(item.doc.totalScore) || 0);
+
+          g.canonicalDoc = Object.assign({}, item.doc, {
+            step3Approved: !!s3,
+            step6Approved: !!s6,
+            rounds: rounds,
+            totalScore: totalScore
+          });
+          g.members = item.members;
+          g.stepNum = item.stepNum;
+        } else {
+          if (item.doc.step3Approved) g.canonicalDoc.step3Approved = true;
+          if (item.doc.step6Approved) g.canonicalDoc.step6Approved = true;
+          if (item.doc.rounds) {
+            g.canonicalDoc.rounds = Object.assign({}, item.doc.rounds, g.canonicalDoc.rounds || {});
+          }
+          const itemScore = Number(item.doc.totalScore) || 0;
+          if (itemScore > (Number(g.canonicalDoc.totalScore) || 0)) {
+            g.canonicalDoc.totalScore = itemScore;
+          }
+        }
+        g.totalScore = Math.max(g.totalScore, item.totalScore);
+      }
+    });
+
+    let consolidated = Object.values(groupsBySig);
+
+    // Step 3: Smart Subset Absorption (when a student signed in alone or with a subset of their real team)
+    // Larger groups absorb smaller subsets if all subset members are contained in the larger group
+    const absorbedSigs = new Set();
+    consolidated.sort((a, b) => b.memberIds.length - a.memberIds.length);
+
+    for (let i = 0; i < consolidated.length; i++) {
+      const gB = consolidated[i];
+      if (absorbedSigs.has(gB.sig)) continue;
+
+      for (let j = i + 1; j < consolidated.length; j++) {
+        const gA = consolidated[j];
+        if (absorbedSigs.has(gA.sig)) continue;
+
+        const isSubset = gA.memberIds.length < gB.memberIds.length &&
+                         gA.memberIds.every(id => gB.memberIds.includes(id));
+
+        if (isSubset) {
+          // Absorb gA's linked devices and progress into gB
+          gB.linkedDocIds = [...new Set([...gB.linkedDocIds, ...gA.linkedDocIds])];
+          gB.mergedCount += gA.mergedCount;
+          gB.totalScore = Math.max(gB.totalScore, gA.totalScore);
+
+          if (gA.stepNum > gB.stepNum) {
+            gB.stepNum = gA.stepNum;
+            gB.canonicalDoc.currentStep = gA.stepNum;
+            gB.canonicalDoc.maxUnlockedStep = Math.max(gB.canonicalDoc.maxUnlockedStep || 0, gA.canonicalDoc.maxUnlockedStep || 0);
+            if (gA.canonicalDoc.rounds) {
+              gB.canonicalDoc.rounds = Object.assign({}, gB.canonicalDoc.rounds || {}, gA.canonicalDoc.rounds);
+            }
+          }
+          if (gA.canonicalDoc.step3Approved) gB.canonicalDoc.step3Approved = true;
+          if (gA.canonicalDoc.step6Approved) gB.canonicalDoc.step6Approved = true;
+
+          absorbedSigs.add(gA.sig);
+        }
+      }
+    }
+
+    consolidated = consolidated.filter(g => !absorbedSigs.has(g.sig));
+
+    // Step 4: Detect Multi-Group Conflicts (Student claiming membership in >= 2 distinct non-subset groups)
+    const stMap = {};
+    consolidated.forEach((g, gIdx) => {
+      g.memberIds.forEach(stId => {
+        if (!stMap[stId]) stMap[stId] = [];
+        stMap[stId].push({ group: g, slotIndex: gIdx });
+      });
+    });
+
+    Object.keys(stMap).forEach(stId => {
+      if (stMap[stId].length > 1) {
+        activeConflicts[stId] = stMap[stId];
+      }
+    });
+
+    // Step 5: Assign consolidated groups to slots
+    consolidated.sort((a, b) => {
+      const nameA = a.members[0] ? a.members[0].name : a.canonicalDoc.docId;
+      const nameB = b.members[0] ? b.members[0].name : b.canonicalDoc.docId;
+      return nameA.localeCompare(nameB);
+    });
+
+    consolidated.forEach((g, idx) => {
+      const slot = idx + 1;
+      tableSubmissions[slot] = Object.assign({}, g.canonicalDoc, {
+        docId: g.canonicalDoc.docId,
+        primaryStudentId: g.canonicalDoc.primaryStudentId || g.canonicalDoc.docId,
+        groupMembers: g.members,
+        linkedDocIds: g.linkedDocIds,
+        mergedCount: g.mergedCount,
+        tableNumber: slot
+      });
+    });
+  }
+
+  // Broadcast directory of claimed students for this period to the parent assignment doc
+  function broadcastClaimedStudents() {
+    if (!fbDb || !isTeacher(currentTeacher)) return;
+    const claimed = {};
+    Object.keys(tableSubmissions).forEach(tKey => {
+      const sub = tableSubmissions[tKey];
+      if (!sub) return;
+      const members = getResolvedGroupMembers(sub);
+      const leadName = members[0] ? members[0].name : (sub.studentName || 'Group ' + tKey);
+      const leadId = sub.primaryStudentId || (members[0] ? members[0].studentId : sub.docId);
+      const allNames = members.map(m => m.name).join(', ');
+      const curStep = sub.currentStep || 1;
+
+      members.forEach(m => {
+        const sId = String(m.studentId || '').trim();
+        if (sId) {
+          claimed[sId] = {
+            primaryStudentId: String(leadId),
+            leadName: leadName,
+            groupNames: allNames,
+            currentStep: curStep,
+            tableNum: parseInt(tKey, 10),
+            docId: sub.docId
+          };
+        }
+      });
+    });
+
+    const periodClaimedKey = 'claimedStudents_p' + activePeriod;
+    fbDb.collection('student_results')
+      .doc(ASSIGNMENT_ID)
+      .set({ [periodClaimedKey]: claimed }, { merge: true })
+      .catch(err => console.warn('Claim broadcast notice:', err.message));
+  }
+
+  // Render the top Multi-Group Conflict Banner
+  function renderConflictBanner() {
+    if (!els.conflictAlertBanner) return;
+    const conflictStudentIds = Object.keys(activeConflicts);
+    const hasConflicts = conflictStudentIds.length > 0;
+    const hasOrphans = orphanSubsetGroups.length > 0;
+
+    if (!hasConflicts && !hasOrphans) {
+      els.conflictAlertBanner.style.display = 'none';
+      return;
+    }
+
+    els.conflictAlertBanner.style.display = 'flex';
+
+    if (els.conflictAlertTitle) {
+      els.conflictAlertTitle.textContent = hasConflicts
+        ? '⚠️ ' + conflictStudentIds.length + ' Multi-Group ' + (conflictStudentIds.length === 1 ? 'Conflict' : 'Conflicts') + ' Detected!'
+        : '⚠️ ' + orphanSubsetGroups.length + ' Inactive Duplicate ' + (orphanSubsetGroups.length === 1 ? 'Group' : 'Groups') + ' Detected';
+    }
+
+    if (els.conflictAlertDesc) {
+      if (hasConflicts) {
+        const names = conflictStudentIds.map(id => (rosterById[id] ? rosterById[id].name : id)).slice(0, 4).join(', ');
+        els.conflictAlertDesc.innerHTML = 'Students in multiple groups: <strong>' + escapeHtml(names) + '</strong>' +
+          (conflictStudentIds.length > 4 ? ' + ' + (conflictStudentIds.length - 4) + ' more' : '') +
+          '. Review or clean up duplicate entries below.';
+      } else {
+        els.conflictAlertDesc.textContent = 'Some students started an empty group before joining their main team. Clean them up with 1 click.';
+      }
+    }
+
+    if (els.btnAutoResolveOrphans) {
+      if (hasOrphans) {
+        els.btnAutoResolveOrphans.style.display = 'inline-flex';
+        els.btnAutoResolveOrphans.textContent = '⚡ Clean Up ' + orphanSubsetGroups.length + ' Inactive Duplicate' + (orphanSubsetGroups.length === 1 ? '' : 's');
+      } else {
+        els.btnAutoResolveOrphans.style.display = 'none';
+      }
+    }
+  }
+
+  // Open the Multi-Group Conflict Resolution Modal
+  function openConflictModal(focusStudentId) {
+    if (!els.conflictModal || !els.conflictModalContent) return;
+    if (els.conflictModalPeriod) {
+      els.conflictModalPeriod.textContent = String(activePeriod);
+    }
+
+    els.conflictModalContent.innerHTML = '';
+    const conflictStudentIds = Object.keys(activeConflicts);
+
+    if (conflictStudentIds.length === 0 && orphanSubsetGroups.length === 0) {
+      els.conflictModalContent.innerHTML = '<div style="padding: 1.5rem; text-align: center; color: var(--accent-emerald); font-weight: 800;">✅ No multi-group conflicts in Period ' + activePeriod + '! Every student is in exactly one group.</div>';
+      els.conflictModal.classList.add('active');
+      return;
+    }
+
+    conflictStudentIds.forEach(stId => {
+      const stName = rosterById[stId] ? rosterById[stId].name : stId;
+      const groupEntries = activeConflicts[stId] || [];
+
+      const card = document.createElement('div');
+      card.className = 'conflict-card-item' + (focusStudentId === stId ? ' highlighted' : '');
+
+      let groupsHtml = '<div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.35rem;">';
+      groupEntries.forEach(entry => {
+        const g = entry.group;
+        const membersStr = g.members.map(m => m.name).join(', ');
+        const step = g.canonicalDoc.currentStep || 1;
+        const pts = g.canonicalDoc.totalScore || 0;
+
+        let tableKey = null;
+        Object.keys(tableSubmissions).forEach(tk => {
+          if (tableSubmissions[tk].sig === g.sig || tableSubmissions[tk].docId === g.canonicalDoc.docId) {
+            tableKey = tk;
+          }
+        });
+
+        groupsHtml += `
+          <div style="background: var(--bg-card-sub); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.55rem 0.75rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
+            <div>
+              <div style="font-weight: 800; font-size: 0.9rem; color: var(--text-main);">
+                👥 ${escapeHtml(membersStr)}
+              </div>
+              <div style="font-size: 0.76rem; color: var(--text-dim); display: flex; gap: 0.5rem; align-items: center; margin-top: 0.15rem;">
+                <span>Step ${step} of 9</span>
+                <span>&bull;</span>
+                <span>Score: ${pts} / 30 pts</span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 0.35rem;">
+              ${tableKey ? `
+                <button type="button" class="btn-secondary btn-remove-st-grp" data-table="${tableKey}" data-stid="${escapeHtml(stId)}" style="font-size: 0.75rem; padding: 0.25rem 0.55rem; color: var(--accent-rose); border-color: var(--accent-rose);">
+                  Remove ${escapeHtml(stName.split(' ')[0])}
+                </button>
+                <button type="button" class="btn-secondary btn-disband-conflict-grp" data-table="${tableKey}" style="font-size: 0.75rem; padding: 0.25rem 0.55rem; color: var(--text-muted);">
+                  🗑️ Disband Group
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      });
+      groupsHtml += '</div>';
+
+      card.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div style="font-weight: 900; font-size: 1rem; color: var(--accent-rose);">
+            ⚠️ ${escapeHtml(stName)} <span style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--font-mono); font-weight: 700;">(ID: ${escapeHtml(stId)})</span>
+          </div>
+          <span style="font-size: 0.75rem; font-weight: 800; background: var(--accent-rose-bg); color: var(--accent-rose); padding: 0.15rem 0.5rem; border-radius: 999px;">
+            In ${groupEntries.length} Groups
+          </span>
+        </div>
+        ${groupsHtml}
+      `;
+
+      card.querySelectorAll('.btn-remove-st-grp').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const t = parseInt(btn.dataset.table, 10);
+          const sId = btn.dataset.stid;
+          removeStudentFromTableGroup(t, sId);
+          openConflictModal(sId);
+        });
+      });
+
+      card.querySelectorAll('.btn-disband-conflict-grp').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const t = parseInt(btn.dataset.table, 10);
+          disbandGroup(t);
+          setTimeout(() => openConflictModal(), 200);
+        });
+      });
+
+      els.conflictModalContent.appendChild(card);
+    });
+
+    els.conflictModal.classList.add('active');
+  }
+
+  // 1-Click clean up inactive duplicate groups
+  function autoCleanOrphanSubsets() {
+    if (orphanSubsetGroups.length === 0) return;
+    const titles = orphanSubsetGroups.map(g => g.members.map(m => m.name).join(', ')).join('\n• ');
+    if (!confirm(`Clean up ${orphanSubsetGroups.length} inactive duplicate groups?\n\n• ${titles}\n\nThese students are already working on more advanced groups. Deleting these duplicate documents will resolve conflicts.`)) {
+      return;
+    }
+
+    const batch = fbDb.batch();
+    orphanSubsetGroups.forEach(g => {
+      g.linkedDocIds.forEach(id => {
+        if (id) {
+          batch.delete(fbDb.collection('student_results').doc(ASSIGNMENT_ID).collection('students').doc(String(id)));
+        }
+      });
+    });
+
+    batch.commit().then(() => {
+      if (window.SoundFX) SoundFX.play('fanfare');
+    }).catch(err => alert('Error cleaning orphan duplicate groups: ' + err.message));
+  }
+
+  // Disband / Delete a single group document (or all linked duplicate docs for that group)
+  function disbandGroup(tableNum) {
+    if (!fbDb || !isTeacher(currentTeacher)) return;
+    const sub = tableSubmissions[tableNum];
+    if (!sub) return;
+
+    const members = getResolvedGroupMembers(sub);
+    const groupTitle = members.length > 0 ? members.map(m => m.name).join(', ') : (sub.teamMembers || 'Group ' + tableNum);
+
+    if (!confirm(`Are you sure you want to disband and delete "${groupTitle}"?\n\nThis will remove their progress from Firestore so students can restart or join another team.`)) {
+      return;
+    }
+
+    const docsToDelete = (Array.isArray(sub.linkedDocIds) && sub.linkedDocIds.length > 0)
+      ? sub.linkedDocIds
+      : [sub.docId || sub.primaryStudentId];
+
+    const batch = fbDb.batch();
+    docsToDelete.forEach(id => {
+      if (id) {
+        batch.delete(fbDb.collection('student_results').doc(ASSIGNMENT_ID).collection('students').doc(String(id)));
+      }
+    });
+
+    const pKey = sub.primaryStudentId || sub.docId;
+    const periodApprovalsKey = 'approvals_p' + activePeriod;
+    const tableKey = 'table_' + tableNum;
+    batch.set(fbDb.collection('student_results').doc(ASSIGNMENT_ID), {
+      [periodApprovalsKey]: {
+        [pKey]: firebase.firestore.FieldValue.delete(),
+        [tableKey]: firebase.firestore.FieldValue.delete()
+      }
+    }, { merge: true });
+
+    batch.commit().then(() => {
+      if (window.SoundFX) SoundFX.play('buzz');
+      if (els.groupModal) els.groupModal.classList.remove('active');
+      delete tableSubmissions[tableNum];
+      renderApprovalQueue();
+      updateSummaryMetrics();
+      renderTargetStrip();
+      renderLeaderboard();
+      renderConflictBanner();
+    }).catch(err => alert('Error disbanding group: ' + err.message));
   }
 
   function attachConfigListener() {
@@ -812,9 +1255,12 @@
     const pct = Math.min(100, Math.round((totalPts / 30) * 100));
     const primaryDriverId = sub.primaryStudentId || sub.docId || (members[0] && members[0].studentId) || `group_${tableNum}_p${activePeriod}`;
 
-    // Target doc IDs to write: primary docId (if any) + every resolved member's studentId
+    // Target doc IDs to write: primary docId (if any) + every linkedDocId + every resolved member's studentId
     const targetDocIds = new Set();
     if (sub.docId) targetDocIds.add(sub.docId);
+    if (Array.isArray(sub.linkedDocIds)) {
+      sub.linkedDocIds.forEach(id => targetDocIds.add(String(id).trim()));
+    }
     members.forEach(m => {
       if (m.studentId) targetDocIds.add(String(m.studentId).trim());
     });
@@ -1174,20 +1620,39 @@
       tr.className = 'leaderboard-row';
 
       const membersHtml = members.length > 0
-        ? `<div class="group-member-pills">` + members.map(m => `
-            <span class="group-member-tag ${m.verified ? 'verified' : ''}" title="Student ID: ${escapeHtml(m.studentId)}">
-              ${m.verified ? '✓' : '•'} ${escapeHtml(m.name)}
-            </span>
-          `).join('') + `</div>`
+        ? `<div class="group-member-pills">` + members.map(m => {
+            const hasConflict = !!(m.studentId && activeConflicts[m.studentId]);
+            const conflictClass = hasConflict ? 'conflict' : (m.verified ? 'verified' : '');
+            const conflictTitle = hasConflict
+              ? `⚠️ Multi-Group Conflict: ${m.name} is in ${activeConflicts[m.studentId].length} groups! Click to resolve.`
+              : `Student ID: ${m.studentId}`;
+            const labelText = hasConflict
+              ? `⚠️ ${m.name} (In ${activeConflicts[m.studentId].length} Groups)`
+              : `${m.verified ? '✓' : '•'} ${m.name}`;
+
+            return `<span class="group-member-tag ${conflictClass}" data-conflict-st="${hasConflict ? escapeHtml(m.studentId) : ''}" title="${escapeHtml(conflictTitle)}" style="${hasConflict ? 'cursor: pointer;' : ''}">${escapeHtml(labelText)}</span>`;
+          }).join('') + `</div>`
+        : '';
+
+      const mergedBadgeHtml = (sub.mergedCount && sub.mergedCount > 1)
+        ? `<span class="badge-merged" title="Consolidated ${sub.mergedCount} student Chromebooks for this group">⚡ ${sub.mergedCount} Devices Synced</span>`
         : '';
 
       tr.innerHTML = `
         <td>
           <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.4rem;">
-            <span style="font-weight: 900; font-size: 1rem; color: var(--text-main);">👥 ${escapeHtml(groupTitle)}</span>
-            <button type="button" class="btn-mini-action btn-open-group" data-table="${t}" style="white-space: nowrap;">
-              Roster (${members.length}) / Data (${calCount})
-            </button>
+            <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+              <span style="font-weight: 900; font-size: 1rem; color: var(--text-main);">👥 ${escapeHtml(groupTitle)}</span>
+              ${mergedBadgeHtml}
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.3rem;">
+              <button type="button" class="btn-mini-action btn-open-group" data-table="${t}" style="white-space: nowrap;">
+                Roster (${members.length}) / Data (${calCount})
+              </button>
+              <button type="button" class="btn-disband-row" data-table="${t}" title="Disband or delete this group">
+                🗑️
+              </button>
+            </div>
           </div>
           ${membersHtml}
         </td>
@@ -1242,6 +1707,24 @@
       // Bind Group / Data modal button
       tr.querySelector('.btn-open-group').addEventListener('click', () => {
         openGroupModal(t);
+      });
+
+      // Bind Row Disband button
+      const disbandBtn = tr.querySelector('.btn-disband-row');
+      if (disbandBtn) {
+        disbandBtn.addEventListener('click', () => {
+          disbandGroup(t);
+        });
+      }
+
+      // Bind clicking conflict tags to open conflict modal
+      tr.querySelectorAll('[data-conflict-st]').forEach(tag => {
+        const sId = tag.dataset.conflictSt;
+        if (sId) {
+          tag.addEventListener('click', () => {
+            openConflictModal(sId);
+          });
+        }
       });
 
       // Bind Score button

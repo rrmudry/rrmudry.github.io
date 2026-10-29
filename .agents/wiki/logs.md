@@ -3,6 +3,26 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-29 — Horizontal Projectile Ramp Lab: Multi-Group Conflict Detection, Smart Roster Deduplication & Subset Absorption
+**Patterns Updated**: `classroom-projection-and-high-contrast-theming.md`, `firebase-auth-gotchas.md`.
+**Files Updated**: `Unit_2/projectile_target_range/index.html`, `Unit_2/projectile_target_range/js/student-app.js`, `Unit_2/projectile_target_range/dashboard.html`, `Unit_2/projectile_target_range/js/teacher-board.js`, `Unit_2/projectile_target_range/css/style.css`, `partials/footer.html`.
+
+**Changes**:
+- **Smart Roster Deduplication & Subset Absorption (`teacher-board.js`)**:
+  - Implemented normalized roster signatures (`memberIds.sort().join('::')`) so multiple teammates logging in on separate Chromebooks (e.g. Erica, Jaylene, and Ajani) automatically collapse into a single unified group row displaying the farthest progress and combined approvals (`⚡ N Devices Synced`).
+  - Added smart subset absorption: when students create solo/subset groups before joining their main table (e.g. Matthew alone vs Matthew + Josue), larger groups seamlessly absorb smaller duplicate subsets without clobbering progress.
+- **Cross-Group Conflict Detection & Resolution UI (`dashboard.html` & `style.css`)**:
+  - Detects students claiming membership across multiple distinct groups.
+  - Flags conflicting students with high-contrast animated alert badges (`⚠️ [Name] (In N Groups)`) on the leaderboard.
+  - Added a prominent top alert banner (`#conflictAlertBanner`) with 1-click `⚡ Clean Up Inactive Duplicates` and `🔍 Resolve Conflicts`.
+  - Added the `#conflictModal` dialog displaying all groups claiming a student, with 1-click actions to remove the student or disband duplicate teams.
+- **Per-Group Disband / Delete Capability**:
+  - Added individual group disband buttons (`btn-disband-row` and in `#groupModal`) allowing the teacher to delete specific duplicate or orphan group documents from Firestore without clearing the whole class period.
+- **Student App Protection & Auto-Claim Gate (`student-app.js` & `index.html`)**:
+  - Broadcasts active claimed students per period (`claimedStudents_p${period}`) to `student_results/unit2_projectile_target_range` in real-time.
+  - Added `#alreadyClaimedBanner` on Step 0: when a student logs into their Chromebook after a partner has already registered them, it clearly informs them they are on their partner's team and directs them to work together on the lead Chromebook (`👀 View Team Data` or `🚪 Leave Team`).
+  - In Step 0 autocomplete, claimed classmates are labeled `(Already in [Lead]'s group)`, and attempts to add an already-claimed student are blocked with an immediate diagnostic warning.
+
 ## 2026-10-28 — Horizontal Projectile Ramp Lab: Student Group Management, Roster Verification & Live Board Refinements
 **Patterns Updated**: `cast-aligned-webapp-design.md`, `classroom-projection-and-high-contrast-theming.md`.
 **Files Updated**: `Unit_2/projectile_target_range/index.html`, `Unit_2/projectile_target_range/js/student-app.js`, `Unit_2/projectile_target_range/dashboard.html`, `Unit_2/projectile_target_range/js/teacher-board.js`, `Unit_2/projectile_target_range/css/style.css`, `Unit_2/projectile_target_range/img/curve-cut-guide.png`, `partials/footer.html`.
