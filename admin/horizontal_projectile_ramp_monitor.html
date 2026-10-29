@@ -1375,7 +1375,7 @@
         const sub = tableSubmissions[tKey];
         if (!sub) return;
         const pKey = sub.primaryStudentId || sub.docId || '';
-        const app = (pKey && tableApprovals[pKey]) || tableApprovals[`table_${tKey}`] || {};
+        const app = (pKey && tableApprovals[pKey]) || {};
         const s3Ok = !!(sub.step3Approved || app.step3Approved);
         const s6Ok = !!(sub.step6Approved || app.step6Approved);
 
@@ -1420,16 +1420,52 @@
       const sub = tableSubmissions[tableNum];
       if (!sub) return;
 
-      const pKey = sub.primaryStudentId || sub.docId || `table_${tableNum}`;
+      const members = sub.groupMembers || [];
+      const pKey = sub.primaryStudentId || sub.docId || '';
       const periodApprovalsKey = `approvals_p${activePeriod}`;
-      const tblKey = `table_${tableNum}`;
 
-      const updatePayload = {
-        [`${periodApprovalsKey}.${tblKey}.step${stepNum}Approved`]: true,
-        [`${periodApprovalsKey}.${pKey}.step${stepNum}Approved`]: true
+      const updatePayload = {};
+      if (pKey) {
+        updatePayload[`${periodApprovalsKey}.${pKey}.step${stepNum}Approved`] = true;
+      }
+      members.forEach(m => {
+        const sId = String(m.studentId || '').trim();
+        if (sId) {
+          updatePayload[`${periodApprovalsKey}.${sId}.step${stepNum}Approved`] = true;
+        }
+      });
+
+      // 1. Update parent doc for real-time config listener
+      db.collection('student_results').doc(ASSIGNMENT_ID).update(updatePayload).catch(e => console.warn('Parent approval write notice:', e.message));
+
+      // 2. Fan out approval directly to all linked student documents
+      const targetDocIds = new Set();
+      if (sub.docId) targetDocIds.add(sub.docId);
+      if (Array.isArray(sub.linkedDocIds)) {
+        sub.linkedDocIds.forEach(id => targetDocIds.add(String(id).trim()));
+      }
+      members.forEach(m => {
+        if (m.studentId) targetDocIds.add(String(m.studentId).trim());
+      });
+
+      const studentDocUpdate = {
+        [`step${stepNum}Approved`]: true,
+        [`step${stepNum}Requested`]: false,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       };
+      if (stepNum === 3 && (!sub.currentStep || sub.currentStep <= 3)) {
+        studentDocUpdate.currentStep = 4;
+      }
+      if (stepNum === 6 && (!sub.currentStep || sub.currentStep <= 6)) {
+        studentDocUpdate.currentStep = 7;
+      }
 
-      db.collection('student_results').doc(ASSIGNMENT_ID).update(updatePayload).then(() => {
+      const batch = db.batch();
+      targetDocIds.forEach(docId => {
+        const ref = db.collection('student_results').doc(ASSIGNMENT_ID).collection('students').doc(docId);
+        batch.set(ref, studentDocUpdate, { merge: true });
+      });
+      batch.commit().then(() => {
         if (window.SoundFX) SoundFX.play('clink');
       }).catch(err => alert('Error approving checkpoint: ' + err.message));
     }
@@ -1477,7 +1513,7 @@
         const curStep = Math.min(9, Math.max(0, sub.currentStep || 0));
 
         const pKey = sub.primaryStudentId || sub.docId || '';
-        const app = (pKey && tableApprovals[pKey]) || tableApprovals[`table_${tNum}`] || {};
+        const app = (pKey && tableApprovals[pKey]) || {};
         const s3Ok = !!(sub.step3Approved || app.step3Approved);
         const s6Ok = !!(sub.step6Approved || app.step6Approved);
 
@@ -1571,7 +1607,7 @@
         const calTrials = Array.isArray(sub.calibrationData) ? sub.calibrationData.length : 0;
 
         const pKey = sub.primaryStudentId || sub.docId || '';
-        const app = (pKey && tableApprovals[pKey]) || tableApprovals[`table_${tNum}`] || {};
+        const app = (pKey && tableApprovals[pKey]) || {};
         const s3Ok = !!(sub.step3Approved || app.step3Approved);
         const s6Ok = !!(sub.step6Approved || app.step6Approved);
 
@@ -1682,3 +1718,4 @@
   </script>
 </body>
 </html>
+

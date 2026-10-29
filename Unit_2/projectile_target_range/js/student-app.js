@@ -123,9 +123,15 @@
     els.studentTotalScore = document.getElementById('studentTotalScore');
   }
 
-  function loadLocalState() {
+  function getStorageKey(studentId) {
+    const sId = studentId || (currentUser && currentUser.email ? currentUser.email.split('@')[0] : '');
+    return sId ? `${STORAGE_KEY}_${sId}` : `${STORAGE_KEY}_anon`;
+  }
+
+  function loadLocalState(targetStudentId) {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const sKey = getStorageKey(targetStudentId);
+      const raw = localStorage.getItem(sKey);
       if (raw) {
         const parsed = JSON.parse(raw);
         if (parsed && typeof parsed === 'object') {
@@ -134,6 +140,16 @@
       }
     } catch (e) {
       console.warn('Could not load local state', e);
+    }
+
+    // Safety checks against premature approvals or cross-student bleed
+    if (state.maxUnlockedStep < 3) {
+      state.step3Approved = false;
+      state.step3Requested = false;
+    }
+    if (state.maxUnlockedStep < 6) {
+      state.step6Approved = false;
+      state.step6Requested = false;
     }
 
     // Ensure valid array of dataRows without pre-filled dummy dx values
@@ -165,7 +181,8 @@
 
   function saveLocalState() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      const sKey = getStorageKey();
+      localStorage.setItem(sKey, JSON.stringify(state));
     } catch (e) {}
   }
 
@@ -214,6 +231,9 @@
     const email = (user.email || '').toLowerCase();
     const studentId = email.split('@')[0];
     const displayName = (user.displayName && !/^\d+$/.test(user.displayName)) ? user.displayName : 'Signed-In Student';
+
+    // Load state specific to THIS signed-in student
+    loadLocalState(studentId);
 
     // Ensure primary signed-in user is in groupMembers[0]
     const existingIdx = state.groupMembers.findIndex(m => String(m.studentId).toLowerCase() === studentId || m.isPrimary);
@@ -301,8 +321,30 @@
         const wasStep3 = state.step3Approved;
         const wasStep6 = state.step6Approved;
 
-        if (data.step3Approved === true) state.step3Approved = true;
-        if (data.step6Approved === true) state.step6Approved = true;
+        if (typeof data.maxUnlockedStep === 'number' && data.maxUnlockedStep > state.maxUnlockedStep) {
+          state.maxUnlockedStep = data.maxUnlockedStep;
+        }
+        if (typeof data.currentStep === 'number' && data.currentStep > state.currentStep) {
+          state.currentStep = data.currentStep;
+        }
+
+        const canHaveStep3 = state.maxUnlockedStep >= 3 || state.currentStep >= 3;
+        const canHaveStep6 = state.maxUnlockedStep >= 6 || state.currentStep >= 6;
+
+        if (canHaveStep3 && data.step3Approved === true) {
+          state.step3Approved = true;
+        } else if (data.step3Approved === false || !canHaveStep3) {
+          state.step3Approved = false;
+        }
+
+        if (canHaveStep6 && data.step6Approved === true) {
+          state.step6Approved = true;
+        } else if (data.step6Approved === false || !canHaveStep6) {
+          state.step6Approved = false;
+        }
+
+        if (typeof data.step3Requested === 'boolean') state.step3Requested = data.step3Requested;
+        if (typeof data.step6Requested === 'boolean') state.step6Requested = data.step6Requested;
 
         if (!wasStep3 && state.step3Approved && window.SoundFX) {
           SoundFX.play('fanfare');
@@ -362,13 +404,31 @@
     const myId = email ? email.split('@')[0] : '';
     const approvalsKey = `approvals_p${state.period}`;
     const periodApprovals = assignmentConfigData[approvalsKey] || {};
-    const grpApproval = (myId && periodApprovals[myId]) || periodApprovals[`table_${state.tableNum}`] || {};
+
+    let grpApproval = (myId && periodApprovals[myId]) || null;
+    if (!grpApproval && Array.isArray(state.groupMembers)) {
+      for (const m of state.groupMembers) {
+        const mId = String(m.studentId || '').trim();
+        if (mId && periodApprovals[mId]) {
+          grpApproval = periodApprovals[mId];
+          break;
+        }
+      }
+    }
+    grpApproval = grpApproval || {};
 
     const wasStep3 = state.step3Approved;
     const wasStep6 = state.step6Approved;
 
-    if (grpApproval.step3 === true || grpApproval.step3Approved === true) state.step3Approved = true;
-    if (grpApproval.step6 === true || grpApproval.step6Approved === true) state.step6Approved = true;
+    const canHaveStep3 = state.maxUnlockedStep >= 3 || state.currentStep >= 3;
+    const canHaveStep6 = state.maxUnlockedStep >= 6 || state.currentStep >= 6;
+
+    if (canHaveStep3 && (grpApproval.step3 === true || grpApproval.step3Approved === true)) {
+      state.step3Approved = true;
+    }
+    if (canHaveStep6 && (grpApproval.step6 === true || grpApproval.step6Approved === true)) {
+      state.step6Approved = true;
+    }
 
     if ((!wasStep3 && state.step3Approved) || (!wasStep6 && state.step6Approved)) {
       if (window.SoundFX) SoundFX.play('fanfare');
@@ -1373,9 +1433,9 @@
       currentStep: state.currentStep,
       maxUnlockedStep: state.maxUnlockedStep,
       step3Requested: !!state.step3Requested,
-      step3Approved: !!state.step3Approved,
+      step3Approved: (state.maxUnlockedStep >= 3 || state.currentStep >= 3) && !!state.step3Approved,
       step6Requested: !!state.step6Requested,
-      step6Approved: !!state.step6Approved,
+      step6Approved: (state.maxUnlockedStep >= 6 || state.currentStep >= 6) && !!state.step6Approved,
       dataRows: state.dataRows,
       calibrationData: getValidPairs().map(p => ({ s: p.h, dx: p.dx })),
       currentRound: r,

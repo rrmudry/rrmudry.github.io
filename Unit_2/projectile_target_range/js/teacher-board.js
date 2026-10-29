@@ -1191,18 +1191,23 @@
     if (!fbDb || !isTeacher(currentTeacher)) return;
 
     const sub = tableSubmissions[tableNum] || { tableNumber: tableNum, period: activePeriod };
+    const members = getResolvedGroupMembers(sub);
     const primaryKey = sub.primaryStudentId || sub.docId || null;
-
-    const tblKey = `table_${tableNum}`;
-    if (!tableApprovals[tblKey]) tableApprovals[tblKey] = {};
-    if (stepNum === 3) tableApprovals[tblKey].step3Approved = true;
-    if (stepNum === 6) tableApprovals[tblKey].step6Approved = true;
 
     if (primaryKey) {
       if (!tableApprovals[primaryKey]) tableApprovals[primaryKey] = {};
       if (stepNum === 3) tableApprovals[primaryKey].step3Approved = true;
       if (stepNum === 6) tableApprovals[primaryKey].step6Approved = true;
     }
+
+    members.forEach(m => {
+      const sId = String(m.studentId || '').trim();
+      if (sId) {
+        if (!tableApprovals[sId]) tableApprovals[sId] = {};
+        if (stepNum === 3) tableApprovals[sId].step3Approved = true;
+        if (stepNum === 6) tableApprovals[sId].step6Approved = true;
+      }
+    });
 
     if (stepNum === 3) {
       sub.step3Approved = true;
@@ -1285,8 +1290,8 @@
           name: m.name,
           isPrimary: !!m.isPrimary
         })),
-        step3Approved: !!(sub.step3Approved || (tableApprovals[`table_${tableNum}`] && tableApprovals[`table_${tableNum}`].step3Approved)),
-        step6Approved: !!(sub.step6Approved || (tableApprovals[`table_${tableNum}`] && tableApprovals[`table_${tableNum}`].step6Approved)),
+        step3Approved: !!(sub.step3Approved || (primaryDriverId && tableApprovals[primaryDriverId] && tableApprovals[primaryDriverId].step3Approved)),
+        step6Approved: !!(sub.step6Approved || (primaryDriverId && tableApprovals[primaryDriverId] && tableApprovals[primaryDriverId].step6Approved)),
         step3Requested: !!sub.step3Requested,
         step6Requested: !!sub.step6Requested,
         currentStep: sub.currentStep || 1,
@@ -1318,7 +1323,7 @@
       const sub = tableSubmissions[t];
       if (!sub) return;
       const pKey = sub.primaryStudentId || sub.docId || '';
-      const app = (pKey && tableApprovals[pKey]) || tableApprovals[`table_${t}`] || {};
+      const app = (pKey && tableApprovals[pKey]) || {};
       const s3Ok = !!(sub.step3Approved || app.step3Approved);
       const s6Ok = !!(sub.step6Approved || app.step6Approved);
 
@@ -1487,7 +1492,7 @@
       const sub = tableSubmissions[tKey];
       if (!sub) return;
       const pKey = sub.primaryStudentId || sub.docId || '';
-      const app = (pKey && tableApprovals[pKey]) || tableApprovals[`table_${tKey}`] || {};
+      const app = (pKey && tableApprovals[pKey]) || {};
       const s3Ok = !!(sub.step3Approved || app.step3Approved);
       const s6Ok = !!(sub.step6Approved || app.step6Approved);
 
@@ -1576,7 +1581,7 @@
       const sub = tableSubmissions[t];
       if (!sub) return;
       const pKey = sub.primaryStudentId || sub.docId || '';
-      const app = (pKey && tableApprovals[pKey]) || tableApprovals[`table_${t}`] || {};
+      const app = (pKey && tableApprovals[pKey]) || {};
       const s3Ok = !!(sub && sub.step3Approved) || !!app.step3Approved;
       const s6Ok = !!(sub && sub.step6Approved) || !!app.step6Approved;
 

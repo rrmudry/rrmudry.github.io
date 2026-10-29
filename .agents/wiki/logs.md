@@ -3,6 +3,24 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-29 — Horizontal Projectile Ramp Lab: Hard Checkpoint Gate Enforcement & Cross-Session Bleed Elimination
+**Patterns Updated**: `cast-aligned-webapp-design.md`, `firebase-auth-gotchas.md`.
+**Files Added/Updated**: `Unit_2/projectile_target_range/js/student-app.js`, `Unit_2/projectile_target_range/js/teacher-board.js`, `admin/horizontal_projectile_ramp_monitor.html`, `partials/footer.html`.
+
+**Changes**:
+- **Hard Checkpoint Gate Enforcement (Steps 3 & 6)**:
+  - Eliminated the critical fallback `periodApprovals['table_' + state.tableNum]` which previously evaluated to Table 1's approval for every student in the period because student Chromebooks defaulted to Table 1.
+  - Checkpoint approvals are now strictly keyed by individual student IDs (`myId`, group leader, and registered group members) across parent config broadcast and direct student Firestore documents.
+  - Added strict progression guards in `student-app.js`: Step 3 approval can NEVER evaluate to `true` if a group has not yet reached Step 3 (`maxUnlockedStep < 3`), and Step 6 approval can NEVER evaluate to `true` if a group has not reached Step 6 (`maxUnlockedStep < 6`).
+  - Added hard alerts and snap-back logic in `unlockAndGoToStep()` and button locking in `renderStepRail()` to prevent skipping checkpoints via manual clicks.
+- **Shared Chromebook LocalStorage Isolation**:
+  - Scoped `localStorage` keys per student (`${STORAGE_KEY}_${studentId}`) rather than a single device-wide key, preventing approvals from a Period 0 student bleeding into a Period 1 student using the same Chromebook.
+  - Forced clean-state re-verification on user sign-in to prevent stale approval inheritance.
+- **Teacher Dashboard & Ramp Monitor Direct Fan-Out**:
+  - `approveTableCheckpoint()` on both `teacher-board.js` and `horizontal_projectile_ramp_monitor.html` now writes approvals directly to each group member's specific student ID in `approvals_p${period}` AND fans out updates to each member's `student_results` document via batch write.
+- **Database Cleanup**:
+  - Audited and cleaned generic `table_*` approval keys from parent Firestore doc `student_results/unit2_projectile_target_range` and reset premature approval flags on affected student documents.
+
 ## 2026-10-29 — Horizontal Projectile Ramp Lab: Classroom Progress & Pacing Runway Monitor with Customizable Countdown Timer
 **Patterns Updated**: `classroom-projection-and-high-contrast-theming.md`, `cast-aligned-webapp-design.md`.
 **Files Added/Updated**: `admin/horizontal_projectile_ramp_monitor.html`, `Unit_2/projectile_target_range/monitor.html`, `Unit_2/projectile_target_range/dashboard.html`, `Unit_2/projectile_target_range/README.md`, `admin/index.html`, `partials/footer.html`.
