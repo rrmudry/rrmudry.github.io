@@ -5023,77 +5023,61 @@ const lessonsData = [
     "day": 44,
     "date": "2026-10-29",
     "unit": 2,
-    "title": "Paper Roller Coaster Engineering Challenge (Block: Periods 1, 3, 5) & Target Range Tournament (P0)",
-    "topic": "Energy Conservation, Centripetal Loops & Structural Roller Coaster Engineering",
+    "title": "Horizontal Projectile Marble Ramp Lab: Step-by-Step Build & Target Challenge (Block: P0, P1, P3, P5)",
+    "topic": "Empirical Ramp Calibration, Teacher Checkpoint Gates & Blind Target Prediction",
     "dok": 3,
-    "type": "Engineering Challenge & Laboratory Investigation (Block)",
+    "type": "Laboratory Investigation & Target Challenge (Block)",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Block Schedule (Periods 1, 3, 5 - 105 min): Hands-on cardstock roller coaster engineering challenge. Student teams design and construct a functional paper marble coaster satisfying 3 strict non-negotiable requirements: a hill > 20 cm, a vertical loop, and a finish elevation at least 20 cm above the lowest track point. Period 0 completes their advanced target range tournament.",
-    "activity": "Paper Roller Coaster Engineering Build (105-Min Block for Periods 1, 3, 5): Student teams design, fabricate, and test cardstock tracks, support columns, curves, and vertical loops. Requirements: (1) Hill height > 20 cm to convert gravitational potential energy into kinetic energy (E_p = mgh), (2) A functional vertical loop where marble velocity maintains centripetal normal force without falling (v_top ≥ √(g·r)), and (3) Track must rise to finish at least 20 cm above its lowest point, demonstrating mechanical energy preservation against track friction. Teams draft scaled blueprints, record elevation metrics, test iteratively, and achieve 3 official consecutive trial runs for teacher verification.",
-    "essentialQuestion": "How do gravitational potential energy, track friction, and centripetal acceleration dictate whether a roller coaster can complete a vertical loop and climb a 20 cm uphill finish?",
+    "summary": "Block Schedule (Periods 0, 1, 3, 5 - 105 min): Students follow a structured 9-step guided build and calibration slideshow with mandatory teacher approval checkpoints at Step 3 (gentle bottom curve) and Step 6 (taped floor meter stick). Teams mark their ramp every 10 cm, record floor landing distances, and use their fitted calibration graph to predict release marks for 3 target rounds.",
+    "activity": "Step-by-Step Horizontal Projectile Ramp Lab (9-Step Guided Slideshow): One student per table signs in and registers all group members by name and 6-digit ID. Groups advance step-by-step: (1) Gather 6 cardstock strips, scissors, tape, 2 meter sticks, and 1 marble, (2) Fold 3-equal-side channels, (3) Cut and tape a gentle bottom curve [Pause: Mr. Mudry Approval Required], (4) Place a chair on the table, (5) Attach the ramp so the marble rolls horizontally off the table edge, (6) Tape a meter stick on the floor [Pause: Mr. Mudry Approval Required], (7) Mark the ramp every 10 cm from bottom to top, (8) Release the marble from each mark and record exact floor landing distances, and (9) Use the plotted calibration curve to predict release marks for 3 target rounds.",
+    "essentialQuestion": "How can we use an empirical graph of floor landing distance versus ramp release mark to accurately predict the release position needed to hit any target distance?",
     "standards": [
-      "HS-PS3-2",
-      "HS-PS3-3",
-      "HS-ETS1-2",
-      "HS-PS2-1"
+      "HS-PS2-1",
+      "HS-PS3-1",
+      "HS-ETS1-2"
     ],
     "wicor": {
-      "Writing": "Documenting engineering modifications and explaining mechanical energy transformations in the design log.",
-      "Inquiry": "Iterating track bank angles and loop curvatures to prevent marble derailment while preserving kinetic energy.",
-      "Collaboration": "Coordinating pillar fabrication, track leveling, and joint taping within partner engineering teams.",
-      "Organization": "Recording elevation heights, loop radii, and 3-trial success metrics on the verification checklist.",
-      "Reading": "Reading engineering constraint specifications and metric ruler scales."
+      "Writing": "Recording group calibration measurements and Round 1–3 target release predictions.",
+      "Inquiry": "Determining the empirical relationship between ramp release distance (cm) and horizontal floor range (Δx).",
+      "Collaboration": "Working as a unified lab table team with single-device group roster tracking and checkpoint sign-offs.",
+      "Organization": "Advancing through the 9-step structured lab sequence and completing the 10 cm interval data table.",
+      "Reading": "Reading metric floor scales to 0.5 cm precision and interpolating target release positions from a fitted curve."
     },
     "bellRinger": {
       "type": "concept_chat",
-      "promptQuestion": "You are designing a paper roller coaster with a vertical loop and an uphill finish. Why MUST your starting hill be significantly taller than both the loop and the finish ramp? Where does energy go as the marble rolls?",
-      "explanation": "Total mechanical energy is conserved minus losses to friction and sound. Initial gravitational potential energy (mgh) must provide both the kinetic energy needed to stay on the loop (v ≥ √(gr)) and the potential energy to climb 20 cm at the finish. Friction continuously siphons energy away as thermal energy, so the start must be the highest point.",
+      "promptQuestion": "Why is it critical that the bottom of our cardstock ramp curves smoothly onto the flat tabletop so the marble rolls horizontally off the edge, instead of launching off a steep downward slope?",
+      "explanation": "If the ramp points downward at the edge of the table, the marble starts with an initial downward vertical velocity (vy0 ≠ 0), shortening its flight time and changing where it lands. A smooth horizontal transition ensures vy0 = 0 m/s every single trial so flight time depends only on table height.",
       "chatSystemInstruction": "You are a warm, adaptive, and relatable physics mentor chatting with a student over SMS/text. Your goal is to explore a physics concept together without being overly formal or using forced slang.\n\nCRITICAL RULES:\n1. NO FISHING / PIVOT TO TEACHING: Never try to \"force\" or repeatedly nudge a student toward a specific technical answer or physics term. If you ask a conceptual question and the student guesses wrong, focuses on a different variable (like friction/roughness), or says \"I don't know,\" DO NOT ask a follow-up question trying to correct their guess. Instead, pivot immediately to teaching: validate their logic, briefly explain the physics concept directly using a relatable analogy, and move on.\n2. NO SOCRATIC TRAPS: Do not get stuck in a loop asking the student to explain the same thing over and over. If they answer correctly, understand a concept, or say \"yes\"/\"obvious\", validate it briefly and immediately MOVE FORWARD to a new dimension or a real-world application.\n3. MOVE DYNAMICALLY: Keep the conversation fluid. Once a basic idea is established, introduce a fun twist, a new scenario, or a practical question (e.g., \"What happens if we try this in space?\" or \"How does that affect a rollercoaster?\"). \n4. CHAT TONE & LENGTH: Keep replies highly conversational and natural—like a text message from a knowledgeable peer. Limit replies to 1–3 short sentences max. Never send multiple distinct thoughts, lists, or bullet points in one message.\n5. CONTINUING THE CONVERSATION: Never end the conversation abruptly or push the student to stop chatting. Even after the student demonstrates understanding or has engaged in multiple turns, keep the conversation flowing naturally by offering intriguing follow-up thoughts, fun scenario twists, or real-world applications. You may let them know they can click the Finish Session button whenever they are ready to submit, but always leave the door open for them to continue chatting.",
       "defaultDuration": 3
     },
     "links": {
-      "Paper Roller Coaster Challenge Guide": "Unit_2/worksheets/Day44_Paper_Roller_Coaster_Challenge.html",
-      "Paper Roller Coaster Classroom Arena": "Unit_2/paper_roller_coaster/index.html",
-      "Target Range Solver (P0 Honors)": "Unit_2/projectile_target_range/index.html"
+      "Step-by-Step Ramp Lab & Target Graph": "Unit_2/projectile_target_range/index.html",
+      "Horizontal Projectile Motion Explorer": "horizontal-projectile-motion/index.html"
     },
     "assignments": [
       {
-        "title": "Paper Roller Coaster Engineering Challenge: Blueprint & Verification Audit",
-        "url": "Unit_2/worksheets/Day44_Paper_Roller_Coaster_Challenge.html",
-        "typeLabel": "Engineering Build Challenge",
-        "submission": "In-Class Demonstration & Handout Turn-In",
-        "actionLabel": "Open Engineering Handout 📄",
-        "description": "Design, build, and verify a cardstock roller coaster meeting all 3 constraints: hill > 20 cm, vertical loop, and finish 20 cm above lowest point.",
-        "status": "active"
-      },
-      {
-        "title": "Target Range Solver & Empirical Curve Calibrator (P0 Honors)",
+        "title": "Horizontal Projectile Marble Ramp Lab: Step-by-Step Build & Target Challenge",
         "url": "Unit_2/projectile_target_range/index.html",
-        "typeLabel": "Interactive Lab Workbench (Period 0)",
-        "submission": "Cloud Auto-Saved ✓ & Live Drop",
-        "description": "Log ramp calibration heights vs floor distances, plot your empirical calibration curve, and lock in your team's blind target release height prediction.",
+        "typeLabel": "9-Step Guided Lab & Target Rounds",
+        "submission": "Group Roster Sign-In & Teacher Checkpoints ✓",
+        "actionLabel": "Start Step-by-Step Lab 🚀",
+        "description": "Sign in (1 computer per group), add your teammates, complete the 9-step ramp build with Mr. Mudry's approval checkpoints at Steps 3 & 6, and use your graph to hit 3 target distances.",
         "status": "active"
       }
     ],
     "resources": [
       {
-        "title": "Paper Roller Coaster Challenge Brief & Blueprint Sheet",
-        "url": "Unit_2/worksheets/Day44_Paper_Roller_Coaster_Challenge.html",
-        "typeLabel": "Printable Worksheet (2-Page)",
-        "description": "Print-ready student worksheet: 3 non-negotiable constraints, track elevation data table, blueprint grid, and teacher sign-off."
+        "title": "Horizontal Projectile Marble Ramp Lab (Steps 1–9 Slideshow)",
+        "url": "Unit_2/projectile_target_range/index.html",
+        "typeLabel": "Interactive Student Lab Guide",
+        "description": "Step-by-step ramp construction guide with teacher approval gates, calibration data table, and interactive target prediction graph."
       },
       {
-        "title": "Classroom Build Deck & Countdown Timer",
-        "url": "Unit_2/paper_roller_coaster/index.html",
-        "typeLabel": "Teacher Projector Dashboard",
-        "description": "High-contrast projector board with the 3 visual requirements, build countdown timer, and live team verification scoreboard."
-      },
-      {
-        "title": "Coaster Physics Energy Simulator",
-        "url": "coaster-physics/index.html",
-        "typeLabel": "Interactive Simulation",
-        "description": "Explore mechanical energy conservation, velocity, and loop forces."
+        "title": "Horizontal Projectile Motion Explorer",
+        "url": "horizontal-projectile-motion/index.html",
+        "typeLabel": "Lab Simulator Companion",
+        "description": "Verify predicted flight trajectories and impact velocities."
       }
     ]
   },

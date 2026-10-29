@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Empirical Tabletop Velocity Calibration &amp; Target Solver | Physics</title>
-  <meta name="description" content="Interactive student laboratory workbench: Calibrate tabletop marble ramp velocity, generate empirical square-root curves, and solve blind target range landing predictions.">
+  <title>Horizontal Projectile Ramp Lab: Step-by-Step Guide &amp; Target Challenge | Physics</title>
+  <meta name="description" content="Guided step-by-step horizontal projectile marble ramp build, teacher checkpoint approvals, calibration data table, and 3-round graph prediction challenge.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
 
   <!-- Google Fonts: Outfit, JetBrains Mono, Space Grotesk -->
@@ -44,15 +44,25 @@
     <div class="brand-section">
       <a href="../../unit2-dashboard.html" class="back-link">← Unit 2</a>
       <div class="app-title">
-        <span>🎯 Target Solver</span>
+        <span>🎯 Horizontal Projectile Ramp Lab</span>
         <span class="app-badge">HS-PS2-1</span>
       </div>
     </div>
 
     <div class="nav-actions">
+      <!-- Team & Table Pill (shown once started) -->
+      <span class="auth-badge" id="tableTeamPill" style="display: none; background: var(--accent-cyan-bg); color: var(--accent-cyan);">
+        Table 1
+      </span>
+
       <!-- Desmos Toggle -->
       <button type="button" class="btn-icon" id="btnToggleCalc" title="Toggle Desmos Scientific Calculator">
         🧮 <span>Calculator</span>
+      </button>
+
+      <!-- Font Size Toggle -->
+      <button type="button" class="btn-icon" id="btnFontScale" title="Change Text Size">
+        🔠 <span>Text Size</span>
       </button>
 
       <!-- Theme Toggle -->
@@ -60,16 +70,16 @@
         ☀️ / 🌙
       </button>
 
+      <!-- Teacher-Only Link (Visible only when signed in as Mr. Mudry) -->
+      <a href="dashboard.html" class="btn-icon" id="btnTeacherDashLink" style="display: none; background: var(--accent-purple); color: #fff; border-color: var(--accent-purple); text-decoration: none;">
+        👨‍🏫 Teacher Dashboard
+      </a>
+
       <!-- User Auth Profile -->
       <span class="auth-badge" id="userBadge" style="display: none;">👤 Guest</span>
       <button type="button" class="btn-icon" id="btnLogin" style="background: var(--accent-cyan); color: #fff; border-color: var(--accent-cyan);">
         Google Sign-In
       </button>
-
-      <!-- Link to Teacher Arena -->
-      <a href="dashboard.html" class="btn-icon" style="text-decoration: none;" title="Open Teacher Competition Arena">
-        🏆 <span>Class Board</span>
-      </a>
     </div>
   </header>
 
@@ -82,306 +92,797 @@
     <div id="desmosContainer" style="width: 100%; height: 320px; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-color);"></div>
   </div>
 
-  <!-- Main App Container -->
-  <main class="app-container split-view">
+  <!-- Step Progress Rail (Sticky under header once logged in) -->
+  <nav class="step-rail-bar" id="stepRailBar" style="display: none;" aria-label="Lab Step Progress">
+    <div class="step-rail-inner" id="stepRailInner">
+      <!-- Populated dynamically by JS: Team Setup -> Step 1 .. Step 9 -->
+    </div>
+  </nav>
 
-    <!-- Left Column: Setup & Calibration Table -->
-    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+  <!-- =========================================================================
+       LOGIN & TEAM FORMATION GATE (Requires 1 Student Sign-In + Group Roster)
+       ========================================================================= -->
+  <main class="slideshow-wrapper" id="mainSlideshow">
 
-      <!-- Team Registration Card -->
-      <section class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <span class="step-num">1</span>
-            <span>Team &amp; Table Setup</span>
-          </div>
-          <span class="card-subtitle">Identify your lab group</span>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-          <div class="form-group">
-            <label class="form-label" for="periodSelect">Class Period</label>
-            <select class="form-input" id="periodSelect">
-              <option value="0">Period 0 (Honors)</option>
-              <option value="1">Period 1</option>
-              <option value="2">Period 2</option>
-              <option value="3">Period 3</option>
-              <option value="4">Period 4</option>
-              <option value="5">Period 5</option>
-              <option value="6">Period 6</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="tableSelect">Table Number</label>
-            <select class="form-input" id="tableSelect">
-              <option value="1">Table 1</option>
-              <option value="2">Table 2</option>
-              <option value="3">Table 3</option>
-              <option value="4">Table 4</option>
-              <option value="5">Table 5</option>
-              <option value="6">Table 6</option>
-              <option value="7">Table 7</option>
-              <option value="8">Table 8</option>
-              <option value="9">Table 9</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="teamInput">Team Member Names</label>
-          <input type="text" class="form-input" id="teamInput" placeholder="e.g. Maya, Julian, Ethan, Sarah">
-        </div>
-
-        <!-- Tabletop Height -->
-        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 1rem; align-items: end;">
-          <div class="form-group">
-            <label class="form-label" for="inputTableHeight">
-              <span>Table Height (Δy)</span>
-              <span style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: 800;">Floor to tabletop</span>
-            </label>
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <input type="number" step="0.5" min="20" max="200" class="form-input" id="inputTableHeight" value="85.0">
-              <span style="font-weight: 800; font-family: var(--font-mono);">cm</span>
-            </div>
-          </div>
-
-          <div class="result-card" style="margin-bottom: 2px;">
-            <span class="result-label">Theoretical Air Time</span>
-            <span class="result-value" id="dispAirTime" style="font-size: 1.25rem;">0.412 s</span>
-            <span style="font-size: 0.72rem; color: var(--text-dim);">t = √(2Δy ÷ 10)</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- Step 2: Calibration Data Table -->
-      <section class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <span class="step-num">2</span>
-            <span>Ramp Calibration Trials</span>
-          </div>
-          <button type="button" class="btn-secondary" id="btnAddRow" style="padding: 0.35rem 0.75rem; font-size: 0.82rem;">
-            + Add Trial Row
-          </button>
-        </div>
-
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
-          Release the marble from various vertical heights on your cardstock ramp. Use a plumb-bob to mark the floor origin (0 cm) right below the table edge, and record the landing distance.
+    <!-- SLIDE 0: GOOGLE SIGN-IN & GROUP PARTICIPANT BUILDER -->
+    <section class="slide-card" id="slide0">
+      <div class="slide-header">
+        <div class="slide-step-tag">Team Check-In</div>
+        <h1 class="slide-title">Sign In &amp; Register All Group Members</h1>
+        <p class="slide-subtitle">
+          Only <strong>one person per group</strong> needs a Chromebook open, but you must list every classmate in your group below so everyone receives credit.
         </p>
+      </div>
 
-        <div class="cal-table-wrap">
-          <table class="cal-table">
-            <thead>
-              <tr>
-                <th style="width: 45px;">#</th>
-                <th>Ramp Height h (cm)</th>
-                <th>Floor Distance Δx (cm)</th>
-                <th style="width: 40px; text-align: center;">✕</th>
-              </tr>
-            </thead>
-            <tbody id="calTableBody">
-              <!-- Dynamically populated rows -->
-            </tbody>
-          </table>
-        </div>
+      <!-- Step A: Google Sign-In Box (Shown when not signed in) -->
+      <div id="authGatePrompt" class="gate-signin-box">
+        <div style="font-size: 2.5rem; line-height: 1;">🔐</div>
+        <h2 style="font-size: 1.25rem; font-weight: 900; margin: 0;">Step 1: Sign In with Your School Google Account</h2>
+        <p style="font-size: 0.95rem; color: var(--text-muted); max-width: 540px; margin: 0 auto;">
+          Have one person at your lab table sign in using their <strong>@orangeusd.org</strong> account to unlock the step-by-step build guide for your table.
+        </p>
+        <button type="button" class="btn-primary btn-lg" id="btnGateSignIn">
+          🔑 Sign In with @orangeusd.org Google Account
+        </button>
+      </div>
 
-        <!-- Graph Reading & Interpolation Guide -->
-        <div style="background: var(--bg-card-sub); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.25rem;">
-          <span style="font-size: 0.78rem; font-weight: 800; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 0.04em;">
-            📈 Graph Calibration Status
-          </span>
-          <div id="graphStatusMsg" style="font-size: 0.88rem; font-weight: 700; color: var(--text-main);">
-            Enter at least 2 data points to generate your calibration curve.
-          </div>
-          <span style="font-size: 0.75rem; color: var(--text-dim);">
-            Move your cursor or finger over the graph on the right to trace and read values directly off your curve.
-          </span>
-        </div>
-      </section>
-
-    </div>
-
-    <!-- Right Column: Live Plot & Target Solver -->
-    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
-
-      <!-- Step 3: Interactive Scatter Plot & Calibration Graph -->
-      <section class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <span class="step-num">3</span>
-            <span>Empirical Calibration Graph</span>
-          </div>
-          <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent-cyan);">Floor Distance vs Ramp Height</span>
-        </div>
-
-        <div class="canvas-wrap">
-          <canvas id="plotCanvas"></canvas>
-        </div>
-
-        <!-- Interactive Coordinate Readout Banner under Canvas -->
-        <div id="plotReadout" style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-card-sub); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.5rem 0.8rem; font-family: var(--font-mono); font-size: 0.85rem; flex-wrap: wrap; gap: 0.4rem;">
-          <span style="color: var(--text-dim); font-weight: 700;">Graph Inspector:</span>
-          <span id="readoutValues" style="font-weight: 800; color: var(--accent-cyan);">Hover or tap curve to trace values</span>
-        </div>
-      </section>
-
-      <!-- Step 4: The Blind Target Challenge (Read Your Graph) -->
-      <section class="card" style="border-color: var(--accent-purple);">
-        <div class="card-header">
-          <div class="card-title" style="color: var(--accent-purple);">
-            <span class="step-num" style="background: var(--accent-purple);">4</span>
-            <span>Blind Target Challenge: Read Your Graph</span>
-          </div>
-          <span class="app-badge" style="background: var(--accent-purple-bg); color: var(--accent-purple);">Official Shot</span>
-        </div>
-
-        <!-- Student 4-Round Scorecard Deck -->
-        <div class="student-scorecard-wrap">
+      <!-- Step B: Group Members Builder (Shown once signed in) -->
+      <div id="teamBuilderPanel" style="display: none; flex-direction: column; gap: 1.25rem;">
+        <!-- Group Participant Roster Box -->
+        <div class="group-roster-box">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-              <span id="studentActiveRoundBadge" class="round-status-badge round-badge-active">
-                🎯 Round 1 of 3
-              </span>
-              <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-dim);" id="roundStatusSubtitle">
-                Match teacher target to read release height
-              </span>
+            <div>
+              <h3 style="font-size: 1.05rem; font-weight: 900; margin: 0;">👥 Group Members</h3>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.15rem 0 0 0;">
+                Add every partner in your group using their <strong>First &amp; Last Name</strong> so Mr. Mudry's gradebook credits everyone.
+              </p>
             </div>
-            <div class="student-total-score-box">
-              <span style="font-size: 0.75rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Total Score:</span>
-              <span id="studentTotalScore" style="font-family: var(--font-mono); font-size: 1.25rem; font-weight: 900; color: var(--accent-purple);">0</span>
-              <span style="font-size: 0.82rem; font-weight: 800; color: var(--text-dim);">/ 30 pts</span>
-              <span id="studentTbScorePill" style="display: none; font-size: 0.75rem; font-weight: 800; background: var(--accent-gold); color: #fff; padding: 0.12rem 0.4rem; border-radius: 4px;">
-                TB: 10
-              </span>
-            </div>
+            <span class="app-badge" id="memberCountBadge">1 Member Added</span>
           </div>
 
-          <!-- 4 Round Cards -->
-          <div class="student-scorecard-grid">
-            <div class="scorecard-round-box active" id="cardRound1" data-round="1">
-              <div class="sc-header">
-                <span class="sc-title">Round 1</span>
-                <span class="sc-pts" id="scPtsR1">-- / 10</span>
-              </div>
-              <div class="sc-details">
-                <span id="scTargetR1">Δx: 110.0 cm</span>
-                <span id="scPredR1">h: -- cm</span>
-              </div>
-              <div class="sc-status" id="scStatusR1">Active</div>
-            </div>
+          <!-- List of Current Group Members -->
+          <div id="groupMembersList" class="members-list">
+            <!-- Dynamically populated: Member 1 (Signed-in user) + Teammates -->
+          </div>
 
-            <div class="scorecard-round-box" id="cardRound2" data-round="2">
-              <div class="sc-header">
-                <span class="sc-title">Round 2</span>
-                <span class="sc-pts" id="scPtsR2">-- / 10</span>
-              </div>
-              <div class="sc-details">
-                <span id="scTargetR2">Δx: 130.0 cm</span>
-                <span id="scPredR2">h: -- cm</span>
-              </div>
-              <div class="sc-status" id="scStatusR2">Upcoming</div>
+          <!-- Add Teammate Form Row -->
+          <div class="add-teammate-bar" style="grid-template-columns: 1fr auto;">
+            <div style="flex: 1; min-width: 200px;">
+              <label class="form-label" for="inputTeammateName" style="font-size: 0.78rem;">Teammate First &amp; Last Name (Must Match Class Roster)</label>
+              <input type="text" id="inputTeammateName" list="classmateSuggestions" autocomplete="off" class="form-input" placeholder="Start typing classmate's First &amp; Last Name..." style="width: 100%; font-family: var(--font-main); font-size: 0.95rem;">
+              <datalist id="classmateSuggestions"></datalist>
             </div>
-
-            <div class="scorecard-round-box" id="cardRound3" data-round="3">
-              <div class="sc-header">
-                <span class="sc-title">Round 3</span>
-                <span class="sc-pts" id="scPtsR3">-- / 10</span>
-              </div>
-              <div class="sc-details">
-                <span id="scTargetR3">Δx: 150.0 cm</span>
-                <span id="scPredR3">h: -- cm</span>
-              </div>
-              <div class="sc-status" id="scStatusR3">Upcoming</div>
+            <input type="hidden" id="inputTeammateId" value="">
+            <div style="display: flex; align-items: flex-end;">
+              <button type="button" class="btn-secondary" id="btnAddTeammate" style="height: 44px; font-weight: 800; border-color: var(--accent-cyan); color: var(--accent-cyan);">
+                + Add Classmate
+              </button>
             </div>
+          </div>
+          <div id="teammateLookupStatus" style="font-size: 0.8rem; color: var(--text-dim);"></div>
+        </div>
 
-            <div class="scorecard-round-box scorecard-tb" id="cardRound4" data-round="4">
-              <div class="sc-header">
-                <span class="sc-title">🏆 Tie-Breaker</span>
-                <span class="sc-pts" id="scPtsR4">-- / 10</span>
-              </div>
-              <div class="sc-details">
-                <span id="scTargetR4">Δx: 165.0 cm</span>
-                <span id="scPredR4">h: -- cm</span>
-              </div>
-              <div class="sc-status" id="scStatusR4">If Needed</div>
+        <div class="slide-footer">
+          <span>Double-check that all group members are listed above before starting.</span>
+          <button type="button" class="btn-primary btn-lg" id="btnStartStep1">
+            Start Step 1: Gather Materials →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         STEP 1: GATHER MATERIALS
+         ======================================================================= -->
+    <section class="slide-card" id="slide1" style="display: none;">
+      <div class="slide-header">
+        <div class="slide-step-tag">Step 1 of 9</div>
+        <h1 class="slide-title">Gather Your Lab Materials</h1>
+        <p class="slide-subtitle">
+          Collect these exact 5 items for your table. Check off each box below once it is on your table.
+        </p>
+      </div>
+
+      <div class="slide-split">
+        <!-- Checklist -->
+        <div class="checklist-stack">
+          <label class="material-check-item">
+            <input type="checkbox" class="chk-step1">
+            <span><strong>6 strips</strong> of cardstock</span>
+          </label>
+          <label class="material-check-item">
+            <input type="checkbox" class="chk-step1">
+            <span><strong>1 pair</strong> of scissors</span>
+          </label>
+          <label class="material-check-item">
+            <input type="checkbox" class="chk-step1">
+            <span><strong>1 roll</strong> of masking tape</span>
+          </label>
+          <label class="material-check-item">
+            <input type="checkbox" class="chk-step1">
+            <span><strong>2</strong> meter sticks</span>
+          </label>
+          <label class="material-check-item">
+            <input type="checkbox" class="chk-step1">
+            <span><strong>1</strong> marble</span>
+          </label>
+        </div>
+
+        <!-- Visual Diagram -->
+        <div class="diagram-box">
+          <svg viewBox="0 0 420 250" style="width: 100%; height: auto;">
+            <!-- Cardstock strips -->
+            <rect x="25" y="30" width="130" height="22" rx="3" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+            <rect x="30" y="36" width="130" height="22" rx="3" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+            <rect x="35" y="42" width="130" height="22" rx="3" fill="#bae6fd" stroke="#0284c7" stroke-width="2"/>
+            <text x="100" y="84" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="800" font-size="13" fill="#0f172a">6 Cardstock Strips</text>
+
+            <!-- Scissors & Tape -->
+            <circle cx="265" cy="52" r="24" fill="none" stroke="#d97706" stroke-width="10"/>
+            <circle cx="265" cy="52" r="14" fill="none" stroke="#b45309" stroke-width="1.5"/>
+            <text x="265" y="96" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="800" font-size="13" fill="#0f172a">Masking Tape</text>
+
+            <circle cx="355" cy="42" r="10" fill="none" stroke="#475569" stroke-width="3"/>
+            <circle cx="355" cy="64" r="10" fill="none" stroke="#475569" stroke-width="3"/>
+            <line x1="363" y1="47" x2="398" y2="65" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+            <line x1="363" y1="59" x2="398" y2="41" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+            <text x="372" y="96" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="800" font-size="13" fill="#0f172a">1 Scissors</text>
+
+            <!-- 2 Meter Sticks -->
+            <rect x="30" y="135" width="260" height="18" rx="2" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+            <line x1="56" y1="135" x2="56" y2="144" stroke="#b45309" stroke-width="1.5"/>
+            <line x1="82" y1="135" x2="82" y2="144" stroke="#b45309" stroke-width="1.5"/>
+            <line x1="108" y1="135" x2="108" y2="144" stroke="#b45309" stroke-width="1.5"/>
+            <line x1="134" y1="135" x2="134" y2="144" stroke="#b45309" stroke-width="1.5"/>
+            <line x1="160" y1="135" x2="160" y2="144" stroke="#b45309" stroke-width="1.5"/>
+            <line x1="186" y1="135" x2="186" y2="144" stroke="#b45309" stroke-width="1.5"/>
+            <line x1="212" y1="135" x2="212" y2="144" stroke="#b45309" stroke-width="1.5"/>
+            <line x1="238" y1="135" x2="238" y2="144" stroke="#b45309" stroke-width="1.5"/>
+            <line x1="264" y1="135" x2="264" y2="144" stroke="#b45309" stroke-width="1.5"/>
+
+            <rect x="30" y="162" width="260" height="18" rx="2" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+            <text x="160" y="202" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="800" font-size="13" fill="#0f172a">2 Meter Sticks (100 cm)</text>
+
+            <!-- 1 Marble -->
+            <circle cx="355" cy="158" r="18" fill="#0284c7" stroke="#0369a1" stroke-width="2"/>
+            <circle cx="349" cy="152" r="5" fill="#bae6fd"/>
+            <text x="355" y="202" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="800" font-size="13" fill="#0f172a">1 Glass Marble</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <button type="button" class="btn-secondary" data-goto="0">← Team Setup</button>
+        <button type="button" class="btn-primary btn-lg" id="btnNextFrom1" disabled>
+          Check All 5 Materials to Continue →
+        </button>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         STEP 2: FOLD THE CARDSTOCK INTO A 3-SIDED CHANNEL
+         ======================================================================= -->
+    <section class="slide-card" id="slide2" style="display: none;">
+      <div class="slide-header">
+        <div class="slide-step-tag">Step 2 of 9</div>
+        <h1 class="slide-title">Fold the Cardstock into a 3-Sided Channel</h1>
+        <p class="slide-subtitle">
+          Fold each 11-inch strip the narrow way into a <strong>U-shaped channel with 3 equal sides</strong>, then <strong>overlap the channels like roof shingles</strong> and tape them together so the ramp is rigid and strong.
+        </p>
+      </div>
+
+      <div class="slide-split">
+        <div class="instruction-points">
+          <div class="point-card">
+            <span class="point-num">A</span>
+            <div>
+              <strong>Fold in Thirds the NARROW Way (Lengthwise — Keep It 11 Inches Long!)</strong>
+              <p>Each strip is <strong>11 in long</strong> and <strong>2.83 in wide</strong>. Fold two creases running the entire <strong>11-inch length</strong> so the narrow 2.83 in width is divided into 3 equal strips (~0.94 in each). Fold both long sides up at 90° to make a long <strong>11-inch U-channel</strong>.</p>
+            </div>
+          </div>
+          <div class="point-card">
+            <span class="point-num">B</span>
+            <div>
+              <strong>Overlap Channels Like Roof Shingles (Do NOT Tape End-to-End!)</strong>
+              <p>Taping end-to-end is too flexible and floppy! Instead, <strong>nest and overlap each channel by several inches like shingles on a roof</strong> (with the upper channel sitting inside/on top of the lower channel so the marble rolls smoothly downhill without hitting a lip) and tape tightly.</p>
             </div>
           </div>
         </div>
 
-        <div class="callout-banner">
-          <span class="callout-icon">🎯</span>
-          <span>
-            Find your target distance on the <strong>vertical axis (Δx)</strong> of your graph, trace across to your calibration curve, and read straight down to the <strong>horizontal axis (h)</strong> for your release height!
+        <div class="diagram-box">
+          <svg viewBox="0 0 460 150" style="width: 100%; height: auto;">
+            <!-- Title 1: Long 11 in x 2.83 in Strip folded LENGTHWISE -->
+            <text x="155" y="20" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="800" font-size="12.5" fill="#0f172a">1. Fold in Thirds the NARROW Way (Along the 11 in Length)</text>
+
+            <!-- 11 inch dimension arrow along top -->
+            <line x1="35" y1="34" x2="275" y2="34" stroke="#475569" stroke-width="1.5"/>
+            <polygon points="35,34 42,30 42,38" fill="#475569"/>
+            <polygon points="275,34 268,30 268,38" fill="#475569"/>
+            <rect x="115" y="24" width="80" height="16" fill="#f8fafc"/>
+            <text x="155" y="36" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="800" font-size="11" fill="#0f172a">11 in long</text>
+
+            <!-- 2.83 inch dimension label on left -->
+            <line x1="22" y1="45" x2="22" y2="111" stroke="#475569" stroke-width="1.5"/>
+            <polygon points="22,45 18,51 26,51" fill="#475569"/>
+            <polygon points="22,111 18,105 26,105" fill="#475569"/>
+            <text x="19" y="81" text-anchor="end" font-family="JetBrains Mono, monospace" font-weight="800" font-size="10" fill="#0f172a">2.83"</text>
+
+            <!-- Long Narrow Strip (240px long x 66px tall -> 3 horizontal bands of 22px each) -->
+            <rect x="35" y="45" width="240" height="66" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.2"/>
+            <!-- Two horizontal lengthwise fold lines -->
+            <line x1="35" y1="67" x2="275" y2="67" stroke="#0284c7" stroke-width="2" stroke-dasharray="6,4"/>
+            <line x1="35" y1="89" x2="275" y2="89" stroke="#0284c7" stroke-width="2" stroke-dasharray="6,4"/>
+
+            <!-- Labels inside the 3 long narrow thirds -->
+            <text x="155" y="60" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="800" font-size="10.5" fill="#0369a1">1/3 Width — Fold Up (Side Wall)</text>
+            <text x="155" y="82" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="800" font-size="10.5" fill="#0f172a">1/3 Width — Flat Bottom Track</text>
+            <text x="155" y="104" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="800" font-size="10.5" fill="#0369a1">1/3 Width — Fold Up (Side Wall)</text>
+
+            <!-- Arrow to End-View Cross Section -->
+            <text x="302" y="84" text-anchor="middle" font-size="22" font-weight="900" fill="#0284c7">➔</text>
+
+            <!-- 2. End View + 3D Long 11-inch U-Channel -->
+            <text x="385" y="20" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="800" font-size="12.5" fill="#059669">2. End View (U-Channel)</text>
+            <polyline points="345,48 345,108 425,108 425,48" fill="none" stroke="#059669" stroke-width="5.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <circle cx="385" cy="91" r="14" fill="#0284c7"/>
+            <circle cx="380" cy="86" r="4" fill="#bae6fd"/>
+            <text x="385" y="126" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="800" font-size="10.5" fill="#059669">3 Equal Sides (~0.94")</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <button type="button" class="btn-secondary" data-goto="1">← Back to Step 1</button>
+        <button type="button" class="btn-primary btn-lg" data-goto="3">
+          Channel Folded → Go to Step 3
+        </button>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         STEP 3: CUT & CURVE BOTTOM OF RAMP (PAUSE: TEACHER APPROVAL #1)
+         ======================================================================= -->
+    <section class="slide-card" id="slide3" style="display: none;">
+      <div class="slide-header">
+        <div class="slide-step-tag" style="background: var(--accent-orange); color: #fff;">Step 3 of 9 &bull; 🛑 Teacher Checkpoint #1</div>
+        <h1 class="slide-title">Curve the Bottom End of Your Ramp</h1>
+        <p class="slide-subtitle">
+          Pick an end to be the <strong>TOP</strong> and an end to be the <strong>BOTTOM</strong> of the ramp. Cut the side walls of the cardstock at the bottom of the ramp and tape it into a <strong>gentle curve shape</strong>.
+        </p>
+      </div>
+
+      <div class="slide-split">
+        <div class="instruction-points">
+          <div class="point-card">
+            <span class="point-num">1</span>
+            <div>
+              <strong>Snip the Side Walls Near the Bottom End</strong>
+              <p>Make 3 or 4 small vertical scissor cuts in both side walls near the bottom end of your ramp (stop at the fold line—do NOT cut through the bottom floor of the channel!).</p>
+            </div>
+          </div>
+          <div class="point-card">
+            <span class="point-num">2</span>
+            <div>
+              <strong>Overlap the Flaps &amp; Tape Into a Gentle Curve</strong>
+              <p>Bend the bottom of the ramp slightly upward so it transitions smoothly from a steep slope to flat, overlapping the cut side flaps and taping them in place.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="diagram-box" style="padding: 0.75rem;">
+          <img src="img/curve-cut-guide.png" alt="Cutting tabs along the side walls of the cardstock channel up to the dashed fold line to create a curve" style="width: 100%; max-width: 390px; height: auto; border-radius: 8px; border: 2px solid var(--border-color); display: block;">
+          <span style="font-size: 0.82rem; font-weight: 800; color: var(--text-muted); text-align: center; margin-top: 0.35rem;">
+            ✂️ Cut slits in both side walls up to the dashed fold line, then overlap and tape the tabs to form a smooth curve.
           </span>
         </div>
+      </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-          <!-- Target Distance Input -->
-          <div class="form-group">
-            <label class="form-label" for="inputTargetDist">
-              <span id="labelTargetDist">Target Distance (Δx)</span>
-              <span id="assignedTargetBadge" style="font-size: 0.75rem; color: var(--accent-purple); font-weight: 800;">Table edge to cup</span>
-            </label>
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <input type="number" step="0.5" min="10" max="400" class="form-input" id="inputTargetDist" value="110.0" style="font-size: 1.15rem;">
-              <span style="font-weight: 800; font-family: var(--font-mono);">cm</span>
-            </div>
+      <!-- PAUSE GATE #1: REQUIRE TEACHER APPROVAL -->
+      <div class="approval-gate-box" id="gateBoxStep3">
+        <div class="approval-gate-content">
+          <div class="approval-icon" id="iconGate3">🛑</div>
+          <div style="flex: 1;">
+            <div class="approval-title" id="titleGate3">Pause Here: Approval Required from Mr. Mudry</div>
+            <p class="approval-desc" id="descGate3">
+              Once your group has cut and taped the bottom of your ramp into a gentle curve, click the button on the right to signal Mr. Mudry. Show him your ramp curve so he can unlock Step 4 on his dashboard.
+            </p>
           </div>
-
-          <!-- Student's Release Height Read From Graph -->
-          <div class="form-group">
-            <label class="form-label" for="inputReleaseHeight">
-              <span id="labelReleaseHeight">Release Height (h) Read From Graph</span>
-              <span style="font-size: 0.75rem; color: var(--accent-purple); font-weight: 800;">Vertical on ramp</span>
-            </label>
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <input type="number" step="0.5" min="1" max="250" class="form-input" id="inputReleaseHeight" placeholder="Read h from curve..." style="font-size: 1.15rem; border-color: var(--accent-purple); font-weight: 800;">
-              <span style="font-weight: 800; font-family: var(--font-mono);">cm</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Graph Verification Notice -->
-        <div style="background: var(--bg-card-sub); padding: 0.85rem 1rem; border-radius: var(--radius-md); border: 1.5px solid var(--border-color); display: flex; flex-direction: column; gap: 0.6rem;">
-          <div style="font-size: 0.82rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">
-            Visual Graph Verification
-          </div>
-
-          <p id="graphFeedbackMsg" style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
-            As you type your release height, watch your graph! Your team's prediction pin will appear at <strong>(h, Δx)</strong> with dashed guide lines. If your point sits directly on your curve, your reading is accurate and ready for launch!
-          </p>
-
-          <!-- Tier 2 Elevated Target Toggle -->
-          <div style="margin-top: 0.25rem;">
-            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem; font-weight: 700;">
-              <input type="checkbox" id="chkElevation">
-              <span>Tier 2 Add-On: Elevated Target Cup (Stool / Book Stack)</span>
-            </label>
-            <div id="wrapElevation" style="display: none; align-items: center; gap: 0.6rem; margin-top: 0.4rem;">
-              <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-dim);">Cup Elevation Height:</span>
-              <input type="number" step="0.5" min="1" max="150" class="table-input" id="inputElevation" value="0.0">
-              <span style="font-family: var(--font-mono); font-weight: 700; font-size: 0.85rem;">cm above floor</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Lock in & Submit Button -->
-        <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
-          <button type="button" class="btn-success" id="btnSubmitPrediction">
-            🚀 Lock In &amp; Submit Round 1 Prediction to Class Board
+          <button type="button" class="btn-warning btn-lg" id="btnRequestStep3">
+            ✋ Request Mr. Mudry's Approval
           </button>
-          <div id="submitStatus" style="font-size: 0.85rem; text-align: center; min-height: 1.4rem;"></div>
         </div>
-      </section>
+      </div>
 
-    </div>
+      <div class="slide-footer">
+        <button type="button" class="btn-secondary" data-goto="2">← Back to Step 2</button>
+        <button type="button" class="btn-primary btn-lg" id="btnNextFrom3" disabled>
+          🔒 Waiting for Mr. Mudry's Approval...
+        </button>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         STEP 4: PUT A CHAIR ON THE TABLE
+         ======================================================================= -->
+    <section class="slide-card" id="slide4" style="display: none;">
+      <div class="slide-header">
+        <div class="slide-step-tag">Step 4 of 9</div>
+        <h1 class="slide-title">Put a Chair on the Table</h1>
+        <p class="slide-subtitle">
+          Lift one lab chair and place it stably on top of your lab table. This chair will hold up the high end of your marble ramp.
+        </p>
+      </div>
+
+      <div class="slide-split">
+        <div class="instruction-points">
+          <div class="point-card">
+            <span class="point-num">✓</span>
+            <div>
+              <strong>All 4 Chair Legs Fully on the Tabletop</strong>
+              <p>Place the chair about 1 meter back from the front edge of your table so all four chair legs sit flat and securely on the table surface.</p>
+            </div>
+          </div>
+          <div class="point-card">
+            <span class="point-num">✓</span>
+            <div>
+              <strong>Clear Runway to the Table Edge</strong>
+              <p>Make sure the tabletop path between the chair and the edge of the table is completely clear of backpacks, Chromebooks, and water bottles.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="diagram-box">
+          <svg viewBox="0 0 420 230" style="width: 100%; height: auto;">
+            <!-- Floor -->
+            <line x1="20" y1="210" x2="400" y2="210" stroke="#475569" stroke-width="3"/>
+            <!-- Table -->
+            <rect x="60" y="135" width="260" height="10" fill="#64748b"/>
+            <rect x="75" y="145" width="10" height="65" fill="#475569"/>
+            <rect x="295" y="145" width="10" height="65" fill="#475569"/>
+            <text x="190" y="165" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="800" font-size="12" fill="#475569">Lab Table</text>
+
+            <!-- Chair on Table -->
+            <line x1="95" y1="50" x2="95" y2="135" stroke="#0284c7" stroke-width="6" stroke-linecap="round"/>
+            <line x1="95" y1="95" x2="145" y2="95" stroke="#0284c7" stroke-width="6" stroke-linecap="round"/>
+            <line x1="145" y1="95" x2="145" y2="135" stroke="#0284c7" stroke-width="6" stroke-linecap="round"/>
+            <text x="125" y="40" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="800" font-size="13" fill="#0284c7">Chair on Table</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <button type="button" class="btn-secondary" data-goto="3">← Back to Step 3</button>
+        <button type="button" class="btn-primary btn-lg" data-goto="5">
+          Chair Is on the Table → Go to Step 5
+        </button>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         STEP 5: ATTACH RAMP TO CHAIR & POSITION AT TABLE EDGE
+         ======================================================================= -->
+    <section class="slide-card" id="slide5" style="display: none;">
+      <div class="slide-header">
+        <div class="slide-step-tag">Step 5 of 9</div>
+        <h1 class="slide-title">Attach the Ramp to the Chair &amp; Table Edge</h1>
+        <p class="slide-subtitle">
+          Attach the top of the ramp to the chair and position the bottom end of the ramp so the marble will <strong>roll horizontally off the edge of the table</strong> and NOT be launched at an angle directly from the ramp.
+        </p>
+      </div>
+
+      <div class="slide-split">
+        <div class="instruction-points">
+          <div class="point-card">
+            <span class="point-num">1</span>
+            <div>
+              <strong>Tape Top of Ramp to the Chair</strong>
+              <p>Secure the top end of your cardstock channel high up on the chair using masking tape so it cannot slip or sag between trials.</p>
+            </div>
+          </div>
+          <div class="point-card">
+            <span class="point-num">2</span>
+            <div>
+              <strong>Flat Horizontal Exit at the Table Edge</strong>
+              <p>Tape the curved bottom of the ramp flat onto the tabletop right near the edge so the marble rolls flat along the table before leaving the edge horizontally.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="diagram-box">
+          <svg viewBox="0 0 420 240" style="width: 100%; height: auto;">
+            <!-- Floor -->
+            <line x1="20" y1="215" x2="400" y2="215" stroke="#475569" stroke-width="3"/>
+            <!-- Table -->
+            <rect x="45" y="140" width="235" height="10" fill="#64748b"/>
+            <rect x="60" y="150" width="10" height="65" fill="#475569"/>
+            <rect x="260" y="150" width="10" height="65" fill="#475569"/>
+
+            <!-- Chair -->
+            <line x1="70" y1="45" x2="70" y2="140" stroke="#475569" stroke-width="5" stroke-linecap="round"/>
+            <line x1="70" y1="95" x2="115" y2="95" stroke="#475569" stroke-width="5" stroke-linecap="round"/>
+            <line x1="115" y1="95" x2="115" y2="140" stroke="#475569" stroke-width="5" stroke-linecap="round"/>
+
+            <!-- Ramp attached to chair and curving flat onto table edge -->
+            <path d="M 72 52 L 215 132 Q 240 140, 278 140" fill="none" stroke="#0284c7" stroke-width="7" stroke-linecap="round"/>
+
+            <!-- Marble leaving horizontally -->
+            <circle cx="282" cy="133" r="7" fill="#e11d48"/>
+            <line x1="292" y1="133" x2="335" y2="133" stroke="#059669" stroke-width="3"/>
+            <polygon points="335,128 345,133 335,138" fill="#059669"/>
+            <text x="342" y="118" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="800" font-size="11" fill="#059669">✓ Rolls off table horizontally</text>
+
+            <!-- Parabolic flight path -->
+            <path d="M 282 136 Q 335 140, 365 215" fill="none" stroke="#e11d48" stroke-width="2" stroke-dasharray="4,4"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <button type="button" class="btn-secondary" data-goto="4">← Back to Step 4</button>
+        <button type="button" class="btn-primary btn-lg" data-goto="6">
+          Ramp Attached → Go to Step 6
+        </button>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         STEP 6: PLACE & TAPE FLOOR METER STICK (PAUSE: TEACHER APPROVAL #2)
+         ======================================================================= -->
+    <section class="slide-card" id="slide6" style="display: none;">
+      <div class="slide-header">
+        <div class="slide-step-tag" style="background: var(--accent-orange); color: #fff;">Step 6 of 9 &bull; 🛑 Teacher Checkpoint #2</div>
+        <h1 class="slide-title">Place &amp; Tape a Meter Stick on the Floor</h1>
+        <p class="slide-subtitle">
+          Place <strong>1 meter stick</strong> flat on the floor starting directly below the edge of the table (<strong>0 cm</strong> at the table edge) and <strong>tape it to the floor</strong> so it doesn't accidentally slide around.
+        </p>
+      </div>
+
+      <div class="slide-split">
+        <div class="instruction-points">
+          <div class="point-card">
+            <span class="point-num">1</span>
+            <div>
+              <strong>Line Up 0 cm Directly Under the Table Edge</strong>
+              <p>Use your second meter stick held vertically against the table edge as a plumb line so the <strong>0 cm</strong> end of the floor meter stick sits directly beneath the launch edge.</p>
+            </div>
+          </div>
+          <div class="point-card">
+            <span class="point-num">2</span>
+            <div>
+              <strong>Tape the Meter Stick to the Floor</strong>
+              <p>Point the meter stick straight out along the marble's path and tape both ends to the floor so no one kicks or shifts it during your trials.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="diagram-box">
+          <svg viewBox="0 0 420 235" style="width: 100%; height: auto;">
+            <!-- Floor -->
+            <line x1="20" y1="205" x2="405" y2="205" stroke="#475569" stroke-width="3"/>
+            <!-- Table Edge -->
+            <rect x="30" y="115" width="150" height="10" fill="#64748b"/>
+            <rect x="165" y="125" width="10" height="80" fill="#475569"/>
+
+            <!-- Ramp exit -->
+            <path d="M 50 55 L 135 108 Q 152 115, 178 115" fill="none" stroke="#0284c7" stroke-width="6" stroke-linecap="round"/>
+
+            <!-- Vertical plumb line from table edge to 0 cm -->
+            <line x1="180" y1="115" x2="180" y2="205" stroke="#7c3aed" stroke-width="2" stroke-dasharray="4,4"/>
+            <text x="130" y="165" text-anchor="end" font-family="Outfit, sans-serif" font-weight="800" font-size="11" fill="#7c3aed">0 cm directly below edge ➔</text>
+
+            <!-- Taped Floor Meter Stick -->
+            <rect x="180" y="195" width="205" height="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+            <!-- Tape strips holding meter stick -->
+            <rect x="195" y="192" width="14" height="15" fill="#bae6fd" stroke="#0284c7" stroke-width="1.5"/>
+            <rect x="350" y="192" width="14" height="15" fill="#bae6fd" stroke="#0284c7" stroke-width="1.5"/>
+            <text x="282" y="224" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="800" font-size="12" fill="#b45309">Meter Stick Taped to Floor (0 cm → 100 cm)</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- PAUSE GATE #2: REQUIRE TEACHER APPROVAL -->
+      <div class="approval-gate-box" id="gateBoxStep6">
+        <div class="approval-gate-content">
+          <div class="approval-icon" id="iconGate6">🛑</div>
+          <div style="flex: 1;">
+            <div class="approval-title" id="titleGate6">Pause Here: Approval Required from Mr. Mudry</div>
+            <p class="approval-desc" id="descGate6">
+              Once your ramp is attached to the chair, flat at the table edge, and your meter stick is taped to the floor starting at 0 cm under the table edge, click the button to call Mr. Mudry for inspection!
+            </p>
+          </div>
+          <button type="button" class="btn-warning btn-lg" id="btnRequestStep6">
+            ✋ Request Mr. Mudry's Approval
+          </button>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <button type="button" class="btn-secondary" data-goto="5">← Back to Step 5</button>
+        <button type="button" class="btn-primary btn-lg" id="btnNextFrom6" disabled>
+          🔒 Waiting for Mr. Mudry's Approval...
+        </button>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         STEP 7: MARK THE LENGTH OF THE RAMP EVERY 10 CM
+         ======================================================================= -->
+    <section class="slide-card" id="slide7" style="display: none;">
+      <div class="slide-header">
+        <div class="slide-step-tag">Step 7 of 9</div>
+        <h1 class="slide-title">Mark the Length of Your Ramp Every 10 cm</h1>
+        <p class="slide-subtitle">
+          Using your second meter stick, measure along the length of your ramp and draw a clear line <strong>every 10 cm from the bottom of the ramp to the top</strong> (10 cm, 20 cm, 30 cm, 40 cm, 50 cm, 60 cm...).
+        </p>
+      </div>
+
+      <div class="slide-split">
+        <div class="instruction-points">
+          <div class="point-card">
+            <span class="point-num">1</span>
+            <div>
+              <strong>Start 0 cm at the Bottom of the Ramp</strong>
+              <p>Hold your second meter stick right alongside the cardstock channel with <strong>0 cm at the bottom</strong> where the ramp meets the table.</p>
+            </div>
+          </div>
+          <div class="point-card">
+            <span class="point-num">2</span>
+            <div>
+              <strong>Draw &amp; Label Lines Every 10 cm Up the Ramp</strong>
+              <p>Draw a clear line across the inside of the channel at <strong>10 cm, 20 cm, 30 cm, 40 cm, 50 cm, 60 cm</strong> (all the way to the top of your ramp) and write the number next to each line.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="diagram-box">
+          <svg viewBox="0 0 420 230" style="width: 100%; height: auto;">
+            <!-- Ramp Channel -->
+            <line x1="340" y1="190" x2="70" y2="40" stroke="#bae6fd" stroke-width="26" stroke-linecap="round"/>
+            <line x1="340" y1="190" x2="70" y2="40" stroke="#0284c7" stroke-width="3" stroke-linecap="round"/>
+
+            <!-- 10 cm tick marks along the ramp from bottom (340,190) to top (70,40) -->
+            <!-- 0 cm -->
+            <circle cx="340" cy="190" r="4" fill="#0f172a"/>
+            <text x="355" y="205" font-family="JetBrains Mono, monospace" font-weight="800" font-size="11" fill="#0f172a">0 cm (Bottom)</text>
+
+            <!-- 10 cm -->
+            <line x1="290" y1="172" x2="300" y2="154" stroke="#e11d48" stroke-width="3"/>
+            <text x="308" y="152" font-family="JetBrains Mono, monospace" font-weight="800" font-size="11" fill="#e11d48">10 cm</text>
+
+            <!-- 20 cm -->
+            <line x1="245" y1="147" x2="255" y2="129" stroke="#e11d48" stroke-width="3"/>
+            <text x="263" y="127" font-family="JetBrains Mono, monospace" font-weight="800" font-size="11" fill="#e11d48">20 cm</text>
+
+            <!-- 30 cm -->
+            <line x1="200" y1="122" x2="210" y2="104" stroke="#e11d48" stroke-width="3"/>
+            <text x="218" y="102" font-family="JetBrains Mono, monospace" font-weight="800" font-size="11" fill="#e11d48">30 cm</text>
+
+            <!-- 40 cm -->
+            <line x1="155" y1="97" x2="165" y2="79" stroke="#e11d48" stroke-width="3"/>
+            <text x="173" y="77" font-family="JetBrains Mono, monospace" font-weight="800" font-size="11" fill="#e11d48">40 cm</text>
+
+            <!-- 50 cm -->
+            <line x1="110" y1="72" x2="120" y2="54" stroke="#e11d48" stroke-width="3"/>
+            <text x="128" y="52" font-family="JetBrains Mono, monospace" font-weight="800" font-size="11" fill="#e11d48">50 cm</text>
+
+            <!-- 60 cm -->
+            <line x1="70" y1="50" x2="80" y2="32" stroke="#e11d48" stroke-width="3"/>
+            <text x="88" y="30" font-family="JetBrains Mono, monospace" font-weight="800" font-size="11" fill="#e11d48">60 cm (Top)</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <button type="button" class="btn-secondary" data-goto="6">← Back to Step 6</button>
+        <button type="button" class="btn-primary btn-lg" data-goto="8">
+          Ramp Marked Every 10 cm → Go to Step 8 (Data Table)
+        </button>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         STEP 8: COMPLETE THE CALIBRATION DATA TABLE
+         ======================================================================= -->
+    <section class="slide-card" id="slide8" style="display: none;">
+      <div class="slide-header">
+        <div class="slide-step-tag">Step 8 of 9</div>
+        <h1 class="slide-title">Complete Your Calibration Data Table</h1>
+        <p class="slide-subtitle">
+          Release the marble from each <strong>10 cm mark</strong> on your ramp. Have a partner watch closely where the marble first hits the floor next to your taped meter stick, and record the <strong>exact distance along the meter stick (cm)</strong>.
+        </p>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+        <div id="step8DataStatus" style="font-size: 0.92rem; font-weight: 800; color: var(--accent-orange);">
+          ⏳ Enter at least 4 floor landing measurements from your ramp marks to unlock your graph.
+        </div>
+        <button type="button" class="btn-secondary" id="btnAddRow" style="padding: 0.4rem 0.85rem; font-size: 0.85rem;">
+          + Add Another Mark Row
+        </button>
+      </div>
+
+      <div class="cal-table-wrap">
+        <table class="cal-table">
+          <thead>
+            <tr>
+              <th style="width: 55px;">Trial</th>
+              <th>Ramp Release Mark (cm from bottom)</th>
+              <th>Floor Landing Distance Along Meter Stick (cm)</th>
+              <th style="width: 45px; text-align: center;">✕</th>
+            </tr>
+          </thead>
+          <tbody id="calTableBody">
+            <!-- Dynamically populated rows (10, 20, 30, 40, 50, 60 cm with blank Floor Distance) -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="slide-footer">
+        <button type="button" class="btn-secondary" data-goto="7">← Back to Step 7</button>
+        <button type="button" class="btn-primary btn-lg" id="btnNextFrom8" disabled>
+          Enter At Least 4 Trials to View Your Graph →
+        </button>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         STEP 9: GRAPH VIEW & 3 TARGET ROUNDS
+         ======================================================================= -->
+    <section class="slide-card slide-card-wide" id="slide9" style="display: none;">
+      <div class="slide-header">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+          <div class="slide-step-tag" style="background: var(--accent-purple); color: #fff;">Step 9 of 9 &bull; 🎯 Official Target Challenge</div>
+          <button type="button" class="btn-secondary" data-goto="8" style="padding: 0.35rem 0.75rem; font-size: 0.82rem;">
+            ✏️ Edit Calibration Data Table (Step 8)
+          </button>
+        </div>
+        <h1 class="slide-title">Your Calibration Graph &amp; 3 Target Rounds</h1>
+        <div class="callout-banner" style="margin-top: 0.35rem;">
+          <span class="callout-icon">📈</span>
+          <span>
+            <strong>You will use this graph to predict your marble release position to hit the target distances that Mr. Mudry gives the class.</strong>
+            Find the target distance on the <strong>vertical axis (Floor Distance cm)</strong>, trace horizontally across to your blue curve, and look straight down to the <strong>horizontal axis (Ramp Release Mark cm)</strong>!
+          </span>
+        </div>
+      </div>
+
+      <div class="step9-grid">
+        <!-- LEFT: Large Interactive Graph of Student Data with Fitted Curve -->
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <div class="canvas-wrap" style="min-height: 360px;">
+            <canvas id="plotCanvas"></canvas>
+          </div>
+
+          <!-- Interactive Graph Inspector Banner -->
+          <div id="plotReadout" style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-card-sub); border: 1.5px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.6rem 0.9rem; font-family: var(--font-mono); font-size: 0.9rem; flex-wrap: wrap; gap: 0.4rem;">
+            <span style="color: var(--text-dim); font-weight: 800;">🔍 Graph Tracer:</span>
+            <span id="readoutValues" style="font-weight: 800; color: var(--accent-cyan);">Move cursor or finger across graph to trace values</span>
+          </div>
+
+          <!-- Visual Pin Alignment Feedback -->
+          <div id="graphFeedbackMsg" style="background: var(--bg-card-sub); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem 1rem; font-size: 0.88rem; color: var(--text-muted);">
+            Type a Target Distance and your predicted Marble Release Position in any round on the right to see your purple shot pin <strong>(Release, Target)</strong> on the graph!
+          </div>
+        </div>
+
+        <!-- RIGHT: The 3 Target Rounds (+ Optional Tie-Breaker) -->
+        <div style="display: flex; flex-direction: column; gap: 0.9rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-card-sub); border: 2px solid var(--accent-purple); border-radius: var(--radius-md); padding: 0.75rem 1rem;">
+            <div>
+              <div style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-dim);">Team Score (Rounds 1–3)</div>
+              <div style="font-size: 0.82rem; color: var(--text-muted);" id="step9TeamSummary">Table 1</div>
+            </div>
+            <div style="text-align: right;">
+              <span id="studentTotalScore" style="font-family: var(--font-mono); font-size: 1.65rem; font-weight: 900; color: var(--accent-purple);">0</span>
+              <span style="font-family: var(--font-mono); font-size: 0.95rem; font-weight: 800; color: var(--text-dim);">/ 30 pts</span>
+            </div>
+          </div>
+
+          <!-- Round 1 Card -->
+          <div class="round-entry-card active" id="roundBox1" data-round="1">
+            <div class="round-entry-header">
+              <span class="round-entry-title">🎯 Round 1</span>
+              <span class="round-score-tag" id="roundScoreTag1">Score: -- / 10 pts</span>
+            </div>
+            <div class="round-inputs-row">
+              <div class="form-group">
+                <label class="form-label" for="r1Target">Target Distance Given by Mr. Mudry (cm)</label>
+                <input type="text" inputmode="decimal" autocomplete="off" class="form-input round-target-inp" id="r1Target" data-round="1" placeholder="e.g. 110">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="r1Release">Marble Release Position from Graph (cm)</label>
+                <input type="text" inputmode="decimal" autocomplete="off" class="form-input round-release-inp" id="r1Release" data-round="1" placeholder="Read from graph...">
+              </div>
+            </div>
+            <div class="round-entry-footer">
+              <span class="round-lock-msg" id="r1StatusMsg">Enter target &amp; release position, then lock in.</span>
+              <button type="button" class="btn-success btn-lock-round" data-round="1" style="padding: 0.5rem 1rem; font-size: 0.88rem;">
+                🚀 Lock In Round 1
+              </button>
+            </div>
+          </div>
+
+          <!-- Round 2 Card -->
+          <div class="round-entry-card" id="roundBox2" data-round="2">
+            <div class="round-entry-header">
+              <span class="round-entry-title">🎯 Round 2</span>
+              <span class="round-score-tag" id="roundScoreTag2">Score: -- / 10 pts</span>
+            </div>
+            <div class="round-inputs-row">
+              <div class="form-group">
+                <label class="form-label" for="r2Target">Target Distance Given by Mr. Mudry (cm)</label>
+                <input type="text" inputmode="decimal" autocomplete="off" class="form-input round-target-inp" id="r2Target" data-round="2" placeholder="e.g. 130">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="r2Release">Marble Release Position from Graph (cm)</label>
+                <input type="text" inputmode="decimal" autocomplete="off" class="form-input round-release-inp" id="r2Release" data-round="2" placeholder="Read from graph...">
+              </div>
+            </div>
+            <div class="round-entry-footer">
+              <span class="round-lock-msg" id="r2StatusMsg">Enter target &amp; release position, then lock in.</span>
+              <button type="button" class="btn-success btn-lock-round" data-round="2" style="padding: 0.5rem 1rem; font-size: 0.88rem;">
+                🚀 Lock In Round 2
+              </button>
+            </div>
+          </div>
+
+          <!-- Round 3 Card -->
+          <div class="round-entry-card" id="roundBox3" data-round="3">
+            <div class="round-entry-header">
+              <span class="round-entry-title">🎯 Round 3</span>
+              <span class="round-score-tag" id="roundScoreTag3">Score: -- / 10 pts</span>
+            </div>
+            <div class="round-inputs-row">
+              <div class="form-group">
+                <label class="form-label" for="r3Target">Target Distance Given by Mr. Mudry (cm)</label>
+                <input type="text" inputmode="decimal" autocomplete="off" class="form-input round-target-inp" id="r3Target" data-round="3" placeholder="e.g. 150">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="r3Release">Marble Release Position from Graph (cm)</label>
+                <input type="text" inputmode="decimal" autocomplete="off" class="form-input round-release-inp" id="r3Release" data-round="3" placeholder="Read from graph...">
+              </div>
+            </div>
+            <div class="round-entry-footer">
+              <span class="round-lock-msg" id="r3StatusMsg">Enter target &amp; release position, then lock in.</span>
+              <button type="button" class="btn-success btn-lock-round" data-round="3" style="padding: 0.5rem 1rem; font-size: 0.88rem;">
+                🚀 Lock In Round 3
+              </button>
+            </div>
+          </div>
+
+          <!-- Optional Round 4 Tie-Breaker Card -->
+          <div class="round-entry-card" id="roundBox4" data-round="4" style="border-style: dashed;">
+            <div class="round-entry-header">
+              <span class="round-entry-title" style="color: var(--accent-gold);">🏆 Tie-Breaker Round (If Needed)</span>
+              <span class="round-score-tag" id="roundScoreTag4">Score: -- / 10 pts</span>
+            </div>
+            <div class="round-inputs-row">
+              <div class="form-group">
+                <label class="form-label" for="r4Target">Tie-Breaker Target Distance (cm)</label>
+                <input type="text" inputmode="decimal" autocomplete="off" class="form-input round-target-inp" id="r4Target" data-round="4" placeholder="If announced...">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="r4Release">Marble Release Position from Graph (cm)</label>
+                <input type="text" inputmode="decimal" autocomplete="off" class="form-input round-release-inp" id="r4Release" data-round="4" placeholder="Read from graph...">
+              </div>
+            </div>
+            <div class="round-entry-footer">
+              <span class="round-lock-msg" id="r4StatusMsg">Optional tie-breaker round.</span>
+              <button type="button" class="btn-success btn-lock-round" data-round="4" style="padding: 0.5rem 1rem; font-size: 0.88rem;">
+                🚀 Lock In Tie-Breaker
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
 
   </main>
 
   <!-- Site Footer -->
   <footer style="margin-top: auto; border-top: 1px solid var(--border-color); background: var(--bg-card); padding: 0.75rem 1.25rem; font-size: 0.75rem; color: var(--text-dim); text-align: center;">
-    Empirical Tabletop Velocity Calibration &amp; Blind Target Range Prediction &bull; NGSS HS-PS2-1 &bull; Strictly No LaTeX
+    Horizontal Projectile Ramp Lab: Guided Step-by-Step Build &amp; Target Range Prediction &bull; NGSS HS-PS2-1 &bull; Strictly No LaTeX
   </footer>
 
   <script src="js/audio-synth.js"></script>

@@ -1,163 +1,118 @@
-// Student Workbench Application Logic
-// Projectile Target Range: Empirical Graph Reading & Target Interpolation
-// Round-Based Accuracy Scoring System: 3 Rounds (0–10 pts each, Max 30 pts) + Tie-Breaker Round 4
-// Earth gravity: g = 10 m/s², strictly zero LaTeX
+// Student Guided Slideshow & Target Range Application Logic
+// Step-by-Step Horizontal Projectile Ramp Build with Teacher Approval Checkpoints (Steps 3 & 6)
+// Single-Chromebook Group Member Tracking + Real-Time Firestore Sync
+// Strictly Zero LaTeX Notation
 
 (function () {
   'use strict';
 
-  // Constants & State
-  const G = 10.0; // m/s²
-  const STORAGE_KEY = 'projectile_target_workbench_state';
+  const ASSIGNMENT_ID = 'unit2_projectile_target_range';
+  const STORAGE_KEY = 'projectile_ramp_slideshow_v2';
 
   let state = {
-    period: 0,
+    currentStep: 0,      // 0 = Team Setup, 1..9 = Lab Steps
+    maxUnlockedStep: 0,  // Highest step unlocked so far
+    period: 1,
     tableNum: 1,
-    teamMembers: '',
-    tableHeightCm: 85.0, // Default typical lab table height in cm
+    groupMembers: [],    // [{ studentId: '123456', name: 'Student Name', isPrimary: true }]
+    step1Checks: [false, false, false, false, false],
+    step3Requested: false,
+    step3Approved: false,
+    step6Requested: false,
+    step6Approved: false,
     dataRows: [
-      { h: 10, dx: 38 },
-      { h: 20, dx: 54 },
-      { h: 30, dx: 66 },
-      { h: 40, dx: 76 }
+      { h: 10, dx: '' },
+      { h: 20, dx: '' },
+      { h: 30, dx: '' },
+      { h: 40, dx: '' },
+      { h: 50, dx: '' },
+      { h: 60, dx: '' }
     ],
-    currentActiveRound: 1, // Synced with teacher
-    viewingRound: 1, // Currently viewed/edited round (1, 2, 3, or 4)
+    activeRound: 1,      // Round currently focused on graph (1, 2, 3, 4)
     rounds: {
-      1: { targetDistCm: 110.0, studentReleaseHeightCm: '', score: null, shotResult: null, status: 'active' },
-      2: { targetDistCm: 130.0, studentReleaseHeightCm: '', score: null, shotResult: null, status: 'upcoming' },
-      3: { targetDistCm: 150.0, studentReleaseHeightCm: '', score: null, shotResult: null, status: 'upcoming' },
-      4: { targetDistCm: 165.0, studentReleaseHeightCm: '', score: null, shotResult: null, status: 'if_needed' }
+      1: { targetDistCm: '', studentReleaseHeightCm: '', score: null, shotResult: null, status: 'pending' },
+      2: { targetDistCm: '', studentReleaseHeightCm: '', score: null, shotResult: null, status: 'pending' },
+      3: { targetDistCm: '', studentReleaseHeightCm: '', score: null, shotResult: null, status: 'pending' },
+      4: { targetDistCm: '', studentReleaseHeightCm: '', score: null, shotResult: null, status: 'pending' }
     },
     totalScore: 0,
-    tieBreakerScore: null,
-    elevationCm: 0.0,
-    isElevated: false,
     k: null
   };
 
   let currentUser = null;
   let fbDb = null;
-  let hoverInspector = null; // { h, dx, hCurve }
+  let unsubscribeStudentDoc = null;
+  let unsubscribeConfigDoc = null;
   let assignmentConfigData = null;
+  let hoverInspector = null;
 
-  // DOM Elements Cache
   const els = {};
 
   function init() {
     cacheElements();
-    initFirebase();
     loadLocalState();
     bindEvents();
-    recalculate();
-    updateScorecardUI();
-    renderPlot();
+    initFirebase();
+    renderAll();
   }
 
   function cacheElements() {
-    els.periodSelect = document.getElementById('periodSelect');
-    els.tableSelect = document.getElementById('tableSelect');
-    els.teamInput = document.getElementById('teamInput');
-    els.inputTableHeight = document.getElementById('inputTableHeight');
-    els.dispAirTime = document.getElementById('dispAirTime');
-
-    els.tableBody = document.getElementById('calTableBody');
-    els.btnAddRow = document.getElementById('btnAddRow');
-    els.graphStatusMsg = document.getElementById('graphStatusMsg');
-
-    els.plotCanvas = document.getElementById('plotCanvas');
-    els.readoutValues = document.getElementById('readoutValues');
-
-    // Round Scorecard Elements
-    els.studentActiveRoundBadge = document.getElementById('studentActiveRoundBadge');
-    els.roundStatusSubtitle = document.getElementById('roundStatusSubtitle');
-    els.studentTotalScore = document.getElementById('studentTotalScore');
-    els.studentTbScorePill = document.getElementById('studentTbScorePill');
-
-    els.cards = {
-      1: document.getElementById('cardRound1'),
-      2: document.getElementById('cardRound2'),
-      3: document.getElementById('cardRound3'),
-      4: document.getElementById('cardRound4')
-    };
-
-    els.scPts = {
-      1: document.getElementById('scPtsR1'),
-      2: document.getElementById('scPtsR2'),
-      3: document.getElementById('scPtsR3'),
-      4: document.getElementById('scPtsR4')
-    };
-
-    els.scTarget = {
-      1: document.getElementById('scTargetR1'),
-      2: document.getElementById('scTargetR2'),
-      3: document.getElementById('scTargetR3'),
-      4: document.getElementById('scTargetR4')
-    };
-
-    els.scPred = {
-      1: document.getElementById('scPredR1'),
-      2: document.getElementById('scPredR2'),
-      3: document.getElementById('scPredR3'),
-      4: document.getElementById('scPredR4')
-    };
-
-    els.scStatus = {
-      1: document.getElementById('scStatusR1'),
-      2: document.getElementById('scStatusR2'),
-      3: document.getElementById('scStatusR3'),
-      4: document.getElementById('scStatusR4')
-    };
-
-    // Step 4 Form Inputs
-    els.labelTargetDist = document.getElementById('labelTargetDist');
-    els.inputTargetDist = document.getElementById('inputTargetDist');
-    els.assignedTargetBadge = document.getElementById('assignedTargetBadge');
-    els.labelReleaseHeight = document.getElementById('labelReleaseHeight');
-    els.inputReleaseHeight = document.getElementById('inputReleaseHeight');
-    els.graphFeedbackMsg = document.getElementById('graphFeedbackMsg');
-
-    els.chkElevation = document.getElementById('chkElevation');
-    els.wrapElevation = document.getElementById('wrapElevation');
-    els.inputElevation = document.getElementById('inputElevation');
-
-    els.btnSubmitPrediction = document.getElementById('btnSubmitPrediction');
-    els.submitStatus = document.getElementById('submitStatus');
-
+    els.tableTeamPill = document.getElementById('tableTeamPill');
+    els.btnFontScale = document.getElementById('btnFontScale');
     els.themeToggle = document.getElementById('themeToggle');
     els.userBadge = document.getElementById('userBadge');
     els.btnLogin = document.getElementById('btnLogin');
-  }
 
-  function initFirebase() {
-    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
-      fbDb = firebase.firestore();
-      listenToAssignmentConfig();
-      firebase.auth().onAuthStateChanged(user => {
-        currentUser = user;
-        updateAuthUI();
-        if (user) {
-          syncFromFirestore(user);
-        }
-      });
-    }
-  }
+    els.stepRailBar = document.getElementById('stepRailBar');
+    els.stepRailInner = document.getElementById('stepRailInner');
 
-  function updateAuthUI() {
-    if (currentUser) {
-      const email = currentUser.email || '';
-      const prefix = email.split('@')[0];
-      if (els.userBadge) {
-        els.userBadge.textContent = `👤 ${prefix}`;
-        els.userBadge.style.display = 'inline-flex';
-      }
-      if (els.btnLogin) {
-        els.btnLogin.textContent = 'Sign Out';
-      }
-    } else {
-      if (els.userBadge) els.userBadge.style.display = 'none';
-      if (els.btnLogin) els.btnLogin.textContent = 'Google Sign-In';
-    }
+    // Slide 0: Auth & Team Builder
+    els.authGatePrompt = document.getElementById('authGatePrompt');
+    els.btnGateSignIn = document.getElementById('btnGateSignIn');
+    els.teamBuilderPanel = document.getElementById('teamBuilderPanel');
+    els.periodSelect = document.getElementById('periodSelect');
+    els.rosterPeriodHint = document.getElementById('rosterPeriodHint');
+    els.tableSelect = document.getElementById('tableSelect');
+    els.memberCountBadge = document.getElementById('memberCountBadge');
+    els.groupMembersList = document.getElementById('groupMembersList');
+    els.inputTeammateName = document.getElementById('inputTeammateName');
+    els.inputTeammateId = document.getElementById('inputTeammateId');
+    els.btnAddTeammate = document.getElementById('btnAddTeammate');
+    els.teammateLookupStatus = document.getElementById('teammateLookupStatus');
+    els.btnStartStep1 = document.getElementById('btnStartStep1');
+
+    // Step 1
+    els.step1Checkboxes = document.querySelectorAll('.chk-step1');
+    els.btnNextFrom1 = document.getElementById('btnNextFrom1');
+
+    // Step 3 Gate
+    els.gateBoxStep3 = document.getElementById('gateBoxStep3');
+    els.iconGate3 = document.getElementById('iconGate3');
+    els.titleGate3 = document.getElementById('titleGate3');
+    els.descGate3 = document.getElementById('descGate3');
+    els.btnRequestStep3 = document.getElementById('btnRequestStep3');
+    els.btnNextFrom3 = document.getElementById('btnNextFrom3');
+
+    // Step 6 Gate
+    els.gateBoxStep6 = document.getElementById('gateBoxStep6');
+    els.iconGate6 = document.getElementById('iconGate6');
+    els.titleGate6 = document.getElementById('titleGate6');
+    els.descGate6 = document.getElementById('descGate6');
+    els.btnRequestStep6 = document.getElementById('btnRequestStep6');
+    els.btnNextFrom6 = document.getElementById('btnNextFrom6');
+
+    // Step 8 Data Table
+    els.step8DataStatus = document.getElementById('step8DataStatus');
+    els.btnAddRow = document.getElementById('btnAddRow');
+    els.calTableBody = document.getElementById('calTableBody');
+    els.btnNextFrom8 = document.getElementById('btnNextFrom8');
+
+    // Step 9 Graph & Rounds
+    els.plotCanvas = document.getElementById('plotCanvas');
+    els.readoutValues = document.getElementById('readoutValues');
+    els.graphFeedbackMsg = document.getElementById('graphFeedbackMsg');
+    els.step9TeamSummary = document.getElementById('step9TeamSummary');
+    els.studentTotalScore = document.getElementById('studentTotalScore');
   }
 
   function loadLocalState() {
@@ -165,31 +120,39 @@
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        state = Object.assign(state, parsed);
-        if (!state.rounds) {
-          state.rounds = {
-            1: { targetDistCm: 110.0, studentReleaseHeightCm: '', score: null, shotResult: null, status: 'active' },
-            2: { targetDistCm: 130.0, studentReleaseHeightCm: '', score: null, shotResult: null, status: 'upcoming' },
-            3: { targetDistCm: 150.0, studentReleaseHeightCm: '', score: null, shotResult: null, status: 'upcoming' },
-            4: { targetDistCm: 165.0, studentReleaseHeightCm: '', score: null, shotResult: null, status: 'if_needed' }
-          };
+        if (parsed && typeof parsed === 'object') {
+          state = Object.assign(state, parsed);
         }
       }
     } catch (e) {
       console.warn('Could not load local state', e);
     }
 
-    // Populate UI from state
-    if (els.periodSelect) els.periodSelect.value = state.period;
-    if (els.tableSelect) els.tableSelect.value = state.tableNum;
-    if (els.teamInput) els.teamInput.value = state.teamMembers || '';
-    if (els.inputTableHeight) els.inputTableHeight.value = state.tableHeightCm;
-    if (els.chkElevation) els.chkElevation.checked = state.isElevated;
-    if (els.wrapElevation) els.wrapElevation.style.display = state.isElevated ? 'flex' : 'none';
-    if (els.inputElevation) els.inputElevation.value = state.elevationCm;
-
-    selectViewingRound(state.viewingRound || 1);
-    renderTableRows();
+    // Ensure valid array of dataRows without pre-filled dummy dx values
+    if (!Array.isArray(state.dataRows) || state.dataRows.length === 0) {
+      state.dataRows = [
+        { h: 10, dx: '' },
+        { h: 20, dx: '' },
+        { h: 30, dx: '' },
+        { h: 40, dx: '' },
+        { h: 50, dx: '' },
+        { h: 60, dx: '' }
+      ];
+    }
+    if (!Array.isArray(state.step1Checks) || state.step1Checks.length !== 5) {
+      state.step1Checks = [false, false, false, false, false];
+    }
+    if (!Array.isArray(state.groupMembers)) {
+      state.groupMembers = [];
+    }
+    if (!state.rounds) {
+      state.rounds = {
+        1: { targetDistCm: '', studentReleaseHeightCm: '', score: null, shotResult: null, status: 'pending' },
+        2: { targetDistCm: '', studentReleaseHeightCm: '', score: null, shotResult: null, status: 'pending' },
+        3: { targetDistCm: '', studentReleaseHeightCm: '', score: null, shotResult: null, status: 'pending' },
+        4: { targetDistCm: '', studentReleaseHeightCm: '', score: null, shotResult: null, status: 'pending' }
+      };
+    }
   }
 
   function saveLocalState() {
@@ -198,379 +161,1177 @@
     } catch (e) {}
   }
 
-  function selectViewingRound(rNum) {
-    state.viewingRound = Math.max(1, Math.min(4, rNum));
-    const r = state.viewingRound;
-    if (!state.rounds[r]) {
-      state.rounds[r] = { targetDistCm: 120.0, studentReleaseHeightCm: '', score: null, shotResult: null, status: 'upcoming' };
-    }
+  function initFirebase() {
+    if (typeof firebase === 'undefined' || !firebase.apps || !firebase.apps.length) return;
+    fbDb = firebase.firestore();
+    listenToAssignmentConfig();
 
-    const rData = state.rounds[r];
-
-    // Update form inputs for this round
-    if (els.inputTargetDist) {
-      els.inputTargetDist.value = rData.targetDistCm || '';
-    }
-    if (els.inputReleaseHeight) {
-      els.inputReleaseHeight.value = rData.studentReleaseHeightCm !== undefined && rData.studentReleaseHeightCm !== '' ? rData.studentReleaseHeightCm : '';
-    }
-
-    // Update badges and labels
-    const rTitle = r === 4 ? '🏆 Tie-Breaker (Round 4)' : `Round ${r} of 3`;
-    if (els.studentActiveRoundBadge) {
-      els.studentActiveRoundBadge.textContent = `🎯 ${rTitle}`;
-      els.studentActiveRoundBadge.className = `round-status-badge ${r === 4 ? 'round-badge-tb' : 'round-badge-active'}`;
-    }
-
-    if (els.btnSubmitPrediction) {
-      const isTB = r === 4;
-      els.btnSubmitPrediction.textContent = `🚀 Lock In & Submit ${isTB ? 'Tie-Breaker' : `Round ${r}`} Prediction to Class Board`;
-    }
-
-    updateScorecardUI();
-    renderPlot();
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        const email = (user.email || '').toLowerCase();
+        const isAllowed = email.endsWith('@orangeusd.org') ||
+                          email === 'ryan.mudry@gmail.com' ||
+                          email === 'ryanmudry@gmail.com' ||
+                          email === 'rmudry@orangeusd.org';
+        if (!isAllowed) {
+          alert('Please sign in using your school @orangeusd.org Google account.');
+          firebase.auth().signOut();
+          return;
+        }
+        currentUser = user;
+        handleUserSignedIn(user);
+      } else {
+        currentUser = null;
+        if (unsubscribeStudentDoc) {
+          unsubscribeStudentDoc();
+          unsubscribeStudentDoc = null;
+        }
+        state.currentStep = 0;
+        renderAll();
+      }
+    });
   }
 
-  function updateScorecardUI() {
-    let total = 0;
-    let hasAnyScore = false;
+  function triggerGoogleSignIn() {
+    if (typeof firebase === 'undefined' || !firebase.apps.length) return;
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ hd: 'orangeusd.org', prompt: 'select_account' });
+    firebase.auth().signInWithPopup(provider).catch(err => {
+      console.error('Sign-in error:', err);
+      alert('Google Sign-In error: ' + err.message);
+    });
+  }
+
+  function handleUserSignedIn(user) {
+    const email = (user.email || '').toLowerCase();
+    const studentId = email.split('@')[0];
+    const displayName = (user.displayName && !/^\d+$/.test(user.displayName)) ? user.displayName : 'Signed-In Student';
+
+    // Ensure primary signed-in user is in groupMembers[0]
+    const existingIdx = state.groupMembers.findIndex(m => String(m.studentId).toLowerCase() === studentId || m.isPrimary);
+    if (existingIdx === -1) {
+      state.groupMembers.unshift({
+        studentId: studentId,
+        name: displayName,
+        isPrimary: true
+      });
+    } else {
+      state.groupMembers[existingIdx].studentId = studentId;
+      state.groupMembers[existingIdx].isPrimary = true;
+      if (!state.groupMembers[existingIdx].name || /^\d+$/.test(state.groupMembers[existingIdx].name)) {
+        state.groupMembers[existingIdx].name = displayName;
+      }
+    }
+
+    // Look up own roster doc to auto-detect Period and official Full Name
+    if (fbDb) {
+      fbDb.collection('roster').doc(studentId).get().then(doc => {
+        if (doc.exists) {
+          const rData = doc.data() || {};
+          const fullName = rData.name || rData.full_name || rData.student_name || [rData.firstName, rData.lastName].filter(Boolean).join(' ') || displayName;
+          const pVal = rData.class_period !== undefined ? rData.class_period : rData.period;
+          if (pVal !== undefined && pVal !== null && pVal !== 'T') {
+            state.period = parseInt(pVal, 10) || 0;
+            if (els.periodSelect) els.periodSelect.value = String(state.period);
+            if (els.rosterPeriodHint) {
+              els.rosterPeriodHint.textContent = `✓ Auto-detected Period ${state.period}`;
+            }
+          }
+          const primary = state.groupMembers.find(m => String(m.studentId).toLowerCase() === studentId || m.isPrimary);
+          if (primary && fullName) {
+            primary.name = fullName;
+          }
+          saveLocalState();
+          updateAuthHeader();
+          renderHeaderBadge();
+          renderGroupMembers();
+          syncProgressToFirestore();
+        }
+      }).catch(() => {});
+    }
+
+    // Attach real-time listener to own student_results document
+    attachStudentDocListener(studentId);
+    saveLocalState();
+    renderAll();
+  }
+
+  function attachStudentDocListener(studentId) {
+    if (!fbDb || !studentId) return;
+    if (unsubscribeStudentDoc) unsubscribeStudentDoc();
+
+    unsubscribeStudentDoc = fbDb.collection('student_results')
+      .doc(ASSIGNMENT_ID)
+      .collection('students')
+      .doc(studentId)
+      .onSnapshot(doc => {
+        if (!doc.exists) return;
+        // Ignore local echo snapshots triggered by the student's own keystrokes
+        if (doc.metadata && doc.metadata.hasPendingWrites) return;
+        const data = doc.data() || {};
+
+        if (typeof data.tableNumber === 'number') {
+          state.tableNum = data.tableNumber;
+          if (els.tableSelect) els.tableSelect.value = String(state.tableNum);
+        }
+        if (typeof data.period === 'number') {
+          state.period = data.period;
+          if (els.periodSelect) els.periodSelect.value = String(state.period);
+        }
+        if (Array.isArray(data.groupMembers) && data.groupMembers.length > 0) {
+          state.groupMembers = data.groupMembers;
+        }
+        const isTypingInTable = els.calTableBody && els.calTableBody.contains(document.activeElement);
+        if (!isTypingInTable && Array.isArray(data.dataRows) && data.dataRows.length > 0) {
+          state.dataRows = data.dataRows;
+          renderCalibrationTable();
+          recalculateCurve();
+        }
+
+        // Check Teacher Approval Checkpoints!
+        const wasStep3 = state.step3Approved;
+        const wasStep6 = state.step6Approved;
+
+        if (data.step3Approved === true) state.step3Approved = true;
+        if (data.step6Approved === true) state.step6Approved = true;
+
+        if (!wasStep3 && state.step3Approved && window.SoundFX) {
+          SoundFX.play('fanfare');
+        }
+        if (!wasStep6 && state.step6Approved && window.SoundFX) {
+          SoundFX.play('fanfare');
+        }
+
+        // Teacher can also advance or unlock a step directly
+        if (typeof data.teacherUnlockedStep === 'number' && data.teacherUnlockedStep > state.maxUnlockedStep) {
+          state.maxUnlockedStep = data.teacherUnlockedStep;
+        }
+
+        // Sync Round Scores & Teacher-Assigned Targets
+        if (data.rounds && typeof data.rounds === 'object') {
+          for (let r = 1; r <= 4; r++) {
+            const incoming = data.rounds[r] || data.rounds[String(r)];
+            if (incoming) {
+              if (!state.rounds[r]) state.rounds[r] = {};
+              if (incoming.score !== undefined && incoming.score !== null) {
+                state.rounds[r].score = incoming.score;
+                state.rounds[r].status = 'scored';
+              }
+              if (incoming.targetDistCm && state.rounds[r].status !== 'scored') {
+                state.rounds[r].targetDistCm = incoming.targetDistCm;
+              }
+              if (incoming.predictedReleaseHeightCm && !state.rounds[r].studentReleaseHeightCm) {
+                state.rounds[r].studentReleaseHeightCm = incoming.predictedReleaseHeightCm;
+              }
+            }
+          }
+        }
+
+        saveLocalState();
+        renderAll();
+      }, err => console.warn('Student doc listener notice:', err.message));
+  }
+
+  function listenToAssignmentConfig() {
+    if (!fbDb) return;
+    if (unsubscribeConfigDoc) unsubscribeConfigDoc();
+
+    unsubscribeConfigDoc = fbDb.collection('student_results')
+      .doc(ASSIGNMENT_ID)
+      .onSnapshot(doc => {
+        if (!doc.exists) return;
+        assignmentConfigData = doc.data() || {};
+        applyConfigUpdates();
+      }, err => console.warn('Config listener notice:', err.message));
+  }
+
+  function applyConfigUpdates() {
+    if (!assignmentConfigData) return;
+
+    // 1. Check group-level approvals broadcast by Teacher Dashboard
+    const email = (currentUser && currentUser.email ? currentUser.email : '').toLowerCase();
+    const myId = email ? email.split('@')[0] : '';
+    const approvalsKey = `approvals_p${state.period}`;
+    const periodApprovals = assignmentConfigData[approvalsKey] || {};
+    const grpApproval = (myId && periodApprovals[myId]) || periodApprovals[`table_${state.tableNum}`] || {};
+
+    const wasStep3 = state.step3Approved;
+    const wasStep6 = state.step6Approved;
+
+    if (grpApproval.step3 === true || grpApproval.step3Approved === true) state.step3Approved = true;
+    if (grpApproval.step6 === true || grpApproval.step6Approved === true) state.step6Approved = true;
+
+    if ((!wasStep3 && state.step3Approved) || (!wasStep6 && state.step6Approved)) {
+      if (window.SoundFX) SoundFX.play('fanfare');
+    }
+
+    // 2. Check teacher-broadcast target distances for Rounds 1–4
+    const periodTargetsKey = `tableTargets_p${state.period}`;
+    const periodTargets = assignmentConfigData[periodTargetsKey] || assignmentConfigData.tableTargets || {};
+    const roundTargets = assignmentConfigData.roundTargets || {};
 
     for (let r = 1; r <= 4; r++) {
-      const rData = state.rounds[r] || { targetDistCm: '--', studentReleaseHeightCm: '', score: null };
-      const card = els.cards[r];
-      if (!card) continue;
+      const groupKey = myId ? `p${state.period}_r${r}_group_${myId}` : '';
+      const specificKey = `p${state.period}_r${r}_table_${state.tableNum}`;
+      const roundKey = `r${r}_table_${state.tableNum}`;
+      let assigned = null;
 
-      card.classList.toggle('active', r === state.viewingRound);
-      const isScored = typeof rData.score === 'number';
-      card.classList.toggle('scored', isScored);
-
-      // Points badge
-      if (els.scPts[r]) {
-        els.scPts[r].textContent = isScored ? `${rData.score} / 10` : '-- / 10';
+      if (groupKey && typeof periodTargets[groupKey] === 'number') {
+        assigned = periodTargets[groupKey];
+      } else if (typeof periodTargets[specificKey] === 'number') {
+        assigned = periodTargets[specificKey];
+      } else if (typeof periodTargets[roundKey] === 'number') {
+        assigned = periodTargets[roundKey];
+      } else if (typeof roundTargets[r] === 'number' || typeof roundTargets[String(r)] === 'number') {
+        assigned = roundTargets[r] || roundTargets[String(r)];
       }
 
-      // Target readout
-      if (els.scTarget[r]) {
-        const tVal = typeof rData.targetDistCm === 'number' ? `${rData.targetDistCm.toFixed(1)} cm` : '-- cm';
-        els.scTarget[r].textContent = `Δx: ${tVal}`;
-      }
-
-      // Prediction readout
-      if (els.scPred[r]) {
-        const pVal = rData.studentReleaseHeightCm ? `${rData.studentReleaseHeightCm} cm` : '-- cm';
-        els.scPred[r].textContent = `h: ${pVal}`;
-      }
-
-      // Status
-      if (els.scStatus[r]) {
-        if (isScored) {
-          els.scStatus[r].textContent = `✓ Scored (${rData.score} pts)`;
-        } else if (rData.status === 'ready_to_launch') {
-          els.scStatus[r].textContent = '🚀 Ready to Launch';
-        } else if (r === state.currentActiveRound) {
-          els.scStatus[r].textContent = 'Active Round';
-        } else if (r === 4) {
-          els.scStatus[r].textContent = 'If Needed';
-        } else {
-          els.scStatus[r].textContent = 'Upcoming';
-        }
-      }
-
-      // Tally total score (R1 + R2 + R3, max 30)
-      if (r <= 3 && isScored) {
-        total += rData.score;
-        hasAnyScore = true;
+      if (assigned !== null && (!state.rounds[r].targetDistCm || state.rounds[r].status !== 'scored')) {
+        state.rounds[r].targetDistCm = assigned;
       }
     }
 
-    state.totalScore = total;
-    if (els.studentTotalScore) {
-      els.studentTotalScore.textContent = total;
-    }
-
-    // Tie-breaker pill
-    if (els.studentTbScorePill) {
-      const tbData = state.rounds[4];
-      if (tbData && typeof tbData.score === 'number') {
-        els.studentTbScorePill.textContent = `TB: ${tbData.score}/10`;
-        els.studentTbScorePill.style.display = 'inline-block';
-      } else {
-        els.studentTbScorePill.style.display = 'none';
-      }
-    }
-
-    // Update active round subtitle / scored notification
-    const activeData = state.rounds[state.viewingRound];
-    if (activeData && typeof activeData.score === 'number' && els.submitStatus) {
-      els.submitStatus.innerHTML = `
-        <span style="color: var(--accent-purple); font-weight: 800;">
-          🎯 Round ${state.viewingRound === 4 ? 'Tie-Breaker' : state.viewingRound} Scored: <strong>${activeData.score} / 10 pts</strong>! Total Score: <strong>${total} / 30 pts</strong>.
-        </span>
-      `;
-    }
+    saveLocalState();
+    renderAll();
   }
 
   function bindEvents() {
-    if (els.periodSelect) els.periodSelect.addEventListener('change', () => {
-      state.period = parseInt(els.periodSelect.value) || 0;
-      saveLocalState();
-      updateTargetFromConfig();
-    });
-
-    if (els.tableSelect) els.tableSelect.addEventListener('change', () => {
-      state.tableNum = parseInt(els.tableSelect.value) || 1;
-      saveLocalState();
-      updateTargetFromConfig();
-    });
-
-    if (els.teamInput) els.teamInput.addEventListener('input', () => {
-      state.teamMembers = els.teamInput.value;
-      saveLocalState();
-    });
-
-    if (els.inputTableHeight) els.inputTableHeight.addEventListener('input', () => {
-      state.tableHeightCm = Math.max(10, parseFloat(els.inputTableHeight.value) || 85.0);
-      saveLocalState();
-      recalculate();
-    });
-
-    if (els.btnAddRow) els.btnAddRow.addEventListener('click', () => {
-      const lastH = state.dataRows.length > 0 ? state.dataRows[state.dataRows.length - 1].h : 0;
-      state.dataRows.push({ h: lastH + 10, dx: '' });
-      renderTableRows();
-      saveLocalState();
-      recalculate();
-    });
-
-    // Scorecard Round Click Events
-    for (let r = 1; r <= 4; r++) {
-      const card = els.cards[r];
-      if (card) {
-        card.addEventListener('click', () => {
-          selectViewingRound(r);
-        });
-      }
-    }
-
-    if (els.inputTargetDist) els.inputTargetDist.addEventListener('input', () => {
-      const val = parseFloat(els.inputTargetDist.value) || 0;
-      const r = state.viewingRound;
-      if (!state.rounds[r]) state.rounds[r] = {};
-      state.rounds[r].targetDistCm = val;
-      updateScorecardUI();
-      saveLocalState();
-      renderPlot();
-    });
-
-    if (els.inputReleaseHeight) els.inputReleaseHeight.addEventListener('input', () => {
-      const val = els.inputReleaseHeight.value === '' ? '' : parseFloat(els.inputReleaseHeight.value);
-      const r = state.viewingRound;
-      if (!state.rounds[r]) state.rounds[r] = {};
-      state.rounds[r].studentReleaseHeightCm = val;
-      updateScorecardUI();
-      saveLocalState();
-      renderPlot();
-    });
-
-    if (els.chkElevation) els.chkElevation.addEventListener('change', () => {
-      state.isElevated = els.chkElevation.checked;
-      els.wrapElevation.style.display = state.isElevated ? 'flex' : 'none';
-      saveLocalState();
-      recalculate();
-    });
-
-    if (els.inputElevation) els.inputElevation.addEventListener('input', () => {
-      state.elevationCm = Math.max(0, parseFloat(els.inputElevation.value) || 0);
-      saveLocalState();
-      recalculate();
-    });
-
-    if (els.btnSubmitPrediction) {
-      els.btnSubmitPrediction.addEventListener('click', submitPrediction);
-    }
-
+    // Sign-in buttons
     if (els.btnLogin) {
       els.btnLogin.addEventListener('click', () => {
-        if (!firebase.apps.length) return;
         if (currentUser) {
           firebase.auth().signOut();
         } else {
-          const provider = new firebase.auth.GoogleAuthProvider();
-          provider.setCustomParameters({ hd: 'orangeusd.org' });
-          firebase.auth().signInWithPopup(provider).catch(err => {
-            console.error('Sign-in error', err);
-            alert('Sign-in error: ' + err.message);
-          });
+          triggerGoogleSignIn();
         }
       });
     }
+    if (els.btnGateSignIn) {
+      els.btnGateSignIn.addEventListener('click', triggerGoogleSignIn);
+    }
 
+    // Theme & Font Scale
     if (els.themeToggle) {
       els.themeToggle.addEventListener('click', () => {
         document.documentElement.classList.toggle('theme-dark');
         renderPlot();
       });
     }
+    if (els.btnFontScale) {
+      els.btnFontScale.addEventListener('click', () => {
+        const docEl = document.documentElement;
+        if (docEl.classList.contains('font-projector-lg')) {
+          docEl.classList.remove('font-projector-lg');
+          docEl.classList.remove('font-projector');
+        } else if (docEl.classList.contains('font-projector')) {
+          docEl.classList.add('font-projector-lg');
+        } else {
+          docEl.classList.add('font-projector');
+        }
+        renderPlot();
+      });
+    }
 
-    // Interactive Graph Inspector (Pointer / Touch)
+    // Period & Table Select
+    if (els.periodSelect) {
+      els.periodSelect.addEventListener('change', () => {
+        state.period = parseInt(els.periodSelect.value, 10) || 0;
+        saveLocalState();
+        applyConfigUpdates();
+        syncProgressToFirestore();
+      });
+    }
+    if (els.tableSelect) {
+      els.tableSelect.addEventListener('change', () => {
+        state.tableNum = parseInt(els.tableSelect.value, 10) || 1;
+        saveLocalState();
+        applyConfigUpdates();
+        renderHeaderBadge();
+        syncProgressToFirestore();
+      });
+    }
+
+    // Add Teammate
+    if (els.btnAddTeammate) {
+      els.btnAddTeammate.addEventListener('click', addTeammateFromInputs);
+    }
+    if (els.inputTeammateId) {
+      els.inputTeammateId.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addTeammateFromInputs();
+        }
+      });
+    }
+    if (els.inputTeammateName) {
+      els.inputTeammateName.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addTeammateFromInputs();
+        }
+      });
+    }
+
+    // Start Step 1 Button
+    if (els.btnStartStep1) {
+      els.btnStartStep1.addEventListener('click', () => {
+        if (!currentUser) {
+          alert('Please sign in with your @orangeusd.org Google account first.');
+          return;
+        }
+        if (state.groupMembers.length === 0) {
+          alert('Please make sure at least 1 group member is listed.');
+          return;
+        }
+        unlockAndGoToStep(1);
+      });
+    }
+
+    // Step 1 Materials Checkboxes
+    els.step1Checkboxes.forEach((chk, idx) => {
+      chk.checked = !!state.step1Checks[idx];
+      chk.addEventListener('change', () => {
+        state.step1Checks[idx] = chk.checked;
+        saveLocalState();
+        updateStep1Button();
+      });
+    });
+
+    if (els.btnNextFrom1) {
+      els.btnNextFrom1.addEventListener('click', () => {
+        if (state.step1Checks.every(Boolean)) {
+          unlockAndGoToStep(2);
+        }
+      });
+    }
+
+    // Generic data-goto buttons
+    document.querySelectorAll('[data-goto]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetStep = parseInt(btn.getAttribute('data-goto'), 10);
+        if (!isNaN(targetStep)) {
+          unlockAndGoToStep(targetStep);
+        }
+      });
+    });
+
+    // Step 3 Teacher Approval Request
+    if (els.btnRequestStep3) {
+      els.btnRequestStep3.addEventListener('click', () => {
+        state.step3Requested = true;
+        saveLocalState();
+        renderApprovalGates();
+        syncProgressToFirestore('waiting_step_3');
+        if (window.SoundFX) SoundFX.play('click');
+      });
+    }
+    if (els.btnNextFrom3) {
+      els.btnNextFrom3.addEventListener('click', () => {
+        if (state.step3Approved) {
+          unlockAndGoToStep(4);
+        }
+      });
+    }
+
+    // Step 6 Teacher Approval Request
+    if (els.btnRequestStep6) {
+      els.btnRequestStep6.addEventListener('click', () => {
+        state.step6Requested = true;
+        saveLocalState();
+        renderApprovalGates();
+        syncProgressToFirestore('waiting_step_6');
+        if (window.SoundFX) SoundFX.play('click');
+      });
+    }
+    if (els.btnNextFrom6) {
+      els.btnNextFrom6.addEventListener('click', () => {
+        if (state.step6Approved) {
+          unlockAndGoToStep(7);
+        }
+      });
+    }
+
+    // Step 8 Add Row & Next Button
+    if (els.btnAddRow) {
+      els.btnAddRow.addEventListener('click', () => {
+        const lastH = state.dataRows.length > 0 ? (Number(state.dataRows[state.dataRows.length - 1].h) || 0) : 0;
+        state.dataRows.push({ h: lastH + 10, dx: '' });
+        saveLocalState();
+        renderCalibrationTable(true);
+        recalculateCurve();
+        renderStepRail();
+      });
+    }
+    if (els.btnNextFrom8) {
+      els.btnNextFrom8.addEventListener('click', () => {
+        if (getValidPairs().length >= 4) {
+          unlockAndGoToStep(9);
+        }
+      });
+    }
+
+    // Step 9 Round Inputs & Lock-In Buttons
+    document.querySelectorAll('.round-entry-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const r = parseInt(card.dataset.round, 10);
+        if (r && state.activeRound !== r) {
+          state.activeRound = r;
+          renderStep9Rounds();
+          renderPlot();
+        }
+      });
+    });
+
+    document.querySelectorAll('.round-target-inp').forEach(inp => {
+      inp.addEventListener('focus', () => {
+        const r = parseInt(inp.dataset.round, 10);
+        if (r) {
+          state.activeRound = r;
+          renderStep9Rounds();
+          renderPlot();
+        }
+      });
+      inp.addEventListener('input', () => {
+        const r = parseInt(inp.dataset.round, 10);
+        const val = inp.value === '' ? '' : parseFloat(inp.value);
+        state.rounds[r].targetDistCm = val;
+        state.activeRound = r;
+        saveLocalState();
+        renderPlot();
+      });
+    });
+
+    document.querySelectorAll('.round-release-inp').forEach(inp => {
+      inp.addEventListener('focus', () => {
+        const r = parseInt(inp.dataset.round, 10);
+        if (r) {
+          state.activeRound = r;
+          renderStep9Rounds();
+          renderPlot();
+        }
+      });
+      inp.addEventListener('input', () => {
+        const r = parseInt(inp.dataset.round, 10);
+        const val = inp.value === '' ? '' : parseFloat(inp.value);
+        state.rounds[r].studentReleaseHeightCm = val;
+        state.activeRound = r;
+        saveLocalState();
+        renderPlot();
+      });
+    });
+
+    document.querySelectorAll('.btn-lock-round').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const r = parseInt(btn.dataset.round, 10);
+        lockInRoundPrediction(r);
+      });
+    });
+
+    // Graph Canvas Pointer / Touch Tracer
     if (els.plotCanvas) {
       const handlePointer = e => {
         const rect = els.plotCanvas.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        const x = clientX - rect.left;
-        const y = clientY - rect.top;
-
-        updateInspectorAt(x, y, rect.width, rect.height);
+        updateInspectorAt(clientX - rect.left, clientY - rect.top, rect.width, rect.height);
       };
-
       els.plotCanvas.addEventListener('mousemove', handlePointer);
       els.plotCanvas.addEventListener('touchmove', handlePointer, { passive: true });
 
       const clearInspector = () => {
         hoverInspector = null;
         if (els.readoutValues) {
-          els.readoutValues.textContent = 'Hover or tap curve to trace values';
+          els.readoutValues.textContent = 'Move cursor or finger across graph to trace values';
         }
         renderPlot();
       };
-
       els.plotCanvas.addEventListener('mouseleave', clearInspector);
       els.plotCanvas.addEventListener('touchend', clearInspector);
     }
 
     window.addEventListener('resize', () => {
-      renderPlot();
+      if (state.currentStep === 9) renderPlot();
     });
   }
 
-  function renderTableRows() {
-    if (!els.tableBody) return;
-    els.tableBody.innerHTML = '';
+  function getRosterCandidates() {
+    if (!assignmentConfigData || !assignmentConfigData.rosterDirectory) return [];
+    const dir = assignmentConfigData.rosterDirectory;
+    const email = (currentUser && currentUser.email ? currentUser.email : '').toLowerCase();
+    const isTeacherUser = email === 'rmudry@orangeusd.org' || email === 'ryan.mudry@gmail.com' || email === 'ryanmudry@gmail.com';
+
+    const pKey = String(state.period);
+    if (!isTeacherUser && Array.isArray(dir[pKey]) && dir[pKey].length > 0) {
+      return dir[pKey];
+    }
+    // Fallback or teacher mode: combine all periods 0-6
+    const all = [];
+    Object.keys(dir).forEach(k => {
+      if (Array.isArray(dir[k])) {
+        dir[k].forEach(st => all.push(st));
+      }
+    });
+    return all;
+  }
+
+  function populateClassmateSuggestions() {
+    const dl = document.getElementById('classmateSuggestions');
+    if (!dl) return;
+    const candidates = getRosterCandidates();
+    const myEmail = (currentUser && currentUser.email ? currentUser.email : '').toLowerCase();
+    const myId = myEmail ? myEmail.split('@')[0] : '';
+
+    dl.innerHTML = '';
+    candidates.forEach(st => {
+      if (String(st.id) === myId) return;
+      if (state.groupMembers.some(m => String(m.studentId) === String(st.id) || String(m.name).toLowerCase() === String(st.name).toLowerCase())) {
+        return;
+      }
+      const opt = document.createElement('option');
+      opt.value = st.name;
+      dl.appendChild(opt);
+    });
+  }
+
+  function addTeammateFromInputs() {
+    const rawName = (els.inputTeammateName.value || '').trim();
+
+    if (!rawName || rawName.length < 2) {
+      alert('Please enter your classmate\'s First and Last Name.');
+      els.inputTeammateName.focus();
+      return;
+    }
+
+    const candidates = getRosterCandidates();
+    if (candidates.length === 0) {
+      if (els.teammateLookupStatus) {
+        els.teammateLookupStatus.innerHTML = `<span style="color: var(--accent-rose); font-weight: 800;">⏳ Loading class roster from Firestore... please try again in a moment.</span>`;
+      }
+      return;
+    }
+
+    const norm = rawName.toLowerCase();
+    // 1. Check exact full_name match (case-insensitive)
+    let matches = candidates.filter(st => String(st.name || '').trim().toLowerCase() === norm);
+    // 2. If no exact match, check partial match ONLY if it contains both first & last name or uniquely identifies 1 student
+    if (matches.length === 0 && norm.length >= 3) {
+      matches = candidates.filter(st => String(st.name || '').trim().toLowerCase().includes(norm));
+    }
+
+    if (matches.length === 0) {
+      if (els.teammateLookupStatus) {
+        els.teammateLookupStatus.innerHTML = `<span style="color: var(--accent-rose); font-weight: 800;">❌ "${escapeHtml(rawName)}" was not found on the Firestore class roster. Please check the spelling or pick from the suggestions!</span>`;
+      }
+      els.inputTeammateName.focus();
+      return;
+    }
+
+    if (matches.length > 1) {
+      const namesList = matches.slice(0, 4).map(m => m.name).join(', ');
+      if (els.teammateLookupStatus) {
+        els.teammateLookupStatus.innerHTML = `<span style="color: var(--accent-orange); font-weight: 800;">⚠️ Multiple students match "${escapeHtml(rawName)}" (${escapeHtml(namesList)}). Please type their full First &amp; Last Name!</span>`;
+      }
+      els.inputTeammateName.focus();
+      return;
+    }
+
+    const matched = matches[0];
+    const exists = state.groupMembers.some(
+      m => String(m.studentId) === String(matched.id) || String(m.name || '').trim().toLowerCase() === matched.name.toLowerCase()
+    );
+    if (exists) {
+      if (els.teammateLookupStatus) {
+        els.teammateLookupStatus.innerHTML = `<span style="color: var(--accent-orange); font-weight: 800;">ℹ️ ${escapeHtml(matched.name)} is already in your group list.</span>`;
+      }
+      return;
+    }
+
+    state.groupMembers.push({
+      studentId: String(matched.id),
+      name: matched.name,
+      isPrimary: false,
+      rosterVerified: true
+    });
+
+    els.inputTeammateName.value = '';
+    if (els.inputTeammateId) els.inputTeammateId.value = '';
+    if (els.teammateLookupStatus) {
+      els.teammateLookupStatus.innerHTML = `<span style="color: var(--accent-emerald); font-weight: 800;">✓ Linked to Firestore Roster: ${escapeHtml(matched.name)}</span>`;
+    }
+
+    saveLocalState();
+    populateClassmateSuggestions();
+    renderGroupMembers();
+    syncProgressToFirestore();
+  }
+
+  function unlockAndGoToStep(stepNum) {
+    // Enforce hard teacher approval locks on Steps 3 and 6
+    if (stepNum > 3 && !state.step3Approved) {
+      alert('Pause! Mr. Mudry must approve your Step 3 curved ramp bottom before your group can move to Step 4.');
+      stepNum = 3;
+    }
+    if (stepNum > 6 && !state.step6Approved) {
+      alert('Pause! Mr. Mudry must approve your Step 6 ramp & taped floor meter stick before your group can move to Step 7.');
+      stepNum = 6;
+    }
+    if (stepNum === 9 && getValidPairs().length < 4) {
+      alert('Please complete at least 4 calibration trials in your Step 8 data table first.');
+      stepNum = 8;
+    }
+
+    state.currentStep = stepNum;
+    if (stepNum > state.maxUnlockedStep) {
+      state.maxUnlockedStep = stepNum;
+    }
+    saveLocalState();
+    renderAll();
+    syncProgressToFirestore();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function renderAll() {
+    updateAuthHeader();
+    renderHeaderBadge();
+    renderStepRail();
+    renderSlideVisibility();
+    renderGroupMembers();
+    updateStep1Button();
+    renderApprovalGates();
+    renderCalibrationTable();
+    recalculateCurve();
+    renderStep9Rounds();
+    if (state.currentStep === 9) {
+      setTimeout(() => renderPlot(), 30);
+    }
+  }
+
+  function updateAuthHeader() {
+    const teacherLink = document.getElementById('btnTeacherDashLink');
+    if (currentUser) {
+      const email = (currentUser.email || '').toLowerCase();
+      const isTeacherUser = email === 'rmudry@orangeusd.org' || email === 'ryan.mudry@gmail.com' || email === 'ryanmudry@gmail.com';
+      if (teacherLink) teacherLink.style.display = isTeacherUser ? 'inline-flex' : 'none';
+
+      const primary = state.groupMembers.find(m => m.isPrimary) || state.groupMembers[0];
+      const safeName = (primary && primary.name && !/^\d+$/.test(primary.name))
+        ? primary.name
+        : (currentUser.displayName || 'Signed In');
+      if (els.userBadge) {
+        els.userBadge.textContent = `👤 ${safeName}`;
+        els.userBadge.style.display = 'inline-flex';
+      }
+      if (els.btnLogin) els.btnLogin.textContent = 'Sign Out';
+      if (els.authGatePrompt) els.authGatePrompt.style.display = 'none';
+      if (els.teamBuilderPanel) els.teamBuilderPanel.style.display = 'flex';
+    } else {
+      if (teacherLink) teacherLink.style.display = 'none';
+      if (els.userBadge) els.userBadge.style.display = 'none';
+      if (els.btnLogin) els.btnLogin.textContent = 'Google Sign-In';
+      if (els.authGatePrompt) els.authGatePrompt.style.display = 'flex';
+      if (els.teamBuilderPanel) els.teamBuilderPanel.style.display = 'none';
+    }
+
+    if (els.periodSelect) els.periodSelect.value = String(state.period);
+    if (els.tableSelect) els.tableSelect.value = String(state.tableNum);
+  }
+
+  function renderHeaderBadge() {
+    if (!els.tableTeamPill) return;
+    if (currentUser && state.groupMembers.length > 0) {
+      const names = state.groupMembers.map(m => m.name.split(' ')[0]).join(', ');
+      els.tableTeamPill.textContent = `👥 Group: ${names}`;
+      els.tableTeamPill.style.display = 'inline-flex';
+    } else {
+      els.tableTeamPill.style.display = 'none';
+    }
+  }
+
+  function renderStepRail() {
+    if (!els.stepRailBar || !els.stepRailInner) return;
+    if (!currentUser) {
+      els.stepRailBar.style.display = 'none';
+      return;
+    }
+    els.stepRailBar.style.display = 'block';
+
+    const steps = [
+      { num: 0, label: '👥 Team' },
+      { num: 1, label: '1. Materials' },
+      { num: 2, label: '2. Channel' },
+      { num: 3, label: state.step3Approved ? '3. Curve ✓' : '3. Curve 🛑' },
+      { num: 4, label: '4. Chair' },
+      { num: 5, label: '5. Attach' },
+      { num: 6, label: state.step6Approved ? '6. Meter Stick ✓' : '6. Meter Stick 🛑' },
+      { num: 7, label: '7. 10cm Marks' },
+      { num: 8, label: '8. Data Table' },
+      { num: 9, label: '9. Graph & Rounds 🎯' }
+    ];
+
+    els.stepRailInner.innerHTML = '';
+    steps.forEach(s => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      const isCurrent = state.currentStep === s.num;
+      const isLocked = (s.num > state.maxUnlockedStep) ||
+                       (s.num > 3 && !state.step3Approved) ||
+                       (s.num > 6 && !state.step6Approved) ||
+                       (s.num === 9 && getValidPairs().length < 4);
+
+      btn.className = `step-pill ${isCurrent ? 'active' : ''} ${s.num < state.currentStep && !isLocked ? 'done' : ''} ${isLocked ? 'locked' : ''}`;
+      btn.textContent = s.label;
+      btn.disabled = isLocked;
+      btn.addEventListener('click', () => {
+        if (!isLocked) unlockAndGoToStep(s.num);
+      });
+      els.stepRailInner.appendChild(btn);
+    });
+  }
+
+  function renderSlideVisibility() {
+    for (let s = 0; s <= 9; s++) {
+      const el = document.getElementById(`slide${s}`);
+      if (el) {
+        el.style.display = (state.currentStep === s) ? 'flex' : 'none';
+      }
+    }
+  }
+
+  function renderGroupMembers() {
+    if (!els.groupMembersList) return;
+    populateClassmateSuggestions();
+    els.groupMembersList.innerHTML = '';
+
+    const candidates = getRosterCandidates();
+    // Automatically link or prune any unverified local entries once roster is loaded
+    if (candidates.length > 0) {
+      state.groupMembers = state.groupMembers.filter(m => {
+        if (m.isPrimary) return true;
+        const found = candidates.find(st =>
+          (m.studentId && String(st.id) === String(m.studentId)) ||
+          String(st.name || '').trim().toLowerCase() === String(m.name || '').trim().toLowerCase()
+        );
+        if (found) {
+          m.studentId = String(found.id);
+          m.name = found.name;
+          m.rosterVerified = true;
+          return true;
+        }
+        return false; // Remove unverified fake names
+      });
+    }
+
+    state.groupMembers.forEach((m, idx) => {
+      const row = document.createElement('div');
+      row.className = 'member-chip';
+      row.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+          <span class="member-num">${idx + 1}</span>
+          <div>
+            <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-main);">
+              ${escapeHtml(m.name)}
+              ${m.isPrimary
+                ? '<span style="font-size: 0.72rem; background: var(--accent-emerald-bg); color: var(--accent-emerald); padding: 0.1rem 0.45rem; border-radius: 999px; margin-left: 0.4rem; font-weight: 800;">✓ Signed-In &bull; Roster Linked</span>'
+                : '<span style="font-size: 0.72rem; background: var(--accent-emerald-bg); color: var(--accent-emerald); padding: 0.1rem 0.45rem; border-radius: 999px; margin-left: 0.4rem; font-weight: 800;">✓ Roster Linked</span>'}
+            </div>
+          </div>
+        </div>
+        ${!m.isPrimary ? `<button type="button" class="btn-remove-row" data-midx="${idx}" title="Remove member">✕</button>` : ''}
+      `;
+      els.groupMembersList.appendChild(row);
+    });
+
+    els.groupMembersList.querySelectorAll('[data-midx]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const i = parseInt(btn.getAttribute('data-midx'), 10);
+        state.groupMembers.splice(i, 1);
+        saveLocalState();
+        renderGroupMembers();
+        syncProgressToFirestore();
+      });
+    });
+
+    if (els.memberCountBadge) {
+      const c = state.groupMembers.length;
+      els.memberCountBadge.textContent = `${c} ${c === 1 ? 'Participant' : 'Participants'} in Group`;
+    }
+  }
+
+  function updateStep1Button() {
+    if (!els.btnNextFrom1) return;
+    els.step1Checkboxes.forEach((chk, i) => {
+      chk.checked = !!state.step1Checks[i];
+    });
+    const allChecked = state.step1Checks.every(Boolean);
+    els.btnNextFrom1.disabled = !allChecked;
+    els.btnNextFrom1.textContent = allChecked
+      ? 'We Have All 5 Materials → Go to Step 2'
+      : `Check All 5 Materials to Continue (${state.step1Checks.filter(Boolean).length}/5)`;
+  }
+
+  function renderApprovalGates() {
+    // Step 3 Gate UI
+    if (els.gateBoxStep3 && els.btnNextFrom3 && els.btnRequestStep3) {
+      if (state.step3Approved) {
+        els.gateBoxStep3.className = 'approval-gate-box approved';
+        els.iconGate3.textContent = '✅';
+        els.titleGate3.textContent = 'Step 3 Approved by Mr. Mudry!';
+        els.descGate3.textContent = 'Your curved ramp bottom is approved. Click the green button below to continue to Step 4!';
+        els.btnRequestStep3.style.display = 'none';
+        els.btnNextFrom3.disabled = false;
+        els.btnNextFrom3.textContent = '✓ Approved! Continue to Step 4 →';
+      } else if (state.step3Requested) {
+        els.gateBoxStep3.className = 'approval-gate-box waiting';
+        els.iconGate3.textContent = '⏳';
+        els.titleGate3.textContent = `Waiting for Mr. Mudry to Approve Table ${state.tableNum} (Step 3)...`;
+        els.descGate3.textContent = 'Your table is flashing on Mr. Mudry\'s dashboard! Show him your gentle ramp curve—this screen will automatically unlock the moment he clicks Approve.';
+        els.btnRequestStep3.textContent = '🔔 Signal Sent (Click to Ping Again)';
+        els.btnRequestStep3.style.display = 'inline-flex';
+        els.btnNextFrom3.disabled = true;
+        els.btnNextFrom3.textContent = '🔒 Waiting for Mr. Mudry\'s Approval...';
+      } else {
+        els.gateBoxStep3.className = 'approval-gate-box';
+        els.iconGate3.textContent = '🛑';
+        els.titleGate3.textContent = 'Pause Here: Approval Required from Mr. Mudry';
+        els.descGate3.textContent = 'Once your group has cut and taped the bottom of your ramp into a gentle curve, click the button on the right to signal Mr. Mudry.';
+        els.btnRequestStep3.textContent = '✋ Request Mr. Mudry\'s Approval';
+        els.btnRequestStep3.style.display = 'inline-flex';
+        els.btnNextFrom3.disabled = true;
+        els.btnNextFrom3.textContent = '🔒 Waiting for Mr. Mudry\'s Approval...';
+      }
+    }
+
+    // Step 6 Gate UI
+    if (els.gateBoxStep6 && els.btnNextFrom6 && els.btnRequestStep6) {
+      if (state.step6Approved) {
+        els.gateBoxStep6.className = 'approval-gate-box approved';
+        els.iconGate6.textContent = '✅';
+        els.titleGate6.textContent = 'Step 6 Approved by Mr. Mudry!';
+        els.descGate6.textContent = 'Your chair ramp and taped floor meter stick are approved. Click below to continue to Step 7!';
+        els.btnRequestStep6.style.display = 'none';
+        els.btnNextFrom6.disabled = false;
+        els.btnNextFrom6.textContent = '✓ Approved! Continue to Step 7 →';
+      } else if (state.step6Requested) {
+        els.gateBoxStep6.className = 'approval-gate-box waiting';
+        els.iconGate6.textContent = '⏳';
+        els.titleGate6.textContent = `Waiting for Mr. Mudry to Approve Table ${state.tableNum} (Step 6)...`;
+        els.descGate6.textContent = 'Your table is flashing on Mr. Mudry\'s dashboard! Show him your ramp at the table edge and your taped floor meter stick.';
+        els.btnRequestStep6.textContent = '🔔 Signal Sent (Click to Ping Again)';
+        els.btnRequestStep6.style.display = 'inline-flex';
+        els.btnNextFrom6.disabled = true;
+        els.btnNextFrom6.textContent = '🔒 Waiting for Mr. Mudry\'s Approval...';
+      } else {
+        els.gateBoxStep6.className = 'approval-gate-box';
+        els.iconGate6.textContent = '🛑';
+        els.titleGate6.textContent = 'Pause Here: Approval Required from Mr. Mudry';
+        els.descGate6.textContent = 'Once your ramp is attached to the chair, flat at the table edge, and your meter stick is taped to the floor starting at 0 cm under the table edge, click to call Mr. Mudry!';
+        els.btnRequestStep6.textContent = '✋ Request Mr. Mudry\'s Approval';
+        els.btnRequestStep6.style.display = 'inline-flex';
+        els.btnNextFrom6.disabled = true;
+        els.btnNextFrom6.textContent = '🔒 Waiting for Mr. Mudry\'s Approval...';
+      }
+    }
+  }
+
+  let tableSyncTimer = null;
+  function scheduleTableSync() {
+    if (tableSyncTimer) clearTimeout(tableSyncTimer);
+    tableSyncTimer = setTimeout(() => {
+      syncProgressToFirestore();
+    }, 600);
+  }
+
+  function renderCalibrationTable(forceRebuild) {
+    if (!els.calTableBody) return;
+    // Never destroy focused input elements while the student is actively typing
+    if (!forceRebuild && els.calTableBody.contains(document.activeElement) && els.calTableBody.children.length === state.dataRows.length) {
+      return;
+    }
+    els.calTableBody.innerHTML = '';
 
     state.dataRows.forEach((row, idx) => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td style="font-weight: 800; color: var(--text-dim);">${idx + 1}</td>
+        <td style="font-weight: 800; color: var(--text-dim);">#${idx + 1}</td>
         <td>
-          <input type="number" step="0.5" min="1" max="200" class="table-input input-h" data-idx="${idx}" value="${row.h !== '' ? row.h : ''}" placeholder="cm">
+          <div style="display: flex; align-items: center; gap: 0.4rem;">
+            <input type="text" inputmode="decimal" autocomplete="off" class="table-input input-h" data-idx="${idx}" value="${row.h !== '' && row.h !== undefined && row.h !== null ? row.h : ''}" placeholder="e.g. ${(idx + 1) * 10}">
+            <span style="font-weight: 700; color: var(--text-dim);">cm mark</span>
+          </div>
         </td>
         <td>
-          <input type="number" step="0.5" min="1" max="400" class="table-input input-dx" data-idx="${idx}" value="${row.dx !== '' ? row.dx : ''}" placeholder="cm">
+          <div style="display: flex; align-items: center; gap: 0.4rem;">
+            <input type="text" inputmode="decimal" autocomplete="off" class="table-input input-dx" data-idx="${idx}" value="${row.dx !== '' && row.dx !== undefined && row.dx !== null ? row.dx : ''}" placeholder="Floor cm">
+            <span style="font-weight: 700; color: var(--text-dim);">cm on floor</span>
+          </div>
         </td>
         <td style="text-align: center;">
-          <button type="button" class="btn-remove-row" data-idx="${idx}" title="Remove trial">✕</button>
+          <button type="button" class="btn-remove-row" data-idx="${idx}" title="Remove row">✕</button>
         </td>
       `;
-      els.tableBody.appendChild(tr);
+      els.calTableBody.appendChild(tr);
     });
 
-    // Bind row input changes
-    els.tableBody.querySelectorAll('.input-h').forEach(inp => {
+    els.calTableBody.querySelectorAll('.input-h').forEach(inp => {
       inp.addEventListener('input', e => {
-        const i = parseInt(e.target.dataset.idx);
-        const val = e.target.value === '' ? '' : parseFloat(e.target.value);
-        state.dataRows[i].h = val;
+        const i = parseInt(e.target.dataset.idx, 10);
+        const raw = e.target.value.trim();
+        const num = parseFloat(raw);
+        state.dataRows[i].h = (raw === '' || isNaN(num)) ? '' : num;
         saveLocalState();
-        recalculate();
+        recalculateCurve();
+        renderStepRail();
+        scheduleTableSync();
       });
+      inp.addEventListener('blur', () => syncProgressToFirestore());
     });
 
-    els.tableBody.querySelectorAll('.input-dx').forEach(inp => {
+    els.calTableBody.querySelectorAll('.input-dx').forEach(inp => {
       inp.addEventListener('input', e => {
-        const i = parseInt(e.target.dataset.idx);
-        const val = e.target.value === '' ? '' : parseFloat(e.target.value);
-        state.dataRows[i].dx = val;
+        const i = parseInt(e.target.dataset.idx, 10);
+        const raw = e.target.value.trim();
+        const num = parseFloat(raw);
+        state.dataRows[i].dx = (raw === '' || isNaN(num)) ? '' : num;
         saveLocalState();
-        recalculate();
+        recalculateCurve();
+        renderStepRail();
+        scheduleTableSync();
       });
+      inp.addEventListener('blur', () => syncProgressToFirestore());
     });
 
-    els.tableBody.querySelectorAll('.btn-remove-row').forEach(btn => {
+    els.calTableBody.querySelectorAll('.btn-remove-row').forEach(btn => {
       btn.addEventListener('click', e => {
-        const i = parseInt(e.target.dataset.idx);
+        if (state.dataRows.length <= 4) {
+          alert('Keep at least 4 rows in your calibration data table.');
+          return;
+        }
+        const i = parseInt(e.currentTarget.dataset.idx, 10);
         state.dataRows.splice(i, 1);
-        renderTableRows();
         saveLocalState();
-        recalculate();
+        renderCalibrationTable(true);
+        recalculateCurve();
+        renderStepRail();
+        syncProgressToFirestore();
       });
     });
   }
 
-  function recalculate() {
-    // 1. Calculate Theoretical Free Fall Time from Table Height
-    // t_air = √(2 * Δy / g) = √(Δy_meters / 5)
-    const dyMeters = state.tableHeightCm / 100.0;
-    const tAir = Math.sqrt((2.0 * dyMeters) / G);
-    if (els.dispAirTime) {
-      els.dispAirTime.textContent = `${tAir.toFixed(3)} s`;
-    }
+  function getValidPairs() {
+    return state.dataRows.filter(r => typeof r.h === 'number' && !isNaN(r.h) && r.h > 0 && typeof r.dx === 'number' && !isNaN(r.dx) && r.dx > 0);
+  }
 
-    // 2. Compute smooth empirical curve connecting data points
-    const validPairs = state.dataRows.filter(r => typeof r.h === 'number' && typeof r.dx === 'number' && r.h > 0 && r.dx > 0);
-
+  function recalculateCurve() {
+    const validPairs = getValidPairs();
     if (validPairs.length >= 2) {
       let sumSqrtH_dx = 0;
       let sumH = 0;
-
       validPairs.forEach(p => {
-        const sqrtH = Math.sqrt(p.h);
-        sumSqrtH_dx += sqrtH * p.dx;
-        sumH += p.h; // (sqrt(h))² = h
+        sumSqrtH_dx += Math.sqrt(p.h) * p.dx;
+        sumH += p.h;
       });
-
-      state.k = sumH > 0 ? (sumSqrtH_dx / sumH) : 0;
-
-      if (els.graphStatusMsg) {
-        els.graphStatusMsg.innerHTML = `
-          <span style="color: var(--accent-emerald);">✓ Calibration curve ready</span> (${validPairs.length} trials plotted). Trace from target distance Δx over to your curve to read release height h!
-        `;
-      }
+      state.k = sumH > 0 ? (sumSqrtH_dx / sumH) : null;
     } else {
       state.k = null;
-      if (els.graphStatusMsg) {
-        els.graphStatusMsg.textContent = 'Enter at least 2 data points to generate your calibration curve.';
+    }
+
+    // Update Step 8 Status & Button
+    if (els.step8DataStatus && els.btnNextFrom8) {
+      if (validPairs.length >= 4) {
+        els.step8DataStatus.style.color = 'var(--accent-emerald)';
+        els.step8DataStatus.textContent = `✓ ${validPairs.length} calibration trials recorded! Click below to see your graph and start the 3 Target Rounds.`;
+        els.btnNextFrom8.disabled = false;
+        els.btnNextFrom8.textContent = `Plot Graph & Start Target Rounds (${validPairs.length} Trials) →`;
+      } else {
+        els.step8DataStatus.style.color = 'var(--accent-orange)';
+        els.step8DataStatus.textContent = `⏳ ${validPairs.length} of 4 minimum trials entered. Release the marble from at least 4 ramp marks and record the floor distance (cm).`;
+        els.btnNextFrom8.disabled = true;
+        els.btnNextFrom8.textContent = `Enter At Least 4 Trials to View Your Graph (${validPairs.length}/4) →`;
+      }
+    }
+  }
+
+  function renderStep9Rounds() {
+    if (els.step9TeamSummary) {
+      const names = state.groupMembers.map(m => m.name).join(', ');
+      els.step9TeamSummary.textContent = `Period ${state.period} • 👥 ${names || 'Group'}`;
+    }
+
+    let total = 0;
+    for (let r = 1; r <= 4; r++) {
+      const rData = state.rounds[r] || {};
+      const box = document.getElementById(`roundBox${r}`);
+      const targetInp = document.getElementById(`r${r}Target`);
+      const releaseInp = document.getElementById(`r${r}Release`);
+      const scoreTag = document.getElementById(`roundScoreTag${r}`);
+      const statusMsg = document.getElementById(`r${r}StatusMsg`);
+
+      if (box) {
+        box.classList.toggle('active', state.activeRound === r);
+      }
+      if (targetInp && document.activeElement !== targetInp) {
+        targetInp.value = rData.targetDistCm !== '' && rData.targetDistCm !== undefined ? rData.targetDistCm : '';
+      }
+      if (releaseInp && document.activeElement !== releaseInp) {
+        releaseInp.value = rData.studentReleaseHeightCm !== '' && rData.studentReleaseHeightCm !== undefined ? rData.studentReleaseHeightCm : '';
+      }
+
+      const isScored = typeof rData.score === 'number';
+      if (scoreTag) {
+        if (isScored) {
+          scoreTag.textContent = `✓ Score: ${rData.score} / 10 pts`;
+          scoreTag.style.background = 'var(--accent-emerald-bg)';
+          scoreTag.style.color = 'var(--accent-emerald)';
+        } else {
+          scoreTag.textContent = 'Score: -- / 10 pts';
+          scoreTag.style.background = 'var(--bg-card-sub)';
+          scoreTag.style.color = 'var(--text-dim)';
+        }
+      }
+
+      if (statusMsg) {
+        if (isScored) {
+          statusMsg.innerHTML = `<span style="color: var(--accent-emerald); font-weight: 800;">🏆 Official drop scored by Mr. Mudry: ${rData.score} / 10 pts!</span>`;
+        } else if (rData.status === 'ready_to_launch') {
+          statusMsg.innerHTML = `<span style="color: var(--accent-cyan); font-weight: 800;">✓ Locked in (Target ${rData.targetDistCm} cm → Release at ${rData.studentReleaseHeightCm} cm)! Call Mr. Mudry for your drop.</span>`;
+        } else {
+          statusMsg.textContent = 'Enter target distance & release position from graph, then lock in.';
+        }
+      }
+
+      if (r <= 3 && isScored) {
+        total += rData.score;
       }
     }
 
+    state.totalScore = total;
+    if (els.studentTotalScore) {
+      els.studentTotalScore.textContent = String(total);
+    }
+  }
+
+  function lockInRoundPrediction(r) {
+    if (!currentUser) {
+      alert('Please sign in first.');
+      return;
+    }
+    const rData = state.rounds[r] || {};
+    const targetVal = parseFloat(rData.targetDistCm);
+    const releaseVal = parseFloat(rData.studentReleaseHeightCm);
+
+    if (isNaN(targetVal) || targetVal <= 0) {
+      alert(`Please enter the Target Distance (cm) that Mr. Mudry gave you for ${r === 4 ? 'the Tie-Breaker' : 'Round ' + r}.`);
+      const tInp = document.getElementById(`r${r}Target`);
+      if (tInp) tInp.focus();
+      return;
+    }
+    if (isNaN(releaseVal) || releaseVal <= 0) {
+      alert(`Please use your graph on the left to determine and enter your Marble Release Position (cm) for ${r === 4 ? 'the Tie-Breaker' : 'Round ' + r}.`);
+      const rInp = document.getElementById(`r${r}Release`);
+      if (rInp) rInp.focus();
+      return;
+    }
+
+    rData.targetDistCm = targetVal;
+    rData.studentReleaseHeightCm = releaseVal;
+    rData.predictedReleaseHeightCm = releaseVal;
+    rData.status = 'ready_to_launch';
+    state.rounds[r] = rData;
+    state.activeRound = r;
+
+    saveLocalState();
+    renderStep9Rounds();
     renderPlot();
+    syncProgressToFirestore('ready_to_launch', r);
+    if (window.SoundFX) SoundFX.play('click');
   }
 
-  function getCurrentRoundTarget() {
-    const r = state.viewingRound;
-    const rData = state.rounds[r];
-    return (rData && typeof rData.targetDistCm === 'number') ? rData.targetDistCm : 110.0;
+  function syncProgressToFirestore(overrideStatus, activeRoundOverride) {
+    if (!fbDb || !currentUser) return;
+    const email = (currentUser.email || '').toLowerCase();
+    const studentId = email.split('@')[0];
+    const teamNamesStr = state.groupMembers.map(m => m.name).join(', ');
+    const r = activeRoundOverride || state.activeRound || 1;
+    const activeRData = state.rounds[r] || {};
+
+    let statusVal = overrideStatus || 'in_progress';
+    if (!overrideStatus) {
+      if (state.currentStep === 3 && state.step3Requested && !state.step3Approved) {
+        statusVal = 'waiting_step_3';
+      } else if (state.currentStep === 6 && state.step6Requested && !state.step6Approved) {
+        statusVal = 'waiting_step_6';
+      } else if (state.currentStep === 9) {
+        statusVal = 'on_graph_rounds';
+      }
+    }
+
+    const payload = {
+      studentId: studentId,
+      student_id: studentId,
+      primaryStudentId: studentId,
+      studentEmail: email,
+      studentName: (state.groupMembers[0] && state.groupMembers[0].name) || currentUser.displayName || studentId,
+      student_name: (state.groupMembers[0] && state.groupMembers[0].name) || currentUser.displayName || studentId,
+      period: state.period,
+      class_period: state.period,
+      tableNumber: state.tableNum,
+      teamMembers: teamNamesStr,
+      groupMembers: state.groupMembers,
+      currentStep: state.currentStep,
+      maxUnlockedStep: state.maxUnlockedStep,
+      step3Requested: !!state.step3Requested,
+      step3Approved: !!state.step3Approved,
+      step6Requested: !!state.step6Requested,
+      step6Approved: !!state.step6Approved,
+      dataRows: state.dataRows,
+      calibrationData: getValidPairs().map(p => ({ s: p.h, dx: p.dx })),
+      currentRound: r,
+      rounds: state.rounds,
+      targetDistCm: Number(activeRData.targetDistCm) || 0,
+      predictedReleaseHeightCm: Number(activeRData.studentReleaseHeightCm) || 0,
+      totalScore: state.totalScore || 0,
+      score: state.totalScore || 0,
+      maxPoints: 30,
+      percentage: Math.round(((state.totalScore || 0) / 30) * 100),
+      status: statusVal,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    fbDb.collection('student_results')
+      .doc(ASSIGNMENT_ID)
+      .collection('students')
+      .doc(studentId)
+      .set(payload, { merge: true })
+      .catch(err => console.warn('Sync error:', err.message));
   }
 
-  function getCurrentRoundStudentH() {
-    const r = state.viewingRound;
-    const rData = state.rounds[r];
-    return (rData && typeof rData.studentReleaseHeightCm === 'number') ? rData.studentReleaseHeightCm : null;
-  }
-
+  // =========================================================================
+  // INTERACTIVE EMPIRICAL GRAPH RENDERER (STEP 9)
+  // =========================================================================
   function getPlotBounds(w, h) {
-    const padL = 60;
-    const padB = 45;
-    const padT = 20;
-    const padR = 25;
-    const plotW = w - padL - padR;
-    const plotH = h - padT - padB;
+    const padL = 64;
+    const padB = 48;
+    const padT = 24;
+    const padR = 28;
+    const plotW = Math.max(100, w - padL - padR);
+    const plotH = Math.max(100, h - padT - padB);
 
-    const validPairs = state.dataRows.filter(r => typeof r.h === 'number' && typeof r.dx === 'number' && r.h > 0 && r.dx > 0);
-    let maxH = 50;
-    let maxDx = 100;
+    const validPairs = getValidPairs();
+    let maxH = 60;
+    let maxDx = 120;
     validPairs.forEach(p => {
       if (p.h > maxH) maxH = p.h;
       if (p.dx > maxDx) maxDx = p.dx;
     });
 
-    const studentH = getCurrentRoundStudentH();
-    const targetX = getCurrentRoundTarget();
+    const rData = state.rounds[state.activeRound] || {};
+    const targetX = parseFloat(rData.targetDistCm) || 0;
+    const studentH = parseFloat(rData.studentReleaseHeightCm) || 0;
 
-    if (typeof studentH === 'number' && studentH > maxH) {
-      maxH = studentH * 1.15;
-    }
+    if (studentH > maxH) maxH = studentH * 1.15;
     if (targetX > maxDx) maxDx = targetX * 1.15;
+
     maxH = Math.ceil(maxH / 10) * 10 + 10;
     maxDx = Math.ceil(maxDx / 20) * 20 + 20;
 
@@ -585,25 +1346,25 @@
       return;
     }
 
-    const valH = ((px - b.padL) / b.plotW) * b.maxH;
-    const valDx = ((h - b.padB - py) / b.plotH) * b.maxDx;
+    const valH = Math.max(0, ((px - b.padL) / b.plotW) * b.maxH);
+    const valDx = Math.max(0, ((h - b.padB - py) / b.plotH) * b.maxDx);
 
-    let hOnCurve = null;
+    let dxOnCurve = null;
     if (state.k && state.k > 0) {
-      hOnCurve = Math.pow(valDx / state.k, 2);
+      dxOnCurve = state.k * Math.sqrt(valH);
     }
 
     hoverInspector = {
-      h: Math.max(0, valH),
-      dx: Math.max(0, valDx),
-      hCurve: hOnCurve
+      h: valH,
+      dx: dxOnCurve !== null ? dxOnCurve : valDx,
+      hasCurve: dxOnCurve !== null
     };
 
     if (els.readoutValues) {
-      if (hOnCurve !== null && hOnCurve > 0) {
-        els.readoutValues.innerHTML = `Target Distance: <strong>Δx = ${valDx.toFixed(1)} cm</strong> ➔ Ramp Height: <strong>h ≈ ${hOnCurve.toFixed(1)} cm</strong>`;
+      if (dxOnCurve !== null) {
+        els.readoutValues.innerHTML = `Ramp Release Mark: <strong>${valH.toFixed(1)} cm</strong> ➔ Floor Distance on Curve: <strong>${dxOnCurve.toFixed(1)} cm</strong>`;
       } else {
-        els.readoutValues.innerHTML = `Cursor: h = ${valH.toFixed(1)} cm, Δx = ${valDx.toFixed(1)} cm`;
+        els.readoutValues.innerHTML = `Ramp Mark: ${valH.toFixed(1)} cm, Floor Distance: ${valDx.toFixed(1)} cm`;
       }
     }
 
@@ -611,14 +1372,15 @@
   }
 
   function renderPlot() {
-    if (!els.plotCanvas) return;
+    if (!els.plotCanvas || state.currentStep !== 9) return;
     const canvas = els.plotCanvas;
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
 
-    const rect = canvas.getBoundingClientRect();
-    const w = rect.width;
-    const h = rect.height;
+    const wrap = canvas.parentElement;
+    const rect = (wrap || canvas).getBoundingClientRect();
+    const w = Math.floor(rect.width) || 520;
+    const h = Math.floor(rect.height) || 340;
 
     canvas.width = w * dpr;
     canvas.height = h * dpr;
@@ -634,7 +1396,6 @@
     const colorTarget = isDark ? '#c084fc' : '#7c3aed';
     const colorInspector = isDark ? '#facc15' : '#d97706';
 
-    // Clear background
     ctx.fillStyle = colorBg;
     ctx.fillRect(0, 0, w, h);
 
@@ -642,11 +1403,10 @@
     const toX = valH => b.padL + (valH / b.maxH) * b.plotW;
     const toY = valDx => (h - b.padB) - (valDx / b.maxDx) * b.plotH;
 
-    // Draw Grid Lines (Crisp Graph Paper Style)
+    // Grid lines
     ctx.strokeStyle = colorGrid;
     ctx.lineWidth = 1;
 
-    // Vertical grid
     const stepH = b.maxH > 100 ? 20 : 10;
     for (let gh = 0; gh <= b.maxH; gh += stepH) {
       const gx = toX(gh);
@@ -656,13 +1416,12 @@
       ctx.stroke();
 
       ctx.fillStyle = colorAxis;
-      ctx.font = '11px SFMono-Regular, Consolas, monospace';
+      ctx.font = 'bold 11px JetBrains Mono, monospace';
       ctx.textAlign = 'center';
       ctx.fillText(gh, gx, h - b.padB + 16);
     }
 
-    // Horizontal grid
-    const stepDx = b.maxDx > 150 ? 50 : 20;
+    const stepDx = b.maxDx > 160 ? 40 : 20;
     for (let gdx = 0; gdx <= b.maxDx; gdx += stepDx) {
       const gy = toY(gdx);
       ctx.beginPath();
@@ -671,12 +1430,12 @@
       ctx.stroke();
 
       ctx.fillStyle = colorAxis;
-      ctx.font = '11px SFMono-Regular, Consolas, monospace';
+      ctx.font = 'bold 11px JetBrains Mono, monospace';
       ctx.textAlign = 'right';
       ctx.fillText(gdx, b.padL - 8, gy + 4);
     }
 
-    // Axes Lines
+    // Axes
     ctx.strokeStyle = colorAxis;
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -685,20 +1444,20 @@
     ctx.lineTo(w - b.padR, h - b.padB);
     ctx.stroke();
 
-    // Axis Labels
+    // Axis titles
     ctx.fillStyle = colorText;
-    ctx.font = 'bold 12px Outfit, sans-serif';
+    ctx.font = 'bold 13px Outfit, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Ramp Release Height h (cm)', b.padL + b.plotW / 2, h - 8);
+    ctx.fillText('Marble Release Mark Along Ramp (cm)', b.padL + b.plotW / 2, h - 8);
 
     ctx.save();
-    ctx.translate(16, b.padT + b.plotH / 2);
+    ctx.translate(18, b.padT + b.plotH / 2);
     ctx.rotate(-Math.PI / 2);
     ctx.textAlign = 'center';
-    ctx.fillText('Floor Landing Range Δx (cm)', 0, 0);
+    ctx.fillText('Floor Landing Distance Along Meter Stick (cm)', 0, 0);
     ctx.restore();
 
-    // Draw Smooth Fitted Empirical Curve
+    // Smooth Fitted Empirical Curve
     if (state.k && state.k > 0) {
       ctx.strokeStyle = colorCurve;
       ctx.lineWidth = 3;
@@ -713,71 +1472,68 @@
       ctx.stroke();
     }
 
-    // Interactive Hover/Touch Inspector Crosshairs
-    if (hoverInspector && hoverInspector.hCurve !== null && hoverInspector.hCurve <= b.maxH) {
-      const cPx = toX(hoverInspector.hCurve);
+    // Hover/Touch Crosshairs (tracks cursor horizontally along x-axis on the curve)
+    if (hoverInspector && hoverInspector.hasCurve && hoverInspector.dx <= b.maxDx) {
+      const cPx = toX(hoverInspector.h);
       const cPy = toY(hoverInspector.dx);
 
       ctx.setLineDash([3, 3]);
       ctx.strokeStyle = colorInspector;
       ctx.lineWidth = 1.5;
-
-      // Horizontal line from Δx axis to curve
       ctx.beginPath();
       ctx.moveTo(b.padL, cPy);
       ctx.lineTo(cPx, cPy);
-      // Vertical line down to h axis
       ctx.lineTo(cPx, h - b.padB);
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Point on curve
       ctx.fillStyle = colorInspector;
       ctx.beginPath();
-      ctx.arc(cPx, cPy, 5, 0, Math.PI * 2);
+      ctx.arc(cPx, cPy, 5.5, 0, Math.PI * 2);
       ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
     }
 
-    // Target Distance (Δx) Horizontal Reference Line for viewingRound
-    const targetX = getCurrentRoundTarget();
+    // Active Round Target Line & Student Pin
+    const rNum = state.activeRound || 1;
+    const rData = state.rounds[rNum] || {};
+    const targetX = parseFloat(rData.targetDistCm) || 0;
+    const studentH = parseFloat(rData.studentReleaseHeightCm) || 0;
     let expectedH = null;
+
     if (state.k && state.k > 0 && targetX > 0) {
       expectedH = Math.pow(targetX / state.k, 2);
     }
 
-    if (typeof targetX === 'number' && targetX > 0 && targetX <= b.maxDx) {
+    if (targetX > 0 && targetX <= b.maxDx) {
       const targetY = toY(targetX);
-
-      // Horizontal dashed guide from Δx axis across the plot
-      ctx.setLineDash([4, 4]);
+      ctx.setLineDash([5, 4]);
       ctx.strokeStyle = colorTarget;
-      ctx.lineWidth = 1.5;
+      ctx.lineWidth = 1.8;
       ctx.beginPath();
       ctx.moveTo(b.padL, targetY);
       ctx.lineTo(w - b.padR, targetY);
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Label at right edge
-      const rNum = state.viewingRound;
-      const rTag = rNum === 4 ? 'Tie-Breaker' : `R${rNum}`;
+      const rTag = rNum === 4 ? 'Tie-Breaker' : `Round ${rNum}`;
       ctx.fillStyle = colorTarget;
       ctx.font = 'bold 11px Outfit, sans-serif';
       ctx.textAlign = 'right';
-      ctx.fillText(`${rTag} Target Δx = ${targetX.toFixed(1)} cm`, w - b.padR - 4, targetY - 6);
+      ctx.fillText(`${rTag} Target = ${targetX.toFixed(1)} cm`, w - b.padR - 6, targetY - 6);
 
-      // If curve intersects within bounds, draw a guide indicator on the curve
       if (expectedH !== null && expectedH <= b.maxH) {
         const cPx = toX(expectedH);
         ctx.fillStyle = colorTarget;
         ctx.beginPath();
-        ctx.arc(cPx, targetY, 4, 0, Math.PI * 2);
+        ctx.arc(cPx, targetY, 4.5, 0, Math.PI * 2);
         ctx.fill();
 
-        // Faint drop line to h axis
         ctx.setLineDash([2, 4]);
         ctx.strokeStyle = colorTarget;
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 1.2;
         ctx.beginPath();
         ctx.moveTo(cPx, targetY);
         ctx.lineTo(cPx, h - b.padB);
@@ -786,75 +1542,51 @@
       }
     }
 
-    // Student's Entered Release Height Prediction Pin for viewingRound
-    const studentH = getCurrentRoundStudentH();
-    if (typeof studentH === 'number' && studentH > 0 && targetX > 0) {
-      if (studentH <= b.maxH && targetX <= b.maxDx) {
-        const px = toX(studentH);
-        const py = toY(targetX);
+    if (studentH > 0 && targetX > 0 && studentH <= b.maxH && targetX <= b.maxDx) {
+      const px = toX(studentH);
+      const py = toY(targetX);
 
-        ctx.setLineDash([5, 4]);
-        ctx.strokeStyle = colorTarget;
-        ctx.lineWidth = 2;
+      ctx.setLineDash([5, 4]);
+      ctx.strokeStyle = colorTarget;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(px, h - b.padB);
+      ctx.lineTo(px, py);
+      ctx.stroke();
+      ctx.setLineDash([]);
 
-        // Vertical drop line from pin to axis
-        ctx.beginPath();
-        ctx.moveTo(px, h - b.padB);
-        ctx.lineTo(px, py);
-        ctx.stroke();
-        ctx.setLineDash([]);
+      ctx.fillStyle = colorTarget;
+      ctx.beginPath();
+      ctx.arc(px, py, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
 
-        // Target Intersection Pin
-        ctx.fillStyle = colorTarget;
-        ctx.beginPath();
-        ctx.arc(px, py, 7, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        ctx.fillStyle = colorTarget;
-        ctx.font = 'bold 11px Outfit, sans-serif';
-        ctx.textAlign = 'left';
-        ctx.fillText(`YOUR SHOT: h = ${studentH.toFixed(1)} cm`, px + 10, py - 6);
-      }
+      ctx.fillStyle = colorTarget;
+      ctx.font = 'bold 11px Outfit, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(`R${rNum}: ${studentH.toFixed(1)} cm`, px + 10, py - 6);
     }
 
-    // Dynamic Live Feedback: Verifies Student Graph Reading
+    // Update Graph Feedback Message
     if (els.graphFeedbackMsg) {
-      if (typeof studentH === 'number' && studentH > 0 && targetX > 0) {
-        if (expectedH !== null) {
-          const diff = Math.abs(studentH - expectedH);
-          if (diff <= 1.0) {
-            els.graphFeedbackMsg.innerHTML = `
-              <span style="color: var(--accent-emerald); font-weight: 800;">✓ Excellent graph reading!</span>
-              Your prediction pin at <strong>h = ${studentH.toFixed(1)} cm</strong> lands directly on your calibration curve for <strong>Δx = ${targetX.toFixed(1)} cm</strong>.
-            `;
-          } else if (diff <= 3.0) {
-            els.graphFeedbackMsg.innerHTML = `
-              <span style="color: var(--accent-cyan); font-weight: 800;">≈ Close alignment!</span>
-              Your pin is at <strong>h = ${studentH.toFixed(1)} cm</strong> (the curve crosses Δx = ${targetX.toFixed(1)} cm at <strong>h ≈ ${expectedH.toFixed(1)} cm</strong>). Double check your grid reading before launching.
-            `;
-          } else {
-            els.graphFeedbackMsg.innerHTML = `
-              <span style="color: var(--accent-rose); font-weight: 800;">⚠️ Check your graph reading:</span>
-              Your pin at <strong>h = ${studentH.toFixed(1)} cm</strong> does not sit on the curve. Tracing across from Δx = ${targetX.toFixed(1)} cm gives <strong>h ≈ ${expectedH.toFixed(1)} cm</strong>. Check your horizontal axis scale!
-            `;
-          }
+      if (studentH > 0 && targetX > 0 && expectedH !== null) {
+        const diff = Math.abs(studentH - expectedH);
+        if (diff <= 1.5) {
+          els.graphFeedbackMsg.innerHTML = `<span style="color: var(--accent-emerald); font-weight: 800;">✓ Spot-On Graph Reading!</span> Your Round ${rNum} pin at <strong>${studentH.toFixed(1)} cm</strong> sits right on your calibration curve for a <strong>${targetX.toFixed(1)} cm</strong> target.`;
+        } else if (diff <= 3.5) {
+          els.graphFeedbackMsg.innerHTML = `<span style="color: var(--accent-cyan); font-weight: 800;">≈ Very Close!</span> Your pin is at <strong>${studentH.toFixed(1)} cm</strong> (your curve crosses ${targetX.toFixed(1)} cm at <strong>${expectedH.toFixed(1)} cm</strong>).`;
         } else {
-          els.graphFeedbackMsg.innerHTML = `
-            Target: <strong>Δx = ${targetX.toFixed(1)} cm</strong>, Your Release Height: <strong>h = ${studentH.toFixed(1)} cm</strong>. Plot at least 2 calibration points to display your curve.
-          `;
+          els.graphFeedbackMsg.innerHTML = `<span style="color: var(--accent-rose); font-weight: 800;">⚠️ Check Your Graph Reading:</span> Your pin at <strong>${studentH.toFixed(1)} cm</strong> is off your blue curve. Trace across from ${targetX.toFixed(1)} cm on the vertical axis to the curve, then look straight down!`;
         }
       } else {
-        els.graphFeedbackMsg.innerHTML = `
-          As you type your release height, watch your graph! Your team's prediction pin will appear at <strong>(h, Δx)</strong> with dashed guide lines. If your point sits directly on your curve, your reading is accurate and ready for launch!
-        `;
+        els.graphFeedbackMsg.innerHTML = `Type a Target Distance and your predicted Marble Release Position in Round ${rNum} on the right to see your purple shot pin on the graph!`;
       }
     }
 
-    // Plot Measured Data Points
-    const validPairs = state.dataRows.filter(r => typeof r.h === 'number' && typeof r.dx === 'number' && r.h > 0 && r.dx > 0);
+    // Plot Student Measured Data Points
+    const validPairs = getValidPairs();
     validPairs.forEach((p, idx) => {
       const px = toX(p.h);
       const py = toY(p.dx);
@@ -868,208 +1600,20 @@
       ctx.stroke();
 
       ctx.fillStyle = colorText;
-      ctx.font = 'bold 10px SFMono-Regular, Consolas, monospace';
+      ctx.font = 'bold 10px JetBrains Mono, monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(`#${idx + 1}`, px, py - 9);
+      ctx.fillText(`${p.h}cm`, px, py - 9);
     });
   }
 
-  // Firestore Sync: Send Team Prediction to Projector Board
-  function submitPrediction() {
-    if (!currentUser) {
-      alert('Please sign in with your @orangeusd.org Google account before submitting your prediction to the class board.');
-      if (els.btnLogin) els.btnLogin.click();
-      return;
-    }
-
-    const validPairs = state.dataRows.filter(r => typeof r.h === 'number' && typeof r.dx === 'number' && r.h > 0 && r.dx > 0);
-    if (validPairs.length < 2) {
-      alert('Please enter at least 2 calibration data points to plot your ramp curve.');
-      return;
-    }
-
-    const teamNames = els.teamInput.value.trim();
-    if (!teamNames) {
-      alert('Please enter your team members names so you receive credit on the leaderboard.');
-      els.teamInput.focus();
-      return;
-    }
-
-    const r = state.viewingRound;
-    const rData = state.rounds[r] || {};
-    const predH = rData.studentReleaseHeightCm;
-    const targetDist = rData.targetDistCm;
-
-    if (!predH || predH <= 0) {
-      alert(`Please read and enter your team's predicted release height (h) for Round ${r === 4 ? 'Tie-Breaker' : r} from your graph before submitting.`);
-      if (els.inputReleaseHeight) els.inputReleaseHeight.focus();
-      return;
-    }
-
-    const dyMeters = state.tableHeightCm / 100.0;
-    const tAir = Math.sqrt((2.0 * dyMeters) / G);
-    const email = currentUser.email || '';
-    const studentId = email.split('@')[0];
-    const period = parseInt(els.periodSelect.value) || 0;
-    const tableNum = parseInt(els.tableSelect.value) || 1;
-
-    // Update round status locally
-    rData.status = 'ready_to_launch';
-    state.rounds[r] = rData;
-    updateScorecardUI();
-
-    const payload = {
-      studentId: studentId,
-      studentEmail: email,
-      studentName: currentUser.displayName || studentId,
-      period: period,
-      tableNumber: tableNum,
-      teamMembers: teamNames,
-      tableHeightCm: state.tableHeightCm,
-      airTimeSec: tAir,
-      currentRound: r,
-      rounds: state.rounds,
-      targetDistCm: targetDist,
-      predictedReleaseHeightCm: predH,
-      isElevated: state.isElevated,
-      elevationCm: state.elevationCm,
-      status: 'ready_to_launch',
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-
-    els.btnSubmitPrediction.disabled = true;
-    els.submitStatus.innerHTML = '<span style="color: var(--accent-cyan);">⏳ Submitting prediction to class board...</span>';
-
-    fbDb.collection('student_results')
-      .doc('unit2_projectile_target_range')
-      .collection('students')
-      .doc(studentId)
-      .set(payload, { merge: true })
-      .then(() => {
-        if (window.SoundFX) SoundFX.play('click');
-        els.btnSubmitPrediction.disabled = false;
-        const rName = r === 4 ? 'Tie-Breaker' : `Round ${r}`;
-        els.submitStatus.innerHTML = `
-          <span style="color: var(--accent-emerald); font-weight: 800;">
-            ✓ ${rName} Prediction of h = ${predH} cm locked in! Call the teacher to Table ${tableNum} for your live drop.
-          </span>
-        `;
-      })
-      .catch(err => {
-        console.error('Submission error', err);
-        els.btnSubmitPrediction.disabled = false;
-        els.submitStatus.innerHTML = `<span style="color: var(--accent-rose);">Error submitting: ${err.message}</span>`;
-      });
+  function escapeHtml(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 
-  function syncFromFirestore(user) {
-    if (!fbDb || !user) return;
-    const studentId = (user.email || '').split('@')[0];
-
-    fbDb.collection('student_results')
-      .doc('unit2_projectile_target_range')
-      .collection('students')
-      .doc(studentId)
-      .get()
-      .then(doc => {
-        if (!doc.exists) return;
-        const data = doc.data();
-        if (data.teamMembers && els.teamInput) {
-          els.teamInput.value = data.teamMembers;
-          state.teamMembers = data.teamMembers;
-        }
-        if (data.tableNumber && els.tableSelect) {
-          els.tableSelect.value = data.tableNumber;
-          state.tableNum = data.tableNumber;
-        }
-        if (data.period !== undefined && els.periodSelect) {
-          els.periodSelect.value = data.period;
-          state.period = data.period;
-        }
-
-        if (data.rounds && typeof data.rounds === 'object') {
-          for (let r = 1; r <= 4; r++) {
-            if (data.rounds[r]) {
-              state.rounds[r] = Object.assign(state.rounds[r] || {}, data.rounds[r]);
-            } else if (data.rounds[String(r)]) {
-              state.rounds[r] = Object.assign(state.rounds[r] || {}, data.rounds[String(r)]);
-            }
-          }
-        }
-
-        updateScorecardUI();
-        selectViewingRound(state.viewingRound || 1);
-      })
-      .catch(err => console.warn('Sync notice', err));
-  }
-
-  let unsubscribeConfig = null;
-
-  function updateTargetFromConfig() {
-    if (!assignmentConfigData) return;
-
-    // Check if teacher switched active round
-    if (typeof assignmentConfigData.currentRound === 'number' && assignmentConfigData.currentRound >= 1 && assignmentConfigData.currentRound <= 4) {
-      if (assignmentConfigData.currentRound !== state.currentActiveRound) {
-        state.currentActiveRound = assignmentConfigData.currentRound;
-        selectViewingRound(state.currentActiveRound);
-      }
-    }
-
-    const r = state.viewingRound;
-    const roundTargets = assignmentConfigData.roundTargets || {};
-    const periodTargetsKey = `tableTargets_p${state.period}`;
-    const periodTargets = assignmentConfigData[periodTargetsKey] || assignmentConfigData.tableTargets || {};
-
-    const specificKey = `p${state.period}_r${r}_table_${state.tableNum}`;
-    const roundKey = `r${r}_table_${state.tableNum}`;
-    const genericKey = `table_${state.tableNum}`;
-
-    let assigned = null;
-    if (typeof periodTargets[specificKey] === 'number') {
-      assigned = periodTargets[specificKey];
-    } else if (typeof periodTargets[roundKey] === 'number') {
-      assigned = periodTargets[roundKey];
-    } else if (r === state.currentActiveRound && typeof periodTargets[genericKey] === 'number') {
-      assigned = periodTargets[genericKey];
-    } else if (typeof roundTargets[r] === 'number') {
-      assigned = roundTargets[r];
-    } else if (typeof assignmentConfigData.universalTargetCm === 'number') {
-      assigned = assignmentConfigData.universalTargetCm;
-    }
-
-    if (assigned !== null) {
-      if (!state.rounds[r]) state.rounds[r] = {};
-      state.rounds[r].targetDistCm = assigned;
-      if (els.inputTargetDist) els.inputTargetDist.value = assigned;
-      if (els.assignedTargetBadge) {
-        const rName = r === 4 ? 'Tie-Breaker' : `R${r}`;
-        els.assignedTargetBadge.textContent = `🎯 ${rName} Table ${state.tableNum} Target: ${assigned.toFixed(1)} cm`;
-        els.assignedTargetBadge.style.color = 'var(--accent-emerald)';
-      }
-      updateScorecardUI();
-      saveLocalState();
-      renderPlot();
-    }
-  }
-
-  function listenToAssignmentConfig() {
-    if (!fbDb) return;
-    try {
-      if (unsubscribeConfig) unsubscribeConfig();
-      unsubscribeConfig = fbDb.collection('student_results')
-        .doc('unit2_projectile_target_range')
-        .onSnapshot(doc => {
-          if (!doc.exists) return;
-          assignmentConfigData = doc.data() || {};
-          updateTargetFromConfig();
-        }, err => console.warn('Config listen notice', err));
-    } catch (e) {
-      console.warn('Error listening to assignment config', e);
-    }
-  }
-
-  // Auto-init on DOM ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {

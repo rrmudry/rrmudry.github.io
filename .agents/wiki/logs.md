@@ -3,6 +3,50 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-10-28 — Horizontal Projectile Ramp Lab: Student Group Management, Roster Verification & Live Board Refinements
+**Patterns Updated**: `cast-aligned-webapp-design.md`, `classroom-projection-and-high-contrast-theming.md`.
+**Files Updated**: `Unit_2/projectile_target_range/index.html`, `Unit_2/projectile_target_range/js/student-app.js`, `Unit_2/projectile_target_range/dashboard.html`, `Unit_2/projectile_target_range/js/teacher-board.js`, `Unit_2/projectile_target_range/css/style.css`, `Unit_2/projectile_target_range/img/curve-cut-guide.png`, `partials/footer.html`.
+
+**Changes**:
+- **Privacy & Student View Cleanup**:
+  - Removed all 6-digit student ID numbers from student-facing UI (auth badge, teammate lists). Classmate addition displays verified names with `✓ Roster Linked` badge.
+  - Removed manual Period and Table Number dropdowns from student view; period is resolved automatically from the signed-in student's Firestore roster document.
+- **Roster Directory & Teammate Autocomplete**:
+  - Synced a sanitized `rosterDirectory` (Periods 0–6) to `student_results/unit2_projectile_target_range`.
+  - Added `<datalist id="classmateSuggestions">` autocomplete for real names in `addTeammateFromInputs()` and prevented arbitrary non-student names from linking.
+- **Visual Diagram Enhancements (Steps 2 & 3)**:
+  - Step 2: Clarified cardstock dimensions (11 in long × 2.83 in wide), lengthwise fold in thirds, overlapping like shingles (not end-to-end), and removed misleading tape placement.
+  - Step 3: Embedded `img/curve-cut-guide.png` showing scissor snips on track sidewalls to create a smooth, gentle bottom curve.
+- **Dynamic Group Listing on Teacher Dashboard**:
+  - Replaced fixed pre-numbered `Group 1..9` / `Table 1..9` placeholders with dynamic rendering of actual student-created groups (`primaryStudentId`).
+  - Rows and modals are titled by student names (`👥 [Student Names]`), eliminating group overwrites.
+  - Added `🗑️ Clear Period Teams` button for resetting period test data.
+- **Data Table Keystroke & Input Fix**:
+  - Prevented local Firestore echo snapshots and focused DOM teardowns from interrupting Step 8 calibration table typing.
+  - Replaced `type="number" step="0.5"` with `type="text" inputmode="decimal"` and debounced Firestore sync.
+- **Graph & CSS Layout Refinements**:
+  - Fixed graph tracer to follow cursor along the horizontal x-axis on the blue fitted curve rather than jumping vertically.
+  - Eliminated hover horizontal scrollbar on the teacher leaderboard table caused by row translation.
+  - Applied `minmax(0, ...)` constraints on Step 9 grid so High-DPI canvas scales cleanly without pushing round cards outside the container card.
+  - Fixed `Broadcast Target` to overwrite previously randomized per-group targets.
+
+## 2026-10-28 — Streamlined 9-Step Horizontal Projectile Ramp Slideshow with Teacher Checkpoint Gates & Single-Computer Group Roster Fan-Out
+**Patterns Updated**: `cast-aligned-webapp-design.md`, `classroom-projection-and-high-contrast-theming.md`, `firebase-auth-gotchas.md`.
+**Files Updated**: `Unit_2/projectile_target_range/index.html`, `Unit_2/projectile_target_range/js/student-app.js`, `Unit_2/projectile_target_range/dashboard.html`, `Unit_2/projectile_target_range/js/teacher-board.js`, `Unit_2/projectile_target_range/css/style.css`, `assets/lessons-data.js`, `sync-classroom/student-rules-check.js`, `partials/footer.html`.
+
+**Changes**:
+- **9-Step Guided Slideshow (`Unit_2/projectile_target_range/index.html` & `js/student-app.js`)**:
+  - Replaced the single-screen open-ended workbench with a linear, 1-step-at-a-time guided slideshow (`Slide 0` Group Setup + `Steps 1–9`) featuring custom SVG visual diagrams for each build stage.
+  - **Single-Computer Group Login & Roster Tracking**: Only one student per table signs in with Google (`@orangeusd.org`), auto-loads their name and period from Firestore `roster/{studentId}`, and adds all teammates by Name and 6-digit Student ID (`groupMembers` array).
+  - **Hard Teacher Approval Pauses at Step 3 & Step 6**: Students cannot advance past Step 3 (bottom ramp curve cut & taped) or Step 6 (meter stick taped to floor) until Mr. Mudry approves their group on his dashboard (`step3Approved` / `step6Approved`).
+  - **Step 8 Empirical Calibration Table & Step 9 Target Prediction Graph**: Requires at least 4 valid calibration drops at 10 cm intervals before unlocking Step 9, where students use their fitted curve to predict release marks for Rounds 1, 2, and 3.
+- **Teacher-Only Control & Scoring Dashboard (`Unit_2/projectile_target_range/dashboard.html` & `js/teacher-board.js`)**:
+  - Locked behind a strict teacher-only authentication gate (`rmudry@orangeusd.org` / `ryan.mudry@gmail.com`).
+  - **Live Step 3 & Step 6 Approval Queue**: Displays flashing approval cards whenever a group pauses at Step 3 or Step 6, plus inline `Approve Step 3` and `Approve Step 6` buttons for every table (Tables 1–9).
+  - **Multi-Student Group Roster Verification & Grade Fan-Out**: Automatically matches `groupMembers` against the period's `roster` collection, lets Mr. Mudry add/remove students from a period roster dropdown, and fans out all step approvals and Round 1–3 scores (`totalScore`, `score`, `maxPoints: 30`, `percentage`) to **every group member's individual Firestore document** (`student_results/unit2_projectile_target_range/students/{studentId}`).
+- **Day 44 Curriculum Alignment (`assets/lessons-data.js`)**:
+  - Updated Day 44 (`2026-10-29`, Block Schedule for Periods 0, 1, 3, 5) to feature the streamlined Horizontal Projectile Marble Ramp Lab (`Unit_2/projectile_target_range/index.html`).
+
 ## 2026-10-28 — Unit 2 Dashboard & Lesson Data Link Integration for Projectile Target Range Lab
 **Patterns Updated**: `dashboard-layout.md`.
 **Files Updated**: `unit2-dashboard.html`, `assets/lessons-data.js`, `Unit_2/projectile_target_range/index.html`, `partials/footer.html`.

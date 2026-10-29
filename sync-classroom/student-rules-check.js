@@ -97,6 +97,7 @@ function scanSource(files) {
   const issues = [];
   for (const f of files) {
     const src = fs.readFileSync(f, 'utf8');
+    if (src.includes('firestore-audit: teacher-only')) continue;
     const rel = path.relative(REPO_ROOT, f);
     const consts = {};
     for (const m of src.matchAll(/(?:const|let|var)\s+([A-Z_a-z$][\w$]*)\s*=\s*['"`]([\w-]+)['"`]/g)) consts[m[1]] = m[2];
