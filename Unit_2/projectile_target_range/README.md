@@ -12,6 +12,7 @@ Developed for **Honors & General High School Physics** (NGSS HS-PS2-1, HS-PS2-2)
 - [Architecture & File Structure](#architecture--file-structure)
 - [Student Guided Slideshow (`index.html`)](#student-guided-slideshow-indexhtml)
 - [Teacher Control & Scoring Dashboard (`dashboard.html`)](#teacher-control--scoring-dashboard-dashboardhtml)
+- [Classroom Progress & Pacing Runway Monitor (`monitor.html`)](#classroom-progress--pacing-runway-monitor-monitorhtml)
 - [Group De-duplication & Conflict Resolution Engine](#group-de-duplication--conflict-resolution-engine)
 - [Firestore Data Model & Security Architecture](#firestore-data-model--security-architecture)
 - [Strict Design, Accessibility & Infrastructure Rules](#strict-design-accessibility--infrastructure-rules)
@@ -23,14 +24,14 @@ Developed for **Honors & General High School Physics** (NGSS HS-PS2-1, HS-PS2-2)
 
 Traditional projectile motion labs often jump immediately into multi-variable kinematic equations:
 
-$$y = \frac{1}{2}gt^2, \quad \Delta x = v_0 \sqrt{\frac{2y}{g}}$$
+y = ½gt²,  Δx = v₀ √(2y / g)
 
 This creates heavy cognitive load, formula hunting, and abstract unit confusion for high school students before they understand the physical behavior. 
 
 The **Horizontal Projectile Target Range Lab** flips this sequence:
 1. **Physical Engineering**: Students cut and fold 6 cardstock strips to build a smooth, consistent marble track attached to a chair, exiting horizontally flush with their table edge.
-2. **Empirical Calibration (Step 8)**: Students release a marble from known ramp marks ($h = 10, 20, 30, 40, 50, 60\text{ cm}$) and measure actual landing distances ($\Delta x$) along a floor meter stick.
-3. **Square-Root Modeling (Step 9)**: Students observe that floor distance does not scale linearly, but rather follows a square-root curve ($\Delta x = k \sqrt{h}$, where $k = \sqrt{2 y_{\text{table}} / g}$).
+2. **Empirical Calibration (Step 8)**: Students release a marble from known ramp marks (h = 10, 20, 30, 40, 50, 60 cm) and measure actual landing distances ($\Delta x$) along a floor meter stick.
+3. **Square-Root Modeling (Step 9)**: Students observe that floor distance does not scale linearly, but rather follows a square-root curve ($Δx = k √h$, where $k = \sqrt{2 y_{\text{table}} / g}$).
 4. **Target Competition (Rounds 1–4)**: The teacher places an open target cup at a secret or randomized distance on the floor. Students use their calibrated curve tracer to calculate their release height, lock in their prediction, and launch under authentic competition stakes.
 
 ---
@@ -41,7 +42,11 @@ The **Horizontal Projectile Target Range Lab** flips this sequence:
 Unit_2/projectile_target_range/
 ├── index.html           # Student-facing 9-step guided build slideshow & calibration studio
 ├── dashboard.html       # Teacher-only projector control room, checkpoint gates & live scoring
+├── monitor.html         # Redirect shortcut to full-screen pacing & progress monitor
 ├── README.md            # Comprehensive architecture, pedagogical & operational guide
+...
+admin/
+└── horizontal_projectile_ramp_monitor.html  # Full-screen pacing runway, customizable timer & approval gates
 ├── css/
 │   └── style.css        # WCAG AAA high-contrast light/dark themes, projector scaling, modal grids
 ├── img/
@@ -79,7 +84,7 @@ Students navigate a linear 10-slide progression (Step 0 Team Setup + Steps 1–9
 * Requires $\ge 4$ valid data pairs before Step 9 unlocks.
 
 ### Step 9: Fitted Curve Tracer & Target Showdown
-* **Interactive Canvas**: Renders student data points, grid lines, and fits $\Delta x = k \sqrt{h}$. Move cursor or touch along the x-axis to trace corresponding floor distances in real-time.
+* **Interactive Canvas**: Renders student data points, grid lines, and fits $Δx = k √h$. Move cursor or touch along the x-axis to trace corresponding floor distances in real-time.
 * **3 Target Rounds + Tie-Breaker**:
   * Round 1 (10 pts)
   * Round 2 (10 pts)
@@ -119,17 +124,17 @@ Locked behind a strict teacher authentication gate (`rmudry@orangeusd.org`), the
 3. **Rapid 0–10 Point Scoring Modal**:
    * Open the score modal by clicking `Score Drop` or any individual round cell.
    * Click quick-accuracy buttons:
-     * `10 pts`: Bullseye / Direct Cup Hit ($\le 1.5\text{ cm}$)
-     * `9 pts`: Lip / Rim-In ($\le 3.5\text{ cm}$)
-     * `8 pts`: Rim Graze ($\le 6.0\text{ cm}$)
-     * `7 pts`: Close Ring ($\le 9.0\text{ cm}$)
-     * `6 pts`: Mid Ring ($\le 12.0\text{ cm}$)
-     * `5 pts`: Within $16\text{ cm}$
-     * `4 pts`: Outer Ring ($\le 20.0\text{ cm}$)
-     * `3 pts`: Within $25\text{ cm}$
-     * `2 pts`: Near Miss ($\le 30.0\text{ cm}$)
-     * `1 pt`: Long Miss ($\le 35.0\text{ cm}$)
-     * `0 pts`: Complete Miss ($> 35\text{ cm}$)
+     * `10 pts`: Bullseye / Direct Cup Hit ($≤ 1.5 cm$)
+     * `9 pts`: Lip / Rim-In ($≤ 3.5 cm$)
+     * `8 pts`: Rim Graze ($≤ 6.0 cm$)
+     * `7 pts`: Close Ring ($≤ 9.0 cm$)
+     * `6 pts`: Mid Ring ($≤ 12.0 cm$)
+     * `5 pts`: Within 16 cm
+     * `4 pts`: Outer Ring ($≤ 20.0 cm$)
+     * `3 pts`: Within 25 cm
+     * `2 pts`: Near Miss ($≤ 30.0 cm$)
+     * `1 pt`: Long Miss ($≤ 35.0 cm$)
+     * `0 pts`: Complete Miss ($> 35 cm$)
    * Or enter exact floor landing distance in centimeters—the app auto-computes deviation and score.
 4. **Automatic Roster Grade Fan-Out**:
    * Scoring a group or approving a checkpoint automatically writes the score, total score (/30), percentage, and approval status to **every group member's individual document in Firestore**.
@@ -137,6 +142,51 @@ Locked behind a strict teacher authentication gate (`rmudry@orangeusd.org`), the
    * Displays landing pins positioned along the virtual floor meter stick relative to the target cup for whole-class visual excitement.
 
 ---
+
+---
+
+## ⏱️ Classroom Progress & Pacing Runway Monitor (`monitor.html`)
+
+Designed specifically for whole-classroom overhead projection during the 50–90 minute lab period, the **Ramp Lab Progress & Pacing Monitor** (`admin/horizontal_projectile_ramp_monitor.html`, accessible via shortcut `Unit_2/projectile_target_range/monitor.html`) merges time management and station telemetry into a single high-visibility display:
+
+```text
++----------------------------------------------------------------------------------------------------+
+| ⏱️ RAMP LAB PACING MONITOR   [P0 Honors] [Period 1] [Period 2] [Period 3] [Period 4] [Period 5] [P6] |
++----------------------------------------------------------------------------------------------------+
+|                                      +-----------------------+                                     |
+|                                      |       24 : 18         |                                     |
+|                                      |   REMAINING IN LAB    |                                     |
+|                                      +-----------------------+                                     |
+|           [Presets: 10m | 15m | 25m | 35m | 45m]   [+1m] [+5m] [-1m]   [Custom Min:Sec]            |
++----------------------------------------------------------------------------------------------------+
+| 🛑 Live Checkpoint Approval Strip (Steps 3 & 6)                   [✅ Approve All 3] [✅ Approve All 6]|
+|   [ Table 2: Erica, Ajani, Jaylene -> Approve Step 3 ]                                             |
++----------------------------------------------------------------------------------------------------+
+| 🏃 Station Progress Runway (Milestones 0 through 9)                     [Toggle Runway / Grid Cards]|
+| Step 0: Team Setup       | Step 3: Curve Checkpoint 🛑 | Step 6: Meter Stick 🛑 | Step 9: Showdown  |
+| 🟢 Table 1 (Amie...)     | 🟡 Table 2 (Erica...)       | 🔵 Table 5 (Carlos...)  | 🟣 Table 4 (...) |
++----------------------------------------------------------------------------------------------------+
+```
+
+### Monitor Capabilities
+1. **Giant High-Contrast Countdown Timer**:
+   - Real-time countdown visible from anywhere in the classroom.
+   - Dynamic urgency styling:
+     - Normal (> 2 minutes): Cyan digital glow.
+     - Warning (1–2 minutes): Amber pulsing alert.
+     - Urgent (< 30 seconds): Urgent rose-red pulse.
+     - Complete (00:00): Full-screen alert banner with optional zero-asset Web Audio buzzer chimes.
+   - Flexible Controls: 1-click presets (10m, 15m, 25m, 35m, 45m), quick adjustments (+1m, +5m, -1m), or custom minute/second inputs.
+2. **9-Stage Station Progress Runway View**:
+   - Visual marble tracks representing each lab table advancing across the 9 discrete build and calibration milestones.
+   - Distinct gate icons highlighting the two mandatory teacher checkpoints (Step 3 curved exit lip and Step 6 floor zero-alignment).
+3. **Table Team Cards Grid View**:
+   - Alternative card-based layout displaying team members, `⚡ N Devs` consolidation badges, Step 3 & 6 approval indicators, calibration trial counts, and round scores.
+4. **Live Checkpoint Approval Queue**:
+   - Integrated top strip for 1-click approvals of Step 3 and Step 6 without navigating away from the projector timer.
+5. **Classroom Projection Theming**:
+   - High-contrast Light Mode (WCAG AAA compliant with deep slate text on pure white) and Dark Mode.
+   - Root font scaler (`🖥️ Normal / Large / Projector`) scaling all visual elements with `rem` units.
 
 ## ⚡ Group De-duplication & Conflict Resolution Engine
 
@@ -265,3 +315,4 @@ Before committing changes or publishing to GitHub:
 ```bash
 node scripts/update-timestamp.js
 ```
+

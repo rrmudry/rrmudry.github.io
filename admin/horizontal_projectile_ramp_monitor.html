@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horizontal Projectile Ramp Lab // Progress &amp; Pacing Monitor</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/unit2-favicon.svg">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script>
+    (function() {
+      const origWarn = console.warn;
+      console.warn = function(...args) {
+        if (typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com should not be used in production')) return;
+        origWarn.apply(console, args);
+      };
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Firebase SDKs (Compat Mode) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
+
+  <style>
+    /* WCAG AAA High Contrast Theming & Universal Root Font Scaling */
+    :root {
+      --bg-page: #030712;
+      --bg-card: rgba(17, 24, 39, 0.88);
+      --bg-card-hover: rgba(31, 41, 55, 0.95);
+      --bg-subcard: rgba(31, 41, 55, 0.65);
+      --border-color: rgba(75, 85, 99, 0.45);
+      --border-strong: rgba(107, 114, 128, 0.75);
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --text-dim: #6b7280;
+      --accent-cyan: #06b6d4;
+      --accent-violet: #8b5cf6;
+      --accent-amber: #f59e0b;
+      --accent-emerald: #10b981;
+      --accent-rose: #f43f5e;
+      --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    }
+
+    html.theme-light {
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f1f5f9;
+      --bg-subcard: #f8fafc;
+      --border-color: #cbd5e1;
+      --border-strong: #94a3b8;
+      --text-main: #0f172a;
+      --text-muted: #334155;
+      --text-dim: #64748b;
+      --accent-cyan: #0284c7;
+      --accent-violet: #6d28d9;
+      --accent-amber: #b45309;
+      --accent-emerald: #047857;
+      --accent-rose: #be123c;
+    }
+
+    /* Universal Root Font Scaling for Classroom Projectors */
+    html.projector { font-size: 20px; }
+    html.projector-large { font-size: 24px; }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      min-height: 100vh;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .font-mono { font-family: var(--font-mono); }
+
+    /* Glass card effects */
+    .glass-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    }
+    html.theme-light .glass-card {
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+
+    /* Period Filter Pills */
+    .period-btn {
+      transition: all 0.15s ease-in-out;
+      border: 2px solid var(--border-color);
+      background: var(--bg-subcard);
+      color: var(--text-main);
+      font-weight: 800;
+      font-size: 0.88rem;
+      border-radius: 9999px;
+      padding: 0.35rem 0.9rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .period-btn:hover {
+      border-color: var(--accent-cyan);
+      transform: translateY(-1px);
+    }
+    .period-btn.active {
+      background: var(--accent-cyan);
+      color: #ffffff;
+      border-color: var(--accent-cyan);
+      box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35);
+    }
+    html.theme-light .period-btn.active {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #0284c7;
+    }
+
+    /* Pulse beacon */
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.3); opacity: 0; }
+      100% { transform: scale(0.95); opacity: 0; }
+    }
+    .pulse-dot {
+      position: relative;
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: #10b981;
+      border-radius: 50%;
+    }
+    .pulse-dot::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 2px solid #10b981;
+      animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    /* ====================================================================
+       COUNTDOWN TIMER STYLES
+       ==================================================================== */
+    .timer-hero-container {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.08) 0%, rgba(139, 92, 246, 0.08) 50%, var(--bg-card) 100%);
+      border: 2px solid var(--border-color);
+      border-radius: 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+    html.theme-light .timer-hero-container {
+      background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 50%, #ffffff 100%);
+      border-color: #94a3b8;
+    }
+
+    .timer-digits {
+      font-family: var(--font-mono);
+      font-size: clamp(3.2rem, 9vw, 6.2rem);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+      text-shadow: 0 0 25px rgba(6, 182, 212, 0.35);
+      transition: color 0.3s ease, text-shadow 0.3s ease;
+    }
+
+    .timer-digits.warning {
+      color: #f59e0b;
+      text-shadow: 0 0 35px rgba(245, 158, 11, 0.55);
+      animation: pulse-timer-warn 2s infinite ease-in-out;
+    }
+    .timer-digits.urgent {
+      color: #f43f5e;
+      text-shadow: 0 0 45px rgba(244, 63, 94, 0.7);
+      animation: pulse-timer-urgent 0.8s infinite ease-in-out;
+    }
+    .timer-digits.expired {
+      color: #e11d48;
+      text-shadow: 0 0 50px rgba(225, 29, 72, 0.85);
+      animation: pulse-timer-urgent 0.5s infinite ease-in-out;
+    }
+
+    @keyframes pulse-timer-warn {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+    @keyframes pulse-timer-urgent {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.04); opacity: 0.85; }
+    }
+
+    .preset-pill {
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 0.78rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-subcard);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .preset-pill:hover {
+      border-color: var(--accent-cyan);
+      color: var(--text-main);
+      transform: translateY(-1px);
+    }
+    .preset-pill.active {
+      background: var(--accent-cyan);
+      color: #ffffff;
+      border-color: var(--accent-cyan);
+    }
+
+    /* ====================================================================
+       BUILD & INQUIRY RUNWAY (STATION PROGRESS TRACK)
+       ==================================================================== */
+    .runway-surface {
+      min-width: 980px;
+      position: relative;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(3, 7, 18, 0.95) 100%);
+      border: 2px solid var(--border-color);
+      border-radius: 1rem;
+      padding: 1rem 0;
+      overflow: hidden;
+    }
+    html.theme-light .runway-surface {
+      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      border-color: #cbd5e1;
+    }
+
+    /* Milestone Station Scale Header */
+    .milestone-scale-header {
+      display: flex;
+      margin-left: 240px; /* space for team info column */
+      margin-right: 56px;  /* space for finish line */
+      border-bottom: 2px solid var(--border-strong);
+      padding-bottom: 0.6rem;
+      position: relative;
+      height: 32px;
+    }
+    .milestone-mark {
+      position: absolute;
+      transform: translateX(-50%);
+      font-size: 0.72rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      white-space: nowrap;
+      text-align: center;
+    }
+    .milestone-mark::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      width: 1px;
+      height: 8px;
+      background: var(--border-strong);
+    }
+    .milestone-mark.gate-mark {
+      color: var(--accent-amber);
+      font-weight: 900;
+    }
+    .milestone-mark.finish-mark {
+      color: #eab308;
+      font-weight: 900;
+    }
+
+    /* Runway Lane */
+    .runway-lane {
+      position: relative;
+      display: flex;
+      align-items: center;
+      height: 82px;
+      border-bottom: 1px dashed var(--border-color);
+      transition: background-color 0.2s ease;
+    }
+    .runway-lane:last-child {
+      border-bottom: none;
+    }
+    .runway-lane:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    html.theme-light .runway-lane:hover {
+      background: rgba(0, 0, 0, 0.02);
+    }
+
+    /* Team Info Box (Left) */
+    .lane-team-info {
+      width: 240px;
+      flex-shrink: 0;
+      padding: 0 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      z-index: 10;
+      background: var(--bg-card);
+      border-right: 2px solid var(--border-color);
+      height: 100%;
+      justify-content: center;
+    }
+    html.theme-light .lane-team-info {
+      background: #ffffff;
+    }
+
+    /* Lane Runway Track */
+    .lane-track-strip {
+      position: relative;
+      flex: 1;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      padding-right: 56px;
+    }
+
+    .lane-track-bg {
+      position: absolute;
+      left: 0;
+      right: 56px;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 9999px;
+    }
+    html.theme-light .lane-track-bg {
+      background: rgba(0, 0, 0, 0.08);
+    }
+
+    .lane-track-fill {
+      position: absolute;
+      left: 0;
+      height: 100%;
+      border-radius: 9999px;
+      background: linear-gradient(90deg, rgba(6, 182, 212, 0.3), var(--accent-cyan));
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+      transition: width 1.2s cubic-bezier(0.34, 1.25, 0.64, 1);
+    }
+    .lane-track-fill.stage-arena {
+      background: linear-gradient(90deg, rgba(234, 179, 8, 0.4), #eab308);
+      box-shadow: 0 0 16px rgba(234, 179, 8, 0.7);
+    }
+
+    /* Marble / Team Runner Avatar */
+    .runner-node {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.15rem;
+      transition: left 1.2s cubic-bezier(0.34, 1.25, 0.64, 1);
+      cursor: pointer;
+    }
+    .runner-bubble {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      border: 2px solid #ffffff;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 0.88rem;
+      font-family: var(--font-mono);
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.5);
+      position: relative;
+    }
+    .runner-bubble.waiting-gate {
+      background: linear-gradient(135deg, #d97706, #fbbf24);
+      border-color: #ffffff;
+      animation: pulse-runner-gate 1.5s infinite ease-in-out;
+    }
+    .runner-bubble.in-arena {
+      background: linear-gradient(135deg, #7c3aed, #c084fc);
+      border-color: #facc15;
+      box-shadow: 0 0 18px rgba(192, 132, 252, 0.8);
+    }
+    @keyframes pulse-runner-gate {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.5); }
+      50% { box-shadow: 0 0 0 8px rgba(217, 119, 6, 0); }
+    }
+
+    .runner-tag {
+      font-size: 0.68rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      white-space: nowrap;
+      color: var(--text-main);
+    }
+
+    /* Vertical Station Tick Guides */
+    .station-guide-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      border-left: 1px dashed rgba(255, 255, 255, 0.08);
+      pointer-events: none;
+      z-index: 2;
+    }
+    html.theme-light .station-guide-line {
+      border-left-color: rgba(0, 0, 0, 0.08);
+    }
+    .station-guide-line.gate-guide {
+      border-left: 2px dashed rgba(245, 158, 11, 0.35);
+    }
+
+    /* Finish Tape */
+    .finish-tape {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 56px;
+      border-left: 3px dashed #eab308;
+      background: repeating-linear-gradient(45deg, rgba(234, 179, 8, 0.08), rgba(234, 179, 8, 0.08) 8px, transparent 8px, transparent 16px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.15rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 900;
+      color: #eab308;
+      z-index: 5;
+    }
+
+    /* View Mode Switcher buttons */
+    .view-toggle-btn {
+      color: var(--text-muted);
+      transition: all 0.15s ease;
+    }
+    .view-toggle-btn.active {
+      background: var(--accent-cyan);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(6, 182, 212, 0.4);
+    }
+    html.theme-light .view-toggle-btn.active {
+      background: #0284c7;
+    }
+  </style>
+</head>
+
+<body class="p-3 sm:p-6 lg:p-8">
+
+  <!-- ================= AUTH GATE OVERLAY ================= -->
+  <div id="authGate" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300 hidden">
+    <div class="glass-card max-w-md w-full p-6 sm:p-8 text-center space-y-5 border-2 border-cyan-500/50 shadow-2xl">
+      <div class="w-16 h-16 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center mx-auto text-3xl">
+        🎯
+      </div>
+      <div>
+        <h2 class="text-2xl font-black tracking-tight text-white">Teacher Command Access</h2>
+        <p class="text-sm text-slate-300 mt-1">Sign in with your <strong>rmudry@orangeusd.org</strong> account to monitor live student work.</p>
+      </div>
+      <button id="btnGoogleSignIn" class="w-full bg-white hover:bg-slate-100 text-slate-900 font-extrabold py-3.5 px-6 rounded-xl flex items-center justify-center gap-3 transition-all shadow-lg hover:scale-[1.02] active:scale-[0.98]">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google logo">
+        Sign In with Google
+      </button>
+      <p id="authError" class="text-xs text-rose-400 font-bold hidden"></p>
+    </div>
+  </div>
+
+  <!-- ================= MAIN DASHBOARD CONTAINER ================= -->
+  <div class="max-w-7xl mx-auto space-y-6">
+
+    <!-- Top App Navigation & Controls Header -->
+    <header class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 pb-4 border-b border-[var(--border-color)]">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <span class="text-2xl sm:text-3xl" aria-hidden="true">🎯</span>
+          <h1 class="text-2xl sm:text-3xl font-black tracking-tight">Horizontal Projectile Ramp Lab</h1>
+          <span class="px-2.5 py-0.5 rounded-full text-xs font-black uppercase tracking-wider bg-cyan-500/20 text-[var(--accent-cyan)] border border-[var(--accent-cyan)]">
+            Progress &amp; Pacing Monitor
+          </span>
+        </div>
+        <p class="text-xs sm:text-sm text-[var(--text-muted)] font-medium">
+          Cardstock Ramp Build · 9 Build Stations · Empirical Calibration · Target Arena Rounds · Live Student Stream
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-2 flex-wrap self-end lg:self-auto">
+        <!-- Live Status Badge -->
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-xs font-bold font-mono">
+          <span class="pulse-dot"></span>
+          <span id="liveStatusText">Streaming Live</span>
+          <span id="updateCountBadge" class="text-[var(--text-dim)]">(0 recs)</span>
+        </div>
+
+        <!-- Projector Scaling Toggle -->
+        <button id="btn-projector-mode" class="px-3 py-1.5 rounded-lg border border-[var(--border-color)] bg-[var(--bg-card)] hover:border-[var(--border-strong)] text-xs font-extrabold transition-all" title="Enlarge display for classroom overhead projector">
+          🖥️ Projector
+        </button>
+
+        <!-- Theme Toggle -->
+        <button id="btn-theme-toggle" class="px-3 py-1.5 rounded-lg border border-[var(--border-color)] bg-[var(--bg-card)] hover:border-[var(--border-strong)] text-xs font-extrabold transition-all" title="Toggle High-Contrast Light / Dark Mode">
+          ☀️ / 🌙
+        </button>
+
+        <!-- Direct Link to Teacher Scoring Console -->
+        <a href="../Unit_2/projectile_target_range/dashboard.html" class="px-3 py-1.5 rounded-lg border border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 text-xs font-extrabold transition-all" title="Open Teacher Scoring & Approval Console">
+          👨‍🏫 Scoring Console
+        </a>
+
+        <!-- Direct Link to Student Slideshow -->
+        <a href="../Unit_2/projectile_target_range/index.html" target="_blank" class="px-3 py-1.5 rounded-lg border border-cyan-500/40 bg-cyan-500/10 hover:bg-cyan-500/20 text-[var(--accent-cyan)] text-xs font-extrabold transition-all" title="Open Student Ramp Builder">
+          🚀 Student Lab
+        </a>
+
+        <!-- Command Center Link -->
+        <a href="index.html" class="px-3 py-1.5 rounded-lg border border-[var(--border-color)] bg-[var(--bg-card)] hover:border-[var(--border-strong)] text-xs font-extrabold transition-all">
+          🏠 Hub
+        </a>
+      </div>
+    </header>
+
+    <!-- ================= GIANT CUSTOMIZABLE COUNTDOWN TIMER ================= -->
+    <section class="timer-hero-container p-4 sm:p-6 lg:p-7 space-y-4">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+        
+        <!-- Left: Phase Title & Timer Label -->
+        <div class="space-y-1 text-center md:text-left">
+          <div class="flex items-center gap-2 justify-center md:justify-start">
+            <span class="text-xl">⏱️</span>
+            <input type="text" id="timerLabelInput" value="Lab Pacing Timer: Build &amp; Calibration" class="text-sm sm:text-base font-black tracking-wide bg-transparent border-b border-transparent hover:border-[var(--border-strong)] focus:border-[var(--accent-cyan)] focus:outline-none text-[var(--text-main)] transition-colors" title="Click to customize timer title">
+          </div>
+          <p id="timerSubtext" class="text-xs text-[var(--text-muted)] font-medium">
+            Customize countdown duration below or click Quick Presets to pace lab stations.
+          </p>
+        </div>
+
+        <!-- Center: Giant Countdown Display -->
+        <div class="flex flex-col items-center">
+          <div id="dispCountdown" class="timer-digits">25:00</div>
+          <div id="dispTimerStatus" class="text-xs font-mono font-extrabold tracking-widest uppercase text-[var(--accent-cyan)] mt-1">
+            Ready to Start
+          </div>
+        </div>
+
+        <!-- Right: Timer Controls & Quick Presets -->
+        <div class="flex flex-col items-center md:items-end gap-3 w-full md:w-auto">
+          <!-- Primary Controls -->
+          <div class="flex items-center gap-2">
+            <button id="btnTimerToggle" class="px-5 py-2.5 rounded-xl bg-[var(--accent-cyan)] hover:brightness-110 text-white font-black text-sm tracking-wide shadow-lg shadow-cyan-500/25 transition-all flex items-center gap-1.5">
+              <span id="timerPlayIcon">▶</span> <span id="timerPlayText">Start Timer</span>
+            </button>
+            <button id="btnTimerReset" class="px-3.5 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-subcard)] hover:border-[var(--border-strong)] text-[var(--text-main)] font-black text-sm transition-all" title="Reset countdown to current target">
+              🔄 Reset
+            </button>
+            <button id="btnTimerSoundToggle" class="px-3 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-subcard)] hover:border-[var(--border-strong)] text-xs font-black transition-all" title="Toggle audio alert on expiration">
+              🔔 Sound: ON
+            </button>
+          </div>
+
+          <!-- Adjust Buttons & Presets -->
+          <div class="flex items-center gap-1.5 flex-wrap justify-center md:justify-end">
+            <button class="preset-pill btn-adjust-time" data-adjust="60">+1m</button>
+            <button class="preset-pill btn-adjust-time" data-adjust="300">+5m</button>
+            <button class="preset-pill btn-adjust-time" data-adjust="-60">-1m</button>
+            <span class="text-xs text-[var(--text-dim)] font-mono">|</span>
+            <button class="preset-pill btn-preset" data-minutes="10">10m</button>
+            <button class="preset-pill btn-preset" data-minutes="15">15m</button>
+            <button class="preset-pill btn-preset active" data-minutes="25">25m</button>
+            <button class="preset-pill btn-preset" data-minutes="35">35m</button>
+            <button class="preset-pill btn-preset" data-minutes="45">45m</button>
+            <button id="btnCustomTime" class="preset-pill" title="Set exact custom minutes & seconds">⚙️ Custom</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Custom Time Input Bar (Hidden by default) -->
+      <div id="customTimeBar" class="p-3 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl items-center justify-between gap-4 flex-wrap hidden">
+        <div class="flex items-center gap-2">
+          <label for="inpCustomMins" class="text-xs font-black uppercase text-[var(--text-muted)]">Set Minutes:</label>
+          <input type="number" id="inpCustomMins" min="1" max="120" value="25" class="w-16 px-2 py-1 rounded bg-[var(--bg-subcard)] border border-[var(--border-color)] text-center font-mono font-bold text-sm">
+          <label for="inpCustomSecs" class="text-xs font-black uppercase text-[var(--text-muted)]">Seconds:</label>
+          <input type="number" id="inpCustomSecs" min="0" max="59" value="0" class="w-16 px-2 py-1 rounded bg-[var(--bg-subcard)] border border-[var(--border-color)] text-center font-mono font-bold text-sm">
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btnApplyCustomTime" class="px-3 py-1.5 rounded-lg bg-[var(--accent-cyan)] text-white text-xs font-bold">Apply Time</button>
+          <button id="btnCancelCustomTime" class="px-2.5 py-1.5 rounded-lg border border-[var(--border-color)] text-xs font-bold text-[var(--text-muted)]">Cancel</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Period Selection Strip -->
+    <div class="glass-card p-3 sm:p-4 space-y-3">
+      <div class="flex items-center justify-between gap-2 flex-wrap">
+        <span class="text-xs font-black uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-1.5">
+          <span>🔍</span> Select Class Period
+        </span>
+        <span id="periodRosterCount" class="text-xs font-mono text-[var(--text-dim)] font-bold">Loading roster...</span>
+      </div>
+
+      <div class="flex items-center gap-2 overflow-x-auto pb-1 custom-scroll" role="group" aria-label="Filter by Period">
+        <button class="period-btn" data-period="ALL">All Periods</button>
+        <button class="period-btn active" data-period="0">Period 0 (Honors)</button>
+        <button class="period-btn" data-period="1">Period 1</button>
+        <button class="period-btn" data-period="2">Period 2</button>
+        <button class="period-btn" data-period="3">Period 3</button>
+        <button class="period-btn" data-period="4">Period 4</button>
+        <button class="period-btn" data-period="5">Period 5</button>
+        <button class="period-btn" data-period="6">Period 6</button>
+      </div>
+    </div>
+
+    <!-- Live Checkpoint Approval Queue Alert (Step 3: Ramp Curve & Step 6: Floor Meter Stick) -->
+    <section id="approvalQueueBox" class="glass-card p-4 border-l-4 border-[var(--accent-amber)] space-y-3 hidden">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🛑</span>
+          <div>
+            <h3 class="text-sm sm:text-base font-black text-[var(--text-main)]">
+              Teacher Approval Checkpoint Queue (<span id="waitingCount">0</span> tables waiting)
+            </h3>
+            <p class="text-xs text-[var(--text-muted)]">
+              Tables paused at Step 3 (curved ramp bottom) or Step 6 (taped floor meter stick) require teacher sign-off.
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btnApproveAll3" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold transition-all">
+            ✓ Approve All Step 3
+          </button>
+          <button id="btnApproveAll6" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold transition-all">
+            ✓ Approve All Step 6
+          </button>
+        </div>
+      </div>
+      <div id="approvalQueueItems" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-1">
+        <!-- Dynamically rendered waiting cards with 1-click approve button -->
+      </div>
+    </section>
+
+    <!-- Period Live Summary Metrics Ribbon -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+      <div class="glass-card p-4 space-y-1 border-l-4 border-[var(--accent-cyan)]">
+        <p class="text-[10px] font-black uppercase tracking-wider text-[var(--text-dim)]">Active Lab Teams</p>
+        <p id="statActiveGroups" class="text-2xl sm:text-3xl font-black font-mono text-[var(--text-main)]">0</p>
+        <p id="statActiveStudents" class="text-[11px] text-[var(--text-muted)] font-medium">0 students participating</p>
+      </div>
+
+      <div class="glass-card p-4 space-y-1 border-l-4 border-[var(--accent-amber)]">
+        <p class="text-[10px] font-black uppercase tracking-wider text-[var(--text-dim)]">Need Checkpoint Approval</p>
+        <p id="statNeedApproval" class="text-2xl sm:text-3xl font-black font-mono text-[var(--accent-amber)]">0</p>
+        <p id="statApprovalDetail" class="text-[11px] text-[var(--text-muted)] font-medium">Step 3 &amp; Step 6 gates</p>
+      </div>
+
+      <div class="glass-card p-4 space-y-1 border-l-4 border-[var(--accent-violet)]">
+        <p class="text-[10px] font-black uppercase tracking-wider text-[var(--text-dim)]">In Calibration &bull; Step 8</p>
+        <p id="statCalibrating" class="text-2xl sm:text-3xl font-black font-mono text-[var(--accent-violet)]">0</p>
+        <p id="statCalDetail" class="text-[11px] text-[var(--text-muted)] font-medium">Collecting data pairs</p>
+      </div>
+
+      <div class="glass-card p-4 space-y-1 border-l-4 border-[var(--accent-emerald)]">
+        <p class="text-[10px] font-black uppercase tracking-wider text-[var(--text-dim)]">In Target Arena &bull; Step 9</p>
+        <p id="statInArena" class="text-2xl sm:text-3xl font-black font-mono text-[var(--accent-emerald)]">0</p>
+        <p id="statLeaderScore" class="text-[11px] text-[var(--text-muted)] font-medium">Leader: -- / 30 pts</p>
+      </div>
+    </div>
+
+    <!-- View Mode Switcher -->
+    <div class="flex items-center justify-between gap-3 flex-wrap bg-[var(--bg-card)] p-2.5 sm:p-3 rounded-2xl border border-[var(--border-color)]">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-black uppercase tracking-wider text-[var(--text-muted)]">Display View:</span>
+        <div class="inline-flex p-1 rounded-xl bg-[var(--bg-subcard)] border border-[var(--border-color)] text-xs font-extrabold" role="tablist">
+          <button id="viewBtnRunway" class="view-toggle-btn px-3 py-1.5 rounded-lg active" data-view="runway">
+            🏃 Station Progress Runway
+          </button>
+          <button id="viewBtnCards" class="view-toggle-btn px-3 py-1.5 rounded-lg" data-view="cards">
+            📋 Table Team Cards
+          </button>
+        </div>
+      </div>
+
+      <div class="text-xs font-mono font-bold text-[var(--text-dim)] flex items-center gap-2">
+        <span>🛑 Gate 1 = Step 3 Curve</span>
+        <span class="hidden sm:inline">&bull;</span>
+        <span>🛑 Gate 2 = Step 6 Meter Stick</span>
+        <span class="hidden sm:inline">&bull;</span>
+        <span class="text-[var(--accent-cyan)]">🎯 Step 9 = Target Arena</span>
+      </div>
+    </div>
+
+    <!-- ================= VIEW 1: 9-STAGE STATION RUNWAY ================= -->
+    <section id="runwaySection" class="space-y-3">
+      <div class="glass-card p-3 sm:p-4 overflow-x-auto">
+        <div class="runway-surface" id="runwaySurface">
+
+          <!-- Scale Header: Stations 0 through 9 -->
+          <div class="milestone-scale-header" id="runwayScaleHeader">
+            <!-- Dynamically populated station labels at percentage coordinates -->
+          </div>
+
+          <!-- Lanes Container: 1 lane per consolidated team -->
+          <div id="runwayLanesContainer">
+            <div class="p-8 text-center text-sm text-[var(--text-muted)] font-medium">
+              Loading active lab groups for Period 0...
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= VIEW 2: TABLE CARDS GRID ================= -->
+    <section id="cardsSection" class="space-y-3 hidden">
+      <div id="cardsGridContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Dynamically populated table cards -->
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Audio Synthesizer (Zero Assets) -->
+  <script src="../Unit_2/projectile_target_range/js/audio-synth.js"></script>
+
+  <!-- Monitor Application Logic -->
+  <script>
+  (function () {
+    'use strict';
+
+    const ASSIGNMENT_ID = 'unit2_projectile_target_range';
+    const TEACHER_EMAILS = ['rmudry@orangeusd.org', 'ryan.mudry@gmail.com', 'ryanmudry@gmail.com'];
+
+    let db = null;
+    let auth = null;
+    let currentUser = null;
+    let activePeriod = '0';
+    let currentView = 'runway';
+    let unsubscribeSubmissions = null;
+    let unsubscribeConfig = null;
+
+    let periodRoster = [];
+    let rosterById = {};
+    let tableSubmissions = {};
+    let tableApprovals = {};
+    let rawSubmissionsCount = 0;
+
+    // Countdown Timer State
+    let timerTargetSeconds = 25 * 60;
+    let timerRemainingSeconds = 25 * 60;
+    let timerInterval = null;
+    let timerRunning = false;
+    let timerSoundEnabled = true;
+
+    // Stage Milestones (0 to 9)
+    const STAGES = [
+      { num: 0, label: 'Team', name: 'Check-In', pct: 0 },
+      { num: 1, label: '1', name: 'Materials', pct: 11 },
+      { num: 2, label: '2', name: 'Channel', pct: 22 },
+      { num: 3, label: '3 🛑', name: 'Curve Gate', pct: 33, isGate: true },
+      { num: 4, label: '4', name: 'Chair', pct: 44 },
+      { num: 5, label: '5', name: 'Table', pct: 55 },
+      { num: 6, label: '6 🛑', name: 'Meter Gate', pct: 67, isGate: true },
+      { num: 7, label: '7', name: '10cm Marks', pct: 78 },
+      { num: 8, label: '8', name: 'Data Table', pct: 89 },
+      { num: 9, label: '9 🎯', name: 'Target Arena', pct: 100, isFinish: true }
+    ];
+
+    const els = {};
+
+    function init() {
+      cacheElements();
+      initThemeAndScaling();
+      initTimer();
+      bindEvents();
+      initFirebase();
+      renderScaleHeader();
+    }
+
+    function cacheElements() {
+      els.authGate = document.getElementById('authGate');
+      els.btnGoogleSignIn = document.getElementById('btnGoogleSignIn');
+      els.authError = document.getElementById('authError');
+
+      els.liveStatusText = document.getElementById('liveStatusText');
+      els.updateCountBadge = document.getElementById('updateCountBadge');
+      els.btnProjectorMode = document.getElementById('btn-projector-mode');
+      els.btnThemeToggle = document.getElementById('btn-theme-toggle');
+
+      // Timer
+      els.dispCountdown = document.getElementById('dispCountdown');
+      els.dispTimerStatus = document.getElementById('dispTimerStatus');
+      els.btnTimerToggle = document.getElementById('btnTimerToggle');
+      els.timerPlayIcon = document.getElementById('timerPlayIcon');
+      els.timerPlayText = document.getElementById('timerPlayText');
+      els.btnTimerReset = document.getElementById('btnTimerReset');
+      els.btnTimerSoundToggle = document.getElementById('btnTimerSoundToggle');
+      els.timerLabelInput = document.getElementById('timerLabelInput');
+      els.btnCustomTime = document.getElementById('btnCustomTime');
+      els.customTimeBar = document.getElementById('customTimeBar');
+      els.inpCustomMins = document.getElementById('inpCustomMins');
+      els.inpCustomSecs = document.getElementById('inpCustomSecs');
+      els.btnApplyCustomTime = document.getElementById('btnApplyCustomTime');
+      els.btnCancelCustomTime = document.getElementById('btnCancelCustomTime');
+
+      // Periods & Summary
+      els.periodRosterCount = document.getElementById('periodRosterCount');
+      els.statActiveGroups = document.getElementById('statActiveGroups');
+      els.statActiveStudents = document.getElementById('statActiveStudents');
+      els.statNeedApproval = document.getElementById('statNeedApproval');
+      els.statCalibrating = document.getElementById('statCalibrating');
+      els.statInArena = document.getElementById('statInArena');
+      els.statLeaderScore = document.getElementById('statLeaderScore');
+
+      // Approval Queue
+      els.approvalQueueBox = document.getElementById('approvalQueueBox');
+      els.waitingCount = document.getElementById('waitingCount');
+      els.approvalQueueItems = document.getElementById('approvalQueueItems');
+      els.btnApproveAll3 = document.getElementById('btnApproveAll3');
+      els.btnApproveAll6 = document.getElementById('btnApproveAll6');
+
+      // Views
+      els.runwaySection = document.getElementById('runwaySection');
+      els.cardsSection = document.getElementById('cardsSection');
+      els.runwayScaleHeader = document.getElementById('runwayScaleHeader');
+      els.runwayLanesContainer = document.getElementById('runwayLanesContainer');
+      els.cardsGridContainer = document.getElementById('cardsGridContainer');
+    }
+
+    // ========================================================================
+    // THEME & PROJECTOR ROOT FONT SCALING
+    // ========================================================================
+    function initThemeAndScaling() {
+      const savedTheme = localStorage.getItem('projectile_monitor_theme') || 'dark';
+      if (savedTheme === 'light') {
+        document.documentElement.classList.add('theme-light');
+      }
+
+      const savedScale = localStorage.getItem('projectile_monitor_scale') || 'normal';
+      if (savedScale === 'projector') {
+        document.documentElement.classList.add('projector');
+        els.btnProjectorMode.textContent = '🖥️ Text: Large';
+      } else if (savedScale === 'projector-large') {
+        document.documentElement.classList.add('projector-large');
+        els.btnProjectorMode.textContent = '🖥️ Text: Projector';
+      }
+
+      if (els.btnThemeToggle) {
+        els.btnThemeToggle.addEventListener('click', () => {
+          document.documentElement.classList.toggle('theme-light');
+          const isLight = document.documentElement.classList.contains('theme-light');
+          localStorage.setItem('projectile_monitor_theme', isLight ? 'light' : 'dark');
+        });
+      }
+
+      if (els.btnProjectorMode) {
+        els.btnProjectorMode.addEventListener('click', () => {
+          const doc = document.documentElement;
+          if (doc.classList.contains('projector-large')) {
+            doc.classList.remove('projector-large');
+            doc.classList.remove('projector');
+            localStorage.setItem('projectile_monitor_scale', 'normal');
+            els.btnProjectorMode.textContent = '🖥️ Normal';
+          } else if (doc.classList.contains('projector')) {
+            doc.classList.remove('projector');
+            doc.classList.add('projector-large');
+            localStorage.setItem('projectile_monitor_scale', 'projector-large');
+            els.btnProjectorMode.textContent = '🖥️ Projector';
+          } else {
+            doc.classList.add('projector');
+            localStorage.setItem('projectile_monitor_scale', 'projector');
+            els.btnProjectorMode.textContent = '🖥️ Large';
+          }
+        });
+      }
+    }
+
+    // ========================================================================
+    // COUNTDOWN TIMER ENGINE
+    // ========================================================================
+    function initTimer() {
+      updateTimerDisplay();
+
+      els.btnTimerToggle.addEventListener('click', toggleTimer);
+      els.btnTimerReset.addEventListener('click', resetTimer);
+
+      els.btnTimerSoundToggle.addEventListener('click', () => {
+        timerSoundEnabled = !timerSoundEnabled;
+        els.btnTimerSoundToggle.textContent = timerSoundEnabled ? '🔔 Sound: ON' : '🔕 Sound: OFF';
+      });
+
+      // Quick adjust buttons (+1m, +5m, -1m)
+      document.querySelectorAll('.btn-adjust-time').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const adj = parseInt(btn.dataset.adjust, 10);
+          timerRemainingSeconds = Math.max(0, timerRemainingSeconds + adj);
+          timerTargetSeconds = Math.max(timerTargetSeconds, timerRemainingSeconds);
+          updateTimerDisplay();
+          if (window.SoundFX) SoundFX.play('click');
+        });
+      });
+
+      // Preset pills (10m, 15m, 25m, 35m, 45m)
+      document.querySelectorAll('.btn-preset').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.btn-preset').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const mins = parseInt(btn.dataset.minutes, 10);
+          setTimerMinutes(mins);
+        });
+      });
+
+      // Custom time modal toggle
+      els.btnCustomTime.addEventListener('click', () => {
+        els.customTimeBar.classList.toggle('hidden');
+      });
+      els.btnCancelCustomTime.addEventListener('click', () => {
+        els.customTimeBar.classList.add('hidden');
+      });
+      els.btnApplyCustomTime.addEventListener('click', () => {
+        const m = parseInt(els.inpCustomMins.value, 10) || 0;
+        const s = parseInt(els.inpCustomSecs.value, 10) || 0;
+        const total = m * 60 + s;
+        if (total > 0) {
+          timerTargetSeconds = total;
+          timerRemainingSeconds = total;
+          pauseTimer();
+          updateTimerDisplay();
+          els.customTimeBar.classList.add('hidden');
+        }
+      });
+    }
+
+    function setTimerMinutes(mins) {
+      pauseTimer();
+      timerTargetSeconds = mins * 60;
+      timerRemainingSeconds = timerTargetSeconds;
+      updateTimerDisplay();
+      if (window.SoundFX) SoundFX.play('click');
+    }
+
+    function toggleTimer() {
+      if (timerRunning) {
+        pauseTimer();
+      } else {
+        startTimer();
+      }
+    }
+
+    function startTimer() {
+      if (timerRemainingSeconds <= 0) {
+        timerRemainingSeconds = timerTargetSeconds;
+      }
+      timerRunning = true;
+      els.timerPlayIcon.textContent = '⏸';
+      els.timerPlayText.textContent = 'Pause';
+      els.dispTimerStatus.textContent = '🟢 Counting Down';
+      els.dispTimerStatus.className = 'text-xs font-mono font-extrabold tracking-widest uppercase text-emerald-400 mt-1';
+
+      if (window.SoundFX) SoundFX.play('click');
+
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        timerRemainingSeconds--;
+        updateTimerDisplay();
+
+        if (timerRemainingSeconds === 300 && timerSoundEnabled && window.SoundFX) {
+          SoundFX.play('chime'); // 5 minute warning
+        } else if (timerRemainingSeconds === 60 && timerSoundEnabled && window.SoundFX) {
+          SoundFX.play('bell'); // 1 minute warning
+        } else if (timerRemainingSeconds === 30 && timerSoundEnabled && window.SoundFX) {
+          SoundFX.play('click');
+        }
+
+        if (timerRemainingSeconds <= 0) {
+          timerRemainingSeconds = 0;
+          clearInterval(timerInterval);
+          timerInterval = null;
+          timerRunning = false;
+          handleTimerExpired();
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      timerRunning = false;
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = null;
+      els.timerPlayIcon.textContent = '▶';
+      els.timerPlayText.textContent = 'Resume';
+      els.dispTimerStatus.textContent = '🟡 Paused';
+      els.dispTimerStatus.className = 'text-xs font-mono font-extrabold tracking-widest uppercase text-amber-400 mt-1';
+    }
+
+    function resetTimer() {
+      pauseTimer();
+      timerRemainingSeconds = timerTargetSeconds;
+      els.dispTimerStatus.textContent = 'Ready to Start';
+      els.dispTimerStatus.className = 'text-xs font-mono font-extrabold tracking-widest uppercase text-[var(--accent-cyan)] mt-1';
+      els.timerPlayText.textContent = 'Start Timer';
+      updateTimerDisplay();
+      if (window.SoundFX) SoundFX.play('click');
+    }
+
+    function handleTimerExpired() {
+      els.dispTimerStatus.textContent = '🔴 TIME EXPIRED — Pencils & Marbles Down!';
+      els.dispTimerStatus.className = 'text-xs font-mono font-extrabold tracking-widest uppercase text-rose-500 animate-pulse mt-1';
+      els.timerPlayIcon.textContent = '▶';
+      els.timerPlayText.textContent = 'Restart';
+
+      if (timerSoundEnabled && window.SoundFX) {
+        SoundFX.play('fanfare');
+        setTimeout(() => SoundFX.play('fanfare'), 700);
+      }
+    }
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(timerRemainingSeconds / 60);
+      const secs = timerRemainingSeconds % 60;
+      const fmt = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      els.dispCountdown.textContent = fmt;
+
+      // Color warning threshold classes
+      els.dispCountdown.classList.remove('warning', 'urgent', 'expired');
+      if (timerRemainingSeconds === 0) {
+        els.dispCountdown.classList.add('expired');
+      } else if (timerRemainingSeconds <= 30) {
+        els.dispCountdown.classList.add('urgent');
+      } else if (timerRemainingSeconds <= 120) {
+        els.dispCountdown.classList.add('warning');
+      }
+    }
+
+    // ========================================================================
+    // FIREBASE INITIALIZATION & AUTH GATE
+    // ========================================================================
+    function initFirebase() {
+      db = firebase.firestore();
+      auth = firebase.auth();
+
+      auth.onAuthStateChanged(user => {
+        currentUser = user;
+        if (user && isTeacher(user)) {
+          els.authGate.classList.add('hidden');
+          loadPeriodRoster();
+          attachConfigListener();
+          attachSubmissionsListener();
+        } else {
+          els.authGate.classList.remove('hidden');
+          if (user && !isTeacher(user)) {
+            els.authError.textContent = `Access denied for ${user.email}. Teacher account required.`;
+            els.authError.classList.remove('hidden');
+          }
+        }
+      });
+    }
+
+    function isTeacher(user) {
+      if (!user || !user.email) return false;
+      return TEACHER_EMAILS.includes(user.email.toLowerCase());
+    }
+
+    // ========================================================================
+    // PERIOD ROSTER LOADING
+    // ========================================================================
+    async function loadPeriodRoster() {
+      if (!db) return;
+      try {
+        els.periodRosterCount.textContent = `Loading P${activePeriod} roster...`;
+        const snap = await db.collection('roster').get();
+        periodRoster = [];
+        rosterById = {};
+
+        snap.forEach(doc => {
+          const d = doc.data() || {};
+          const pVal = d.class_period !== undefined ? d.class_period : d.period;
+          const id = String(doc.id).trim();
+          const fullName = d.full_name || d.name || [d.first_name || d.firstName, d.last_name || d.lastName].filter(Boolean).join(' ') || id;
+          const entry = {
+            id: id,
+            name: fullName,
+            period: String(pVal)
+          };
+          rosterById[id] = entry;
+          if (activePeriod === 'ALL' || String(pVal) === String(activePeriod)) {
+            periodRoster.push(entry);
+          }
+        });
+
+        els.periodRosterCount.textContent = `P${activePeriod}: ${periodRoster.length} students on official roster`;
+      } catch (err) {
+        console.warn('Roster load notice:', err.message);
+        els.periodRosterCount.textContent = 'Roster ready';
+      }
+    }
+
+    // ========================================================================
+    // LIVE FIRESTORE SUBMISSION LISTENER + CONSOLIDATION
+    // ========================================================================
+    function attachSubmissionsListener() {
+      if (unsubscribeSubmissions) {
+        unsubscribeSubmissions();
+        unsubscribeSubmissions = null;
+      }
+
+      if (!db || !isTeacher(currentUser)) return;
+
+      try {
+        let query = db.collection('student_results')
+          .doc(ASSIGNMENT_ID)
+          .collection('students');
+
+        if (activePeriod !== 'ALL') {
+          query = query.where('period', '==', parseInt(activePeriod, 10));
+        }
+
+        unsubscribeSubmissions = query.onSnapshot(snapshot => {
+          rawSubmissionsCount = snapshot.size;
+          els.updateCountBadge.textContent = `(${rawSubmissionsCount} docs)`;
+
+          const rawDocs = [];
+          snapshot.forEach(doc => {
+            const data = doc.data() || {};
+            const hasMembers = Array.isArray(data.groupMembers) && data.groupMembers.length > 0;
+            const hasData = Array.isArray(data.dataRows) && data.dataRows.some(r => r.dx !== '' && r.dx !== undefined);
+            if (!hasMembers && !data.teamMembers && !data.studentName && !data.currentStep && !hasData) return;
+            rawDocs.push(Object.assign({ docId: doc.id }, data));
+          });
+
+          consolidateSubmissions(rawDocs);
+          updateMetricsRibbon();
+          renderApprovalQueue();
+          renderActiveView();
+        }, err => console.warn('Submissions listen notice:', err.message));
+      } catch (e) {
+        console.warn('Could not attach submissions listener', e);
+      }
+    }
+
+    function attachConfigListener() {
+      if (!db || !isTeacher(currentUser)) return;
+      try {
+        if (unsubscribeConfig) unsubscribeConfig();
+        unsubscribeConfig = db.collection('student_results')
+          .doc(ASSIGNMENT_ID)
+          .onSnapshot(doc => {
+            if (!doc.exists) return;
+            const data = doc.data() || {};
+            const periodApprovalsKey = `approvals_p${activePeriod}`;
+            tableApprovals = data[periodApprovalsKey] || {};
+            renderApprovalQueue();
+            renderActiveView();
+          }, err => console.warn('Config listen notice:', err.message));
+      } catch (e) {
+        console.warn('Could not attach config listener', e);
+      }
+    }
+
+    // Consolidate submissions using normalized roster signatures & subset absorption
+    function consolidateSubmissions(rawDocs) {
+      tableSubmissions = {};
+
+      const prepared = rawDocs.map(doc => {
+        const members = getResolvedGroupMembers(doc);
+        const memberIds = [...new Set(members.map(m => String(m.studentId || m.name).trim().toLowerCase()))].sort();
+        const rosterSig = memberIds.length > 0 ? memberIds.join('::') : String(doc.docId).toLowerCase();
+        const calCount = Array.isArray(doc.calibrationData) ? doc.calibrationData.length : 0;
+        const stepNum = Number(doc.currentStep) || 0;
+        const totalScore = Math.max(Number(doc.totalScore) || 0, Number(doc.score) || 0);
+        const updatedMs = doc.updatedAt && doc.updatedAt.toMillis ? doc.updatedAt.toMillis() : 0;
+
+        return {
+          doc, members, memberIds, rosterSig, stepNum, calCount, totalScore, updatedMs
+        };
+      });
+
+      // Merge exact signature matches
+      const groupsBySig = {};
+      prepared.forEach(item => {
+        const sig = item.rosterSig;
+        if (!groupsBySig[sig]) {
+          groupsBySig[sig] = {
+            sig,
+            memberIds: item.memberIds,
+            members: item.members,
+            canonicalDoc: Object.assign({}, item.doc),
+            linkedDocIds: [item.doc.docId],
+            mergedCount: 1,
+            stepNum: item.stepNum,
+            totalScore: item.totalScore
+          };
+        } else {
+          const g = groupsBySig[sig];
+          g.linkedDocIds.push(item.doc.docId);
+          g.mergedCount++;
+
+          const isBetter = (item.stepNum > g.stepNum) ||
+                           (item.stepNum === g.stepNum && item.calCount > (g.canonicalDoc.calibrationData?.length || 0)) ||
+                           (item.stepNum === g.stepNum && item.updatedMs > (g.canonicalDoc.updatedAt?.toMillis ? g.canonicalDoc.updatedAt.toMillis() : 0));
+
+          if (isBetter) {
+            g.canonicalDoc = Object.assign({}, item.doc);
+            g.members = item.members;
+            g.stepNum = item.stepNum;
+          }
+          g.totalScore = Math.max(g.totalScore, item.totalScore);
+        }
+      });
+
+      let consolidated = Object.values(groupsBySig);
+
+      // Smart Subset Absorption
+      const absorbedSigs = new Set();
+      consolidated.sort((a, b) => b.memberIds.length - a.memberIds.length);
+
+      for (let i = 0; i < consolidated.length; i++) {
+        const gB = consolidated[i];
+        if (absorbedSigs.has(gB.sig)) continue;
+
+        for (let j = i + 1; j < consolidated.length; j++) {
+          const gA = consolidated[j];
+          if (absorbedSigs.has(gA.sig)) continue;
+
+          const isSubset = gA.memberIds.length < gB.memberIds.length &&
+                           gA.memberIds.every(id => gB.memberIds.includes(id));
+
+          if (isSubset) {
+            gB.linkedDocIds = [...new Set([...gB.linkedDocIds, ...gA.linkedDocIds])];
+            gB.mergedCount += gA.mergedCount;
+            gB.totalScore = Math.max(gB.totalScore, gA.totalScore);
+
+            if (gA.stepNum > gB.stepNum) {
+              gB.stepNum = gA.stepNum;
+              gB.canonicalDoc.currentStep = gA.stepNum;
+              gB.canonicalDoc.maxUnlockedStep = Math.max(gB.canonicalDoc.maxUnlockedStep || 0, gA.canonicalDoc.maxUnlockedStep || 0);
+              if (gA.canonicalDoc.rounds) {
+                gB.canonicalDoc.rounds = Object.assign({}, gB.canonicalDoc.rounds || {}, gA.canonicalDoc.rounds);
+              }
+            }
+            if (gA.canonicalDoc.step3Approved) gB.canonicalDoc.step3Approved = true;
+            if (gA.canonicalDoc.step6Approved) gB.canonicalDoc.step6Approved = true;
+
+            absorbedSigs.add(gA.sig);
+          }
+        }
+      }
+
+      consolidated = consolidated.filter(g => !absorbedSigs.has(g.sig));
+
+      // Sort alphabetically by primary student name
+      consolidated.sort((a, b) => {
+        const nameA = a.members[0] ? a.members[0].name : a.canonicalDoc.docId;
+        const nameB = b.members[0] ? b.members[0].name : b.canonicalDoc.docId;
+        return nameA.localeCompare(nameB);
+      });
+
+      consolidated.forEach((g, idx) => {
+        const slot = idx + 1;
+        tableSubmissions[slot] = Object.assign({}, g.canonicalDoc, {
+          docId: g.canonicalDoc.docId,
+          primaryStudentId: g.canonicalDoc.primaryStudentId || g.canonicalDoc.docId,
+          groupMembers: g.members,
+          linkedDocIds: g.linkedDocIds,
+          mergedCount: g.mergedCount,
+          tableNumber: slot,
+          currentStep: g.stepNum
+        });
+      });
+    }
+
+    function getResolvedGroupMembers(sub) {
+      if (!sub) return [];
+      let rawList = [];
+      if (Array.isArray(sub.groupMembers) && sub.groupMembers.length > 0) {
+        rawList = sub.groupMembers;
+      } else if (sub.studentId || sub.studentName) {
+        rawList = [{
+          studentId: sub.studentId || sub.docId || '',
+          name: sub.studentName || sub.teamMembers || 'Student',
+          isPrimary: true
+        }];
+      }
+      const seen = new Set();
+      const resolved = [];
+      rawList.forEach(m => {
+        const stId = String(m.studentId || '').trim();
+        const rawName = String(m.name || '').trim();
+        const rosterName = (stId && rosterById[stId]) ? rosterById[stId].name : rawName;
+        const key = stId || rawName.toLowerCase();
+        if (key && !seen.has(key)) {
+          seen.add(key);
+          resolved.push({
+            studentId: stId,
+            name: rosterName || stId,
+            isPrimary: !!m.isPrimary
+          });
+        }
+      });
+      return resolved;
+    }
+
+    // ========================================================================
+    // SUMMARY METRICS RIBBON
+    // ========================================================================
+    function updateMetricsRibbon() {
+      const groups = Object.values(tableSubmissions);
+      const totalGroups = groups.length;
+
+      let totalStudents = 0;
+      let needApproval = 0;
+      let calibrating = 0;
+      let inArena = 0;
+      let maxScore = 0;
+      let leaderTeam = 'None';
+
+      groups.forEach(g => {
+        const memCount = g.groupMembers ? g.groupMembers.length : 1;
+        totalStudents += memCount;
+
+        const pKey = g.primaryStudentId || g.docId || '';
+        const app = (pKey && tableApprovals[pKey]) || tableApprovals[`table_${g.tableNumber}`] || {};
+        const s3Ok = !!(g.step3Approved || app.step3Approved);
+        const s6Ok = !!(g.step6Approved || app.step6Approved);
+
+        const waiting = (!s3Ok && (g.step3Requested || g.status === 'waiting_step_3' || g.currentStep === 3)) ||
+                        (!s6Ok && (g.step6Requested || g.status === 'waiting_step_6' || g.currentStep === 6));
+
+        if (waiting) needApproval++;
+        if (g.currentStep === 7 || g.currentStep === 8) calibrating++;
+        if (g.currentStep === 9) inArena++;
+
+        const pts = Number(g.totalScore) || 0;
+        if (pts > maxScore) {
+          maxScore = pts;
+          leaderTeam = g.groupMembers && g.groupMembers[0] ? g.groupMembers[0].name.split(' ')[0] : 'Team';
+        }
+      });
+
+      els.statActiveGroups.textContent = totalGroups;
+      els.statActiveStudents.textContent = `${totalStudents} students participating`;
+      els.statNeedApproval.textContent = needApproval;
+      els.statCalibrating.textContent = calibrating;
+      els.statInArena.textContent = inArena;
+      els.statLeaderScore.textContent = maxScore > 0 ? `Leader: ${maxScore}/30 pts (${leaderTeam})` : 'Leader: -- / 30 pts';
+    }
+
+    // ========================================================================
+    // APPROVAL QUEUE STRIP & APPROVAL ACTION
+    // ========================================================================
+    function renderApprovalQueue() {
+      const waitingList = [];
+
+      Object.keys(tableSubmissions).forEach(tKey => {
+        const sub = tableSubmissions[tKey];
+        if (!sub) return;
+        const pKey = sub.primaryStudentId || sub.docId || '';
+        const app = (pKey && tableApprovals[pKey]) || tableApprovals[`table_${tKey}`] || {};
+        const s3Ok = !!(sub.step3Approved || app.step3Approved);
+        const s6Ok = !!(sub.step6Approved || app.step6Approved);
+
+        const waiting3 = !s3Ok && (sub.step3Requested || sub.status === 'waiting_step_3' || sub.currentStep === 3);
+        const waiting6 = !s6Ok && (sub.step6Requested || sub.status === 'waiting_step_6' || sub.currentStep === 6);
+
+        if (waiting3) waitingList.push({ tableNum: parseInt(tKey, 10), stepNum: 3, sub });
+        if (waiting6) waitingList.push({ tableNum: parseInt(tKey, 10), stepNum: 6, sub });
+      });
+
+      if (waitingList.length === 0) {
+        els.approvalQueueBox.classList.add('hidden');
+        return;
+      }
+
+      els.approvalQueueBox.classList.remove('hidden');
+      els.waitingCount.textContent = waitingList.length;
+      els.approvalQueueItems.innerHTML = '';
+
+      waitingList.forEach(item => {
+        const names = item.sub.groupMembers ? item.sub.groupMembers.map(m => m.name).join(', ') : 'Lab Team';
+        const card = document.createElement('div');
+        card.className = 'bg-[var(--bg-card)] border border-[var(--border-color)] p-2.5 rounded-xl flex items-center justify-between gap-2 shadow-sm';
+        card.innerHTML = `
+          <div class="truncate">
+            <div class="font-bold text-xs text-[var(--text-main)] truncate">Table ${item.tableNum}: ${escapeHtml(names)}</div>
+            <div class="text-[11px] font-mono text-[var(--accent-amber)] font-bold">Step ${item.stepNum}: ${item.stepNum === 3 ? 'Ramp Curve' : 'Meter Stick'}</div>
+          </div>
+          <button type="button" class="btn-approve-gate px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs whitespace-nowrap">
+            ✓ Approve ${item.stepNum}
+          </button>
+        `;
+        card.querySelector('.btn-approve-gate').addEventListener('click', () => {
+          approveTableCheckpoint(item.tableNum, item.stepNum);
+        });
+        els.approvalQueueItems.appendChild(card);
+      });
+    }
+
+    function approveTableCheckpoint(tableNum, stepNum) {
+      if (!db || !isTeacher(currentUser)) return;
+      const sub = tableSubmissions[tableNum];
+      if (!sub) return;
+
+      const pKey = sub.primaryStudentId || sub.docId || `table_${tableNum}`;
+      const periodApprovalsKey = `approvals_p${activePeriod}`;
+      const tblKey = `table_${tableNum}`;
+
+      const updatePayload = {
+        [`${periodApprovalsKey}.${tblKey}.step${stepNum}Approved`]: true,
+        [`${periodApprovalsKey}.${pKey}.step${stepNum}Approved`]: true
+      };
+
+      db.collection('student_results').doc(ASSIGNMENT_ID).update(updatePayload).then(() => {
+        if (window.SoundFX) SoundFX.play('clink');
+      }).catch(err => alert('Error approving checkpoint: ' + err.message));
+    }
+
+    // ========================================================================
+    // VIEW 1: RUNWAY SCALE & LANES RENDERING
+    // ========================================================================
+    function renderScaleHeader() {
+      els.runwayScaleHeader.innerHTML = '';
+      STAGES.forEach(s => {
+        const mark = document.createElement('div');
+        mark.className = `milestone-mark ${s.isGate ? 'gate-mark' : ''} ${s.isFinish ? 'finish-mark' : ''}`;
+        mark.style.left = `${s.pct}%`;
+        mark.innerHTML = `<div>${s.label}</div><div style="font-size: 0.65rem; color: var(--text-dim);">${s.name}</div>`;
+        els.runwayScaleHeader.appendChild(mark);
+      });
+    }
+
+    function renderActiveView() {
+      if (currentView === 'runway') {
+        renderRunwayLanes();
+      } else {
+        renderCardsGrid();
+      }
+    }
+
+    function renderRunwayLanes() {
+      const keys = Object.keys(tableSubmissions).map(k => parseInt(k, 10)).sort((a, b) => a - b);
+      els.runwayLanesContainer.innerHTML = '';
+
+      if (keys.length === 0) {
+        els.runwayLanesContainer.innerHTML = `
+          <div class="p-10 text-center text-sm text-[var(--text-muted)] font-medium">
+            📭 No student groups have checked in for <strong>Period ${activePeriod}</strong> yet. Groups will appear on the runway automatically.
+          </div>
+        `;
+        return;
+      }
+
+      keys.forEach(tNum => {
+        const sub = tableSubmissions[tNum];
+        const members = sub.groupMembers || [];
+        const leadFirst = members[0] ? members[0].name.split(' ')[0] : `T${tNum}`;
+        const allNames = members.map(m => m.name).join(', ');
+        const curStep = Math.min(9, Math.max(0, sub.currentStep || 0));
+
+        const pKey = sub.primaryStudentId || sub.docId || '';
+        const app = (pKey && tableApprovals[pKey]) || tableApprovals[`table_${tNum}`] || {};
+        const s3Ok = !!(sub.step3Approved || app.step3Approved);
+        const s6Ok = !!(sub.step6Approved || app.step6Approved);
+
+        const isWaitingGate = (!s3Ok && (sub.step3Requested || sub.currentStep === 3)) ||
+                              (!s6Ok && (sub.step6Requested || sub.currentStep === 6));
+
+        // Percentage along runway (0 to 100%)
+        const targetStage = STAGES[curStep] || STAGES[0];
+        const progressPct = targetStage.pct;
+
+        const lane = document.createElement('div');
+        lane.className = 'runway-lane';
+
+        // Background guide lines
+        let guidesHtml = '';
+        STAGES.forEach(s => {
+          guidesHtml += `<div class="station-guide-line ${s.isGate ? 'gate-guide' : ''}" style="left: ${s.pct}%;"></div>`;
+        });
+
+        const mergedBadge = sub.mergedCount > 1
+          ? `<span class="px-1.5 py-0.2 rounded-full text-[9px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">⚡ ${sub.mergedCount} Devs</span>`
+          : '';
+
+        lane.innerHTML = `
+          <!-- Lane Team Info Card (Left) -->
+          <div class="lane-team-info">
+            <div class="flex items-center justify-between gap-1">
+              <span class="font-mono font-black text-xs text-[var(--accent-cyan)]">Table ${tNum}</span>
+              ${mergedBadge}
+            </div>
+            <div class="font-extrabold text-xs text-[var(--text-main)] truncate" title="${escapeHtml(allNames)}">
+              ${escapeHtml(allNames)}
+            </div>
+            <div class="text-[10px] font-mono text-[var(--text-dim)] flex items-center justify-between">
+              <span>Step ${curStep} / 9</span>
+              <span class="font-bold text-[var(--accent-purple)]">${sub.totalScore || 0}/30 pts</span>
+            </div>
+          </div>
+
+          <!-- Runway Track Strip -->
+          <div class="lane-track-strip">
+            ${guidesHtml}
+
+            <!-- Background Track -->
+            <div class="lane-track-bg"></div>
+
+            <!-- Animated Filled Progress Bar -->
+            <div class="lane-track-fill ${curStep === 9 ? 'stage-arena' : ''}" style="width: ${progressPct}%;"></div>
+
+            <!-- Runner / Marble Avatar -->
+            <div class="runner-node" style="left: ${progressPct}%;" title="Table ${tNum}: ${escapeHtml(targetStage.name)}">
+              <div class="runner-bubble ${isWaitingGate ? 'waiting-gate' : ''} ${curStep === 9 ? 'in-arena' : ''}">
+                ${curStep === 9 ? '🎯' : (isWaitingGate ? '🛑' : leadFirst.slice(0, 2).toUpperCase())}
+              </div>
+              <span class="runner-tag">${curStep === 9 ? 'Arena' : targetStage.name}</span>
+            </div>
+
+            <!-- Finish Tape at Step 9 -->
+            <div class="finish-tape">
+              <span>🎯</span>
+              <span>ARENA</span>
+            </div>
+          </div>
+        `;
+
+        els.runwayLanesContainer.appendChild(lane);
+      });
+    }
+
+    // ========================================================================
+    // VIEW 2: TABLE CARDS GRID
+    // ========================================================================
+    function renderCardsGrid() {
+      const keys = Object.keys(tableSubmissions).map(k => parseInt(k, 10)).sort((a, b) => a - b);
+      els.cardsGridContainer.innerHTML = '';
+
+      if (keys.length === 0) {
+        els.cardsGridContainer.innerHTML = `
+          <div class="col-span-full p-10 text-center text-sm text-[var(--text-muted)] font-medium">
+            📭 No student groups have checked in for <strong>Period ${activePeriod}</strong> yet.
+          </div>
+        `;
+        return;
+      }
+
+      keys.forEach(tNum => {
+        const sub = tableSubmissions[tNum];
+        const members = sub.groupMembers || [];
+        const allNames = members.map(m => m.name).join(', ');
+        const curStep = sub.currentStep || 0;
+        const calTrials = Array.isArray(sub.calibrationData) ? sub.calibrationData.length : 0;
+
+        const pKey = sub.primaryStudentId || sub.docId || '';
+        const app = (pKey && tableApprovals[pKey]) || tableApprovals[`table_${tNum}`] || {};
+        const s3Ok = !!(sub.step3Approved || app.step3Approved);
+        const s6Ok = !!(sub.step6Approved || app.step6Approved);
+
+        const card = document.createElement('div');
+        card.className = 'glass-card p-4 space-y-3';
+        card.innerHTML = `
+          <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-2.5">
+            <span class="font-black text-sm text-[var(--accent-cyan)] font-mono">Table ${tNum}</span>
+            <span class="px-2 py-0.5 rounded-full text-xs font-bold font-mono ${curStep === 9 ? 'bg-purple-500/20 text-purple-400 border border-purple-500/40' : 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40'}">
+              Step ${curStep} of 9
+            </span>
+          </div>
+
+          <div>
+            <div class="text-xs font-black uppercase text-[var(--text-dim)]">Team Participants:</div>
+            <div class="font-bold text-sm text-[var(--text-main)] mt-0.5">${escapeHtml(allNames)}</div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+            <div class="p-2 rounded-lg bg-[var(--bg-subcard)] border border-[var(--border-color)] flex items-center justify-between">
+              <span>Step 3 Curve:</span>
+              <span class="${s3Ok ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold'}">${s3Ok ? '✓ Approved' : '🛑 Waiting'}</span>
+            </div>
+            <div class="p-2 rounded-lg bg-[var(--bg-subcard)] border border-[var(--border-color)] flex items-center justify-between">
+              <span>Step 6 Meter:</span>
+              <span class="${s6Ok ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold'}">${s6Ok ? '✓ Approved' : '🛑 Waiting'}</span>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-xs font-mono pt-1 text-[var(--text-muted)] border-t border-[var(--border-color)]">
+            <span>Calibrations: <strong>${calTrials} trials</strong></span>
+            <span class="font-bold text-[var(--accent-purple)]">Score: ${sub.totalScore || 0}/30 pts</span>
+          </div>
+        `;
+        els.cardsGridContainer.appendChild(card);
+      });
+    }
+
+    // ========================================================================
+    // EVENT BINDINGS
+    // ========================================================================
+    function bindEvents() {
+      // Period tabs
+      document.querySelectorAll('.period-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          activePeriod = btn.dataset.period;
+          loadPeriodRoster();
+          attachConfigListener();
+          attachSubmissionsListener();
+        });
+      });
+
+      // View toggle (Runway vs Cards)
+      document.querySelectorAll('.view-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.view-toggle-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentView = btn.dataset.view;
+          if (currentView === 'runway') {
+            els.runwaySection.classList.remove('hidden');
+            els.cardsSection.classList.add('hidden');
+            renderRunwayLanes();
+          } else {
+            els.runwaySection.classList.add('hidden');
+            els.cardsSection.classList.remove('hidden');
+            renderCardsGrid();
+          }
+        });
+      });
+
+      // Approve All buttons
+      els.btnApproveAll3.addEventListener('click', () => {
+        Object.keys(tableSubmissions).forEach(t => approveTableCheckpoint(parseInt(t, 10), 3));
+      });
+      els.btnApproveAll6.addEventListener('click', () => {
+        Object.keys(tableSubmissions).forEach(t => approveTableCheckpoint(parseInt(t, 10), 6));
+      });
+
+      // Google Sign-In button
+      if (els.btnGoogleSignIn) {
+        els.btnGoogleSignIn.addEventListener('click', () => {
+          const provider = new firebase.auth.GoogleAuthProvider();
+          provider.setCustomParameters({ prompt: 'select_account' });
+          auth.signInWithPopup(provider).catch(e => {
+            els.authError.textContent = e.message;
+            els.authError.classList.remove('hidden');
+          });
+        });
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+  </script>
+</body>
+</html>
