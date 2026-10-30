@@ -5123,7 +5123,7 @@ const lessonsData = [
         "typeLabel": "In-Class Handout & 5-Shot Battle Log",
         "submission": "Turn In at End of Period / Teacher Stamp",
         "actionLabel": "Open Printable Ticket ↗",
-        "description": "Log 5 battle shots with your rival (angle, speed, hit/miss), answer 2 quick physics strategy questions, and earn a partner signature and teacher stamp.",
+        "description": "Log 5 battle shots with your rival (angle, speed, hit/miss), explain & sketch 2 quick physics strategy questions, and earn a partner signature and teacher stamp.",
         "status": "active"
       }
     ],
