@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cannon Duel Leaderboard</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/png" href="../head.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Lilita+One&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Teacher-only page: Firestore rules let only the admin accounts read cannon_results -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    if (new URLSearchParams(location.search).has('mock')) document.write('<script src="js/mock-firebase.js"><\/script>');
+  </script>
+  <style>
+    :root {
+      --bg: #0b1222; --panel: #111a2e; --panel-2: #172238; --line: #24324d; --text: #e2e8f0; --muted: #94a3b8;
+      --gold: #facc15; --fire: #f43f5e; --win: #4ade80; --loss: #f87171;
+      --display: "Lilita One", "Outfit", sans-serif; --body: "Outfit", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: radial-gradient(1200px 500px at 50% -200px, #1e3a8a55, transparent), var(--bg); color: var(--text); font-family: var(--body); min-height: 100vh; }
+    header { display: flex; align-items: center; gap: 14px; padding: 14px 24px; border-bottom: 2px solid var(--line); background: var(--panel); flex-wrap: wrap; }
+    h1 { font-family: var(--display); font-weight: 400; font-size: 28px; margin: 0; letter-spacing: 0.5px; }
+    h1 span { color: var(--gold); }
+    .who { margin-left: auto; color: var(--muted); font-size: 14px; display: flex; gap: 10px; align-items: center; }
+    main { max-width: 1280px; margin: 0 auto; padding: 20px 24px 60px; }
+    .btn { font: 800 15px var(--body); border-radius: 12px; padding: 9px 16px; border: 2px solid var(--line); background: var(--panel-2); color: var(--text); cursor: pointer; text-decoration: none; display: inline-block; }
+    .btn:hover { border-color: var(--gold); }
+    .btn.primary { background: linear-gradient(#fb7185, var(--fire)); border-color: transparent; color: #fff; }
+    .btn.small { font-size: 13px; padding: 5px 10px; border-radius: 9px; }
+    .gate { max-width: 460px; margin: 80px auto; text-align: center; background: var(--panel); border: 2px solid var(--line); border-radius: 18px; padding: 30px; }
+    .gate h2 { font-family: var(--display); font-weight: 400; font-size: 26px; margin: 0 0 8px; }
+    .gate p { color: var(--muted); }
+    .err { color: var(--loss); font-weight: 700; }
+    .filters { display: flex; flex-wrap: wrap; gap: 14px 20px; align-items: flex-end; background: var(--panel); border: 2px solid var(--line); border-radius: 16px; padding: 14px 16px; }
+    .filters label { display: grid; gap: 5px; font-size: 12px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    select { background: #0a1020; color: #fff; border: 2px solid var(--line); border-radius: 10px; padding: 7px 10px; font: 700 15px var(--body); }
+    .seg { display: flex; background: #0a1020; border: 2px solid var(--line); border-radius: 12px; overflow: hidden; }
+    .seg button { font: 800 15px var(--body); color: var(--muted); background: none; border: 0; padding: 8px 14px; cursor: pointer; white-space: nowrap; }
+    .seg button.sel { background: #3b2f05; color: var(--gold); }
+    .filters .end { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+    .summary { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0 10px; color: var(--muted); font-size: 14px; align-items: center; }
+    .summary b { color: var(--text); font-family: var(--mono); }
+    .live { color: var(--win); font-weight: 800; }
+    .card { background: var(--panel); border: 2px solid var(--line); border-radius: 16px; overflow: hidden; }
+    .scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: 15px; }
+    th { text-align: left; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; padding: 10px 12px; background: var(--panel-2); white-space: nowrap; cursor: help; }
+    td { padding: 9px 12px; border-top: 1px solid #1e293b; white-space: nowrap; }
+    td.n, th.n { text-align: right; font-family: var(--mono); }
+    tbody tr:hover { background: #16213a; }
+    .rank { font-family: var(--display); font-size: 20px; width: 50px; text-align: center; }
+    .nm b { font-size: 16px; }
+    .sub { color: var(--muted); font-size: 12px; display: block; max-width: 320px; overflow: hidden; text-overflow: ellipsis; }
+    .pill { display: inline-block; font: 800 12px var(--mono); padding: 2px 8px; border-radius: 99px; background: #1e293b; color: #cbd5e1; }
+    .pts { color: var(--gold); font-weight: 800; }
+    .W { color: var(--win); font-weight: 800; } .L { color: var(--loss); font-weight: 800; } .D { color: var(--muted); font-weight: 800; }
+    .empty { padding: 40px; text-align: center; color: var(--muted); }
+    h3 { font-family: var(--display); font-weight: 400; font-size: 22px; margin: 28px 0 10px; }
+    .note { color: var(--muted); font-size: 13px; margin: 10px 2px 0; line-height: 1.5; }
+    @media (max-width: 760px) {
+      header, main { padding-left: 16px; padding-right: 16px; }
+      .filters .end { margin-left: 0; }
+      .seg button { padding: 8px 10px; font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🏆 Cannon Duel <span>Leaderboard</span></h1>
+    <div class="who" id="who"></div>
+  </header>
+
+  <main>
+    <div class="gate" id="gate">
+      <h2>Teacher only</h2>
+      <p id="gateMsg">Sign in with your teacher Google account to see student results.</p>
+      <p class="err" id="gateErr"></p>
+      <button class="btn primary" id="btnSignIn">Sign in with Google</button>
+    </div>
+
+    <div id="board" hidden>
+      <div class="filters">
+        <label>Mode
+          <div class="seg" id="modeSeg">
+            <button data-v="online" class="sel">🌐 Class Battle</button><button data-v="cpu">🤖 Single Player</button><button data-v="local">👥 Two Players</button>
+          </div>
+        </label>
+        <label>Period <select id="fPeriod"></select></label>
+        <label id="diffWrap" hidden>Cannonbot <select id="fDiff">
+          <option value="all">All levels</option><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></label>
+        <label>When <select id="fTime">
+          <option value="day">Today</option><option value="week" selected>Last 7 days</option><option value="month">Last 30 days</option><option value="all">All time</option></select></label>
+        <div class="end"><button class="btn small" id="btnCsv">⬇ Download CSV</button></div>
+      </div>
+
+      <div class="summary" id="summary"></div>
+      <div class="card"><div class="scroll"><table id="table"></table></div></div>
+      <p class="note" id="legend"></p>
+
+      <h3>Recent games</h3>
+      <div class="card"><div class="scroll"><table id="recent"></table></div></div>
+    </div>
+  </main>
+
+  <script>
+  (function () {
+    'use strict';
+    const TEACHER_EMAILS = ['rmudry@orangeusd.org', 'ryan.mudry@gmail.com', 'ryanmudry@gmail.com'];
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const DAY = 86400000;
+    const BOT_PTS = { easy: 1, medium: 2, hard: 3 };
+    const db = firebase.firestore(), auth = firebase.auth();
+
+    const state = { mode: 'online', period: 'all', diff: 'all', time: 'week', rows: [], view: [] };
+    let unsub = null;
+
+    // ---------------------------------------------------------------- sign-in gate
+    $('btnSignIn').addEventListener('click', async () => {
+      $('gateErr').textContent = '';
+      const p = new firebase.auth.GoogleAuthProvider();
+      p.setCustomParameters({ prompt: 'select_account' });
+      try { await auth.signInWithPopup(p); } catch (e) { if (e && e.code !== 'auth/popup-closed-by-user') $('gateErr').textContent = 'Sign-in did not finish. Try again.'; }
+    });
+
+    auth.onAuthStateChanged((u) => {
+      const ok = u && TEACHER_EMAILS.includes((u.email || '').toLowerCase());
+      $('who').innerHTML = u ? `${esc(u.email)} <button class="btn small" id="btnOut">Sign out</button>` : '';
+      if (u) $('btnOut').addEventListener('click', () => auth.signOut());
+      $('gate').hidden = !!ok;
+      $('board').hidden = !ok;
+      if (u && !ok) {
+        $('gateMsg').textContent = 'This page is only for the teacher account.';
+        $('btnSignIn').textContent = 'Use a different account';
+      }
+      if (ok) listen(); else if (unsub) { unsub(); unsub = null; }
+    });
+
+    // ---------------------------------------------------------------- data
+    function since() {
+      if (state.time === 'all') return 0;
+      if (state.time === 'day') { const d = new Date(); d.setHours(0, 0, 0, 0); return d.getTime(); }
+      return Date.now() - (state.time === 'week' ? 7 : 30) * DAY;
+    }
+
+    function listen() {
+      if (unsub) unsub();
+      const q = db.collection('cannon_results').where('at', '>=', since());
+      unsub = q.onSnapshot((qs) => {
+        state.rows = qs.docs.map((d) => ({ id: d.id, ...d.data() }));
+        fillPeriods();
+        render();
+      }, (e) => {
+        console.error(e);
+        $('summary').innerHTML = '<span class="err">Could not load results. Only the teacher account can read them.</span>';
+      });
+    }
+
+    const periodKey = (p) => (p === null || p === undefined || p === '' ? 'none' : String(p));
+    const periodLabel = (k) => (k === 'none' ? 'No period' : k === 'T' ? 'Teacher' : `P${k}`);
+
+    function fillPeriods() {
+      const keys = new Set(['0', '1', '2', '3', '4', '5', '6']);
+      state.rows.forEach((r) => keys.add(periodKey(r.period)));
+      const order = [...keys].sort((a, b) => (isNaN(a) - isNaN(b)) || (isNaN(a) ? a.localeCompare(b) : a - b));
+      const sel = $('fPeriod'), cur = state.period;
+      sel.innerHTML = '<option value="all">All periods</option>' + order.map((k) => `<option value="${esc(k)}">${esc(periodLabel(k))}</option>`).join('');
+      sel.value = order.includes(cur) || cur === 'all' ? cur : 'all';
+    }
+
+    function filtered() {
+      return state.rows.filter((r) => r.mode === state.mode
+        && (state.period === 'all' || periodKey(r.period) === state.period)
+        && (state.mode !== 'cpu' || state.diff === 'all' || r.diff === state.diff));
+    }
+
+    // Group rows into one leaderboard line per student (per team name for two players)
+    function aggregate(rows) {
+      const groups = new Map();
+      for (const r of rows) {
+        const key = state.mode === 'local' ? `${periodKey(r.period)}|${String(r.team).trim().toLowerCase()}` : (r.studentId || r.uid);
+        if (!groups.has(key)) groups.set(key, { key, rows: [] });
+        groups.get(key).rows.push(r);
+      }
+      const list = [...groups.values()].map((g) => {
+        const rs = g.rows.sort((a, b) => b.at - a.at), last = rs[0];
+        const n = (res) => rs.filter((r) => r.result === res).length;
+        const firsts = rs.map((r) => r.firstMiss).filter((v) => v !== null && v !== undefined);
+        const winsShots = rs.filter((r) => r.result === 'win').map((r) => r.shots);
+        const o = {
+          key: g.key, name: last.name || last.studentId || '?', studentId: last.studentId, period: last.period,
+          teams: [...new Set(rs.map((r) => r.team))], members: [...new Set(rs.map((r) => r.members).filter(Boolean))],
+          team: last.team, games: rs.length, w: n('win'), l: n('loss'), d: n('draw'),
+          dmg: rs.reduce((a, r) => a + (r.dmgDealt || 0), 0), direct: rs.reduce((a, r) => a + (r.direct || 0), 0),
+          shots: rs.reduce((a, r) => a + (r.shots || 0), 0),
+          firstMiss: firsts.length ? firsts.reduce((a, b) => a + b, 0) / firsts.length : null,
+          fewest: winsShots.length ? Math.min(...winsShots) : null,
+          byDiff: { easy: 0, medium: 0, hard: 0 }, last: last.at,
+        };
+        rs.forEach((r) => { if (r.result === 'win' && o.byDiff[r.diff] !== undefined) o.byDiff[r.diff]++; });
+        o.pts = o.w * 3 + o.d;
+        o.botPts = rs.reduce((a, r) => a + (r.result === 'win' ? BOT_PTS[r.diff] || 1 : 0), 0);
+        o.winPct = o.games ? o.w / o.games : 0;
+        return o;
+      });
+      const byMiss = (a, b) => (a.firstMiss === null) - (b.firstMiss === null) || (a.firstMiss || 0) - (b.firstMiss || 0);
+      if (state.mode === 'online') list.sort((a, b) => b.pts - a.pts || b.dmg - a.dmg || byMiss(a, b));
+      else if (state.mode === 'cpu') list.sort((a, b) => b.botPts - a.botPts || b.winPct - a.winPct || byMiss(a, b));
+      else list.sort((a, b) => b.w - a.w || b.winPct - a.winPct || byMiss(a, b));
+      return list;
+    }
+
+    // ---------------------------------------------------------------- columns per mode
+    const fmtMiss = (v) => (v === null || v === undefined ? '—' : `${v.toFixed(1)} m`);
+    const pct = (v) => `${Math.round(v * 100)}%`;
+    const who = (o) => `<span class="nm"><b>${esc(o.name)}</b><span class="sub">${esc(o.studentId || '')}</span></span>`;
+    const COLS = {
+      online: [
+        ['Student', 'The teammate who signed in, with team names used', (o) => `${who(o)}<span class="sub">${esc(o.teams.join(', '))}${o.members.length ? ' · ' + esc(o.members.join('; ')) : ''}</span>`, (o) => o.name, (o) => `${o.teams.join(' / ')} ${o.members.join('; ')}`],
+        ['Period', '', (o) => `<span class="pill">${esc(periodLabel(periodKey(o.period)))}</span>`, (o) => periodLabel(periodKey(o.period))],
+        ['Battles', 'Finished class battles', (o) => o.games, (o) => o.games, null, 'n'],
+        ['W–D–L', 'Wins, draws, losses', (o) => `<span class="W">${o.w}</span>–<span class="D">${o.d}</span>–<span class="L">${o.l}</span>`, (o) => `${o.w}-${o.d}-${o.l}`, null, 'n'],
+        ['Points', 'Win = 3, draw = 1', (o) => `<span class="pts">${o.pts}</span>`, (o) => o.pts, null, 'n'],
+        ['Damage', 'Total damage dealt to opponents', (o) => o.dmg, (o) => o.dmg, null, 'n'],
+        ['Direct hits', '', (o) => o.direct, (o) => o.direct, null, 'n'],
+        ['1st-shot miss', 'Average distance the first shot of each battle landed from the target: the "did they calculate it?" number', (o) => fmtMiss(o.firstMiss), (o) => (o.firstMiss === null ? '' : o.firstMiss.toFixed(1)), null, 'n'],
+      ],
+      cpu: [
+        ['Student', '', who, (o) => o.name, (o) => o.studentId],
+        ['Period', '', (o) => `<span class="pill">${esc(periodLabel(periodKey(o.period)))}</span>`, (o) => periodLabel(periodKey(o.period))],
+        ['Games', 'Finished games against Cannonbot', (o) => o.games, (o) => o.games, null, 'n'],
+        ['Wins', 'Easy / Medium / Hard', (o) => `${o.w} <span class="sub" style="display:inline">(${o.byDiff.easy}/${o.byDiff.medium}/${o.byDiff.hard})</span>`, (o) => o.w, null, 'n'],
+        ['Win %', '', (o) => pct(o.winPct), (o) => pct(o.winPct), null, 'n'],
+        ['Bot points', 'Each win: Easy 1, Medium 2, Hard 3', (o) => `<span class="pts">${o.botPts}</span>`, (o) => o.botPts, null, 'n'],
+        ['Fewest shots', 'Fewest shots needed in a win', (o) => (o.fewest === null ? '—' : o.fewest), (o) => (o.fewest === null ? '' : o.fewest), null, 'n'],
+        ['Direct hits', '', (o) => o.direct, (o) => o.direct, null, 'n'],
+        ['1st-shot miss', 'Average distance the first shot of each game landed from the target', (o) => fmtMiss(o.firstMiss), (o) => (o.firstMiss === null ? '' : o.firstMiss.toFixed(1)), null, 'n'],
+      ],
+      local: [
+        ['Team', 'Team name typed on the two-player setup screen, with the account signed in on that computer', (o) => `<span class="nm"><b>${esc(o.team)}</b><span class="sub">on ${esc(o.name)}'s login</span></span>`, (o) => o.team, (o) => o.studentId],
+        ['Period', '', (o) => `<span class="pill">${esc(periodLabel(periodKey(o.period)))}</span>`, (o) => periodLabel(periodKey(o.period))],
+        ['Games', '', (o) => o.games, (o) => o.games, null, 'n'],
+        ['Wins', '', (o) => `<span class="W">${o.w}</span>`, (o) => o.w, null, 'n'],
+        ['Losses', '', (o) => `<span class="L">${o.l}</span>`, (o) => o.l, null, 'n'],
+        ['Win %', '', (o) => pct(o.winPct), (o) => pct(o.winPct), null, 'n'],
+        ['Direct hits', '', (o) => o.direct, (o) => o.direct, null, 'n'],
+        ['1st-shot miss', 'Average distance the first shot of each game landed from the target', (o) => fmtMiss(o.firstMiss), (o) => (o.firstMiss === null ? '' : o.firstMiss.toFixed(1)), null, 'n'],
+      ],
+    };
+    const LEGEND = {
+      online: 'Ranked by points (win 3, draw 1), then damage dealt. One line per signed-in student, across every team name they used.',
+      cpu: 'Ranked by bot points (wins: Easy 1, Medium 2, Hard 3), then win %. Only games played while signed in are counted.',
+      local: 'Two players on one computer: one line per team name. Results are saved under whoever was signed in on that computer.',
+    };
+
+    // ---------------------------------------------------------------- render
+    function render() {
+      const rows = filtered(), list = aggregate(rows), cols = COLS[state.mode];
+      state.view = list;
+      $('diffWrap').hidden = state.mode !== 'cpu';
+      const people = new Set(rows.map((r) => r.studentId || r.uid)).size;
+      $('summary').innerHTML = `<span class="live">● Live</span><span><b>${rows.length}</b> results</span><span>·</span><span><b>${people}</b> student${people === 1 ? '' : 's'}</span>`;
+      $('legend').textContent = LEGEND[state.mode];
+      const medal = (i) => ['🥇', '🥈', '🥉'][i] || i + 1;
+      $('table').innerHTML = `<thead><tr><th class="rank">#</th>${cols.map((c) => `<th class="${c[5] || ''}" title="${esc(c[1])}">${esc(c[0])}</th>`).join('')}</tr></thead>
+        <tbody>${list.length ? list.map((o, i) => `<tr><td class="rank">${medal(i)}</td>${cols.map((c) => `<td class="${c[5] || ''}">${c[2](o)}</td>`).join('')}</tr>`).join('')
+          : `<tr><td colspan="${cols.length + 1}" class="empty">No results yet for these filters.</td></tr>`}</tbody>`;
+
+      const recent = rows.slice().sort((a, b) => b.at - a.at).slice(0, 20);
+      const when = (t) => new Date(t).toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' });
+      $('recent').innerHTML = `<thead><tr><th>When</th><th>Student</th><th>Period</th><th>Team</th><th>Opponent</th><th>Result</th><th class="n">Shots</th><th class="n">Health left</th><th class="n">1st-shot miss</th></tr></thead>
+        <tbody>${recent.length ? recent.map((r) => `<tr><td>${esc(when(r.at))}</td><td>${esc(r.name || r.studentId)}</td><td><span class="pill">${esc(periodLabel(periodKey(r.period)))}</span></td>
+          <td>${esc(r.team)}</td><td>${esc(r.opponent)}${r.diff ? ` <span class="sub" style="display:inline">(${esc(r.diff)})</span>` : ''}</td>
+          <td class="${r.result === 'win' ? 'W' : r.result === 'loss' ? 'L' : 'D'}">${esc(r.result.toUpperCase())}${r.sabotage ? ' 🔧' : ''}${r.endedBy === 'host' ? ' ⏱' : ''}</td>
+          <td class="n">${r.shots}</td><td class="n">${r.hpLeft}</td><td class="n">${fmtMiss(r.firstMiss)}</td></tr>`).join('')
+          : '<tr><td colspan="9" class="empty">Nothing yet.</td></tr>'}</tbody>`;
+    }
+
+    function downloadCsv() {
+      const cols = COLS[state.mode];
+      const cell = (v) => `"${String(v === null || v === undefined ? '' : v).replace(/"/g, '""')}"`;
+      const head = ['Rank', ...cols.map((c) => c[0]), ...cols.filter((c) => c[4]).map((c) => (state.mode === 'online' ? 'Teams and members' : 'Login'))];
+      const body = state.view.map((o, i) => [i + 1, ...cols.map((c) => c[3](o)), ...cols.filter((c) => c[4]).map((c) => c[4](o))]);
+      const csv = [head, ...body].map((r) => r.map(cell).join(',')).join('\r\n');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+      const stamp = new Date().toISOString().slice(0, 10);
+      a.download = `cannon-duel-${state.mode}-${state.period === 'all' ? 'all-periods' : periodLabel(state.period).replace(/\s+/g, '-')}-${stamp}.csv`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    // ---------------------------------------------------------------- filters
+    document.querySelectorAll('#modeSeg button').forEach((b) => b.addEventListener('click', () => {
+      document.querySelectorAll('#modeSeg button').forEach((x) => x.classList.toggle('sel', x === b));
+      state.mode = b.dataset.v; render();
+    }));
+    $('fPeriod').addEventListener('change', (e) => { state.period = e.target.value; render(); });
+    $('fDiff').addEventListener('change', (e) => { state.diff = e.target.value; render(); });
+    $('fTime').addEventListener('change', (e) => { state.time = e.target.value; listen(); });
+    $('btnCsv').addEventListener('click', downloadCsv);
+  })();
+  </script>
+</body>
+</html>

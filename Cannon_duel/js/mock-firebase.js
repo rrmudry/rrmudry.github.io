@@ -48,13 +48,14 @@
   class Query {
     constructor(path, filters = []) { this.path = path; this.filters = filters; }
     where(f, op, v) { return new Query(this.path, [...this.filters, [f, op, v]]); }
+    limit() { return this; }
     docs() {
       const pre = KEY + this.path + '/', out = [];
       for (let i = 0; i < localStorage.length; i++) {
         const k = localStorage.key(i);
         if (!k.startsWith(pre) || k.slice(pre.length).includes('/')) continue;
         const ref = new DocRef(k.slice(KEY.length)), d = read(ref.path);
-        const ok = this.filters.every(([f, op, v]) => op === '==' ? d[f] === v : op === 'array-contains' ? (d[f] || []).includes(v) : true);
+        const ok = this.filters.every(([f, op, v]) => op === '==' ? d[f] === v : op === '>=' ? d[f] >= v : op === 'array-contains' ? (d[f] || []).includes(v) : true);
         if (ok) out.push(new DocSnap(ref.id, ref, d));
       }
       return out.sort((a, b) => (a.id < b.id ? -1 : 1));

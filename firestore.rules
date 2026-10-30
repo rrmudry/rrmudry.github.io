@@ -177,6 +177,12 @@ service cloud.firestore {
                        request.resource.data.seed == resource.data.seed &&
                        request.resource.data.round == resource.data.round;
     }
+    // Leaderboard rows (Cannon_duel/js/results.js). A student writes only rows for their own
+    // account; only the teacher (admin, above) can read them, on Cannon_duel/leaderboard.html.
+    match /cannon_results/{resultId} {
+      allow create, update: if isSchoolUser() && request.resource.data.uid == request.auth.uid &&
+                               request.resource.data.studentId == request.auth.token.email.lower().split('@')[0];
+    }
   }
 }
 

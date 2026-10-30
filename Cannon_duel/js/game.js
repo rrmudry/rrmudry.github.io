@@ -540,6 +540,7 @@
 
     localOver(w) {
       const d = this.duel, c = this.localConfig;
+      if (window.CannonResults) window.CannonResults.recordLocal(d, c, w);
       if (w >= 0) this.series[w]++;
       d.updateHud();
       let title, sub, trophy;

@@ -59,8 +59,9 @@
 
   // ---------------------------------------------------------------- one networked match
   class OnlineMatch {
-    constructor(ref, data, myUid, { onExit }) {
+    constructor(ref, data, myUid, { onExit, code }) {
       this.ref = ref;
+      this.code = code;
       this.data = data;
       this.myUid = myUid;
       this.onExit = onExit;
@@ -133,7 +134,11 @@
       duel.ammo = d.ammo.map((a) => ({ ...a }));
       renderer.hp = duel.hp.slice();
       if (d.status === 'done') {
-        if (!this.finished) { this.finished = true; duel.finish(d.winner); }
+        if (!this.finished) {
+          this.finished = true;
+          duel.finish(d.winner);
+          if (this.side >= 0) window.CannonResults.recordOnline(this.code, this.ref.id, d, this.myUid);
+        }
         return;
       }
       const key = `${d.seq}:${d.turn}`;
@@ -275,7 +280,7 @@
       $('onErr').textContent = '';
       const provider = new firebase.auth.GoogleAuthProvider();
       provider.setCustomParameters({ hd: 'orangeusd.org', prompt: 'select_account' });
-      try { await auth.signInWithPopup(provider); } catch (e) {
+      try { await window.CannonResults.signIn(); } catch (e) {
         if (e && e.code !== 'auth/popup-closed-by-user') $('onErr').textContent = 'Sign-in did not finish. Try again.';
       }
     },
@@ -294,9 +299,11 @@
         if (!snap.exists || snap.data().status === 'closed') { err.textContent = `No open game with code ${code}. Check the board.`; return; }
         const color = pickColor();
         save({ name, members, color, code });
-        await this.lobbyRef(code).collection('teams').doc(user.uid).set({
-          uid: user.uid, name, members, color, studentId: user.email.split('@')[0], joinedAt: Date.now(), lastSeen: Date.now(),
-        });
+        const prof = window.CannonResults.profile || {};
+        await this.lobbyRef(code).collection('teams').doc(user.uid).set(clean({
+          uid: user.uid, name, members, color, studentId: user.email.split('@')[0], player: user.displayName || '',
+          period: prof.period !== undefined ? prof.period : null, joinedAt: Date.now(), lastSeen: Date.now(),
+        }));
         this.enterTeam(code);
       } catch (e) {
         console.error(e);
@@ -353,7 +360,7 @@
 
     play(m) {
       const ref = this.lobbyRef().collection('matches').doc(m.id);
-      this.match = new OnlineMatch(ref, m, user.uid, { onExit: () => this.backToLobby() });
+      this.match = new OnlineMatch(ref, m, user.uid, { onExit: () => this.backToLobby(), code: this.code });
     },
 
     backToLobby() {
@@ -436,8 +443,15 @@
         this.refreshHost();
       }));
       this.unsubs.push(ref.collection('teams').onSnapshot((qs) => { this.teams = qs.docs.map((d) => d.data()); this.refreshHost(); }));
+      this.recorded = new Set();
       this.unsubs.push(ref.collection('matches').onSnapshot((qs) => {
         this.matches = qs.docs.map((d) => ({ id: d.id, ...d.data() }));
+        // The host saves every finished battle for the leaderboard
+        for (const m of this.matches) {
+          if (m.status !== 'done' || this.recorded.has(m.id)) continue;
+          this.recorded.add(m.id);
+          window.CannonResults.recordOnline(code, m.id, m);
+        }
         this.refreshHost();
       }));
       this.hostTick = setInterval(() => this.refreshHost(), 5000);      // keeps the away dots honest
@@ -494,7 +508,7 @@
       UI.hide('hostView');
       $('btnHostPanel').hidden = false;
       if (this.match) this.match.destroy();
-      this.match = new OnlineMatch(this.lobbyRef().collection('matches').doc(id), m, user.uid, { onExit: () => this.backToLobby() });
+      this.match = new OnlineMatch(this.lobbyRef().collection('matches').doc(id), m, user.uid, { onExit: () => this.backToLobby(), code: this.code });
     },
 
     // Pair teams that are connected and free, avoiding rematches where possible.
@@ -549,7 +563,9 @@
         const { pairs, bye } = this.pairUp(ready);
         const b = db.batch();
         const mk = (k, a, c, cpu) => {
-          const teams = [a, c].map((t) => ({ uid: t.uid, name: t.name, color: t.color || 'blue', diff: t.diff }));
+          // Who was on each team is copied in, so results survive a team leaving the lobby
+          const teams = [a, c].map((t) => ({ uid: t.uid, name: t.name, color: t.color || 'blue', diff: t.diff,
+            studentId: t.studentId, player: t.player, members: t.members, period: t.period }));
           if (teams[0].color === teams[1].color) teams[1].color = Object.keys(E.TEAM_COLORS).find((x) => x !== teams[0].color && x !== 'gold');
           const first = Math.random() < 0.5 ? 0 : 1;
           b.set(this.lobbyRef().collection('matches').doc(`r${round}_${k}`), clean({
