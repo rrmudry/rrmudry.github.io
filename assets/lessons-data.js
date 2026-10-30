@@ -5085,53 +5085,60 @@ const lessonsData = [
     "day": 45,
     "date": "2026-10-30",
     "unit": 2,
-    "title": "Artillery Duel Showdown: Angles, Power & Wind Vectors",
-    "topic": "Gamified 2D Projectile Showdown & Trajectory Optimization",
+    "title": "Cannon Duel Trajectory Showdown: Angles, Speed & Elevation",
+    "topic": "2D Projectile Kinematics, Target Bracketing & Elevation Compensation",
     "dok": 3,
     "type": "Inquiry / Gamified Challenge",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Students apply their understanding of projectile physics in head-to-head artillery duels, adjusting launch angle, power, and accounting for wind acceleration vectors.",
-    "activity": "Artillery Duel Competition: Partner teams compete in the digital Artillery Duel simulator. Students must calculate trajectory adjustments under fluctuating wind conditions, balance high-arc vs direct-fire strategies, and log winning angle/power pairings.",
-    "essentialQuestion": "How does adjusting launch angle and accounting for external wind force vectors optimize projectile impact coordinates?",
+    "summary": "Students apply 2D projectile kinematics in head-to-head cannon duels across variable terrain: measuring horizontal range (Δx) and elevation difference (Δy), bracketing targets based on real-time recon telemetry, and balancing high-arc vs direct-fire angles.",
+    "activity": "Cannon Duel Classroom Showdown: Partner teams compete in the Cannon Duel simulator across seeded mountain terrain. Using the 📐 Measure tool (Δx and Δy) and real-time recon feedback ('meters short/long'), students record 5 competitive shot trajectories, analyze complementary angles (35° vs 55°), and earn partner and teacher sign-offs on their Battle Ticket.",
+    "essentialQuestion": "How do launch angle (θ) and initial speed (v₀) interact with target distance (Δx) and elevation difference (Δy) to achieve a direct hit in 2D projectile motion?",
     "standards": [
       "HS-PS2-1",
       "HS-ETS1-2"
     ],
     "wicor": {
-      "Writing": "Logging firing coordinates and articulating angle adjustment strategies in game journals.",
-      "Inquiry": "Iterating fire parameters under variable wind conditions to bracket target coordinates.",
-      "Collaboration": "Head-to-head partner showdowns with real-time tactical adjustments.",
-      "Organization": "Recording angle, muzzle velocity, wind speed, and landing offset per round.",
-      "Reading": "Reading real-time telemetry readouts, wind gauges, and coordinate distances."
+      "Writing": "Logging 5-turn trajectory coordinates and explaining bracket adjustments on the Battle Ticket.",
+      "Inquiry": "Iterating launch angle and speed based on real-time 'meters short/long' impact feedback.",
+      "Collaboration": "Head-to-head partner showdowns with rival verification signatures.",
+      "Organization": "Recording target Δx, Δy, angle θ, speed v₀, and hit/miss results in an organized table.",
+      "Reading": "Reading 📐 Measure telemetry readouts, impact markers, and complementary angle geometry."
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "If you want a cannonball to travel the maximum possible horizontal distance across flat ground with no wind, what launch angle should you use? Why?",
-      "explanation": "45 degrees provides the maximum horizontal range. It provides the optimal balance between high vertical velocity (maximizing time in the air) and high horizontal velocity (maximizing distance covered per second).",
+      "promptQuestion": "If you want a cannonball to travel the maximum possible horizontal distance across flat ground, what launch angle should you use? Why?",
+      "explanation": "45 degrees provides the maximum horizontal range across flat ground. It creates the optimal balance between high vertical velocity (maximizing time in the air) and high horizontal velocity (maximizing distance covered per second).",
       "defaultDuration": 3
     },
     "links": {
-      "Artillery Duel Game": "Cannon_duel/index.html",
+      "Cannon Duel Game": "Cannon_duel/index.html",
+      "Day 45 Battle Ticket (Printable PDF)": "Unit_2/worksheets/Day45_Cannon_Duel_Battle_Ticket.pdf",
       "Horizontal Projectile Motion Explorer": "horizontal-projectile-motion/index.html"
     },
     "assignments": [
       {
-        "title": "Artillery Duel Trajectory Log & Strategy Writeup",
-        "url": "Cannon_duel/index.html",
-        "typeLabel": "Gamified Physics Lab",
-        "submission": "Turn In in Classroom / Notebook Check",
-        "actionLabel": "Open Artillery Duel ↗",
-        "description": "Log 5 competitive rounds, record successful trajectory solutions across wind variations, and explain angle physics.",
+        "title": "Cannon Duel Trajectory Battle Ticket",
+        "url": "Unit_2/worksheets/Day45_Cannon_Duel_Battle_Ticket.pdf",
+        "typeLabel": "In-Class Handout & 5-Shot Telemetry Log",
+        "submission": "Turn In at End of Period / Teacher Stamp",
+        "actionLabel": "Open Printable Ticket ↗",
+        "description": "Log 5 battle turns using the 📐 Measure tool (Δx, Δy, angle, speed), answer 4 physics strategy questions, and get your rival's signature.",
         "status": "active"
       }
     ],
     "resources": [
       {
-        "title": "Artillery Duel Simulator",
+        "title": "Cannon Duel Simulator",
         "url": "Cannon_duel/index.html",
-        "typeLabel": "Interactive Challenge",
-        "description": "Two-player physics artillery simulation with angle, power, and wind vector controls."
+        "typeLabel": "Interactive Simulation",
+        "description": "Two-player physics artillery simulation with angle, power, and 📐 distance/elevation measurement controls."
+      },
+      {
+        "title": "Printable Battle Ticket (HTML)",
+        "url": "Unit_2/worksheets/Day45_Cannon_Duel_Battle_Ticket.html",
+        "typeLabel": "Printable Worksheet",
+        "description": "Clean 1-page printable ticket formatted for standard Letter portrait printing."
       }
     ]
   },
