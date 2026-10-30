@@ -64,10 +64,10 @@
     </div>
 
     <div class="ctl ctl-angle">
-      <label for="angleNum">Launch angle θ</label>
+      <label for="angleNum">Launch angle θ <span class="jam-note" id="jamNote" hidden></span></label>
       <div class="ctl-row">
         <button class="nudge" data-k="angle" data-d="-0.5" aria-label="Decrease angle">−</button>
-        <input type="range" id="angleRange" min="0" max="90" step="0.5" value="45" aria-label="Launch angle slider">
+        <span class="range-wrap"><input type="range" id="angleRange" min="0" max="90" step="0.5" value="45" aria-label="Launch angle slider"><i class="jam-zone" id="jamZone"></i></span>
         <button class="nudge" data-k="angle" data-d="0.5" aria-label="Increase angle">+</button>
         <span class="num"><input type="number" id="angleNum" min="0" max="90" step="0.1" value="45"><em>°</em></span>
       </div>
@@ -87,6 +87,7 @@
       <button class="ammo-btn sel" data-ammo="std" title="Standard cannonball"><i>●</i><span>Cannonball</span><b>∞</b></button>
       <button class="ammo-btn" data-ammo="heavy" title="Bigger blast. Same path: mass doesn't change the trajectory!"><i>⬤</i><span>Heavy</span><b>2</b></button>
       <button class="ammo-btn" data-ammo="triple" title="Three balls at θ − 2.5°, θ, θ + 2.5°"><i>⁂</i><span>Triple</span><b>1</b></button>
+      <button class="ammo-btn sabo-btn" id="btnSabo"><i>🔧</i><span>Sabotage</span><b>1</b></button>
     </div>
 
     <button class="fire" id="btnFire">FIRE!</button>
@@ -132,6 +133,7 @@
         </div>
       </div>
       <label class="check"><input type="checkbox" id="optGuide" checked> Show the aiming arrow (direction only, never the path)</label>
+      <label class="check"><input type="checkbox" id="optSabo" checked> 🔧 Sabotage: once per battle, jam the other cannon so it can't fire within 10° of its last angle</label>
       <div class="btn-row">
         <button class="btn ghost" data-close>Back</button>
         <button class="btn primary" id="btnStart">Start battle!</button>
@@ -157,6 +159,13 @@
         <li>Press <b>FIRE!</b> (or Space). Each hit knocks down the other fort's health. First to 0 loses.</li>
         <li>Missed? The flag tells you how many meters <b>short</b> or <b>long</b> you landed, and a faded path shows your last shots.</li>
       </ol>
+      <h3>🔧 Sabotage (once per battle)</h3>
+      <ul>
+        <li>Click <b>🔧 Sabotage</b>, then fire. It goes along with your shot, so it doesn't cost you a turn.</li>
+        <li>On the other team's <b>next turn only</b>, their cannon can't fire within <b>10°</b> of the angle they launched at last time (exactly 10° away is OK). A red zone shows the blocked angles.</li>
+        <li>You can't use it before the other team has fired, or when they have no shots left.</li>
+        <li>Jammed? Find a new angle and a new speed that still reach the target. On level ground, θ and 90° − θ land at the same range.</li>
+      </ul>
       <h3>The physics</h3>
       <ul>
         <li>g = 10 m/s², no air resistance. The ball launches from the center (pivot) of your cannon.</li>
@@ -230,6 +239,7 @@
             <button class="btn ghost" id="btnEndRound" hidden>End round now</button>
           </div>
           <label class="check small">Shots per team <select id="hostShots"><option>6</option><option>8</option><option selected>10</option><option>12</option></select></label>
+          <label class="check small"><input type="checkbox" id="hostSabo" checked> 🔧 Sabotage</label>
           <label class="check small">Turn timer <select id="hostTimer"><option value="45">45 s</option><option value="60">60 s</option><option value="90" selected>90 s</option><option value="120">120 s</option></select></label>
         </div>
       </div>

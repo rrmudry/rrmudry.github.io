@@ -19,6 +19,27 @@
     triple: { key: 'triple', name: 'Triple Shot', icon: '⁂',   blast: 7,  dmg: 20, count: 1, spread: 2.5 },
   };
 
+  // Sabotage: once per battle a team can send a jam with any shot. On the other team's very next
+  // turn, its cannon can't fire within JAM_DEG of the angle it launched at last time (exactly
+  // JAM_DEG away is allowed). Everything is worked out from the shot list, so online play and
+  // rejoining need no extra state.
+  const JAM_DEG = 10;
+  function jamFor(shots, idx) {
+    const last = shots[shots.length - 1];
+    if (!last || last.by === idx || !last.sabotage) return null;
+    const prev = shots.filter((s) => s.by === idx && !s.skipped).pop();
+    if (!prev) return null;
+    return { idx, angle: prev.angle, lo: Math.max(0, prev.angle - JAM_DEG), hi: Math.min(90, prev.angle + JAM_DEG) };
+  }
+  const isJammed = (jam, angle) => !!jam && Math.round(Math.abs(angle - jam.angle) * 10) < JAM_DEG * 10;
+  // "θ ≤ 35.0° or θ ≥ 55.0°": the angles that are still allowed
+  function jamAllowed(jam) {
+    const parts = [];
+    if (jam.angle - JAM_DEG >= 0) parts.push(`θ ≤ ${(jam.angle - JAM_DEG).toFixed(1)}°`);
+    if (jam.angle + JAM_DEG <= 90) parts.push(`θ ≥ ${(jam.angle + JAM_DEG).toFixed(1)}°`);
+    return parts.join(' or ');
+  }
+
   const TEAM_COLORS = {
     blue:   { main: '#3b82f6', dark: '#1d4ed8', light: '#93c5fd' },
     red:    { main: '#ef4444', dark: '#b91c1c', light: '#fca5a5' },
@@ -39,6 +60,7 @@
     };
   }
   const r1 = (v) => Math.round(v * 10) / 10;
+  const deg = (v) => (Number.isInteger(r1(v)) ? r1(v).toFixed(0) : r1(v).toFixed(1)) + '°';
   const r2 = (v) => Math.round(v * 100) / 100;
 
   // ---------------------------------------------------------------- World
@@ -244,6 +266,7 @@
     explode(big) { this.noise(big ? 1.4 : 1.0, big ? 500 : 700, big ? 1.2 : 0.9); this.tone(80, 0.6, 'sine', 0.7, 30); }
     hit() { this.tone(660, 0.15, 'square', 0.12); this.tone(990, 0.25, 'square', 0.1, null, 0.1); }
     click() { this.tone(900, 0.05, 'triangle', 0.08); }
+    jam() { this.noise(0.18, 3200, 0.35, 4); this.tone(1400, 0.22, 'square', 0.06, 260, 0.04); this.tone(180, 0.12, 'square', 0.12, null, 0.12); }
     turn() { this.tone(520, 0.12, 'triangle', 0.12); this.tone(780, 0.16, 'triangle', 0.1, null, 0.09); }
     win() { [523, 659, 784, 1047].forEach((f, i) => this.tone(f, 0.35, 'triangle', 0.16, null, i * 0.13)); }
     lose() { [392, 330, 262].forEach((f, i) => this.tone(f, 0.4, 'triangle', 0.14, null, i * 0.18)); }
@@ -276,6 +299,7 @@
       this.hp = [HP_MAX, HP_MAX];
       this.aim = [{ angle: 45, speed: 40 }, { angle: 45, speed: 40 }];
       this.active = -1;           // whose barrel shows the aim guide
+      this.jam = null;            // sabotage on the active cannon this turn (from jamFor)
       this.showAimGuide = true;
       this.measure = false;
       this.recoil = [0, 0];
@@ -300,7 +324,7 @@
     setWorld(world, teams) {
       this.world = world; this.teams = teams;
       this.sound.stopWhistle();
-      this.ghosts = [[], []]; this.balls = []; this.parts = []; this.texts = []; this.markers = [];
+      this.ghosts = [[], []]; this.balls = []; this.parts = []; this.texts = []; this.markers = []; this.jam = null;
       this.winner = -1; this.clock = null; this.hp = [HP_MAX, HP_MAX];
       this.cam.s = this.cam.targetS = this.baseScale();
     }
@@ -530,6 +554,7 @@
       if (this.measure) this.drawMeasure();
       for (let i = 0; i < 2; i++) this.drawCannon(i);
       this.drawMarkers();
+      this.drawJam();
       this.drawAimGuide();
       this.drawParticles(['smoke', 'puff']);
       this.drawBalls();
@@ -679,22 +704,43 @@
       }
     }
 
+    // Sabotage: a red wedge over the blocked launch angles (shown even with the aim arrow off)
+    drawJam() {
+      const j = this.jam;
+      if (!j || this.active !== j.idx || this.balls.length || this.winner >= 0) return;
+      const ctx = this.ctx, c = this.world.cannons[j.idx];
+      const [px, py] = this.toScreen(c.x, c.y);
+      const r = Math.max(this.cam.s, 3) * 34;
+      const a0 = (j.lo * Math.PI) / 180, a1 = (j.hi * Math.PI) / 180;
+      ctx.save();
+      ctx.beginPath(); ctx.moveTo(px, py);
+      if (c.dir > 0) ctx.arc(px, py, r, -a1, -a0); else ctx.arc(px, py, r, Math.PI + a0, Math.PI + a1);
+      ctx.closePath();
+      ctx.fillStyle = `rgba(239,68,68,${0.32 + 0.1 * Math.sin(this.time * 4)})`; ctx.fill();
+      ctx.strokeStyle = '#f87171'; ctx.lineWidth = 2; ctx.setLineDash([5, 4]); ctx.stroke(); ctx.setLineDash([]);
+      // Label under the fort, where the aim labels never go
+      ctx.font = '700 12px "JetBrains Mono", monospace'; ctx.textBaseline = 'middle';
+      pill(ctx, `🔧 JAMMED ${deg(j.lo)}–${deg(j.hi)}`, px, py + Math.max(this.cam.s, 3) * 9, 0, '#fca5a5');
+      ctx.restore();
+    }
+
     drawAimGuide() {
       const i = this.active;
       if (i < 0 || !this.showAimGuide || this.balls.length || this.winner >= 0) return;
       const ctx = this.ctx, c = this.world.cannons[i], aim = this.aim[i];
+      const blocked = this.jam && this.jam.idx === i && isJammed(this.jam, aim.angle);
       const th = (aim.angle * Math.PI) / 180;
       const [px, py] = this.toScreen(c.x, c.y);
       const k = Math.max(this.cam.s, 3);
       const len = (10 + aim.speed * 0.45) * k;
       const ex = px + c.dir * Math.cos(th) * len, ey = py - Math.sin(th) * len;
       ctx.save();
-      ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = 2.5; ctx.setLineDash([7, 6]);
+      ctx.strokeStyle = blocked ? '#f87171' : 'rgba(255,255,255,0.9)'; ctx.lineWidth = 2.5; ctx.setLineDash([7, 6]);
       ctx.lineDashOffset = -this.time * 20;
       ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(ex, ey); ctx.stroke();
       ctx.setLineDash([]);
       const ah = 10;
-      ctx.fillStyle = '#fff';
+      ctx.fillStyle = blocked ? '#f87171' : '#fff';
       ctx.beginPath(); ctx.moveTo(ex, ey);
       ctx.lineTo(ex - c.dir * Math.cos(th - 0.4) * ah, ey + Math.sin(th - 0.4) * ah);
       ctx.lineTo(ex - c.dir * Math.cos(th + 0.4) * ah, ey + Math.sin(th + 0.4) * ah); ctx.fill();
@@ -867,13 +913,14 @@
   // ---------------------------------------------------------------- CPU aiming
   // Finds a speed that lands on the enemy for a chosen angle (by simulation, so hills count),
   // then adds an error that shrinks with every shot it takes.
-  function cpuAim(world, idx, diff, shotNum) {
+  // When jammed it only tries allowed angles, and a forced new angle costs it some accuracy.
+  function cpuAim(world, idx, diff, shotNum, jam) {
     const en = world.cannons[1 - idx];
     const tryAngles = [];
-    for (let a = 25; a <= 75; a += 2.5) tryAngles.push(a);
+    for (let a = jam ? 10 : 25; a <= (jam ? 80 : 75); a += 2.5) if (!isJammed(jam, a)) tryAngles.push(a);
     let best = null;
     for (const a of tryAngles) {
-      let lo = 5, hi = 90;
+      let lo = 5, hi = 80;          // the same speed limit as the slider
       for (let k = 0; k < 28; k++) {
         const m = (lo + hi) / 2, im = world.simulate(idx, a, m).impact;
         const reach = im.type === 'out' ? 1e9 : (im.x - world.cannons[idx].x) * world.cannons[idx].dir;
@@ -885,12 +932,13 @@
     }
     const spread = { easy: 0.14, medium: 0.07, hard: 0.03 }[diff] || 0.07;
     const learn = { easy: 0.85, medium: 0.7, hard: 0.55 }[diff] || 0.7;
-    const sd = spread * Math.pow(learn, shotNum);
+    const sd = spread * Math.pow(learn, Math.max(0, shotNum - (jam ? 2 : 0)));
     const gauss = () => (Math.random() + Math.random() + Math.random() - 1.5) / 0.5;
-    const angle = Math.max(5, Math.min(85, Math.round((best.a + gauss() * sd * 30) * 2) / 2));
+    let angle = Math.max(5, Math.min(85, Math.round((best.a + gauss() * sd * 30) * 2) / 2));
+    if (isJammed(jam, angle)) angle = best.a;
     const speed = Math.max(5, Math.round(best.sp * (1 + gauss() * sd) * 2) / 2);
     return { angle, speed };
   }
 
-  window.CannonEngine = { G, WORLD_W, HP_MAX, PLAYBACK, AMMO, TEAM_COLORS, World, Renderer, Sound, cpuAim, mulberry32 };
+  window.CannonEngine = { G, WORLD_W, HP_MAX, PLAYBACK, AMMO, TEAM_COLORS, JAM_DEG, World, Renderer, Sound, cpuAim, jamFor, isJammed, jamAllowed, mulberry32 };
 })();

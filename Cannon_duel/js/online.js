@@ -77,9 +77,10 @@
       App.stopDemo();
       ['menu', 'online', 'hostView', 'result'].forEach((id) => UI.hide(id));
       this.duel = new Duel({
-        seed: data.seed, teams: data.teams, controls, me: this.side,
+        seed: data.seed, teams: data.teams, controls, me: this.side, sabotage: data.sabotage !== false,
         midLabel: () => this.midLabel(),
-        onFire: (idx, angle, speed, ammo) => this.fire(idx, angle, speed, ammo),
+        turnsLeft: (j) => this.data.shotLimit - (this.data.shots || []).filter((s) => s.by === j).length,
+        onFire: (idx, angle, speed, ammo, sabo) => this.fire(idx, angle, speed, ammo, sabo),
         onOver: (w) => this.showOver(w),
       });
       App.duel = this.duel;
@@ -185,14 +186,19 @@
       });
     }
 
-    async fire(idx, angle, speed, ammo) {
+    async fire(idx, angle, speed, ammo, sabo) {
       if (this.firing || this.animating || this.data.status !== 'live' || this.data.turn !== idx) return;
       this.firing = true;
       Dock.show(Dock.idx, false, 'Firing…');
       const shot = this.duel.world.resolveShot(idx, angle, speed, ammo);
       try {
         await this.commit((d) => {
-          const rec = { ...shot, seq: d.seq + 1, by: idx, at: Date.now() };
+          // Check sabotage against the stored shots, not just this screen
+          const shots = d.shots || [];
+          if (E.isJammed(E.jamFor(shots, idx), angle)) throw new Error('jammed');
+          const canSabo = sabo && d.sabotage !== false && !shots.some((s) => s.by === idx && s.sabotage)
+            && shots.some((s) => s.by === 1 - idx && !s.skipped) && shots.filter((s) => s.by === 1 - idx).length < d.shotLimit;
+          const rec = { ...shot, seq: d.seq + 1, by: idx, at: Date.now(), sabotage: canSabo };
           const ammoLeft = d.ammo.map((a) => ({ ...a }));
           if (ammo !== 'std') ammoLeft[idx][ammo] = Math.max(0, ammoLeft[idx][ammo] - 1);
           return { ...this.nextState(d, rec), ammo: ammoLeft, craters: [...(d.craters || []), ...shot.craters] };
@@ -200,9 +206,11 @@
         // The snapshot listener replays our own stored shot, same as everyone else's.
       } catch (e) {
         this.firing = false;
-        UI.toast(e.message === 'stale' ? 'Your turn ended before that shot went through.' : 'Could not send your shot. Check your connection and fire again.');
         this.turnKey = '';
         this.pump();
+        UI.toast(e.message === 'stale' ? 'Your turn ended before that shot went through.'
+          : e.message === 'jammed' ? '🔧 That angle is jammed this turn. Pick a different one.'
+          : 'Could not send your shot. Check your connection and fire again.');
       }
     }
 
@@ -399,7 +407,7 @@
       try {
         await this.lobbyRef(code).set({
           code, hostUid: user.uid, hostName: user.displayName || 'Teacher', createdAt: Date.now(),
-          round: 0, status: 'open', shotLimit: +$('hostShots').value, turnSec: +$('hostTimer').value,
+          round: 0, status: 'open', shotLimit: +$('hostShots').value, turnSec: +$('hostTimer').value, sabotage: $('hostSabo').checked,
         });
       } catch (e) {
         console.error(e);
@@ -424,6 +432,7 @@
         this.lobby = s.data();
         $('hostShots').value = String(this.lobby.shotLimit);
         $('hostTimer').value = String(this.lobby.turnSec);
+        $('hostSabo').checked = this.lobby.sabotage !== false;
         this.refreshHost();
       }));
       this.unsubs.push(ref.collection('teams').onSnapshot((qs) => { this.teams = qs.docs.map((d) => d.data()); this.refreshHost(); }));
@@ -536,7 +545,7 @@
       try {
         if (live.length) await this.endRound();
         const round = L.round + 1;
-        const shotLimit = +$('hostShots').value, turnSec = +$('hostTimer').value;
+        const shotLimit = +$('hostShots').value, turnSec = +$('hostTimer').value, sabotage = $('hostSabo').checked;
         const { pairs, bye } = this.pairUp(ready);
         const b = db.batch();
         const mk = (k, a, c, cpu) => {
@@ -546,13 +555,13 @@
           b.set(this.lobbyRef().collection('matches').doc(`r${round}_${k}`), clean({
             round, seed: (Math.random() * 2 ** 32) >>> 0, teams, uids: teams.map((t) => t.uid).filter((u) => u !== 'cpu'), cpu: !!cpu,
             hp: [E.HP_MAX, E.HP_MAX], ammo: [0, 1].map(() => ({ heavy: E.AMMO.heavy.count, triple: E.AMMO.triple.count })),
-            craters: [], shots: [], seq: 0, turn: cpu ? 0 : first, turnStartedAt: Date.now() + 4000, shotLimit, turnSec,
+            craters: [], shots: [], seq: 0, turn: cpu ? 0 : first, turnStartedAt: Date.now() + 4000, shotLimit, turnSec, sabotage,
             status: 'live', winner: null, createdAt: Date.now(), updatedAt: Date.now(),
           }));
         };
         pairs.forEach(([a, c], k) => mk(k + 1, a, c, false));
         if (bye) mk(pairs.length + 1, bye, { uid: 'cpu', name: 'Cannonbot', color: 'red', diff: 'medium' }, true);
-        b.update(this.lobbyRef(), { round, status: 'playing', shotLimit, turnSec });
+        b.update(this.lobbyRef(), { round, status: 'playing', shotLimit, turnSec, sabotage });
         await b.commit();
         UI.toast(`Round ${round} started: ${pairs.length} battle${pairs.length === 1 ? '' : 's'}${bye ? ` + ${bye.name} vs Cannonbot` : ''}.`);
       } catch (e) {
@@ -583,8 +592,8 @@
   $('btnEndRound').addEventListener('click', () => { if (confirm('End every battle in this round now? Most health left wins.')) Online.endRound(); });
   $('btnHostClose').addEventListener('click', () => Online.closeLobby());
   $('btnHostPanel').addEventListener('click', () => Online.backToLobby());
-  ['hostShots', 'hostTimer'].forEach((id) => $(id).addEventListener('change', () => {
-    if (Online.role === 'host') Online.lobbyRef().update({ shotLimit: +$('hostShots').value, turnSec: +$('hostTimer').value }).catch(() => {});
+  ['hostShots', 'hostTimer', 'hostSabo'].forEach((id) => $(id).addEventListener('change', () => {
+    if (Online.role === 'host') Online.lobbyRef().update({ shotLimit: +$('hostShots').value, turnSec: +$('hostTimer').value, sabotage: $('hostSabo').checked }).catch(() => {});
   }));
 
   if (typeof firebase !== 'undefined' && firebase.firestore) {

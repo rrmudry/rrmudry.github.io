@@ -39,8 +39,8 @@ function walk(dir, out = []) {
 function parseRules() {
   const src = fs.readFileSync(path.join(ROOT, 'firestore.rules'), 'utf8');
   const covered = new Set();
-  // top-level collection match blocks: match /name/{x} { ...body... }
-  const re = /match\s+\/([A-Za-z_][\w-]*)\/\{[^}]+\}\s*\{([\s\S]*?)\n\s{4}\}/g;
+  // match blocks: match /name/{x} or nested subcollections like /parent/{p}/sub/{x}
+  const re = /match\s+\/(?:[\w-]+\/\{[^}]+\}\/)*([\w-]+)\/\{[^}]+\}\s*\{([\s\S]*?)\n\s*\}/g;
   for (const m of src.matchAll(re)) {
     const body = m[2];
     // covered if any allow line is not purely isAdmin()

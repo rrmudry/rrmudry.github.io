@@ -5118,12 +5118,12 @@ const lessonsData = [
     },
     "assignments": [
       {
-        "title": "Cannon Duel Trajectory Battle Ticket",
+        "title": "Cannon Duel Battle Card",
         "url": "Unit_2/worksheets/Day45_Cannon_Duel_Battle_Ticket.pdf",
-        "typeLabel": "In-Class Handout & 5-Shot Telemetry Log",
+        "typeLabel": "In-Class Handout & 5-Shot Battle Log",
         "submission": "Turn In at End of Period / Teacher Stamp",
         "actionLabel": "Open Printable Ticket ↗",
-        "description": "Log 5 battle turns using the 📐 Measure tool (Δx, Δy, angle, speed), answer 4 physics strategy questions, and get your rival's signature.",
+        "description": "Log 5 battle shots with your rival (angle, speed, hit/miss), answer 2 quick physics strategy questions, and earn a partner signature and teacher stamp.",
         "status": "active"
       }
     ],
