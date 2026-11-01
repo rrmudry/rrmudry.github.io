@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cannon Duel 3D</title>
+  <meta name="description" content="Projectile motion cannon battle: set the launch angle and launch speed, fire across the valley, and knock out the other team. Single player, two players on one device, or online class battles.">
+  <link rel="icon" type="image/png" href="../head.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Lilita+One&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>#cv3d { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }</style>
+
+  <!-- Firebase (compat SDK, same as the rest of the site); only Online mode uses it -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    // ?mock=1&user=name swaps in a local stand-in for Firebase so online play can be tested
+    // across browser tabs without signing in. Real games never load it.
+    if (new URLSearchParams(location.search).has('mock')) document.write('<script src="js/mock-firebase.js"><\/script>');
+  </script>
+  <script src="../assets/ngss-helper.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <button class="logo" id="btnLogo" title="Main menu">💥 <span>Cannon Duel</span></button>
+    <div class="hud" id="hud">
+      <div class="hud-team" id="hud0"><span class="chip"></span><span class="nm"></span><div class="hp"><i></i></div><b class="hpn"></b></div>
+      <div class="hud-mid" id="hudMid">VS</div>
+      <div class="hud-team right" id="hud1"><b class="hpn"></b><div class="hp"><i></i></div><span class="nm"></span><span class="chip"></span></div>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" id="btnHostPanel" hidden title="Back to the host panel">🛰️ Host panel</button>
+      <button class="icon-btn" id="btnMeasure" title="Show Δx and Δy between the cannons">📐</button>
+      <button class="icon-btn" id="btnHelp" title="How to play">❓</button>
+      <button class="icon-btn" id="btnSound" title="Sound on/off">🔊</button>
+    </div>
+  </header>
+
+  <main id="stage">
+    <canvas id="cv"></canvas>
+    <div id="banner" class="banner"></div>
+    <div id="toast" class="toast"></div>
+  </main>
+
+  <!-- Aiming dock -->
+  <section id="dock" class="dock" hidden>
+    <div class="who" id="who">
+      <span class="chip" id="whoChip"></span>
+      <div><div class="who-name" id="whoName"></div><div class="who-sub" id="whoSub"></div></div>
+      <div class="timer" id="timer" hidden></div>
+    </div>
+
+    <div class="ctl ctl-angle">
+      <label for="angleNum">Launch angle θ <span class="jam-note" id="jamNote" hidden></span></label>
+      <div class="ctl-row">
+        <button class="nudge" data-k="angle" data-d="-0.5" aria-label="Decrease angle">−</button>
+        <span class="range-wrap"><input type="range" id="angleRange" min="0" max="90" step="0.5" value="45" aria-label="Launch angle slider"><i class="jam-zone" id="jamZone"></i></span>
+        <button class="nudge" data-k="angle" data-d="0.5" aria-label="Increase angle">+</button>
+        <span class="num"><input type="number" id="angleNum" min="0" max="90" step="0.1" value="45"><em>°</em></span>
+      </div>
+    </div>
+
+    <div class="ctl ctl-speed">
+      <label for="speedNum">Launch speed v<sub>0</sub></label>
+      <div class="ctl-row">
+        <button class="nudge" data-k="speed" data-d="-0.5" aria-label="Decrease speed">−</button>
+        <input type="range" id="speedRange" min="5" max="80" step="0.5" value="40" aria-label="Launch speed slider">
+        <button class="nudge" data-k="speed" data-d="0.5" aria-label="Increase speed">+</button>
+        <span class="num"><input type="number" id="speedNum" min="5" max="80" step="0.1" value="40"><em>m/s</em></span>
+      </div>
+    </div>
+
+    <div class="ammo" id="ammo">
+      <button class="ammo-btn sel" data-ammo="std" title="Standard cannonball"><i>●</i><span>Cannonball</span><b>∞</b></button>
+      <button class="ammo-btn" data-ammo="heavy" title="Bigger blast. Same path: mass doesn't change the trajectory!"><i>⬤</i><span>Heavy</span><b>2</b></button>
+      <button class="ammo-btn" data-ammo="triple" title="Three balls at θ − 2.5°, θ, θ + 2.5°"><i>⁂</i><span>Triple</span><b>1</b></button>
+      <button class="ammo-btn sabo-btn" id="btnSabo"><i>🔧</i><span>Sabotage</span><b>1</b></button>
+    </div>
+
+    <button class="fire" id="btnFire"><span class="on" data-l="fire">FIRE!</span><span data-l="sabo">FIRE + 🔧</span><span data-l="jam">JAMMED</span></button>
+
+    <div class="intel">
+      <div class="recon" id="recon"></div>
+      <table class="log" id="shotLog">
+        <thead><tr><th>θ</th><th>v<sub>0</sub></th><th>Result</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ Overlays ============ -->
+  <div class="overlay" id="menu">
+    <div class="menu-card">
+      <h1 class="title">Cannon <span>Duel 3D</span></h1>
+      <p class="tag">Projectile motion, but make it explosive. Set your angle and launch speed, then blast the other fort!</p>
+      <div class="modes">
+        <button class="mode" id="modeCpu"><i>🤖</i><b>Single Player</b><span>Battle Cannonbot</span></button>
+        <button class="mode" id="modeLocal"><i>👥</i><b>Two Players</b><span>Take turns on one device</span></button>
+        <button class="mode online" id="modeOnline"><i>🌐</i><b>Class Battle</b><span>Online lobby: teams on their own computers</span></button>
+      </div>
+      <div class="menu-foot">
+        <button class="link" id="menuHelp">How to play</button>
+        <span>·</span>
+        <a class="link" href="index.html">2D version</a>
+        <span>·</span>
+        <a class="link" href="../games.html">More games</a>
+      </div>
+      <div class="ngss" data-ngss="HS-PS2-1"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="setup" hidden>
+    <div class="panel-card">
+      <h2 id="setupTitle">Single Player</h2>
+      <div class="team-setup" id="setupTeams"></div>
+      <div class="field" id="diffField">
+        <span class="lbl">Cannonbot difficulty</span>
+        <div class="seg" id="diffSeg">
+          <button data-v="easy">🙂 Easy</button><button data-v="medium" class="sel">😎 Medium</button><button data-v="hard">🤖 Hard</button>
+        </div>
+      </div>
+      <label class="check"><input type="checkbox" id="optGuide" checked> Show the aiming arrow (direction only, never the path)</label>
+      <p class="lb-status" id="lbStatus" hidden></p>
+      <label class="check"><input type="checkbox" id="optSabo" checked> 🔧 Sabotage: once per battle, jam the other cannon so it can't fire within 10° of its last angle</label>
+      <div class="btn-row">
+        <button class="btn ghost" data-close>Back</button>
+        <button class="btn primary" id="btnStart">Start battle!</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="result" hidden>
+    <div class="panel-card result">
+      <div class="trophy" id="resTrophy">🏆</div>
+      <h2 id="resTitle"></h2>
+      <p id="resSub" class="muted"></p>
+      <div class="res-stats" id="resStats"></div>
+      <div class="btn-row" id="resBtns"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="help" hidden>
+    <div class="panel-card help">
+      <h2>How to play</h2>
+      <ol>
+        <li>Set your <b>launch angle θ</b> and <b>launch speed v<sub>0</sub></b> with the sliders, the ± buttons, the arrow keys, or by typing exact numbers.</li>
+        <li>Press <b>FIRE!</b> (or Space). Each hit knocks down the other fort's health. First to 0 loses.</li>
+        <li>Missed? The flag tells you how many meters <b>short</b> or <b>long</b> you landed, and a faded path shows your last shots.</li>
+      </ol>
+      <h3>🔧 Sabotage (once per battle)</h3>
+      <ul>
+        <li>Click <b>🔧 Sabotage</b>, then fire. It goes along with your shot, so it doesn't cost you a turn.</li>
+        <li>On the other team's <b>next turn only</b>, their cannon can't fire within <b>10°</b> of the angle they launched at last time (exactly 10° away is OK). A red zone shows the blocked angles.</li>
+        <li>You can't use it before the other team has fired, or when they have no shots left.</li>
+        <li>Jammed? Find a new angle and a new speed that still reach the target. On level ground, θ and 90° − θ land at the same range.</li>
+      </ul>
+      <h3>The physics</h3>
+      <ul>
+        <li>g = 10 m/s², no air resistance. The ball launches from the center (pivot) of your cannon.</li>
+        <li><b>Recon</b> (and the 📐 button) gives Δx and Δy from your pivot to the enemy's pivot.</li>
+        <li>Every ammo type follows the <b>same path</b> for the same θ and v<sub>0</sub>: mass doesn't change a projectile's trajectory.</li>
+        <li>Want a first-shot hit? Use <span class="nw">x = v<sub>0</sub>cosθ · t</span> and <span class="nw">y = v<sub>0</sub>sinθ · t − ½gt²</span>.</li>
+      </ul>
+      <p class="muted">Keys: ←/→ angle, ↑/↓ speed (hold Shift for 0.1 steps), Space to fire.</p>
+      <div class="btn-row"><button class="btn primary" data-close>Got it</button></div>
+    </div>
+  </div>
+
+  <!-- Online: sign in, join, team lobby -->
+  <div class="overlay" id="online" hidden>
+    <div class="panel-card online-card">
+      <div id="onSignIn" class="on-step">
+        <h2>🌐 Class Battle</h2>
+        <p>Each team plays from its own computer. One teammate signs in with a school Google account.</p>
+        <p class="err" id="onErr"></p>
+        <div class="btn-row">
+          <button class="btn ghost" data-close>Back</button>
+          <button class="btn primary" id="btnOnSignIn">Sign in with Google</button>
+        </div>
+      </div>
+
+      <div id="onJoin" class="on-step" hidden>
+        <h2>Join the battle</h2>
+        <p class="muted" id="onWho"></p>
+        <div class="field"><span class="lbl">Game code (from your teacher's screen)</span>
+          <input type="text" id="joinCode" maxlength="4" autocomplete="off" placeholder="ABCD" class="code-input"></div>
+        <div class="field"><span class="lbl">Team name</span>
+          <input type="text" id="joinName" maxlength="22" placeholder="The Parabolas"></div>
+        <div class="field"><span class="lbl">Team members (first names)</span>
+          <input type="text" id="joinMembers" maxlength="60" placeholder="Ana, Ben, Chris"></div>
+        <div class="field"><span class="lbl">Team color</span><div class="colors" id="joinColors"></div></div>
+        <p class="err" id="joinErr"></p>
+        <div class="btn-row">
+          <button class="btn ghost" id="btnOnSignOut">Sign out</button>
+          <button class="btn host" id="btnHost" hidden>🛰️ Host a lobby</button>
+          <button class="btn primary" id="btnJoin">Join</button>
+        </div>
+      </div>
+
+      <div id="onLobby" class="on-step" hidden>
+        <div class="lobby-head">
+          <h2 id="lobbyTitle">Lobby</h2>
+          <span class="code-pill" id="lobbyCode"></span>
+        </div>
+        <p class="lobby-status" id="lobbyStatus"></p>
+        <div class="lobby-cols">
+          <div><h3>Teams here</h3><ul class="team-list" id="lobbyTeams"></ul></div>
+          <div><h3>Standings</h3><table class="standings" id="lobbyStandings"></table></div>
+        </div>
+        <div class="btn-row"><button class="btn ghost" id="btnLeave">Leave lobby</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Online: teacher's host panel -->
+  <div class="overlay host-overlay" id="hostView" hidden>
+    <div class="host-card">
+      <div class="host-top">
+        <div>
+          <div class="muted">Join at <b id="hostUrl"></b> with code</div>
+          <div class="big-code" id="hostCode"></div>
+        </div>
+        <div class="host-round">
+          <div id="hostRoundLbl" class="round-lbl">Round 0</div>
+          <div class="btn-row tight">
+            <button class="btn primary" id="btnRound">Pair teams &amp; start round 1</button>
+            <button class="btn ghost" id="btnEndRound" hidden>End round now</button>
+          </div>
+          <label class="check small">Shots per team <select id="hostShots"><option>6</option><option>8</option><option selected>10</option><option>12</option></select></label>
+          <label class="check small"><input type="checkbox" id="hostSabo" checked> 🔧 Sabotage</label>
+          <label class="check small">Turn timer <select id="hostTimer"><option value="45">45 s</option><option value="60">60 s</option><option value="90" selected>90 s</option><option value="120">120 s</option></select></label>
+        </div>
+      </div>
+      <div class="host-cols">
+        <div><h3>Teams (<span id="hostTeamCount">0</span>)</h3><ul class="team-list" id="hostTeams"></ul></div>
+        <div><h3>Matches</h3><div class="match-grid" id="hostMatches"><p class="muted">Start a round to pair teams.</p></div></div>
+        <div><h3>Standings</h3><table class="standings" id="hostStandings"></table></div>
+      </div>
+      <div class="btn-row"><a class="btn ghost" href="leaderboard.html" target="_blank" rel="noopener">🏆 Leaderboard</a><button class="btn ghost" id="btnHostClose">Close lobby &amp; exit</button></div>
+    </div>
+  </div>
+
+  <!-- three.js version: same game scripts, with js/engine3d.js swapping in a WebGL renderer -->
+  <script type="importmap">
+    { "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    } }
+  </script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+    Object.assign(window, { THREE, GLTFLoader, RoomEnvironment });
+    // The game scripts are classic scripts that expect THREE to exist, so load them in order now
+    for (const src of ['js/engine.js', 'js/engine3d.js', 'js/game.js', 'js/results.js', 'js/online.js']) {
+      await new Promise((ok, fail) => {
+        const el = document.createElement('script');
+        el.src = src; el.onload = ok; el.onerror = fail;
+        document.body.appendChild(el);
+      });
+    }
+  </script>
+</body>
+</html>
