@@ -106,7 +106,9 @@
       }
       const fire = $('btnFire');
       fire.disabled = !this.enabled || blocked;
-      fire.textContent = blocked && this.enabled ? 'JAMMED' : this.saboArmed ? 'FIRE + 🔧' : 'FIRE!';
+      // All three labels sit in the button; only one shows, so its width (and the dock layout) never changes
+      const label = blocked && this.enabled ? 'jam' : this.saboArmed ? 'sabo' : 'fire';
+      fire.querySelectorAll('span').forEach((el) => el.classList.toggle('on', el.dataset.l === label));
       fire.classList.toggle('armed', this.saboArmed);
     },
     writeInputs(angle, speed) {
