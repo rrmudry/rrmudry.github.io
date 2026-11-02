@@ -1,7 +1,7 @@
 # Low-Stress Worksheet Generator Skill Pattern
 
-> **Tags**: `worksheet`, `printable`, `pdf`, `cognitive-load`, `atomic-container`, `split-attention`, `skill`, `python-renderer`, `no-latex`  
-> **Last Updated**: 2026-10-25
+> **Tags**: `worksheet`, `printable`, `pdf`, `cognitive-load`, `atomic-container`, `split-attention`, `skill`, `python-renderer`, `no-latex`, `guided-notes`  
+> **Last Updated**: 2026-11-02
 
 ---
 
@@ -126,4 +126,21 @@ Derived from empirical print inspections of `Sea_Floor_Example_3` and `Newtons_2
 15. **Synchronized Numeric Precision Between Tables and Prompts**: Number formatting applied to data table cells must strictly match question text and prompt citations. If a trial data point has 2 decimal places of precision (e.g., `2.75 mL/s` in Chemical Kinetics Trial 5), Table 1 must render `2.75` (never truncating to `2.8` while Question 5 cites `2.75 mL/s`).
 16. **Standardized Symmetrical Blank Substitution Fractions**: Blank fraction fill-in slots in calculation boxes must follow clean, symmetrical formatting: `= ( ____ − ____ ) / ( ____ − ____ )`. Workspace scratch watermark must read `"Show work: substitution, arithmetic & unit simplification"`.
 17. **Chemical Equation Reaction String & Case-Sensitive Title Preservation**: Remove stray characters and ensure proper punctuation in chemical reactions (`+ Heat.`). Never apply `text-transform: uppercase` to table banners or captions containing chemical formulas, ensuring elements like `HCl` or `NaCl` do not corrupt into `HCL` or `NACL`.
+
+---
+
+## 8. Slide-Deck Follow-Along Guided Notes Architecture
+
+When creating a follow-along guided notes worksheet accompanying an instructor PowerPoint/PDF presentation (e.g., `Unit_2/worksheets/Day46_Angled_Projectiles_Guided_Notes.html`):
+
+1. **1:1 Symbol & Spatial Parity with Projected Slides**:
+   - Preserve the instructor's exact variable symbols and constants from the slides (e.g., `X`<sub>`o`</sub>, `X`<sub>`f`</sub>, `v`<sub>`oy`</sub>, `v`<sub>`ox`</sub>, `ΔX`, `a = −10 m/s²`) rather than substituting generic textbook notation (`y₀`, `−9.8 m/s²`).
+   - Mirror the slide's left/right spatial layout inside calculation cards (e.g., extracted givens column on the left, master equation and algebra workspace on the right) so students never pay a mental translation cost while copying from the board.
+2. **Horizontal-Only Diagram Fill-In Slots**:
+   - In right-triangle or vector SVG diagrams, always orient student fill-in lines and symbol boxes **horizontally** (`0°` rotation) with subtle pointer lines to slanted vectors rather than rotating text blanks along the hypotenuse, so students never have to tilt their paper sideways to write.
+3. **Slide-Range Anchor Pills**:
+   - Include subtle pill badges (`Slides 2–4`, `Slides 5–9`, `Slides 10–22`, `Slides 26–28`) in card headers so students who briefly look down can immediately re-anchor to the projected slide.
+4. **Isolated Headless Chrome PDF Verification**:
+   - On Windows, render companion `.pdf` files via `chrome.exe --headless=new --disable-gpu --user-data-dir=<temp> --no-pdf-header-footer --print-to-pdf=<out.pdf> <file:///...html>` using `Start-Process -Wait`, then visually inspect every rendered PDF page screenshot (`read_file` on the `.pdf`) to confirm exact page count ($\le 2$ pages), zero footer descender clipping (`padding-bottom: 3px`), and generous whitespace.
+
 

@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 46: Angled Projectiles Follow-Along Guided Notes</title>
+  <style>
+    @page {
+      size: letter portrait;
+      margin: 0.34in 0.44in;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 10.5pt;
+      line-height: 1.4;
+      color: #0f172a;
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+      font-variant-numeric: normal;
+      font-feature-settings: "zero" 0;
+    }
+
+    /* Screen preview presentation */
+    @media screen {
+      body {
+        background: #cbd5e1;
+        padding: 24px 12px 40px 12px;
+      }
+      .worksheet-page {
+        width: 8.5in;
+        height: 11in;
+        max-height: 11in;
+        padding: 0.34in 0.44in;
+        margin: 0 auto 28px auto;
+        background: #ffffff;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+        border-radius: 4px;
+      }
+    }
+
+    /* Strict 2-page print budget */
+    .worksheet-page {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      background: #ffffff;
+      page-break-after: always;
+      break-after: page;
+    }
+
+    .worksheet-page:last-child {
+      page-break-after: avoid;
+      break-after: auto;
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+        margin: 0;
+        padding: 0;
+      }
+      .print-toolbar {
+        display: none !important;
+      }
+      .worksheet-page {
+        width: 100%;
+        height: 10.24in;
+        max-height: 10.24in;
+        padding: 0;
+        margin: 0;
+        box-shadow: none;
+      }
+    }
+
+    /* Screen-only Print Toolbar */
+    .print-toolbar {
+      position: fixed;
+      top: 14px;
+      right: 18px;
+      z-index: 1000;
+      display: flex;
+      gap: 8px;
+    }
+
+    .print-btn {
+      background: #0f172a;
+      color: #ffffff;
+      border: 1.5px solid #0f172a;
+      padding: 9px 16px;
+      font-size: 10pt;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+    }
+
+    .print-btn:hover {
+      background: #1e293b;
+    }
+
+    /* Math variable typography (No LaTeX, unslashed zeros, clean subscripts) */
+    .mv {
+      font-family: Georgia, "Cambria Math", "Times New Roman", serif;
+      font-style: italic;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .mv sub, .mv sup {
+      font-style: italic;
+      font-size: 0.74em;
+      line-height: 0;
+    }
+
+    .mnum {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-style: normal;
+      font-weight: 700;
+      font-variant-numeric: normal;
+      font-feature-settings: "zero" 0;
+    }
+
+    /* Clean vertical stacked fraction */
+    .vfrac {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      vertical-align: middle;
+      margin: 0 3px;
+      line-height: 1.1;
+    }
+
+    .vfrac .num {
+      border-bottom: 1.6px solid #0f172a;
+      padding: 0 5px 2px 5px;
+      text-align: center;
+      min-width: 20px;
+    }
+
+    .vfrac .den {
+      padding: 2px 5px 0 5px;
+      text-align: center;
+      min-width: 20px;
+    }
+
+    /* Page 1 Header */
+    .sheet-header {
+      border-bottom: 2.2px solid #0f172a;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .header-title {
+      font-size: 15.5pt;
+      font-weight: 900;
+      color: #0f172a;
+      margin: 0;
+      letter-spacing: -0.015em;
+      line-height: 1.15;
+    }
+
+    .header-sub {
+      font-size: 8.8pt;
+      font-weight: 700;
+      color: #334155;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-top: 2px;
+    }
+
+    .ngss-pill {
+      font-size: 8.5pt;
+      font-weight: 800;
+      border: 1.5px solid #0f172a;
+      background: #f8fafc;
+      padding: 3px 9px;
+      border-radius: 5px;
+      white-space: nowrap;
+    }
+
+    .student-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      font-size: 10pt;
+      font-weight: 700;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .write-line {
+      display: inline-block;
+      border-bottom: 1.5px solid #0f172a;
+      height: 18px;
+      vertical-align: baseline;
+    }
+
+    /* Page 2 Compact Single-Line Running Header */
+    .running-header {
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 5px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 9.2pt;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    /* Atomic Section Cards */
+    .note-card {
+      border: 1.6px solid #0f172a;
+      border-radius: 8px;
+      background: #ffffff;
+      overflow: hidden;
+      break-inside: avoid;
+      page-break-inside: avoid;
+      margin-bottom: 11px;
+    }
+
+    .card-header {
+      background: #f1f5f9;
+      border-bottom: 1.5px solid #0f172a;
+      padding: 6px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title {
+      font-size: 10.5pt;
+      font-weight: 900;
+      color: #0f172a;
+      letter-spacing: 0.01em;
+    }
+
+    .slide-tag {
+      font-size: 8.2pt;
+      font-weight: 800;
+      color: #334155;
+      background: #ffffff;
+      border: 1.2px solid #475569;
+      padding: 1px 8px;
+      border-radius: 99px;
+    }
+
+    .card-body {
+      padding: 11px 14px;
+    }
+
+    /* Fill-in blanks & symbol boxes */
+    .blank-line {
+      display: inline-block;
+      border-bottom: 1.8px solid #0f172a;
+      min-width: 1.45in;
+      height: 22px;
+      margin: 0 4px;
+      vertical-align: baseline;
+    }
+
+    .sym-box {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 0.72in;
+      height: 0.36in;
+      border: 1.6px solid #0f172a;
+      border-radius: 5px;
+      background: #ffffff;
+      vertical-align: middle;
+    }
+
+    .frac-slot {
+      display: inline-block;
+      width: 0.56in;
+      height: 0.28in;
+      border: 1.4px dashed #334155;
+      border-radius: 4px;
+      background: #ffffff;
+    }
+
+    /* Summary Box */
+    .summary-banner {
+      border: 2px solid #0f172a;
+      border-radius: 7px;
+      background: #f8fafc;
+      padding: 9px 14px;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .summary-pill {
+      flex: 1;
+      background: #ffffff;
+      border: 1.6px solid #0f172a;
+      border-radius: 6px;
+      padding: 7px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 11.5pt;
+      font-weight: 800;
+    }
+
+    /* Page 2 Problem Banner */
+    .problem-banner {
+      border: 2px solid #0f172a;
+      border-radius: 8px;
+      background: #f8fafc;
+      padding: 9px 14px;
+      margin-bottom: 11px;
+      display: grid;
+      grid-template-columns: 1fr 185px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    /* Step Cards on Page 2 */
+    .step-badge {
+      background: #0f172a;
+      color: #ffffff;
+      font-size: 9pt;
+      font-weight: 900;
+      padding: 2px 9px;
+      border-radius: 4px;
+      margin-right: 7px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .answer-box {
+      border: 2px solid #0f172a;
+      border-radius: 6px;
+      background: #f8fafc;
+      padding: 5px 11px;
+      display: inline-flex;
+      align-items: baseline;
+      gap: 6px;
+      font-size: 11pt;
+      font-weight: 800;
+    }
+
+    /* Footer */
+    .page-footer {
+      border-top: 1.4px solid #cbd5e1;
+      padding-top: 4px;
+      padding-bottom: 3px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 8.3pt;
+      line-height: 1.3;
+      font-weight: 700;
+      color: #475569;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="print-toolbar">
+    <button class="print-btn" onclick="window.print()">🖨️ Print Guided Notes (2 Pages)</button>
+  </div>
+
+  <!-- =====================================================================
+       PAGE 1: CONCEPTS, HANG TIME & TRIGONOMETRY (SLIDES 1–22)
+       ===================================================================== -->
+  <div class="worksheet-page">
+    <div>
+      <!-- Header -->
+      <header class="sheet-header">
+        <div class="header-top">
+          <div>
+            <h1 class="header-title">What Happens When We Shoot at Angles?</h1>
+            <div class="header-sub">Unit 2: 2D Projectile Motion &bull; Follow-Along Guided Notes</div>
+          </div>
+          <div class="ngss-pill">NGSS HS-PS2-1 &bull; Page 1 of 2</div>
+        </div>
+        <div class="student-meta">
+          <div class="meta-item" style="flex: 1.6;">
+            <span>Name:</span>
+            <span class="write-line" style="flex: 1;"></span>
+          </div>
+          <div class="meta-item" style="flex: 0.6;">
+            <span>Period:</span>
+            <span class="write-line" style="flex: 1;"></span>
+          </div>
+          <div class="meta-item" style="flex: 0.8;">
+            <span>Date:</span>
+            <span class="write-line" style="flex: 1;"></span>
+          </div>
+        </div>
+      </header>
+
+      <!-- PART 1: HOW THINGS FALL & HORIZONTAL VS VERTICAL -->
+      <section class="note-card">
+        <div class="card-header">
+          <span class="card-title">Part 1: Horizontal &amp; Vertical Motion</span>
+          <span class="slide-tag">Slides 2–4</span>
+        </div>
+        <div class="card-body" style="display: grid; grid-template-columns: 205px 1fr; gap: 16px; align-items: center;">
+          <!-- Diagram matching Slides 2-4 -->
+          <div style="border: 1.3px solid #cbd5e1; border-radius: 6px; padding: 6px; background: #fafafa;">
+            <svg viewBox="0 0 200 108" width="100%" height="96" style="display: block;">
+              <!-- Left Cliff -->
+              <rect x="6" y="22" width="32" height="76" fill="#e2e8f0" stroke="#0f172a" stroke-width="1.5"/>
+              <!-- Ground -->
+              <line x1="4" y1="98" x2="196" y2="98" stroke="#0f172a" stroke-width="2"/>
+              <!-- Cannon -->
+              <circle cx="24" cy="18" r="4.5" fill="#334155"/>
+              <rect x="22" y="11" width="16" height="5" rx="1.5" fill="#0f172a"/>
+              <!-- Parabolic Trajectory -->
+              <path d="M 40,13 Q 104,13 156,96" fill="none" stroke="#64748b" stroke-width="1.4" stroke-dasharray="4,3"/>
+              <!-- Strobe Balls + Growing Downward Gravity Arrows (1x, 2x, 3x matching Slide 2) -->
+              <circle cx="40" cy="13" r="3.3" fill="#0f172a"/>
+              <!-- Ball 2 (1x arrow) -->
+              <circle cx="72" cy="19" r="3.3" fill="#0f172a"/>
+              <line x1="72" y1="23" x2="72" y2="33" stroke="#0284c7" stroke-width="2"/>
+              <polygon points="69,32 75,32 72,37" fill="#0284c7"/>
+              <!-- Ball 3 (2x arrow) -->
+              <circle cx="104" cy="36" r="3.3" fill="#0f172a"/>
+              <line x1="104" y1="40" x2="104" y2="59" stroke="#b91c1c" stroke-width="2"/>
+              <polygon points="101,58 107,58 104,63" fill="#b91c1c"/>
+              <!-- Ball 4 (3x arrow - longest!) -->
+              <circle cx="134" cy="63" r="3.3" fill="#0f172a"/>
+              <line x1="134" y1="67" x2="134" y2="93" stroke="#15803d" stroke-width="2.2"/>
+              <polygon points="131,92 137,92 134,97" fill="#15803d"/>
+              <!-- Right Drop Column (Slide 3) -->
+              <line x1="180" y1="13" x2="180" y2="96" stroke="#94a3b8" stroke-width="1" stroke-dasharray="2,2"/>
+              <circle cx="180" cy="13" r="2.8" fill="#475569"/>
+              <circle cx="180" cy="19" r="2.8" fill="#475569"/>
+              <circle cx="180" cy="36" r="2.8" fill="#475569"/>
+              <circle cx="180" cy="63" r="2.8" fill="#475569"/>
+              <text x="163" y="9" font-size="7.5" font-weight="700" fill="#334155" font-family="sans-serif">Drop</text>
+            </svg>
+          </div>
+
+          <!-- Spacious Fill-in Key Rules -->
+          <div style="display: flex; flex-direction: column; gap: 11px; font-size: 10.5pt;">
+            <div>
+              <strong>&bull; How Things Fall:</strong> Gravity pulls straight <strong>downward</strong>, so a falling projectile gains more downward vertical speed every second.
+            </div>
+            <div>
+              <strong>&bull; Key Rule 1:</strong> Remember you treat <strong>vertical</strong> and <strong>horizontal</strong> motion <span class="blank-line" style="min-width: 1.6in;"></span>.
+            </div>
+            <div>
+              <strong>&bull; Key Rule 2:</strong> The cannon ball will continue moving <strong>to the side</strong> for as long as it is <span class="blank-line" style="min-width: 1.7in;"></span>.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PART 2: 3 THINGS THAT DETERMINE HANG TIME -->
+      <section class="note-card">
+        <div class="card-header">
+          <span class="card-title">Part 2: 3 Things Determine How Long a Projectile Is in the Air</span>
+          <span class="slide-tag">Slides 5–9</span>
+        </div>
+        <div class="card-body" style="display: grid; grid-template-columns: 205px 1fr; gap: 16px; align-items: center;">
+          <!-- Cliff Diagram with X_o and X_f label slots matching Slides 6-9 -->
+          <div style="border: 1.3px solid #cbd5e1; border-radius: 6px; padding: 6px; background: #fafafa;">
+            <svg viewBox="0 0 200 124" width="100%" height="114" style="display: block;">
+              <!-- Top & Bottom Label Fill-in Boxes on Diagram -->
+              <rect x="4" y="14" width="34" height="22" rx="3" fill="#ffffff" stroke="#0f172a" stroke-width="1.4" stroke-dasharray="3,2"/>
+              <rect x="4" y="84" width="34" height="22" rx="3" fill="#ffffff" stroke="#0f172a" stroke-width="1.4" stroke-dasharray="3,2"/>
+              <!-- Height Extension Line & Double Arrow -->
+              <line x1="41" y1="25" x2="62" y2="25" stroke="#0284c7" stroke-width="1.8"/>
+              <line x1="50" y1="29" x2="50" y2="99" stroke="#0284c7" stroke-width="2"/>
+              <polygon points="46,32 54,32 50,25" fill="#0284c7"/>
+              <polygon points="46,96 54,96 50,103" fill="#0284c7"/>
+              <!-- Cliff -->
+              <rect x="64" y="25" width="36" height="79" fill="#e2e8f0" stroke="#0f172a" stroke-width="1.5"/>
+              <!-- Ground Bar -->
+              <rect x="42" y="104" width="152" height="10" fill="#cbd5e1" stroke="#0f172a" stroke-width="1.4"/>
+              <!-- Cannon -->
+              <circle cx="84" cy="21" r="4.5" fill="#334155"/>
+              <rect x="82" y="14" width="17" height="5" rx="1.5" fill="#0f172a"/>
+              <!-- Dotted Trajectory -->
+              <circle cx="106" cy="17" r="2.6" fill="#0f172a"/>
+              <circle cx="124" cy="23" r="2.6" fill="#0f172a"/>
+              <circle cx="142" cy="37" r="2.6" fill="#0f172a"/>
+              <circle cx="160" cy="60" r="2.6" fill="#0f172a"/>
+              <circle cx="178" cy="91" r="2.6" fill="#0f172a"/>
+            </svg>
+          </div>
+
+          <!-- 3 Numbered Hang Time Factors -->
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <strong style="width: 20px;">1.</strong>
+              <span style="font-size: 9.5pt; font-weight: 700;">Symbol:</span>
+              <span class="sym-box"></span>
+              <span style="font-size: 9.5pt; font-weight: 700; margin-left: 4px;">Meaning:</span>
+              <span class="write-line" style="flex: 1;"></span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <strong style="width: 20px;">2.</strong>
+              <span style="font-size: 9.5pt; font-weight: 700;">Symbol:</span>
+              <span class="sym-box"></span>
+              <span style="font-size: 9.5pt; font-weight: 700; margin-left: 4px;">Meaning:</span>
+              <span class="write-line" style="flex: 1;"></span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <strong style="width: 20px;">3.</strong>
+              <span style="font-size: 9.5pt; font-weight: 700;">Symbol:</span>
+              <span class="sym-box"></span>
+              <span style="font-size: 9.5pt; font-weight: 700; margin-left: 4px;">Meaning:</span>
+              <span class="write-line" style="flex: 1;"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PART 3: TRIGONOMETRY & VELOCITY COMPONENTS -->
+      <section class="note-card" style="margin-bottom: 0;">
+        <div class="card-header">
+          <span class="card-title">Part 3: Calculating <span class="mv">v<sub>oy</sub></span> and <span class="mv">v<sub>ox</sub></span> Using Trigonometry</span>
+          <span class="slide-tag">Slides 10–22</span>
+        </div>
+        <div class="card-body" style="padding-top: 9px; padding-bottom: 11px;">
+          <div style="font-size: 9.8pt; margin-bottom: 9px; color: #1e293b;">
+            If you know the launch <strong>angle (<span class="mv">&theta;</span>)</strong> and the <strong>magnitude of the velocity (<span class="mv">v</span>)</strong>, break the diagonal launch arrow into a right triangle:
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 14px; align-items: stretch;">
+            <!-- Left: Large Clean Right Triangle Diagram to Label -->
+            <div style="border: 1.4px solid #cbd5e1; border-radius: 7px; padding: 8px 10px; background: #ffffff; display: flex; flex-direction: column; justify-content: flex-start; gap: 4px;">
+              <div style="font-size: 8.5pt; font-weight: 800; text-transform: uppercase; color: #334155; letter-spacing: 0.03em;">
+                Label the Triangle Sides &amp; Velocities:
+              </div>
+              <svg viewBox="0 0 340 218" width="100%" height="206" style="display: block;">
+                <!-- Slanted Hypotenuse Label Box (Top-Left, Horizontal for easy writing) -->
+                <text x="8" y="22" font-size="11" font-weight="700" fill="#0f172a" font-family="sans-serif">Side (<tspan font-style="italic">h</tspan>):</text>
+                <line x1="60" y1="23" x2="182" y2="23" stroke="#0f172a" stroke-width="1.5"/>
+                <text x="8" y="51" font-size="11" font-weight="700" fill="#0f172a" font-family="sans-serif">Velocity:</text>
+                <rect x="64" y="33" width="52" height="25" rx="4" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+                <!-- Pointer line to slanted vector -->
+                <line x1="120" y1="48" x2="132" y2="88" stroke="#64748b" stroke-width="1.2" stroke-dasharray="3,2"/>
+
+                <!-- Right Triangle Geometry -->
+                <!-- Angle Arc & Theta -->
+                <path d="M 66,158 A 42,42 0 0,0 59,136" fill="none" stroke="#0f172a" stroke-width="1.7"/>
+                <text x="73" y="151" font-size="17" font-weight="700" font-style="italic" fill="#0f172a" font-family="Georgia, serif">&theta;</text>
+
+                <!-- Right Angle Square -->
+                <polyline points="204,158 204,139 223,139" fill="none" stroke="#0f172a" stroke-width="1.6"/>
+
+                <!-- Horizontal Leg (Adjacent / v_ox) - Dashed -->
+                <line x1="20" y1="158" x2="217" y2="158" stroke="#0284c7" stroke-width="2.8" stroke-dasharray="5,4"/>
+                <polygon points="214,152.5 223,158 214,163.5" fill="#0284c7"/>
+
+                <!-- Vertical Leg (Opposite / v_oy) - Dashed -->
+                <line x1="223" y1="158" x2="223" y2="40" stroke="#b45309" stroke-width="2.8" stroke-dasharray="4,3"/>
+                <polygon points="217.5,43 223,32 228.5,43" fill="#b45309"/>
+
+                <!-- Hypotenuse (Velocity v) - Solid -->
+                <line x1="20" y1="158" x2="215" y2="34" stroke="#b91c1c" stroke-width="3.2"/>
+                <polygon points="210,30.5 222,30 216,40" fill="#b91c1c"/>
+
+                <!-- Opposite (Right Vertical) Label Box -->
+                <text x="236" y="76" font-size="11" font-weight="700" fill="#0f172a" font-family="sans-serif">Side (<tspan font-style="italic">o</tspan>):</text>
+                <line x1="236" y1="99" x2="334" y2="99" stroke="#0f172a" stroke-width="1.5"/>
+                <text x="236" y="130" font-size="11" font-weight="700" fill="#0f172a" font-family="sans-serif">Vel:</text>
+                <rect x="264" y="112" width="54" height="25" rx="4" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+
+                <!-- Adjacent (Bottom Horizontal) Label Box -->
+                <text x="20" y="198" font-size="11" font-weight="700" fill="#0f172a" font-family="sans-serif">Side (<tspan font-style="italic">a</tspan>):</text>
+                <line x1="72" y1="199" x2="180" y2="199" stroke="#0f172a" stroke-width="1.5"/>
+                <text x="192" y="198" font-size="11" font-weight="700" fill="#0f172a" font-family="sans-serif">Vel:</text>
+                <rect x="220" y="180" width="54" height="25" rx="4" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+              </svg>
+            </div>
+
+            <!-- Right: Sine & Cosine Step-by-Step Derivations -->
+            <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 10px;">
+              <!-- Vertical (Sine) Box -->
+              <div style="border: 1.4px solid #cbd5e1; border-radius: 7px; padding: 9px 12px; background: #fafafa; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                <div style="font-size: 9pt; font-weight: 800; color: #334155; text-transform: uppercase;">
+                  1. Vertical Component (Sine)
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px; font-size: 11pt; font-weight: 700; margin: 4px 0;">
+                  <span>sin <span class="mv">&theta;</span> =</span>
+                  <span class="vfrac">
+                    <span class="num"><span class="frac-slot"></span></span>
+                    <span class="den"><span class="frac-slot"></span></span>
+                  </span>
+                  <span>=</span>
+                  <span class="vfrac">
+                    <span class="num"><span class="frac-slot"></span></span>
+                    <span class="den"><span class="frac-slot"></span></span>
+                  </span>
+                </div>
+                <div style="font-size: 10.5pt; font-weight: 700;">
+                  Equation: <span class="blank-line" style="min-width: 1.15in;"></span> = <span class="mv">v<sub>oy</sub></span>
+                </div>
+              </div>
+
+              <!-- Horizontal (Cosine) Box -->
+              <div style="border: 1.4px solid #cbd5e1; border-radius: 7px; padding: 9px 12px; background: #fafafa; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                <div style="font-size: 9pt; font-weight: 800; color: #334155; text-transform: uppercase;">
+                  2. Horizontal Component (Cosine)
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px; font-size: 11pt; font-weight: 700; margin: 4px 0;">
+                  <span>cos <span class="mv">&theta;</span> =</span>
+                  <span class="vfrac">
+                    <span class="num"><span class="frac-slot"></span></span>
+                    <span class="den"><span class="frac-slot"></span></span>
+                  </span>
+                  <span>=</span>
+                  <span class="vfrac">
+                    <span class="num"><span class="frac-slot"></span></span>
+                    <span class="den"><span class="frac-slot"></span></span>
+                  </span>
+                </div>
+                <div style="font-size: 10.5pt; font-weight: 700;">
+                  Equation: <span class="blank-line" style="min-width: 1.15in;"></span> = <span class="mv">v<sub>ox</sub></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- IN SUMMARY CALLOUT (Slide 22) -->
+          <div class="summary-banner">
+            <div style="font-size: 9.5pt; font-weight: 900; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap;">
+              &#11088; In Summary:
+            </div>
+            <div class="summary-pill">
+              <span style="font-size: 9pt; color: #475569; font-weight: 700;">Vertical:</span>
+              <span class="blank-line" style="min-width: 1.1in; height: 20px;"></span>
+              <span>= <span class="mv">v<sub>oy</sub></span></span>
+            </div>
+            <div class="summary-pill">
+              <span style="font-size: 9pt; color: #475569; font-weight: 700;">Horizontal:</span>
+              <span class="blank-line" style="min-width: 1.1in; height: 20px;"></span>
+              <span>= <span class="mv">v<sub>ox</sub></span></span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="page-footer">
+      <span>Unit 2 Physics &bull; Day 46: Angled Projectiles</span>
+      <span>Turn over for the 4-Step Guided Problem &rarr;</span>
+    </footer>
+  </div>
+
+  <!-- =====================================================================
+       PAGE 2: 4-STEP GUIDED WORKED EXAMPLE (SLIDES 23–37)
+       ===================================================================== -->
+  <div class="worksheet-page">
+    <div>
+      <!-- Compact 1-Line Running Header -->
+      <div class="running-header">
+        <span>Angled Projectiles Guided Notes</span>
+        <span>Name: <span class="write-line" style="width: 1.9in; height: 14px;"></span></span>
+        <span>Period: <span class="write-line" style="width: 0.5in; height: 14px;"></span></span>
+        <span>Page 2 of 2</span>
+      </div>
+
+      <!-- PROBLEM PROMPT BANNER (Slides 23-24) -->
+      <div class="problem-banner">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+            <span style="font-size: 8.5pt; font-weight: 900; text-transform: uppercase; background: #0f172a; color: #ffffff; padding: 2px 8px; border-radius: 4px;">Guided Example &bull; Slides 23–37</span>
+            <span style="font-size: 8.5pt; font-weight: 800; color: #334155;">(Calculator in <strong>DEGREE</strong> mode)</span>
+          </div>
+          <div style="font-size: 11.2pt; line-height: 1.38;">
+            A cannon ball is fired with a velocity of <strong class="mnum">18 m/s</strong> at an angle of <strong class="mnum">65&deg;</strong>.<br>
+            <strong style="font-size: 11.5pt; letter-spacing: 0.01em;">HOW FAR DOES THE CANNON BALL GO?</strong>
+          </div>
+        </div>
+        <!-- Mini Cannon-to-Target Trajectory Diagram -->
+        <div style="border: 1.3px solid #cbd5e1; border-radius: 6px; background: #ffffff; padding: 4px 6px;">
+          <svg viewBox="0 0 180 62" width="100%" height="56" style="display: block;">
+            <!-- Ground -->
+            <line x1="8" y1="52" x2="172" y2="52" stroke="#0f172a" stroke-width="1.8"/>
+            <!-- Cannon -->
+            <circle cx="20" cy="49" r="4" fill="#334155"/>
+            <line x1="20" y1="49" x2="27" y2="35" stroke="#0f172a" stroke-width="4" stroke-linecap="round"/>
+            <!-- Parabolic Arc -->
+            <path d="M 27,35 Q 92,-16 156,51" fill="none" stroke="#0284c7" stroke-width="2" stroke-dasharray="4,3"/>
+            <!-- Target Bullseye -->
+            <ellipse cx="156" cy="52" rx="9" ry="2.8" fill="#ffffff" stroke="#b91c1c" stroke-width="1.8"/>
+            <ellipse cx="156" cy="52" rx="3.5" ry="1.2" fill="#b91c1c"/>
+            <!-- Range Label -->
+            <text x="76" y="46" font-size="10" font-weight="800" fill="#0f172a" font-family="sans-serif">&Delta;<tspan font-style="italic" font-family="Georgia, serif">X</tspan> = ?</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- ROW 1: STEP #1 (DRAW PICTURE) & STEP #2 (FIND v_oy AND v_ox) -->
+      <div style="display: grid; grid-template-columns: 0.78fr 1.22fr; gap: 12px; margin-bottom: 11px;">
+        <!-- STEP #1 -->
+        <section class="note-card" style="margin-bottom: 0; display: flex; flex-direction: column;">
+          <div class="card-header">
+            <span><span class="step-badge">Step #1</span><span class="card-title">Draw a Picture</span></span>
+            <span class="slide-tag">Slide 25</span>
+          </div>
+          <div class="card-body" style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 10px 12px;">
+            <div style="font-size: 9pt; color: #334155; margin-bottom: 6px;">
+              Draw the right triangle and label <strong>18 m/s</strong>, <strong>65&deg;</strong>, <span class="mv">v<sub>oy</sub></span>, and <span class="mv">v<sub>ox</sub></span>:
+            </div>
+            <!-- Open Sketch Canvas with subtle corner guide -->
+            <div style="height: 1.82in; border: 1.4px dashed #94a3b8; border-radius: 6px; position: relative; background: #ffffff;">
+              <svg viewBox="0 0 200 130" width="100%" height="100%" style="display: block;">
+                <!-- Faint Launch Corner Dot & Baseline Guide -->
+                <circle cx="26" cy="112" r="2.8" fill="#64748b"/>
+                <line x1="26" y1="112" x2="70" y2="112" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="3,3"/>
+                <text x="18" y="124" font-size="8" fill="#64748b" font-family="sans-serif">start here</text>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP #2 -->
+        <section class="note-card" style="margin-bottom: 0; display: flex; flex-direction: column;">
+          <div class="card-header">
+            <span><span class="step-badge">Step #2</span><span class="card-title">Find <span class="mv">v<sub>oy</sub></span> and <span class="mv">v<sub>ox</sub></span></span></span>
+            <span class="slide-tag">Slides 26–28</span>
+          </div>
+          <div class="card-body" style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px 12px;">
+            <!-- Vertical v_oy workspace -->
+            <div style="border: 1.3px solid #cbd5e1; border-radius: 6px; padding: 8px 10px; display: flex; flex-direction: column; justify-content: space-between; background: #ffffff;">
+              <div>
+                <div style="font-size: 8.5pt; font-weight: 800; text-transform: uppercase; color: #475569; margin-bottom: 3px;">Vertical Velocity</div>
+                <div style="font-size: 11pt; font-weight: 700; padding-bottom: 4px; border-bottom: 1px dashed #cbd5e1;">
+                  <span class="mv">v</span> sin <span class="mv">&theta;</span> = <span class="mv">v<sub>oy</sub></span>
+                </div>
+              </div>
+              <div style="height: 0.95in;"></div>
+              <div class="answer-box" style="width: 100%; justify-content: space-between;">
+                <span><span class="mv">v<sub>oy</sub></span> =</span>
+                <span class="write-line" style="flex: 1; height: 18px;"></span>
+                <span style="font-size: 9.5pt;">m/s</span>
+              </div>
+            </div>
+
+            <!-- Horizontal v_ox workspace -->
+            <div style="border: 1.3px solid #cbd5e1; border-radius: 6px; padding: 8px 10px; display: flex; flex-direction: column; justify-content: space-between; background: #ffffff;">
+              <div>
+                <div style="font-size: 8.5pt; font-weight: 800; text-transform: uppercase; color: #475569; margin-bottom: 3px;">Horizontal Velocity</div>
+                <div style="font-size: 11pt; font-weight: 700; padding-bottom: 4px; border-bottom: 1px dashed #cbd5e1;">
+                  <span class="mv">v</span> cos <span class="mv">&theta;</span> = <span class="mv">v<sub>ox</sub></span>
+                </div>
+              </div>
+              <div style="height: 0.95in;"></div>
+              <div class="answer-box" style="width: 100%; justify-content: space-between;">
+                <span><span class="mv">v<sub>ox</sub></span> =</span>
+                <span class="write-line" style="flex: 1; height: 18px;"></span>
+                <span style="font-size: 9.5pt;">m/s</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ROW 2: STEP #3 CALCULATE THE HANG TIME (Slides 29-33) -->
+      <section class="note-card">
+        <div class="card-header">
+          <span><span class="step-badge">Step #3</span><span class="card-title">Calculate the Hang Time</span></span>
+          <span class="slide-tag">Slides 29–33</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 248px 1fr; min-height: 2.55in;">
+          <!-- Left: Vertical Givens (matching Slide 29 left side) -->
+          <div style="background: #f8fafc; border-right: 1.5px solid #0f172a; padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div style="font-size: 8.5pt; font-weight: 900; text-transform: uppercase; color: #334155; letter-spacing: 0.02em; white-space: nowrap;">
+              Vertical Givens (Y-Direction)
+            </div>
+            <div style="display: flex; align-items: baseline; gap: 6px; font-size: 11pt; font-weight: 700;">
+              <span style="width: 44px;"><span class="mv">v<sub>oy</sub></span> =</span>
+              <span class="write-line" style="flex: 1;"></span>
+              <span style="font-size: 9.5pt;">m/s</span>
+            </div>
+            <div style="display: flex; align-items: baseline; gap: 6px; font-size: 11pt; font-weight: 700;">
+              <span style="width: 44px;"><span class="mv">X<sub>o</sub></span> =</span>
+              <span class="write-line" style="flex: 1;"></span>
+              <span style="font-size: 9.5pt;">m</span>
+            </div>
+            <div style="display: flex; align-items: baseline; gap: 6px; font-size: 11pt; font-weight: 700;">
+              <span style="width: 44px;"><span class="mv">X<sub>f</sub></span> =</span>
+              <span class="write-line" style="flex: 1;"></span>
+              <span style="font-size: 9.5pt;">m</span>
+            </div>
+            <div style="display: flex; align-items: baseline; gap: 6px; font-size: 11pt; font-weight: 700;">
+              <span style="width: 44px;"><span class="mv">a</span> =</span>
+              <span class="write-line" style="flex: 1;"></span>
+              <span style="font-size: 9.5pt;">m/s&sup2;</span>
+            </div>
+          </div>
+
+          <!-- Right: Equation & Algebra Workspace (matching Slide 29-33 right side) -->
+          <div style="padding: 11px 16px; display: flex; flex-direction: column; justify-content: space-between; background: #ffffff;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #cbd5e1; padding-bottom: 6px;">
+              <span style="font-size: 8.8pt; font-weight: 800; text-transform: uppercase; color: #475569;">Equation &amp; Substitution:</span>
+              <span style="font-size: 12pt; font-weight: 700;">
+                <span class="mv">X<sub>f</sub></span> = <span class="mv">X<sub>o</sub></span> + <span class="mv">v<sub>o</sub>t</span> +
+                <span class="vfrac"><span class="num mnum">1</span><span class="den mnum">2</span></span><span class="mv">at</span><sup class="mnum" style="font-size: 0.75em;">2</sup>
+              </span>
+            </div>
+
+            <!-- Generous open space for 3 algebra lines -->
+            <div style="flex: 1;"></div>
+
+            <div style="display: flex; justify-content: flex-end;">
+              <div class="answer-box" style="min-width: 2.1in; justify-content: space-between;">
+                <span><span class="mv">t</span> =</span>
+                <span class="write-line" style="flex: 1; height: 18px;"></span>
+                <span style="font-size: 10pt;">s</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ROW 3: STEP #4 USE THE TIME TO CALCULATE THE DISTANCE (Slides 34-37) -->
+      <section class="note-card" style="margin-bottom: 0;">
+        <div class="card-header">
+          <span><span class="step-badge">Step #4</span><span class="card-title">Use the Time to Calculate the Distance</span></span>
+          <span class="slide-tag">Slides 34–37</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 248px 1fr; min-height: 2.05in;">
+          <!-- Left: Horizontal Givens (matching Slide 34 left side) -->
+          <div style="background: #f8fafc; border-right: 1.5px solid #0f172a; padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div style="font-size: 8.5pt; font-weight: 900; text-transform: uppercase; color: #334155; letter-spacing: 0.02em; white-space: nowrap;">
+              Horizontal Givens (X-Direction)
+            </div>
+            <div style="display: flex; align-items: baseline; gap: 6px; font-size: 11pt; font-weight: 700;">
+              <span style="width: 48px;"><span class="mv">v<sub>ox</sub></span> =</span>
+              <span class="write-line" style="flex: 1;"></span>
+              <span style="font-size: 9.5pt;">m/s</span>
+            </div>
+            <div style="display: flex; align-items: baseline; gap: 6px; font-size: 11pt; font-weight: 700;">
+              <span style="width: 48px;">&Delta;<span class="mv">t</span> =</span>
+              <span class="write-line" style="flex: 1;"></span>
+              <span style="font-size: 9.5pt;">s</span>
+            </div>
+            <div style="font-size: 11.5pt; font-weight: 800; padding-top: 2px;">
+              &Delta;<span class="mv">X</span> = ?
+            </div>
+          </div>
+
+          <!-- Right: Equation & Distance Workspace (matching Slide 35-37 right side) -->
+          <div style="padding: 11px 16px; display: flex; flex-direction: column; justify-content: space-between; background: #ffffff;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #cbd5e1; padding-bottom: 6px;">
+              <span style="font-size: 8.8pt; font-weight: 800; text-transform: uppercase; color: #475569;">Equation &amp; Substitution:</span>
+              <span style="font-size: 12pt; font-weight: 700;">
+                <span class="mv">v</span> =
+                <span class="vfrac">
+                  <span class="num">&Delta;<span class="mv">X</span></span>
+                  <span class="den">&Delta;<span class="mv">t</span></span>
+                </span>
+              </span>
+            </div>
+
+            <!-- Generous open space for substitution & solving -->
+            <div style="flex: 1;"></div>
+
+            <div style="display: flex; justify-content: flex-end;">
+              <div class="answer-box" style="min-width: 2.25in; justify-content: space-between;">
+                <span>&Delta;<span class="mv">X</span> =</span>
+                <span class="write-line" style="flex: 1; height: 18px;"></span>
+                <span style="font-size: 10pt;">m</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="page-footer">
+      <span>Unit 2 Physics &bull; Mr. Mudry &bull; Angled Projectiles Guided Notes</span>
+      <span>Keep in your binder for Vector Decomposition Studio!</span>
+    </footer>
+  </div>
+
+</body>
+</html>

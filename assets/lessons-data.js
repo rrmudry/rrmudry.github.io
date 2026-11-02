@@ -5172,6 +5172,8 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Projectile Motion 2 angles (Slides)": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQBKUM90s6lPRpagPMzhMbp8AePjnyBo_L_in6NdwpD72NQ?e=fhfaOC",
+      "Angled Projectiles Guided Notes (PDF)": "Unit_2/worksheets/Day46_Angled_Projectiles_Guided_Notes.pdf",
       "Vector Decomposition Studio": "Unit_2/vector_decomposition_studio/index.html",
       "Interactive Projectile Motion Tutorial": "interactive-projectile-motion-tutorial/index.html"
     },
@@ -5187,6 +5189,24 @@ const lessonsData = [
       }
     ],
     "resources": [
+      {
+        "title": "Projectile Motion 2 angles (Slides)",
+        "url": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQBKUM90s6lPRpagPMzhMbp8AePjnyBo_L_in6NdwpD72NQ?e=fhfaOC",
+        "typeLabel": "Classroom Slides",
+        "description": "Lecture and guided problem slides introducing 2D projectile motion at an angle and vector velocity decomposition."
+      },
+      {
+        "title": "Angled Projectiles Guided Notes (PDF)",
+        "url": "Unit_2/worksheets/Day46_Angled_Projectiles_Guided_Notes.pdf",
+        "typeLabel": "Follow-Along Worksheet",
+        "description": "Spacious 2-page follow-along guided notes matching the Projectile Motion 2 angles presentation."
+      },
+      {
+        "title": "Angled Projectiles Guided Notes (HTML)",
+        "url": "Unit_2/worksheets/Day46_Angled_Projectiles_Guided_Notes.html",
+        "typeLabel": "Printable Worksheet",
+        "description": "Web-viewable and printable 2-page guided notes handout formatted for US Letter portrait."
+      },
       {
         "title": "Vector Decomposition Studio",
         "url": "Unit_2/vector_decomposition_studio/index.html",

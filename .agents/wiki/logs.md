@@ -3,6 +3,19 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-02 — Day 46 Angled Projectiles: Low-Cognitive-Load 2-Page Follow-Along Guided Notes & Slide Deck Integration
+**Patterns Updated**: `low-stress-worksheet-skill.md`.
+**Files Added/Updated**: `Unit_2/worksheets/Day46_Angled_Projectiles_Guided_Notes.html`, `Unit_2/worksheets/Day46_Angled_Projectiles_Guided_Notes.pdf`, `assets/lessons-data.js`, `partials/footer.html`.
+
+**Changes**:
+- **Spacious 2-Page Follow-Along Guided Notes (`Day46_Angled_Projectiles_Guided_Notes.html` & `.pdf`)**:
+  - Designed a spacious, low-cognitive-load 2-page US Letter follow-along handout aligned 1:1 with the 37-slide `Projectile Motion 2 angles.pptx` presentation:
+    - **Page 1 (Concepts & Vector Trigonometry, Slides 1–22)**: Cliff/drop trajectory comparison with growing vertical gravity vectors (`1x`, `2x`, `3x`), 3 hang-time factors (`X`<sub>`o`</sub>, `X`<sub>`f`</sub>, `v`<sub>`oy`</sub>) with diagram label slots, large right-triangle vector decomposition diagram with horizontal fill-in boxes, stacked fraction templates for `sin θ` and `cos θ`, and a bold summary formula banner.
+    - **Page 2 (4-Step Guided Worked Example, Slides 23–37)**: Compact single-line running header, `18 m/s` at `65°` cannon problem banner with degree-mode reminder, Step #1 open triangle sketch canvas, Step #2 dual `v`<sub>`oy`</sub> / `v`<sub>`ox`</sub> workspaces, Step #3 hang-time card (`X`<sub>`f`</sub> `= X`<sub>`o`</sub> `+ v`<sub>`o`</sub>`t + (1/2)at²`), and Step #4 horizontal range card (`v = ΔX / Δt`) mirroring the exact left/right givens-and-equation layout of the slides.
+  - Strictly enforced zero LaTeX (clean HTML `<sub>`/`<sup>`, Unicode `θ`, `Δ`, `°`, CSS stacked `.vfrac` fractions, unslashed zeros), zero external CDN dependencies, zero teacher answer spoilers on student sheets, and verified exact 2-page PDF fit via headless Chrome print rendering and visual page inspection.
+- **Curriculum Integration (`assets/lessons-data.js`)**:
+  - Linked `Projectile Motion 2 angles (Slides)` SharePoint deck and the printable `Angled Projectiles Guided Notes` (`.pdf` and `.html`) into Day 46 (`links` and `resources`).
+
 ## 2026-10-29 — Horizontal Projectile Ramp Lab: Hard Checkpoint Gate Enforcement & Cross-Session Bleed Elimination
 **Patterns Updated**: `cast-aligned-webapp-design.md`, `firebase-auth-gotchas.md`.
 **Files Added/Updated**: `Unit_2/projectile_target_range/js/student-app.js`, `Unit_2/projectile_target_range/js/teacher-board.js`, `admin/horizontal_projectile_ramp_monitor.html`, `partials/footer.html`.
