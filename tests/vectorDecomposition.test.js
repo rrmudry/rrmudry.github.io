@@ -1,6 +1,8 @@
 // Physics and diagnostics for Unit_2/vector_decomposition_studio/js/engine.js
 global.window = global;
 require('../Unit_2/vector_decomposition_studio/js/engine.js');
+require('../Unit_2/vector_decomposition_studio/js/parts.js');
+require('../Unit_2/vector_decomposition_studio/js/integrity.js');
 const { Phys, checkCalc, buildQuiz, gradeQuiz, QUESTION, launch, near, parseCalc, readCalculator, checkWork } = global.Engine;
 
 const sc = (v0, th) => ({ v0, th, x: Phys.vx(v0, th), y: Phys.vy(v0, th) });
@@ -160,4 +162,94 @@ test('the downward launch needs its direction: right size with the wrong sign is
   expect(QUESTION.h_down.signed).toBe(true);
   expect(QUESTION.h_down.grade(q, String(q.sc.y)).mistake).toBe('sign');
   expect(QUESTION.h_down.grade(q, String(-q.sc.y)).ok).toBe(true);
+});
+
+describe('record checks for the teacher', () => {
+  const { Integrity, PARTS, LAB } = global;
+
+  test('the teacher page does not hide the lesson list the checks need', () => {
+    const html = require('fs').readFileSync(require('path').join(__dirname, '../admin/vector_decomposition_monitor.html'), 'utf8');
+    expect(html).not.toMatch(/\b(const|let|var)\s+(PARTS|Engine|LAB|Integrity)\b/);
+  });
+
+  const work = q => ({ calc_x: `${q.sc.v0}\\cos\\left(${q.sc.th}\\right)`, calc_y: `${q.sc.v0}\\sin\\left(${q.sc.th}\\right)` }[q.kind]);
+  const answerFor = q => ({
+    read: () => (q.asked === 'x' ? q.sc.x : q.sc.y),
+    concept: () => (q.sc.th === 45 ? 'eq' : q.sc.th < 45 ? 'x' : 'y'),
+    choose: () => q.asked,
+    calc_x: () => Number(q.sc.x.toFixed(3)),
+    calc_y: () => Number(q.sc.y.toFixed(3)),
+    sense: () => (q.bad ? 'no' : 'yes')
+  }[q.kind]());
+
+  // A record shaped the way the app saves an honest Period 4 student's finished work
+  function honest() {
+    const qs = JSON.parse(JSON.stringify(buildQuiz(false)));
+    qs.forEach(q => { if (work(q)) q.work = work(q); });
+    const seen = {};
+    ['p1', 'p2', 'p3', 'p4'].forEach(id => { seen[id] = { far: PARTS.find(p => p.id === id).tasks.length, sc: {} }; });
+    return {
+      score: 10, class_period: 4, honors_required: false, quiz_best: 100,
+      studioState: {
+        done: { p1: true, p2: true, p3: true, p4: true, gym: true, quiz: true }, seen,
+        data: { v0: 20, rows: LAB.ANGLES.map(th => ({ th, x: 1, y: 1 })) },
+        gym: { best: 5 }, honors: { i: 0 },
+        quiz: { best: 100, attempts: [{ pct: 100, secs: 400 }], last: { qs, answers: qs.map(q => String(answerFor(q))) } }
+      }
+    };
+  }
+
+  test('an honest finished record has no flags', () => {
+    expect(Integrity.check(honest())).toEqual([]);
+  });
+
+  test('a partly finished record has no flags', () => {
+    const d = { score: 1.8, class_period: 4, quiz_best: 0, studioState: { done: { p1: true }, seen: { p1: { far: 10, sc: {} }, p2: { far: 5, sc: {} } }, data: { rows: [] }, gym: {}, honors: {}, quiz: { best: 0, attempts: [], last: null } } };
+    d.studioState.seen.p1.far = PARTS[0].tasks.length;
+    d.score = Math.floor((6 * (1 + 2 * 5 / PARTS[1].tasks.length) / 6) * 10) / 10;
+    expect(Integrity.check(d)).toEqual([]);
+  });
+
+  test('a score written straight to the database is flagged', () => {
+    expect(Integrity.check({ score: 10 })[0]).toMatch(/no saved work/);
+    const d = honest();
+    d.studioState.quiz.best = 50;
+    d.studioState.quiz.attempts = [{ pct: 50, secs: 400 }];
+    d.studioState.quiz.last = null;
+    d.quiz_best = 50;
+    expect(Integrity.check(d).join(' ')).toMatch(/higher than the saved work/);
+  });
+
+  test('the console script from the explanation is flagged several ways', () => {
+    const d = { score: 10, class_period: 4, quiz_best: 100, studioState: { done: { p1: true, p2: true, p3: true, p4: true, gym: true }, seen: {}, data: null, gym: {}, honors: {}, quiz: { best: 100, attempts: [{ pct: 100, correct: 8, total: 8, skills: {}, at: 1 }], last: null } } };
+    const text = Integrity.check(d).join(' ');
+    expect(text).toMatch(/See the Parts is marked finished/);
+    expect(text).toMatch(/data table/);
+    expect(text).toMatch(/Practice Gym/);
+    expect(text).toMatch(/no saved questions/);
+  });
+
+  test('edited answers, missing work and a very fast pass are flagged', () => {
+    const a = honest();
+    a.studioState.quiz.attempts = [{ pct: 100, secs: 400 }];
+    a.studioState.quiz.last.answers = a.studioState.quiz.last.qs.map(() => 'x');
+    expect(Integrity.check(a).join(' ')).toMatch(/grade to/);
+
+    const b = honest();
+    b.studioState.quiz.last.qs.forEach(q => { delete q.work; });
+    expect(Integrity.check(b).join(' ')).toMatch(/no calculator work/);
+
+    const c = honest();
+    const calc = c.studioState.quiz.last.qs.find(q => q.work);
+    calc.work = '1\\cos\\left(1\\right)';
+    expect(Integrity.check(c).join(' ')).toMatch(/do not match the calculator work/);
+
+    const f = honest();
+    f.studioState.quiz.attempts[0].secs = 20;
+    expect(Integrity.check(f).join(' ')).toMatch(/in 20 seconds/);
+  });
+
+  test('a malformed record is flagged instead of breaking the page', () => {
+    expect(Integrity.check({ score: 5, studioState: { done: {}, quiz: { best: 90, attempts: 7 } } }).length).toBeGreaterThan(0);
+  });
 });

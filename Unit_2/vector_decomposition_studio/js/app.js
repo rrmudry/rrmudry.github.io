@@ -320,6 +320,7 @@ const VDApp = (() => {
     input.dispatchEvent(new Event('input', { bubbles: true }));
     window.soundFx && soundFx.playClick();
     const signedQ = activeQuestion();
+    if (signedQ) signedQ.work = work.latex;   // kept with the graded question for the teacher's record check
     if (signedQ && E().QUESTION[signedQ.kind].signed) {
       if (work.value < 0 && !signedQ.sign) { signedQ.sign = '-'; readDrafts(); render(); }   // typed the minus: same choice
       applySign(signedQ);
@@ -850,7 +851,7 @@ const VDApp = (() => {
 
   // ---------- Mastery Check ----------
   function startQuiz() {
-    state.quiz.cur = { qs: E().buildQuiz(honorsOn()), answers: [], i: 0 };
+    state.quiz.cur = { qs: E().buildQuiz(honorsOn()), answers: [], i: 0, startedAt: Date.now() };
     if (desmos && desmos.setBlank) desmos.setBlank();
     save();
     render();
@@ -859,7 +860,10 @@ const VDApp = (() => {
   function finishQuiz() {
     const cur = state.quiz.cur;
     const out = E().gradeQuiz(cur.qs, cur.answers);
-    state.quiz.attempts.push({ pct: out.pct, correct: out.correct, total: out.total, skills: out.skills, at: Date.now() });
+    state.quiz.attempts.push({
+      pct: out.pct, correct: out.correct, total: out.total, skills: out.skills, at: Date.now(),
+      secs: cur.startedAt ? Math.round((Date.now() - cur.startedAt) / 1000) : null
+    });
     state.quiz.best = Math.max(state.quiz.best || 0, out.pct);
     state.quiz.last = { qs: cur.qs, answers: cur.answers };
     state.quiz.cur = null;

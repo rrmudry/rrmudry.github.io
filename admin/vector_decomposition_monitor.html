@@ -62,6 +62,12 @@
     .weak { color: var(--warn); font-size: 0.82rem; white-space: normal; min-width: 12rem; }
     .none { color: var(--muted); }
     .flag { color: var(--warn); font-size: 0.75rem; }
+    .filters { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .only-flagged { font-weight: 700; font-size: 0.9rem; }
+    .note { margin: 0 0 0.5rem; font-size: 0.85rem; color: var(--muted); }
+    .check { white-space: normal; min-width: 15rem; font-size: 0.82rem; color: var(--bad); font-weight: 600; }
+    .check div { margin: 0.1rem 0; }
+    tr.flagged td.name { color: var(--bad); }
     .gate { text-align: center; padding: 3rem 1rem; }
     .demo { background: var(--warn); color: #fff; font-weight: 700; text-align: center; padding: 0.25rem; }
     .err { color: var(--bad); font-weight: 700; }
@@ -75,7 +81,10 @@
       <h1>📐 Vector Decomposition Class Progress</h1>
       <p class="sub">Unit 2 · Day 46 · Updates live as students work</p>
     </div>
-    <label>Period <select id="period"><option value="all">All periods</option></select></label>
+    <div class="filters">
+      <label class="only-flagged"><input type="checkbox" id="onlyFlagged"> Only records to check</label>
+      <label>Period <select id="period"><option value="all">All periods</option></select></label>
+    </div>
   </header>
 
   <section id="gate" class="gate" hidden>
@@ -98,19 +107,24 @@
     </div>
     <section class="card">
       <h2>Students</h2>
+      <p class="note">⚠ means a record is worth a look. It is not proof of cheating, and a careful cheater may not be flagged. A short in-person check settles it.</p>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Student</th><th>Per.</th><th>Grade /10</th><th>Parts finished</th><th>Mastery best</th><th>Attempts</th><th>Needs work</th><th>Last active</th></tr></thead>
+          <thead><tr><th>Student</th><th>Per.</th><th>Grade /10</th><th>Parts finished</th><th>Check record</th><th>Mastery best</th><th>Attempts</th><th>Needs work</th><th>Last active</th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
       </div>
     </section>
   </main>
 
+  <script src="../Unit_2/vector_decomposition_studio/js/engine.js"></script>
+  <script src="../Unit_2/vector_decomposition_studio/js/parts.js"></script>
+  <script src="../Unit_2/vector_decomposition_studio/js/integrity.js"></script>
   <script>
     const ASSIGNMENT_ID = 'unit2_day46_vector_decomposition_studio';
+    const TEACHER_IDS = ['rmudry', 'ryan.mudry', 'ryanmudry'];
     const TEACHER_EMAILS = ['rmudry@orangeusd.org', 'ryan.mudry@gmail.com', 'ryanmudry@gmail.com'];
-    const PARTS = [['p1', '1'], ['p2', '2'], ['p3', '3'], ['p4', '4'], ['gym', 'Gym'], ['honors', 'H'], ['quiz', 'MC']];
+    const PART_PILLS = [['p1', '1'], ['p2', '2'], ['p3', '3'], ['p4', '4'], ['gym', 'Gym'], ['honors', 'H'], ['quiz', 'MC']];
     const SKILLS = {
       read: 'Read parts off a grid', concept: 'Angle and the parts', choose: 'Choose sin or cos',
       calc_x: 'Calculate v<sub>0x</sub>', calc_y: 'Calculate v<sub>0y</sub>', sense: 'Does the answer make sense?', honors: 'Honors challenges'
@@ -155,16 +169,21 @@
       const periods = [...new Set(all.map(s => s.period))].filter(p => p !== '' && p !== undefined).sort((a, b) => Number(a) - Number(b));
       $('period').innerHTML = '<option value="all">All periods</option>' + periods.map(p => `<option value="${esc(p)}">Period ${esc(p)}</option>`).join('');
       $('period').value = periods.includes(period) ? period : 'all';
-      const list = all
-        .filter(s => $('period').value === 'all' || s.period === $('period').value)
+      // Sample rows without saved work stay unflagged so the demo shows only the example problem record
+      const isDemo = !$('demoBanner').hidden;
+      all.forEach(s => { s.flags = s.started && !TEACHER_IDS.includes(s.id) && (!isDemo || s.studioState) ? Integrity.check(s) : []; });
+      const inPeriod = all.filter(s => $('period').value === 'all' || s.period === $('period').value);
+      const list = inPeriod
+        .filter(s => !$('onlyFlagged').checked || s.flags.length)
         .sort((a, b) => Number(a.period) - Number(b.period) || String(a.name).localeCompare(String(b.name)));
 
-      const started = list.filter(s => s.started);
+      const started = inPeriod.filter(s => s.started);
       const tookQuiz = started.filter(s => (s.quiz_history || []).length);
       const avg = tookQuiz.length ? Math.round(tookQuiz.reduce((a, s) => a + (s.quiz_best || 0), 0) / tookQuiz.length) : null;
       const grown = tookQuiz.filter(s => s.quiz_history.length > 1 && s.quiz_best > s.quiz_history[0]).length;
       $('tiles').innerHTML = [
-        [`${started.length}/${list.length}`, 'students started'],
+        [`${started.length}/${inPeriod.length}`, 'students started'],
+        [String(inPeriod.filter(s => s.flags.length).length), 'records to check'],
         [String(tookQuiz.length), 'took the Mastery Check'],
         [avg === null ? '—' : `${avg}%`, 'average best Mastery score'],
         [String(tookQuiz.filter(s => s.quiz_best >= 75).length), 'scored 75% or higher'],
@@ -192,7 +211,7 @@
       $('rows').innerHTML = list.map(s => {
         const hist = (s.quiz_history || []);
         const honors = s.track === 'honors' || s.period === '0';
-        const pills = PARTS.filter(([k]) => k !== 'honors' || honors)
+        const pills = PART_PILLS.filter(([k]) => k !== 'honors' || honors)
           .map(([k, label]) => {
             const pct = (s.parts_progress || {})[k];
             const partial = pct > 0 && pct < 100;
@@ -200,8 +219,9 @@
           }).join('');
         const weak = Object.entries(s.quiz_skills || {}).filter(([, v]) => v.right < v.total).map(([k]) => SKILLS[k]).filter(Boolean).join(', ');
         const when = s.timestamp && s.timestamp.toDate ? s.timestamp.toDate().toLocaleString([], { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
-        return `<tr><td class="name">${esc(s.name)}${s.certificate_code ? ` <span title="Certificate ${esc(s.certificate_code)}">🎓</span>` : ''}${s.calc_unavailable ? ' <span class="flag" title="Desmos did not load for this student, so they could type answers">⚠ typed</span>' : ''}</td><td>${esc(s.period)}</td><td class="num">${s.started ? (s.score || 0).toFixed(1) : '<span class="none">—</span>'}</td>
+        return `<tr class="${s.flags.length ? 'flagged' : ''}"><td class="name">${esc(s.name)}${s.certificate_code ? ` <span title="Certificate ${esc(s.certificate_code)}">🎓</span>` : ''}${s.calc_unavailable ? ' <span class="flag" title="Desmos did not load for this student, so they could type answers">⚠ typed</span>' : ''}</td><td>${esc(s.period)}</td><td class="num">${s.started ? (s.score || 0).toFixed(1) : '<span class="none">—</span>'}</td>
           <td>${s.started ? pills : '<span class="none">Not started</span>'}</td>
+          <td class="check">${s.flags.map(f => `<div>⚠ ${esc(f)}</div>`).join('')}</td>
           <td class="num">${hist.length ? `${s.quiz_best}%` : '<span class="none">—</span>'}</td>
           <td class="num">${hist.length ? hist.map(p => `${p}%`).join(' → ') : ''}</td>
           <td class="weak">${weak}</td><td>${esc(when)}</td></tr>`;
@@ -237,6 +257,7 @@
       docs = [
         { id: 's1', student_name: 'Sample Student A', class_period: 1, score: 8.5, parts_done: ['p1', 'p2', 'p3', 'p4', 'gym', 'quiz'], quiz_best: 63, quiz_history: [38, 63], quiz_skills: skills(0, 1), mistakes: { swap: 5, radians: 2 } },
         { id: 's2', student_name: 'Sample Student B', class_period: 1, score: 1.8, parts_done: ['p1'], parts_progress: { p1: 100, p2: 38 }, quiz_history: [], mistakes: { read: 3, swap: 1 } },
+        { id: 's5', student_name: 'Sample Student E', class_period: 4, score: 10, parts_done: ['p1', 'p2', 'p3', 'p4', 'gym', 'quiz'], quiz_best: 100, quiz_history: [100], quiz_skills: skills(1, 2), studioState: { v: 1, done: { p1: true, p2: true, p3: true, p4: true, gym: true }, seen: {}, data: null, gym: { best: 0 }, honors: { i: 0 }, quiz: { best: 100, attempts: [{ pct: 100, correct: 8, total: 8, at: 1 }], last: null } } },
         { id: 's3', student_name: 'Sample Student C', class_period: 4, score: 10, parts_done: ['p1', 'p2', 'p3', 'p4', 'gym', 'quiz'], quiz_best: 100, quiz_history: [75, 100], quiz_skills: skills(1, 2), mistakes: { no_speed: 1 } },
         { id: 's4', student_name: 'Sample Student D', class_period: 0, track: 'honors', score: 9.1, parts_done: ['p1', 'p2', 'p3', 'p4', 'gym', 'honors', 'quiz'], quiz_best: 80, quiz_history: [80], quiz_skills: Object.assign(skills(1, 2), { honors: { right: 0, total: 2 } }), mistakes: { vertical_angle: 2 } }
       ];
@@ -244,6 +265,7 @@
     }
 
     $('period').addEventListener('change', render);
+    $('onlyFlagged').addEventListener('change', render);
     if (new URLSearchParams(location.search).has('demo')) demo();
     else {
       $('btnSignIn').addEventListener('click', () => {
