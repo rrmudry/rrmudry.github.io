@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vector Decomposition Studio</title>
+  <meta name="description" content="Break an angled launch velocity into sideways and upward parts: read a grid, measure and graph your own data, discover sine and cosine, then practice and prove mastery.">
+  <link rel="icon" type="image/svg+xml" href="../../assets/unit2-favicon.svg">
+  <script>
+    // Apply saved theme + projector mode before first paint to avoid a flash
+    try {
+      const proj = localStorage.getItem('vds_projector') === 'on';
+      if (proj) document.documentElement.classList.add('projector');
+      else if (localStorage.getItem('vds_theme') === 'dark') document.documentElement.classList.add('theme-dark');
+    } catch (e) { /* storage blocked */ }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Firebase (compat SDK, same as the rest of the site) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
+  <!-- Desmos Scientific Calculator API (same key as the other Unit 2 labs) -->
+  <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+  <script src="../../assets/ngss-helper.js" defer></script>
+</head>
+<body>
+
+  <!-- Sign-in gate: sign in with a school Google account, or continue as an ungraded guest -->
+  <div id="loginGate" class="login-gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+    <div class="gate-card">
+      <div class="gate-icon" aria-hidden="true">📐</div>
+      <h1 id="gateTitle" class="gate-title">Vector Decomposition Studio</h1>
+      <p class="gate-sub">Unit 2 · Day 46 · Angled Launches</p>
+      <p class="gate-text">Sign in with your <strong>@orangeusd.org</strong> Google account. Your work saves to your account automatically. If you stop, come back on any Chromebook and pick up where you left off.</p>
+      <div class="gate-grading">
+        <div><span class="gate-pts">📚</span> Guided parts and Practice Gym (6 pts): you earn credit for every step you finish</div>
+        <div><span class="gate-pts">🏆</span> Mastery Check: your best score counts (4 pts)</div>
+      </div>
+      <button type="button" id="btnGateSignIn" class="btn-google">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" width="20" height="20">
+        Sign in with Google
+      </button>
+      <div class="gate-guest">
+        <button type="button" id="btnGateGuest" class="btn-guest">Continue as Guest</button>
+        <p class="gate-guest-note">Guest progress stays on this device only and is <strong>not graded</strong>.</p>
+      </div>
+      <p id="gateStatus" class="gate-status" aria-live="polite"></p>
+      <p id="gateError" class="gate-error" role="alert" hidden></p>
+      <div class="gate-ngss" data-ngss="HS-PS2-1"></div>
+    </div>
+  </div>
+
+  <header class="app-header">
+    <div class="header-row">
+      <div class="header-left">
+        <span class="app-icon" aria-hidden="true">📐</span>
+        <div>
+          <h1 class="app-title">Vector Decomposition Studio</h1>
+          <p class="app-subtitle">Split a launch into two simple motions: sideways and upward</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <label id="viewWrap" class="view-wrap" hidden>View as
+          <select id="viewSelect" aria-label="Teacher: view the studio as">
+            <option value="teacher">Teacher (all open)</option>
+            <option value="support">P1–3 student (extra support)</option>
+            <option value="cp">P4–6 student</option>
+            <option value="honors">Honors student (P0)</option>
+          </select>
+        </label>
+        <button id="btn-projector-mode" class="btn-tool" title="Big text and extra contrast for the classroom projector">🖥️ Projector</button>
+        <button id="btn-theme-toggle" class="btn-tool" title="Toggle light / dark theme">🌙 Dark</button>
+        <button id="btnAudio" class="btn-tool" title="Toggle sound effects">🔊 On</button>
+        <a id="btnMonitor" href="../../admin/vector_decomposition_monitor.html" target="_blank" class="btn-tool" title="See class progress and common mistakes" hidden>📊 Class Progress</a>
+        <a href="../../unit2-dashboard.html" class="btn-tool" title="Back to Unit 2 Dashboard">🏠 Unit 2</a>
+        <div id="userChip" class="user-chip" hidden>
+          <span id="saveIndicator" class="save-indicator save-busy" aria-live="polite">⏳ Saving…</span>
+          <span id="userName" class="user-name"></span>
+          <span id="userTrack" class="user-track"></span>
+          <button type="button" id="btnSignOut" class="btn-signout" title="Sign out">Sign out</button>
+          <button type="button" id="btnChipSignIn" class="btn-signout btn-chip-signin" title="Sign in to get credit" hidden>Sign in for credit</button>
+        </div>
+      </div>
+    </div>
+    <nav id="partStrip" class="part-strip" aria-label="Parts"></nav>
+  </header>
+
+  <main class="workbench">
+    <!-- LEFT: the picture, grid or graph needed for the current question -->
+    <section class="card stage-card" aria-label="Diagram">
+      <div class="canvas-wrap">
+        <canvas id="simCanvas" aria-label="Diagram for the current question. Values needed to answer appear here."></canvas>
+      </div>
+      <div id="angleCtl" class="angle-ctl" hidden>
+        <label for="angleSlider"><strong>Launch angle θ</strong></label>
+        <button id="btnAngleDown" class="btn-nudge" aria-label="Lower the angle by 5 degrees">◀</button>
+        <input id="angleSlider" type="range" min="0" max="90" step="5" value="30">
+        <button id="btnAngleUp" class="btn-nudge" aria-label="Raise the angle by 5 degrees">▶</button>
+      </div>
+      <p id="simStatus" class="sim-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <!-- RIGHT: one guided task at a time -->
+    <section class="card task-card" id="taskCard" aria-live="polite"></section>
+  </main>
+
+  <!-- Floating calculator: drag it by its title bar; the task card scrolls clear of it -->
+  <div id="calcPanel" class="calc-panel" hidden>
+    <div id="calcHead" class="calc-head" title="Drag to move the calculator"><strong>🧮 Calculator</strong><span class="calc-drag" aria-hidden="true">⠿ drag to move</span><button id="btnCloseCalc" class="btn-close" aria-label="Close calculator">✕</button></div>
+    <div id="calcHost" class="calc-host"></div>
+    <div id="calcFoot" class="calc-foot" hidden>
+      <p id="calcMsg" class="calc-msg" role="alert" hidden></p>
+      <button type="button" id="btnUseCalc" class="btn-grab">📥 Use calculator answer</button>
+    </div>
+  </div>
+
+  <script src="js/text.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/diagram.js"></script>
+  <script src="js/parts.js"></script>
+  <script src="js/certificate.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

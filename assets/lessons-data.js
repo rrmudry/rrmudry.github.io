@@ -5172,19 +5172,27 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Vector Decomposition Studio": "Unit_2/vector_decomposition_studio/index.html",
       "Interactive Projectile Motion Tutorial": "interactive-projectile-motion-tutorial/index.html"
     },
     "assignments": [
       {
-        "title": "Angled Vector Decomposition Practice Sheet",
-        "typeLabel": "Guided Practice Set",
-        "submission": "Turn In in Classroom",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Resolve 8 launch vectors into horizontal and vertical components across varying angles.",
+        "title": "Vector Decomposition Studio",
+        "url": "Unit_2/vector_decomposition_studio/index.html",
+        "typeLabel": "Interactive Studio, Practice & Mastery Check",
+        "submission": "Automatic Classroom Sync (10 pts)",
+        "actionLabel": "Launch Vector Studio",
+        "description": "Read launch arrows off a grid, measure and graph how angle splits the speed, discover what sin and cos mean, then practice calculations and pass the Mastery Check (best score counts).",
         "status": "active"
       }
     ],
     "resources": [
+      {
+        "title": "Vector Decomposition Studio",
+        "url": "Unit_2/vector_decomposition_studio/index.html",
+        "typeLabel": "Interactive Studio",
+        "description": "Guided lessons, unlimited practice with instant feedback, and a retakeable Mastery Check for resolving launch velocity into components."
+      },
       {
         "title": "Interactive Projectile Motion Tutorial",
         "url": "interactive-projectile-motion-tutorial/index.html",

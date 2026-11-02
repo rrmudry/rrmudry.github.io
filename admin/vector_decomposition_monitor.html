@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vector Decomposition Class Progress</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/unit2-favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
+  <style>
+    :root {
+      --bg: #f1f5f9; --card: #ffffff; --line: #cbd5e1; --line-soft: #e2e8f0;
+      --text: #0f172a; --muted: #475569; --bar: #0284c7; --good: #15803d; --warn: #b45309; --bad: #be123c;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #070d19; --card: #0f172a; --line: #334155; --line-soft: #1e293b; --text: #f8fafc; --muted: #cbd5e1; --bar: #0284c7; --good: #34d399; --warn: #fbbf24; --bad: #fb7185; }
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Outfit, system-ui, sans-serif; line-height: 1.4; }
+    header { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: var(--card); border-bottom: 1px solid var(--line); }
+    h1 { margin: 0; font-size: 1.25rem; font-weight: 800; }
+    h2 { margin: 0 0 0.6rem; font-size: 1rem; font-weight: 800; }
+    .sub { margin: 0; color: var(--muted); font-size: 0.85rem; }
+    main { padding: 1rem; max-width: 92rem; margin: 0 auto; display: grid; gap: 1rem; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 0.8rem; padding: 0.9rem; min-width: 0; }
+    select, button { font: inherit; font-weight: 700; color: var(--text); background: var(--card); border: 1px solid var(--line); border-radius: 0.5rem; padding: 0.3rem 0.6rem; }
+    button { cursor: pointer; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0.75rem; }
+    .tile strong { display: block; font-size: 1.8rem; font-family: 'JetBrains Mono', monospace; }
+    .tile span { font-size: 0.85rem; color: var(--muted); }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr)); gap: 1rem; }
+    .bar-row { display: grid; grid-template-columns: 13rem 1fr 3.5rem; gap: 0.5rem; align-items: center; margin: 0.3rem 0; font-size: 0.9rem; }
+    .bar { height: 0.8rem; background: var(--line-soft); border-radius: 999px; overflow: hidden; }
+    .bar span { display: block; height: 100%; background: var(--bar); border-radius: 0 4px 4px 0; }
+    .val { font-family: 'JetBrains Mono', monospace; font-weight: 700; text-align: right; }
+    .mistake { padding: 0.35rem 0; border-bottom: 1px solid var(--line-soft); font-size: 0.9rem; }
+    .mistake:last-child { border: 0; }
+    .mistake b { font-family: 'JetBrains Mono', monospace; margin-right: 0.35rem; }
+    .mistake small { display: block; color: var(--muted); }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+    th { text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); padding: 0.35rem 0.5rem; border-bottom: 2px solid var(--line); white-space: nowrap; }
+    td { padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--line-soft); white-space: nowrap; }
+    td.name { font-weight: 700; }
+    td.num { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+    .pill { display: inline-block; min-width: 1.5rem; text-align: center; margin-right: 0.15rem; border: 1px solid var(--line); border-radius: 0.3rem; font-size: 0.72rem; font-weight: 700; color: var(--muted); padding: 0 0.2rem; }
+    .pill.on { border-color: var(--good); color: var(--good); }
+    .weak { color: var(--warn); font-size: 0.82rem; white-space: normal; min-width: 12rem; }
+    .none { color: var(--muted); }
+    .flag { color: var(--warn); font-size: 0.75rem; }
+    .gate { text-align: center; padding: 3rem 1rem; }
+    .demo { background: var(--warn); color: #fff; font-weight: 700; text-align: center; padding: 0.25rem; }
+    .err { color: var(--bad); font-weight: 700; }
+    sub { font-size: 0.72em; }
+  </style>
+</head>
+<body>
+  <div id="demoBanner" class="demo" hidden>Sample data, not real students</div>
+  <header>
+    <div>
+      <h1>📐 Vector Decomposition Class Progress</h1>
+      <p class="sub">Unit 2 · Day 46 · Updates live as students work</p>
+    </div>
+    <label>Period <select id="period"><option value="all">All periods</option></select></label>
+  </header>
+
+  <section id="gate" class="gate" hidden>
+    <p>Teacher sign-in required.</p>
+    <button id="btnSignIn">Sign in with Google</button>
+    <p id="gateErr" class="err"></p>
+  </section>
+
+  <main id="main" hidden>
+    <section class="tiles" id="tiles"></section>
+    <div class="two">
+      <section class="card">
+        <h2>Skills on each student's latest Mastery Check</h2>
+        <div id="skills"></div>
+      </section>
+      <section class="card">
+        <h2>Most common mistakes (reteach these first)</h2>
+        <div id="mistakes"></div>
+      </section>
+    </div>
+    <section class="card">
+      <h2>Students</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Student</th><th>Per.</th><th>Grade /10</th><th>Parts finished</th><th>Mastery best</th><th>Attempts</th><th>Needs work</th><th>Last active</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const ASSIGNMENT_ID = 'unit2_day46_vector_decomposition_studio';
+    const TEACHER_EMAILS = ['rmudry@orangeusd.org', 'ryan.mudry@gmail.com', 'ryanmudry@gmail.com'];
+    const PARTS = [['p1', '1'], ['p2', '2'], ['p3', '3'], ['p4', '4'], ['gym', 'Gym'], ['honors', 'H'], ['quiz', 'MC']];
+    const SKILLS = {
+      read: 'Read parts off a grid', concept: 'Angle and the parts', choose: 'Choose sin or cos',
+      calc_x: 'Calculate v<sub>0x</sub>', calc_y: 'Calculate v<sub>0y</sub>', sense: 'Does the answer make sense?', honors: 'Honors challenges'
+    };
+    const MISTAKES = {
+      swap: ['Switched sin and cos', 'Have students point to the side that touches θ before choosing.'],
+      radians: ['Calculator in radian mode', 'Show how to switch to DEG.'],
+      no_speed: ['Stopped at the fraction', 'They found sin or cos but did not multiply by v₀.'],
+      divided: ['Divided instead of multiplied', 'Ask: can a part be bigger than the whole speed?'],
+      tan: ['Used tangent', 'v₀ is the hypotenuse, so sin or cos fits.'],
+      no_trig: ['Multiplied by the angle itself', 'Review that cos(θ) is a fraction, not the angle.'],
+      added: ['Added the fraction to the speed', 'Fraction × speed, not fraction + speed.'],
+      whole_speed: ['Gave the whole launch speed', 'Only part of the speed goes each way.'],
+      angle_read: ['Gave the angle as the answer', 'Have them label the answer in m/s.'],
+      decimal: ['Moved the decimal point', 'Check typing and estimate first.'],
+      read: ['Misread the grid', 'Follow the dashed line to the axis, then read it.'],
+      scale: ['Counted squares, ignored the scale', 'Read the key first.'],
+      angle_concept: ['Unsure which part is bigger', 'Low angle: more sideways. Steep angle: more up.'],
+      part_bigger: ['Thinks a part can beat v₀', 'The hypotenuse is always the longest side.'],
+      vertical_angle: ['Angle from vertical confused', 'Honors: find the side touching the given angle.'],
+      sign: ['Lost the negative sign', 'Honors: downward is negative.'],
+      added_parts: ['Added the parts to get v₀', 'Honors: use the Pythagorean theorem.'],
+      multiplied: ['Multiplied going backward', 'Honors: v₀ = v₀ₓ ÷ cos(θ).']
+    };
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
+    let roster = new Map(), docs = [];
+
+    function render() {
+      const period = $('period').value;
+      const merged = new Map();
+      roster.forEach((r, id) => merged.set(id, { id, name: r.name, period: r.period, started: false }));
+      docs.forEach(d => {
+        const r = roster.get(d.id);
+        merged.set(d.id, Object.assign({}, d, {
+          started: true,
+          name: (r && r.name) || d.student_name || d.id,
+          period: d.class_period !== null && d.class_period !== undefined ? String(d.class_period) : (r ? r.period : '?')
+        }));
+      });
+      const all = [...merged.values()];
+      const periods = [...new Set(all.map(s => s.period))].filter(p => p !== '' && p !== undefined).sort((a, b) => Number(a) - Number(b));
+      $('period').innerHTML = '<option value="all">All periods</option>' + periods.map(p => `<option value="${esc(p)}">Period ${esc(p)}</option>`).join('');
+      $('period').value = periods.includes(period) ? period : 'all';
+      const list = all
+        .filter(s => $('period').value === 'all' || s.period === $('period').value)
+        .sort((a, b) => Number(a.period) - Number(b.period) || String(a.name).localeCompare(String(b.name)));
+
+      const started = list.filter(s => s.started);
+      const tookQuiz = started.filter(s => (s.quiz_history || []).length);
+      const avg = tookQuiz.length ? Math.round(tookQuiz.reduce((a, s) => a + (s.quiz_best || 0), 0) / tookQuiz.length) : null;
+      const grown = tookQuiz.filter(s => s.quiz_history.length > 1 && s.quiz_best > s.quiz_history[0]).length;
+      $('tiles').innerHTML = [
+        [`${started.length}/${list.length}`, 'students started'],
+        [String(tookQuiz.length), 'took the Mastery Check'],
+        [avg === null ? '—' : `${avg}%`, 'average best Mastery score'],
+        [String(tookQuiz.filter(s => s.quiz_best >= 75).length), 'scored 75% or higher'],
+        [String(grown), 'improved on a retake']
+      ].map(([n, l]) => `<div class="card tile"><strong>${n}</strong><span>${l}</span></div>`).join('');
+
+      const totals = {};
+      tookQuiz.forEach(s => Object.entries(s.quiz_skills || {}).forEach(([k, v]) => {
+        totals[k] = totals[k] || { right: 0, total: 0 };
+        totals[k].right += v.right; totals[k].total += v.total;
+      }));
+      const skillKeys = Object.keys(SKILLS).filter(k => totals[k]);
+      $('skills').innerHTML = skillKeys.length ? skillKeys.map(k => {
+        const p = Math.round(100 * totals[k].right / totals[k].total);
+        return `<div class="bar-row" title="${totals[k].right} of ${totals[k].total} correct"><span>${SKILLS[k]}</span><span class="bar"><span style="width:${p}%"></span></span><span class="val">${p}%</span></div>`;
+      }).join('') : '<p class="none">No Mastery Checks yet.</p>';
+
+      const counts = {};
+      started.forEach(s => Object.entries(s.mistakes || {}).forEach(([k, v]) => { if (MISTAKES[k]) counts[k] = (counts[k] || 0) + v; }));
+      const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+      $('mistakes').innerHTML = top.length
+        ? top.map(([k, v]) => `<div class="mistake"><b>${v}×</b>${MISTAKES[k][0]}<small>${MISTAKES[k][1]}</small></div>`).join('')
+        : '<p class="none">No mistakes recorded yet.</p>';
+
+      $('rows').innerHTML = list.map(s => {
+        const hist = (s.quiz_history || []);
+        const honors = s.track === 'honors' || s.period === '0';
+        const pills = PARTS.filter(([k]) => k !== 'honors' || honors)
+          .map(([k, label]) => {
+            const pct = (s.parts_progress || {})[k];
+            const partial = pct > 0 && pct < 100;
+            return `<span class="pill ${(s.parts_done || []).includes(k) ? 'on' : ''}">${label}${partial ? ` ${pct}%` : ''}</span>`;
+          }).join('');
+        const weak = Object.entries(s.quiz_skills || {}).filter(([, v]) => v.right < v.total).map(([k]) => SKILLS[k]).filter(Boolean).join(', ');
+        const when = s.timestamp && s.timestamp.toDate ? s.timestamp.toDate().toLocaleString([], { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+        return `<tr><td class="name">${esc(s.name)}${s.certificate_code ? ` <span title="Certificate ${esc(s.certificate_code)}">🎓</span>` : ''}${s.calc_unavailable ? ' <span class="flag" title="Desmos did not load for this student, so they could type answers">⚠ typed</span>' : ''}</td><td>${esc(s.period)}</td><td class="num">${s.started ? (s.score || 0).toFixed(1) : '<span class="none">—</span>'}</td>
+          <td>${s.started ? pills : '<span class="none">Not started</span>'}</td>
+          <td class="num">${hist.length ? `${s.quiz_best}%` : '<span class="none">—</span>'}</td>
+          <td class="num">${hist.length ? hist.map(p => `${p}%`).join(' → ') : ''}</td>
+          <td class="weak">${weak}</td><td>${esc(when)}</td></tr>`;
+      }).join('');
+    }
+
+    function start() {
+      $('gate').hidden = true;
+      $('main').hidden = false;
+      const db = firebase.firestore();
+      db.collection('roster').get().then(snap => {
+        snap.forEach(doc => {
+          const d = doc.data();
+          roster.set(doc.id, {
+            name: d.name || `${d.first_name || ''} ${d.last_name || ''}`.trim() || doc.id,
+            period: String(d.period ?? d.class_period ?? '')
+          });
+        });
+        render();
+      }).catch(e => console.warn('Roster not loaded:', e));
+      db.collection('student_results').doc(ASSIGNMENT_ID).collection('students').onSnapshot(snap => {
+        docs = snap.docs.map(d => Object.assign({ id: d.id }, d.data()));
+        render();
+      }, e => { $('tiles').innerHTML = `<p class="err">Could not load results: ${esc(e.message)}</p>`; });
+    }
+
+    function demo() {
+      $('demoBanner').hidden = false;
+      $('gate').hidden = true;
+      $('main').hidden = false;
+      roster = new Map([['s9', { name: 'Sample Student I', period: '1' }]]);
+      const skills = (a, b) => ({ read: { right: 1, total: 1 }, concept: { right: 1, total: 1 }, choose: { right: a, total: 1 }, calc_x: { right: b, total: 2 }, calc_y: { right: b, total: 2 }, sense: { right: 1, total: 1 } });
+      docs = [
+        { id: 's1', student_name: 'Sample Student A', class_period: 1, score: 8.5, parts_done: ['p1', 'p2', 'p3', 'p4', 'gym', 'quiz'], quiz_best: 63, quiz_history: [38, 63], quiz_skills: skills(0, 1), mistakes: { swap: 5, radians: 2 } },
+        { id: 's2', student_name: 'Sample Student B', class_period: 1, score: 1.8, parts_done: ['p1'], parts_progress: { p1: 100, p2: 38 }, quiz_history: [], mistakes: { read: 3, swap: 1 } },
+        { id: 's3', student_name: 'Sample Student C', class_period: 4, score: 10, parts_done: ['p1', 'p2', 'p3', 'p4', 'gym', 'quiz'], quiz_best: 100, quiz_history: [75, 100], quiz_skills: skills(1, 2), mistakes: { no_speed: 1 } },
+        { id: 's4', student_name: 'Sample Student D', class_period: 0, track: 'honors', score: 9.1, parts_done: ['p1', 'p2', 'p3', 'p4', 'gym', 'honors', 'quiz'], quiz_best: 80, quiz_history: [80], quiz_skills: Object.assign(skills(1, 2), { honors: { right: 0, total: 2 } }), mistakes: { vertical_angle: 2 } }
+      ];
+      render();
+    }
+
+    $('period').addEventListener('change', render);
+    if (new URLSearchParams(location.search).has('demo')) demo();
+    else {
+      $('btnSignIn').addEventListener('click', () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().signInWithPopup(provider).catch(e => { $('gateErr').textContent = e.message; });
+      });
+      firebase.auth().onAuthStateChanged(user => {
+        const email = user && (user.email || '').toLowerCase();
+        if (user && TEACHER_EMAILS.includes(email)) start();
+        else {
+          $('main').hidden = true;
+          $('gate').hidden = false;
+          if (user) { $('gateErr').textContent = 'This page is for the teacher only.'; firebase.auth().signOut(); }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
