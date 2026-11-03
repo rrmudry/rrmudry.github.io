@@ -3,6 +3,16 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-02 — Projectile Range Studio: Three-Class Hang Time & Range on One Flight
+**Patterns Updated**: `projectile-range-studio.md` (new).
+**Files Added/Updated**: `Unit_2/projectile_range_studio/`, `admin/projectile_range_monitor.html`, `admin/index.html`, `tests/projectileRange.test.js`.
+
+**Changes**:
+- Pushed for teacher testing only. The Day 47 links in `assets/lessons-data.js` are held back until the teacher is ready to assign it.
+- Added a guided studio where Conceptual (P1–3) counts seconds with no trig, CP (P4–6) reads v<sub>ox</sub> and v<sub>oy</sub> from a vector diagram, and Honors (P0) decomposes with sin and cos. All three end with ΔX = v<sub>ox</sub> × t.
+- Added a teacher-only monitor. The `?demo` sample data runs only on localhost.
+- Not deployed to Classroom yet, so `npm run verify` has not run for this assignment.
+
 ## 2026-11-02 — Day 46 Angled Projectiles: Low-Cognitive-Load 2-Page Follow-Along Guided Notes & Slide Deck Integration
 **Patterns Updated**: `low-stress-worksheet-skill.md`.
 **Files Added/Updated**: `Unit_2/worksheets/Day46_Angled_Projectiles_Guided_Notes.html`, `Unit_2/worksheets/Day46_Angled_Projectiles_Guided_Notes.pdf`, `assets/lessons-data.js`, `partials/footer.html`.
