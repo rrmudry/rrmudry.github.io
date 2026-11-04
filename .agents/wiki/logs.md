@@ -10,7 +10,7 @@ Append-only log tracking pattern changes across recent sessions.
 **Changes**:
 - Added Back on every step, kept the calculator clear of the buttons on short windows, and stacked calculations one step per line.
 - Added a PDF completion certificate with the same rules as the Vector Decomposition Studio.
-- Still not linked from Day 47 or posted to Classroom.
+- Posted to Classroom for all 7 periods (10 pts, due Nov 4, 6:00 PM), passed `npm run verify`, and linked from Day 47.
 
 ## 2026-11-02 — Projectile Range Studio: Three-Class Hang Time & Range on One Flight
 **Patterns Updated**: `projectile-range-studio.md` (new).

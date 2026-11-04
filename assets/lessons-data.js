@@ -5251,9 +5251,19 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Projectile Range Studio": "Unit_2/projectile_range_studio/index.html",
       "Interactive Projectile Motion Tutorial": "interactive-projectile-motion-tutorial/index.html"
     },
     "assignments": [
+      {
+        "title": "Projectile Range Studio",
+        "url": "Unit_2/projectile_range_studio/index.html",
+        "typeLabel": "Interactive Studio & Mastery Check",
+        "submission": "Automatic Classroom Sync (10 pts)",
+        "actionLabel": "Launch Range Studio",
+        "description": "See a launch split into two motions, find how long it stays in the air, then use that time to find how far it goes. Earn credit for every step, then pass the Mastery Check.",
+        "status": "active"
+      },
       {
         "title": "Apogee & Hang-Time Problem Set",
         "typeLabel": "Problem Set",
@@ -5264,6 +5274,12 @@ const lessonsData = [
       }
     ],
     "resources": [
+      {
+        "title": "Projectile Range Studio",
+        "url": "Unit_2/projectile_range_studio/index.html",
+        "typeLabel": "Interactive Studio",
+        "description": "Step through a flight second by second to find hang time and range."
+      },
       {
         "title": "Interactive Projectile Motion Tutorial",
         "url": "interactive-projectile-motion-tutorial/index.html",
