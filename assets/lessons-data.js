@@ -5251,6 +5251,7 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Projectile Motion 2 angles (Slides)": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQBKUM90s6lPRpagPMzhMbp8AePjnyBo_L_in6NdwpD72NQ?e=fhfaOC",
       "Projectile Range Studio": "Unit_2/projectile_range_studio/index.html",
       "Interactive Projectile Motion Tutorial": "interactive-projectile-motion-tutorial/index.html"
     },
@@ -5274,6 +5275,12 @@ const lessonsData = [
       }
     ],
     "resources": [
+      {
+        "title": "Projectile Motion 2 angles (Slides)",
+        "url": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQBKUM90s6lPRpagPMzhMbp8AePjnyBo_L_in6NdwpD72NQ?e=fhfaOC",
+        "typeLabel": "Classroom Slides",
+        "description": "Lecture and guided problem slides covering 2D angled projectiles, flight time symmetry, and calculating maximum height."
+      },
       {
         "title": "Projectile Range Studio",
         "url": "Unit_2/projectile_range_studio/index.html",
