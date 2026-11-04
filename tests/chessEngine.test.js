@@ -57,5 +57,11 @@ for (const diff of ['easy', 'medium', 'hard', 'master']) {
   assert(mv && mv.from && mv.to, `Bot (${diff}) should pick a valid move`);
 }
 
+// 6. Move Score Record & Accuracy Summary
+const summary = C.summarizeMoveScores(g);
+assert(typeof summary.w.accuracy === 'number' && summary.w.accuracy > 0, 'White accuracy should be calculated');
+assert(typeof summary.b.accuracy === 'number' && summary.b.accuracy > 0, 'Black accuracy should be calculated');
+assert(g.history.every(h => h.grade && h.symbol && h.evalText), 'Every move should have grade, symbol, and evalText');
+
 console.log('✅ All ChessEngine unit tests passed!');
 

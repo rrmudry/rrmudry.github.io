@@ -111,6 +111,13 @@
     btnAcceptDraw: document.getElementById('btnAcceptDraw'),
     btnDeclineDraw: document.getElementById('btnDeclineDraw'),
     moveCounter: document.getElementById('moveCounter'),
+    btnCopyScoreSheet: document.getElementById('btnCopyScoreSheet'),
+    evalBarWhite: document.getElementById('evalBarWhite'),
+    evalScorePill: document.getElementById('evalScorePill'),
+    accWhite: document.getElementById('accWhite'),
+    chipsWhite: document.getElementById('chipsWhite'),
+    accBlack: document.getElementById('accBlack'),
+    chipsBlack: document.getElementById('chipsBlack'),
     moveLogWrap: document.getElementById('moveLogWrap'),
     moveTableBody: document.getElementById('moveTableBody'),
 
@@ -1323,18 +1330,66 @@
       }
     }
 
-    // Move log table
+    // Move Score Record: Live Position Evaluation Bar & Accuracy Summary
+    const summary = ChessEngine.summarizeMoveScores(chessState);
+    if (el.evalBarWhite) {
+      el.evalBarWhite.style.width = `${summary.whiteBarPct}%`;
+    }
+    if (el.evalScorePill) {
+      el.evalScorePill.textContent = summary.evalText;
+    }
+    if (el.accWhite) {
+      el.accWhite.textContent = summary.w.accuracy !== null ? `${summary.w.accuracy}%` : '—%';
+    }
+    if (el.accBlack) {
+      el.accBlack.textContent = summary.b.accuracy !== null ? `${summary.b.accuracy}%` : '—%';
+    }
+    if (el.chipsWhite) {
+      el.chipsWhite.innerHTML = formatScoreChips(summary.w);
+    }
+    if (el.chipsBlack) {
+      el.chipsBlack.innerHTML = formatScoreChips(summary.b);
+    }
+
+    // Move Score Record Table
     const hist = chessState.history;
     el.moveCounter.textContent = `Move ${chessState.fullMove}`;
     let rowsHtml = '';
     for (let i = 0; i < hist.length; i += 2) {
       const num = Math.floor(i / 2) + 1;
-      const wSan = hist[i]?.san || '';
-      const bSan = hist[i + 1]?.san || '';
-      rowsHtml += `<tr><td class="num">${num}.</td><td>${esc(wSan)}</td><td>${esc(bSan)}</td></tr>`;
+      rowsHtml += `<tr><td class="num">${num}.</td><td>${formatMoveScoreCell(hist[i])}</td><td>${formatMoveScoreCell(hist[i + 1])}</td></tr>`;
     }
     el.moveTableBody.innerHTML = rowsHtml;
     el.moveLogWrap.scrollTop = el.moveLogWrap.scrollHeight;
+  }
+
+  function formatScoreChips(s) {
+    if (!s || !s.moves) return '<span>0 moves</span>';
+    const parts = [];
+    const starCount = (s.great || 0) + (s.best || 0);
+    if (starCount > 0) parts.push(`<span class="grade-badge grade-best" title="Great / Best moves">★${starCount}</span>`);
+    if (s.good > 0) parts.push(`<span class="grade-badge grade-good" title="Good moves">✓${s.good}</span>`);
+    if (s.inaccuracy > 0) parts.push(`<span class="grade-badge grade-inaccuracy" title="Inaccuracies">?!${s.inaccuracy}</span>`);
+    if (s.mistake > 0) parts.push(`<span class="grade-badge grade-mistake" title="Mistakes">?${s.mistake}</span>`);
+    if (s.blunder > 0) parts.push(`<span class="grade-badge grade-blunder" title="Blunders">??${s.blunder}</span>`);
+    return parts.join('') || `<span>${s.moves}m</span>`;
+  }
+
+  function formatMoveScoreCell(mv) {
+    if (!mv || !mv.san) return '';
+    const grade = mv.grade || 'best';
+    const sym = mv.symbol || '★';
+    const label = mv.gradeLabel || 'Best';
+    const evalTxt = mv.evalText || '0.0';
+    const tip = `${label} (${mv.moveScore ?? 100} pts · Eval ${evalTxt})`;
+    return `
+      <div class="move-cell-inner" title="${esc(tip)}">
+        <span class="move-san">${esc(mv.san)}</span>
+        <span class="move-meta">
+          <span class="grade-badge grade-${esc(grade)}">${esc(sym)}</span>
+          <span class="eval-num">${esc(evalTxt)}</span>
+        </span>
+      </div>`;
   }
 
   // ------------------------------------------------------------------
@@ -1730,6 +1785,47 @@
     boardFlipped = !boardFlipped;
     renderFullArena();
   });
+
+  if (el.btnCopyScoreSheet) {
+    el.btnCopyScoreSheet.addEventListener('click', async () => {
+      if (!chessState) return;
+      const summary = ChessEngine.summarizeMoveScores(chessState);
+      const wName = (gameMode === 'online' || gameMode === 'spectate')
+        ? (activeMatchDoc?.white?.name || 'White')
+        : (myColor === 'w' ? bottomPlayerMeta.name : topPlayerMeta.name);
+      const bName = (gameMode === 'online' || gameMode === 'spectate')
+        ? (activeMatchDoc?.black?.name || 'Black')
+        : (myColor === 'b' ? bottomPlayerMeta.name : topPlayerMeta.name);
+      const wAcc = summary.w.accuracy !== null ? `${summary.w.accuracy}%` : '—';
+      const bAcc = summary.b.accuracy !== null ? `${summary.b.accuracy}%` : '—';
+
+      const lines = [
+        `♟️ Classroom Chess — Move Score Record`,
+        `White: ${wName} (Accuracy: ${wAcc})`,
+        `Black: ${bName} (Accuracy: ${bAcc})`,
+        `Status: ${el.gameStatusBanner.textContent}`,
+        `----------------------------------------`
+      ];
+
+      const hist = chessState.history;
+      for (let i = 0; i < hist.length; i += 2) {
+        const num = Math.floor(i / 2) + 1;
+        const w = hist[i];
+        const b = hist[i + 1];
+        const wStr = w ? `${w.san}${w.symbol || ''} (${w.evalText || '0.0'})` : '';
+        const bStr = b ? `${b.san}${b.symbol || ''} (${b.evalText || '0.0'})` : '';
+        lines.push(`${String(num).padStart(2, ' ')}. ${wStr.padEnd(16, ' ')} ${bStr}`);
+      }
+
+      const text = lines.join('\n');
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('📋 Move Score Record copied to clipboard!');
+      } catch (e) {
+        showToast('📋 Score record ready.');
+      }
+    });
+  }
 
   el.btnHint.addEventListener('click', () => {
     if (!chessState || gameEnded || gameMode === 'online' || gameMode === 'spectate') return;

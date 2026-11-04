@@ -455,6 +455,7 @@
       next.captured[st.turn].push(mv.captured);
     }
 
+    const scoreMeta = evaluateMoveQuality(st, mv, allLegal, fast);
     const hash = posHash(next.board, next.turn, next.castling, next.ep);
     next.hashes.push(hash);
     next.history.push({
@@ -467,7 +468,8 @@
       epCapture: !!mv.epCapture,
       san,
       by: st.turn,
-      at: Date.now()
+      at: Date.now(),
+      ...scoreMeta
     });
 
     return next;
@@ -671,6 +673,127 @@
     return `<svg viewBox="0 0 45 45" class="chess-svg piece-${code}" aria-hidden="true">${shapes[type] || ''}</svg>`;
   }
 
+  // ------------------------------------------------------------------
+  // Move Score Record & Position Evaluation Summary
+  // ------------------------------------------------------------------
+  function evaluateMoveQuality(stBefore, mv, allLegal, fastAfter) {
+    const mover = stBefore.turn;
+    const playedEval = -negamax(fastAfter, 1, -Infinity, Infinity);
+    const topCandidates = orderMoves(allLegal).slice(0, 6);
+    let bestEval = playedEval;
+    for (const cand of topCandidates) {
+      if (cand.from[0] === mv.from[0] && cand.from[1] === mv.from[1] && cand.to[0] === mv.to[0] && cand.to[1] === mv.to[1]) {
+        continue;
+      }
+      const afterCand = applyMoveFast(stBefore, cand);
+      const val = -negamax(afterCand, 1, -Infinity, Infinity);
+      if (val > bestEval) bestEval = val;
+    }
+
+    const cpLoss = Math.max(0, Math.round(bestEval - playedEval));
+    const evalWhiteCp = mover === 'w' ? playedEval : -playedEval;
+    let evalText = '0.0';
+    let evalPawns = 0;
+
+    if (Math.abs(evalWhiteCp) >= 18000) {
+      evalPawns = evalWhiteCp > 0 ? 99 : -99;
+      evalText = evalWhiteCp > 0 ? '1-0' : '0-1';
+    } else {
+      evalPawns = Number((evalWhiteCp / 100).toFixed(1));
+      evalText = (evalPawns > 0 ? '+' : '') + evalPawns.toFixed(1);
+    }
+
+    let grade = 'best';
+    let symbol = '★';
+    let gradeLabel = 'Best';
+    let moveScore = 100;
+
+    if (playedEval >= 18000 || (cpLoss <= 18 && (mv.captured || mv.promo))) {
+      grade = 'great';
+      symbol = '!';
+      gradeLabel = playedEval >= 18000 ? 'Checkmate' : 'Great';
+      moveScore = 100;
+    } else if (cpLoss <= 25) {
+      grade = 'best';
+      symbol = '★';
+      gradeLabel = 'Best';
+      moveScore = 100;
+    } else if (cpLoss <= 65) {
+      grade = 'good';
+      symbol = '✓';
+      gradeLabel = 'Good';
+      moveScore = 86;
+    } else if (cpLoss <= 145) {
+      grade = 'inaccuracy';
+      symbol = '?!';
+      gradeLabel = 'Inaccuracy';
+      moveScore = 58;
+    } else if (cpLoss <= 275) {
+      grade = 'mistake';
+      symbol = '?';
+      gradeLabel = 'Mistake';
+      moveScore = 28;
+    } else {
+      grade = 'blunder';
+      symbol = '??';
+      gradeLabel = 'Blunder';
+      moveScore = 5;
+    }
+
+    return {
+      evalWhite: evalPawns,
+      evalText,
+      cpLoss,
+      grade,
+      symbol,
+      gradeLabel,
+      moveScore
+    };
+  }
+
+  function summarizeMoveScores(st) {
+    const createSide = () => ({
+      moves: 0,
+      scoreSum: 0,
+      accuracy: null,
+      great: 0,
+      best: 0,
+      good: 0,
+      inaccuracy: 0,
+      mistake: 0,
+      blunder: 0
+    });
+    const sides = { w: createSide(), b: createSide() };
+    const hist = (st && st.history) || [];
+    for (const h of hist) {
+      const s = sides[h.by];
+      if (!s) continue;
+      s.moves++;
+      s.scoreSum += Number(h.moveScore ?? 85);
+      if (s[h.grade] !== undefined) s[h.grade]++;
+    }
+    for (const k of ['w', 'b']) {
+      if (sides[k].moves > 0) {
+        sides[k].accuracy = Math.round(sides[k].scoreSum / sides[k].moves);
+      }
+    }
+
+    const last = hist.length ? hist[hist.length - 1] : null;
+    const evalWhite = last ? Number(last.evalWhite || 0) : 0;
+    const evalText = last ? (last.evalText || '0.0') : '0.0';
+    // Clamp visual evaluation bar between 6% and 94%
+    const clamped = Math.max(-10, Math.min(10, evalWhite));
+    const whiteBarPct = Math.round(50 + (clamped / 10) * 44);
+
+    return {
+      w: sides.w,
+      b: sides.b,
+      evalWhite,
+      evalText,
+      whiteBarPct
+    };
+  }
+
   const ChessEngine = {
     FILES,
     MATERIAL_PTS,
@@ -686,6 +809,7 @@
     evaluateStatus,
     materialBalance,
     chooseBotMove,
+    summarizeMoveScores,
     pieceSVG
   };
 

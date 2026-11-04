@@ -309,12 +309,51 @@
           </div>
 
           <div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-              <strong style="font-size: 0.84rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted);">Move History</strong>
-              <span id="moveCounter" style="font-size: 0.8rem; color: var(--text-dim);">Move 1</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.4rem; margin-bottom: 0.4rem;">
+              <strong style="font-size: 0.84rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted);">📊 Move Score Record</strong>
+              <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <span id="moveCounter" style="font-size: 0.78rem; color: var(--text-dim);">Move 1</span>
+                <button class="btn" id="btnCopyScoreSheet" style="padding: 0.2rem 0.5rem; font-size: 0.74rem;" title="Copy annotated Move Score Record">📋 Copy Record</button>
+              </div>
             </div>
+
+            <!-- Live Position Evaluation Bar -->
+            <div class="eval-bar-row" title="Live position evaluation (+ favors White, - favors Black)">
+              <span class="eval-label">⬜</span>
+              <div class="eval-track">
+                <div class="eval-fill-white" id="evalBarWhite" style="width: 50%;"></div>
+              </div>
+              <span class="eval-label">⬛</span>
+              <span class="eval-pill" id="evalScorePill">0.0</span>
+            </div>
+
+            <!-- White vs Black Move Accuracy & Breakdown -->
+            <div class="score-summary-grid" id="moveScoreSummary">
+              <div class="score-side-card">
+                <div class="score-side-head">
+                  <span>⬜ White</span>
+                  <strong id="accWhite">—%</strong>
+                </div>
+                <div class="score-chips" id="chipsWhite">0 moves</div>
+              </div>
+              <div class="score-side-card">
+                <div class="score-side-head">
+                  <span>⬛ Black</span>
+                  <strong id="accBlack">—%</strong>
+                </div>
+                <div class="score-chips" id="chipsBlack">0 moves</div>
+              </div>
+            </div>
+
             <div class="move-log-wrap" id="moveLogWrap">
               <table class="move-table">
+                <thead>
+                  <tr>
+                    <th class="num">#</th>
+                    <th>White (Move · Score)</th>
+                    <th>Black (Move · Score)</th>
+                  </tr>
+                </thead>
                 <tbody id="moveTableBody"></tbody>
               </table>
             </div>
