@@ -341,7 +341,7 @@
 **Pattern Updated**: `bell-ringer-config.md`.
 
 **Changes**:
-- **Built Quality & Effort Evaluation Engine ("Half-Ass Filter")**:
+- **Built Quality & Effort Evaluation Engine ("Effort & Quality Verification")**:
   - Implemented multi-criteria quality scoring in `sync-classroom/sync-bellringers.js` across all 4 activity types:
     - `cast_challenge`: Requires `percentComplete >= 50%` or `completedSteps >= 2` (filters out students submitting 0% or blank).
     - `concept_chat`: Requires >= 2 user chat turns or substantive single message >= 15 chars (filters out students bypassing the chat by clicking "Finish Session" with 0 turns).

@@ -107,10 +107,10 @@ The classroom dashboard shows color-coded tiles per student:
 
 Bell-Ringers can be graded cumulatively or on a weekly cadence using `sync-classroom/sync-bellringers.js`.
 
-### Quality & Effort Evaluation Engine ("The Half-Ass Filter")
+### Quality & Effort Evaluation Engine ("Effort & Quality Verification")
 To ensure students who cut corners do not receive participation credit, each submission is evaluated by activity type:
 
-| Activity Type | Genuine Effort (Earns Points) | Low Effort / Half-Assing (0 Credit) |
+| Activity Type | Genuine Effort (Earns Points) | Low Effort / Incomplete (0 Credit) |
 |---|---|---|
 | **CAST Challenge** | `percentComplete >= 50%` or `completedSteps >= 2` | 0% completed, blank fields, or 0 steps answered |
 | **Concept Chat** | >= 1 genuine good-faith user turn (score >= 70%) | 0 user turns (no response), explicit opt-outs (`"idk"`, `"pass"`), or score < 70% |

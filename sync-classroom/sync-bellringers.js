@@ -3,7 +3,7 @@
  * Bell-Ringer Grading & Gradebook Sync CLI
  * 
  * Automatically aggregates student Bell-Ringer submissions from Firestore,
- * evaluates scientific quality using the "half-ass" filter, applies the fairness cushion,
+ * evaluates scientific quality using the effort and quality verification filter, applies the fairness cushion,
  * records results in Firestore `student_results`, registers coursework in `assignment_registry`,
  * and syncs/returns grades in Google Classroom across all periods.
  * 
@@ -108,7 +108,7 @@ function getClassroomClient() {
 }
 
 // =====================================================================
-// 4. Quality & Effort Evaluation Engine ("The Half-Ass Filter")
+// 4. Quality & Effort Evaluation Engine ("Effort & Quality Verification")
 // =====================================================================
 function evaluateSubmission(sub) {
   if (sub.excused === true || sub.isExcused === true) {
@@ -163,9 +163,9 @@ function evaluateSubmission(sub) {
   // free_response
   const resp = (sub.studentResponse || '').trim();
   const lower = resp.toLowerCase();
-  const optOuts = ['idk', "i don't know", "i dont know", 'none', 'nothing', 'no', 'n/a', 'na'];
+  const optOuts = ['idk', "i don't know", "i dont know", "i'm not sure", 'im not sure', "i'm not sore", 'not sure', 'none', 'nothing', 'no', 'n/a', 'na', 'pass', 'asdf', 'qwerty'];
   const isZeroScore = sub.effortScore === '0' || sub.effortScore === 0;
-  if (resp.length < 15 || optOuts.includes(lower) || isZeroScore) {
+  if (resp.length < 3 || optOuts.includes(lower) || isZeroScore) {
     return { isGenuine: false, type, reason: `free_response_low_effort ("${resp.substring(0, 25)}")` };
   }
   return { isGenuine: true, type, reason: 'free_response_genuine' };
@@ -236,7 +236,8 @@ Flags:
     7: { start: '2026-09-28', end: '2026-10-02' },
     8: { start: '2026-10-05', end: '2026-10-09' },
     9: { start: '2026-10-12', end: '2026-10-16' },
-    10: { start: '2026-10-19', end: '2026-10-23' }
+    10: { start: '2026-10-19', end: '2026-10-23', target: 2, periodTargets: { 0: 2, 1: 2, 2: 3, 3: 3, 4: 2, 5: 2, 6: 2 } },
+    11: { start: '2026-10-26', end: '2026-10-30', target: 3, periodTargets: { 0: 3, 1: 2, 2: 3, 3: 3, 4: 3, 5: 3, 6: 3 } }
   };
 
   // Set defaults based on mode
@@ -263,24 +264,26 @@ Moving forward, Bell-Ringers will be graded weekly at 4 points per day (20 point
   } else {
     // Weekly mode
     if (!options.weekNumber) {
-      options.weekNumber = 6;
+      options.weekNumber = 11;
     }
-    if (WEEK_CALENDAR[options.weekNumber]) {
-      if (!options.startDate) options.startDate = WEEK_CALENDAR[options.weekNumber].start;
-      if (!options.endDate) options.endDate = WEEK_CALENDAR[options.weekNumber].end;
+    const weekCfg = WEEK_CALENDAR[options.weekNumber];
+    if (weekCfg) {
+      if (!options.startDate) options.startDate = weekCfg.start;
+      if (!options.endDate) options.endDate = weekCfg.end;
+      if (!options.targetGenuine && weekCfg.target) options.targetGenuine = weekCfg.target;
+      if (weekCfg.periodTargets) options.periodTargets = weekCfg.periodTargets;
     }
     if (!options.startDate || !options.endDate) {
-      options.startDate = '2026-09-21';
-      options.endDate = '2026-09-25';
+      options.startDate = '2026-10-26';
+      options.endDate = '2026-10-30';
     }
     if (!options.maxPoints) options.maxPoints = 20;
     if (!options.targetGenuine) options.targetGenuine = 5;
     options.assignmentId = `bell_ringer_week_${options.weekNumber}`;
     options.title = `Bell-Ringer: Week ${options.weekNumber} (${options.startDate} to ${options.endDate})`;
-    options.description =
-`Weekly Bell-Ringer grade for ${options.startDate} to ${options.endDate}.
-Each day's genuine Bell-Ringer activity is worth 4 points (4 pts/day × 5 days = 20 points total).
-Submissions flagged for zero effort or opt-outs receive 0 points.`;
+    options.description = options.periodTargets
+      ? `Weekly Bell-Ringer grade for ${options.startDate} to ${options.endDate} (20 points total).\n• Full Credit (20/20 pts): Awarded for completing at least 3 genuine Bell-Ringer activities (2 days in Period 1) to account for the Wed/Thu block schedule and lab pacing.\n• Partial Credit: 2 days = 15/20 pts (75%), 1 day = 10/20 pts (50%) [Period 1: 1 day = 14/20 pts (70%)].\n• Submissions flagged for zero effort or opt-outs receive 0 points.`
+      : `Weekly Bell-Ringer grade for ${options.startDate} to ${options.endDate}.\nEach day's genuine Bell-Ringer activity is worth 4 points (4 pts/day × 5 days = 20 points total).\nSubmissions flagged for zero effort or opt-outs receive 0 points.`;
   }
 
   return options;
@@ -353,20 +356,30 @@ async function main() {
     // Filter by period if requested
     if (options.period !== null && s.period !== options.period) return;
 
-    s.totalSubmitted++;
-
     const evalResult = evaluateSubmission(d);
-    s.submissionsByDate[date] = {
-      isGenuine: evalResult.isGenuine,
-      type: evalResult.type,
-      reason: evalResult.reason
-    };
-
-    if (evalResult.isGenuine) {
+    const prev = s.submissionsByDate[date];
+    if (!prev) {
+      s.totalSubmitted++;
+      s.submissionsByDate[date] = {
+        isGenuine: evalResult.isGenuine,
+        type: evalResult.type,
+        reason: evalResult.reason
+      };
+      if (evalResult.isGenuine) {
+        s.genuineCount++;
+      } else {
+        s.lowEffortCount++;
+        s.flaggedList.push({ date, type: evalResult.type, reason: evalResult.reason });
+      }
+    } else if (!prev.isGenuine && evalResult.isGenuine) {
+      s.submissionsByDate[date] = {
+        isGenuine: true,
+        type: evalResult.type,
+        reason: evalResult.reason
+      };
       s.genuineCount++;
-    } else {
-      s.lowEffortCount++;
-      s.flaggedList.push({ date, type: evalResult.type, reason: evalResult.reason });
+      s.lowEffortCount = Math.max(0, s.lowEffortCount - 1);
+      s.flaggedList = s.flaggedList.filter(f => f.date !== date);
     }
   });
 
@@ -379,7 +392,6 @@ async function main() {
     return true;
   });
 
-  const ptsPerGenuine = options.maxPoints / options.targetGenuine;
   const gradeDistribution = { A: 0, B: 0, C: 0, D: 0, F: 0, Zero: 0 };
   let totalPointsAssigned = 0;
   let totalGenuineSubmissions = 0;
@@ -389,10 +401,27 @@ async function main() {
     totalGenuineSubmissions += s.genuineCount;
     totalFlaggedSubmissions += s.lowEffortCount;
 
-    // Score calculation with fairness cushion
-    let score = Math.min(options.maxPoints, Math.round(s.genuineCount * ptsPerGenuine * 10) / 10);
-    // If no submissions at all
-    if (s.totalSubmitted === 0) score = 0;
+    const studentTarget = (options.periodTargets && options.periodTargets[s.period]) || options.targetGenuine;
+    s.targetGenuine = studentTarget;
+
+    let score = 0;
+    if (s.genuineCount <= 0 || s.totalSubmitted === 0) {
+      score = 0;
+    } else if (options.periodTargets && options.maxPoints === 20) {
+      if (studentTarget === 2) {
+        // Period 1 (2-day target): 2+ days = 20/20 (100%), 1 day = 14/20 (70%)
+        score = s.genuineCount >= 2 ? 20 : 14;
+      } else if (studentTarget === 3) {
+        // Periods 0, 2–6 (3-day target): 3+ days = 20/20 (100%), 2 days = 15/20 (75%), 1 day = 10/20 (50%)
+        score = s.genuineCount >= 3 ? 20 : (s.genuineCount === 2 ? 15 : 10);
+      } else {
+        const ptsPerGenuine = options.maxPoints / studentTarget;
+        score = Math.min(options.maxPoints, Math.round(s.genuineCount * ptsPerGenuine * 10) / 10);
+      }
+    } else {
+      const ptsPerGenuine = options.maxPoints / studentTarget;
+      score = Math.min(options.maxPoints, Math.round(s.genuineCount * ptsPerGenuine * 10) / 10);
+    }
 
     const percent = Math.min(100, Math.round((score / options.maxPoints) * 100));
     s.score = score;
@@ -417,7 +446,7 @@ async function main() {
   console.log('-----------------------------------------------------------------');
   console.log(` Total Evaluated Students: ${studentList.length}`);
   console.log(` Genuine Submissions:      ${totalGenuineSubmissions} (${Math.round((totalGenuineSubmissions / (totalGenuineSubmissions + totalFlaggedSubmissions || 1)) * 100)}%)`);
-  console.log(` Flagged Half-Assed/Opt:   ${totalFlaggedSubmissions}`);
+  console.log(` Flagged Low-Effort/Opt:   ${totalFlaggedSubmissions}`);
   console.log(` Class Average Score:      ${(totalPointsAssigned / studentList.length).toFixed(1)} / ${options.maxPoints} (${avgPercent}%)`);
   console.log('\n Grade Breakdown:');
   console.log(`   🟢 A (90–100%):   ${gradeDistribution.A} students`);
@@ -492,7 +521,7 @@ async function main() {
       genuineCount: s.genuineCount,
       lowEffortCount: s.lowEffortCount,
       totalSubmitted: s.totalSubmitted,
-      targetGenuine: options.targetGenuine,
+      targetGenuine: s.targetGenuine || options.targetGenuine,
       assignmentTitle: options.title,
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
     }, { merge: true });

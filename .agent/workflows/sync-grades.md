@@ -76,7 +76,7 @@ npm run sync -- --force
 ```
 
 ### 7. Bell-Ringer Gradebook Sync (Weekly & Retroactive)
-To sync Bell-Ringer grades (which uses the automatic "half-ass" filter to disallow zero-effort bypasses like 0-turn chats or 0% CAST submissions):
+To sync Bell-Ringer grades (which uses the automatic effort and quality verification filter to disallow zero-effort bypasses like 0-turn chats or 0% CAST submissions):
 ```bash
 cd sync-classroom
 
