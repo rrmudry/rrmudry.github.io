@@ -3,6 +3,15 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-03 — Projectile Range Studio: Back Button, Stacked Math, Calculator Fit, Certificate
+**Patterns Updated**: `projectile-range-studio.md`.
+**Files Added/Updated**: `Unit_2/projectile_range_studio/`, `admin/projectile_range_monitor.html`, `tests/projectileRange.test.js`.
+
+**Changes**:
+- Added Back on every step, kept the calculator clear of the buttons on short windows, and stacked calculations one step per line.
+- Added a PDF completion certificate with the same rules as the Vector Decomposition Studio.
+- Still not linked from Day 47 or posted to Classroom.
+
 ## 2026-11-02 — Projectile Range Studio: Three-Class Hang Time & Range on One Flight
 **Patterns Updated**: `projectile-range-studio.md` (new).
 **Files Added/Updated**: `Unit_2/projectile_range_studio/`, `admin/projectile_range_monitor.html`, `admin/index.html`, `tests/projectileRange.test.js`.

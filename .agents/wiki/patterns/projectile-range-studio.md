@@ -24,6 +24,9 @@ Range is ΔX = v<sub>ox</sub> × t for everyone.
 - **Arrow labels stay whole numbers while the ball moves.** Showing 8.28 m/s mid-animation between seconds was distracting.
 - **Follow-through grading** on the Mastery Check: later steps are graded against the student's own earlier answers, so one slip costs one point. In guided parts a wrong answer restarts the problem with new numbers, while radian mode gets a retry with no penalty.
 - **The picture never resizes.** The teacher disliked it shrinking when Start over wrapped the controls to a new line. The control, ladder and solved rows hold a fixed height on every page, even when empty, and Start over uses `visibility` at time 0 so Next second stays put.
+- **Back is on every page** except the very first page and a page showing a wrong answer, whose only way forward is new numbers. Each replaced problem is pushed on `part.trail`, so Back restores its numbers and answers, and answered pages reopen answered. Going forward past a restored problem deals new numbers for the next one. Credit never drops.
+- **Calculations are stacked, never chained.** The teacher said `ΔX = v_ox × t = 20 × 6 = 120 m` was hard for students to decode. `PR.stack` splits on ` = ` and draws one step per line with the equals signs aligned, and worked examples carry units.
+- **Certificate**: same rule as the Vector Decomposition Studio: every part finished and 75% or higher on the Mastery Check, signed-in students only, downloaded as a PDF from `js/certificate.js`. Honors adds one line on the PDF; P1–6 get no class label. The monitor shows 🎓 from `certificate_code`.
 - **Layout**: `body` is a 100vh flex column and the workbench takes the rest. A fixed `calc(100vh - header)` broke in projector mode, where the header height changes.
 
 ## Calculator reuse

@@ -5,7 +5,7 @@
 // A wrong answer shows why, then restarts from the page marked `fresh` with new numbers.
 
 (function () {
-  const T = window.PR.TEACH_LAUNCH;
+  const T = window.PR.TEACH_LAUNCH, stack = window.PR.stack;
 
   // ---------- What the picture shows on a problem page ----------
   // The numbers for a problem live on the picture, never in the words.
@@ -87,8 +87,8 @@
               <li>Count the squares along the arrow.</li>
               <li>Multiply.</li>
             </ol>
-            <p class="worked-line"><span class="formula">v_ox = 4 squares × 5 m/s = 20 m/s</span></p>
-            <p class="worked-line"><span class="formula">v_oy = 6 squares × 5 m/s = 30 m/s</span></p>`,
+            <p class="worked-line">${stack('v_ox = 4 squares × 5 m/s = 20 m/s')}</p>
+            <p class="worked-line">${stack('v_oy = 6 squares × 5 m/s = 30 m/s')}</p>`,
           scene: () => ({ mode: 'grid', sc: ex, labels: { vox: 'v_ox = 20 m/s', voy: 'v_oy = 30 m/s' } })
         },
         { ask: 'vox', fresh: true, level: 1 },
@@ -100,8 +100,8 @@
         {
           title: 'Split the launch with trig',
           body: `<p>You know v_o and θ. Your two arrows make a right triangle, so use cos and sin in <strong>degree mode</strong>.</p>
-            <p class="worked-line"><span class="formula">v_ox = v_o × cos(θ) = 20 × cos(30°) = 17.3 m/s</span></p>
-            <p class="worked-line"><span class="formula">v_oy = v_o × sin(θ) = 20 × sin(30°) = 10 m/s</span></p>
+            <p class="worked-line">${stack('v_ox = v_o × cos(θ) = 20 m/s × cos(30°) = 17.3 m/s')}</p>
+            <p class="worked-line">${stack('v_oy = v_o × sin(θ) = 20 m/s × sin(30°) = 10 m/s')}</p>
             <p>The side that touches θ uses cos. The side across from θ uses sin.</p>`,
           scene: () => ({ mode: 'launch', sc: ex, labels: { v0: true, th: true, vox: 'v_ox = 17.3 m/s', voy: 'v_oy = 10 m/s' } })
         },
@@ -143,8 +143,8 @@
         {
           title: 'The same thing as a calculation',
           body: `<p>Counting works, but dividing is faster. Each second takes away 10 m/s, so:</p>
-            <p class="worked-line"><span class="formula">time up = v_oy ÷ g = 30 ÷ 10 = 3 s</span></p>
-            <p class="worked-line"><span class="formula">t = 2 × time up = 2 × 3 = 6 s</span></p>
+            <p class="worked-line">${stack('time up = v_oy ÷ g = 30 m/s ÷ 10 m/s² = 3 s')}</p>
+            <p class="worked-line">${stack('t = 2 × time up = 2 × 3 s = 6 s')}</p>
             <p>Both steps at once:</p>
             <p class="worked-line"><span class="formula">t = 2 × v_oy ÷ g</span></p>`,
           scene: () => ({ mode: 'flight', sc: T, view: 'y', fullPath: true, t: 3 })
@@ -157,11 +157,11 @@
       onlyVoyPage, countdownPage,
       {
         title: 'The same thing from your notes',
-        body: `<p>Your notes use the position equation. The ball starts and ends on the ground, so X_f = X_o = 0, and a = −10 m/s².</p>
+        body: `<p>Your notes use the position equation. The ball starts and ends on the ground, so X_f and X_o are both 0, and a = −10 m/s².</p>
           <p class="worked-line"><span class="formula">X_f = X_o + v_oy t + ½at²</span></p>
           <p class="worked-line"><span class="formula">0 = v_oy t − 5t²</span></p>
           <p>Divide both sides by t and solve:</p>
-          <p class="worked-line"><span class="formula">t = v_oy ÷ 5 = 2 × v_oy ÷ g</span></p>`,
+          <p class="worked-line">${stack('t = v_oy ÷ 5 = 2 × v_oy ÷ g')}</p>`,
         scene: () => ({ mode: 'flight', sc: T, view: 'y', fullPath: true, t: 3 })
       },
       { ask: 'voy', fresh: true, level: 1 }, { ask: 't' },
@@ -174,7 +174,7 @@
     {
       title: 'Range is built from equal steps',
       body: `<p><strong>Range</strong> (ΔX) is how far the ball goes along the ground.</p><p>Press <strong>Next second</strong>. Each second adds one block of ${T.vox} m.</p>`,
-      after: `<p><span class="formula">ΔX = v_ox × t = ${T.vox} × 6 = 120 m</span></p><p>This is your v = ΔX ÷ Δt equation, solved for ΔX.</p>`,
+      after: `<p>${stack(`ΔX = v_ox × t = ${T.vox} m/s × 6 s = 120 m`)}</p><p>This is your v = ΔX ÷ Δt equation, solved for ΔX.</p>`,
       stepper: { view: 'x', stop: 'land', require: true, tiles: true },
       scene: () => ({ mode: 'flight', sc: T, view: 'x', tiles: true, showRange: true, fullPath: true })
     },

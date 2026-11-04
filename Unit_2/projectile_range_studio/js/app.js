@@ -5,6 +5,7 @@ const RangeApp = (function () {
   const $ = id => document.getElementById(id);
   const PR = window.PR, Lesson = window.Lesson, Scene = window.Scene;
   const STATE_VERSION = 1;
+  const CERT_PERCENT = 75;   // Mastery Check score needed, on top of finishing every part, to earn the certificate
   const esc = s => String(s === null || s === undefined ? '' : s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
 
   let state, cloud, profile, tier;
@@ -18,7 +19,7 @@ const RangeApp = (function () {
   // ---------- State ----------
   function newState() {
     const parts = {};
-    Lesson.PARTS.filter(p => p.id !== 'quiz').forEach(p => { parts[p.id] = { i: 0, far: 0, done: false, solved: 0, sc: null, scAt: -1, ans: {}, q: null }; });
+    Lesson.PARTS.filter(p => p.id !== 'quiz').forEach(p => { parts[p.id] = { i: 0, far: 0, done: false, solved: 0, sc: null, scAt: -1, ans: {}, q: null, trail: [] }; });
     return { v: STATE_VERSION, current: 'see', parts, quiz: { best: 0, attempts: [], cur: null, last: null }, mistakes: {}, calcUnavailable: false, bestPoints: 0, savedAt: 0 };
   }
   const validState = st => !!(st && st.v === STATE_VERSION && st.parts && st.quiz && typeof st.current === 'string' && st.parts.see);
@@ -40,7 +41,8 @@ const RangeApp = (function () {
       quizHistory: st.quiz.attempts.map(a => a.pct),
       skills: last ? last.skills : {},
       mistakes: st.mistakes,
-      calcUnavailable: !!st.calcUnavailable
+      calcUnavailable: !!st.calcUnavailable,
+      cert: st.cert || null
     };
   }
 
@@ -72,6 +74,7 @@ const RangeApp = (function () {
     if (!pg || !pg.fresh) return;
     const p = part();
     if (p.scAt === p.i) return;
+    if (p.scAt >= 0) keepProblem(p);
     if (pg.mc) p.q = PR.makeConcept(pg.mc);
     else {
       p.sc = PR.newLaunch(tier, pg.level || 2, p.sc);
@@ -81,12 +84,73 @@ const RangeApp = (function () {
     save();
   }
 
+  // Each problem replaced by a new one is kept, so Back returns to the same numbers and answers.
+  function keepProblem(p) {
+    (p.trail = p.trail || []).push({ sc: p.sc, ans: p.ans, q: p.q, scAt: p.scAt });
+  }
+  function restoreProblem(p) {
+    Object.assign(p, p.trail.pop());
+  }
+
+  // A page already answered correctly reopens answered, so Back never asks for it again.
+  function showSavedAnswer() {
+    const pg = page(), p = part();
+    if (!pg) return;
+    if (pg.mc && p.q && p.q.picked) { draft = p.q.picked; fb = PR.gradeConcept(p.q, draft); return; }
+    if (!pg.ask) return;
+    const step = PR.STEP[tier][pg.ask];
+    if (typeof p.ans[step.k] !== 'number') return;
+    const saved = String(p.ans[step.k]), r = PR.gradeStep(step, saved, p.sc, p.ans);
+    if (r.ok) { draft = saved; fb = r; }
+  }
+
   function goTo(i) {
     const p = part();
     p.far = Math.max(p.far || 0, i);
     p.i = i;
     freshPage();
     dealIfNeeded();
+    showSavedAnswer();
+    save();
+    render();
+  }
+
+  function previousPart() {
+    const list = Lesson.PARTS, idx = list.findIndex(x => x.id === state.current);
+    return idx > 0 ? list[idx - 1].id : null;
+  }
+
+  // Hidden while a wrong answer is showing: that answer's way forward is new numbers.
+  const canGoBack = () => {
+    if (fb && !fb.ok && !fb.retry) return false;
+    return !!previousPart() || (part() && (part().i > 0 || (part().solved > 0 && (part().trail || []).length > 0)));
+  };
+  const backBtn = () => (canGoBack() ? '<button type="button" class="btn-secondary" id="btnBack">◀ Back</button>' : '');
+
+  function goBack() {
+    if (state.current === 'quiz') {
+      const c = state.quiz.cur;
+      if (c && c.i > 0) { c.i--; save(); loadQuizQuestion(); } else openPart(previousPart());
+      return;
+    }
+    const p = part(), list = pages();
+    p.trail = p.trail || [];
+    if (p.i === 0) {
+      if (p.solved > 0 && p.trail.length) {   // back into the flight just finished
+        restoreProblem(p);
+        p.solved--;
+        p.far = list.length;
+        p.i = list.length - 1;
+      } else { if (previousPart()) openPart(previousPart()); return; }
+    } else {
+      if (p.i >= list.length && state.current === 'full') p.solved = Math.max(0, (p.solved || 0) - 1);
+      p.i = Math.min(p.i, list.length) - 1;
+      const usesProblem = list[p.i].ask || list[p.i].mc || list[p.i].replay;
+      while (usesProblem && p.scAt > p.i && p.trail.length) restoreProblem(p);
+    }
+    freshPage();
+    dealIfNeeded();
+    showSavedAnswer();
     save();
     render();
   }
@@ -97,6 +161,7 @@ const RangeApp = (function () {
       p.solved = (p.solved || 0) + 1;
       p.far = 0;
       if (p.solved >= Lesson.FLIGHTS_TO_SOLVE) { finishPart(); return; }
+      keepProblem(p);
       p.i = 0; p.scAt = -1; p.ans = {};
       freshPage(); dealIfNeeded(); save(true); render();
       return;
@@ -134,6 +199,10 @@ const RangeApp = (function () {
     if (p && p.done && p.i >= pages().length) p.i = pages().length;
     freshPage();
     dealIfNeeded();
+    if (id === 'quiz' && state.quiz.cur) {
+      const c = state.quiz.cur;
+      draft = c.answers[c.i] === null || c.answers[c.i] === undefined ? '' : c.answers[c.i];
+    } else showSavedAnswer();
     save();
     render();
   }
@@ -326,11 +395,10 @@ const RangeApp = (function () {
 
   function teachHTML(pg) {
     const needsEnd = pg.stepper && pg.stepper.require && !sim.reachedEnd;
-    const canBack = part().i > 0 && !pages()[part().i - 1].ask && !pages()[part().i - 1].mc && !pages()[part().i - 1].replay;
     return `${pageHeader()}<h2 class="task-title">${pg.title}</h2>
       <div class="task-body" id="readable">${pg.body}${pg.after && sim.reachedEnd ? `<div class="takeaway">${pg.after}</div>` : ''}</div>
       <div class="task-actions">
-        ${canBack ? '<button type="button" class="btn-secondary" id="btnBack">◀ Back</button>' : ''}
+        ${backBtn()}
         <button type="button" class="btn-primary" id="btnNext" ${needsEnd ? 'disabled' : ''}>${needsEnd ? 'Press Next second first' : 'Next ▶'}</button>
       </div>`;
   }
@@ -359,7 +427,7 @@ const RangeApp = (function () {
       ${formula ? `<p class="formula-box"><span class="formula">${formula}</span></p>` : ''}
       ${answerBox(step, answered)}
       ${fbHTML()}
-      <div class="task-actions">${answered ? fbActions() : '<button type="button" class="btn-primary" id="btnCheck">Check</button>'}</div>
+      <div class="task-actions">${backBtn()}${answered ? fbActions() : '<button type="button" class="btn-primary" id="btnCheck">Check</button>'}</div>
       ${answered ? '' : hintsHTML(step.hints(sc, ans))}`;
   }
 
@@ -382,7 +450,7 @@ const RangeApp = (function () {
     }).join('');
     return `${top}<h2 class="task-title" id="readable">${def.text(q)}</h2>
       <div class="opts">${opts}</div>${fbHTML()}
-      <div class="task-actions">${answered ? fbActions() : ''}</div>`;
+      <div class="task-actions">${backBtn()}${answered ? fbActions() : ''}</div>`;
   }
 
   function replayHTML() {
@@ -393,7 +461,7 @@ const RangeApp = (function () {
         <p>You said the ball lands <strong class="nowrap">${PR.fmt(p.ans.dx)} m</strong> away. The flag marks that spot.</p>
         ${landed ? '<div class="takeaway"><p>The ball landed on your flag.</p></div>' : '<p>Watch the flight.</p>'}
       </div>
-      <div class="task-actions"><button type="button" class="btn-primary" id="btnNext" ${landed ? '' : 'disabled'}>${landed ? 'Next ▶' : 'Watch it land first'}</button></div>`;
+      <div class="task-actions">${backBtn()}<button type="button" class="btn-primary" id="btnNext" ${landed ? '' : 'disabled'}>${landed ? 'Next ▶' : 'Watch it land first'}</button></div>`;
   }
 
   function donePartHTML() {
@@ -403,6 +471,7 @@ const RangeApp = (function () {
       <h2 class="task-title">${list[idx].label} finished!</h2>
       <p>Your credit for this part is saved.</p>
       <div class="task-actions">
+        ${backBtn()}
         <button type="button" class="btn-secondary" id="btnReview">Go through it again</button>
         ${next ? `<button type="button" class="btn-primary" data-part="${next.id}">${next.label} ▶</button>` : ''}
       </div></div>`;
@@ -437,7 +506,8 @@ const RangeApp = (function () {
     draft = id;
     const r = PR.gradeConcept(part().q, id);
     fb = r;
-    if (!r.ok) recordMistake(r.mistake);
+    if (r.ok) part().q.picked = id;
+    else recordMistake(r.mistake);
     save();
     render();
   }
@@ -447,13 +517,13 @@ const RangeApp = (function () {
     on('btnNext', advance);
     on('btnNew', restartProblem);
     on('btnCheck', check);
-    on('btnBack', () => goTo(part().i - 1));
+    on('btnBack', goBack);
     on('btnHint', () => { hintsOpen++; renderTask(); });
     on('btnRead', readAloud);
-    on('btnReview', () => { part().i = 0; part().scAt = -1; freshPage(); dealIfNeeded(); save(); render(); });
+    on('btnReview', () => { part().i = 0; part().scAt = -1; part().trail = []; freshPage(); dealIfNeeded(); save(); render(); });
     on('btnStartQuiz', startQuiz);
     on('btnQuizNext', quizNext);
-    on('btnQuizBack', () => { state.quiz.cur.i--; loadQuizQuestion(); });
+    document.querySelectorAll('#taskCard [data-cert]').forEach(b => b.addEventListener('click', () => downloadCertificate(b)));
     document.querySelectorAll('#taskCard [data-opt]').forEach(b => b.addEventListener('click', () => pickOption(b.dataset.opt)));
     document.querySelectorAll('#taskCard [data-part]').forEach(b => b.addEventListener('click', () => openPart(b.dataset.part)));
     const input = $('answer');
@@ -473,7 +543,7 @@ const RangeApp = (function () {
     const el = $('readable');
     if (!el) return;
     speechSynthesis.cancel();
-    const clean = el.innerText.replace(/v\s*ox/g, 'v o x').replace(/v\s*oy/g, 'v o y').replace(/ΔX/g, 'delta X').replace(/×/g, ' times ').replace(/÷/g, ' divided by ');
+    const clean = el.innerText.replace(/\s*\n+\s*=\s*\n+\s*/g, ' equals ').replace(/v\s*ox/g, 'v o x').replace(/v\s*oy/g, 'v o y').replace(/ΔX/g, 'delta X').replace(/×/g, ' times ').replace(/÷/g, ' divided by ');
     speechSynthesis.speak(new SpeechSynthesisUtterance(clean));
   }
 
@@ -544,6 +614,7 @@ const RangeApp = (function () {
     state.quiz.best = Math.max(state.quiz.best || 0, g.pct);
     state.quiz.last = c;
     state.quiz.cur = null;
+    updateCert();
     freshPage();
     save(true);
     render();
@@ -563,7 +634,8 @@ const RangeApp = (function () {
           <p>You will not see right or wrong until the end. If one answer is off, later steps that use it still earn credit when your work is right.</p>
           <p>You can retake it with new numbers. Your <strong>best score</strong> counts for 4 of your 10 points.</p>
         </div>
-        <div class="task-actions"><button type="button" class="btn-primary" id="btnStartQuiz">Start ▶</button></div>`;
+        ${certHTML()}
+        <div class="task-actions">${backBtn()}<button type="button" class="btn-primary" id="btnStartQuiz">Start ▶</button></div>`;
     }
     $('taskCard').innerHTML = subHTML(html);
     bindTask();
@@ -574,7 +646,7 @@ const RangeApp = (function () {
     const top = `<div class="task-top"><span class="task-count">Question ${c.i + 1} of ${c.qs.length}</span>${readBtn}</div>`;
     const nextLabel = c.i + 1 < c.qs.length ? 'Next ▶' : 'Finish';
     const actions = `<p id="quizMsg" class="quiz-msg" role="alert"></p><div class="task-actions">
-      ${c.i > 0 ? '<button type="button" class="btn-secondary" id="btnQuizBack">◀ Back</button>' : ''}
+      ${backBtn()}
       <button type="button" class="btn-primary" id="btnQuizNext">${nextLabel}</button></div>`;
     if (q.kind === 'mc') {
       const def = PR.CONCEPT[q.id];
@@ -600,9 +672,10 @@ const RangeApp = (function () {
     return `<h2 class="task-title">Mastery Check results</h2>
       <div class="score-big"><strong>${last.pct}%</strong><span>this try · best ${q.best}%</span></div>
       <p class="grade-line">Your grade so far: <strong class="nowrap">${s.points.toFixed(1)} / 10</strong></p>
+      ${certHTML()}
       <div class="skills">${skills}</div>
       ${misses ? `<div class="task-body"><p><strong>Look at these:</strong></p><ul class="misses">${misses}</ul></div>` : ''}
-      <div class="task-actions"><button type="button" class="btn-primary" id="btnStartQuiz">Retake with new numbers ▶</button></div>`;
+      <div class="task-actions">${backBtn()}<button type="button" class="${certStatus().ready ? 'btn-secondary' : 'btn-primary'}" id="btnStartQuiz">Retake with new numbers ▶</button></div>`;
   }
 
   // ---------- Part strip + score ----------
@@ -621,6 +694,61 @@ const RangeApp = (function () {
   function updateScoreChip() {
     const el = $('scoreChip');
     if (el && state) el.textContent = `${(state.bestPoints || 0).toFixed(1)} / 10`;
+    $('btnCert').hidden = !(certStatus().ready && (!profile.guest || profile.preview));
+  }
+
+  // ---------- Completion certificate ----------
+  function certStatus() {
+    const missing = Lesson.PARTS.filter(p => p.weight > 0 && !state.parts[p.id].done);
+    const best = state.quiz.best || 0;
+    return { ready: !missing.length && state.quiz.attempts.length > 0 && best >= CERT_PERCENT, missing, best };
+  }
+
+  // Remembers the day it was first earned; the code follows the best score, which can still rise
+  function updateCert() {
+    if (profile.guest && !profile.preview) return;
+    if (!certStatus().ready) return;
+    const id = profile.preview ? 'SAMPLE' : (cloud && cloud.studentId) || 'TEACHER';
+    const code = Certificate.code(id, state.quiz.best);
+    if (state.cert && state.cert.code === code) return;
+    state.cert = { code, at: (state.cert && state.cert.at) || Date.now() };
+  }
+
+  function certHTML() {
+    const c = certStatus();
+    if (profile.guest && !profile.preview) {
+      return '<div class="cert-box cert-wait">🎓 <strong>Certificates are for signed-in students.</strong> Sign in with your school account to earn yours.</div>';
+    }
+    if (c.ready) {
+      return '<div class="cert-box cert-ready"><strong>🎓 You earned your certificate!</strong><button type="button" class="btn-primary" data-cert>📄 Download certificate (PDF)</button></div>';
+    }
+    const need = c.missing.length ? `finish ${c.missing.map(p => p.label).join(', ')} and ` : '';
+    return `<div class="cert-box cert-wait">🎓 <strong>Earn your certificate:</strong> ${need}score ${CERT_PERCENT}% or higher on the Mastery Check. Your best so far is <span class="nowrap">${c.best}%</span>.</div>`;
+  }
+
+  async function downloadCertificate(btn) {
+    updateCert();
+    if (!state.cert) return;
+    const label = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Making your certificate…';
+    try {
+      await Certificate.download({
+        name: profile.preview ? 'Sample Student' : profile.name,
+        sample: !!profile.preview,
+        best: state.quiz.best,
+        honors: tier === 'honors',
+        period: profile.teacher ? 'Teacher' : (profile.period !== null && profile.period !== undefined) ? `Period ${profile.period}` : '',
+        earned: state.cert.at,
+        code: state.cert.code
+      });
+      btn.textContent = label;
+    } catch (e) {
+      console.error('Certificate failed:', e);
+      btn.textContent = 'It did not download. Try again';
+    }
+    btn.disabled = false;
+    save(true);
   }
 
   function render() {
@@ -631,7 +759,7 @@ const RangeApp = (function () {
     renderSolved();
     renderTask();
     updateScoreChip();
-    if (page() && page().replay && sim.t === 0 && !sim.raf) setTimeout(playFlight, 350);
+    if (page() && page().replay && sim.t === 0 && !sim.raf) setTimeout(() => { if (page() && page().replay && sim.t === 0 && !sim.raf) playFlight(); }, 350);
   }
 
   // ---------- Calculator ----------
@@ -748,6 +876,7 @@ const RangeApp = (function () {
     $('btnPlay').addEventListener('click', playFlight);
     $('btnStartOver').addEventListener('click', restartSim);
     $('btnUseCalc').addEventListener('click', grabAnswer);
+    $('btnCert').addEventListener('click', () => downloadCertificate($('btnCert')));
     bindCalcDrag();
     bindTools();
     if (state.current !== 'quiz' && !state.parts[state.current]) state.current = 'see';

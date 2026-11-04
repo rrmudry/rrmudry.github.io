@@ -242,17 +242,24 @@
   const FLIGHT = { conceptual: ['up', 't', 'dx'], cp: ['vox', 'voy', 't', 'dx'], honors: ['vox', 'voy', 't', 'dx'] };
 
   // Returns { ok, retry, mistake, msg }. retry = no penalty (calculator in the wrong mode).
+  // A calculation reads one step per line with the equals signs lined up, never as one long chain.
+  function stack(calc) {
+    const [sym, ...steps] = calc.split(' = ');
+    if (!steps.length) return `<span class="formula">${calc}</span>`;
+    return `<span class="calc-stack">${steps.map(s => `<span class="calc-sym">${sym}</span><span>=</span><span>${s}</span>`).join('')}</span>`;
+  }
+
   function gradeStep(step, raw, sc, ans) {
     const v = parseNum(raw);
-    if (v === null) return { ok: false, mistake: 'blank', msg: `<span class="formula">${step.right(sc, ans)}</span>` };
+    if (v === null) return { ok: false, mistake: 'blank', msg: stack(step.right(sc, ans)) };
     const ok = near(v, step.target(sc, ans)) || (step.own && near(v, step.own(sc, ans), 0.01));
-    if (ok) return { ok: true, msg: `<span class="formula">${step.right(sc, ans)}</span>` };
+    if (ok) return { ok: true, msg: stack(step.right(sc, ans)) };
     const hit = step.mistake ? step.mistake(v, sc, ans) : null;
     if (hit && hit[2]) return { ok: false, retry: true, mistake: hit[0], msg: hit[1] };
     return {
       ok: false,
       mistake: hit ? hit[0] : 'other',
-      msg: `${hit ? hit[1] : 'Not quite.'}<br><span class="worked">The right way: <span class="formula">${step.right(sc, ans)}</span></span>`
+      msg: `${hit ? hit[1] : 'Not quite.'}<br><span class="worked">The right way: ${stack(step.right(sc, ans))}</span>`
     };
   }
 
@@ -370,6 +377,6 @@
   window.PR = {
     G, TEACH_LAUNCH, STEP, FLIGHT, CONCEPT,
     hangTime, timeUp, range, apex, fmt, near, parseNum, pick, rad, own,
-    newLaunch, workProblem, gradeStep, makeConcept, conceptOptions, gradeConcept, buildQuiz, gradeQuiz
+    newLaunch, workProblem, stack, gradeStep, makeConcept, conceptOptions, gradeConcept, buildQuiz, gradeQuiz
   };
 })();

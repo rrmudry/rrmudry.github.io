@@ -303,6 +303,8 @@ class StudioAuth {
       quiz_skills: s.skills,                 // latest attempt: { time: { right, total }, ... }
       mistakes: s.mistakes,                  // counts by diagnosed mistake, e.g. { no_double: 3 }
       calc_unavailable: s.calcUnavailable,   // Desmos did not load, so this student could type answers
+      certificate_code: s.cert ? s.cert.code : null,
+      certificate_earned_at: s.cert ? s.cert.at : null,
       track: this.profile.tier,              // conceptual | cp | honors
       class_period: period,
       honors_required: this.profile.tier === 'honors',

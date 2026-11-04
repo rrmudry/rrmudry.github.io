@@ -75,6 +75,8 @@ p:last-child { margin-bottom: 0; }
 sub { font-size: 0.72em; line-height: 0; }
 .formula { white-space: nowrap; font-weight: 700; font-variant-numeric: tabular-nums; }
 .nowrap { white-space: nowrap; }
+.calc-stack { display: grid; grid-template-columns: auto auto auto; gap: 0.1rem 0.35rem; width: fit-content; margin: 0.2rem 0; white-space: nowrap; font-weight: 700; font-variant-numeric: tabular-nums; }
+.calc-sym { text-align: right; }
 .worked { display: inline-block; margin-top: 0.35rem; }
 
 /* ---------- Header ---------- */
@@ -93,6 +95,10 @@ sub { font-size: 0.72em; line-height: 0; }
 .user-track { color: var(--text-dim); font-weight: 600; white-space: nowrap; }
 .score-chip { font-weight: 800; background: var(--bg-subcard); border: 1px solid var(--border-color); border-radius: 999px; padding: 0.05rem 0.55rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .save-indicator { font-weight: 600; white-space: nowrap; }
+.cert-chip { background: var(--bg-card); color: var(--good); border: 2px solid var(--good); border-radius: 999px; padding: 0.1rem 0.65rem; font-size: 0.82rem; font-weight: 800; white-space: nowrap; }
+.cert-box { border: 2px solid var(--border-color); border-radius: 0.6rem; padding: 0.5rem 0.7rem; }
+.cert-ready { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; border-color: var(--good); background: color-mix(in srgb, var(--good) 12%, var(--bg-card)); font-size: 1.05rem; }
+.cert-wait { background: var(--bg-subcard); font-size: 0.95rem; }
 .save-ok { color: var(--good); }
 .save-busy, .save-guest { color: var(--text-dim); }
 .save-error { color: var(--bad); }
@@ -181,7 +187,7 @@ html.theme-dark .sv-arc-b { stroke: #f472b6; }
 /* ---------- Task card ---------- */
 .task-card { display: flex; flex-direction: column; gap: 0.7rem; overflow-y: auto; padding: 0.9rem 1rem; }
 .task-card > * { flex-shrink: 0; }
-body.calc-open .task-card { padding-bottom: 22rem; }
+body.calc-open .task-card { padding-bottom: calc(var(--calc-height) + 1rem); }
 .task-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
 .task-count { font-size: 0.85rem; font-weight: 700; color: var(--text-dim); }
 .btn-read { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); border-radius: 0.45rem; padding: 0.08rem 0.45rem; font-size: 0.78rem; font-weight: 600; }
@@ -236,7 +242,9 @@ html.theme-dark .btn-primary { background: #38bdf8; color: #0f172a; }
 .misses { margin: 0.2rem 0 0; padding-left: 1.1rem; font-size: 0.98rem; display: grid; gap: 0.35rem; }
 
 /* ---------- Floating calculator ---------- */
-.calc-panel { position: fixed; right: 1.1rem; bottom: 0.8rem; width: 24rem; max-width: calc(100vw - 1.2rem); height: 21rem; z-index: 90; display: flex; flex-direction: column; background: var(--bg-card); border: 2px solid var(--accent); border-radius: 0.7rem; overflow: hidden; box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28); }
+/* Taller on taller screens, stopping short of the question and its buttons */
+:root { --calc-height: clamp(21rem, calc(100vh - 26rem), 36rem); }
+.calc-panel { position: fixed; right: 1.1rem; bottom: 0.8rem; width: 24rem; max-width: calc(100vw - 1.2rem); height: var(--calc-height); z-index: 90; display: flex; flex-direction: column; background: var(--bg-card); border: 2px solid var(--accent); border-radius: 0.7rem; overflow: hidden; box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28); }
 .calc-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.2rem 0.6rem; background: var(--bg-subcard); cursor: move; touch-action: none; font-size: 0.88rem; }
 .calc-drag { font-size: 0.75rem; font-weight: 600; color: var(--text-dim); }
 .calc-host { flex: 1; min-height: 0; }
@@ -260,6 +268,20 @@ html.theme-dark .btn-primary { background: #38bdf8; color: #0f172a; }
 .gate-status:empty { display: none; }
 .gate-error { margin: 0; color: var(--bad); font-weight: 700; }
 
+/* ---------- Short screens (Chromebooks): keep the question and its buttons above the calculator ---------- */
+@media (max-height: 751px) and (min-width: 901px) {
+  body.calc-open .task-card { flex-direction: row; flex-wrap: wrap; align-items: center; align-content: flex-start; gap: 0.4rem 0.6rem; padding-top: 0.5rem; }
+  body.calc-open .task-card > * { flex: 0 0 100%; }
+  body.calc-open .task-card > .launch-tag { flex: 0 0 auto; order: -1; }
+  body.calc-open .task-card > .task-top { flex: 1 1 0; order: -1; }
+  body.calc-open .task-card > .ans-row, body.calc-open .task-card > .task-actions { flex: 0 0 auto; }
+  body.calc-open .task-title { font-size: 1.12rem; line-height: 1.2; }
+  body.calc-open .formula-box { padding: 0.12rem 0.5rem; font-size: 1.05rem; }
+  body.calc-open .ans-row { font-size: 1.05rem; }
+  body.calc-open .hint { padding: 0.15rem 0.5rem; font-size: 0.9rem; line-height: 1.2; }
+  body.calc-open .task-actions .btn-primary, body.calc-open .task-actions .btn-secondary { padding: 0.35rem 0.8rem; font-size: 0.98rem; }
+}
+
 /* ---------- Narrow screens: picture on top ---------- */
 @media (max-width: 900px) {
   body { height: auto; display: block; }
@@ -268,7 +290,7 @@ html.theme-dark .btn-primary { background: #38bdf8; color: #0f172a; }
   .ladder-slot, .solved { height: auto; min-height: 1.6rem; overflow: visible; }
   .ladder, .solved { flex-wrap: wrap; }
   .task-card { overflow: visible; }
-  .calc-panel { position: static; width: auto; max-width: none; margin: 0 0.65rem 0.65rem; }
+  .calc-panel { position: static; width: auto; max-width: none; height: 26rem; margin: 0 0.65rem 0.65rem; }
   body.calc-open .task-card { padding-bottom: 0.9rem; }
 }
 

@@ -4,6 +4,7 @@ require('../Unit_2/vector_decomposition_studio/js/engine.js');
 require('../Unit_2/projectile_range_studio/js/physics.js');
 require('../Unit_2/projectile_range_studio/js/lesson.js');
 require('../Unit_2/projectile_range_studio/js/integrity.js');
+require('../Unit_2/projectile_range_studio/js/certificate.js');
 const PR = global.PR, Lesson = global.Lesson, Integrity = global.Integrity, Engine = global.Engine;
 
 const TIERS = ['conceptual', 'cp', 'honors'];
@@ -249,5 +250,26 @@ describe('record check', () => {
     st.quiz = { best: 100, attempts: [{ pct: 100, secs: 400 }], last: quiz };
     const flags = Integrity.check({ track: 'cp', score: 10, quiz_best: 100, studioState: st });
     expect(flags.some(f => /grade to 0%/.test(f))).toBe(true);
+  });
+});
+
+describe('certificate code', () => {
+  test('includes the student and score, and changes with either', () => {
+    const c = global.Certificate.code('123456', 80);
+    expect(c).toMatch(/^MUD-PRS-123456-80-[0-9A-F]{8}$/);
+    expect(global.Certificate.code('123456', 90)).not.toBe(c);
+    expect(global.Certificate.code('654321', 80)).not.toBe(c);
+  });
+});
+
+describe('stacked calculations', () => {
+  test('each step gets its own row with the symbol repeated', () => {
+    const html = PR.stack('ΔX = 20 m/s × 6 s = 120 m');
+    expect((html.match(/calc-sym/g) || []).length).toBe(2);
+    expect(html).toContain('20 m/s × 6 s');
+    expect(html).toContain('120 m');
+  });
+  test('text with no equals sign stays one plain line', () => {
+    expect(PR.stack('30 m/s drops to 0 in 3 s')).not.toContain('calc-stack');
   });
 });
