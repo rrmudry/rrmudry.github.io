@@ -30,6 +30,8 @@ This repo is a public website, so keep this page about how we teach. Don't descr
 ## How a lesson moves
 - **One instruction or question on screen at a time.** No long checklists.
 - **Teach a new idea before asking about it.** Use a concrete example or picture first, then the math. Use position words like "touches θ" rather than "short side," and show the formula above any answer box.
+- **Tie words to numbers and name look-alike symbols.** Say that "most" means 86.6%, and label symbols like v<sub>o</sub> and v<sub>ox</sub> by what they mean.
+- **Force topics show two diagrams side by side:** a pictorial "forces on the object" diagram and a technically correct free-body diagram.
 - **Start concrete:** observe, then one-step calculations, then prediction and transfer. Early on, have students read values off a picture and reason before they meet a formula.
 - **A correct answer is needed to move forward.** A wrong answer explains why, then deals new numbers and restarts that problem. If the student's own collected data would be erased, explain and redo that step with new values instead.
 - **Back on every step.** Earlier numbers and answers return, and credit never drops. Hide Back while a wrong answer is showing.
