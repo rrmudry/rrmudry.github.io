@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classroom Chess Arena • Mr. Mudry's Physics</title>
+  <meta name="description" content="Play chess during class free time! Pair up with classmates using your Google login, challenge friends in your period, or battle Chessbot.">
+  <link rel="icon" type="image/png" href="../head.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Firebase (compat SDK, same as the rest of rrmudry.github.io) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    // ?mock=1&user=student1&period=2 swaps in a localStorage Firebase stand-in for multi-tab testing
+    if (new URLSearchParams(location.search).has('mock')) {
+      document.write('<script src="js/mock-firebase.js"><\/script>');
+    }
+  </script>
+</head>
+<body>
+
+  <!-- Sticky Topbar -->
+  <header class="topbar">
+    <div style="display: flex; align-items: center; gap: 0.65rem;">
+      <button class="brand-btn" id="btnHome" title="Back to Chess Menu">
+        <span>♟️</span>
+        <span>Classroom Chess</span>
+      </button>
+      <span class="brand-badge" id="navModeBadge">Free-Time Arena</span>
+    </div>
+
+    <div class="top-controls">
+      <div class="scale-group" role="group" aria-label="Text Size">
+        <button class="scale-btn active" data-scale="normal" title="Normal text size">A</button>
+        <button class="scale-btn" data-scale="large" title="Large text size">A+</button>
+        <button class="scale-btn" data-scale="projector" title="Projector mode">🖥️</button>
+      </div>
+      <button class="icon-btn" id="btn-theme-toggle" title="Toggle High-Contrast Light / Dark Mode">☀️ Light</button>
+      <button class="icon-btn" id="btnSound" title="Toggle sound effects">🔊 Sound</button>
+      <a class="icon-btn" href="../games.html">🎮 All Games</a>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- =================================================================
+         VIEW 1: MAIN MENU HUB
+         ================================================================= -->
+    <section id="viewMenu">
+      <div class="hub-hero">
+        <h1>♟️ Classroom Chess Arena</h1>
+        <p>Pair up with a classmate using your school Google login, play on one Chromebook, or test your tactics against Chessbot.</p>
+      </div>
+
+      <div class="mode-grid">
+        <!-- Mode 1: Online Classmate Pairing (Google + Firestore) -->
+        <article class="card mode-card featured">
+          <div>
+            <div class="mode-icon">🌐</div>
+            <h2>Online Classmate Match</h2>
+            <p>Sign in with your school Google account to auto-pair with a waiting classmate or challenge someone in your period.</p>
+          </div>
+          <div>
+            <div id="menuAuthStatus" style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 0.65rem;"></div>
+            <button class="btn primary" id="btnOpenLounge" style="width: 100%;">🌐 Enter Classmate Lounge</button>
+          </div>
+        </article>
+
+        <!-- Mode 2: Single Player vs Chessbot -->
+        <article class="card mode-card">
+          <div>
+            <div class="mode-icon">🤖</div>
+            <h2>Single Player vs. Chessbot</h2>
+            <p>Practice openings, forks, and checkmates against our built-in AI across 4 difficulty tiers.</p>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 0.55rem;">
+            <div class="seg-row" id="botDiffRow">
+              <button class="seg-btn" data-diff="easy">🙂 Rookie</button>
+              <button class="seg-btn active" data-diff="medium">😎 Club</button>
+              <button class="seg-btn" data-diff="hard">🧠 Tactician</button>
+              <button class="seg-btn" data-diff="master">👑 Master</button>
+            </div>
+            <div class="seg-row" id="botColorRow">
+              <button class="seg-btn active" data-side="w">♔ Play White</button>
+              <button class="seg-btn" data-side="random">🎲 Random</button>
+              <button class="seg-btn" data-side="b">♚ Play Black</button>
+            </div>
+            <button class="btn emerald" id="btnStartBot" style="width: 100%;">🤖 Start vs. Chessbot</button>
+          </div>
+        </article>
+
+        <!-- Mode 3: 2 Players on 1 Device -->
+        <article class="card mode-card">
+          <div>
+            <div class="mode-icon">👥</div>
+            <h2>Two Players (1 Device)</h2>
+            <p>Sit side-by-side at one Chromebook and play a timed or casual game with a friend.</p>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 0.55rem;">
+            <div class="seg-row" id="localTimeRow">
+              <button class="seg-btn" data-sec="180">⚡ 3m</button>
+              <button class="seg-btn active" data-sec="300">⏱️ 5m</button>
+              <button class="seg-btn" data-sec="600">🕰️ 10m</button>
+              <button class="seg-btn" data-sec="0">∞ Untimed</button>
+            </div>
+            <button class="btn" id="btnStartLocal" style="width: 100%;">👥 Start 2-Player Game</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         VIEW 2: ONLINE CLASSMATE LOUNGE (GOOGLE LOGIN + FIRESTORE PAIRING)
+         ================================================================= -->
+    <section id="viewLounge" hidden>
+      <!-- Step A: Google Sign-In Gate -->
+      <div id="loungeSignIn" class="card" style="max-width: 32rem; margin: 1.5rem auto; text-align: center;" hidden>
+        <div style="font-size: 2.5rem; margin-bottom: 0.4rem;">🔐</div>
+        <h2 style="margin: 0 0 0.4rem 0;">Sign In with Your School Google Account</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin: 0 0 1.1rem 0;">
+          Use your <strong>@orangeusd.org</strong> login so we can match you with students in your class period.
+        </p>
+        <button class="btn primary" id="btnGoogleSignIn" style="font-size: 1rem; padding: 0.7rem 1.4rem;">
+          🔑 Sign in with Google
+        </button>
+        <p id="authError" style="color: var(--accent-rose); font-weight: 700; margin-top: 0.75rem;" hidden></p>
+      </div>
+
+      <!-- Step B: Active Online Lounge -->
+      <div id="loungeActive" hidden>
+        <div class="lounge-header">
+          <div class="user-pill">
+            <span>👤 <strong id="meName">Student</strong></span>
+            <span class="period-badge" id="mePeriodBadge">Period —</span>
+            <span id="meRecord" style="font-size: 0.82rem; color: var(--text-dim);">0W · 0L · 0D</span>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+            <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted);">
+              Filter:
+              <select id="loungePeriodFilter" style="font: inherit; padding: 0.3rem 0.55rem; border-radius: 0.45rem; background: var(--bg-elevated); color: var(--text-main); border: 1px solid var(--border-color);">
+                <option value="all">All Periods</option>
+                <option value="0">Period 0</option>
+                <option value="1">Period 1</option>
+                <option value="2">Period 2</option>
+                <option value="3">Period 3</option>
+                <option value="4">Period 4</option>
+                <option value="5">Period 5</option>
+                <option value="6">Period 6</option>
+              </select>
+            </label>
+            <button class="btn" id="btnSignOut" style="padding: 0.35rem 0.7rem; font-size: 0.8rem;">Sign Out</button>
+          </div>
+        </div>
+
+        <!-- Incoming Direct Challenge Banner -->
+        <div id="incomingChallengeBanner" class="challenge-alert" hidden>
+          <div>
+            <strong id="challengeText" style="font-size: 1.02rem;">⚔️ Incoming challenge!</strong>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Click Accept to start the game immediately.</div>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn emerald" id="btnAcceptChallenge">✅ Accept Match</button>
+            <button class="btn" id="btnDeclineChallenge">✕ Decline</button>
+          </div>
+        </div>
+
+        <!-- Teacher Tournament / Pairing Bar (Teacher Only) -->
+        <div id="teacherPanel" class="card" style="margin-bottom: 1rem; border-color: var(--accent-amber);" hidden>
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <div>
+              <strong style="color: var(--accent-amber); font-size: 1rem;">🛰️ Teacher Matchmaking Controls</strong>
+              <div style="font-size: 0.85rem; color: var(--text-muted);">Pair all available students in the selected period or spectate any active classroom board.</div>
+            </div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button class="btn amber" id="btnTeacherPairAll">🎲 Pair All Available Students</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="lounge-grid">
+          <!-- Left Card: Auto-Pair Queue & Classmates Online -->
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.85rem;">
+              <div>
+                <h2 style="margin: 0; font-size: 1.15rem;">⚡ Quick Match &amp; Classmates Online</h2>
+                <p style="margin: 0.15rem 0 0 0; font-size: 0.85rem; color: var(--text-muted);">
+                  Click <strong>Find Opponent</strong> to auto-pair, or click <strong>Challenge</strong> next to a classmate.
+                </p>
+              </div>
+            </div>
+
+            <!-- Time Control & Auto-Pair Button Bar -->
+            <div style="background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: 0.75rem; padding: 0.8rem; margin-bottom: 0.9rem; display: flex; flex-direction: column; gap: 0.65rem;">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
+                <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted);">Clock Time Control:</span>
+                <div class="seg-row" id="onlineTimeRow" style="flex: 1; max-width: 22rem;">
+                  <button class="seg-btn" data-sec="180">⚡ 3m</button>
+                  <button class="seg-btn active" data-sec="300">⏱️ 5m</button>
+                  <button class="seg-btn" data-sec="600">🕰️ 10m</button>
+                  <button class="seg-btn" data-sec="0">∞ Casual</button>
+                </div>
+              </div>
+              <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
+                <button class="btn primary" id="btnQuickMatch" style="flex: 1; py: 0.65rem;">
+                  ⚡ Find Opponent (Auto-Pair)
+                </button>
+                <button class="btn danger" id="btnCancelSeek" hidden>
+                  ✕ Cancel Search
+                </button>
+              </div>
+              <div id="seekStatusText" style="font-size: 0.86rem; font-weight: 700; color: var(--accent-amber); text-align: center;" hidden>
+                📡 Looking for a classmate to pair with… (anyone who clicks Quick Match will join you!)
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
+              <strong style="font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted);">
+                Online Players (<span id="onlineCount">0</span>)
+              </strong>
+              <span style="font-size: 0.78rem; color: var(--text-dim);">🟢 Looking · 🟡 In Lounge · ⚔️ In Game</span>
+            </div>
+            <ul class="player-list" id="loungePlayerList"></ul>
+          </div>
+
+          <!-- Right Card: Live Classroom Games & Leaderboard -->
+          <div class="card" style="display: flex; flex-direction: column; gap: 0.9rem;">
+            <div>
+              <h2 style="margin: 0 0 0.25rem 0; font-size: 1.1rem;">⚔️ Live Classroom Games (<span id="liveGamesCount">0</span>)</h2>
+              <p style="margin: 0 0 0.65rem 0; font-size: 0.83rem; color: var(--text-muted);">
+                Watch active games in real time or jump back into your match.
+              </p>
+              <div id="liveMatchesList" class="player-list" style="max-height: 14rem;"></div>
+            </div>
+
+            <div style="border-top: 1px solid var(--border-color); padding-top: 0.75rem;">
+              <h3 style="margin: 0 0 0.45rem 0; font-size: 0.98rem;">🏆 Top Classroom Chess Standings</h3>
+              <div id="loungeLeaderboard" style="font-size: 0.86rem;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         VIEW 3: ACTIVE CHESS BOARD ARENA
+         ================================================================= -->
+    <section id="viewGame" hidden>
+      <div class="arena-layout">
+
+        <!-- Left Column: Top Player Bar + 8x8 Board + Bottom Player Bar -->
+        <div class="board-column">
+          <!-- Opponent / Top Bar -->
+          <div class="player-bar" id="barTop">
+            <div class="p-info">
+              <span class="color-disc b" id="discTop"></span>
+              <div>
+                <div class="p-name" id="nameTop">Opponent</div>
+                <div class="captured-tray" id="trayTop"></div>
+              </div>
+            </div>
+            <div class="clock-box" id="clockTop">05:00</div>
+          </div>
+
+          <!-- 8x8 Chessboard -->
+          <div class="board-frame">
+            <div class="chess-grid" id="boardGrid" role="grid" aria-label="Chessboard"></div>
+          </div>
+
+          <!-- Player / Bottom Bar -->
+          <div class="player-bar" id="barBottom">
+            <div class="p-info">
+              <span class="color-disc w" id="discBottom"></span>
+              <div>
+                <div class="p-name" id="nameBottom">You</div>
+                <div class="captured-tray" id="trayBottom"></div>
+              </div>
+            </div>
+            <div class="clock-box" id="clockBottom">05:00</div>
+          </div>
+        </div>
+
+        <!-- Right Column: Status, Incoming Draw Offer, Move Log, & Actions -->
+        <aside class="card side-panel">
+          <div class="status-banner" id="gameStatusBanner">White to move</div>
+
+          <!-- Incoming Draw Offer Alert (Online Games) -->
+          <div id="drawOfferBanner" class="challenge-alert" style="margin-bottom: 0; padding: 0.65rem;" hidden>
+            <span style="font-size: 0.88rem; font-weight: 700;">🤝 Your opponent offered a draw.</span>
+            <div style="display: flex; gap: 0.4rem;">
+              <button class="btn emerald" id="btnAcceptDraw" style="padding: 0.3rem 0.65rem; font-size: 0.8rem;">Accept</button>
+              <button class="btn" id="btnDeclineDraw" style="padding: 0.3rem 0.65rem; font-size: 0.8rem;">Decline</button>
+            </div>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+              <strong style="font-size: 0.84rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted);">Move History</strong>
+              <span id="moveCounter" style="font-size: 0.8rem; color: var(--text-dim);">Move 1</span>
+            </div>
+            <div class="move-log-wrap" id="moveLogWrap">
+              <table class="move-table">
+                <tbody id="moveTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+            <button class="btn" id="btnFlipBoard" title="Flip board perspective">🔄 Flip Board</button>
+            <button class="btn" id="btnHint" title="Show a suggested tactical move">💡 Hint</button>
+            <button class="btn" id="btnOfferDraw" title="Offer a draw to your opponent">🤝 Offer Draw</button>
+            <button class="btn danger" id="btnResign" title="Resign this game">🏳️ Resign</button>
+          </div>
+
+          <!-- Post-Game Rematch / Back Bar -->
+          <div id="postGameActions" style="display: flex; flex-direction: column; gap: 0.5rem; padding-top: 0.4rem; border-top: 1px solid var(--border-color);" hidden>
+            <button class="btn primary" id="btnRematch">🔄 Play Again / Rematch</button>
+            <button class="btn" id="btnBackToLounge">🔙 Back to Lounge / Menu</button>
+          </div>
+        </aside>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Pawn Promotion Picker Modal -->
+  <div class="modal-backdrop" id="promoModal" hidden>
+    <div class="modal-card">
+      <h2 style="margin: 0 0 0.25rem 0; font-size: 1.25rem;">👑 Promote Your Pawn</h2>
+      <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Choose a piece for pawn promotion:</p>
+      <div class="promo-choices" id="promoChoices"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="js/chess-engine.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
+

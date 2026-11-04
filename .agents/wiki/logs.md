@@ -1605,3 +1605,6 @@ Append-only log tracking pattern changes across recent sessions.
   - Added primary action launch buttons and `Kinematics_Matrix` cards for `Projectile Range Studio` and `Vector Decomposition Studio` on `unit2-dashboard.html`.
   - Linked `vector_decomposition_monitor.html` in `admin/index.html` alongside `projectile_range_monitor.html`.
   - Refreshed site footer timestamp (`node scripts/update-timestamp.js`).
+
+## 2026-11-04 — Classroom Chess Arena (Google Login + Firestore Matchmaking)
+- Added patterns/classroom-chess-arena.md: Documents the Classroom Chess Arena (chess/), chess_players & chess_matches Firestore security rules (Section 13), atomic Quick Match auto-pairing, direct classmate challenges, teacher batch-pairing, and flat algebraic move replay.
