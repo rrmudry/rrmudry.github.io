@@ -6,6 +6,7 @@
 | Pattern | Tags | Last Updated | Summary |
 |---|---|---|---|
 | [dashboard-layout](patterns/dashboard-layout.md) | dashboard, HTML, CSS, glass-card, tailwind, assignments, modal | 2026-09-07 | Unit dashboard HTML structure, theming, glass cards, categorized assignments vs learning resources in cards & modals |
+| [student-app-standards](patterns/student-app-standards.md) | standards, pedagogy, differentiation, notation, desmos, firestore, checklist | 2026-11-03 | Teaching standards for every student-facing app: g = 10, notation, lesson flow, classes by period, saving and grades. Read before building anything student-facing. |
 | [projectile-range-studio](patterns/projectile-range-studio.md) | projectile, hang-time, range, differentiation, svg, desmos, monitor | 2026-11-02 | One flight taught three ways (Conceptual counts seconds, CP reads a grid, Honors uses trig), follow-through grading, teacher-only monitor |
 | [firebase-auth-gotchas](patterns/firebase-auth-gotchas.md) | firebase, auth, security, scoring | 2026-10-16 | Auth gateway, domain filtering, score submission, dual-path sync, live student-token rules verification |
 | [ngss-integration](patterns/ngss-integration.md) | NGSS, standards, data-attr, badges, modal | 2026-08-29 | NGSSHelper API, three data attributes, loading chain, re-init pattern |

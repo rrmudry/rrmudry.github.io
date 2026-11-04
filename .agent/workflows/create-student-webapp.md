@@ -14,9 +14,54 @@ Follow these requirements and code patterns whenever creating or modifying inter
 - [ ] **Unique Assignment ID**: Hardcode a unique constant `ASSIGNMENT_ID` in the webapp code. This must match the document ID in the Firestore `assignments` and `student_results` collections exactly.
 - [ ] **Percentage-Based Scoring**: Design the scoring system to submit grades as a percentage (integer `0` to `100`).
 - [ ] **Highest Score Retention**: Check Firestore for existing submissions and only save the score if it exceeds the student's previous attempt.
-- [ ] **Top-Level Parent Doc Set**: When submitting scores, ensure the parent document (`db.collection('student_results').doc(ASSIGNMENT_ID).set({ assignment_name, updatedAt }, { merge: true })`) is created so admin tools and gradebook export discover it.
+- [ ] **Top-Level Parent Doc Set**: `deploy-assignment.js` creates the parent document (`student_results/{ASSIGNMENT_ID}`) so admin tools and gradebook export discover it. It is admin-only, so student pages must never write it.
 - [ ] **CAST Alignment & Productive Friction**: Preserve authentic student measurement (reading virtual rulers, stopwatches, protractors) and scale conversions rather than auto-calculating. Eliminate interface clutter, provide 2x–3x optical loupes/crosshairs, and offer targeted diagnostic hints for tolerance checks (see `.agents/wiki/patterns/cast-aligned-webapp-design.md`).
 - [ ] **Automatic NGSS Standards Linking**: Include `data-ngss="STANDARD_CODES"` (e.g. `data-ngss="HS-PS2-1,HS-PS2-2"`) or `data-ngss-is="IS1"` in the HTML body to automatically pull and render interactive NGSS standard badges and popover details via `NGSSHelper`.
+- [ ] **Teaching Standards**: Read `.agents/wiki/patterns/student-app-standards.md` before designing anything.
+
+---
+
+## ✅ Definition of Done
+
+Go through this before showing the teacher a new studio or calling it ready. Skip an item only if it doesn't apply, and say which ones you skipped and why. Say plainly what you could not test.
+
+**Lesson**
+- [ ] One task on screen at a time, with new ideas taught before they are asked about.
+- [ ] A wrong answer explains why, then deals new numbers.
+- [ ] Back on every step, returning earlier numbers and answers. Hidden while a wrong answer is showing.
+- [ ] Hints open one at a time, with no penalty, and a read-aloud button is available.
+
+**Notation**
+- [ ] g = 10 m/s², real subscripts, no LaTeX.
+- [ ] Calculations are stacked one step per line, with units, and formula lines never wrap.
+
+**Screen (check at 1366 × 768 and 1366 × 650)**
+- [ ] Everything needed for the question is visible with no scrolling.
+- [ ] The picture stays the same size from step to step, and buttons don't move.
+- [ ] The calculator doesn't cover the question or its buttons.
+- [ ] Light mode, dark mode and Projector mode are all readable.
+
+**Student work**
+- [ ] Calculation answers come only from Desmos, with the work checked.
+- [ ] Numbers appear on the picture or apparatus, not in the question's words.
+
+**Classes**
+- [ ] Period 0, Periods 1–3 and Periods 4–6 each play through from start to finish in preview.
+- [ ] Periods 1–6 never see the word Honors or any class label.
+
+**Saving and grades**
+- [ ] Credit grows step by step, and the best score is never lowered.
+- [ ] Progress resumes after a reload with the same page and numbers.
+- [ ] The app's real save data passes Firestore's validation, with no `undefined` values or arrays inside arrays.
+- [ ] A certificate is earned by finishing every part and scoring 75% or higher, if the assignment has one.
+- [ ] A teacher-only monitor shows live progress, added to `admin/index.html`, and sample data runs only on localhost.
+
+**Before students see it**
+- [ ] The tests pass, and `node scripts/audit-firestore-rules-coverage.js` and `node scripts/audit-web-filter-cdn.js` are clean.
+- [ ] The due date is in the future and has been confirmed with the teacher.
+- [ ] Posted with `deploy-assignment.js`, then `npm run verify -- --id <ASSIGNMENT_ID> --app <folder>` is fully green.
+- [ ] Linked from the lesson in `assets/lessons-data.js` only after verify passes.
+- [ ] The wiki page and `logs.md` are updated.
 
 ---
 

@@ -3,6 +3,14 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-03 — Student App Standards & Definition of Done
+**Patterns Updated**: `student-app-standards.md` (new).
+**Files Added/Updated**: `.agent/workflows/create-student-webapp.md`, `.agents/AGENTS.md`, `.agents/wiki/index.md`.
+
+**Changes**:
+- Collected the teacher's standards from past reviews into one wiki page, and added a Definition of Done to the student webapp workflow.
+- Corrected the workflow's old instruction that had student pages write the admin-only parent doc.
+
 ## 2026-11-03 — Projectile Range Studio: Back Button, Stacked Math, Calculator Fit, Certificate
 **Patterns Updated**: `projectile-range-studio.md`.
 **Files Added/Updated**: `Unit_2/projectile_range_studio/`, `admin/projectile_range_monitor.html`, `tests/projectileRange.test.js`.

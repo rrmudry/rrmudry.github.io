@@ -9,6 +9,9 @@ Before creating or modifying any page, dashboard, webapp, game, or simulation:
 
 This ensures knowledge compounds across sessions rather than being lost when a conversation ends.
 
+## 🧑‍🏫 Teaching Standards & Definition of Done
+Before creating or changing any student-facing app, worksheet or lesson, read `.agents/wiki/patterns/student-app-standards.md` (g = 10, notation, lesson flow, differentiation by period, saving and grades). Before calling a new studio ready, go through the "Definition of Done" in `.agent/workflows/create-student-webapp.md`. This repo is public, so keep these documents about how we teach, never about individual students or how records get flagged.
+
 ## 📚 Standard Practice: Automatic & Daily NGSS Standards Alignment
 Whenever creating, modifying, or updating unit dashboards, lesson plans, daily activities, assignments, or student webapps across `rrmudry.github.io`:
 
