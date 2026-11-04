@@ -5231,8 +5231,8 @@ const lessonsData = [
     "type": "Guided Practice / Problem Solving",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Analyze the vertical trajectory of angled projectiles: at peak apogee v_y = 0, time to rise equals time to fall, and total hang-time is t_total = 2v_0y / g.",
-    "activity": "Apogee Kinematics Derivation & Rocket Telemetry Re-Analysis: Students connect angled apogee formulas back to their cardstock rocket pneumatic flight data. Deriving maximum height (h_max = v_0y² / 2g) and proving parabolic symmetry.",
+    "summary": "Staff Development / Student-Free Day (Nov 3). Analyze the vertical trajectory of angled projectiles: at peak apogee v_y = 0, time to rise equals time to fall, and total hang-time is t_total = 2v_0y / g. Coursework is consolidated into Wednesday (Periods 0, 2, 4, 6) and Thursday (Periods 0, 1, 3, 5) block periods.",
+    "activity": "Apogee Kinematics & Projectile Range Studio: Students work through the Projectile Range Studio interactive modules (vertical velocity, flight time, and horizontal landing range), connecting trajectory symmetry to pneumatic rocket telemetry.",
     "essentialQuestion": "Why must vertical velocity drop to exactly zero at the highest point of an arc, and how does that unlock the entire flight trajectory?",
     "standards": [
       "HS-PS2-1"
@@ -5292,14 +5292,14 @@ const lessonsData = [
     "day": 48,
     "date": "2026-11-04",
     "unit": 2,
-    "title": "Complementary Launch Angles & Range Maximization Studio",
-    "topic": "Complementary Angle Symmetry (θ and 90° - θ Produce Identical Range)",
+    "title": "Complementary Launch Angles & Projectile Range Studio",
+    "topic": "Complementary Angle Symmetry (θ and 90° - θ) & Projectile Range Studio",
     "dok": 3,
     "type": "Inquiry / Simulation Studio",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Discover the complementary angle theorem of projectile motion: any two launch angles that add to 90 degrees produce the exact same horizontal range on level ground.",
-    "activity": "Complementary Angle Virtual Inquiry: Using the Interactive Projectile Motion Tutorial and Cannon Duel simulators, students test angle pairs (15° and 75°, 30° and 60°, 20° and 70°). They analyze why 30° has high horizontal speed but low hang-time, while 60° has high hang-time but low horizontal speed—resulting in the exact same product Δx = v_x · t.",
+    "summary": "Block Day (Periods 0, 2, 4, 6 - 105 min). Complete the Projectile Range Studio and investigate the complementary angle theorem: any two launch angles that add to 90 degrees produce the exact same horizontal range on level ground.",
+    "activity": "Projectile Range Studio & Complementary Angle Virtual Inquiry: Students complete the multi-stage Projectile Range Studio mastery modules, then test angle pairs (15° and 75°, 30° and 60°, 20° and 70°) using the interactive simulators to analyze trade-offs between hang-time and horizontal speed.",
     "essentialQuestion": "Why do two completely different launch angles, like 30° and 60°, land in the exact same spot on level ground?",
     "standards": [
       "HS-PS2-1"
@@ -5318,10 +5318,20 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Projectile Range Studio": "Unit_2/projectile_range_studio/index.html",
       "Interactive Projectile Motion Tutorial": "interactive-projectile-motion-tutorial/index.html",
       "Artillery Duel Game": "Cannon_duel/index.html"
     },
     "assignments": [
+      {
+        "title": "Projectile Range Studio",
+        "url": "Unit_2/projectile_range_studio/index.html",
+        "typeLabel": "Interactive Studio & Mastery Check",
+        "submission": "Automatic Classroom Sync (10 pts)",
+        "actionLabel": "Launch Range Studio",
+        "description": "See a launch split into two motions, find how long it stays in the air, then use that time to find how far it goes. Earn credit for every step, then pass the Mastery Check.",
+        "status": "active"
+      },
       {
         "title": "Complementary Angles Inquiry Lab Report",
         "typeLabel": "Digital Investigation",
@@ -5333,10 +5343,22 @@ const lessonsData = [
     ],
     "resources": [
       {
+        "title": "Projectile Range Studio",
+        "url": "Unit_2/projectile_range_studio/index.html",
+        "typeLabel": "Interactive Studio",
+        "description": "Step through a flight second by second to find hang time and range."
+      },
+      {
         "title": "Interactive Projectile Motion Tutorial",
         "url": "interactive-projectile-motion-tutorial/index.html",
         "typeLabel": "Inquiry Sandbox",
         "description": "Multi-angle trajectory overlay tool with flight statistics."
+      },
+      {
+        "title": "Artillery Duel Game",
+        "url": "Cannon_duel/index.html",
+        "typeLabel": "2-Player Simulation Game",
+        "description": "Competitive artillery trajectory showdown adjusting angle and velocity."
       }
     ]
   },
@@ -5344,14 +5366,14 @@ const lessonsData = [
     "day": 49,
     "date": "2026-11-05",
     "unit": 2,
-    "title": "CAST 2D Projectile Performance Task: Emergency Cargo Air-Drop",
-    "topic": "3D Science Assessment: Calculating Release Distance for Airborne Aid Delivery",
+    "title": "Emergency Air-Drop Delivery Challenge & Projectile Range Studio",
+    "topic": "3D Science Assessment: Calculating Release Distance & Projectile Range Studio",
     "dok": 3,
     "type": "CAST 3D Performance Task / Problem Solving",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Apply 2D projectile physics to an authentic emergency scenario: calculating the exact release coordinates for a cargo relief aircraft flying at constant speed and altitude.",
-    "activity": "Relief Plane Air-Drop Performance Task: Students receive drone and aircraft flight telemetry (altitude h = 500 m, velocity v = 80 m/s). Using the 2-step projectile protocol, they calculate time to fall, horizontal release distance before the target zone, and construct an evidence-based claim defending why cargo cannot simply be dropped directly above the target.",
+    "summary": "Block Day (Periods 0, 1, 3, 5 - 105 min). Complete the Projectile Range Studio and apply 2D projectile physics to an authentic emergency scenario calculating exact release coordinates for a cargo relief aircraft.",
+    "activity": "Projectile Range Studio & Relief Plane Air-Drop Performance Task: Periods 1, 3, 5 complete the Projectile Range Studio mastery modules, then receive drone and aircraft flight telemetry to calculate falling time and lead distance.",
     "essentialQuestion": "Why must emergency relief pilots release cargo packages kilometers before reaching the drop zone?",
     "standards": [
       "HS-PS2-1",
@@ -5371,9 +5393,19 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Projectile Range Studio": "Unit_2/projectile_range_studio/index.html",
       "Horizontal Projectile Motion Explorer": "horizontal-projectile-motion/index.html"
     },
     "assignments": [
+      {
+        "title": "Projectile Range Studio",
+        "url": "Unit_2/projectile_range_studio/index.html",
+        "typeLabel": "Interactive Studio & Mastery Check",
+        "submission": "Automatic Classroom Sync (10 pts)",
+        "actionLabel": "Launch Range Studio",
+        "description": "See a launch split into two motions, find how long it stays in the air, then use that time to find how far it goes. Earn credit for every step, then pass the Mastery Check.",
+        "status": "active"
+      },
       {
         "title": "Emergency Air-Drop 2D Kinematics Performance Task",
         "typeLabel": "CAST Performance Task",
@@ -5384,6 +5416,12 @@ const lessonsData = [
       }
     ],
     "resources": [
+      {
+        "title": "Projectile Range Studio",
+        "url": "Unit_2/projectile_range_studio/index.html",
+        "typeLabel": "Interactive Studio",
+        "description": "Step through a flight second by second to find hang time and range."
+      },
       {
         "title": "Horizontal Projectile Motion Explorer",
         "url": "horizontal-projectile-motion/index.html",
