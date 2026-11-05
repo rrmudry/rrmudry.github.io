@@ -31,6 +31,7 @@ Assignment ID: `unit2_monkey_hunter_studio`. Built from the Projectile Range Stu
 - **A wrong ruler reading or wrong string does not deal new numbers,** because 5, 20, 45, 80 are the student's collected data and don't change. It explains, then has them redo that step. Everything else deals new numbers.
 - **Marks are drawn last** so the monkey never hides the one a student needs to count.
 - **The prediction is never graded.** It is saved as `prediction` on the student's record.
+- **Right-click context menu is disabled** across the webapp (`oncontextmenu="return false;"` on `<body>` and `document.addEventListener('contextmenu', e => e.preventDefault())` in `js/app.js`).
 
 ## Known limits
 - Projector mode at 1366 × 768: the calculator covers the answer box until dragged aside, because the large text leaves too little room. The panel moves by its title bar.

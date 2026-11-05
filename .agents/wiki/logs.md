@@ -1634,3 +1634,5 @@ Append-only log tracking pattern changes across recent sessions.
 
 ## 2026-11-05 — 3D 100m Dash Class Progress & Champions Arena
 - Created dmin/sprint_progress_3d.html and linked from dmin/monkey_hunter_monitor.html, dmin/projectile_range_monitor.html, dmin/vector_decomposition_monitor.html, and dmin/index.html.
+
+- **2026-11-05**: Disabled right-click context menu on Monkey Hunter Studio (`Unit_2/monkey_hunter_studio/index.html` and `Unit_2/monkey_hunter_studio/js/app.js`).

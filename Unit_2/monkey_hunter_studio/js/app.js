@@ -2,6 +2,9 @@
 // Saved after every step, so a student resumes on any device with the same numbers. Credit never drops.
 
 const HunterApp = (function () {
+  if (typeof document !== 'undefined') {
+    document.addEventListener('contextmenu', e => e.preventDefault());
+  }
   const $ = id => document.getElementById(id);
   const PR = window.PR, Lesson = window.Lesson, Scene = window.Scene;
   const STATE_VERSION = 1;
