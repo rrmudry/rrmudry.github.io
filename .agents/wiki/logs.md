@@ -1609,7 +1609,7 @@ Append-only log tracking pattern changes across recent sessions.
 ## 2026-11-04 — Classroom Chess Arena (Google Login + Firestore Matchmaking)
 - Added patterns/classroom-chess-arena.md: Documents the Classroom Chess Arena (chess/), chess_players & chess_matches Firestore security rules (Section 13), atomic Quick Match auto-pairing, direct classmate challenges, teacher batch-pairing, and flat algebraic move replay.
 
-- **2026-11-04**: Configured Day 47 explicitly as Student-Free Day (`dok: 0`, `type: "Student-Free Day"`):
-  - Removed all in-class assignments, problem sets, and bellringers from Day 47 so the modal no longer displays confusing "SUBMISSION REQUIRED" or coursework alerts.
-  - Added dedicated campus-closed holiday banner to `openLessonModal` in `unit2-dashboard.html`.
-  - Consolidated angled projectiles, apogee kinematics derivations, and the Projectile Range Studio into Days 48 and 49 block periods (Nov 4 & 5).
+- **2026-11-04**: Corrected Day 48/49 schedule (regular 7-period days, no block schedule):
+  - Day 48 (Wednesday, Nov 4): Set strictly as **Projectile Range Studio** (`title: "Projectile Range Studio"`, `unit2_day47_projectile_range_studio`).
+  - Day 49 (Thursday, Nov 5): Restored to **Complementary Launch Angles & Range Maximization Studio**.
+  - Day 47 (Tuesday, Nov 3): Removed all references to block scheduling from summaries and holiday notices.
