@@ -5335,9 +5335,19 @@ const lessonsData = [
     "links": {
       "Interactive Projectile Motion Tutorial": "interactive-projectile-motion-tutorial/index.html",
       "Artillery Duel Game": "Cannon_duel/index.html",
-      "Projectile Range Studio": "Unit_2/projectile_range_studio/index.html"
+      "Projectile Range Studio": "Unit_2/projectile_range_studio/index.html",
+      "Monkey Hunter Studio": "Unit_2/monkey_hunter_studio/index.html"
     },
     "assignments": [
+      {
+        "title": "Monkey Hunter Studio",
+        "url": "Unit_2/monkey_hunter_studio/index.html",
+        "typeLabel": "Interactive Studio & Mastery Check",
+        "submission": "Automatic Classroom Sync (10 pts)",
+        "actionLabel": "Launch Monkey Hunter Studio",
+        "description": "See why a launched ball falls below its straight path by the same distance a dropped ball falls. Measure a drop, hang the strings on a meter stick, then solve the hunts. Due Thursday, Nov 5 at 6:00 PM.",
+        "status": "active"
+      },
       {
         "title": "Complementary Angles Inquiry Lab Report",
         "typeLabel": "Digital Investigation",
