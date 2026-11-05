@@ -17,7 +17,354 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <style>
+/* Monkey Hunter Studio — high-contrast light mode (default), dark mode, projector mode (22px root).
+   Sizes are in rem so projector mode scales everything. Tokens match Unit_2/vector_decomposition_studio/css/style.css.
+   Blue = v_ox, orange = v_oy, purple = the stick (v_o), rose = a drop, everywhere in the lesson. */
+
+:root {
+  --bg-page: #f1f5f9;
+  --bg-header: rgba(255, 255, 255, 0.97);
+  --bg-card: #ffffff;
+  --bg-subcard: #f8fafc;
+  --border-color: #cbd5e1;
+  --border-subtle: #e2e8f0;
+  --text-main: #0f172a;
+  --text-muted: #334155;
+  --text-dim: #475569;
+  --accent: #0284c7;
+  --good: #15803d;
+  --bad: #be123c;
+  --warn: #b45309;
+  --accent-x: #0369a1;
+  --accent-y: #c2410c;
+  --accent-v: #7c3aed;
+  --accent-g: #be123c;
+  --sky: #f0f9ff;
+  --ground: #dcfce7;
+  --ground-line: #15803d;
+  --grid: #cbd5e1;
+  --ball: #0f172a;
+  --radius: 0.85rem;
+  --font-sans: 'Outfit', system-ui, sans-serif;
+  font-size: 16px;
+}
+
+html.theme-dark {
+  --bg-page: #070d19;
+  --bg-header: rgba(7, 13, 25, 0.95);
+  --bg-card: #0f172a;
+  --bg-subcard: #1e293b;
+  --border-color: rgba(56, 189, 248, 0.3);
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --text-main: #f8fafc;
+  --text-muted: #cbd5e1;
+  --text-dim: #94a3b8;
+  --accent: #38bdf8;
+  --good: #34d399;
+  --bad: #fb7185;
+  --warn: #fbbf24;
+  --accent-x: #38bdf8;
+  --accent-y: #fb923c;
+  --accent-v: #c084fc;
+  --accent-g: #fb7185;
+  --sky: #0b1324;
+  --ground: #14532d;
+  --ground-line: #34d399;
+  --grid: #334155;
+  --ball: #f8fafc;
+}
+
+html.projector {
+  font-size: 22px;
+  --bg-page: #ffffff;
+  --bg-subcard: #ffffff;
+  --border-color: #000000;
+  --border-subtle: #000000;
+  --text-muted: #0f172a;
+  --text-dim: #1e293b;
+  --grid: #94a3b8;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; height: 100vh; display: flex; flex-direction: column; background: var(--bg-page); color: var(--text-main); font-family: var(--font-sans); font-size: 1rem; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+[hidden] { display: none !important; }
+button { font: inherit; cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+p { margin: 0 0 0.5rem; }
+p:last-child { margin-bottom: 0; }
+sub { font-size: 0.72em; line-height: 0; }
+.formula { white-space: nowrap; font-weight: 700; font-variant-numeric: tabular-nums; }
+.nowrap { white-space: nowrap; }
+.calc-stack { display: grid; grid-template-columns: auto auto auto; gap: 0.1rem 0.35rem; width: fit-content; margin: 0.2rem 0; white-space: nowrap; font-weight: 700; font-variant-numeric: tabular-nums; }
+.calc-sym { text-align: right; }
+.worked { display: inline-block; margin-top: 0.35rem; }
+
+/* ---------- Header ---------- */
+.app-header { flex-shrink: 0; position: sticky; top: 0; z-index: 100; background: var(--bg-header); border-bottom: 1px solid var(--border-color); padding: 0.35rem 0.75rem 0.45rem; }
+.header-row { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; max-width: 110rem; margin: 0 auto; }
+.header-left { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+.app-icon { font-size: 1.4rem; }
+.app-title { margin: 0; font-size: 1.1rem; font-weight: 800; }
+.header-right { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+.btn-tool { background: var(--bg-subcard); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 0.5rem; padding: 0.2rem 0.55rem; font-size: 0.82rem; font-weight: 600; text-decoration: none; }
+.btn-tool.btn-on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.view-wrap { font-size: 0.82rem; font-weight: 600; display: flex; align-items: center; gap: 0.3rem; }
+.view-wrap select { font: inherit; color: var(--text-main); background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 0.4rem; padding: 0.15rem 0.3rem; }
+.user-chip { display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; padding-left: 0.35rem; }
+.user-name { font-weight: 700; max-width: 11rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-track { color: var(--text-dim); font-weight: 600; white-space: nowrap; }
+.score-chip { font-weight: 800; background: var(--bg-subcard); border: 1px solid var(--border-color); border-radius: 999px; padding: 0.05rem 0.55rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.save-indicator { font-weight: 600; white-space: nowrap; }
+.cert-chip { background: var(--bg-card); color: var(--good); border: 2px solid var(--good); border-radius: 999px; padding: 0.1rem 0.65rem; font-size: 0.82rem; font-weight: 800; white-space: nowrap; }
+.cert-box { border: 2px solid var(--border-color); border-radius: 0.6rem; padding: 0.5rem 0.7rem; }
+.cert-ready { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; border-color: var(--good); background: color-mix(in srgb, var(--good) 12%, var(--bg-card)); font-size: 1.05rem; }
+.cert-wait { background: var(--bg-subcard); font-size: 0.95rem; }
+.save-ok { color: var(--good); }
+.save-busy, .save-guest { color: var(--text-dim); }
+.save-error { color: var(--bad); }
+.btn-signout { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); border-radius: 0.4rem; font-size: 0.78rem; padding: 0.1rem 0.4rem; }
+
+.part-strip { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.4rem; max-width: 110rem; margin: 0.35rem auto 0; }
+.part-tab { background: var(--bg-subcard); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 0.55rem; padding: 0.22rem 0.5rem; text-align: left; min-width: 0; }
+.part-tab:disabled { color: var(--text-dim); background: transparent; }
+.part-on { border-color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); }
+.part-name { display: block; font-size: 0.88rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.part-bar { display: block; height: 0.28rem; margin-top: 0.18rem; background: var(--border-subtle); border-radius: 999px; overflow: hidden; }
+.part-bar span { display: block; height: 100%; background: var(--accent); }
+.part-done .part-bar span { background: var(--good); }
+html.projector .part-bar, html.projector .skill-bar { background: #cbd5e1; }
+
+/* ---------- Layout ---------- */
+.workbench { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 0.65rem; padding: 0.65rem; width: 100%; max-width: 110rem; margin: 0 auto; flex: 1; min-height: 0; }
+.card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); min-width: 0; min-height: 0; }
+.stage-card { display: flex; flex-direction: column; gap: 0.45rem; padding: 0.5rem; }
+.stage { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; border-radius: 0.6rem; overflow: hidden; border: 1px solid var(--border-subtle); background: var(--sky); }
+.scene-svg { display: block; width: 100%; height: 100%; overflow: visible; }
+/* These rows keep their height on every page, so the picture never changes size */
+.stage-foot { flex: none; display: flex; flex-direction: column; gap: 0.25rem; }
+.foot-row { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; height: 2.6rem; }
+.ladder-slot { height: 1.6rem; display: flex; align-items: center; overflow: hidden; }
+.readout { display: flex; align-items: center; gap: 0.7rem; min-width: 0; }
+.clock { font-size: 1.05rem; white-space: nowrap; }
+.clock strong { font-size: 1.3rem; font-variant-numeric: tabular-nums; }
+.clock-label { color: var(--text-dim); font-weight: 600; }
+.ladder { display: flex; align-items: center; gap: 0.2rem; }
+.ladder-label { font-weight: 800; margin-right: 0.3rem; }
+.chip { border: 1px solid var(--border-color); border-radius: 0.35rem; padding: 0 0.32rem; font-size: 0.86rem; font-weight: 700; color: var(--text-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.chip-now { border-color: var(--accent-y); color: var(--accent-y); box-shadow: inset 0 0 0 1px var(--accent-y); }
+.chip-zero { background: var(--accent-y); color: #fff; border-color: var(--accent-y); }
+.stage-ctl { display: flex; gap: 0.4rem; margin-left: auto; }
+.btn-step { background: var(--accent); color: #fff; border: 0; border-radius: 0.55rem; padding: 0.42rem 0.95rem; font-weight: 800; font-size: 1rem; white-space: nowrap; }
+html:not(.theme-dark) .btn-step { background: #0369a1; }
+html.theme-dark .btn-step { color: #0f172a; }
+html .btn-step:disabled { background: var(--border-color); color: var(--text-muted); }
+.btn-ghost { background: transparent; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 0.55rem; padding: 0.42rem 0.7rem; font-weight: 600; white-space: nowrap; }
+.solved { flex: none; height: 1.9rem; display: flex; align-items: center; gap: 0.4rem; overflow: hidden; }
+.solved-chip { background: var(--bg-subcard); border: 1px solid var(--border-color); border-radius: 0.45rem; padding: 0.14rem 0.55rem; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.solved-x { color: var(--accent-x); }
+.solved-y { color: var(--accent-y); }
+
+/* ---------- SVG picture ---------- */
+.sv-ground { fill: var(--ground); }
+.sv-ground-line { stroke: var(--ground-line); stroke-width: 2.5; }
+.sv-text { font-family: var(--font-sans); font-weight: 700; font-size: 17px; fill: var(--text-main); }
+.sv-small { font-size: 14px; font-weight: 600; }
+.sv-plate { fill: var(--bg-card); fill-opacity: 0.9; }
+.sv-note { font-size: 19px; font-weight: 800; }
+.sv-x line { stroke: var(--accent-x); } .sv-x polygon { fill: var(--accent-x); }
+.sv-y line { stroke: var(--accent-y); } .sv-y polygon { fill: var(--accent-y); }
+.sv-v line { stroke: var(--accent-v); } .sv-v polygon { fill: var(--accent-v); }
+.sv-x-text { fill: var(--accent-x); }
+.sv-y-text { fill: var(--accent-y); }
+.sv-v-text { fill: var(--accent-v); }
+.sv-angle { font-size: 18px; }
+.sv-arc { fill: none; stroke: var(--text-main); stroke-width: 2.5; }
+.sv-ball { fill: var(--ball); }
+.sv-ghost { fill: var(--ball); opacity: 0.4; }
+.sv-path { fill: none; stroke: var(--text-dim); stroke-width: 2.5; }
+.sv-path-faint { fill: none; stroke: var(--text-dim); stroke-width: 2; stroke-dasharray: 3 7; opacity: 0.7; }
+.sv-drop { stroke: var(--text-dim); stroke-width: 1.5; stroke-dasharray: 4 5; }
+.sv-tile { fill: var(--accent-x); opacity: 0.32; }
+.sv-tile-alt { opacity: 0.52; }
+.sv-tile-text { font-size: 13px; }
+.sv-flagpole { stroke: var(--bad); stroke-width: 3; }
+.sv-flag { fill: var(--bad); }
+.sv-range line { stroke: var(--text-main); } .sv-range polygon { fill: var(--text-main); }
+.sv-range-line { stroke: var(--text-main); stroke-width: 2.5; }
+.sv-range-text { font-size: 18px; }
+.sv-grid { stroke: var(--grid); stroke-width: 1.5; }
+.sv-key { fill: var(--bg-card); stroke: var(--border-color); }
+.sv-key-square { fill: none; stroke: var(--text-main); stroke-width: 2; }
+.sv-key-text { font-size: 16px; }
+.sv-key-value { font-size: 20px; font-weight: 800; }
+.sv-arc-line { fill: none; stroke-width: 4; }
+.sv-arc-a { stroke: #0f766e; }
+.sv-arc-b { stroke: #be185d; }
+html.theme-dark .sv-arc-a { stroke: #2dd4bf; }
+html.theme-dark .sv-arc-b { stroke: #f472b6; }
+.sv-cmp-text { font-size: 16px; }
+
+/* The stick, the strings, the monkey */
+.sv-stick { stroke: var(--accent-v); stroke-width: 7; stroke-linecap: round; opacity: 0.62; }
+.sv-tick { stroke: var(--text-main); stroke-width: 3; }
+.sv-mark { fill: var(--bg-card); stroke: var(--text-main); stroke-width: 2.5; }
+.sv-string { stroke: var(--accent-g); stroke-width: 3; }
+.sv-string-text { fill: var(--accent-g); }
+.solved-g { color: var(--accent-g); }
+.sv-hang { fill: var(--accent-g); }
+.sv-hang-hit { fill: var(--good); }
+.sv-handle { fill: var(--accent-g); opacity: 0.16; }
+.sv-handle-on { opacity: 0.34; }
+.sv-ball-b { fill: var(--accent-x); }
+.sv-tag { font-size: 20px; font-weight: 800; }
+.sv-level { stroke: var(--text-dim); stroke-width: 1.5; stroke-dasharray: 5 6; }
+.sv-tower { fill: var(--text-dim); opacity: 0.42; }
+.sv-barrel { stroke: var(--text-main); stroke-width: 11; stroke-linecap: round; }
+.sv-launcher { fill: var(--text-main); }
+.sv-trunk { fill: #92400e; }
+.sv-branch { stroke: #92400e; stroke-width: 8; stroke-linecap: round; }
+.sv-fur { fill: #78350f; }
+.sv-face { fill: #fcd9a8; }
+.sv-eye { fill: #0f172a; }
+.sv-limb { stroke: #78350f; stroke-width: 4.5; stroke-linecap: round; }
+.sv-tail { fill: none; stroke: #78350f; stroke-width: 3.5; stroke-linecap: round; }
+html.theme-dark .sv-fur { fill: #b45309; }
+html.theme-dark .sv-limb, html.theme-dark .sv-tail { stroke: #b45309; }
+html.theme-dark .sv-trunk { fill: #b45309; }
+html.theme-dark .sv-branch { stroke: #b45309; }
+.sv-burst { fill: #facc15; stroke: #b45309; stroke-width: 2; }
+.sv-star { fill: var(--accent-v); stroke: var(--bg-card); stroke-width: 1.5; }
+.sv-aim-gap { stroke: var(--accent-g); stroke-width: 3; stroke-dasharray: 7 6; }
+.sv-dim { stroke: var(--text-main); stroke-width: 2; }
+.sv-dim-text { font-size: 16px; }
+.sv-ruler { fill: #fef3c7; stroke: #92400e; stroke-width: 1.5; }
+html.theme-dark .sv-ruler { fill: #422006; }
+.sv-ruler-tick { stroke: var(--text-main); stroke-width: 1.5; }
+.sv-ruler-big { stroke-width: 3; }
+.sv-ruler-num { font-size: 18px; font-weight: 800; }
+.sv-pointer { stroke: var(--accent-g); stroke-width: 2.5; stroke-dasharray: 6 5; }
+.slider-wrap { display: flex; align-items: center; gap: 0.5rem; flex: 1; min-width: 0; font-weight: 800; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.slider-wrap span { min-width: 7.5rem; }
+.slider-wrap input { flex: 1; min-width: 4rem; max-width: 20rem; accent-color: var(--accent-v); }
+.stage-drag { touch-action: none; cursor: ns-resize; }
+.chip-t { color: var(--text-dim); font-weight: 600; }
+.ladder-label { color: var(--accent-g); }
+
+/* ---------- Task card ---------- */
+.task-card { display: flex; flex-direction: column; gap: 0.7rem; overflow-y: auto; padding: 0.9rem 1rem; }
+.task-card > * { flex-shrink: 0; }
+body.calc-open .task-card { padding-bottom: calc(var(--calc-height) + 1rem); }
+.task-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.task-count { font-size: 0.85rem; font-weight: 700; color: var(--text-dim); }
+.btn-read { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); border-radius: 0.45rem; padding: 0.08rem 0.45rem; font-size: 0.78rem; font-weight: 600; }
+.task-title { margin: 0; font-size: 1.32rem; line-height: 1.25; font-weight: 800; }
+.launch-tag { margin: 0; font-size: 0.85rem; font-weight: 800; color: var(--accent); }
+.task-body { font-size: 1.08rem; }
+.key-list { list-style: none; margin: 0.4rem 0; padding: 0; display: grid; gap: 0.4rem; }
+.key-list.numbered { list-style: decimal; padding-left: 1.4rem; }
+.dot { width: 0.8rem; height: 0.8rem; border-radius: 50%; display: inline-block; margin-right: 0.45rem; }
+.dot-x { background: var(--accent-x); }
+.dot-y { background: var(--accent-y); }
+.worked-line { font-size: 1.1rem; margin: 0.25rem 0; padding: 0.25rem 0.55rem; background: var(--bg-subcard); border-radius: 0.4rem; overflow-x: auto; }
+.takeaway { margin-top: 0.6rem; padding: 0.55rem 0.7rem; border-left: 4px solid var(--good); background: var(--bg-subcard); border-radius: 0 0.45rem 0.45rem 0; }
+.formula-box { margin: 0; padding: 0.4rem 0.7rem; font-size: 1.2rem; background: var(--bg-subcard); border: 1px solid var(--border-subtle); border-radius: 0.5rem; text-align: center; overflow-x: auto; }
+.ans-row { display: flex; align-items: center; gap: 0.5rem; font-size: 1.2rem; font-weight: 700; white-space: nowrap; }
+.ans-sym { white-space: nowrap; }
+.ans-row input { font: inherit; width: 7.5rem; padding: 0.3rem 0.5rem; border: 2px solid var(--accent); border-radius: 0.5rem; color: var(--text-main); background: var(--bg-card); font-variant-numeric: tabular-nums; }
+.ans-row input.calc-readonly { background: var(--bg-subcard); border-color: var(--border-color); cursor: default; }
+.ans-row input.calc-readonly::placeholder { font-size: 0.8rem; font-weight: 500; color: var(--text-dim); }
+.ans-row input:disabled { border-color: var(--border-color); }
+.task-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.btn-primary { background: #0369a1; color: #fff; border: 0; border-radius: 0.55rem; padding: 0.5rem 1.2rem; font-weight: 800; font-size: 1.05rem; }
+html.theme-dark .btn-primary { background: #38bdf8; color: #0f172a; }
+.btn-primary:disabled { background: var(--border-color); color: var(--text-dim); font-weight: 600; }
+.btn-secondary { background: transparent; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 0.55rem; padding: 0.5rem 0.9rem; font-weight: 700; }
+.feedback { border-radius: 0.55rem; padding: 0.55rem 0.7rem; font-size: 1.02rem; border: 1.5px solid; }
+.fb-ok { border-color: var(--good); color: var(--text-main); background: color-mix(in srgb, var(--good) 10%, transparent); }
+.fb-bad { border-color: var(--bad); color: var(--text-main); background: color-mix(in srgb, var(--bad) 8%, transparent); }
+.fb-retry { border-color: var(--warn); color: var(--text-main); background: color-mix(in srgb, var(--warn) 10%, transparent); }
+.hints { display: grid; gap: 0.35rem; justify-items: start; }
+.hint { background: var(--bg-subcard); border-radius: 0.45rem; padding: 0.3rem 0.6rem; font-size: 0.98rem; }
+.btn-hint { background: transparent; border: 0; color: var(--accent); font-weight: 700; padding: 0.1rem 0; text-decoration: underline; }
+.opts { display: grid; gap: 0.45rem; }
+.opt { text-align: left; background: var(--bg-card); color: var(--text-main); border: 2px solid var(--border-color); border-radius: 0.6rem; padding: 0.55rem 0.8rem; font-size: 1.05rem; font-weight: 600; }
+.opt:hover:not(:disabled) { border-color: var(--accent); }
+.opt-picked { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.opt-right { border-color: var(--good); box-shadow: inset 0 0 0 1px var(--good); }
+.opt-wrong { border-color: var(--bad); box-shadow: inset 0 0 0 1px var(--bad); }
+.done-card { display: grid; gap: 0.6rem; justify-items: center; text-align: center; margin: auto 0; }
+.done-mark { font-size: 2.6rem; line-height: 1; }
+.quiz-msg { color: var(--bad); font-weight: 700; margin: 0; min-height: 0; }
+.quiz-msg:empty { display: none; }
+.score-big { display: flex; align-items: baseline; gap: 0.6rem; }
+.score-big strong { font-size: 2.6rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.score-big span { color: var(--text-dim); font-weight: 600; }
+.grade-line { margin: 0; font-size: 1.05rem; }
+.skills { display: grid; gap: 0.3rem; }
+.skill-row { display: grid; grid-template-columns: 9.5rem 1fr 2.6rem; gap: 0.5rem; align-items: center; font-size: 0.95rem; font-weight: 600; }
+.skill-bar { display: block; height: 0.6rem; background: var(--border-subtle); border-radius: 999px; overflow: hidden; }
+.skill-bar span { display: block; height: 100%; background: var(--accent); }
+.skill-val { text-align: right; font-variant-numeric: tabular-nums; }
+.misses { margin: 0.2rem 0 0; padding-left: 1.1rem; font-size: 0.98rem; display: grid; gap: 0.35rem; }
+
+/* ---------- Floating calculator ---------- */
+/* Taller on taller screens, stopping short of the question and its buttons */
+:root { --calc-height: clamp(21rem, calc(100vh - 26rem), 36rem); }
+.calc-panel { position: fixed; right: 1.1rem; bottom: 0.8rem; width: 24rem; max-width: calc(100vw - 1.2rem); height: var(--calc-height); z-index: 90; display: flex; flex-direction: column; background: var(--bg-card); border: 2px solid var(--accent); border-radius: 0.7rem; overflow: hidden; box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28); }
+.calc-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.2rem 0.6rem; background: var(--bg-subcard); cursor: move; touch-action: none; font-size: 0.88rem; }
+.calc-drag { font-size: 0.75rem; font-weight: 600; color: var(--text-dim); }
+.calc-host { flex: 1; min-height: 0; }
+.calc-foot { padding: 0.35rem 0.5rem; background: var(--bg-subcard); border-top: 1px solid var(--border-color); display: grid; gap: 0.25rem; }
+.calc-msg { margin: 0; color: var(--bad); font-size: 0.88rem; font-weight: 700; line-height: 1.2; }
+.calc-missing { padding: 0.8rem; }
+.btn-grab { width: 100%; background: var(--accent-v); color: #fff; border: 0; border-radius: 0.5rem; padding: 0.42rem; font-weight: 800; font-size: 1rem; }
+
+/* ---------- Sign-in gate ---------- */
+.login-gate { position: fixed; inset: 0; z-index: 200; background: var(--bg-page); display: flex; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto; }
+.gate-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 1rem; padding: 1.5rem; width: min(30rem, 100%); text-align: center; display: grid; gap: 0.7rem; }
+.gate-icon { font-size: 2.4rem; line-height: 1; }
+.gate-title { margin: 0; font-size: 1.5rem; font-weight: 800; }
+.gate-sub { margin: 0; color: var(--text-dim); font-weight: 600; }
+.gate-text { margin: 0; }
+.gate-grading { text-align: left; background: var(--bg-subcard); border-radius: 0.6rem; padding: 0.55rem 0.75rem; display: grid; gap: 0.3rem; font-size: 0.95rem; }
+.btn-google { display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem; background: #fff; color: #1f2937; border: 1px solid #94a3b8; border-radius: 0.55rem; padding: 0.55rem 1rem; font-weight: 700; }
+.btn-guest { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); border-radius: 0.55rem; padding: 0.35rem 0.9rem; font-weight: 600; }
+.gate-guest-note { margin: 0.3rem 0 0; font-size: 0.85rem; color: var(--text-dim); }
+.gate-status { margin: 0; font-weight: 600; }
+.gate-status:empty { display: none; }
+.gate-error { margin: 0; color: var(--bad); font-weight: 700; }
+
+/* ---------- Short screens (Chromebooks): keep the question and its buttons above the calculator ---------- */
+@media (max-height: 751px) and (min-width: 901px) {
+  body.calc-open .task-card { flex-direction: row; flex-wrap: wrap; align-items: center; align-content: flex-start; gap: 0.4rem 0.6rem; padding-top: 0.5rem; }
+  body.calc-open .task-card > * { flex: 0 0 100%; }
+  body.calc-open .task-card > .launch-tag { flex: 0 0 auto; order: -1; }
+  body.calc-open .task-card > .task-top { flex: 1 1 0; order: -1; }
+  body.calc-open .task-card > .ans-row, body.calc-open .task-card > .task-actions { flex: 0 0 auto; }
+  body.calc-open .task-title { font-size: 1.12rem; line-height: 1.2; }
+  body.calc-open .formula-box { padding: 0.12rem 0.5rem; font-size: 1.05rem; }
+  body.calc-open .ans-row { font-size: 1.05rem; }
+  body.calc-open .hint { padding: 0.15rem 0.5rem; font-size: 0.9rem; line-height: 1.2; }
+  body.calc-open .task-actions .btn-primary, body.calc-open .task-actions .btn-secondary { padding: 0.35rem 0.8rem; font-size: 0.98rem; }
+}
+
+/* ---------- Narrow screens: picture on top ---------- */
+@media (max-width: 900px) {
+  body { height: auto; display: block; }
+  .workbench { display: flex; flex-direction: column; }
+  .stage { aspect-ratio: 760 / 520; flex: none; }
+  .ladder-slot, .solved { height: auto; min-height: 1.6rem; overflow: visible; }
+  .ladder, .solved { flex-wrap: wrap; }
+  .task-card { overflow: visible; }
+  .calc-panel { position: static; width: auto; max-width: none; height: 26rem; margin: 0 0.65rem 0.65rem; }
+  body.calc-open .task-card { padding-bottom: 0.9rem; }
+}
+
+@media print { .calc-panel, .app-header { display: none; } }
+
+</style>
 
   <!-- Firebase (compat SDK, same as the rest of the site) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -131,13 +478,3332 @@
     </div>
   </div>
 
-  <script src="js/text.js"></script>
-  <script src="../vector_decomposition_studio/js/engine.js"></script>
-  <script src="js/physics.js"></script>
-  <script src="js/scene.js"></script>
-  <script src="js/lesson.js"></script>
-  <script src="js/certificate.js"></script>
-  <script src="js/app.js"></script>
-  <script src="js/auth.js"></script>
+  <script>
+window.NGSS_STANDARDS_DATA = window.NGSS_STANDARDS_DATA || [{
+  code: "HS-PS2-1",
+  domain: "Physical Science",
+  domainCode: "PS",
+  is: "IS1",
+  topic: "Forces and Motion",
+  title: "Newton's Second Law of Motion",
+  pe: "Analyze data to support the claim that Newton's second law of motion describes the mathematical relationship among the net force on a macroscopic object, its mass, and its acceleration.",
+  clarification: "Examples of data could include tables or graphs of position or velocity as a function of time for objects subject to a net force.",
+  boundary: "Assessment is limited to one-dimensional motion, with constant forces.",
+  sep: "Analyzing and Interpreting Data",
+  dci: "PS2.A: Forces and Motion",
+  ccc: "Cause and Effect",
+  unitLink: "../../unit2-dashboard.html",
+  keywords: ["force", "mass", "acceleration", "newton", "motion", "f=ma", "kinematics", "data"]
+}];
+
+// === Unit_2/monkey_hunter_studio/js/text.js ===
+// Monkey Hunter Studio — real subscripts and no-wrap math in the task card.
+// Symbols are written in source as v_o, v_ox, v_oy, X_o, X_f. Adapted from Unit_2/vector_decomposition_studio/js/text.js.
+
+(function () {
+  const SUB_RE = /\b(v|X)_(ox|oy|o|f)\b/g;
+  const NBSP = ' ';
+  // Only text between tags is changed, so attributes stay valid.
+  window.subHTML = str => String(str).split(/(<[^>]+>)/).map(part => (part.startsWith('<') ? part : part
+    .replace(SUB_RE, '$1<sub>$2</sub>')
+    .replace(/(\d)\s+(?=(?:m\/s²|m\/s|m|s)(?![A-Za-z]))/g, '$1' + NBSP)
+    .replace(/\s+([=−+×÷])\s+/g, NBSP + '$1' + NBSP)
+  )).join('');
+})();
+
+
+// === Unit_2/vector_decomposition_studio/js/engine.js ===
+// Vector Decomposition Studio — Physics, scenario generators, answer checking, diagnostics, quiz builder
+// Angle θ is measured up from the ground unless a scenario says fromVertical.
+// Every wrong answer is compared against known mistakes so the student hears WHY, not just "wrong".
+// Questions are plain JSON so an unfinished Mastery Check can be saved and resumed with the same numbers.
+
+(function () {
+  const rad = d => d * Math.PI / 180;
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+
+  const Phys = {
+    vx: (v0, th) => v0 * Math.cos(rad(th)),
+    vy: (v0, th) => v0 * Math.sin(rad(th)),
+    speed: (x, y) => Math.hypot(x, y),
+    angle: (x, y) => Math.atan2(y, x) * 180 / Math.PI
+  };
+
+  function fmt(v, d) {
+    const s = Number(v).toFixed(d);
+    return /^-0\.?0*$/.test(s) ? s.slice(1) : s;
+  }
+  // Answers students compute: 1 decimal, 2 when small
+  const fmtAns = v => fmt(v, Math.abs(v) < 10 ? 2 : 1);
+
+  const near = (v, target, rel = 0.02, abs = 0.1) => Math.abs(v - target) <= Math.max(Math.abs(target) * rel, abs);
+
+  function parseNum(raw) {
+    const v = parseFloat(String(raw).replace(',', '.').replace(/[−–]/g, '-').replace(/[^0-9.\-eE]/g, ''));
+    return isFinite(v) ? v : null;
+  }
+
+  // ---------- Scenario contexts: the words never contain the numbers (those live on the picture) ----------
+  const THINGS = [
+    { icon: '⚽', name: 'soccer ball', verb: 'is kicked' },
+    { icon: '🏀', name: 'basketball', verb: 'is shot' },
+    { icon: '🏈', name: 'football', verb: 'is punted' },
+    { icon: '⛳', name: 'golf ball', verb: 'is hit' },
+    { icon: '🎾', name: 'tennis ball', verb: 'is lobbed' },
+    { icon: '🐸', name: 'frog', verb: 'jumps' },
+    { icon: '💣', name: 'cannonball', verb: 'is fired' },
+    { icon: '🚀', name: 'toy rocket', verb: 'is launched' }
+  ];
+
+  // No angles close to 45° in calculations: sin and cos must give clearly different answers.
+  const EASY_ANGLES = [30, 60];
+  const ALL_ANGLES = [15, 20, 25, 30, 35, 37, 40, 50, 53, 55, 60, 65, 70, 75];
+  const FIVE_ANGLES = [20, 25, 30, 35, 40, 50, 55, 60, 65, 70];
+  const EASY_SPEEDS = [10, 20, 30, 40];
+  const ALL_SPEEDS = [12, 14, 15, 16, 18, 20, 22, 24, 25, 26, 28, 30, 32, 35, 36, 40, 45, 50];
+
+  function launch(level = 2, not) {
+    let sc;
+    do {
+      sc = {
+        v0: pick(level <= 1 ? EASY_SPEEDS : ALL_SPEEDS),
+        th: pick(level <= 1 ? EASY_ANGLES : level === 'five' ? FIVE_ANGLES : ALL_ANGLES),
+        thing: Math.floor(Math.random() * THINGS.length)
+      };
+    } while (not && not.v0 === sc.v0 && not.th === sc.th);
+    sc.x = Phys.vx(sc.v0, sc.th);
+    sc.y = Phys.vy(sc.v0, sc.th);
+    return sc;
+  }
+
+  // Whole-number arrows that land exactly on grid corners, for reading squares with no trig
+  const TRIPLES = [[8, 6], [6, 8], [12, 5], [5, 12], [12, 9], [9, 12], [15, 8], [8, 15], [4, 3], [3, 4], [16, 12], [12, 16]];
+  function gridArrow(scales = [1], not) {
+    let sc;
+    do {
+      const [gx, gy] = pick(TRIPLES);
+      const scale = pick(scales);
+      sc = { gx, gy, scale, x: gx * scale, y: gy * scale, v0: Math.hypot(gx, gy) * scale, thing: Math.floor(Math.random() * THINGS.length) };
+    } while (not && not.gx === sc.gx && not.gy === sc.gy && not.scale === sc.scale);
+    sc.th = Phys.angle(sc.x, sc.y);
+    return sc;
+  }
+
+  // ---------- Worked solutions ----------
+  const fn = asked => asked === 'x' ? 'cos' : 'sin';
+  const sym = asked => asked === 'x' ? 'v_0x' : 'v_0y';
+  const work = (asked, sc) =>
+    `${sym(asked)} = v_0 × ${fn(asked)}(θ) = ${sc.v0} m/s × ${fn(asked)}(${sc.th}°) = ${fmtAns(asked === 'x' ? sc.x : sc.y)} m/s`;
+
+  // ---------- Diagnostics: [id, test(v, sc), message(sc)] — first match wins. Ids feed the teacher monitor. ----------
+  function calcMistakes(asked) {
+    const f = asked === 'x' ? Math.cos : Math.sin;
+    const part = asked === 'x' ? 'sideways' : 'upward';
+    const other = asked === 'x' ? 'upward' : 'sideways';
+    const value = sc => f(rad(sc.th));
+    return [
+      ['swap', (v, s) => near(v, asked === 'x' ? s.y : s.x),
+        () => `You found the ${other} part. The ${part} part is the side that ${asked === 'x' ? 'touches' : 'is across from'} θ, so it uses ${fn(asked)}.`],
+      ['radians', (v, s) => near(v, s.v0 * f(s.th)) || near(v, f(s.th)),
+        () => `Your calculator is in radian mode. Switch it to degrees (DEG) and try again.`],
+      ['no_speed', (v, s) => near(v, value(s), 0.03, 0.01),
+        s => `${fn(asked)}(${s.th}°) only tells how much of the speed, as a decimal. Multiply it by v_0 to get m/s.`],
+      ['divided', (v, s) => near(v, s.v0 / value(s)),
+        () => `You divided. A part can never be bigger than the whole speed. Multiply v_0 by the decimal.`],
+      ['tan', (v, s) => near(v, s.v0 * Math.tan(rad(s.th))),
+        () => `That is tangent. Use sin or cos, because v_0 is the long side (the hypotenuse) of the triangle.`],
+      ['no_trig', (v, s) => near(v, s.v0 * s.th),
+        () => `You multiplied by the angle itself. Multiply by ${fn(asked)} of the angle.`],
+      ['added', (v, s) => near(v, s.v0 + value(s)),
+        () => `You added. Multiply the speed by the decimal: v_0 × ${fn(asked)}(θ).`],
+      ['whole_speed', (v, s) => near(v, s.v0),
+        () => `That is the whole launch speed v_0. Only part of it goes ${asked === 'x' ? 'sideways' : 'up'}.`],
+      ['angle_read', (v, s) => near(v, s.th),
+        () => `That is the angle. The answer is a speed in m/s. Use v_0 × ${fn(asked)}(θ).`],
+      ['decimal', (v, s) => { const t = asked === 'x' ? s.x : s.y; return near(v, t * 10) || near(v, t / 10); },
+        () => `Your digits are right but the decimal point moved. Check your typing.`]
+    ];
+  }
+
+  // Check a calculated component. Returns { ok, msg, mistake }.
+  function checkCalc(asked, raw, sc) {
+    const v = parseNum(raw);
+    if (v === null) return { ok: null, msg: 'Type a number first.' };
+    const target = asked === 'x' ? sc.x : sc.y;
+    if (near(v, target)) return { ok: true, msg: `<span class="formula">${work(asked, sc)}</span>` };
+    const hit = calcMistakes(asked).find(([, test]) => test(v, sc));
+    const why = hit ? hit[2](sc) : 'Not quite. Check each step: which function, then multiply by v_0.';
+    return {
+      ok: false,
+      mistake: hit ? hit[0] : 'other',
+      msg: `${why}<br><span class="worked">The right way: <span class="formula">${work(asked, sc)}</span></span>`
+    };
+  }
+
+  // ---------- Mastery Check questions ----------
+  // Each is plain JSON: { kind, skill, sc, asked?, order? }. QUESTION[kind] knows how to show and grade it.
+  const SKILLS = {
+    read: { label: 'Read parts off a grid' },
+    concept: { label: 'Angle and the parts' },
+    choose: { label: 'Choose sin or cos' },
+    calc_x: { label: 'Calculate v_0x' },
+    calc_y: { label: 'Calculate v_0y' },
+    sense: { label: 'Does the answer make sense?' },
+    honors: { label: 'Honors challenges' }
+  };
+
+  function shuffled(n) {
+    const a = [...Array(n).keys()];
+    for (let i = n - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  const QUESTION = {
+    // Read one part off a grid (the scale changes, so students must read the key)
+    read: {
+      make: () => ({ kind: 'read', skill: 'read', asked: pick(['x', 'y']), sc: gridArrow([1, 2, 5]) }),
+      type: 'num',
+      text: q => `Use the grid. Read the scale first. How fast is the ${q.asked === 'x' ? 'sideways' : 'upward'} part, ${sym(q.asked)}?`,
+      scene: q => ({ mode: 'grid', sc: q.sc, showArrow: true, showX: q.asked === 'x', showY: q.asked === 'y', keyLabel: true }),
+      unit: 'm/s',
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const t = q.asked === 'x' ? q.sc.x : q.sc.y;
+        if (v === null) return { ok: false, msg: `No answer. ${sym(q.asked)} = ${t} m/s.`, mistake: 'blank' };
+        if (near(v, t, 0, 0.01)) return { ok: true, msg: `${sym(q.asked)} = ${t} m/s.` };
+        const squares = q.asked === 'x' ? q.sc.gx : q.sc.gy;
+        if (near(v, squares, 0, 0.01) && q.sc.scale !== 1) {
+          return { ok: false, mistake: 'scale', msg: `You counted ${squares} squares, but each square is worth ${q.sc.scale} m/s here. ${squares} × ${q.sc.scale} = ${t} m/s.` };
+        }
+        if (near(v, q.asked === 'x' ? q.sc.y : q.sc.x, 0, 0.01)) {
+          return { ok: false, mistake: 'swap', msg: `You read the other part. ${q.asked === 'x' ? 'Sideways is along the ground' : 'Upward is the height of the tip'}. ${sym(q.asked)} = ${t} m/s.` };
+        }
+        return { ok: false, mistake: 'read', msg: `Count squares, then multiply by the scale. ${sym(q.asked)} = ${t} m/s.` };
+      }
+    },
+
+    // Which part is bigger at this angle?
+    concept: {
+      make: () => {
+        const th = pick([15, 20, 30, 45, 60, 70, 75]);
+        return { kind: 'concept', skill: 'concept', sc: { v0: pick([20, 30, 40]), th, thing: Math.floor(Math.random() * THINGS.length) }, order: shuffled(3) };
+      },
+      type: 'mc',
+      text: () => 'Look at the launch angle. Which part of the launch velocity is bigger?',
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: false, showY: false, labelV0: false }),
+      options: () => [{ t: 'The sideways part, v_0x', id: 'x' }, { t: 'The upward part, v_0y', id: 'y' }, { t: 'They are equal', id: 'eq' }],
+      grade: (q, id) => {
+        const right = q.sc.th === 45 ? 'eq' : q.sc.th < 45 ? 'x' : 'y';
+        const why = q.sc.th === 45 ? 'At 45° the speed splits evenly.' : q.sc.th < 45 ? 'A low angle aims mostly sideways, so v_0x is bigger.' : 'A steep angle aims mostly up, so v_0y is bigger.';
+        return { ok: id === right, msg: why, mistake: id === right ? null : 'angle_concept' };
+      }
+    },
+
+    // Pick the correct setup from symbols
+    choose: {
+      make: () => ({ kind: 'choose', skill: 'choose', asked: pick(['x', 'y']), sc: launch(2), order: shuffled(4) }),
+      type: 'mc',
+      text: q => `Which setup finds the part marked with "?" in the picture?`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: q.asked === 'x', showY: q.asked === 'y', mark: q.asked }),
+      options: () => [
+        { t: 'v_0 × cos(θ)', id: 'x', formula: true }, { t: 'v_0 × sin(θ)', id: 'y', formula: true },
+        { t: 'v_0 ÷ cos(θ)', id: 'dc', formula: true }, { t: 'v_0 × tan(θ)', id: 't', formula: true }
+      ],
+      grade: (q, id) => {
+        const ok = id === q.asked;
+        return {
+          ok,
+          mistake: ok ? null : (id === 'x' || id === 'y') ? 'swap' : id === 't' ? 'tan' : 'divided',
+          msg: q.asked === 'x' ? 'The sideways side touches θ (adjacent), so it uses cos.' : 'The upward side is across from θ (opposite), so it uses sin.'
+        };
+      }
+    },
+
+    calc_x: {
+      make: () => ({ kind: 'calc_x', skill: 'calc_x', asked: 'x', sc: launch(2) }),
+      type: 'num',
+      text: q => `A ${THINGS[q.sc.thing].name} ${THINGS[q.sc.thing].verb}. Use the picture to find the sideways part, v_0x.`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: true, showY: false, mark: 'x' }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, q.sc.th] }),
+      grade: (q, raw) => gradeCalc('x', raw, q.sc)
+    },
+
+    calc_y: {
+      make: () => ({ kind: 'calc_y', skill: 'calc_y', asked: 'y', sc: launch(2) }),
+      type: 'num',
+      text: q => `A ${THINGS[q.sc.thing].name} ${THINGS[q.sc.thing].verb}. Use the picture to find the upward part, v_0y.`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: false, showY: true, mark: 'y' }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, q.sc.th] }),
+      grade: (q, raw) => gradeCalc('y', raw, q.sc)
+    },
+
+    // A claimed answer: possible or not, and why?
+    sense: {
+      make: () => {
+        const sc = launch(2);
+        const bad = Math.random() < 0.5;
+        const asked = pick(['x', 'y']);
+        // Bad claims are bigger than the launch speed, a mistake students can catch without a calculator
+        const claim = bad ? Math.round(sc.v0 * pick([1.2, 1.4, 1.5])) : Math.round(asked === 'x' ? sc.x : sc.y);
+        return { kind: 'sense', skill: 'sense', asked, sc, claim, bad, order: shuffled(3) };
+      },
+      type: 'mc',
+      text: q => `A student says the ${q.asked === 'x' ? 'sideways' : 'upward'} part of this launch is ${q.claim} m/s. Without calculating, could that be right?`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: q.asked === 'x', showY: q.asked === 'y', mark: q.asked }),
+      options: () => [
+        { t: 'No. A part cannot be bigger than the launch speed.', id: 'no' },
+        { t: 'Yes. It could be right, because it is smaller than the launch speed.', id: 'yes' },
+        { t: 'Yes. Parts are always bigger than the launch speed.', id: 'bigger' }
+      ],
+      grade: (q, id) => {
+        const right = q.bad ? 'no' : 'yes';
+        return {
+          ok: id === right,
+          mistake: id === right ? null : 'part_bigger',
+          msg: q.bad ? `v_0 is the long side of the triangle, so each part must be smaller than ${q.sc.v0} m/s.` : `${q.claim} m/s is smaller than ${q.sc.v0} m/s, so it passes the check.`
+        };
+      }
+    },
+
+    // ---------- Honors (Period 0 only) ----------
+    h_vertical: {
+      make: () => ({ kind: 'h_vertical', skill: 'honors', asked: pick(['x', 'y']), sc: Object.assign(launch(2), {}) }),
+      type: 'num',
+      text: q => `Careful: this angle is measured from the vertical, not the ground. Find ${sym(q.asked)}.`,
+      hints: () => ['Look at which side touches the marked angle. Here it is the upward side.', 'The side that touches the angle uses cos. The side across from it uses sin.'],
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: q.asked === 'x', showY: q.asked === 'y', mark: q.asked, fromVertical: true }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, 90 - q.sc.th] }),
+      // sc.th is the angle from the GROUND; the picture shows 90° − th from the vertical.
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const t = q.asked === 'x' ? q.sc.x : q.sc.y;
+        const shown = 90 - q.sc.th;
+        const right = `${sym(q.asked)} = ${q.sc.v0} m/s × ${q.asked === 'x' ? 'sin' : 'cos'}(${shown}°) = ${fmtAns(t)} m/s`;
+        if (v !== null && near(v, t)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const flipped = v !== null && near(v, q.asked === 'x' ? q.sc.y : q.sc.x);
+        return {
+          ok: false,
+          mistake: flipped ? 'vertical_angle' : 'other',
+          msg: `${flipped ? `You used the ground rule. Here the UPWARD side touches the angle, so cos goes with v_0y and sin goes with v_0x.<br>` : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>`
+        };
+      }
+    },
+
+    h_down: {
+      make: () => ({ kind: 'h_down', skill: 'honors', asked: 'y', sc: launch(2) }),
+      type: 'num',
+      text: () => 'This launch aims BELOW the horizontal. Up is positive and down is negative. Calculate how fast the vertical part is. Then choose its direction.',
+      signed: true,
+      hints: () => ['Use v_0 × sin(θ) in the calculator. You do not need a minus sign there.', 'Look at the arrow. Which way does the vertical part point? Choose Up or Down.'],
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: false, showY: true, mark: 'y', downward: true }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, q.sc.th] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const t = -q.sc.y;
+        const right = `v_0y = −(${q.sc.v0} m/s × sin(${q.sc.th}°)) = ${fmtAns(t).replace('-', '−')} m/s`;
+        if (v !== null && near(v, t)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const noSign = v !== null && near(v, q.sc.y);
+        return { ok: false, mistake: noSign ? 'sign' : 'other', msg: `${noSign ? 'Right size, wrong sign. Downward is negative.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    },
+
+    h_speed: {
+      make: () => ({ kind: 'h_speed', skill: 'honors', sc: gridArrow([1, 2]) }),
+      type: 'num',
+      text: () => 'Work backward. Read both parts off the grid, then find the launch speed v_0.',
+      hints: () => ['The parts are at a right angle, so use the Pythagorean theorem.', 'On the calculator: press the √ button. Inside it, type the first part, press a², press +, type the second part, press a².'],
+      scene: q => ({ mode: 'grid', sc: q.sc, showArrow: true, showX: true, showY: true, keyLabel: true }),
+      unit: 'm/s',
+      needs: q => ({ fn: 'sqrt', nums: [q.sc.x, q.sc.y] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const right = `v_0 = √(v_0x² + v_0y²) = √(${q.sc.x}² + ${q.sc.y}²) = ${fmtAns(q.sc.v0)} m/s`;
+        if (v !== null && near(v, q.sc.v0)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const added = v !== null && near(v, q.sc.x + q.sc.y);
+        return { ok: false, mistake: added ? 'added_parts' : 'other', msg: `${added ? 'You added the parts. They are at a right angle, so use the Pythagorean theorem.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    },
+
+    h_angle: {
+      make: () => ({ kind: 'h_angle', skill: 'honors', sc: gridArrow([1, 2]) }),
+      type: 'num',
+      text: () => 'Work backward. Read both parts off the grid, then find the launch angle θ above the ground.',
+      hints: () => ['Use θ = tan⁻¹(v_0y ÷ v_0x).', 'The tan⁻¹ button is on the calculator\'s func tab. Press func, then tan⁻¹.', 'Press main to get the numbers back. Type the upward part, press ÷, then type the sideways part.'],
+      scene: q => ({ mode: 'grid', sc: q.sc, showArrow: true, showX: true, showY: true, keyLabel: true }),
+      unit: '°',
+      needs: q => ({ fn: 'atan', nums: [q.sc.x, q.sc.y] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const right = `θ = tan⁻¹(v_0y ÷ v_0x) = tan⁻¹(${q.sc.y} ÷ ${q.sc.x}) = ${fmt(q.sc.th, 1)}°`;
+        if (v !== null && Math.abs(v - q.sc.th) <= 1) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const flipped = v !== null && Math.abs(v - (90 - q.sc.th)) <= 1;
+        return { ok: false, mistake: flipped ? 'vertical_angle' : 'other', msg: `${flipped ? 'That angle is from the vertical. Divide up by sideways.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    },
+
+    h_back: {
+      make: () => ({ kind: 'h_back', skill: 'honors', sc: launch(2) }),
+      type: 'num',
+      text: () => 'The picture gives v_0x and θ. Work backward to find the launch speed v_0.',
+      hints: () => ['Normally v_0x = v_0 × cos(θ). Here you know v_0x, so divide instead.', 'On the calculator: type v_0x, press ÷, then press cos and type the angle.'],
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: true, showY: false, labelV0: false, giveX: true }),
+      unit: 'm/s',
+      needs: q => ({ fn: 'cos', nums: [Number(fmt(q.sc.x, 1)), q.sc.th] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const shownX = Number(fmt(q.sc.x, 1));
+        const t = shownX / Math.cos(rad(q.sc.th));
+        const right = `v_0 = v_0x ÷ cos(θ) = ${fmt(shownX, 1)} ÷ cos(${q.sc.th}°) = ${fmtAns(t)} m/s`;
+        if (v !== null && near(v, t)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const times = v !== null && near(v, shownX * Math.cos(rad(q.sc.th)));
+        return { ok: false, mistake: times ? 'multiplied' : 'other', msg: `${times ? 'You multiplied, so your answer came out smaller than v_0x. The whole speed must be bigger. Divide.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    }
+  };
+
+  function gradeCalc(asked, raw, sc) {
+    const r = checkCalc(asked, raw, sc);
+    if (r.ok === null) return { ok: false, mistake: 'blank', msg: `No answer. <span class="formula">${work(asked, sc)}</span>` };
+    return r;
+  }
+
+  // Mastery Check: one blueprint so every retake tests the same skills with new numbers.
+  function buildQuiz(honors) {
+    const list = ['read', 'concept', 'choose', 'calc_x', 'calc_x', 'calc_y', 'calc_y', 'sense'];
+    if (honors) list.push(pick(['h_speed', 'h_angle']), pick(['h_vertical', 'h_down', 'h_back']));
+    return list.map(kind => QUESTION[kind].make());
+  }
+
+  function gradeQuiz(questions, answers) {
+    const results = questions.map((q, i) => {
+      const r = QUESTION[q.kind].grade(q, answers[i]);
+      return { skill: q.skill, ok: !!r.ok, msg: r.msg, mistake: r.mistake || null };
+    });
+    const correct = results.filter(r => r.ok).length;
+    const skills = {};
+    results.forEach(r => {
+      skills[r.skill] = skills[r.skill] || { right: 0, total: 0 };
+      skills[r.skill].total++;
+      if (r.ok) skills[r.skill].right++;
+    });
+    return { results, correct, total: questions.length, pct: Math.round(100 * correct / questions.length), skills };
+  }
+
+  // ---------- Reading the Desmos scientific calculator ----------
+  // Its API reports what was typed (LaTeX) but not the result, so this evaluates the LaTeX itself.
+  // It also records which numbers and functions were used, so "17.3" alone can't pass as work.
+  function parseCalc(latex, degrees, prev) {
+    let src = String(latex)
+      .replace(/\\left|\\right/g, '').replace(/\\cdot|\\times/g, '*').replace(/\\div/g, '/')
+      .replace(/\\operatorname\{([a-z]+)\}/g, '\\$1').replace(/\\ /g, '').replace(/\s+/g, '')
+      .replace(/−/g, '-').replace(/\^\{?\\circ\}?|°/g, '°');
+    let i = 0;
+    const nums = [], fns = [];
+    const peek = t => src.startsWith(t, i);
+    const take = t => (peek(t) ? (i += t.length, true) : false);
+    const fail = () => { throw new Error('unreadable'); };
+    const need = t => { if (!take(t)) fail(); };
+    const group = () => { need('{'); const v = expr(); need('}'); return v; };
+
+    const FN = { sin: Math.sin, cos: Math.cos, tan: Math.tan };
+    const INV = { sin: Math.asin, cos: Math.acos, tan: Math.atan };
+    const toRad = x => (degrees ? rad(x) : x);
+    const fromRad = x => (degrees ? x * 180 / Math.PI : x);
+
+    function funcCall() {
+      for (const name of ['arcsin', 'arccos', 'arctan', 'sin', 'cos', 'tan']) {
+        if (!take('\\' + name)) continue;
+        const base = name.replace('arc', '');
+        let inverse = name.startsWith('arc');
+        if (take('^{-1}')) inverse = true;
+        const arg = unary();
+        fns.push((inverse ? 'a' : '') + base);
+        return inverse ? fromRad(INV[base](arg)) : FN[base](toRad(arg));
+      }
+      return null;
+    }
+
+    function atom() {
+      if (take('(')) { const v = expr(); need(')'); return v; }
+      if (take('\\frac')) { const a = group(); const b = group(); return a / b; }
+      if (take('\\sqrt')) {
+        let n = 2;
+        if (take('[')) { n = expr(); need(']'); }
+        fns.push('sqrt');
+        return Math.pow(group(), 1 / n);
+      }
+      if (take('\\pi')) return Math.PI;
+      if (take('ans') || take('\\ans')) {
+        if (!prev) fail();
+        nums.push(...prev.nums); fns.push(...prev.fns);
+        return prev.value;
+      }
+      const m = src.slice(i).match(/^(\d+\.?\d*|\.\d+)/);
+      if (m) { i += m[0].length; const v = parseFloat(m[0]); nums.push(v); return v; }
+      const f = funcCall();
+      if (f !== null) return f;
+      return fail();
+    }
+
+    function postfix() {
+      let v = atom();
+      for (;;) {
+        if (take('°')) { if (!degrees) v = rad(v); }
+        else if (take('\\%')) v /= 100;
+        else if (take('^')) {
+          if (peek('{')) v = Math.pow(v, group());
+          else { const m = src.slice(i).match(/^\d/); if (!m) fail(); i++; v = Math.pow(v, Number(m[0])); }
+        } else return v;
+      }
+    }
+    function unary() { return take('-') ? -unary() : postfix(); }
+    function term() {
+      let v = unary();
+      for (;;) {
+        if (take('*')) v *= unary();
+        else if (take('/')) v /= unary();
+        else if (i < src.length && /[\d(\\.a]/.test(src[i])) v *= unary();   // 20\cos(30)
+        else return v;
+      }
+    }
+    function expr() {
+      let v = term();
+      for (;;) {
+        if (take('+')) v += term();
+        else if (take('-')) v -= term();
+        else return v;
+      }
+    }
+
+    try {
+      const value = expr();
+      if (i !== src.length || !isFinite(value)) return null;
+      return { value, nums, fns, latex };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // state = desmos.getState(). Uses the student's latest line, as the calculator itself would show it.
+  function readCalculator(state) {
+    const list = (state && state.expressions && state.expressions.list) || [];
+    const degrees = !state || !state.settings || state.settings.degreeMode !== false;
+    let prev = null, last = null, unreadable = false;
+    list.forEach(item => {
+      if (!item || !item.latex) return;
+      const parsed = parseCalc(item.latex, degrees, prev);
+      unreadable = !parsed;
+      last = item.latex;
+      if (parsed) prev = parsed;
+    });
+    if (last === null) return { empty: true };
+    if (unreadable) return { unreadable: true };
+    return prev;
+  }
+
+  // needs = { nums: [...], fn: 'sin' | 'cos' | 'sqrt' | 'atan', trig: true }. Returns a message, or null when it is real work.
+  // These stop a looked-up answer without costing a streak, so a real mistake still gets its diagnosis at Check.
+  function checkWork(work, needs = {}) {
+    if (!work.fns.length && work.nums.length <= 1) {
+      return 'Type the whole calculation into the calculator, not just the answer.';
+    }
+    if (needs.fn && !work.fns.includes(needs.fn)) {
+      const names = { sin: 'the sin button', cos: 'the cos button', sqrt: 'the square root button', atan: 'the tan⁻¹ button' };
+      return `Your calculation needs to use ${names[needs.fn]}.`;
+    }
+    if (needs.trig && !work.fns.some(f => ['sin', 'cos', 'tan'].includes(f))) {
+      return 'Your calculation needs to use the sin or cos button.';
+    }
+    const missing = (needs.nums || []).filter(n => !work.nums.some(w => Math.abs(w - Math.abs(n)) < 1e-6));
+    if (missing.length) return `Your calculation needs to use the numbers from the problem. Look for ${missing.join(' and ')}.`;
+    return null;
+  }
+
+  window.Engine = { parseCalc, readCalculator, checkWork, Phys, THINGS, SKILLS, QUESTION, fmt, fmtAns, near, parseNum, pick, shuffled, rad, launch, gridArrow, work, fn, sym, checkCalc, buildQuiz, gradeQuiz };
+})();
+
+
+// === Unit_2/monkey_hunter_studio/js/physics.js ===
+// Monkey Hunter Studio — physics, problems for each class, answer checking, diagnostics, Mastery Check.
+// g = 10 m/s². The big idea: a projectile falls below its straight inertial path by exactly the distance a dropped
+// ball falls in the same time: drop = 5 × t². The strings on the meter stick are those drops.
+// All three classes solve the same hunt. They only differ in how they find the time and the launch numbers:
+//   conceptual (P1–3): count the marks on the stick, then read the drop from their own measured table. No division.
+//   cp (P4–6):         v_ox and ΔX are on the picture: t = ΔX ÷ v_ox, then drop = 5 × t².
+//   honors (P0):       find the aim angle with tan⁻¹, split v_o with cos, then the same steps. Adds the proof that speed
+//                      cancels, the smallest speed that works, and a monkey that lets go early.
+// Every wrong answer is compared against known mistakes, so the student hears WHY. Mistake ids feed the teacher monitor.
+
+(function () {
+  const G = 10;
+  const rad = d => d * Math.PI / 180;
+  const deg = r => r * 180 / Math.PI;
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const dropAt = (t, g = G) => 0.5 * g * t * t;
+  const DROPS = [5, 20, 45, 80];   // what a dropped ball falls in 1, 2, 3, 4 s
+
+  // The shot used on every teaching page: 4 s to the monkey, so all four strings show
+  const teachHunt = () => hunt(20, 30, 4);
+  function hunt(vox, voy, t) { return { vox, voy, t, D: vox * t, H: voy * t }; }
+
+  // Whole numbers stay whole, then 1 decimal, 2 when small
+  function fmt(v) {
+    if (Math.abs(v - Math.round(v)) < 1e-9) return String(Math.round(v));
+    return Math.abs(v) < 10 ? v.toFixed(2) : v.toFixed(1);
+  }
+  const near = (v, target, rel = 0.02, abs = 0.05) => Math.abs(v - target) <= Math.max(Math.abs(target) * rel, abs);
+  function parseNum(raw) {
+    const v = parseFloat(String(raw).replace(',', '.').replace(/[−–]/g, '-').replace(/[^0-9.\-eE]/g, ''));
+    return isFinite(v) ? v : null;
+  }
+
+  // ---------- Problems. Level 1 is friendly numbers; level 2 is the full range. ----------
+  // Every hunt meets above the ground, with room to see it.
+  const makers = {
+    conceptual: level => hunt(pick([10, 15, 20, 25]), pick([30, 40]), pick(level === 1 ? [2, 3] : [2, 3, 4])),
+    cp: level => hunt(pick([8, 10, 12, 16, 20, 24]), pick([25, 30, 35, 40]), pick(level === 1 ? [2, 3, 4] : [2, 2.5, 3, 4])),
+    honors: () => {
+      for (;;) {
+        const D = pick([40, 50, 60, 80, 100]), H = pick([30, 40, 50, 60, 80]), v0 = pick([30, 35, 40, 45, 50]);
+        const a = Math.atan(H / D), th = deg(a);
+        const vox = v0 * Math.cos(a), t = D / vox;
+        if (H - dropAt(t) < 8 || Math.abs(th - 45) < 4) continue;
+        return { v0, th, vox, voy: v0 * Math.sin(a), t, D, H };
+      }
+    }
+  };
+
+  function newHunt(tier, level = 2, not) {
+    let sc;
+    do { sc = makers[tier](level); } while (not && near(sc.D, not.D, 0, 0.01) && near(sc.H, not.H, 0, 0.01) && near(sc.t, not.t, 0, 0.01));
+    return sc;
+  }
+
+  // A hunt that may be too slow. Always whole seconds, so the drop can be read from the table.
+  function newSlowCall() {
+    const slow = Math.random() < 0.5;
+    const t = slow ? pick([3, 4]) : pick([2, 3]);
+    const voy = slow ? (t === 3 ? 10 : pick([10, 15])) : pick([30, 40]);
+    return { slow, sc: hunt(pick([10, 15, 20]), voy, t) };
+  }
+
+  // Honors: how slow can the shot go? Monkey hits the ground at t = √(H ÷ 5).
+  const newMinSpeed = () => ({ D: pick([40, 60, 80, 100]), H: pick([20, 30, 45, 50, 60, 80]) });
+
+  // ---------- Calculator work: a looked-up number alone can't pass ----------
+  // needs = { fn: 'cos' | 'arctan' | ..., routes: [[numbers], ...] }. Any one route of the problem's numbers counts.
+  function workProblem(work, needs = {}) {
+    if (!work.fns.length && work.nums.length <= 1) return 'Type the whole calculation into the calculator, not just the answer.';
+    if (needs.fn && !work.fns.includes(needs.fn)) return `Your calculation needs to use the ${needs.label || needs.fn} button.`;
+    const has = n => work.nums.some(w => Math.abs(w - Math.abs(n)) <= Math.max(Math.abs(n) * 0.015, 0.051));
+    const routes = needs.routes || [];
+    if (routes.length && !routes.some(r => r.every(has))) {
+      return `Your calculation needs to use the numbers from this problem. Look for ${routes[0].map(fmt).join(' and ')}.`;
+    }
+    return null;
+  }
+
+  // Student's own earlier answer when there is one, for follow-through credit and for matching their work
+  const own = (ans, k, fallback) => (ans && typeof ans[k] === 'number' ? ans[k] : fallback);
+  const ownT = (sc, ans) => own(ans, 't', sc.t);
+  const ownDrop = (sc, ans) => own(ans, 'drop', dropAt(ownT(sc, ans)));
+
+  // ---------- Steps ----------
+  // Each step: k, sym, unit, skill, ask, formula, hints, target, own (follow-through), calc (needs Desmos), needs, mistake, right.
+  const readStep = at => ({
+    k: `read${at}`, sym: 'drop', unit: 'm', skill: 'measure', measure: at,
+    ask: () => 'Read the ruler. How far has the ball dropped?',
+    formula: () => '',
+    hints: () => ['Follow the dashed line from the ball to the ruler.', 'Each small mark on the ruler is 5 m.'],
+    target: () => DROPS[at - 1],
+    mistake: v => {
+      if (near(v, at, 0, 0.01)) return ['read_time', `${at} is the time. Read the distance from the ruler.`, true];
+      return ['misread_ruler', 'Follow the dashed line to the ruler. Each small mark is 5 m. Look again.', true];
+    },
+    right: () => `drop = ${DROPS[at - 1]} m`
+  });
+
+  const countStep = {
+    k: 't', sym: 't', unit: 's', skill: 'count',
+    ask: () => "Count the marks on the stick up to the monkey's spot. The ball passes one mark each second. When does it get there?",
+    formula: () => '',
+    hints: () => ['Start at the launcher. Do not count the launcher as a mark.'],
+    target: sc => sc.t,
+    mistake: (v, sc) => (near(v, sc.t + 1, 0, 0.01) ? ['count_launcher', 'You counted the launcher too. The launcher is time 0.'] : ['miscount', 'Count one mark for each second, starting after the launcher.']),
+    right: sc => `t = ${fmt(sc.t)} s`
+  };
+
+  const timeStep = (extra = []) => ({
+    k: 't', sym: 't', unit: 's', skill: 'time', calc: true,
+    ask: () => "When does the ball reach the monkey's spot?",
+    formula: () => 't = ΔX ÷ v_ox',
+    hints: (sc, ans) => ['The ball moves v_ox meters sideways every second. It has to go ΔX meters.', `In the calculator: ${fmt(sc.D)} ÷ ${fmt(own(ans, 'vox', sc.vox))}`],
+    target: sc => sc.t,
+    own: (sc, ans) => sc.D / own(ans, 'vox', sc.vox),
+    needs: (sc, ans) => ({ routes: [[sc.D, own(ans, 'vox', sc.vox)], ...extra.map(f => f(sc))] }),
+    mistake: (v, sc, ans) => {
+      const vox = own(ans, 'vox', sc.vox);
+      if (near(v, sc.D * vox, 0.01)) return ['time_times', 'You multiplied. Distance ÷ speed gives the time.'];
+      if (near(v, vox / sc.D, 0.01)) return ['time_flipped', 'You divided the wrong way. Use ΔX ÷ v_ox.'];
+      if (sc.voy && near(v, sc.D / sc.voy, 0.01)) return ['time_voy', 'You used v_oy with ΔX. Sideways distance goes with sideways speed.'];
+      return null;
+    },
+    right: (sc, ans) => `t = ${fmt(sc.D)} m ÷ ${fmt(own(ans, 'vox', sc.vox))} m/s = ${fmt(sc.D / own(ans, 'vox', sc.vox))} s`
+  });
+
+  function dropMistake(v, t) {
+    if (near(v, 5 * t, 0.01)) return ['drop_no_square', `That is 5 × t. Time counts twice: 5 × ${fmt(t)} × ${fmt(t)}.`];
+    if (near(v, 10 * t * t, 0.01)) return ['drop_used_g', `You used 10. The ½ in ½ × g × t² makes it 5: 5 × ${fmt(t)} × ${fmt(t)}.`];
+    if (near(v, 10 * t, 0.01)) return ['drop_speed', `${fmt(10 * t)} m/s is how fast it falls then, not how far. Use 5 × ${fmt(t)} × ${fmt(t)}.`];
+    if (near(v, t * t, 0.01)) return ['drop_no_five', `You found t × t. Multiply by 5 as well.`];
+    return null;
+  }
+
+  const dropStep = (formula) => ({
+    k: 'drop', sym: 'drop', unit: 'm', skill: 'drop', calc: true,
+    ask: () => 'How far has the ball dropped below the stick by then?',
+    formula: () => formula,
+    hints: (sc, ans) => ['This is the same distance as a dropped ball falls in that time. It is the length of the string.', `In the calculator: 5 × ${fmt(ownT(sc, ans))} × ${fmt(ownT(sc, ans))}`],
+    target: sc => dropAt(sc.t),
+    own: (sc, ans) => dropAt(ownT(sc, ans)),
+    needs: (sc, ans) => ({ routes: [[5, ownT(sc, ans)], [10, ownT(sc, ans)]] }),
+    mistake: (v, sc, ans) => dropMistake(v, ownT(sc, ans)),
+    right: (sc, ans) => `drop = 5 × ${fmt(ownT(sc, ans))} × ${fmt(ownT(sc, ans))} = ${fmt(dropAt(ownT(sc, ans)))} m`
+  });
+
+  // Conceptual: the drop is a reading from the student's own table, so it stays typed
+  const dropReadStep = {
+    k: 'drop', sym: 'drop', unit: 'm', skill: 'table',
+    ask: sc => 'Use your drop table under the picture. How long is the string at that time?',
+    formula: (sc, ans) => `t = ${fmt(ownT(sc, ans))} s`,
+    hints: (sc, ans) => [`Find ${fmt(ownT(sc, ans))} s in your drop table. The number beside it is the string length.`],
+    target: sc => dropAt(sc.t),
+    own: (sc, ans) => dropAt(ownT(sc, ans)),
+    mistake: (v, sc, ans) => {
+      const t = ownT(sc, ans);
+      if (near(v, t, 0, 0.01)) return ['gave_time', `${fmt(t)} is the time. Find the number beside it in your drop table.`];
+      return dropMistake(v, t) || ['misread_table', `Find ${fmt(t)} s in your drop table and read the number beside it.`];
+    },
+    right: (sc, ans) => `drop = ${fmt(dropAt(ownT(sc, ans)))} m`
+  };
+
+  // The drop at a time past the table, for practicing the pattern
+  const dropNewStep = (formula) => Object.assign(dropStep(formula), {
+    ask: () => 'The picture shows a new time. How far does a dropped ball fall in that time?',
+    target: sc => dropAt(sc.at),
+    own: null,
+    needs: sc => ({ routes: [[5, sc.at], [10, sc.at]] }),
+    hints: sc => ['Time counts twice.', `In the calculator: 5 × ${fmt(sc.at)} × ${fmt(sc.at)}`],
+    mistake: (v, sc) => dropMistake(v, sc.at),
+    right: sc => `drop = 5 × ${fmt(sc.at)} × ${fmt(sc.at)} = ${fmt(dropAt(sc.at))} m`
+  });
+
+  const lineStep = {
+    k: 'line', sym: 'line height', unit: 'm', skill: 'line', calc: true,
+    ask: () => 'With no gravity, how high would the ball be at the star?',
+    formula: () => 'line height = v_oy × t',
+    hints: (sc, ans) => ['With no gravity, v_oy never changes. The ball rises v_oy meters every second.', `In the calculator: ${fmt(own(ans, 'voy', sc.voy))} × ${fmt(sc.t)}`],
+    target: sc => sc.voy * sc.t,
+    own: (sc, ans) => own(ans, 'voy', sc.voy) * sc.t,
+    needs: (sc, ans) => ({ routes: [[own(ans, 'voy', sc.voy), sc.t]] }),
+    mistake: (v, sc, ans) => {
+      const voy = own(ans, 'voy', sc.voy);
+      if (near(v, sc.vox * sc.t, 0.01)) return ['line_vox', 'You used v_ox. That is how far sideways. Height comes from v_oy.'];
+      if (near(v, voy + sc.t, 0.01)) return ['line_added', 'You added. The ball rises v_oy meters each second, so multiply.'];
+      if (near(v, voy, 0.01)) return ['line_one_second', 'That is one second of rising. Multiply by the time.'];
+      return null;
+    },
+    right: (sc, ans) => `line height = ${fmt(own(ans, 'voy', sc.voy))} m/s × ${fmt(sc.t)} s = ${fmt(own(ans, 'voy', sc.voy) * sc.t)} m`
+  };
+
+  const ballHeightStep = {
+    k: 'ballH', sym: 'ball height', unit: 'm', skill: 'meet', calc: true,
+    ask: () => 'Now gravity is on. How high is the ball really at that time?',
+    formula: () => 'ball height = line height − drop',
+    hints: (sc, ans) => ['The ball hangs below the stick by the length of the string.', `In the calculator: ${fmt(own(ans, 'line', sc.H))} − ${fmt(ownDrop(sc, ans))}`],
+    target: sc => sc.H - dropAt(sc.t),
+    own: (sc, ans) => own(ans, 'line', sc.H) - ownDrop(sc, ans),
+    needs: (sc, ans) => ({ routes: [[own(ans, 'line', sc.H), ownDrop(sc, ans)]] }),
+    mistake: (v, sc, ans) => {
+      const line = own(ans, 'line', sc.H), d = ownDrop(sc, ans);
+      if (near(v, d, 0.01)) return ['gave_drop', 'That is only the string. The ball is that far below the stick.'];
+      if (near(v, line, 0.01)) return ['gave_line', 'That is the stick, where the ball would be with no gravity. Take away the string.'];
+      if (near(v, line + d, 0.01)) return ['added_drop', 'Gravity pulls the ball down, so subtract the drop.'];
+      return null;
+    },
+    right: (sc, ans) => `ball height = ${fmt(own(ans, 'line', sc.H))} m − ${fmt(ownDrop(sc, ans))} m = ${fmt(own(ans, 'line', sc.H) - ownDrop(sc, ans))} m`
+  };
+
+  const meetStep = (extra = []) => ({
+    k: 'meet', sym: 'meet height', unit: 'm', skill: 'meet', calc: true,
+    ask: () => 'How high above the ground do they meet?',
+    formula: () => 'meet height = H − drop',
+    hints: (sc, ans) => ['H is how high the monkey started. It has fallen by the drop.', `In the calculator: ${fmt(sc.H)} − ${fmt(ownDrop(sc, ans))}`],
+    target: sc => sc.H - dropAt(sc.t),
+    own: (sc, ans) => sc.H - ownDrop(sc, ans),
+    needs: (sc, ans) => ({ routes: [[sc.H, ownDrop(sc, ans)], ...extra.map(f => f(sc))] }),
+    mistake: (v, sc, ans) => {
+      const d = ownDrop(sc, ans);
+      if (near(v, d, 0.01)) return ['gave_drop', 'That is how far they fell. Take it away from H.'];
+      if (near(v, sc.H, 0.01)) return ['gave_branch', 'That is where the monkey started. It has fallen since then.'];
+      if (near(v, sc.H + d, 0.01)) return ['added_drop', 'They fall down, so subtract the drop.'];
+      return null;
+    },
+    right: (sc, ans) => `meet height = ${fmt(sc.H)} m − ${fmt(ownDrop(sc, ans))} m = ${fmt(sc.H - ownDrop(sc, ans))} m`
+  });
+
+  const aimStep = {
+    k: 'aimH', sym: 'aim height', unit: 'm', skill: 'aim', calc: true,
+    ask: () => 'This monkey holds on. Keep the same v_ox. How high must the stick point?',
+    formula: () => 'aim height = H + drop',
+    hints: (sc, ans) => ['The ball will fall below the stick by the drop. Point that much above the monkey.', `In the calculator: ${fmt(sc.H)} + ${fmt(ownDrop(sc, ans))}`],
+    target: sc => sc.H + dropAt(sc.t),
+    own: (sc, ans) => sc.H + ownDrop(sc, ans),
+    needs: (sc, ans) => ({ routes: [[sc.H, ownDrop(sc, ans)]] }),
+    mistake: (v, sc, ans) => {
+      const d = ownDrop(sc, ans);
+      if (near(v, sc.H, 0.01)) return ['aim_at_monkey', 'That aims right at the monkey. It is not letting go, so the ball would fall below it.'];
+      if (near(v, d, 0.01)) return ['gave_drop', 'That is only the drop. Measure from the ground: add the height of the monkey.'];
+      if (near(v, sc.H - d, 0.01)) return ['aim_low', 'That aims below the monkey, and the ball falls lower still. Aim above it.'];
+      return null;
+    },
+    right: (sc, ans) => `aim height = ${fmt(sc.H)} m + ${fmt(ownDrop(sc, ans))} m = ${fmt(sc.H + ownDrop(sc, ans))} m`
+  };
+
+  // ---------- Honors ----------
+  const thetaStep = {
+    k: 'th', sym: 'θ', unit: '°', skill: 'trig', calc: true,
+    ask: () => 'Aim the stick straight at the monkey. What angle is that?',
+    formula: () => 'θ = tan⁻¹(H ÷ ΔX)',
+    hints: sc => ['H is across from θ and ΔX touches θ, so this is tan.', 'The tan⁻¹ button is on the func tab of the calculator.', `In the calculator: tan⁻¹(${fmt(sc.H)} ÷ ${fmt(sc.D)})`],
+    target: sc => sc.th,
+    needs: sc => ({ fn: 'atan', label: 'tan⁻¹', routes: [[sc.H, sc.D]] }),
+    mistake: (v, sc) => {
+      if (near(v, Math.atan(sc.H / sc.D), 0.01)) return ['radians', 'Your calculator is in radian mode. Switch it to degrees (DEG) and calculate again.', true];
+      if (near(v, sc.H / sc.D, 0.01)) return ['no_arctan', 'That is H ÷ ΔX, which is only tan(θ). Use the tan⁻¹ button to get the angle.'];
+      if (near(v, 90 - sc.th, 0.01)) return ['flip_tan', 'You flipped the sides. H is across from θ, so it goes on top.'];
+      return null;
+    },
+    right: sc => `θ = tan⁻¹(${fmt(sc.H)} ÷ ${fmt(sc.D)}) = ${fmt(sc.th)}°`
+  };
+
+  const splitStep = asked => {
+    const fn = asked === 'x' ? 'cos' : 'sin', sym = asked === 'x' ? 'v_ox' : 'v_oy';
+    const value = sc => (asked === 'x' ? sc.vox : sc.voy);
+    const ownTh = (sc, ans) => own(ans, 'th', sc.th);
+    const calcd = (sc, ans) => sc.v0 * Math[fn](rad(ownTh(sc, ans)));
+    return {
+      k: asked === 'x' ? 'vox' : 'voy', sym, unit: 'm/s', skill: 'trig', calc: true,
+      ask: () => `Split the launch. Find the ${asked === 'x' ? 'sideways' : 'upward'} part.`,
+      formula: () => `${sym} = v_o × ${fn}(θ)`,
+      hints: (sc, ans) => [`The ${asked === 'x' ? 'sideways side touches θ' : 'upward side is across from θ'}, so use ${fn}.`, `In the calculator: ${fmt(sc.v0)} × ${fn}(${fmt(ownTh(sc, ans))})`],
+      target: value,
+      own: calcd,
+      needs: (sc, ans) => ({ fn, routes: [[sc.v0, ownTh(sc, ans)]] }),
+      mistake: (v, sc, ans) => {
+        const th = ownTh(sc, ans), other = asked === 'x' ? sc.voy : sc.vox;
+        if (near(v, sc.v0 * Math[fn](th), 0.01)) return ['radians', 'Your calculator is in radian mode. Switch it to degrees (DEG) and calculate again.', true];
+        if (near(v, other, 0.01)) return ['swap', `You found the other part. ${asked === 'x' ? 'The sideways side touches θ, so it uses cos.' : 'The upward side is across from θ, so it uses sin.'}`];
+        if (near(v, sc.v0, 0.01)) return ['whole_speed', `That is the whole launch speed v_o. Only part of it goes ${asked === 'x' ? 'sideways' : 'up'}.`];
+        return null;
+      },
+      right: (sc, ans) => `${sym} = ${fmt(sc.v0)} m/s × ${fn}(${fmt(ownTh(sc, ans))}°) = ${fmt(calcd(sc, ans))} m/s`
+    };
+  };
+
+  const earlyStep = {
+    k: 'early', sym: 'monkey drop', unit: 'm', skill: 'drop', calc: true,
+    ask: () => 'The monkey let go 1 s before the launch. How far has it fallen when the ball arrives?',
+    formula: () => 'monkey drop = 5 × (t + 1)²',
+    hints: (sc, ans) => ['The monkey has been falling 1 s longer than the ball.', `In the calculator: 5 × ${fmt(ownT(sc, ans) + 1)} × ${fmt(ownT(sc, ans) + 1)}`],
+    target: sc => dropAt(sc.t + 1),
+    own: (sc, ans) => dropAt(ownT(sc, ans) + 1),
+    needs: (sc, ans) => ({ routes: [[5, ownT(sc, ans) + 1], [10, ownT(sc, ans) + 1]] }),
+    mistake: (v, sc, ans) => {
+      const t = ownT(sc, ans);
+      if (near(v, dropAt(t), 0.01)) return ['early_same', 'That is the ball\'s drop. The monkey has been falling 1 s longer.'];
+      if (near(v, dropAt(t) + 5, 0.01)) return ['early_add_five', 'The extra second matters more than 5 m. Square (t + 1), not t.'];
+      return dropMistake(v, t + 1);
+    },
+    right: (sc, ans) => `monkey drop = 5 × ${fmt(ownT(sc, ans) + 1)} × ${fmt(ownT(sc, ans) + 1)} = ${fmt(dropAt(ownT(sc, ans) + 1))} m`
+  };
+
+  const gapStep = {
+    k: 'gap', sym: 'gap', unit: 'm', skill: 'meet', calc: true,
+    ask: () => 'How far above the monkey does the ball pass?',
+    formula: () => 'gap = monkey drop − ball drop',
+    hints: (sc, ans) => [`In the calculator: ${fmt(own(ans, 'early', dropAt(sc.t + 1)))} − ${fmt(ownDrop(sc, ans))}`],
+    target: sc => dropAt(sc.t + 1) - dropAt(sc.t),
+    own: (sc, ans) => own(ans, 'early', dropAt(sc.t + 1)) - ownDrop(sc, ans),
+    needs: (sc, ans) => ({ routes: [[own(ans, 'early', dropAt(sc.t + 1)), ownDrop(sc, ans)]] }),
+    mistake: (v, sc, ans) => {
+      if (near(v, own(ans, 'early', dropAt(sc.t + 1)), 0.01)) return ['gave_drop', 'That is how far the monkey fell. The ball fell too, so subtract its drop.'];
+      return null;
+    },
+    right: (sc, ans) => {
+      const a = own(ans, 'early', dropAt(sc.t + 1)), b = ownDrop(sc, ans);
+      return `gap = ${fmt(a)} m − ${fmt(b)} m = ${fmt(a - b)} m`;
+    }
+  };
+
+  const fallTimeStep = {
+    k: 'fall', sym: 't', unit: 's', skill: 'speed', calc: true,
+    ask: () => 'How long until the monkey reaches the ground?',
+    formula: () => 't = √(H ÷ 5)',
+    hints: sc => ['The monkey lands when its drop equals H: 5 × t² = H.', `In the calculator: √(${fmt(sc.H)} ÷ 5)`],
+    target: sc => Math.sqrt(sc.H / 5),
+    needs: sc => ({ fn: 'sqrt', label: 'square root', routes: [[sc.H, 5], [sc.H, 10]] }),
+    mistake: (v, sc) => {
+      if (near(v, sc.H / 5, 0.01)) return ['no_root', 'That is t². Take the square root to get t.'];
+      if (near(v, Math.sqrt(sc.H / 10), 0.01)) return ['fall_used_g', 'You divided by 10. 5 × t² = H, so divide by 5.'];
+      return null;
+    },
+    right: sc => `t = √(${fmt(sc.H)} ÷ 5) = ${fmt(Math.sqrt(sc.H / 5))} s`
+  };
+
+  const minSpeedStep = {
+    k: 'vmin', sym: 'smallest v_ox', unit: 'm/s', skill: 'speed', calc: true,
+    ask: () => 'The ball must reach the tree before the monkey lands. What is the smallest v_ox that works?',
+    formula: () => 'smallest v_ox = ΔX ÷ t',
+    hints: (sc, ans) => [`In the calculator: ${fmt(sc.D)} ÷ ${fmt(own(ans, 'fall', Math.sqrt(sc.H / 5)))}`],
+    target: sc => sc.D / Math.sqrt(sc.H / 5),
+    own: (sc, ans) => sc.D / own(ans, 'fall', Math.sqrt(sc.H / 5)),
+    needs: (sc, ans) => ({ routes: [[sc.D, own(ans, 'fall', Math.sqrt(sc.H / 5))]] }),
+    mistake: (v, sc, ans) => {
+      const t = own(ans, 'fall', Math.sqrt(sc.H / 5));
+      if (near(v, sc.D * t, 0.01)) return ['time_times', 'You multiplied. Distance ÷ time gives the speed.'];
+      if (near(v, sc.H / t, 0.01)) return ['min_used_h', 'You used H. The sideways speed has to cover ΔX.'];
+      return null;
+    },
+    right: (sc, ans) => {
+      const t = own(ans, 'fall', Math.sqrt(sc.H / 5));
+      return `smallest v_ox = ${fmt(sc.D)} m ÷ ${fmt(t)} s = ${fmt(sc.D / t)} m/s`;
+    }
+  };
+
+  const reads = { read1: readStep(1), read2: readStep(2), read3: readStep(3), read4: readStep(4) };
+  const STEP = {
+    conceptual: Object.assign({ t: countStep, drop: dropReadStep, dropNew: dropNewStep('drop = 5 × t × t'), line: lineStep, ballH: ballHeightStep, meet: meetStep(), aim: aimStep }, reads),
+    cp: Object.assign({ t: timeStep(), drop: dropStep('drop = 5 × t²'), dropNew: dropNewStep('drop = 5 × t²'), line: lineStep, ballH: ballHeightStep, meet: meetStep(), aim: aimStep }, reads),
+    honors: Object.assign({
+      th: thetaStep, vox: splitStep('x'), voy: splitStep('y'), t: timeStep(), drop: dropStep('drop = 5 × t²'), dropNew: dropNewStep('drop = 5 × t²'),
+      line: lineStep, ballH: ballHeightStep, meet: meetStep(), aim: aimStep, early: earlyStep, gap: gapStep, fall: fallTimeStep, vmin: minSpeedStep
+    }, reads)
+  };
+
+  // A whole hunt, in order, for each class. The Mastery Check uses one of each kind.
+  const HUNT = {
+    conceptual: { meet: ['t', 'drop', 'meet'], hold: ['t', 'drop', 'aim'] },
+    cp: { meet: ['t', 'drop', 'meet'], hold: ['t', 'drop', 'aim'] },
+    honors: { meet: ['th', 'vox', 't', 'drop', 'meet'], hold: ['vox', 't', 'drop', 'aim'] }
+  };
+
+  // A calculation reads one step per line with the equals signs lined up, never as one long chain.
+  function stack(calc) {
+    const [sym, ...steps] = calc.split(' = ');
+    if (!steps.length) return `<span class="formula">${calc}</span>`;
+    return `<span class="calc-stack">${steps.map(s => `<span class="calc-sym">${sym}</span><span>=</span><span>${s}</span>`).join('')}</span>`;
+  }
+
+  // Returns { ok, retry, mistake, msg }. retry = no new numbers (calculator mode, or re-reading the ruler).
+  function gradeStep(step, raw, sc, ans) {
+    const v = parseNum(raw);
+    if (v === null) return { ok: false, mistake: 'blank', msg: stack(step.right(sc, ans)) };
+    const ok = near(v, step.target(sc, ans)) || (step.own && near(v, step.own(sc, ans), 0.01));
+    if (ok) return { ok: true, msg: stack(step.right(sc, ans)) };
+    const hit = step.mistake ? step.mistake(v, sc, ans) : null;
+    if (hit && hit[2]) return { ok: false, retry: true, mistake: hit[0], msg: hit[1] };
+    return {
+      ok: false,
+      mistake: hit ? hit[0] : 'other',
+      msg: `${hit ? hit[1] : 'Not quite.'}<br><span class="worked">The right way: ${stack(step.right(sc, ans))}</span>`
+    };
+  }
+
+  // ---------- Concept questions. Plain JSON so a Mastery Check resumes with the same numbers. ----------
+  const shuffled = n => {
+    const a = [...Array(n).keys()];
+    for (let i = n - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+
+  const huntOpts = (sc, extra) => Object.assign({ mode: 'hunt', sc }, extra);
+
+  const CONCEPT = {
+    no_gravity: {
+      make: () => ({ sc: hunt(pick([15, 20, 25]), pick([20, 30]), 3) }),
+      text: () => 'Pretend gravity is turned off. What path does the ball follow after it leaves the launcher?',
+      scene: q => huntOpts(q.sc, { gravity: false, noMonkey: true, stickT: q.sc.t, t: 0 }),
+      options: () => [
+        { id: 'r', t: 'A straight line along the stick, at a steady speed.' },
+        { id: 'curve', t: 'It curves down toward the ground.' },
+        { id: 'slow', t: 'A straight line, but it slows down and stops.' }
+      ],
+      right: () => 'r',
+      mistake: () => 'needs_force',
+      why: () => 'With no force on it, inertia keeps the ball going in a straight line at a steady speed. That straight line is its inertial path.'
+    },
+    same_fall: {
+      make: () => ({}),
+      text: () => 'Ball A is dropped. Ball B is launched sideways at the same moment, from the same height. Which reaches the ground first?',
+      scene: () => ({ mode: 'pair', t: 0 }),
+      options: () => [{ id: 'r', t: 'They land at the same time.' }, { id: 'a', t: 'Ball A, the dropped ball.' }, { id: 'b', t: 'Ball B, the sideways ball.' }],
+      right: () => 'r',
+      mistake: () => 'sideways_changes_fall',
+      why: () => 'Moving sideways does not change how fast a ball falls. Both drop the same distance every second.'
+    },
+    tilted_string: {
+      make: () => ({ sc: hunt(20, 30, 4) }),
+      text: () => 'The stick is tilted up. Which way do the strings hang?',
+      scene: q => huntOpts(q.sc, { noMonkey: true, stickT: 4, t: 0, gravity: false, markLabels: true }),
+      options: () => [
+        { id: 'r', t: 'Straight down toward the ground, the same length as before.' },
+        { id: 'square', t: 'Straight out from the stick, at a right angle to it.' },
+        { id: 'short', t: 'Straight down, but shorter because the stick is tilted.' }
+      ],
+      right: () => 'r',
+      mistake: () => 'tilted_string',
+      why: () => 'Gravity always pulls straight down. It does not care which way the stick points, so the strings do not change.'
+    },
+    same_drop: {
+      make: () => { const t = pick([1, 2, 3]); return { t, sc: teachHunt() }; },
+      text: q => `The picture shows the ball after ${q.t} s. It is ${dropAt(q.t || 1)} m below the stick. How far has the monkey fallen?`,
+      scene: q => huntOpts(q.sc, { t: q.t, stringLabelBallOnly: true }),
+      options: q => [
+        { id: 'r', t: q.t ? `${dropAt(q.t)} m, the same as the ball.` : 'The same as the ball.' },
+        { id: 'half', t: q.t ? `${dropAt(q.t) / 2} m, half as far.` : 'Half as far.' },
+        { id: 'more', t: q.t ? `${dropAt(q.t) * 2} m, twice as far.` : 'Twice as far.' }
+      ],
+      right: () => 'r',
+      mistake: () => 'different_drops',
+      why: () => 'Gravity gives everything the same drop in the same time. The ball and the monkey started falling at the same moment.'
+    },
+    holds_on: {
+      make: () => ({ sc: hunt(20, 30, 3) }),
+      text: () => 'You aim right at the monkey, but this monkey holds on to the branch. What does the ball do?',
+      scene: q => huntOpts(q.sc, { t: 0, hold: true, noStrings: true }),
+      options: () => [
+        { id: 'r', t: 'It passes below the monkey by the length of the string.' },
+        { id: 'hit', t: 'It hits the monkey.' },
+        { id: 'above', t: 'It passes above the monkey.' }
+      ],
+      right: () => 'r',
+      mistake: () => 'holds_on',
+      why: () => 'The ball still falls below the stick. The monkey did not fall, so the ball goes under it by the length of the string.'
+    },
+    faster: {
+      make: () => ({ sc: hunt(20, 30, 4) }),
+      text: () => 'Same aim, but the launch is twice as fast. Where do the ball and the monkey meet?',
+      scene: q => huntOpts(q.sc, { t: 0, noStrings: true }),
+      options: () => [
+        { id: 'r', t: 'Higher up, because they fall for less time.' },
+        { id: 'same', t: 'At the same height as before.' },
+        { id: 'miss', t: 'They miss. The ball goes over the monkey.' }
+      ],
+      right: () => 'r',
+      mistake: () => 'faster_misses',
+      why: () => 'A faster ball reaches the tree sooner. Less time means a shorter drop for both, so they meet higher up. It is still a hit.'
+    },
+    moon: {
+      make: () => ({ sc: hunt(20, 30, 4) }),
+      text: () => 'Same aim, on the Moon, where g = 1.6 m/s². What happens?',
+      scene: q => huntOpts(q.sc, { t: 0, noStrings: true, note: 'On the Moon: g = 1.6 m/s²' }),
+      options: () => [
+        { id: 'r', t: 'It still hits. Both fall less, by the same amount.' },
+        { id: 'over', t: 'It misses. The ball goes over the monkey.' },
+        { id: 'under', t: 'It misses. The ball goes under the monkey.' }
+      ],
+      right: () => 'r',
+      mistake: () => 'moon_misses',
+      why: () => 'Gravity is weaker, so every string is shorter. But the ball and the monkey still share the same string length, so they still meet.'
+    },
+    slow_call: {
+      make: () => newSlowCall(),
+      text: () => "Aimed right at the monkey. Count the marks, then find that time in your drop table. Compare the drop with H. What happens?",
+      scene: q => huntOpts(q.sc || teachHunt(), { t: 0, noStrings: true, labels: { H: true } }),
+      options: () => [
+        { id: 'hit', t: 'The ball hits the monkey above the ground.' },
+        { id: 'ground', t: 'Both reach the ground first. There is no hit in the air.' }
+      ],
+      right: q => (q.slow ? 'ground' : 'hit'),
+      mistake: q => (q.slow ? 'slow_still_hits' : 'fast_call_wrong'),
+      why: q => (q.slow
+        ? `The drop is ${dropAt(q.sc.t)} m, but the monkey is only ${q.sc.H} m high. They would have to meet below the ground, so the ball is too slow.`
+        : `The drop is ${dropAt(q.sc.t)} m and the monkey is ${q.sc.H} m high. The drop is smaller, so they meet ${q.sc.H - dropAt(q.sc.t)} m above the ground.`)
+    },
+    head_start: {
+      make: () => ({ sc: hunt(20, 30, 3) }),
+      text: () => 'You aim right at the monkey, but it lets go 1 s before you launch. What does the ball do?',
+      scene: q => huntOpts(q.sc, { t: 0, early: 1, noStrings: true, note: 'Monkey lets go 1 s early' }),
+      options: () => [
+        { id: 'r', t: 'It passes above the monkey.' },
+        { id: 'below', t: 'It passes below the monkey.' },
+        { id: 'hit', t: 'It still hits the monkey.' }
+      ],
+      right: () => 'r',
+      mistake: () => 'head_start',
+      why: () => 'The monkey falls for 1 s longer, so its drop is bigger than the ball\'s. The ball goes over it.'
+    }
+  };
+
+  const conceptOptions = q => q.order.map(i => CONCEPT[q.id].options(q)[i]);
+  function makeConcept(id) {
+    const def = CONCEPT[id];
+    return Object.assign({ kind: 'mc', id, skill: 'concept', order: shuffled(def.options({}).length) }, def.make());
+  }
+  function gradeConcept(q, picked) {
+    const def = CONCEPT[q.id];
+    const ok = picked === def.right(q);
+    return { ok, mistake: ok ? null : def.mistake(q), msg: def.why(q) };
+  }
+
+  // ---------- Mastery Check: same blueprint every retake, new numbers. 2 hunts + 2 concept questions. ----------
+  function buildQuiz(tier) {
+    const a = newHunt(tier, 2), b = newHunt(tier, 2, a);
+    const hunts = [a, b], kinds = ['meet', 'hold'];
+    const qs = [];
+    hunts.forEach((sc, f) => HUNT[tier][kinds[f]].forEach(k => qs.push({ kind: 'step', k, f, skill: STEP[tier][k].skill })));
+    const first = pick(['same_drop', 'holds_on', 'tilted_string']);
+    const second = tier === 'honors' ? pick(['head_start', 'slow_call']) : pick(['faster', 'moon', 'slow_call']);
+    qs.push(makeConcept(first), makeConcept(second));
+    return { tier, hunts, kinds, qs, answers: qs.map(() => null), work: qs.map(() => null), i: 0 };
+  }
+
+  // Follow-through: a later step is graded against the student's own earlier answers, so one slip costs one point.
+  function gradeQuiz(quiz) {
+    const chains = quiz.hunts.map(() => ({}));
+    const results = quiz.qs.map((q, i) => {
+      const raw = quiz.answers[i];
+      if (q.kind === 'mc') return Object.assign({ skill: q.skill }, gradeConcept(q, raw));
+      const step = STEP[quiz.tier][q.k];
+      const r = gradeStep(step, raw === null || raw === undefined ? '' : raw, quiz.hunts[q.f], chains[q.f]);
+      const v = parseNum(raw);
+      if (v !== null) chains[q.f][step.k] = v;
+      return { skill: q.skill, ok: r.ok, mistake: r.ok ? null : r.mistake, msg: r.msg };
+    });
+    const correct = results.filter(r => r.ok).length;
+    const skills = {};
+    results.forEach(r => {
+      skills[r.skill] = skills[r.skill] || { right: 0, total: 0 };
+      skills[r.skill].total++;
+      if (r.ok) skills[r.skill].right++;
+    });
+    return { results, correct, total: results.length, pct: Math.round(100 * correct / results.length), skills };
+  }
+
+  window.PR = {
+    G, DROPS, STEP, HUNT, CONCEPT,
+    dropAt, teachHunt, hunt, fmt, near, parseNum, pick, rad, own,
+    newHunt, newSlowCall, newMinSpeed, workProblem, stack, gradeStep, makeConcept, conceptOptions, gradeConcept, buildQuiz, gradeQuiz
+  };
+})();
+
+
+// === Unit_2/monkey_hunter_studio/js/scene.js ===
+// Monkey Hunter Studio — the picture. Every view is drawn as SVG so it stays sharp on a projector.
+// Colors are fixed for the whole lesson: purple = the stick (the inertial path, along v_o), blue = v_ox, orange = v_oy,
+// rose = a drop (every string, on the ball and on the monkey). Distances use one scale both ways, so the arc is true to life.
+// Views: hunt (stick, strings, ball, monkey), rig (the meter stick the student builds and tilts), ruler (the drop test), pair (dropped and sideways).
+
+(function () {
+  const W = 760, H = 520;
+  const GROUND = 464, LEFT = 66, RIGHT = 700, TOP = 34;
+  const CHEST = 7;          // the monkey's chest sits this far below the point monkey() is drawn from
+  const RIG_SCALE = 3.8;    // the rig keeps one scale, so tilting never changes how long a string looks
+  const SUB_RE = /\b(v)_(ox|oy|o)\b/g;
+
+  const esc = s => String(s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
+  const fmt = v => window.PR.fmt(v);
+  const G = () => window.PR.G;
+
+  // Real subscripts inside SVG text
+  function rich(str) {
+    let out = '', last = 0, shifted = false;
+    const s = String(str);
+    s.replace(SUB_RE, (m, base, sub, idx) => {
+      out += (shifted ? `<tspan dy="-5">${esc(s.slice(last, idx))}</tspan>` : esc(s.slice(last, idx))) + base;
+      out += `<tspan dy="5" font-size="72%">${sub}</tspan>`;
+      shifted = true;
+      last = idx + m.length;
+      return m;
+    });
+    const rest = s.slice(last);
+    return out + (shifted ? `<tspan dy="-5">${esc(rest) || '&#8203;'}</tspan>` : esc(rest));
+  }
+
+  const text = (x, y, str, cls = '', anchor = 'middle') => `<text x="${x}" y="${y}" class="sv-text ${cls}" text-anchor="${anchor}">${rich(str)}</text>`;
+
+  // Label on a soft plate so it stays readable over lines and arcs
+  function plate(x, y, str, cls, anchor = 'middle') {
+    const w = String(str).replace(/_/g, '').length * 9.2 + 12;
+    const left = anchor === 'middle' ? x - w / 2 : anchor === 'end' ? x - w + 6 : x - 6;
+    const cx = Math.max(4, Math.min(W - w - 4, left));
+    return `<rect x="${cx}" y="${y - 17}" width="${w}" height="24" rx="5" class="sv-plate"/>${text(cx + w / 2, y, str, cls)}`;
+  }
+
+  function arrow(x1, y1, x2, y2, cls, width = 5) {
+    const len = Math.hypot(x2 - x1, y2 - y1);
+    if (len < 3) return '';
+    const head = Math.min(width * 3, len * 0.6);
+    const ux = (x2 - x1) / len, uy = (y2 - y1) / len;
+    const bx = x2 - ux * head, by = y2 - uy * head;
+    const nx = -uy * head * 0.55, ny = ux * head * 0.55;
+    return `<g class="${cls}"><line x1="${x1}" y1="${y1}" x2="${bx}" y2="${by}" stroke-width="${width}" stroke-linecap="round"/><polygon points="${x2},${y2} ${bx + nx},${by + ny} ${bx - nx},${by - ny}"/></g>`;
+  }
+
+  const frame = inner => `<svg viewBox="0 0 ${W} ${H}" class="scene-svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">${inner}</svg>`;
+  const backdrop = () => `<rect x="-1500" y="${GROUND}" width="${W + 3000}" height="${H - GROUND}" class="sv-ground"/><line x1="-1500" y1="${GROUND}" x2="${W + 1500}" y2="${GROUND}" class="sv-ground-line"/>`;
+
+  // ---------- Parts ----------
+  function launcher(x, y, angle, towerTop) {
+    const c = Math.cos(angle), s = Math.sin(angle);
+    let g = '';
+    if (towerTop !== undefined && towerTop < GROUND - 1) g += `<rect x="${x - 15}" y="${towerTop + 7}" width="30" height="${GROUND - towerTop - 7}" class="sv-tower"/>`;
+    g += `<line x1="${x}" y1="${y}" x2="${x + 28 * c}" y2="${y - 28 * s}" class="sv-barrel"/>`;
+    g += `<circle cx="${x}" cy="${y}" r="9" class="sv-launcher"/>`;
+    return g;
+  }
+
+  function monkey(x, y, falling) {
+    const armY = falling ? y - 26 : y - 29;
+    return `<g class="sv-monkey">
+      <path d="M ${x + 8} ${y + 14} q 16 6 13 -12" class="sv-tail"/>
+      <line x1="${x - 7}" y1="${y - 4}" x2="${x - 11}" y2="${armY}" class="sv-limb"/>
+      <line x1="${x + 7}" y1="${y - 4}" x2="${x + 11}" y2="${armY}" class="sv-limb"/>
+      <line x1="${x - 5}" y1="${y + 14}" x2="${x - 10}" y2="${y + 25}" class="sv-limb"/>
+      <line x1="${x + 5}" y1="${y + 14}" x2="${x + 10}" y2="${y + 25}" class="sv-limb"/>
+      <ellipse cx="${x}" cy="${y + 7}" rx="9.5" ry="11" class="sv-fur"/>
+      <circle cx="${x - 11}" cy="${y - 11}" r="4.5" class="sv-fur"/><circle cx="${x + 11}" cy="${y - 11}" r="4.5" class="sv-fur"/>
+      <circle cx="${x}" cy="${y - 11}" r="10.5" class="sv-fur"/>
+      <ellipse cx="${x}" cy="${y - 8.5}" rx="7" ry="6" class="sv-face"/>
+      <circle cx="${x - 3}" cy="${y - 11}" r="1.5" class="sv-eye"/><circle cx="${x + 3}" cy="${y - 11}" r="1.5" class="sv-eye"/>
+    </g>`;
+  }
+
+  function burst(x, y) {
+    const pts = [];
+    for (let i = 0; i < 16; i++) {
+      const r = i % 2 ? 11 : 27, a = i * Math.PI / 8;
+      pts.push(`${(x + r * Math.cos(a)).toFixed(1)},${(y + r * Math.sin(a)).toFixed(1)}`);
+    }
+    return `<polygon points="${pts.join(' ')}" class="sv-burst"/>`;
+  }
+
+  // The meter stick: a thick bar with a tick at every mark
+  function stick(x0, y0, x1, y1, ticks) {
+    let g = `<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}" class="sv-stick"/>`;
+    const len = Math.hypot(x1 - x0, y1 - y0) || 1;
+    const nx = -(y1 - y0) / len * 7, ny = (x1 - x0) / len * 7;
+    ticks.forEach(([x, y]) => { g += `<line x1="${x - nx}" y1="${y - ny}" x2="${x + nx}" y2="${y + ny}" class="sv-tick"/>`; });
+    return g;
+  }
+
+  const stringLine = (x, y0, y1) => `<line x1="${x}" y1="${y0}" x2="${x}" y2="${y1}" class="sv-string"/>`;
+
+  function star(x, y) {
+    const pts = [];
+    for (let i = 0; i < 10; i++) {
+      const r = i % 2 ? 5 : 12, a = -Math.PI / 2 + i * Math.PI / 5;
+      pts.push(`${(x + r * Math.cos(a)).toFixed(1)},${(y + r * Math.sin(a)).toFixed(1)}`);
+    }
+    return `<polygon points="${pts.join(' ')}" class="sv-star"/>`;
+  }
+
+  // Bracket beside a height or under a distance
+  function heightBar(x, yBottom, yTop, label) {
+    return `<line x1="${x}" y1="${yBottom}" x2="${x}" y2="${yTop}" class="sv-dim"/><line x1="${x - 7}" y1="${yTop}" x2="${x + 7}" y2="${yTop}" class="sv-dim"/><line x1="${x - 7}" y1="${yBottom}" x2="${x + 7}" y2="${yBottom}" class="sv-dim"/>${plate(x, (yBottom + yTop) / 2 + 6, label, 'sv-dim-text')}`;
+  }
+
+  // ---------- The hunt ----------
+  // o = { sc, t, gravity, g, hold, early, noMonkey, noStrings, stickT, markLabels, starAt, aimH, labels, note }
+  // Time runs from the moment of launch. Strings show where the ball is below the stick at each passed second.
+  function hunt(o) {
+    const PR = window.PR, sc = o.sc, L = o.labels || {};
+    const g0 = o.gravity === false ? 0 : (o.g === undefined ? G() : o.g);
+    const t = o.t || 0;
+    const T = sc.t;
+    const branchH = o.branchH === undefined ? sc.H : o.branchH;
+    const aimVoy = o.aimH === undefined ? sc.voy : o.aimH / T;
+    const stickT = o.stickT === undefined ? T : o.stickT;
+    const lineTop = aimVoy * stickT;
+    const widest = Math.max(sc.vox * stickT, o.noMonkey ? 0 : sc.D);
+    const tallest = Math.max(lineTop, branchH);
+    const s = Math.min((RIGHT - LEFT - (o.noMonkey ? 0 : 26)) / Math.max(widest, 1), (GROUND - TOP - (o.noMonkey ? 22 : 50)) / Math.max(tallest, 1));
+    const X = u => LEFT + s * sc.vox * u;
+    const YH = h => GROUND - s * h;
+    const lineH = u => aimVoy * u;
+    const dropOf = u => 0.5 * g0 * u * u;
+    const landT = g0 > 0 ? 2 * aimVoy / g0 : Infinity;
+    const uBall = Math.min(t, landT);
+    const ballH = u => Math.max(0, lineH(u) - dropOf(u));
+    const angle = Math.atan2(aimVoy, sc.vox);
+
+    let g = backdrop();
+
+    // Tree and branch
+    const treeX = X(T);
+    if (!o.noMonkey) {
+      const limbY = YH(branchH) - CHEST - 29;   // the arms reach up to the branch from a monkey whose chest is at height H
+      g += `<rect x="${treeX + 16}" y="${limbY - 14}" width="15" height="${GROUND - limbY + 14}" class="sv-trunk"/>`;
+      g += `<line x1="${treeX - 22}" y1="${limbY}" x2="${treeX + 24}" y2="${limbY}" class="sv-branch"/>`;
+    }
+
+    // The stick and its marks
+    const marks = [];
+    for (let i = 1; i <= Math.floor(stickT + 1e-6); i++) marks.push([X(i), YH(lineH(i))]);
+    g += stick(X(0), YH(0), X(stickT), YH(lineH(stickT)), marks);
+    if (o.markLabels) {
+      for (let i = 1; i <= Math.floor(stickT + 1e-6); i++) {
+        const atMonkey = !o.noMonkey && Math.abs(i - T) < 1e-6;   // clear of the monkey's arm
+        g += text(X(i) - (atMonkey ? 24 : 12), YH(lineH(i)) - 12, `${i} s`, 'sv-small', 'end');
+      }
+    }
+
+    // Aim point when the stick does not point at the monkey
+    if (o.aimH !== undefined && !o.noMonkey) {
+      g += `<line x1="${treeX}" y1="${YH(branchH)}" x2="${treeX}" y2="${YH(o.aimH)}" class="sv-aim-gap"/>`;
+      g += star(treeX, YH(o.aimH));
+    }
+
+    // Launch triangle: the first second of the stick split into its two parts
+    if (L.vox) {
+      const ex = X(1), ey = YH(0);
+      g += arrow(X(0), ey, ex, ey, 'sv-x', 4);
+      g += plate((X(0) + ex) / 2 + 10, ey + 22, `v_ox = ${fmt(sc.vox)} m/s`, 'sv-x-text');
+    }
+    if (L.voy) {
+      const ex = X(1);
+      g += arrow(ex, YH(0), ex, YH(lineH(1)), 'sv-y', 4);
+      g += plate(ex + 10, (YH(0) + YH(lineH(1))) / 2 + 6, `v_oy = ${fmt(aimVoy)} m/s`, 'sv-y-text', 'start');
+    }
+    if (L.v0) g += plate(X(0) + 96, YH(0) - 76, typeof L.v0 === 'string' ? L.v0 : `v_o = ${fmt(sc.v0)} m/s`, 'sv-v-text', 'end');
+    if (L.th) g += text(X(0) + 58 * Math.cos(angle / 2), YH(0) - 58 * Math.sin(angle / 2) + 6, `${fmt(sc.th)}°`, 'sv-angle');
+
+    // Strings left behind at every passed second
+    if (!o.noStrings && g0 > 0) {
+      for (let i = 1; i <= Math.floor(uBall + 1e-6); i++) {
+        if (Math.abs(i - uBall) < 1e-6) break;
+        const y0 = YH(lineH(i)), y1 = YH(ballH(i));
+        g += stringLine(X(i), y0, y1) + `<circle cx="${X(i)}" cy="${y1}" r="6" class="sv-ghost"/>`;
+      }
+    }
+    if (o.fullPath && g0 > 0) {
+      const pts = [];
+      for (let i = 0; i <= 60; i++) { const u = uBall * i / 60; pts.push(`${X(u).toFixed(1)},${YH(ballH(u)).toFixed(1)}`); }
+      if (uBall > 0) g += `<polyline points="${pts.join(' ')}" class="sv-path"/>`;
+    }
+
+    // The monkey, and its own string from the branch
+    if (!o.noMonkey) {
+      const mDrop = (o.hold || g0 === 0) ? 0 : dropOf(t + (o.early || 0));
+      const hM = Math.max(0, branchH - mDrop);
+      const moved = mDrop > 0;
+      const onGround = hM <= 0;
+      const atY = onGround ? GROUND - 26 : YH(hM) - CHEST;
+      if (moved && !o.noStrings) {
+        // Hangs from where the monkey started, the same length as the ball's string
+        const stringEnd = Math.min(atY + CHEST, GROUND);
+        g += stringLine(treeX, YH(branchH), stringEnd);
+        if (!o.stringLabelBallOnly) g += plate(treeX + 24, (YH(branchH) + stringEnd) / 2 + 6, `${fmt(Math.min(mDrop, branchH))} m`, 'sv-string-text', 'start');
+      }
+      g += monkey(treeX, atY, moved);
+    }
+
+    if (L.H) g += heightBar(treeX + 56, GROUND, YH(branchH), L.H === true ? `H = ${fmt(branchH)} m` : L.H);
+    if (L.D) {
+      const y = L.vox ? GROUND + 42 : GROUND + 26;
+      g += `<line x1="${X(0)}" y1="${y}" x2="${treeX}" y2="${y}" class="sv-dim"/><line x1="${X(0)}" y1="${y - 7}" x2="${X(0)}" y2="${y + 7}" class="sv-dim"/><line x1="${treeX}" y1="${y - 7}" x2="${treeX}" y2="${y + 7}" class="sv-dim"/>`;
+      g += plate((X(0) + treeX) / 2 + 36, y + 6, L.D === true ? `ΔX = ${fmt(sc.D)} m` : L.D, 'sv-dim-text');
+    }
+    if (o.starAt !== undefined) g += star(X(o.starAt), YH(lineH(o.starAt)));
+
+    g += launcher(X(0), YH(0), angle);
+    marks.forEach(([x, y]) => { g += `<circle cx="${x}" cy="${y}" r="5.5" class="sv-mark"/>`; });
+
+    // The live ball, hanging from the stick on its string
+    const moving = t > 0;
+    if (moving) {
+      const bx = X(uBall), by = YH(ballH(uBall)), ly = YH(lineH(uBall));
+      if (g0 > 0 && !o.noStrings) {
+        g += stringLine(bx, ly, by);
+        if (dropOf(uBall) >= 4) g += plate(bx - 12, (ly + by) / 2 + 6, `${fmt(Math.round(dropOf(uBall)))} m`, 'sv-string-text', 'end');
+      }
+      g += `<circle cx="${bx}" cy="${by}" r="9" class="sv-ball"/>`;
+      if (!o.noMonkey && (!o.hold || o.aimH !== undefined) && !o.early && g0 > 0 && Math.abs(t - T) < 1e-6 && ballH(T) > 0) g += burst(bx, by) + `<circle cx="${bx}" cy="${by}" r="9" class="sv-ball"/>`;
+    } else {
+      g += `<circle cx="${X(0)}" cy="${YH(0)}" r="6" class="sv-ball"/>`;
+    }
+    if (o.note) g += plate(W / 2, 26, o.note, 'sv-note');
+    return frame(g);
+  }
+
+  // Launch time for the replay: stops when the ball arrives, or lands first
+  function huntEnd(sc, voy) {
+    return Math.min(sc.t, 2 * (voy === undefined ? sc.voy : voy) / G());
+  }
+
+  // ---------- The rig: the student's meter stick with balls hanging from it ----------
+  // o = { tilt (deg), speed (m/s per mark), strings: [..], t, drag, active, showCurve }
+  function rigGeom(o) {
+    const a = window.PR.rad(o.tilt || 0), v = o.speed || 30;
+    const vox = v * Math.cos(a), voy = v * Math.sin(a);
+    const h0 = Math.max(0, 80 - 4 * voy) + 6;
+    const X = u => LEFT + RIG_SCALE * vox * u;
+    const YH = h => GROUND - RIG_SCALE * h;
+    return { a, v, vox, voy, h0, X, YH, markX: i => X(i + 1), markY: i => YH(h0 + voy * (i + 1)), scale: RIG_SCALE };
+  }
+
+  function rig(o) {
+    const q = rigGeom(o), { vox, voy, h0, X, YH } = q;
+    const strings = o.strings || window.PR.DROPS;
+    const t = o.t || 0;
+    let g = backdrop();
+    const ticks = strings.map((_, i) => [q.markX(i), q.markY(i)]);
+    g += stick(X(0), YH(h0), X(4.25), YH(h0 + voy * 4.25), ticks);
+    strings.forEach((len, i) => {
+      const x = q.markX(i), y0 = q.markY(i), y1 = y0 + len * RIG_SCALE;
+      g += stringLine(x, y0, y1);
+      const reached = o.playing !== false && t >= i + 1 - 1e-6;
+      if (o.drag) {
+        g += `<circle cx="${x}" cy="${y1}" r="17" class="sv-handle ${o.active === i ? 'sv-handle-on' : ''}"/>`;
+        g += plate(x + 21, y1 + 6, `${len} m`, 'sv-string-text', 'start');
+      }
+      g += `<circle cx="${x}" cy="${y1}" r="9" class="sv-hang ${reached ? 'sv-hang-hit' : ''}"/>`;
+      if (!o.drag) g += plate(x + (len < 15 ? 20 : 14), (y0 + y1) / 2 + 6 + (len < 15 ? 12 : 0), `${len} m`, 'sv-string-text', 'start');
+      g += text(x - 10, y0 - 13, `${i + 1} s`, 'sv-small', 'end');
+    });
+    if (t > 0) {
+      const pts = [];
+      for (let i = 0; i <= 60; i++) { const u = t * i / 60; pts.push(`${X(u).toFixed(1)},${YH(h0 + voy * u - 5 * u * u).toFixed(1)}`); }
+      g += `<polyline points="${pts.join(' ')}" class="sv-path"/>`;
+    }
+    g += launcher(X(0), YH(h0), q.a, h0 > 0.5 ? YH(h0) : undefined);
+    g += `<circle cx="${X(t)}" cy="${YH(h0 + voy * t - 5 * t * t)}" r="10" class="sv-ball"/>`;
+    if (o.note) g += plate(W / 2, 26, o.note, 'sv-note');
+    return frame(g);
+  }
+
+  // ---------- The drop test: a dropped ball beside a ruler ----------
+  // o = { t, at (the second being read) }. No number sits beside the ball: the student reads the ruler.
+  function ruler(o) {
+    const PR = window.PR, s = 4.75, top = 48, cx = 300, rx = 366;
+    const t = o.t || 0;
+    const Y = d => top + d * s;
+    let g = backdrop();
+    g += `<rect x="${cx - 110}" y="${top - 10}" width="96" height="${GROUND - top + 10}" class="sv-tower"/>`;
+    g += `<line x1="${cx - 14}" y1="${top}" x2="${cx + 14}" y2="${top}" class="sv-branch"/>`;
+    g += `<rect x="${rx}" y="${top - 12}" width="74" height="${GROUND - top + 12}" rx="3" class="sv-ruler"/>`;
+    for (let d = 0; d <= 85; d += 5) {
+      const big = d % 20 === 0;
+      if (Y(d) > GROUND) break;
+      g += `<line x1="${rx}" y1="${Y(d)}" x2="${rx + (big ? 26 : 14)}" y2="${Y(d)}" class="sv-ruler-tick ${big ? 'sv-ruler-big' : ''}"/>`;
+      if (big) g += text(rx + 32, Y(d) + 6, `${d}`, 'sv-ruler-num', 'start');
+    }
+    g += text(rx + 37, top - 20, 'drop (m)', 'sv-small');
+    const whole = Math.floor(t + 1e-6);
+    for (let i = 1; i <= whole; i++) {
+      if (Math.abs(i - t) < 1e-6) break;
+      g += `<circle cx="${cx}" cy="${Y(PR.dropAt(i))}" r="7" class="sv-ghost"/>${text(cx - 18, Y(PR.dropAt(i)) + 6, `${i} s`, 'sv-small', 'end')}`;
+    }
+    const by = Y(PR.dropAt(t));
+    if (t > 0) g += `<line x1="${cx}" y1="${by}" x2="${rx + 14}" y2="${by}" class="sv-pointer"/>`;
+    g += `<circle cx="${cx}" cy="${by}" r="10" class="sv-ball"/>`;
+    if (o.note) g += plate(cx - 170, 90, o.note, 'sv-note');
+    return frame(g);
+  }
+
+  // ---------- Dropped and launched sideways, side by side, same drop ----------
+  function pair(o) {
+    const PR = window.PR, s = 4.9, y0 = GROUND - 80 * s, ax = 110, vx = 25;
+    const t = Math.min(o.t || 0, 4);
+    const Y = u => y0 + PR.dropAt(u) * s;
+    const BX = u => ax + 32 + vx * u * s;
+    let g = backdrop();
+    g += `<rect x="${ax - 58}" y="${y0 + 10}" width="46" height="${GROUND - y0 - 10}" class="sv-tower"/><rect x="${ax - 58}" y="${y0 + 6}" width="210" height="6" class="sv-tower"/>`;
+    for (let i = 1; i <= Math.floor(t + 1e-6); i++) {
+      g += `<line x1="${ax}" y1="${Y(i)}" x2="${BX(i)}" y2="${Y(i)}" class="sv-level"/>`;
+      g += plate(BX(i) + 44, Y(i) + 6, `${PR.dropAt(i)} m`, 'sv-string-text', 'middle');
+      g += `<circle cx="${ax}" cy="${Y(i)}" r="6" class="sv-ghost"/><circle cx="${BX(i)}" cy="${Y(i)}" r="6" class="sv-ghost"/>`;
+    }
+    if (t > 0) {
+      const pts = [];
+      for (let i = 0; i <= 40; i++) { const u = t * i / 40; pts.push(`${BX(u).toFixed(1)},${Y(u).toFixed(1)}`); }
+      g += `<polyline points="${pts.join(' ')}" class="sv-path"/>`;
+    }
+    g += `<circle cx="${ax}" cy="${Y(t)}" r="10" class="sv-ball"/><circle cx="${BX(t)}" cy="${Y(t)}" r="10" class="sv-ball sv-ball-b"/>`;
+    g += text(ax - 22, y0 - 4, 'A', 'sv-tag');
+    g += text(BX(0) + 18, y0 - 4, 'B', 'sv-tag');
+    return frame(g);
+  }
+
+  function render(o) {
+    if (o.mode === 'rig') return rig(o);
+    if (o.mode === 'ruler') return ruler(o);
+    if (o.mode === 'pair') return pair(o);
+    return hunt(o);
+  }
+
+  window.Scene = { render, rigGeom, huntEnd, W, H };
+})();
+
+
+// === Unit_2/monkey_hunter_studio/js/lesson.js ===
+// Monkey Hunter Studio — the lesson, one page at a time.
+// The order builds toward the why: the straight inertial path, then a measured drop, then the meter stick with strings,
+// and only then the monkey. Aiming at the monkey is not the finish: the later hunts ask what the strings predict.
+//   page = { title, body, after, scene(), stepper: { T, require }, control: 'tilt'|'speed', build, predict,
+//            ask: stepKey | mc: conceptId, fresh, level, make, replay }
+// A wrong answer shows why, then restarts from the page marked `fresh` with new numbers.
+
+(function () {
+  const PR = window.PR, stack = PR.stack;
+  const T = PR.teachHunt();
+
+  // The numbers for a problem live on the picture, never in the words.
+  function problemScene(tier, sc, ans = {}, kind = 'meet') {
+    const hold = kind === 'hold';
+    const labels = { H: true };
+    if (tier === 'cp') Object.assign(labels, { D: true, vox: true });
+    if (tier === 'honors') {
+      labels.D = true;
+      labels.v0 = true;
+      if (hold || typeof ans.th === 'number') labels.th = true;
+    }
+    return { mode: 'hunt', sc, t: 0, noStrings: true, hold, labels };
+  }
+
+  // ---------- Part 1: the inertial path ----------
+  const linePages = tier => {
+    const pages = [
+      {
+        title: 'Pretend gravity is off',
+        body: `<p>Launch a ball with <strong>no gravity</strong>. No force acts on it, so nothing changes its motion.</p>
+          <p>Press <strong>Next second</strong>. Watch how far it goes each second.</p>`,
+        after: `<p>A straight line, with <strong>equal steps</strong> every second. This straight line is the ball's <strong>inertial path</strong>: where inertia alone would carry it.</p>`,
+        stepper: { T: 4, require: true },
+        scene: () => ({ mode: 'hunt', sc: T, gravity: false, noMonkey: true, stickT: 4 })
+      },
+      {
+        title: 'Lay a meter stick on the path',
+        body: `<p>Think of a <strong>meter stick</strong> lying along the inertial path.</p>
+          <p>The marks on it are <strong>evenly spaced</strong>. With no gravity, the ball passes <strong>one mark every second</strong>.</p>
+          <p>The first step splits into two parts: <span class="dot dot-x"></span>v_ox sideways and <span class="dot dot-y"></span>v_oy upward.</p>`,
+        scene: () => ({ mode: 'hunt', sc: T, gravity: false, noMonkey: true, stickT: 4, markLabels: true, labels: { vox: true, voy: true } })
+      },
+      { mc: 'no_gravity', fresh: true }
+    ];
+    if (tier === 'honors') {
+      pages.push(
+        { ask: 'voy', fresh: true, level: 2, sceneKind: 'split' },
+        { ask: 'line', sceneKind: 'split' }
+      );
+    } else {
+      pages.push(
+        { ask: 'line', fresh: true, level: 1, sceneKind: 'line' },
+        { ask: 'line', fresh: true, sceneKind: 'line' }
+      );
+    }
+    return pages;
+  };
+
+  // ---------- Part 2: measure a real drop ----------
+  const worked = {
+    conceptual: `<p>Look at your drops: 5, 20, 45, 80. Each one is <strong>5 × t × t</strong>.</p>
+      <p class="worked-line">${stack('drop = 5 × 3 × 3 = 45 m')}</p>`,
+    cp: `<p>Your table matches an equation you know: ½ × g × t². With g = 10 m/s², the ½ × 10 makes 5.</p>
+      <p class="worked-line"><span class="formula">drop = ½ × g × t² = 5 × t²</span></p>
+      <p class="worked-line">${stack('drop = 5 × 3² = 45 m')}</p>`,
+    honors: `<p>This is your position equation with v_oy = 0 and a = −10 m/s², so X_f − X_o = −5t². The ball is 5t² below where it started.</p>
+      <p class="worked-line"><span class="formula">drop = ½ × g × t² = 5 × t²</span></p>
+      <p class="worked-line">${stack('drop = 5 × 3² = 45 m')}</p>`
+  };
+
+  const dropPages = tier => {
+    const measure = [1, 2, 3, 4].map(at => ({ ask: `read${at}`, measure: at }));
+    return [
+      {
+        title: 'Now turn gravity on',
+        body: `<p>Drop a ball. No launch, just let go. A flash camera catches it once every second.</p>
+          <p>You will press <strong>Next second</strong> and read the ruler. Your readings become your <strong>drop table</strong>, and you will use it for the rest of this studio.</p>`,
+        scene: () => ({ mode: 'ruler', t: 0 })
+      },
+      ...measure,
+      {
+        title: 'Your drop table',
+        body: `<p>Your table is under the picture. The ball does not fall the same distance each second. It keeps speeding up.</p>${worked[tier]}`,
+        scene: () => ({ mode: 'ruler', t: 4 })
+      },
+      { ask: 'dropNew', fresh: true, make: 'at', sceneKind: 'at' },
+      {
+        title: 'Sideways does not change the drop',
+        body: `<p>Ball A is dropped. Ball B is launched straight sideways at the same moment.</p><p>Press <strong>Next second</strong>. Watch how high each ball is.</p>`,
+        after: `<p>They stay level the whole way. Each second, both have the <strong>same drop</strong> from your table. Moving sideways changes nothing about falling.</p>`,
+        stepper: { T: 4, require: true },
+        scene: () => ({ mode: 'pair' })
+      },
+      { mc: 'same_fall', fresh: true }
+    ];
+  };
+
+  // ---------- Part 3: the strings ----------
+  const stringPages = tier => [
+    {
+      title: 'A stick with hanging balls',
+      body: `<p>Hold the meter stick flat. Now hang a ball from each mark.</p>
+        <p>Each string is as long as the <strong>drop</strong> for that second. The string at 1 s is as long as a ball falls in 1 s.</p>
+        <p>You will build it next, using your drop table.</p>`,
+      scene: () => ({ mode: 'rig', tilt: 0, strings: [0, 0, 0, 0], drag: false })
+    },
+    { build: true },
+    {
+      title: 'Launch along the stick',
+      body: `<p>Press <strong>Launch</strong>. The ball leaves straight along the stick.</p><p>Gravity pulls it below the stick. Watch where it goes.</p>`,
+      after: `<p>The ball passes through <strong>every hanging ball</strong>. Your strings already knew the path.</p>`,
+      stepper: { T: 4, require: true, launch: true },
+      scene: () => ({ mode: 'rig', tilt: 0 })
+    },
+    {
+      title: 'Now tilt the stick',
+      body: `<p>Move the slider to tilt the stick up. Then press <strong>Launch</strong>.</p>
+        <p>The stick tilts, but the strings still hang <strong>straight down</strong>, the same length. Gravity only pulls down.</p>`,
+      after: `<p>Same strings, new angle, and the ball still goes through every one. <strong>The path is the stick, minus the strings.</strong></p>`,
+      stepper: { T: 4, require: true, launch: true },
+      control: 'tilt',
+      scene: () => ({ mode: 'rig' })
+    },
+    {
+      title: 'Now change the speed',
+      body: `<p>Move the slider to change the launch speed. Then press <strong>Launch</strong>.</p>
+        <p>Speed changes how far apart the marks are, because the ball covers more or less of the stick each second. The strings stay the same, because they only depend on <strong>time</strong>.</p>`,
+      after: `<p>Any angle and any speed. The drop at 3 s is always 45 m.</p>`,
+      stepper: { T: 4, require: true, launch: true },
+      control: 'speed',
+      scene: () => ({ mode: 'rig' })
+    },
+    { mc: 'tilted_string', fresh: true },
+    ...(tier === 'honors' ? [{ ask: 'voy', fresh: true, sceneKind: 'split' }] : [{ ask: 'line', fresh: true, level: 1, sceneKind: 'line' }]),
+    ...(tier === 'honors' ? [{ ask: 'line', sceneKind: 'split' }] : []),
+    { ask: 'drop', sceneKind: 'line', ownCount: true },
+    { ask: 'ballH', sceneKind: 'line' }
+  ];
+
+  // ---------- Part 4: the monkey ----------
+  const prediction = {
+    predict: true,
+    title: 'Where should you aim?',
+    body: `<p>A monkey hangs from a branch. The second it sees your launch, it <strong>lets go</strong>.</p><p>Where should you point the stick? There is no wrong answer here. Make your best prediction.</p>`,
+    options: [
+      { id: 'at', t: 'Right at the monkey' },
+      { id: 'above', t: 'Above the monkey' },
+      { id: 'below', t: 'Below the monkey' }
+    ],
+    scene: () => ({ mode: 'hunt', sc: T, t: 0, noStrings: true, stickT: 0.2 })
+  };
+
+  const proofPage = {
+    title: 'Why speed does not matter',
+    body: `<p>Write both heights with time in them. Each one loses the same 5t².</p>
+      <p class="worked-line"><span class="formula">ball height = v_oy × t − 5t²</span></p>
+      <p class="worked-line"><span class="formula">monkey height = H − 5t²</span></p>
+      <p>They match when v_oy × t = H. The ball takes t = ΔX ÷ v_ox to arrive, so:</p>
+      <p class="worked-line"><span class="formula">v_oy ÷ v_ox = H ÷ ΔX</span></p>
+      <p>Both sides are tan(θ). v_o is gone, so <strong>any speed</strong> gives the same aim.</p>`,
+    scene: () => ({ mode: 'hunt', sc: T, t: 4, fullPath: true })
+  };
+
+  const monkeyPages = tier => {
+    const pages = [
+      prediction,
+      {
+        title: 'First, with gravity off',
+        body: `<p>Aim the stick right at the monkey. Turn gravity off.</p><p>Press <strong>Next second</strong>.</p>`,
+        after: `<p>The ball rides the stick to the monkey, and the monkey stays put. A hit, the easy way.</p>`,
+        stepper: { T: 4, require: true },
+        scene: () => ({ mode: 'hunt', sc: T, gravity: false, markLabels: true })
+      },
+      {
+        title: 'Now gravity is on',
+        body: `<p>Same aim. Gravity pulls <strong>both</strong> of them down, starting at the same moment.</p>
+          <p>Press <strong>Next second</strong>. Compare the rose strings: one above the ball, one above the monkey.</p>`,
+        after: `<p>The ball is below the stick by exactly as far as the monkey has fallen. <strong>Same time, same drop, same string.</strong> That is why they meet.</p>`,
+        stepper: { T: 4, require: true },
+        scene: () => ({ mode: 'hunt', sc: T, markLabels: true })
+      },
+      { mc: 'same_drop', fresh: true }
+    ];
+    if (tier === 'honors') pages.push({ ask: 'th', fresh: true, level: 2, kind: 'meet' }, { ask: 'vox', kind: 'meet' });
+    else pages.push({ ask: 't', fresh: true, level: 1, kind: 'meet' });
+    if (tier === 'honors') pages.push({ ask: 't', kind: 'meet' });
+    pages.push({ ask: 'drop', kind: 'meet' }, { ask: 'meet', kind: 'meet' }, { replay: 'meet' });
+    if (tier === 'honors') pages.push(proofPage);
+    return pages;
+  };
+
+  // ---------- Part 5: hunts where "aim at the monkey" is not the whole answer ----------
+  const holdShot = () => PR.hunt(20, 30, 3);
+  const aimShot = () => Object.assign(PR.hunt(20, 45, 3), { H: 135 });
+
+  const huntPages = tier => {
+    const hold = PR.HUNT[tier].hold.map((k, i) => ({ ask: k, fresh: i === 0, kind: 'hold' }));
+    const meet = PR.HUNT[tier].meet.map((k, i) => ({ ask: k, fresh: i === 0, kind: 'meet' }));
+    const pages = [
+      {
+        title: 'A smarter monkey',
+        body: `<p>This monkey has learned your trick. It <strong>holds on</strong>.</p><p>Aim right at it and press <strong>Next second</strong>.</p>`,
+        after: `<p>The ball passes <strong>under</strong> the monkey by the length of the 3 s string: 45 m. The strings still tell the truth.</p>`,
+        stepper: { T: 3, require: true },
+        scene: () => ({ mode: 'hunt', sc: holdShot(), hold: true, markLabels: true })
+      },
+      {
+        title: 'Aim high by one string',
+        body: `<p>If the ball will fall 45 m below the stick, point the stick <strong>45 m above</strong> the monkey. The sideways speed stays the same, so it still takes 3 s.</p><p>Press <strong>Next second</strong>.</p>`,
+        after: `<p>The star is your aim. The ball falls one string below it and lands right on the monkey.</p>
+          <p class="worked-line">${stack('aim height = 90 m + 45 m = 135 m')}</p>`,
+        stepper: { T: 3, require: true },
+        scene: () => ({ mode: 'hunt', sc: holdShot(), hold: true, aimH: 135, branchH: 90, markLabels: true })
+      },
+      ...hold,
+      { replay: 'hold' },
+      {
+        title: 'Too slow',
+        body: `<p>Aim right at a monkey that lets go, but launch <strong>slowly</strong>.</p><p>Slow means more time. More time means a longer string. Press <strong>Next second</strong>.</p>`,
+        after: `<p>The aim was perfect, but both hit the ground first. To meet in the air, the drop must be <strong>less than H</strong>. Aim is not the only thing that counts.</p>`,
+        stepper: { T: 3, require: true },
+        scene: () => ({ mode: 'hunt', sc: PR.hunt(10, 10, 4), labels: { H: true } })
+      },
+      { mc: 'slow_call', fresh: true },
+      { mc: 'slow_call', fresh: true },
+      ...meet,
+      { replay: 'meet' },
+      { mc: 'moon', fresh: true }
+    ];
+    if (tier === 'honors') {
+      pages.push(
+        {
+          title: 'The smallest speed',
+          body: `<p>The monkey lands when its drop equals H, so 5t² = H.</p>
+            <p class="worked-line"><span class="formula">t = √(H ÷ 5)</span></p>
+            <p>The ball must cover ΔX in that time, or it arrives too late.</p>
+            <p class="worked-line"><span class="formula">smallest v_ox = ΔX ÷ t</span></p>`,
+          scene: () => ({ mode: 'hunt', sc: PR.hunt(20, 30, 4), t: 0, noStrings: true, labels: { D: true, H: true } })
+        },
+        { ask: 'fall', fresh: true, make: 'min', sceneKind: 'min' },
+        { ask: 'vmin', sceneKind: 'min' },
+        {
+          title: 'A monkey that lets go early',
+          body: `<p>This monkey lets go 1 s <strong>before</strong> your launch. Its string is the one for t + 1, and the ball's is for t.</p><p>Press <strong>Next second</strong>.</p>`,
+          after: `<p>The strings no longer match, so the ball passes <strong>over</strong> the monkey. The gap is the difference between the two strings.</p>`,
+          stepper: { T: 3, require: true },
+          scene: () => ({ mode: 'hunt', sc: PR.hunt(20, 40, 3), early: 1, markLabels: true })
+        },
+        { ask: 'vox', fresh: true, kind: 'early' },
+        { ask: 't', kind: 'early' },
+        { ask: 'drop', kind: 'early' },
+        { ask: 'early', kind: 'early' },
+        { ask: 'gap', kind: 'early' }
+      );
+    }
+    return pages;
+  };
+
+  const PAGES = { line: linePages, drop: dropPages, strings: stringPages, monkey: monkeyPages, hunts: huntPages };
+
+  // weight = share of the 6 step-by-step points
+  const PARTS = [
+    { id: 'line', label: 'The Straight Line', icon: '📏', weight: 1 },
+    { id: 'drop', label: 'The Drop', icon: '⬇️', weight: 1 },
+    { id: 'strings', label: 'The Strings', icon: '🪀', weight: 1 },
+    { id: 'monkey', label: 'The Monkey', icon: '🐒', weight: 1 },
+    { id: 'hunts', label: 'Hunts', icon: '🎯', weight: 2 },
+    { id: 'quiz', label: 'Mastery Check', icon: '🏆', weight: 0 }
+  ];
+
+  // ---------- Grade: 10 pts. 6 pts grow step by step across the parts, 4 pts × best Mastery Check. ----------
+  const PART_POINTS = 6, QUIZ_POINTS = 4;
+
+  function partProgress(st, p, tier) {
+    const part = st.parts[p.id];
+    if (!part) return 0;
+    if (part.done) return 1;
+    return Math.min(part.far || 0, PAGES[p.id](tier).length) / PAGES[p.id](tier).length;
+  }
+
+  function earnedPoints(st, tier) {
+    const req = PARTS.filter(p => p.weight > 0);
+    const total = req.reduce((a, p) => a + p.weight, 0);
+    const parts = PART_POINTS * req.reduce((a, p) => a + p.weight * partProgress(st, p, tier), 0) / total;
+    return parts + QUIZ_POINTS * (st.quiz.best || 0) / 100;
+  }
+
+  window.Lesson = { PARTS, PAGES, PART_POINTS, QUIZ_POINTS, problemScene, partProgress, earnedPoints, pages: (id, tier) => PAGES[id](tier) };
+})();
+
+
+// === Unit_2/monkey_hunter_studio/js/certificate.js ===
+// Monkey Hunter Studio — completion certificate, downloaded as a real PDF
+// jsPDF is vendored in assets/vendor (no CDN for the district web filter to block) and only loads on click.
+// The built-in PDF fonts can't show every student name (Nguyễn, for example), so the name is drawn
+// on a canvas in the page's font and placed as an image. Colors stay light so it prints cheaply.
+// Adapted from Unit_2/vector_decomposition_studio/js/certificate.js.
+
+(function () {
+  const LIB = '../../assets/vendor/jspdf.umd.min.js';
+  const INK = '#0f172a', MUTED = '#475569', NAVY = '#0f4c81', GOLD = '#b7892b';
+  const STICK = '#7c3aed', STRING = '#be123c';
+
+  function loadLibrary() {
+    if (window.jspdf) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = LIB;
+      s.onload = resolve;
+      s.onerror = () => reject(new Error('Could not load the PDF library'));
+      document.head.append(s);
+    });
+  }
+
+  // Quick checksum so a typed-up fake code stands out; not cryptographic
+  function code(id, best) {
+    const text = `${id}|${best}|MHS-U2`;
+    let h = 5381;
+    for (let i = 0; i < text.length; i++) h = ((h * 33) ^ text.charCodeAt(i)) >>> 0;
+    return `MUD-MHS-${id}-${best}-${h.toString(16).toUpperCase().padStart(8, '0')}`;
+  }
+
+  async function nameImage(name, maxW) {
+    const family = 'Outfit, system-ui, sans-serif';
+    if (document.fonts && document.fonts.load) {
+      try { await document.fonts.load('700 96px Outfit', name); } catch (e) { /* falls back to a system font */ }
+    }
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    let px = 96;
+    ctx.font = `700 ${px}px ${family}`;
+    const want = maxW * 2.4;   // sharp in print
+    const w = ctx.measureText(name).width;
+    if (w > want) px = Math.floor(px * want / w);
+    ctx.font = `700 ${px}px ${family}`;
+    canvas.width = Math.ceil(ctx.measureText(name).width) + 8;
+    canvas.height = Math.ceil(px * 1.35);
+    ctx.font = `700 ${px}px ${family}`;
+    ctx.fillStyle = INK;
+    ctx.textBaseline = 'middle';
+    ctx.fillText(name, 4, canvas.height / 2);
+    return { url: canvas.toDataURL('image/png'), w: canvas.width / 2.4, h: canvas.height / 2.4 };
+  }
+
+  function loadImage(src) {
+    return new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => {
+        // The source image is 8000 px wide; a small copy keeps the PDF light
+        const c = document.createElement('canvas');
+        c.height = 320;
+        c.width = Math.round(320 * img.naturalWidth / img.naturalHeight);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        resolve({ url: c.toDataURL('image/png'), ratio: img.naturalWidth / img.naturalHeight });
+      };
+      img.onerror = () => resolve(null);
+      img.src = src;
+    });
+  }
+
+  // The lesson's picture: a tilted meter stick, strings hanging straight down, and the arc through the balls
+  function emblem(doc, ox, oy, w, h) {
+    const drops = [5, 20, 45, 80], stepX = w / 4, stepY = h / 4, k = h / 110;
+    doc.setDrawColor('#94a3b8');
+    doc.setLineWidth(1);
+    doc.line(ox - 14, oy, ox + w + 14, oy);
+    doc.setDrawColor(STICK);
+    doc.setLineWidth(3);
+    doc.line(ox, oy, ox + w, oy - h);
+    doc.setDrawColor(INK);
+    doc.setLineWidth(1.3);
+    const fall = u => k * 5 * u * u;
+    for (let i = 0; i < 28; i++) {
+      const a = 4 * i / 28, b = 4 * (i + 1) / 28;
+      doc.line(ox + stepX * a, oy - stepY * a + fall(a), ox + stepX * b, oy - stepY * b + fall(b));
+    }
+    drops.forEach((d, i) => {
+      const x = ox + stepX * (i + 1), y = oy - stepY * (i + 1);
+      doc.setDrawColor(STRING);
+      doc.setLineWidth(1.2);
+      doc.line(x, y, x, y + d * k);
+      doc.setFillColor(INK);
+      doc.circle(x, y + d * k, 3, 'F');
+    });
+  }
+
+  function statBox(doc, x, y, w, h, label, value) {
+    doc.setDrawColor('#cbd5e1');
+    doc.setLineWidth(1);
+    doc.roundedRect(x, y, w, h, 5, 5, 'S');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10.5);
+    doc.setTextColor(MUTED);
+    doc.text(label, x + w / 2, y + 16, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(15);
+    doc.setTextColor(INK);
+    doc.text(value, x + w / 2, y + 36, { align: 'center' });
+  }
+
+  async function build(info) {
+    await loadLibrary();
+    const doc = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'pt', format: 'letter', compress: true });
+    const W = 792, H = 612, cx = W / 2;
+    doc.setProperties({ title: `Certificate of Completion: ${info.name}`, subject: 'Monkey Hunter Studio', creator: 'Mr. Mudry, Orange High School Physics' });
+
+    doc.setDrawColor(NAVY); doc.setLineWidth(4); doc.rect(24, 24, W - 48, H - 48);
+    doc.setDrawColor(GOLD); doc.setLineWidth(1.2); doc.rect(33, 33, W - 66, H - 66);
+
+    const logo = await loadImage('../../OrangeHS_PantherMark.png');
+    if (logo) doc.addImage(logo.url, 'PNG', cx - 24 * logo.ratio, 44, 48 * logo.ratio, 48);
+
+    doc.setTextColor(MUTED); doc.setFont('helvetica', 'bold'); doc.setFontSize(12);
+    doc.text('ORANGE HIGH SCHOOL PHYSICS   ·   UNIT 2', cx, 110, { align: 'center', charSpace: 0.6 });
+
+    doc.setTextColor(NAVY); doc.setFont('times', 'bold'); doc.setFontSize(44);
+    doc.text('Certificate of Completion', cx, 158, { align: 'center' });
+
+    doc.setTextColor(MUTED); doc.setFont('helvetica', 'normal'); doc.setFontSize(14);
+    doc.text('This certifies that', cx, 188, { align: 'center' });
+
+    const maxName = W - 180;
+    const nm = await nameImage(info.name || 'Student', maxName);
+    const nameH = Math.min(nm.h, 48), nameW = nm.w * (nameH / nm.h);
+    doc.addImage(nm.url, 'PNG', cx - nameW / 2, 246 - nameH, nameW, nameH);   // sits on the line at any size
+    doc.setDrawColor(GOLD); doc.setLineWidth(1); doc.line(cx - 220, 248, cx + 220, 248);
+
+    doc.setTextColor(INK); doc.setFont('helvetica', 'bold'); doc.setFontSize(17);
+    doc.text('has completed the Monkey Hunter Studio', cx, 276, { align: 'center' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(12.5); doc.setTextColor(MUTED);
+    doc.text('Showing why a projectile falls below its inertial path as far as a dropped ball', cx, 296, { align: 'center' });
+    if (info.honors) {
+      doc.setFont('helvetica', 'bold'); doc.setTextColor(NAVY);
+      doc.text('Completed at the Honors Physics level', cx, 314, { align: 'center' });
+    }
+
+    const when = new Date(info.earned).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    const boxes = [['Mastery Check', `${info.best}%`], ['Date earned', when]];
+    if (info.period) boxes.splice(1, 0, ['Class', info.period]);
+    const bw = 170, gap = 14, total = boxes.length * bw + (boxes.length - 1) * gap;
+    boxes.forEach(([l, v], i) => statBox(doc, cx - total / 2 + i * (bw + gap), 328, bw, 48, l, v));
+
+    // Teacher on the left, the lesson's flight on the right
+    const tx = cx - 170;
+    doc.setTextColor(INK); doc.setFont('times', 'bolditalic'); doc.setFontSize(26);
+    doc.text('Mr. Mudry', tx, 476, { align: 'center' });
+    doc.setDrawColor(GOLD); doc.setLineWidth(1); doc.line(tx - 90, 484, tx + 90, 484);
+    doc.setTextColor(MUTED); doc.setFont('helvetica', 'normal'); doc.setFontSize(11);
+    doc.text('Teacher', tx, 499, { align: 'center' });
+
+    emblem(doc, cx + 70, 498, 150, 82);
+
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(MUTED);
+    doc.text(`Verification code: ${info.code}`, cx, 556, { align: 'center' });
+
+    if (info.sample) {
+      doc.setTextColor('#b91c1c'); doc.setFont('helvetica', 'bold'); doc.setFontSize(13);
+      doc.text('SAMPLE: teacher preview, not an earned certificate', cx, 574, { align: 'center' });
+    }
+    return doc;
+  }
+
+  async function download(info) {
+    const doc = await build(info);
+    const safe = (info.name || 'Student').normalize('NFD').replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    doc.save(`Monkey_Hunter_Certificate_${safe || 'Student'}.pdf`);
+    return doc;
+  }
+
+  window.Certificate = { code, build, download };
+})();
+
+
+// === Unit_2/monkey_hunter_studio/js/app.js ===
+// Monkey Hunter Studio — runs the lesson: one page at a time, picture on the left, one task on the right.
+// Saved after every step, so a student resumes on any device with the same numbers. Credit never drops.
+
+const HunterApp = (function () {
+  if (typeof document !== 'undefined') {
+    document.addEventListener('contextmenu', e => e.preventDefault());
+  }
+  const $ = id => document.getElementById(id);
+  const PR = window.PR, Lesson = window.Lesson, Scene = window.Scene;
+  const STATE_VERSION = 1;
+  const CERT_PERCENT = 75;   // Mastery Check score needed, on top of finishing every part, to earn the certificate
+  const esc = s => String(s === null || s === undefined ? '' : s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
+
+  let state, cloud, profile, tier;
+  let fb = null;              // feedback on the current page
+  let draft = '';             // what is in the answer box
+  let draftWork = null;       // calculator line behind the answer
+  let hintsOpen = 0;
+  let sim = { t: 0, raf: null, reachedEnd: false };
+  let rig = { tilt: 30, speed: 30 };   // where the sliders sit; a resting setting, so it isn't saved
+  let dragging = null;        // the mark whose string is being pulled
+  let desmos = null;
+
+  // ---------- State ----------
+  function newState() {
+    const parts = {};
+    Lesson.PARTS.filter(p => p.id !== 'quiz').forEach(p => { parts[p.id] = { i: 0, far: 0, done: false, sc: null, scAt: -1, ans: {}, q: null, trail: [] }; });
+    return { v: STATE_VERSION, current: 'line', parts, table: {}, build: [0, 0, 0, 0], built: false, prediction: null, quiz: { best: 0, attempts: [], cur: null, last: null }, mistakes: {}, calcUnavailable: false, bestPoints: 0, savedAt: 0 };
+  }
+  const validState = st => !!(st && st.v === STATE_VERSION && st.parts && st.quiz && typeof st.current === 'string' && st.parts.line);
+
+  function scoreState(st, forTier = tier) {
+    const earned = Math.round(Lesson.earnedPoints(st, forTier) * 10) / 10;
+    st.bestPoints = Math.max(st.bestPoints || 0, earned);
+    const req = Lesson.PARTS.filter(p => p.weight > 0);
+    const progress = Object.fromEntries(req.map(p => [p.id, Math.round(Lesson.partProgress(st, p, forTier) * 100)]));
+    const done = req.filter(p => st.parts[p.id] && st.parts[p.id].done).map(p => p.id);
+    if ((st.quiz.attempts || []).length) done.push('quiz');
+    const last = st.quiz.attempts[st.quiz.attempts.length - 1];
+    return {
+      points: st.bestPoints,
+      percentage: Math.round(st.bestPoints * 10),
+      progress, done,
+      required: req.length + 1,
+      quizBest: st.quiz.best || 0,
+      quizHistory: st.quiz.attempts.map(a => a.pct),
+      skills: last ? last.skills : {},
+      mistakes: st.mistakes,
+      calcUnavailable: !!st.calcUnavailable,
+      cert: st.cert || null
+    };
+  }
+
+  function save(immediate) {
+    scoreState(state);
+    if (cloud) cloud.queueSave(immediate);
+    updateScoreChip();
+  }
+
+  const unlockedAll = () => profile.teacher || profile.preview;
+  function isUnlocked(id) {
+    if (unlockedAll()) return true;
+    const list = Lesson.PARTS;
+    const idx = list.findIndex(p => p.id === id);
+    return idx === 0 || !!(state.parts[list[idx - 1].id] && state.parts[list[idx - 1].id].done);
+  }
+
+  // ---------- Where we are ----------
+  const part = () => state.parts[state.current];
+  const pages = () => Lesson.pages(state.current, tier);
+  const page = () => (state.current === 'quiz' || !part() || part().i >= pages().length ? null : pages()[part().i]);
+  const support = () => tier === 'conceptual';   // first hint open; never labeled
+
+  function freshPage() { fb = null; draft = ''; draftWork = null; hintsOpen = support() ? 1 : 0; resetSim(); clearCalc(); }
+
+  // A page marked fresh deals a new problem. The saved numbers come back on resume because scAt still matches.
+  function dealIfNeeded() {
+    const pg = page();
+    if (!pg || !pg.fresh) return;
+    const p = part();
+    if (p.scAt === p.i) return;
+    if (p.scAt >= 0) keepProblem(p);
+    if (pg.mc) p.q = PR.makeConcept(pg.mc);
+    else {
+      if (pg.make === 'at') p.sc = { at: PR.pick(tier === 'conceptual' ? [5, 6, 7] : [1.5, 2.5, 3.5, 5, 6].filter(a => !p.sc || a !== p.sc.at)) };
+      else if (pg.make === 'min') p.sc = PR.newMinSpeed();
+      else p.sc = PR.newHunt(tier, pg.level || 2, p.sc);
+      p.ans = {};
+    }
+    p.scAt = p.i;
+    save();
+  }
+
+  // Each problem replaced by a new one is kept, so Back returns to the same numbers and answers.
+  function keepProblem(p) {
+    (p.trail = p.trail || []).push({ sc: p.sc, ans: p.ans, q: p.q, scAt: p.scAt });
+  }
+  function restoreProblem(p) {
+    Object.assign(p, p.trail.pop());
+  }
+
+  // A page already answered correctly reopens answered, so Back never asks for it again.
+  function showSavedAnswer() {
+    const pg = page(), p = part();
+    if (!pg) return;
+    if (pg.mc && p.q && p.q.picked) { draft = p.q.picked; fb = PR.gradeConcept(p.q, draft); return; }
+    if (pg.build) { if (state.built) fb = { ok: true, msg: 'Your strings match your drop table.' }; return; }
+    if (pg.measure) {
+      sim.t = pg.measure - 1;
+      if (typeof state.table[pg.measure] !== 'number') return;
+      sim.t = pg.measure;
+      sim.reachedEnd = true;
+      draft = String(state.table[pg.measure]);
+      fb = PR.gradeStep(PR.STEP[tier][pg.ask], draft, null, null);
+      return;
+    }
+    if (!pg.ask) return;
+    const step = PR.STEP[tier][pg.ask];
+    if (typeof p.ans[step.k] !== 'number') return;
+    const saved = String(p.ans[step.k]), r = PR.gradeStep(step, saved, p.sc, p.ans);
+    if (r.ok) { draft = saved; fb = r; }
+  }
+
+  function enterPage() {
+    freshPage();
+    dealIfNeeded();
+    showSavedAnswer();
+    const pg = page();
+    if (pg && pg.control === 'tilt') rig.tilt = 0;
+    if (pg && pg.control === 'speed') { rig.tilt = 30; rig.speed = 30; }
+  }
+
+  function goTo(i) {
+    const p = part();
+    p.far = Math.max(p.far || 0, i);
+    p.i = i;
+    enterPage();
+    save();
+    render();
+  }
+
+  function previousPart() {
+    const list = Lesson.PARTS, idx = list.findIndex(x => x.id === state.current);
+    return idx > 0 ? list[idx - 1].id : null;
+  }
+
+  // Hidden while a wrong answer is showing: that answer's way forward is new numbers.
+  const canGoBack = () => {
+    if (fb && !fb.ok && !fb.retry) return false;
+    return !!previousPart() || (part() && part().i > 0);
+  };
+  const backBtn = () => (canGoBack() ? '<button type="button" class="btn-secondary" id="btnBack">◀ Back</button>' : '');
+
+  function goBack() {
+    if (state.current === 'quiz') {
+      const c = state.quiz.cur;
+      if (c && c.i > 0) { c.i--; save(); loadQuizQuestion(); } else openPart(previousPart());
+      return;
+    }
+    const p = part(), list = pages();
+    p.trail = p.trail || [];
+    if (p.i === 0) { if (previousPart()) openPart(previousPart()); return; }
+    p.i = Math.min(p.i, list.length) - 1;
+    const usesProblem = list[p.i].ask || list[p.i].mc || list[p.i].replay;
+    while (usesProblem && p.scAt > p.i && p.trail.length) restoreProblem(p);
+    enterPage();
+    save();
+    render();
+  }
+
+  function advance() {
+    const p = part(), list = pages();
+    if (p.i + 1 >= list.length) { finishPart(); return; }
+    goTo(p.i + 1);
+  }
+
+  function finishPart() {
+    const p = part();
+    p.far = pages().length;
+    p.done = true;
+    p.i = pages().length;
+    freshPage();
+    save(true);
+    render();
+  }
+
+  // Wrong answer: same part, new numbers, back to where this problem began.
+  function restartProblem() {
+    const p = part(), list = pages();
+    let i = p.i;
+    while (i > 0 && !list[i].fresh) i--;
+    p.i = i; p.scAt = -1;
+    freshPage();
+    dealIfNeeded();
+    save();
+    render();
+  }
+
+  function openPart(id) {
+    if (!isUnlocked(id)) return;
+    state.current = id;
+    const p = part();
+    if (p && p.done && p.i >= pages().length) p.i = pages().length;
+    enterPage();
+    if (id === 'quiz' && state.quiz.cur) {
+      const c = state.quiz.cur;
+      draft = c.answers[c.i] === null || c.answers[c.i] === undefined ? '' : c.answers[c.i];
+    }
+    save();
+    render();
+  }
+
+  function recordMistake(id) {
+    if (!id || id === 'blank') return;
+    state.mistakes[id] = (state.mistakes[id] || 0) + 1;
+  }
+
+  // ---------- Stepping through a launch ----------
+  function resetSim() {
+    if (sim.raf) cancelAnimationFrame(sim.raf);
+    sim = { t: 0, raf: null, reachedEnd: false };
+  }
+
+  // { T, launch: one press plays it all, require: must finish before Next }
+  function stepperOf() {
+    if (state.current === 'quiz') return null;
+    const pg = page();
+    if (!pg) return null;
+    if (pg.stepper) return pg.stepper;
+    if (pg.measure) return { T: pg.measure, require: true, from: pg.measure - 1 };
+    if (pg.replay) return { T: part().sc.t, launch: true, replay: true };
+    return null;
+  }
+
+  function animateTo(target, ms, done) {
+    if (sim.raf) cancelAnimationFrame(sim.raf);
+    const from = sim.t, reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || ms <= 0) { sim.t = target; renderScene(); renderReadout(); done && done(); return; }
+    const start = performance.now();
+    const tick = now => {
+      const f = Math.min(1, (now - start) / ms);
+      sim.t = from + (target - from) * f;
+      renderScene();
+      if (f < 1) sim.raf = requestAnimationFrame(tick);
+      else { sim.raf = null; sim.t = target; renderScene(); renderReadout(); done && done(); }
+    };
+    sim.raf = requestAnimationFrame(tick);
+  }
+
+  function nextSecond() {
+    const st = stepperOf();
+    if (!st || sim.raf || sim.t >= st.T - 1e-6) return;
+    animateTo(Math.min(st.T, Math.floor(sim.t + 1e-6) + 1), 650, afterMove);
+  }
+
+  // The tilt and speed pages count only after the student really changed the setting
+  function settingChanged() {
+    const pg = page();
+    if (pg && pg.control === 'tilt') return rig.tilt >= 20;
+    if (pg && pg.control === 'speed') return rig.speed !== 30;
+    return true;
+  }
+
+  function afterMove() {
+    const st = stepperOf();
+    if (st && sim.t >= st.T - 1e-6 && !sim.reachedEnd && settingChanged()) {
+      sim.reachedEnd = true;
+      renderTask();   // shows the takeaway and opens the Next button
+    }
+    renderControls();
+  }
+
+  function playFlight() {
+    const st = stepperOf();
+    if (!st) return;
+    sim.t = 0;
+    animateTo(st.T, Math.min(4200, Math.max(1800, st.T * 700)), afterMove);
+  }
+
+  function restartSim() {
+    const st = stepperOf();
+    if (sim.raf) cancelAnimationFrame(sim.raf);
+    sim.raf = null; sim.t = st && st.from ? st.from : 0;
+    renderScene(); renderReadout(); renderControls();
+  }
+
+  // ---------- Picture ----------
+  const TEACH_END = () => ({ mode: 'hunt', sc: PR.teachHunt(), t: 4, fullPath: true });
+
+  function askScene(pg, sc, ans) {
+    if (pg.sceneKind === 'at') return { mode: 'ruler', t: 0, note: `t = ${PR.fmt(sc.at)} s` };
+    if (pg.sceneKind === 'min') return { mode: 'hunt', sc: PR.hunt(sc.D / 2, sc.H / 2, 2), t: 0, noStrings: true, labels: { D: true, H: true } };
+    if (pg.sceneKind === 'line' || pg.sceneKind === 'split') {
+      const labels = pg.sceneKind === 'split' ? { v0: true, th: true } : { vox: true, voy: true };
+      return { mode: 'hunt', sc, gravity: false, noMonkey: true, stickT: sc.t, starAt: sc.t, labels, note: `The star is at t = ${PR.fmt(sc.t)} s` };
+    }
+    if (pg.kind === 'early') {
+      return Object.assign(Lesson.problemScene(tier, sc, ans, 'hold'), { hold: false, early: 1, note: 'Monkey lets go 1 s before launch' });
+    }
+    return Lesson.problemScene(tier, sc, ans, pg.kind || 'meet');
+  }
+
+  function sceneOpts() {
+    if (state.current === 'quiz') return quizScene();
+    const p = part(), pg = page();
+    if (!pg) return TEACH_END();
+    if (pg.build) return { mode: 'rig', tilt: 0, speed: 30, strings: state.build, drag: !state.built, active: dragging };
+    if (pg.scene) {
+      const o = pg.scene();
+      if (pg.stepper) o.t = sim.t;
+      if (o.mode === 'rig') {
+        if (pg.control) { o.tilt = rig.tilt; o.speed = pg.control === 'speed' ? rig.speed : 30; }
+        if (!o.strings) o.strings = PR.DROPS;
+      }
+      return o;
+    }
+    if (pg.mc) return PR.CONCEPT[pg.mc].scene(p.q);
+    if (pg.measure) return { mode: 'ruler', t: sim.t };
+    if (pg.replay === 'hold') return { mode: 'hunt', sc: p.sc, t: sim.t, hold: true, aimH: p.ans.aimH, branchH: p.sc.H, note: `Your aim height: ${PR.fmt(p.ans.aimH)} m`, fullPath: true };
+    if (pg.replay) return { mode: 'hunt', sc: p.sc, t: sim.t, fullPath: true, note: `Your meet height: ${PR.fmt(p.ans.meet)} m` };
+    return askScene(pg, p.sc, p.ans);
+  }
+
+  function renderScene() {
+    $('stage').innerHTML = Scene.render(sceneOpts());
+    const pg = page();
+    $('stage').classList.toggle('stage-drag', !!(pg && pg.build && !state.built));
+  }
+
+  // The student's own drop table stays under the picture once they have measured it
+  function renderReadout() {
+    const box = $('readout'), slot = $('ladderSlot');
+    const st = stepperOf();
+    slot.innerHTML = '';
+    if (!st || st.replay) box.hidden = true;
+    else {
+      box.innerHTML = `<span class="clock"><span class="clock-label">Time</span> <strong>${Math.floor(sim.t + 1e-6)} s</strong></span>`;
+      box.hidden = false;
+    }
+    const measuredOnly = state.current === 'drop';
+    if (state.current === 'line') return;
+    const rows = PR.DROPS.map((d, i) => [i + 1, measuredOnly ? state.table[i + 1] : d]).filter(([, d]) => typeof d === 'number');
+    if (!rows.length) return;
+    const pieces = rows.map(([t, d]) => `<span class="chip"><span class="chip-t">${t} s</span> ${d} m</span>`).join('');
+    slot.innerHTML = `<span class="ladder" aria-label="Your drop table"><span class="ladder-label">Your drop table</span>${pieces}</span>`;
+  }
+
+  function renderControls() {
+    const box = $('stageCtl'), wrap = $('sliderWrap');
+    const st = stepperOf(), pg = page();
+    wrap.hidden = !(pg && pg.control);
+    if (pg && pg.control) {
+      const tilt = pg.control === 'tilt', sl = $('rigSlider');
+      sl.min = tilt ? 0 : 15; sl.max = tilt ? 55 : 35; sl.step = tilt ? 5 : 5;
+      sl.value = tilt ? rig.tilt : rig.speed;
+      sl.setAttribute('aria-label', tilt ? 'Tilt of the stick' : 'Launch speed');
+      $('sliderLabel').textContent = tilt ? `Tilt: ${rig.tilt}°` : `Speed: ${rig.speed} m/s`;
+    }
+    if (!st) { box.hidden = true; return; }
+    box.hidden = false;
+    const ended = sim.t >= st.T - 1e-6;
+    if (st.launch) {
+      $('btnNextSecond').hidden = true;
+      $('btnPlay').hidden = false;
+      $('btnPlay').textContent = st.replay ? (ended ? '↺ Watch again' : '▶ Play') : (sim.t > 0 ? '↺ Launch again' : '▶ Launch');
+      $('btnPlay').disabled = !!sim.raf;
+      $('btnStartOver').hidden = true;
+    } else {
+      $('btnNextSecond').hidden = false;
+      $('btnNextSecond').disabled = ended;
+      $('btnPlay').hidden = true;
+      // Holds its place at the start so Next second never moves under the student's finger
+      $('btnStartOver').hidden = false;
+      $('btnStartOver').style.visibility = sim.t === (st.from || 0) ? 'hidden' : '';
+    }
+  }
+
+  // What the student has found so far stays on screen
+  function renderSolved() {
+    const box = $('solved');
+    let ans = null;
+    if (state.current === 'quiz') {
+      const c = state.quiz.cur, q = c && c.qs[c.i];
+      if (q && q.kind === 'step') ans = chainFor(c, q.f, c.i);
+    } else if (page() && (page().ask || page().replay)) ans = part().ans;
+    const rows = [['th', 'θ', '°', ''], ['vox', 'v_ox', 'm/s', 'x'], ['voy', 'v_oy', 'm/s', 'y'], ['t', 't', 's', ''], ['fall', 't', 's', ''], ['line', 'line height', 'm', ''], ['drop', 'drop', 'm', 'g'], ['early', 'monkey drop', 'm', 'g']];
+    const html = ans ? rows.filter(([k]) => typeof ans[k] === 'number')
+      .map(([k, sym, unit, cls]) => `<span class="solved-chip ${cls ? 'solved-' + cls : ''}">${subHTML(`${sym} = ${PR.fmt(ans[k])} ${unit}`)}</span>`).join('') : '';
+    box.innerHTML = html;
+  }
+
+  // ---------- Task card ----------
+  function renderTask() {
+    if (state.current === 'quiz') { renderQuiz(); syncCalc(); return; }
+    const pg = page();
+    let html;
+    if (!pg) html = donePartHTML();
+    else if (pg.mc) html = mcHTML(part().q, pg.mc, pageHeader());
+    else if (pg.build) html = buildHTML();
+    else if (pg.predict) html = predictHTML(pg);
+    else if (pg.ask) html = stepHTML(PR.STEP[tier][pg.ask], part().sc, part().ans);
+    else if (pg.replay) html = replayHTML();
+    else html = teachHTML(pg);
+    $('taskCard').innerHTML = subHTML(html);
+    bindTask();
+    syncCalc();
+  }
+
+  function progressLabel() {
+    const p = part(), n = pages().length;
+    return `Step ${Math.min(p.i + 1, n)} of ${n}`;
+  }
+
+  const readBtn = '<button type="button" class="btn-read" id="btnRead" title="Read this page out loud">🔊 Read to me</button>';
+  const pageHeader = () => `<div class="task-top"><span class="task-count">${progressLabel()}</span>${readBtn}</div>`;
+
+  function teachHTML(pg) {
+    const needsEnd = pg.stepper && pg.stepper.require && !sim.reachedEnd;
+    const wait = pg.control === 'tilt' ? 'Tilt the stick up, then Launch' : pg.control === 'speed' ? 'Change the speed, then Launch' : pg.stepper && pg.stepper.launch ? 'Press Launch first' : 'Press Next second first';
+    return `${pageHeader()}<h2 class="task-title">${pg.title}</h2>
+      <div class="task-body" id="readable">${pg.body}${pg.after && sim.reachedEnd ? `<div class="takeaway">${pg.after}</div>` : ''}</div>
+      <div class="task-actions">
+        ${backBtn()}
+        <button type="button" class="btn-primary" id="btnNext" ${needsEnd ? 'disabled' : ''}>${needsEnd ? wait : 'Next ▶'}</button>
+      </div>`;
+  }
+
+  function predictHTML(pg) {
+    const opts = pg.options.map(o => `<button type="button" class="opt ${state.prediction === o.id ? 'opt-picked' : ''}" data-predict="${o.id}">${o.t}</button>`).join('');
+    return `${pageHeader()}<h2 class="task-title">${pg.title}</h2>
+      <div class="task-body" id="readable">${pg.body}</div>
+      <div class="opts">${opts}</div>
+      <div class="task-actions">${backBtn()}</div>`;
+  }
+
+  function buildHTML() {
+    const done = state.built;
+    return `${pageHeader()}<h2 class="task-title">Build your meter stick</h2>
+      <div class="task-body" id="readable">
+        <p>Drag each ball down until its string matches your drop table.</p>
+        <p>The string at 1 s is the drop for 1 s, and so on.</p>
+      </div>
+      ${fbHTML()}
+      <div class="task-actions">${backBtn()}${done ? '<button type="button" class="btn-primary" id="btnNext">Next ▶</button>' : '<button type="button" class="btn-primary" id="btnCheckBuild">Check my strings</button>'}</div>`;
+  }
+
+  function checkBuild() {
+    const wrong = PR.DROPS.map((d, i) => (state.build[i] === d ? null : i + 1)).filter(Boolean);
+    if (!wrong.length) {
+      state.built = true;
+      fb = { ok: true, msg: 'Your strings match your drop table.' };
+    } else {
+      recordMistake('build_strings');
+      wrong.forEach(n => { state.build[n - 1] = 0; });
+      fb = { retry: true, msg: `Check your table for ${wrong.map(n => `${n} s`).join(' and ')}. Those balls went back to the stick. Drag them down again.` };
+    }
+    save();
+    render();
+  }
+
+  function hintsHTML(hints) {
+    if (!hints.length) return '';
+    const shown = hints.slice(0, hintsOpen).map(h => `<div class="hint">💡 ${h}</div>`).join('');
+    const more = hintsOpen < hints.length ? `<button type="button" class="btn-hint" id="btnHint">${hintsOpen ? 'Another hint' : 'Show a hint'}</button>` : '';
+    return `<div class="hints">${shown}${more}</div>`;
+  }
+
+  function answerBox(step, disabled) {
+    const useCalc = step.calc && window.Desmos;
+    if (step.calc && !window.Desmos) state.calcUnavailable = true;
+    return `<label class="ans-row"><span class="ans-sym">${step.sym} =</span>
+      <input id="answer" type="text" inputmode="decimal" autocomplete="off" value="${esc(draft)}"
+        ${useCalc ? 'readonly tabindex="-1" class="calc-readonly" placeholder="calculator"' : ''} ${disabled ? 'disabled' : ''}
+        aria-label="${step.sym.replace(/_/g, ' ')}${useCalc ? ', filled in from the calculator' : ''}">
+      <span class="ans-unit">${step.unit}</span></label>`;
+  }
+
+  function stepHTML(step, sc, ans) {
+    const answered = !!fb && !fb.retry;
+    const waiting = step.measure && !sim.reachedEnd;
+    const formula = step.formula(sc, ans);
+    const hints = step.measure ? step.hints() : step.hints(sc, ans);
+    const ask = waiting ? `Press <strong>Next second</strong> to catch the ball at ${step.measure} s.` : step.ask(sc, ans);
+    return `${pageHeader()}<h2 class="task-title" id="readable">${ask}</h2>
+      ${formula ? `<p class="formula-box"><span class="formula">${formula}</span></p>` : ''}
+      ${answerBox(step, answered || waiting)}
+      ${fbHTML()}
+      <div class="task-actions">${backBtn()}${answered ? fbActions() : `<button type="button" class="btn-primary" id="btnCheck" ${waiting ? 'disabled' : ''}>Check</button>`}</div>
+      ${answered || waiting ? '' : hintsHTML(hints)}`;
+  }
+
+  function fbHTML() {
+    if (!fb) return '';
+    if (fb.retry) return `<div class="feedback fb-retry" role="status">${fb.msg}</div>`;
+    return `<div class="feedback ${fb.ok ? 'fb-ok' : 'fb-bad'}" role="status"><strong>${fb.ok ? '✓ Correct!' : '✗ Not yet.'}</strong> ${fb.msg || ''}</div>`;
+  }
+
+  const fbActions = () => (fb.ok
+    ? '<button type="button" class="btn-primary" id="btnNext">Next ▶</button>'
+    : '<button type="button" class="btn-primary" id="btnNew">Try new numbers ▶</button>');
+
+  function mcHTML(q, id, top) {
+    const def = PR.CONCEPT[id];
+    const answered = !!fb;
+    const opts = PR.conceptOptions(q).map(o => {
+      const cls = !answered ? '' : o.id === def.right(q) ? 'opt-right' : o.id === draft ? 'opt-wrong' : '';
+      return `<button type="button" class="opt ${cls} ${o.id === draft ? 'opt-picked' : ''}" data-opt="${o.id}" ${answered ? 'disabled' : ''}>${o.t}</button>`;
+    }).join('');
+    return `${top}<h2 class="task-title" id="readable">${def.text(q)}</h2>
+      <div class="opts">${opts}</div>${fbHTML()}
+      <div class="task-actions">${backBtn()}${answered ? fbActions() : ''}</div>`;
+  }
+
+  function replayHTML() {
+    const p = part(), hold = page().replay === 'hold';
+    const landed = sim.reachedEnd;
+    const said = hold
+      ? `You pointed the stick at <strong class="nowrap">${PR.fmt(p.ans.aimH)} m</strong>. The star marks it. The monkey holds on.`
+      : `You said they meet <strong class="nowrap">${PR.fmt(p.ans.meet)} m</strong> above the ground.`;
+    const result = hold
+      ? '<div class="takeaway"><p>The ball fell one string below your aim and landed on the monkey.</p></div>'
+      : '<div class="takeaway"><p>They met right where you said: the same drop, at the same moment.</p></div>';
+    return `${pageHeader()}<h2 class="task-title">Test your answer</h2>
+      <div class="task-body" id="readable"><p>${said}</p>${landed ? result : '<p>Watch the launch.</p>'}</div>
+      <div class="task-actions">${backBtn()}<button type="button" class="btn-primary" id="btnNext" ${landed ? '' : 'disabled'}>${landed ? 'Next ▶' : 'Watch it first'}</button></div>`;
+  }
+
+  function donePartHTML() {
+    const list = Lesson.PARTS, idx = list.findIndex(p => p.id === state.current);
+    const next = list[idx + 1];
+    return `<div class="done-card"><div class="done-mark" aria-hidden="true">✅</div>
+      <h2 class="task-title">${list[idx].label} finished!</h2>
+      <p>Your credit for this part is saved.</p>
+      <div class="task-actions">
+        ${backBtn()}
+        <button type="button" class="btn-secondary" id="btnReview">Go through it again</button>
+        ${next ? `<button type="button" class="btn-primary" data-part="${next.id}">${next.label} ▶</button>` : ''}
+      </div></div>`;
+  }
+
+  // ---------- Checking ----------
+  function check() {
+    const pg = page(), step = PR.STEP[tier][pg.ask], p = part();
+    if (PR.parseNum(draft) === null) { showBoxError(step.calc && window.Desmos ? 'Use the calculator, then press its Use calculator answer button.' : 'Type a number first.'); return; }
+    const r = PR.gradeStep(step, draft, p.sc, p.ans);
+    fb = r;
+    if (r.ok) {
+      p.ans[step.k] = PR.parseNum(draft);
+      if (step.measure) state.table[step.measure] = PR.parseNum(draft);
+    } else if (r.retry) { draft = ''; recordMistake(r.mistake); }
+    else recordMistake(r.mistake);
+    save();
+    render();
+  }
+
+  function showBoxError(msg) {
+    fb = { retry: true, msg };
+    renderTask();
+  }
+
+  function pickOption(id) {
+    if (state.current === 'quiz') {
+      const c = state.quiz.cur;
+      c.answers[c.i] = id;
+      save();
+      renderTask();
+      return;
+    }
+    draft = id;
+    const r = PR.gradeConcept(part().q, id);
+    fb = r;
+    if (r.ok) part().q.picked = id;
+    else recordMistake(r.mistake);
+    save();
+    render();
+  }
+
+  function bindTask() {
+    const on = (id, fn) => { const el = $(id); if (el) el.addEventListener('click', fn); };
+    on('btnNext', advance);
+    on('btnNew', restartProblem);
+    on('btnCheck', check);
+    on('btnCheckBuild', checkBuild);
+    on('btnBack', goBack);
+    on('btnHint', () => { hintsOpen++; renderTask(); });
+    on('btnRead', readAloud);
+    on('btnReview', () => { part().i = 0; part().scAt = -1; part().trail = []; enterPage(); save(); render(); });
+    on('btnStartQuiz', startQuiz);
+    on('btnQuizNext', quizNext);
+    document.querySelectorAll('#taskCard [data-cert]').forEach(b => b.addEventListener('click', () => downloadCertificate(b)));
+    document.querySelectorAll('#taskCard [data-opt]').forEach(b => b.addEventListener('click', () => pickOption(b.dataset.opt)));
+    document.querySelectorAll('#taskCard [data-part]').forEach(b => b.addEventListener('click', () => openPart(b.dataset.part)));
+    document.querySelectorAll('#taskCard [data-predict]').forEach(b => b.addEventListener('click', () => { state.prediction = b.dataset.predict; advance(); }));
+    const input = $('answer');
+    if (input && !input.readOnly) {
+      input.addEventListener('input', () => { draft = input.value; quizSaveDraft(); });
+      input.addEventListener('keydown', e => {
+        if (e.key !== 'Enter') return;
+        if ($('btnCheck')) check();
+        else if ($('btnQuizNext')) quizNext();
+      });
+      if (!input.disabled) input.focus({ preventScroll: true });
+    }
+  }
+
+  function readAloud() {
+    if (!window.speechSynthesis) return;
+    const el = $('readable');
+    if (!el) return;
+    speechSynthesis.cancel();
+    const clean = el.innerText.replace(/\s*\n+\s*=\s*\n+\s*/g, ' equals ').replace(/v\s*ox/g, 'v o x').replace(/v\s*oy/g, 'v o y').replace(/ΔX/g, 'delta X').replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/tan⁻¹/g, 'inverse tangent').replace(/t²/g, 't squared');
+    speechSynthesis.speak(new SpeechSynthesisUtterance(clean));
+  }
+
+  // ---------- Dragging the balls down ----------
+  function bindDrag() {
+    const stage = $('stage');
+    const pointIn = e => {
+      const svg = stage.querySelector('svg');
+      const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(svg.getScreenCTM().inverse());
+      return p;
+    };
+    const geom = () => Scene.rigGeom({ tilt: 0, speed: 30 });
+    const editable = () => { const pg = page(); return !!(pg && pg.build && !state.built); };
+    const setLength = (i, len) => { state.build[i] = Math.max(0, Math.min(85, Math.round(len / 5) * 5)); };
+    stage.addEventListener('pointerdown', e => {
+      if (!editable()) return;
+      const p = pointIn(e), q = geom();
+      let best = 0, bestGap = Infinity;
+      state.build.forEach((_, i) => { const gap = Math.abs(q.markX(i) - p.x); if (gap < bestGap) { bestGap = gap; best = i; } });
+      if (bestGap > 62) return;
+      dragging = best;
+      stage.setPointerCapture(e.pointerId);
+      setLength(best, (p.y - q.markY(best)) / q.scale);
+      e.preventDefault();
+      renderScene();
+    });
+    stage.addEventListener('pointermove', e => {
+      if (dragging === null || !editable()) return;
+      const q = geom();
+      setLength(dragging, (pointIn(e).y - q.markY(dragging)) / q.scale);
+      renderScene();
+    });
+    const end = () => { if (dragging === null) return; dragging = null; if (fb && fb.retry) { fb = null; renderTask(); } save(); renderScene(); };
+    stage.addEventListener('pointerup', end);
+    stage.addEventListener('pointercancel', end);
+    // Keyboard: left and right choose a ball, up and down change its string
+    stage.addEventListener('keydown', e => {
+      if (!editable() || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
+      e.preventDefault();
+      keyFocus = (keyFocus + (e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? 3 : 0)) % 4;
+      if (e.key === 'ArrowDown') setLength(keyFocus, state.build[keyFocus] + 5);
+      if (e.key === 'ArrowUp') setLength(keyFocus, state.build[keyFocus] - 5);
+      dragging = keyFocus;
+      renderScene();
+      dragging = null;
+      save();
+    });
+  }
+  let keyFocus = 0;
+
+  function bindSlider() {
+    $('rigSlider').addEventListener('input', e => {
+      const pg = page(), v = Number(e.target.value);
+      if (!pg || !pg.control) return;
+      if (sim.raf) cancelAnimationFrame(sim.raf);
+      sim.raf = null;
+      sim.t = 0;
+      if (pg.control === 'tilt') rig.tilt = v; else rig.speed = v;
+      renderScene(); renderReadout(); renderControls();
+    });
+  }
+
+  // ---------- Mastery Check ----------
+  const chainFor = (quiz, f, upTo) => {
+    const chain = {};
+    quiz.qs.forEach((q, i) => {
+      if (i >= upTo || q.kind !== 'step' || q.f !== f) return;
+      const v = PR.parseNum(quiz.answers[i]);
+      if (v !== null) chain[PR.STEP[quiz.tier][q.k].k] = v;
+    });
+    return chain;
+  };
+
+  function quizScene() {
+    const c = state.quiz.cur;
+    if (!c) return TEACH_END();
+    const q = c.qs[c.i];
+    if (q.kind === 'mc') return PR.CONCEPT[q.id].scene(q);
+    return Lesson.problemScene(tier, c.hunts[q.f], chainFor(c, q.f, c.i), c.kinds[q.f]);
+  }
+
+  function startQuiz() {
+    state.quiz.cur = PR.buildQuiz(tier);
+    state.quiz.cur.startedAt = Date.now();
+    loadQuizQuestion();
+    save(true);
+  }
+
+  function loadQuizQuestion() {
+    const c = state.quiz.cur;
+    freshPage();
+    draft = c.answers[c.i] === null || c.answers[c.i] === undefined ? '' : c.answers[c.i];
+    render();
+  }
+
+  function quizSaveDraft() {
+    if (state.current !== 'quiz' || !state.quiz.cur) return;
+    const c = state.quiz.cur;
+    c.answers[c.i] = draft;
+    c.work[c.i] = draftWork;
+    save();
+  }
+
+  function quizNext() {
+    const c = state.quiz.cur, q = c.qs[c.i];
+    const value = q.kind === 'mc' ? c.answers[c.i] : draft;
+    if (value === null || value === undefined || value === '') {
+      $('quizMsg').textContent = q.kind === 'mc' ? 'Choose an answer first.' : 'Enter an answer first.';
+      return;
+    }
+    if (q.kind === 'step') { c.answers[c.i] = draft; c.work[c.i] = draftWork || c.work[c.i]; }
+    if (c.i + 1 < c.qs.length) { c.i++; save(); loadQuizQuestion(); return; }
+    finishQuiz();
+  }
+
+  function finishQuiz() {
+    const c = state.quiz.cur;
+    const g = PR.gradeQuiz(c);
+    g.results.forEach(r => { if (!r.ok) recordMistake(r.mistake); });
+    state.quiz.attempts.push({
+      pct: g.pct, correct: g.correct, total: g.total, at: Date.now(),
+      secs: c.startedAt ? Math.round((Date.now() - c.startedAt) / 1000) : null,
+      skills: g.skills
+    });
+    state.quiz.best = Math.max(state.quiz.best || 0, g.pct);
+    state.quiz.last = c;
+    state.quiz.cur = null;
+    updateCert();
+    freshPage();
+    save(true);
+    render();
+  }
+
+  const SKILL_LABEL = { count: 'Counting marks', table: 'Using the drop table', time: 'Time to the monkey', trig: 'Aim and trig', drop: 'Finding the drop', meet: 'Where they meet', aim: 'Aiming high', speed: 'Smallest speed', concept: 'Big ideas' };
+
+  function renderQuiz() {
+    const q = state.quiz;
+    let html;
+    if (q.cur) html = quizQuestionHTML();
+    else if (q.attempts.length) html = quizResultsHTML();
+    else {
+      html = `<h2 class="task-title">Mastery Check</h2>
+        <div class="task-body" id="readable">
+          <p>You will solve <strong>2 hunts</strong> and answer <strong>2 questions</strong>.</p>
+          <p>You will not see right or wrong until the end. If one answer is off, later steps that use it still earn credit when your work is right.</p>
+          <p>You can retake it with new numbers. Your <strong>best score</strong> counts for 4 of your 10 points.</p>
+        </div>
+        ${certHTML()}
+        <div class="task-actions">${backBtn()}<button type="button" class="btn-primary" id="btnStartQuiz">Start ▶</button></div>`;
+    }
+    $('taskCard').innerHTML = subHTML(html);
+    bindTask();
+  }
+
+  function quizQuestionHTML() {
+    const c = state.quiz.cur, q = c.qs[c.i];
+    const top = `<div class="task-top"><span class="task-count">Question ${c.i + 1} of ${c.qs.length}</span>${readBtn}</div>`;
+    const nextLabel = c.i + 1 < c.qs.length ? 'Next ▶' : 'Finish';
+    const actions = `<p id="quizMsg" class="quiz-msg" role="alert"></p><div class="task-actions">
+      ${backBtn()}
+      <button type="button" class="btn-primary" id="btnQuizNext">${nextLabel}</button></div>`;
+    if (q.kind === 'mc') {
+      const def = PR.CONCEPT[q.id];
+      const opts = PR.conceptOptions(q).map(o => `<button type="button" class="opt ${c.answers[c.i] === o.id ? 'opt-picked' : ''}" data-opt="${o.id}">${o.t}</button>`).join('');
+      return `${top}<h2 class="task-title" id="readable">${def.text(q)}</h2><div class="opts">${opts}</div>${actions}`;
+    }
+    const step = PR.STEP[tier][q.k], sc = c.hunts[q.f], ans = chainFor(c, q.f, c.i);
+    const formula = step.formula(sc, ans);
+    return `${top}<p class="launch-tag">Hunt ${q.f + 1}</p><h2 class="task-title" id="readable">${step.ask(sc, ans)}</h2>
+      ${formula ? `<p class="formula-box"><span class="formula">${formula}</span></p>` : ''}
+      ${answerBox(step, false)}${fbHTML()}${actions}`;
+  }
+
+  function quizResultsHTML() {
+    const q = state.quiz, last = q.attempts[q.attempts.length - 1];
+    const g = q.last ? PR.gradeQuiz(q.last) : null;
+    const skills = Object.entries(last.skills || {}).map(([k, v]) => {
+      const pct = Math.round(100 * v.right / v.total);
+      return `<div class="skill-row"><span>${SKILL_LABEL[k] || k}</span><span class="skill-bar"><span style="width:${pct}%"></span></span><span class="skill-val">${v.right}/${v.total}</span></div>`;
+    }).join('');
+    const misses = g ? g.results.filter(r => !r.ok).slice(0, 3).map(r => `<li>${r.msg}</li>`).join('') : '';
+    const s = scoreState(state);
+    return `<h2 class="task-title">Mastery Check results</h2>
+      <div class="score-big"><strong>${last.pct}%</strong><span>this try · best ${q.best}%</span></div>
+      <p class="grade-line">Your grade so far: <strong class="nowrap">${s.points.toFixed(1)} / 10</strong></p>
+      ${certHTML()}
+      <div class="skills">${skills}</div>
+      ${misses ? `<div class="task-body"><p><strong>Look at these:</strong></p><ul class="misses">${misses}</ul></div>` : ''}
+      <div class="task-actions">${backBtn()}<button type="button" class="${certStatus().ready ? 'btn-secondary' : 'btn-primary'}" id="btnStartQuiz">Retake with new numbers ▶</button></div>`;
+  }
+
+  // ---------- Part strip + score ----------
+  function renderStrip() {
+    $('partStrip').innerHTML = Lesson.PARTS.map(p => {
+      const open = isUnlocked(p.id), on = state.current === p.id;
+      const pct = p.id === 'quiz' ? (state.quiz.best || 0) : Math.round(Lesson.partProgress(state, p, tier) * 100);
+      const finished = p.id === 'quiz' ? state.quiz.attempts.length > 0 : state.parts[p.id].done;
+      return `<button type="button" class="part-tab ${on ? 'part-on' : ''} ${finished ? 'part-done' : ''}" data-part="${p.id}" ${open ? '' : 'disabled'} ${on ? 'aria-current="step"' : ''}>
+        <span class="part-name">${open ? p.icon : '🔒'} ${p.label}${finished && p.id !== 'quiz' ? ' ✓' : ''}</span>
+        <span class="part-bar"><span style="width:${pct}%"></span></span></button>`;
+    }).join('');
+    document.querySelectorAll('#partStrip [data-part]').forEach(b => b.addEventListener('click', () => openPart(b.dataset.part)));
+  }
+
+  function updateScoreChip() {
+    const el = $('scoreChip');
+    if (el && state) el.textContent = `${(state.bestPoints || 0).toFixed(1)} / 10`;
+    $('btnCert').hidden = !(certStatus().ready && (!profile.guest || profile.preview));
+  }
+
+  // ---------- Completion certificate ----------
+  function certStatus() {
+    const missing = Lesson.PARTS.filter(p => p.weight > 0 && !state.parts[p.id].done);
+    const best = state.quiz.best || 0;
+    return { ready: !missing.length && state.quiz.attempts.length > 0 && best >= CERT_PERCENT, missing, best };
+  }
+
+  // Remembers the day it was first earned; the code follows the best score, which can still rise
+  function updateCert() {
+    if (profile.guest && !profile.preview) return;
+    if (!certStatus().ready) return;
+    const id = profile.preview ? 'SAMPLE' : (cloud && cloud.studentId) || 'TEACHER';
+    const code = Certificate.code(id, state.quiz.best);
+    if (state.cert && state.cert.code === code) return;
+    state.cert = { code, at: (state.cert && state.cert.at) || Date.now() };
+  }
+
+  function certHTML() {
+    const c = certStatus();
+    if (profile.guest && !profile.preview) {
+      return '<div class="cert-box cert-wait">🎓 <strong>Certificates are for signed-in students.</strong> Sign in with your school account to earn yours.</div>';
+    }
+    if (c.ready) {
+      return '<div class="cert-box cert-ready"><strong>🎓 You earned your certificate!</strong><button type="button" class="btn-primary" data-cert>📄 Download certificate (PDF)</button></div>';
+    }
+    const need = c.missing.length ? `finish ${c.missing.map(p => p.label).join(', ')} and ` : '';
+    return `<div class="cert-box cert-wait">🎓 <strong>Earn your certificate:</strong> ${need}score ${CERT_PERCENT}% or higher on the Mastery Check. Your best so far is <span class="nowrap">${c.best}%</span>.</div>`;
+  }
+
+  async function downloadCertificate(btn) {
+    updateCert();
+    if (!state.cert) return;
+    const label = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Making your certificate…';
+    try {
+      await Certificate.download({
+        name: profile.preview ? 'Sample Student' : profile.name,
+        sample: !!profile.preview,
+        best: state.quiz.best,
+        honors: tier === 'honors',
+        period: profile.teacher ? 'Teacher' : (profile.period !== null && profile.period !== undefined) ? `Period ${profile.period}` : '',
+        earned: state.cert.at,
+        code: state.cert.code
+      });
+      btn.textContent = label;
+    } catch (e) {
+      console.error('Certificate failed:', e);
+      btn.textContent = 'It did not download. Try again';
+    }
+    btn.disabled = false;
+    save(true);
+  }
+
+  function render() {
+    renderStrip();
+    renderScene();
+    renderReadout();
+    renderControls();
+    renderSolved();
+    renderTask();
+    updateScoreChip();
+    if (page() && page().replay && sim.t === 0 && !sim.raf) setTimeout(() => { if (page() && page().replay && sim.t === 0 && !sim.raf) playFlight(); }, 350);
+  }
+
+  // ---------- Calculator ----------
+  function toggleCalc(open) {
+    const panel = $('calcPanel');
+    panel.hidden = !open;
+    document.body.classList.toggle('calc-open', open);
+    if (!open) return;
+    if (!window.Desmos) return;
+    if (!desmos) {
+      try {
+        desmos = Desmos.ScientificCalculator($('calcHost'), {
+          degreeMode: true,
+          invertedColors: document.documentElement.classList.contains('theme-dark'),
+          fontSize: Desmos.FontSizes ? Desmos.FontSizes.LARGE : undefined
+        });
+      } catch (e) {
+        $('calcHost').innerHTML = '<p class="calc-missing">The calculator did not load.</p>';
+      }
+    } else if (desmos.resize) desmos.resize();
+  }
+
+  function clearCalc() { if (desmos && desmos.setBlank) desmos.setBlank(); sayCalc(''); }
+
+  function sayCalc(msg) {
+    $('calcMsg').hidden = !msg;
+    $('calcMsg').innerHTML = msg ? subHTML(msg) : '';
+  }
+
+  // The step whose answer the calculator should fill in right now, with its needs
+  function calcTarget() {
+    if (state.current === 'quiz') {
+      const c = state.quiz.cur, q = c && c.qs[c.i];
+      if (!q || q.kind !== 'step') return null;
+      const step = PR.STEP[tier][q.k];
+      return step.calc ? { step, sc: c.hunts[q.f], ans: chainFor(c, q.f, c.i) } : null;
+    }
+    const pg = page();
+    if (!pg || !pg.ask || (fb && !fb.retry)) return null;
+    const step = PR.STEP[tier][pg.ask];
+    return step.calc ? { step, sc: part().sc, ans: part().ans } : null;
+  }
+
+  function syncCalc() {
+    const t = calcTarget();
+    toggleCalc(!!(t && window.Desmos));
+  }
+
+  function grabAnswer() {
+    const t = calcTarget();
+    if (!t || !desmos) return;
+    const work = window.Engine.readCalculator(desmos.getState());
+    if (work.empty) return sayCalc('Type your calculation into the calculator first.');
+    if (work.unreadable) return sayCalc('The calculator line is not finished. Check it, or press "clear all" and type it again.');
+    const problem = PR.workProblem(work, t.step.needs ? t.step.needs(t.sc, t.ans) : {});
+    if (problem) return sayCalc(problem);
+    sayCalc('');
+    draft = String(Number(work.value.toFixed(3)));
+    draftWork = work.latex;
+    if (fb && fb.retry) fb = null;
+    quizSaveDraft();
+    renderTask();
+  }
+
+  function bindCalcDrag() {
+    const panel = $('calcPanel'), head = $('calcHead');
+    let grab = null;
+    head.addEventListener('pointerdown', e => {
+      const r = panel.getBoundingClientRect();
+      grab = { dx: e.clientX - r.left, dy: e.clientY - r.top };
+      head.setPointerCapture(e.pointerId);
+    });
+    head.addEventListener('pointermove', e => {
+      if (!grab) return;
+      const r = panel.getBoundingClientRect();
+      panel.style.left = `${Math.max(0, Math.min(innerWidth - r.width, e.clientX - grab.dx))}px`;
+      panel.style.top = `${Math.max(0, Math.min(innerHeight - r.height, e.clientY - grab.dy))}px`;
+      panel.style.right = 'auto';
+      panel.style.bottom = 'auto';
+    });
+    head.addEventListener('pointerup', () => { grab = null; });
+  }
+
+  // ---------- Display tools ----------
+  function bindTools() {
+    const root = document.documentElement;
+    const setTheme = () => {
+      $('btn-theme-toggle').textContent = root.classList.contains('theme-dark') ? '☀️ Light' : '🌙 Dark';
+      $('btn-projector-mode').classList.toggle('btn-on', root.classList.contains('projector'));
+    };
+    $('btn-theme-toggle').addEventListener('click', () => {
+      root.classList.remove('projector');
+      root.classList.toggle('theme-dark');
+      try {
+        localStorage.setItem('mhs_theme', root.classList.contains('theme-dark') ? 'dark' : 'light');
+        localStorage.setItem('mhs_projector', 'off');
+      } catch (e) { /* storage blocked */ }
+      if (desmos && desmos.updateSettings) desmos.updateSettings({ invertedColors: root.classList.contains('theme-dark') });
+      setTheme();
+    });
+    $('btn-projector-mode').addEventListener('click', () => {
+      const on = !root.classList.contains('projector');
+      root.classList.toggle('projector', on);
+      if (on) root.classList.remove('theme-dark');
+      try { localStorage.setItem('mhs_projector', on ? 'on' : 'off'); } catch (e) { /* storage blocked */ }
+      setTheme();
+    });
+    setTheme();
+  }
+
+  function start(s, c, prof) {
+    state = s; cloud = c; profile = prof; tier = prof.tier;
+    $('btnNextSecond').addEventListener('click', nextSecond);
+    $('btnPlay').addEventListener('click', playFlight);
+    $('btnStartOver').addEventListener('click', restartSim);
+    $('btnUseCalc').addEventListener('click', grabAnswer);
+    $('btnCert').addEventListener('click', () => downloadCertificate($('btnCert')));
+    bindCalcDrag();
+    bindTools();
+    bindDrag();
+    bindSlider();
+    if (state.current !== 'quiz' && !state.parts[state.current]) state.current = 'line';
+    enterPage();
+    if (state.current === 'quiz' && state.quiz.cur) {
+      const cur = state.quiz.cur;
+      draft = cur.answers[cur.i] === null || cur.answers[cur.i] === undefined ? '' : cur.answers[cur.i];
+    }
+    if (prof.teacher || prof.preview) {
+      $('viewWrap').hidden = false;
+      $('viewSelect').value = prof.previewView || 'teacher';
+      $('viewSelect').addEventListener('change', e => {
+        location.search = e.target.value === 'teacher' ? '' : `?preview&view=${e.target.value}`;
+      });
+    }
+    if (prof.teacher) $('btnMonitor').hidden = false;
+    render();
+  }
+
+  return { start, newState, validState, scoreState, debug: () => ({ state, tier, sim, fb, rig, desmos }) };
+})();
+
+window.HunterApp = HunterApp;
+
+
+// === Unit_2/monkey_hunter_studio/js/auth.js ===
+// Monkey Hunter Studio — Google Sign-In gate, roster lookup, and Firestore progress + score sync.
+// Path: student_results/{ASSIGNMENT_ID}/students/{studentId}  (owner-only per firestore.rules; the doc ID is the
+// email prefix, and the admin-only parent doc is written by sync-classroom/deploy-assignment.js).
+// Class comes from roster/{studentId}: P0 Honors, P1–3 Conceptual Physics, P4–6 CP Physics. It is never shown to
+// P1–6 students as a label. The teacher can preview each class from the header.
+// Guest: no sign-in, saved only on this device, never graded. Preview (?preview&view=conceptual|cp|honors): nothing saved.
+// Modeled on Unit_2/projectile_range_studio/js/auth.js.
+
+const ASSIGNMENT_ID = 'unit2_monkey_hunter_studio';
+const MAX_POINTS = 10;
+const TEACHER_EMAILS = ['rmudry@orangeusd.org', 'ryan.mudry@gmail.com', 'ryanmudry@gmail.com'];
+const GUEST_KEY = 'mhs_state_guest';
+
+const tierForPeriod = p => (p === 0 ? 'honors' : [1, 2, 3].includes(p) ? 'conceptual' : 'cp');
+
+class StudioAuth {
+  constructor(onReady) {
+    this.onReady = onReady;
+    this.started = false;
+    this.user = null;
+    this.studentId = null;
+    this.saveTimer = null;
+    this.saving = false;
+    this.pending = false;
+    this.state = null;
+    this.guest = false;
+    this.preview = false;
+    this.stalled = false;
+    this.profile = null;
+
+    this.gate = document.getElementById('loginGate');
+    this.gateError = document.getElementById('gateError');
+    this.gateBtn = document.getElementById('btnGateSignIn');
+    this.gateStatus = document.getElementById('gateStatus');
+    this.indicator = document.getElementById('saveIndicator');
+
+    this.gateBtn.addEventListener('click', () => this.signIn());
+    document.getElementById('btnGateGuest').addEventListener('click', () => this.startGuest());
+    document.getElementById('btnSignOut').addEventListener('click', () => this.signOut());
+    document.getElementById('btnChipSignIn').addEventListener('click', () => this.signIn());
+    // Chromebook lid closed, tab switched, or page closing: save right away
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden' && this.saveTimer) this.flush();
+    });
+    window.addEventListener('pagehide', () => { if (this.saveTimer) this.flush(); });
+    window.addEventListener('beforeunload', e => {
+      if (this.saveTimer || this.saving) {
+        this.flush();
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('preview')) {
+      this.startPreview(params.get('view') || 'cp');
+      return;
+    }
+
+    if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) {
+      this.showError('Could not load Google Sign-In. Check your internet connection and refresh, or continue as a guest.');
+      this.gateBtn.disabled = true;
+      return;
+    }
+    this.db = firebase.firestore();
+    firebase.auth().getRedirectResult().catch(err => this.showError(`Sign-in error: ${err.message || err.code}`));
+    firebase.auth().onAuthStateChanged(user => this.handleUser(user));
+  }
+
+  showError(msg) {
+    this.gateError.textContent = msg;
+    this.gateError.hidden = !msg;
+  }
+
+  setGateBusy(text) {
+    this.gateStatus.textContent = text || '';
+    this.gateBtn.hidden = !!text;
+  }
+
+  signIn() {
+    if (!this.db) return;
+    this.showError('');
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ hd: 'orangeusd.org', prompt: 'select_account' });
+    this.gateBtn.disabled = true;
+    firebase.auth().signInWithPopup(provider)
+      .catch(err => {
+        if (err.code === 'auth/popup-blocked') {
+          firebase.auth().signInWithRedirect(provider);
+        } else if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
+          this.showError(`Google Sign-In error: ${err.message || err.code}`);
+        }
+      })
+      .finally(() => { this.gateBtn.disabled = false; });
+  }
+
+  async signOut() {
+    if (!window.confirm('Sign out? Your progress is saved to your school account.')) return;
+    await this.flush();
+    await firebase.auth().signOut();
+    window.location.reload();
+  }
+
+  docRef() {
+    return this.db.collection('student_results').doc(ASSIGNMENT_ID).collection('students').doc(this.studentId);
+  }
+
+  localKey() {
+    return this.guest ? GUEST_KEY : `mhs_state_${this.studentId}`;
+  }
+
+  static readLocal(key) {
+    try {
+      const s = JSON.parse(localStorage.getItem(key));
+      return HunterApp.validState(s) ? s : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  showChip(name, track) {
+    document.getElementById('userName').textContent = name;
+    document.getElementById('userTrack').textContent = track || '';
+    document.getElementById('userChip').hidden = false;
+  }
+
+  startPreview(view) {
+    const tier = ['conceptual', 'cp', 'honors'].includes(view) ? view : 'cp';
+    this.preview = true;
+    this.guest = true;
+    this.state = HunterApp.newState();
+    this.profile = { guest: true, preview: true, previewView: tier, tier, period: null, name: 'Preview' };
+    this.started = true;
+    this.gate.hidden = true;
+    this.showChip('👁 Preview', '');
+    document.getElementById('btnSignOut').hidden = true;
+    this.onReady({ state: this.state, cloud: this, profile: this.profile });
+    this.setIndicator('guest', 'Nothing is saved');
+  }
+
+  startGuest() {
+    if (this.started) return;
+    this.guest = true;
+    const state = StudioAuth.readLocal(GUEST_KEY) || HunterApp.newState();
+    this.state = state;
+    this.profile = { guest: true, tier: 'cp', period: null, name: 'Guest' };
+    this.started = true;
+    this.gate.hidden = true;
+    this.showChip('👤 Guest', '');
+    document.getElementById('btnSignOut').hidden = true;
+    document.getElementById('btnChipSignIn').hidden = !this.db;
+    this.onReady({ state, cloud: this, profile: this.profile });
+    this.setIndicator('guest', '💾 This device only');
+  }
+
+  // The roster stores class_period as an integer 0–6 (older docs use period). Strict checks keep Period 0.
+  async lookupPeriod(email) {
+    if (TEACHER_EMAILS.includes(email)) return { period: 'T', teacher: true };
+    try {
+      const snap = await this.db.collection('roster').doc(this.studentId).get();
+      if (snap.exists) {
+        const d = snap.data();
+        const p = d.class_period !== undefined && d.class_period !== null ? d.class_period
+          : d.period !== undefined && d.period !== null ? d.period : null;
+        if (p !== null) {
+          const num = parseInt(p, 10);
+          return { period: Number.isNaN(num) ? p : num };
+        }
+      }
+    } catch (e) {
+      console.warn('Roster lookup failed; using the standard class view:', e);
+    }
+    return { period: null };
+  }
+
+  async handleUser(user) {
+    if (!user) {
+      if (this.started && !this.guest) window.location.reload();
+      if (this.started) return;
+      this.gate.hidden = false;
+      this.setGateBusy('');
+      return;
+    }
+    const email = (user.email || '').toLowerCase();
+    if (!email.endsWith('@orangeusd.org') && !TEACHER_EMAILS.includes(email)) {
+      this.showError(`${email} is not a school account. Sign in with your @orangeusd.org Google account.`);
+      firebase.auth().signOut();
+      return;
+    }
+    // A guest who signs in mid-activity: reload so the studio boots on their account
+    if (this.started && this.guest) {
+      this.flushLocal();
+      window.location.reload();
+      return;
+    }
+    if (this.started) return;
+
+    this.user = user;
+    this.studentId = email.split('@')[0];
+    this.setGateBusy('Loading your saved progress…');
+
+    let cloudDoc = null;
+    for (let tryNum = 1; ; tryNum++) {
+      try {
+        const snap = await this.docRef().get();
+        cloudDoc = snap.exists ? snap.data() : null;
+        break;
+      } catch (e) {
+        // Starting without the saved copy would let the next save overwrite real progress,
+        // so keep the gate up and retry until the read succeeds.
+        console.warn(`Could not load Firestore progress (try ${tryNum}):`, e);
+        this.setGateBusy(`Can't reach the server to load your saved work. Retrying… (try ${tryNum})`);
+        await new Promise(r => setTimeout(r, Math.min(10000, 2000 * tryNum)));
+      }
+    }
+    const roster = await this.lookupPeriod(email);
+
+    const cloudState = cloudDoc && HunterApp.validState(cloudDoc.studioState) ? cloudDoc.studioState : null;
+    const localState = StudioAuth.readLocal(this.localKey());
+    let state = cloudState;
+    // Prefer an unsynced local copy if it is newer (e.g. the connection dropped mid-class)
+    if (localState && (!state || (localState.savedAt || 0) > (state.savedAt || 0))) state = localState;
+    // No account progress yet: carry over work done in guest mode on this device
+    const guestState = StudioAuth.readLocal(GUEST_KEY);
+    if (!state && guestState) {
+      state = guestState;
+      try { localStorage.removeItem(GUEST_KEY); } catch (e) { /* ignore */ }
+    }
+    if (!state) state = HunterApp.newState();
+    // Never let the gradebook score drop below what is already recorded
+    if (cloudDoc) state.bestPoints = Math.max(state.bestPoints || 0, cloudDoc.score || 0);
+    this.state = state;
+
+    this.profile = {
+      guest: false,
+      period: roster.period,
+      teacher: !!roster.teacher,
+      tier: tierForPeriod(roster.period),
+      name: user.displayName || this.studentId
+    };
+
+    this.started = true;
+    this.gate.hidden = true;
+    const track = roster.teacher ? 'Teacher'
+      : roster.period === null ? ''
+      : `Period ${roster.period}${roster.period === 0 ? ' · Honors' : ''}`;
+    this.showChip(this.profile.name, track);
+    this.onReady({ state, cloud: this, profile: this.profile });
+
+    if (state !== cloudState) this.queueSave(true);
+    else this.setIndicator('ok', '☁️ Saved');
+  }
+
+  setIndicator(kind, text) {
+    this.indicator.textContent = text;
+    this.indicator.className = `save-indicator save-${kind}`;
+  }
+
+  flushLocal() {
+    if (!this.state || this.preview) return;
+    try { localStorage.setItem(this.localKey(), JSON.stringify(this.state)); } catch (e) { /* storage blocked */ }
+  }
+
+  // Debounced save: every answer lands in Firestore within ~1.5 s
+  queueSave(immediate = false) {
+    if (!this.state || this.preview) return;
+    this.state.savedAt = Date.now();
+    this.flushLocal();
+    if (this.guest) return;
+    clearTimeout(this.saveTimer);
+    if (!this.stalled) this.setIndicator('busy', '⏳ Saving…');
+    this.saveTimer = setTimeout(() => this.flush(), immediate ? 0 : 1500);
+  }
+
+  async flush() {
+    clearTimeout(this.saveTimer);
+    this.saveTimer = null;
+    if (!this.state || !this.studentId || this.guest) return;
+    if (this.saving) {
+      this.pending = true;
+      return;
+    }
+    this.saving = true;
+    const s = HunterApp.scoreState(this.state, this.profile.tier);
+    const period = this.profile.period !== undefined && this.profile.period !== null ? this.profile.period : null;
+    const partNow = this.state.parts[this.state.current];
+    const payload = {
+      student_id: this.studentId,
+      student_name: this.profile.name || this.studentId,
+      email: (this.user && this.user.email) || `${this.studentId}@orangeusd.org`,
+      score: s.points,
+      maxScore: MAX_POINTS,
+      maxPoints: MAX_POINTS,
+      percentage: s.percentage,
+      parts_done: s.done,                    // e.g. ['line', 'drop']
+      parts_progress: s.progress,            // percent of each part finished, e.g. { line: 100, drop: 40 }
+      parts_required: s.required,
+      current_part: this.state.current,
+      current_page: partNow ? partNow.i : null,
+      prediction: this.state.prediction || null,   // where they first said to aim
+      quiz_best: s.quizBest,
+      quiz_history: s.quizHistory,           // every attempt's %, oldest first
+      quiz_skills: s.skills,                 // latest attempt: { time: { right, total }, ... }
+      mistakes: s.mistakes,                  // counts by diagnosed mistake, e.g. { tilted_string: 3 }
+      calc_unavailable: s.calcUnavailable,   // Desmos did not load, so this student could type answers
+      certificate_code: s.cert ? s.cert.code : null,
+      certificate_earned_at: s.cert ? s.cert.at : null,
+      track: this.profile.tier,              // conceptual | cp | honors
+      class_period: period,
+      honors_required: this.profile.tier === 'honors',
+      isCompleted: s.points >= MAX_POINTS,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      // JSON round-trip strips undefined values, which Firestore rejects
+      studioState: JSON.parse(JSON.stringify(this.state))
+    };
+    const slow = setTimeout(() => {
+      this.stalled = true;
+      this.setIndicator('error', '⚠️ No connection: kept on this device, will sync');
+    }, 6000);
+    try {
+      // mergeFields replaces each listed field wholesale while leaving fields other tools add.
+      await this.docRef().set(payload, { mergeFields: Object.keys(payload) });
+      this.stalled = false;
+      this.setIndicator('ok', '☁️ Saved');
+    } catch (e) {
+      console.error('Firestore save failed:', e);
+      this.setIndicator('error', '⚠️ Not saved: retrying');
+      this.saveTimer = setTimeout(() => this.flush(), 8000);
+    } finally {
+      clearTimeout(slow);
+      this.saving = false;
+      if (this.pending) {
+        this.pending = false;
+        this.flush();
+      }
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  window.studioAuth = new StudioAuth(({ state, cloud, profile }) => HunterApp.start(state, cloud, profile));
+});
+
+</script>
 </body>
 </html>
