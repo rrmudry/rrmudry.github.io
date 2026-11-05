@@ -722,15 +722,17 @@
     let cameraMode = 'broadcast';
     const runnerMeshes = new Map(); // id -> { root, limbs, halo, crown, trailStars, tier, frontness, currentX, targetX, laneZ }
 
-    // Sparkling Stars & Firework Starburst System (4-point glowing star sprite)
+    // Sparkling Stars & Firework Starburst System (8-point glowing star sprite)
     let sparkPoints = null;
     let sparkData = [];
-    const MAX_SPARKS = 1800;
+    const MAX_SPARKS = 2600;
 
-    // Swirling Magic Dust System (soft radial fairy-dust glow sprite)
+    // Swirling Golden Magic Dust System (soft radial fairy-dust glow sprite)
     let dustPoints = null;
     let dustData = [];
-    const MAX_DUST = 1600;
+    const MAX_DUST = 4200;
+    let sharedEightPointStarTex = null;
+    let sharedRibbonGlowTex = null;
 
     // Multicolored 3D Fireworks over Hall of Champions
     const fireworkRockets = [];
@@ -974,45 +976,78 @@
     }
 
     // ------------------------------------------------------------------
-    // Procedural Star Sprite & Magic Dust Textures + Fireworks Engine
+    // Procedural 8-Point Golden Starburst, Ribbon Glow & Magic Dust + Fireworks
     // ------------------------------------------------------------------
     function createStarSpriteTexture() {
+      const c = document.createElement('canvas');
+      c.width = 128;
+      c.height = 128;
+      const ctx = c.getContext('2d');
+      const cx = 64, cy = 64;
+
+      // Warm golden-white outer radial glow
+      const rad = ctx.createRadialGradient(cx, cy, 1, cx, cy, 60);
+      rad.addColorStop(0, 'rgba(255,255,255,1)');
+      rad.addColorStop(0.18, 'rgba(255,251,215,0.95)');
+      rad.addColorStop(0.42, 'rgba(253,224,71,0.48)');
+      rad.addColorStop(0.72, 'rgba(245,158,11,0.14)');
+      rad.addColorStop(1, 'rgba(245,158,11,0)');
+      ctx.fillStyle = rad;
+      ctx.fillRect(0, 0, 128, 128);
+
+      // Authentic 8-point compass starburst (4 long cardinal rays + 4 medium diagonal rays)
+      ctx.save();
+      ctx.translate(cx, cy);
+      for (let i = 0; i < 8; i++) {
+        const isPrimary = i % 2 === 0;
+        const rayLen = isPrimary ? 60 : 38;
+        const rayWid = isPrimary ? 5.2 : 3.4;
+        const grad = ctx.createLinearGradient(0, 0, 0, -rayLen);
+        grad.addColorStop(0, 'rgba(255,255,255,1)');
+        grad.addColorStop(0.35, 'rgba(254,240,138,0.95)');
+        grad.addColorStop(0.75, 'rgba(251,191,36,0.55)');
+        grad.addColorStop(1, 'rgba(251,191,36,0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.moveTo(0, -rayLen);
+        ctx.quadraticCurveTo(rayWid * 0.45, -rayLen * 0.22, rayWid, 0);
+        ctx.lineTo(-rayWid, 0);
+        ctx.quadraticCurveTo(-rayWid * 0.45, -rayLen * 0.22, 0, -rayLen);
+        ctx.closePath();
+        ctx.fill();
+        ctx.rotate(Math.PI / 4);
+      }
+
+      // Brilliant hot white-gold center core
+      const core = ctx.createRadialGradient(0, 0, 0, 0, 0, 14);
+      core.addColorStop(0, 'rgba(255,255,255,1)');
+      core.addColorStop(0.6, 'rgba(254,249,195,0.9)');
+      core.addColorStop(1, 'rgba(254,240,138,0)');
+      ctx.fillStyle = core;
+      ctx.beginPath();
+      ctx.arc(0, 0, 14, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      const tex = new THREE.CanvasTexture(c);
+      tex.needsUpdate = true;
+      return tex;
+    }
+
+    function createRibbonGlowTexture() {
       const c = document.createElement('canvas');
       c.width = 64;
       c.height = 64;
       const ctx = c.getContext('2d');
-      const cx = 32, cy = 32;
-
-      // Soft outer halo
-      const rad = ctx.createRadialGradient(cx, cy, 1, cx, cy, 30);
-      rad.addColorStop(0, 'rgba(255,255,255,1)');
-      rad.addColorStop(0.25, 'rgba(255,250,220,0.85)');
-      rad.addColorStop(0.6, 'rgba(255,255,255,0.22)');
-      rad.addColorStop(1, 'rgba(255,255,255,0)');
-      ctx.fillStyle = rad;
+      // Soft cross-sectional glow across the ribbon width (V axis)
+      const g = ctx.createLinearGradient(0, 0, 0, 64);
+      g.addColorStop(0, 'rgba(255,255,255,0)');
+      g.addColorStop(0.25, 'rgba(253,224,71,0.45)');
+      g.addColorStop(0.5, 'rgba(255,255,255,1)');
+      g.addColorStop(0.75, 'rgba(253,224,71,0.45)');
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = g;
       ctx.fillRect(0, 0, 64, 64);
-
-      // Crisp 4-point star flare + 4 diagonal glints
-      ctx.save();
-      ctx.translate(cx, cy);
-      for (let pass = 0; pass < 2; pass++) {
-        const len = pass === 0 ? 30 : 18;
-        const wid = pass === 0 ? 4.2 : 2.6;
-        ctx.fillStyle = '#ffffff';
-        for (let r = 0; r < 2; r++) {
-          ctx.beginPath();
-          ctx.moveTo(0, -len);
-          ctx.quadraticCurveTo(wid, -wid, len, 0);
-          ctx.quadraticCurveTo(wid, wid, 0, len);
-          ctx.quadraticCurveTo(-wid, wid, -len, 0);
-          ctx.quadraticCurveTo(-wid, -wid, 0, -len);
-          ctx.closePath();
-          ctx.fill();
-        }
-        ctx.rotate(Math.PI / 4);
-      }
-      ctx.restore();
-
       const tex = new THREE.CanvasTexture(c);
       tex.needsUpdate = true;
       return tex;
@@ -1023,11 +1058,11 @@
       c.width = 64;
       c.height = 64;
       const ctx = c.getContext('2d');
-      const g = ctx.createRadialGradient(32, 32, 2, 32, 32, 30);
+      const g = ctx.createRadialGradient(32, 32, 1, 32, 32, 30);
       g.addColorStop(0, 'rgba(255,255,255,1)');
-      g.addColorStop(0.35, 'rgba(255,255,255,0.75)');
-      g.addColorStop(0.7, 'rgba(255,255,255,0.2)');
-      g.addColorStop(1, 'rgba(255,255,255,0)');
+      g.addColorStop(0.28, 'rgba(254,243,199,0.92)');
+      g.addColorStop(0.62, 'rgba(251,191,36,0.38)');
+      g.addColorStop(1, 'rgba(245,158,11,0)');
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, 64, 64);
       const tex = new THREE.CanvasTexture(c);
@@ -1035,8 +1070,74 @@
       return tex;
     }
 
+    // Parametric Looping Golden Curl Spine (matches the swirling golden loop & upper star arch)
+    function sampleCurlSpine(u, strand, eff, phase) {
+      if (strand === 0) {
+        // Main waist-wrap ribbon that sweeps back and curls into a full 360-degree golden loop
+        const loopAngle = u * Math.PI * 2.38 - 0.52;
+        const loopEnv = Math.sin(Math.min(1, u * 1.18) * Math.PI) * (0.35 + 0.65 * eff);
+        const x = 0.28 - u * 4.35 + Math.sin(loopAngle) * (1.12 * loopEnv);
+        const y = 0.96 - 0.14 * Math.sin(u * Math.PI) + (1 - Math.cos(loopAngle)) * (0.78 * loopEnv) + Math.sin(phase * 0.3 + u * 5.0) * 0.04;
+        const z = Math.cos(u * 4.2 + phase * 0.2) * (0.14 + u * 0.22);
+        return { x, y: Math.max(0.14, y), z };
+      } else {
+        // Upper shoulder S-curl ribbon rising to the giant 8-point Hero Star above/behind the runner
+        const archAngle = u * Math.PI * 1.72;
+        const x = 0.20 - u * 2.35 + Math.sin(archAngle) * (0.62 * u);
+        const y = 1.34 + Math.sin(u * Math.PI * 0.78) * 1.25 + (1 - Math.cos(archAngle)) * 0.24 * u;
+        const z = -Math.sin(u * 3.6 + phase * 0.2) * (0.14 + u * 0.16);
+        return { x, y: Math.max(0.2, y), z };
+      }
+    }
+
+    const RIBBON_SEGS = 44;
+    function createSwirlRibbonMesh(tex) {
+      const vertCount = (RIBBON_SEGS + 1) * 2;
+      const positions = new Float32Array(vertCount * 3);
+      const uvs = new Float32Array(vertCount * 2);
+      const colors = new Float32Array(vertCount * 3);
+      const indices = [];
+
+      for (let i = 0; i <= RIBBON_SEGS; i++) {
+        const t = i / RIBBON_SEGS;
+        uvs[i * 4] = t;
+        uvs[i * 4 + 1] = 0;
+        uvs[i * 4 + 2] = t;
+        uvs[i * 4 + 3] = 1;
+        if (i < RIBBON_SEGS) {
+          const a = i * 2;
+          const b = a + 1;
+          const c = a + 2;
+          const d = a + 3;
+          indices.push(a, b, c, b, d, c);
+        }
+      }
+
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geo.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+      geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+      geo.setIndex(indices);
+
+      const mat = new THREE.MeshBasicMaterial({
+        map: tex,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.92,
+        blending: THREE.AdditiveBlending,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.frustumCulled = false;
+      return mesh;
+    }
+
     function initSparkSystem() {
-      // 1. Sparkling Stars & Firework Starburst Points
+      sharedEightPointStarTex = createStarSpriteTexture();
+      sharedRibbonGlowTex = createRibbonGlowTexture();
+
+      // 1. Sparkling 8-Point Stars & Firework Starburst Points
       const positions = new Float32Array(MAX_SPARKS * 3);
       const colors = new Float32Array(MAX_SPARKS * 3);
       sparkData = [];
@@ -1058,8 +1159,8 @@
       geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
       const mat = new THREE.PointsMaterial({
-        size: 0.72,
-        map: createStarSpriteTexture(),
+        size: 0.88,
+        map: sharedEightPointStarTex,
         vertexColors: true,
         transparent: true,
         opacity: 0.98,
@@ -1069,7 +1170,7 @@
       sparkPoints = new THREE.Points(geo, mat);
       scene.add(sparkPoints);
 
-      // 2. Swirling Magic Dust Points
+      // 2. Dense Golden Magic Dust Cloud Points
       const dPositions = new Float32Array(MAX_DUST * 3);
       const dColors = new Float32Array(MAX_DUST * 3);
       dustData = [];
@@ -1090,11 +1191,11 @@
       dGeo.setAttribute('color', new THREE.BufferAttribute(dColors, 3));
 
       const dMat = new THREE.PointsMaterial({
-        size: 0.54,
+        size: 0.48,
         map: createMagicDustTexture(),
         vertexColors: true,
         transparent: true,
-        opacity: 0.88,
+        opacity: 0.92,
         blending: THREE.AdditiveBlending,
         depthWrite: false
       });
@@ -1109,9 +1210,9 @@
       sparkCursor = (sparkCursor + 1) % MAX_SPARKS;
       const p = sparkData[idx];
       p.active = true;
-      p.x = x + (Math.random() - 0.5) * 0.25;
-      p.y = y + (Math.random() - 0.5) * 0.25;
-      p.z = z + (Math.random() - 0.5) * 0.25;
+      p.x = x + (Math.random() - 0.5) * 0.22;
+      p.y = y + (Math.random() - 0.5) * 0.22;
+      p.z = z + (Math.random() - 0.5) * 0.22;
       if (customVel) {
         p.vx = customVel.vx;
         p.vy = customVel.vy;
@@ -1137,24 +1238,28 @@
     }
 
     let dustCursor = 0;
-    function emitMagicDust(x, y, z, colorHex, frontness = 0.5) {
+    function emitMagicDust(x, y, z, colorHex, frontness = 0.5, customVel = null, maxLife = null) {
       if (!dustPoints) return;
       const idx = dustCursor;
       dustCursor = (dustCursor + 1) % MAX_DUST;
       const d = dustData[idx];
       d.active = true;
-      const spreadZ = 0.25 + frontness * 0.45;
-      d.x = x - Math.random() * 0.35;
-      d.y = y + (Math.random() - 0.5) * 0.45;
-      d.z = z + (Math.random() - 0.5) * spreadZ;
-      // Trail streams further backward as runner gets closer to the front of the pack
-      d.vx = -(1.8 + frontness * 5.6 + Math.random() * 1.8);
-      d.vy = (Math.random() - 0.35) * (0.9 + frontness * 1.4);
-      d.vz = (Math.random() - 0.5) * (0.8 + frontness * 1.8);
-      d.swirlFreq = 5 + Math.random() * 5;
-      d.swirlAmp = 0.35 + frontness * 0.9;
+      d.x = x;
+      d.y = y;
+      d.z = z;
+      if (customVel) {
+        d.vx = customVel.vx;
+        d.vy = customVel.vy;
+        d.vz = customVel.vz;
+      } else {
+        d.vx = -(1.2 + frontness * 3.8 + Math.random() * 1.4);
+        d.vy = (Math.random() - 0.42) * (0.7 + frontness * 1.1);
+        d.vz = (Math.random() - 0.5) * (0.6 + frontness * 1.2);
+      }
+      d.swirlFreq = 4.5 + Math.random() * 5.0;
+      d.swirlAmp = 0.25 + frontness * 0.65;
       d.life = 0;
-      d.maxLife = 0.35 + frontness * 0.85 + Math.random() * 0.3;
+      d.maxLife = maxLife || (0.42 + frontness * 0.78 + Math.random() * 0.35);
 
       const c = new THREE.Color(colorHex);
       d.baseR = c.r;
@@ -1167,57 +1272,168 @@
       colAttr.needsUpdate = true;
     }
 
-    // Emit a progressive sparkling star + magic dust comet wake behind front-pack runners
+    // Update the runner's 3D curling golden light ribbons & 8-point starburst sprites
+    function updateRunnerMagicRibbon(entry, nowSec) {
+      const f = entry.frontness || 0;
+      const eff = entry.tier === 'champion' ? 0.55 : (entry.surging ? Math.max(f, 0.75) : f);
+      const showTrail = eff >= 0.14;
+
+      if (entry.swirlRibbons) {
+        entry.swirlRibbons.forEach((ribbon, sIdx) => {
+          ribbon.visible = showTrail && (sIdx === 0 || eff >= 0.32);
+          if (!ribbon.visible) return;
+
+          const posAttr = ribbon.geometry.attributes.position;
+          const colAttr = ribbon.geometry.attributes.color;
+          const maxU = sIdx === 0 ? eff : Math.min(1, eff * 0.95);
+          const baseWidth = sIdx === 0 ? (0.09 + eff * 0.15) : (0.065 + eff * 0.1);
+
+          for (let i = 0; i <= RIBBON_SEGS; i++) {
+            const frac = i / RIBBON_SEGS;
+            const u = frac * maxU;
+            const pt = sampleCurlSpine(u, sIdx, eff, entry.phase);
+            const ptNext = sampleCurlSpine(Math.min(1, u + 0.02), sIdx, eff, entry.phase);
+
+            // Perpendicular normal in (x, y) plane so the ribbon has lush visible width from side/broadcast angles
+            const dx = ptNext.x - pt.x;
+            const dy = ptNext.y - pt.y;
+            const len = Math.hypot(dx, dy) || 1;
+            const nx = -dy / len;
+            const ny = dx / len;
+
+            // Taper ribbon width smoothly at waist start and far tail tip
+            const env = Math.sin(frac * Math.PI);
+            const halfW = baseWidth * (0.28 + 0.72 * env);
+            const vIdx = i * 2;
+
+            posAttr.array[vIdx * 3] = pt.x + nx * halfW;
+            posAttr.array[vIdx * 3 + 1] = pt.y + ny * halfW;
+            posAttr.array[vIdx * 3 + 2] = pt.z + 0.03;
+
+            posAttr.array[(vIdx + 1) * 3] = pt.x - nx * halfW;
+            posAttr.array[(vIdx + 1) * 3 + 1] = pt.y - ny * halfW;
+            posAttr.array[(vIdx + 1) * 3 + 2] = pt.z - 0.03;
+
+            // Golden white-hot core fading to warm amber gold along the curl
+            const glow = Math.pow(1 - frac * 0.75, 0.85) * (0.45 + 0.55 * eff);
+            const r = 1.0 * glow;
+            const g = (0.93 - frac * 0.25) * glow;
+            const b = (0.55 - frac * 0.42) * glow;
+
+            colAttr.array[vIdx * 3] = r;
+            colAttr.array[vIdx * 3 + 1] = g;
+            colAttr.array[vIdx * 3 + 2] = b;
+            colAttr.array[(vIdx + 1) * 3] = r;
+            colAttr.array[(vIdx + 1) * 3 + 1] = g;
+            colAttr.array[(vIdx + 1) * 3 + 2] = b;
+          }
+          posAttr.needsUpdate = true;
+          colAttr.needsUpdate = true;
+        });
+      }
+
+      // Position & pulse the 8-Point Golden Starburst Sprites along the curling ribbon!
+      if (entry.starSprites) {
+        // Anchor definitions matching the reference image:
+        // #0 = Giant Hero 8-point star at upper curl crest; #1..#8 = stars along the main golden loop & cascade
+        const anchors = [
+          { strand: 1, u: 0.92, baseScale: 1.42, minEff: 0.42, offsetY: 0.14, color: 0xfef08a }, // Giant Hero Star above curl
+          { strand: 0, u: 0.54, baseScale: 0.95, minEff: 0.30, offsetY: 0.06, color: 0xfef08a }, // Top of main loop curl
+          { strand: 0, u: 0.68, baseScale: 0.84, minEff: 0.48, offsetY: -0.05, color: 0xfde047 }, // Center-inner curl star
+          { strand: 0, u: 0.32, baseScale: 0.72, minEff: 0.22, offsetY: 0.08, color: 0xffffff }, // Rising curl star
+          { strand: 1, u: 0.48, baseScale: 0.66, minEff: 0.36, offsetY: 0.10, color: 0xfde047 }, // Mid shoulder arch star
+          { strand: 0, u: 0.82, baseScale: 0.76, minEff: 0.62, offsetY: 0.04, color: 0xfbbf24 }, // Outer loop exit star
+          { strand: 0, u: 0.16, baseScale: 0.56, minEff: 0.18, offsetY: 0.05, color: 0xffffff }, // Waist shimmer star
+          { strand: 0, u: 0.94, baseScale: 0.64, minEff: 0.76, offsetY: 0.12, color: 0xfef08a }  // Far trailing star
+        ];
+
+        entry.starSprites.forEach((sp, idx) => {
+          const cfg = anchors[idx];
+          if (!showTrail || eff < cfg.minEff) {
+            sp.visible = false;
+            return;
+          }
+          sp.visible = true;
+          const u = Math.min(eff, cfg.u * eff);
+          const pt = sampleCurlSpine(u, cfg.strand, eff, entry.phase);
+          const pulse = 0.84 + 0.22 * Math.sin(nowSec * 9.5 + idx * 1.7 + entry.phase);
+          sp.position.set(pt.x, pt.y + cfg.offsetY, pt.z);
+          const s = cfg.baseScale * (0.45 + 0.65 * eff) * pulse;
+          sp.scale.set(s, s, 1);
+        });
+      }
+    }
+
+    // Emit dense golden stardust & twinkling stars hugging the runner's curling ribbons
     function emitLeaderStarAndDustTrail(entry, nowSec) {
       const f = entry.frontness || 0;
-      if (f < 0.16 && !entry.surging) return;
+      if (f < 0.14 && !entry.surging) return;
 
-      const eff = entry.surging ? Math.max(f, 0.72) : f;
+      const eff = entry.surging ? Math.max(f, 0.75) : f;
       const rx = entry.currentX;
       const rz = entry.root.position.z;
       const ry = entry.root.position.y;
 
-      // Color palette gets richer & more radiant toward the very front of the pack
-      const starPalette = entry.tier === 'leader1'
-        ? [0xfef08a, 0xfbbf24, 0xffffff, 0x38bdf8, 0xe879f9]
-        : entry.tier === 'leader2'
-        ? [0x38bdf8, 0x7dd3fc, 0xffffff, 0xc084fc]
-        : entry.tier === 'leader3'
-        ? [0xfb923c, 0xfde047, 0xffffff, 0xf472b6]
-        : [0xc084fc, 0x38bdf8, 0xfde047, 0xe879f9];
+      // Warm golden stardust palette from the reference image (champagne white, bright gold, warm amber, + rare starlight cyan at tail)
+      const goldDustPalette = [
+        0xffffff, 0xfef9c3, 0xfef08a, 0xfde047,
+        0xfbbf24, 0xf59e0b, 0xd97706
+      ];
 
-      // Number of magic dust motes & sparkling stars scales with eff (frontness)
-      const dustCount = Math.max(1, Math.round(eff * 4.5));
+      // 1. Dense ribbon-hugging golden fairy dust spawned all along the curling loop!
+      const dustCount = Math.max(2, Math.round(eff * 14));
       for (let i = 0; i < dustCount; i++) {
-        if (Math.random() > eff * 1.15) continue;
-        const cHex = starPalette[(i + Math.floor(nowSec * 12)) % starPalette.length];
-        emitMagicDust(rx - 0.25, ry + 0.65 + Math.random() * 0.9, rz, cHex, eff);
+        const strand = (i % 4 === 0 && eff > 0.35) ? 1 : 0;
+        const u = Math.pow(Math.random(), 0.85) * eff;
+        const pt = sampleCurlSpine(u, strand, eff, entry.phase);
+
+        // 75% tightly hugging the golden curl, 25% forming a wide dreamy stardust nebula down to the ground
+        const isWideHalo = Math.random() < 0.28;
+        const scatter = isWideHalo ? (0.35 + eff * 0.75) : (0.08 + u * 0.24);
+        const wx = rx + pt.x + (Math.random() - 0.5) * scatter;
+        const wy = Math.max(0.08, ry + pt.y + (Math.random() - 0.5) * scatter);
+        const wz = rz + pt.z + (Math.random() - 0.5) * scatter;
+
+        // Subtle cool starlight-cyan glints at the far trailing edge (just like the bottom-left of the photo!)
+        let cHex = goldDustPalette[Math.floor(Math.random() * goldDustPalette.length)];
+        if (u > 0.72 && Math.random() < 0.16) {
+          cHex = 0xbae6fd;
+        }
+
+        const driftVx = -(0.5 + u * 1.8 + Math.random() * 1.1);
+        const driftVy = isWideHalo ? (-0.25 - Math.random() * 0.55) : ((Math.random() - 0.45) * 0.65);
+        const driftVz = (Math.random() - 0.5) * 0.65;
+        const life = (isWideHalo ? 0.48 : 0.26) + eff * 0.42 + Math.random() * 0.22;
+
+        emitMagicDust(wx, wy, wz, cHex, eff, { vx: driftVx, vy: driftVy, vz: driftVz }, life);
       }
 
-      // Sparkling 4-point stars streaming in a helical wake that grows longer near the front
-      const starChance = 0.25 + eff * 1.65;
+      // 2. Sparkling 8-Point Golden Starbursts drifting off the curl crests
+      const starChance = 0.35 + eff * 2.4;
       const starDraws = Math.ceil(starChance);
       for (let s = 0; s < starDraws; s++) {
         if (Math.random() > starChance / starDraws) continue;
-        const angle = nowSec * 9.0 + entry.phase + s * Math.PI;
-        const helixR = (0.18 + eff * 0.45);
-        const startY = ry + 0.95 + Math.sin(angle) * helixR;
-        const startZ = rz + Math.cos(angle) * helixR;
-        const cHex = starPalette[Math.floor(Math.random() * starPalette.length)];
-        const trailVx = -(2.4 + eff * 6.0 + Math.random() * 2.0);
-        const trailVy = Math.cos(angle) * (0.8 + eff * 1.4) + 0.4;
-        const trailVz = -Math.sin(angle) * (0.8 + eff * 1.4);
-        const starLife = 0.35 + eff * 0.85 + Math.random() * 0.25;
+        const strand = Math.random() < 0.35 ? 1 : 0;
+        const u = Math.random() * eff;
+        const pt = sampleCurlSpine(u, strand, eff, entry.phase);
+        const scatter = 0.15 + u * 0.38;
+        const sx = rx + pt.x + (Math.random() - 0.5) * scatter;
+        const sy = Math.max(0.15, ry + pt.y + (Math.random() - 0.5) * scatter);
+        const sz = rz + pt.z + (Math.random() - 0.5) * scatter;
+
+        const starColors = [0xffffff, 0xfef08a, 0xfde047, 0xfbbf24];
+        const cHex = (u > 0.78 && Math.random() < 0.18) ? 0x7dd3fc : starColors[Math.floor(Math.random() * starColors.length)];
+
         emitSpark(
-          rx - 0.3,
-          startY,
-          startZ,
-          cHex,
-          1.0,
-          1.0,
-          { vx: trailVx, vy: trailVy, vz: trailVz },
-          starLife,
-          0.9 // Low gravity so stars float and linger in a long comet tail!
+          sx, sy, sz, cHex,
+          0.6, 0.5,
+          {
+            vx: -(0.7 + eff * 1.9 + Math.random() * 1.2),
+            vy: (Math.random() - 0.4) * 0.9,
+            vz: (Math.random() - 0.5) * 0.7
+          },
+          0.32 + eff * 0.55 + Math.random() * 0.25,
+          0.35 // Floating weightless stardust stars!
         );
       }
     }
@@ -1467,21 +1683,34 @@
       halo.position.y = 0.03;
       root.add(halo);
 
-      // Trailing 3D Sparkling Star Crystals (grow in count & length as runner nears front of pack)
-      const trailStars = [];
-      const starGemGeo = new THREE.OctahedronGeometry(0.16, 0);
-      const starGemColors = [0xfef08a, 0x38bdf8, 0xe879f9, 0xfbbf24, 0x7dd3fc, 0xf472b6];
-      for (let s = 0; s < 6; s++) {
-        const sMat = new THREE.MeshBasicMaterial({
-          color: starGemColors[s % starGemColors.length],
+      // Swirling Golden Light Ribbons (main waist-wrap loop + upper hero-star arch)
+      const rTex = sharedRibbonGlowTex || createRibbonGlowTexture();
+      const swirlRibbons = [
+        createSwirlRibbonMesh(rTex),
+        createSwirlRibbonMesh(rTex)
+      ];
+      swirlRibbons.forEach(r => {
+        r.visible = false;
+        root.add(r);
+      });
+
+      // 8-Point Golden Starburst Billboard Sprites (perched on the upper curl crest & inside the golden loop)
+      const sTex = sharedEightPointStarTex || createStarSpriteTexture();
+      const starSprites = [];
+      const starTintHexes = [0xfffbeb, 0xfef08a, 0xfde047, 0xffffff, 0xfde047, 0xfbbf24, 0xffffff, 0xfef08a];
+      for (let s = 0; s < 8; s++) {
+        const spMat = new THREE.SpriteMaterial({
+          map: sTex,
+          color: starTintHexes[s],
           transparent: true,
-          opacity: 0.92
+          opacity: 0.98,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
         });
-        const starMesh = new THREE.Mesh(starGemGeo, sMat);
-        starMesh.position.set(-0.55 - s * 0.52, 1.15, 0);
-        starMesh.visible = false;
-        root.add(starMesh);
-        trailStars.push(starMesh);
+        const sp = new THREE.Sprite(spMat);
+        sp.visible = false;
+        root.add(sp);
+        starSprites.push(sp);
       }
 
       // Limbs (Left/Right Arms & Legs)
@@ -1508,14 +1737,15 @@
         halo,
         haloMat,
         crown,
-        trailStars,
+        swirlRibbons,
+        starSprites,
         limbs: { armL, armR, legL, legR }
       };
     }
 
     function styleSprinterTier(entry, tier, surging, frontness = 0) {
       // Tiers: 'champion' | 'leader1' | 'leader2' | 'leader3' | 'frontpack' | 'pack'
-      const { bodyMat, limbMat, haloMat, crown, halo, trailStars } = entry;
+      const { bodyMat, limbMat, haloMat, crown, halo } = entry;
       if (tier === 'champion') {
         bodyMat.color.setHex(0xfde047);
         bodyMat.emissive.setHex(0xf59e0b);
@@ -1569,9 +1799,9 @@
         bodyMat.emissiveIntensity = surging ? 0.85 : (0.35 + frontness * 0.45);
         limbMat.emissive.setHex(0xc084fc);
         limbMat.emissiveIntensity = 0.35;
-        haloMat.color.setHex(0xa855f7);
-        haloMat.opacity = 0.75;
-        halo.scale.setScalar(1.12);
+        haloMat.color.setHex(0xfbbf24);
+        haloMat.opacity = 0.78;
+        halo.scale.setScalar(1.14);
         crown.visible = false;
         entry.root.scale.setScalar(1.06);
       } else {
@@ -1585,14 +1815,6 @@
         halo.scale.setScalar(0.95 + frontness * 0.15);
         crown.visible = false;
         entry.root.scale.setScalar(0.96 + frontness * 0.08);
-      }
-
-      // Activate trailing 3D star gems proportionally to frontness
-      if (trailStars) {
-        const activeGems = tier === 'champion' ? 3 : Math.floor(frontness * 6.5);
-        trailStars.forEach((gem, idx) => {
-          gem.visible = idx < activeGems;
-        });
       }
     }
 
@@ -1882,22 +2104,8 @@
           entry.crown.rotation.z += dt * 2.5;
         }
 
-        // Animate orbiting 3D star crystals in the runner's wake
-        if (entry.trailStars) {
-          const f = entry.frontness || 0;
-          entry.trailStars.forEach((gem, idx) => {
-            if (!gem.visible) return;
-            const t = nowSec * 6.5 + entry.phase + idx * 0.95;
-            const distBack = (0.55 + idx * (0.38 + f * 0.42));
-            gem.position.x = -distBack;
-            gem.position.y = 1.05 + Math.sin(t) * (0.22 + idx * 0.05);
-            gem.position.z = Math.cos(t) * (0.24 + idx * 0.06);
-            gem.rotation.x += dt * 4.5;
-            gem.rotation.y += dt * 5.5;
-            const sScale = Math.max(0.35, (1.15 - idx * 0.14) * (0.65 + f * 0.6));
-            gem.scale.setScalar(sScale);
-          });
-        }
+        // Update 3D swirling golden light ribbons & 8-point starbursts along the curl
+        updateRunnerMagicRibbon(entry, nowSec);
 
         // Emit progressive trail of sparkling stars & magic dust that grows toward the front of the pack
         if (entry.tier === 'champion') {
