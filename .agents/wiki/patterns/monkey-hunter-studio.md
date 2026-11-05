@@ -34,3 +34,8 @@ Assignment ID: `unit2_monkey_hunter_studio`. Built from the Projectile Range Stu
 
 ## Known limits
 - Projector mode at 1366 × 768: the calculator covers the answer box until dragged aside, because the large text leaves too little room. The panel moves by its title bar.
+
+## 3D 100m Dash Progress & Champions Arena (dmin/sprint_progress_3d.html)
+- Whole-class projector view powered by Three.js (	hree@0.160.0 + RoomEnvironment + OrbitControls).
+- Maps student studio progress (parts_progress, parts_done, score) onto a 3D 0m–100m stadium sprint track with zero names on active track markers.
+- Top leaders gain emissive solar/plasma brightness, rotating crown halos, and additive 3D spark fountains; runners completing 100m ascend to the 3D Victory Plaza and join the Collection of Champions sidebar.

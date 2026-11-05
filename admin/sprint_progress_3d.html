@@ -1,0 +1,1673 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>100m Dash • 3D Class Progress &amp; Champions Arena</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/unit2-favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600;700;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
+  <style>
+    :root {
+      --bg: #050914;
+      --bg-panel: rgba(15, 23, 42, 0.86);
+      --bg-card: rgba(30, 41, 59, 0.78);
+      --border: rgba(148, 163, 184, 0.24);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --gold: #fbbf24;
+      --silver: #e2e8f0;
+      --bronze: #fb923c;
+      --emerald: #34d399;
+      --rose: #fb7185;
+    }
+
+    html[data-theme="light"] {
+      --bg: #e2e8f0;
+      --bg-panel: rgba(255, 255, 255, 0.94);
+      --bg-card: #f8fafc;
+      --border: #94a3b8;
+      --text: #0f172a;
+      --muted: #334155;
+      --accent: #0284c7;
+      --gold: #b45309;
+      --silver: #334155;
+      --bronze: #c2410c;
+      --emerald: #15803d;
+      --rose: #be123c;
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', system-ui, sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Sticky Top Command Bar */
+    header.topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.65rem 1.1rem;
+      background: var(--bg-panel);
+      backdrop-filter: blur(12px);
+      border-bottom: 1.5px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .anon-pill {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      background: rgba(52, 211, 153, 0.16);
+      color: var(--emerald);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    select, button, .btn-link {
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text);
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 0.35rem 0.65rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.15s ease;
+    }
+
+    button:hover, select:hover, .btn-link:hover {
+      border-color: var(--accent);
+    }
+
+    button.active {
+      background: var(--accent);
+      color: #020617;
+      border-color: var(--accent);
+    }
+
+    /* Sign-In Gate */
+    .gate {
+      max-width: 30rem;
+      margin: 5rem auto;
+      padding: 2rem;
+      text-align: center;
+      background: var(--bg-panel);
+      border: 1.5px solid var(--border);
+      border-radius: 1rem;
+    }
+
+    .err {
+      color: var(--rose);
+      font-weight: 700;
+    }
+
+    .demo-banner {
+      background: linear-gradient(90deg, #f59e0b, #ea580c);
+      color: #020617;
+      font-weight: 900;
+      font-size: 0.82rem;
+      text-align: center;
+      padding: 0.3rem 0.75rem;
+      letter-spacing: 0.03em;
+    }
+
+    /* Main Arena Layout */
+    main#arenaMain {
+      flex: 1;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem 1rem;
+      max-width: 110rem;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Top Telemetry Strip */
+    .hud-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+      gap: 0.65rem;
+    }
+
+    .hud-tile {
+      background: var(--bg-panel);
+      border: 1.5px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 0.6rem 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .hud-tile .lbl {
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+
+    .hud-tile .val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.45rem;
+      font-weight: 800;
+    }
+
+    /* Middle Split: 3D Stadium Viewport + Hall of Champions Sidebar */
+    .stage-grid {
+      display: grid;
+      grid-template-columns: 1fr 21rem;
+      gap: 0.85rem;
+      min-height: 31rem;
+    }
+
+    @media (max-width: 1024px) {
+      .stage-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .viewport-card {
+      position: relative;
+      background: #030712;
+      border: 2px solid var(--border);
+      border-radius: 0.9rem;
+      overflow: hidden;
+      min-height: 30rem;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    #trackCanvas3D {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Floating Camera & Flare Legend inside 3D Viewport */
+    .viewport-overlay-top {
+      position: absolute;
+      top: 0.75rem;
+      left: 0.75rem;
+      right: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+      pointer-events: none;
+      flex-wrap: wrap;
+    }
+
+    .cam-bar, .flare-legend {
+      pointer-events: auto;
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      background: rgba(2, 6, 23, 0.78);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      padding: 0.35rem 0.5rem;
+      border-radius: 0.6rem;
+      color: #f8fafc;
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+
+    .cam-btn {
+      background: rgba(30, 41, 59, 0.9);
+      color: #f8fafc;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      padding: 0.25rem 0.55rem;
+      font-size: 0.75rem;
+      border-radius: 0.4rem;
+    }
+
+    .cam-btn.active {
+      background: #38bdf8;
+      color: #020617;
+      border-color: #38bdf8;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.1rem 0.35rem;
+    }
+
+    .dot {
+      width: 0.65rem;
+      height: 0.65rem;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .viewport-overlay-bottom {
+      position: absolute;
+      bottom: 0.65rem;
+      left: 0.75rem;
+      right: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      font-size: 0.76rem;
+      color: #cbd5e1;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+    }
+
+    /* Champions Collection Sidebar */
+    .champions-panel {
+      background: var(--bg-panel);
+      border: 2px solid rgba(251, 191, 36, 0.45);
+      border-radius: 0.9rem;
+      padding: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      max-height: 36rem;
+    }
+
+    .champ-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .champ-header h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .champ-count-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 800;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      background: rgba(251, 191, 36, 0.18);
+      color: var(--gold);
+      border: 1px solid rgba(251, 191, 36, 0.45);
+    }
+
+    .champ-grid {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      padding-right: 0.2rem;
+    }
+
+    .champ-card {
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.14), rgba(30, 41, 59, 0.75));
+      border: 1.5px solid rgba(251, 191, 36, 0.45);
+      border-radius: 0.65rem;
+      padding: 0.55rem 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      animation: popIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.92); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .champ-rank {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 900;
+      font-size: 0.95rem;
+      color: var(--gold);
+      min-width: 2.2rem;
+    }
+
+    .champ-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .champ-title {
+      font-weight: 800;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .champ-sub {
+      font-size: 0.74rem;
+      color: var(--muted);
+    }
+
+    .champ-flare {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: var(--emerald);
+      text-align: right;
+    }
+
+    /* Bottom Checkpoint Split Bar (0m -> 100m Zones) */
+    .zones-bar {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .zones-bar {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .zone-pill {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 0.65rem;
+      padding: 0.5rem 0.65rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.82rem;
+    }
+
+    .zone-pill strong {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div id="demoBanner" class="demo-banner" hidden>
+    🎬 DEMO SPRINT ACTIVE — Simulated anonymous class runners &amp; live leader sparks (Click "Exit Demo" for live Firestore data)
+  </div>
+
+  <header class="topbar">
+    <div class="brand">
+      <h1>🏟️ 100m Dash • 3D Class Progress</h1>
+      <span class="anon-pill" title="Runners on the track never show student names">🕶️ Anonymous Track</span>
+    </div>
+
+    <div class="controls" id="controlsBar" hidden>
+      <label>
+        Assignment
+        <select id="assignmentSelect">
+          <option value="unit2_monkey_hunter_studio">🐒 Monkey Hunter Studio</option>
+          <option value="unit2_day47_projectile_range_studio">🎯 Projectile Range Studio</option>
+          <option value="unit2_day44_vector_decomposition_studio">🧭 Vector Decomposition Studio</option>
+        </select>
+      </label>
+      <label>
+        Class
+        <select id="courseSelect">
+          <option value="all">All Classes</option>
+          <option value="honors">Honors</option>
+          <option value="cp">CP</option>
+          <option value="conceptual">Conceptual</option>
+        </select>
+      </label>
+      <label>
+        Period
+        <select id="periodSelect">
+          <option value="all">All Periods</option>
+        </select>
+      </label>
+      <button type="button" id="btnChampIdentity" title="Toggle whether completed 100m Champions display their name or an anonymous Champion emblem">
+        🏆 Champions: Anonymous Emblem
+      </button>
+      <button type="button" id="btnDemoToggle">🎬 Demo Race</button>
+      <button type="button" id="btnThemeToggle">☀️ Day</button>
+      <a class="btn-link" id="linkTableMonitor" href="monkey_hunter_monitor.html">📋 Teacher Table</a>
+      <button type="button" id="btnSignOut">Sign out</button>
+    </div>
+  </header>
+
+  <section id="gate" class="gate">
+    <h2 style="margin-top:0;">🔐 Teacher Sign-In Required</h2>
+    <p id="gateMsg" style="color: var(--muted);">Checking sign-in…</p>
+    <div style="display:flex; gap:0.6rem; justify-content:center; margin-top:1rem;">
+      <button id="btnSignIn" type="button" hidden>🔑 Sign in with Google</button>
+      <button id="btnStartDemoGate" type="button">🎬 Preview 3D Demo Race</button>
+    </div>
+    <p id="gateErr" class="err"></p>
+  </section>
+
+  <main id="arenaMain" hidden>
+    <!-- Top Summary Strip -->
+    <section class="hud-strip">
+      <div class="hud-tile">
+        <div>
+          <div class="lbl">On the Track</div>
+          <div style="font-size:0.75rem; color:var(--muted);">Active Sprinters</div>
+        </div>
+        <div class="val" id="statActive">0</div>
+      </div>
+      <div class="hud-tile">
+        <div>
+          <div class="lbl">Class Average</div>
+          <div style="font-size:0.75rem; color:var(--muted);">Distance Reached</div>
+        </div>
+        <div class="val" id="statAvgMeters">0m</div>
+      </div>
+      <div class="hud-tile">
+        <div>
+          <div class="lbl">Lead Sprinter</div>
+          <div style="font-size:0.75rem; color:var(--muted);">Front of Pack</div>
+        </div>
+        <div class="val" id="statLeadMeters" style="color:var(--gold);">0m</div>
+      </div>
+      <div class="hud-tile">
+        <div>
+          <div class="lbl">100m Champions</div>
+          <div style="font-size:0.75rem; color:var(--muted);">Completed Assignment</div>
+        </div>
+        <div class="val" id="statChampions" style="color:var(--emerald);">0</div>
+      </div>
+    </section>
+
+    <!-- Center 3D Track + Champions Sidebar -->
+    <section class="stage-grid">
+      <div class="viewport-card" id="viewportContainer">
+        <canvas id="trackCanvas3D"></canvas>
+
+        <div class="viewport-overlay-top">
+          <div class="cam-bar" role="group" aria-label="Camera Angles">
+            <button type="button" class="cam-btn active" data-cam="broadcast">🎥 Stadium Side</button>
+            <button type="button" class="cam-btn" data-cam="chase">⚡ Leader Chase</button>
+            <button type="button" class="cam-btn" data-cam="overhead">🦅 Overhead 100m</button>
+            <button type="button" class="cam-btn" data-cam="champions">🏆 Champions Podium</button>
+          </div>
+
+          <div class="flare-legend">
+            <span class="legend-item"><span class="dot" style="background:#fbbf24; box-shadow:0 0 8px #fbbf24;"></span> 1st Leader (Solar Sparks)</span>
+            <span class="legend-item"><span class="dot" style="background:#38bdf8; box-shadow:0 0 8px #38bdf8;"></span> 2nd–3rd (Plasma Flare)</span>
+            <span class="legend-item"><span class="dot" style="background:#a855f7;"></span> Front Pack Aura</span>
+            <span class="legend-item"><span class="dot" style="background:#34d399; box-shadow:0 0 8px #34d399;"></span> 100m Champion</span>
+          </div>
+        </div>
+
+        <div class="viewport-overlay-bottom">
+          <span>🖱️ Drag to orbit · Scroll to zoom · Right-drag to pan</span>
+          <span id="liveTickLabel">⚡ Real-time Firestore telemetry active</span>
+        </div>
+      </div>
+
+      <!-- Collection of Champions Sidebar -->
+      <aside class="champions-panel">
+        <div class="champ-header">
+          <h2>🏆 Collection of Champions</h2>
+          <span class="champ-count-badge" id="champBadgeCount">0 Finishers</span>
+        </div>
+        <p style="margin:0; font-size:0.78rem; color:var(--muted);">
+          Every runner who crosses the <strong>100m Finish Line</strong> (completes the studio) ascends to the 3D Victory Stage and joins this collection!
+        </p>
+        <div class="champ-grid" id="championsList"></div>
+      </aside>
+    </section>
+
+    <!-- Bottom 100m Split Zones -->
+    <section class="zones-bar" id="zonesBar"></section>
+  </main>
+
+  <!-- Three.js (same CDN version as Cannon Duel 3D) -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script type="module">
+    // firestore-audit: teacher-only
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+    const TEACHER_IDS = ['rmudry', 'ryan.mudry', 'ryanmudry'];
+    const TEACHER_EMAILS = ['rmudry@orangeusd.org', 'ryan.mudry@gmail.com', 'ryanmudry@gmail.com'];
+    const courseForPeriod = p => (String(p) === '0' ? 'honors' : ['1', '2', '3'].includes(String(p)) ? 'conceptual' : 'cp');
+
+    const ASSIGNMENTS = {
+      unit2_monkey_hunter_studio: {
+        title: '🐒 Monkey Hunter Studio',
+        monitorHref: 'monkey_hunter_monitor.html',
+        parts: ['line', 'drop', 'strings', 'monkey', 'hunts', 'quiz'],
+        gates: [
+          { m: 16, label: '16m · Line' },
+          { m: 33, label: '33m · Drop' },
+          { m: 50, label: '50m · Strings' },
+          { m: 67, label: '67m · Monkey' },
+          { m: 84, label: '84m · Hunts' },
+          { m: 100, label: '100m · Finish' }
+        ]
+      },
+      unit2_day47_projectile_range_studio: {
+        title: '🎯 Projectile Range Studio',
+        monitorHref: 'projectile_range_monitor.html',
+        parts: ['see', 'time', 'range', 'full', 'quiz'],
+        gates: [
+          { m: 20, label: '20m · See' },
+          { m: 40, label: '40m · Time' },
+          { m: 60, label: '60m · Range' },
+          { m: 80, label: '80m · Flights' },
+          { m: 100, label: '100m · Finish' }
+        ]
+      },
+      unit2_day44_vector_decomposition_studio: {
+        title: '🧭 Vector Decomposition Studio',
+        monitorHref: 'vector_decomposition_monitor.html',
+        parts: ['p1', 'p2', 'p3', 'p4', 'gym', 'quiz'],
+        gates: [
+          { m: 16, label: '16m · Grid' },
+          { m: 33, label: '33m · Angle' },
+          { m: 50, label: '50m · Sin/Cos' },
+          { m: 67, label: '67m · Calc' },
+          { m: 84, label: '84m · Gym' },
+          { m: 100, label: '100m · Finish' }
+        ]
+      }
+    };
+
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s ?? '').replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
+
+    // URL query overrides
+    const urlParams = new URLSearchParams(location.search);
+    const initialAssignment = urlParams.get('assignment');
+    if (initialAssignment && ASSIGNMENTS[initialAssignment]) {
+      $('assignmentSelect').value = initialAssignment;
+    }
+
+    let roster = new Map();
+    let docs = [];
+    let unsubscribe = null;
+    let isDemoMode = false;
+    let demoTimer = null;
+    let showChampionNames = false; // Default to anonymous emblems; teacher can toggle with 1 click
+
+    // Track each student's previous meters so we can trigger a speed-surge flare when they advance
+    const prevMetersById = new Map();
+    const surgeUntilById = new Map();
+    const finishOrderById = new Map();
+    let finishCounter = 0;
+
+    // ------------------------------------------------------------------
+    // Compute 0m - 100m Distance from Student Studio Document
+    // ------------------------------------------------------------------
+    function computeMeters(s, assignmentKey) {
+      if (!s || !s.started) return 0;
+      const cfg = ASSIGNMENTS[assignmentKey] || ASSIGNMENTS.unit2_monkey_hunter_studio;
+      const reqParts = Array.isArray(s.parts_required) && s.parts_required.length ? s.parts_required : cfg.parts;
+      const doneSet = new Set(Array.isArray(s.parts_done) ? s.parts_done : []);
+      const progMap = s.parts_progress || {};
+
+      let partSum = 0;
+      reqParts.forEach(k => {
+        if (doneSet.has(k)) partSum += 100;
+        else if (typeof progMap[k] === 'number') partSum += Math.max(0, Math.min(99, progMap[k]));
+      });
+      const partPct = reqParts.length ? (partSum / reqParts.length) : 0;
+      const scorePct = typeof s.score === 'number' ? Math.min(100, (s.score / 10) * 100) : partPct;
+
+      const allPartsDone = reqParts.length > 0 && reqParts.every(k => doneSet.has(k));
+      const completed = Boolean(s.isCompleted || s.certificate_code || (s.score >= 9.95 && allPartsDone) || partPct >= 99.9);
+      if (completed) return 100;
+
+      const blended = Math.max(partPct, scorePct * 0.92 + partPct * 0.08);
+      return Math.min(99, Math.max(1, Math.round(blended)));
+    }
+
+    //Deterministic emblem & lane number from student ID (preserves anonymity)
+    const EMBLEMS = ['⚡', '🔥', '☄️', '🌟', '🚀', '🦅', '🐉', '🦁', '🐺', '🔱', '💎', '🌪️', '☀️', '🌙', '⚔️', '🛡️'];
+    function hashId(id) {
+      let h = 2166136261;
+      const str = String(id);
+      for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return Math.abs(h);
+    }
+
+    function emblemForId(id, idx) {
+      const h = hashId(id);
+      const icon = EMBLEMS[h % EMBLEMS.length];
+      const code = String((h % 900) + 100);
+      return `${icon} Sprinter #${code}`;
+    }
+
+    // ------------------------------------------------------------------
+    // Three.js 3D Stadium, Sprinters, Sparks, & Champions Plaza
+    // ------------------------------------------------------------------
+    const canvas = $('trackCanvas3D');
+    const container = $('viewportContainer');
+    let gl, scene, camera, controls, hemiLight, sunLight;
+    let trackGroup, gateBannerGroup;
+    let cameraMode = 'broadcast';
+    const runnerMeshes = new Map(); // id -> { root, limbs, halo, auraLight, tier, currentX, targetX, laneZ }
+    let sparkPoints = null;
+    let sparkData = [];
+    const MAX_SPARKS = 900;
+
+    function init3D() {
+      gl = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+      gl.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      gl.shadowMap.enabled = true;
+      gl.shadowMap.type = THREE.PCFSoftShadowMap;
+      gl.toneMapping = THREE.ACESFilmicToneMapping;
+      gl.toneMappingExposure = 1.15;
+
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x040814);
+      scene.fog = new THREE.FogExp2(0x040814, 0.0042);
+
+      camera = new THREE.PerspectiveCamera(38, 16 / 9, 0.5, 600);
+      camera.position.set(48, 26, 62);
+
+      controls = new OrbitControls(camera, canvas);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.06;
+      controls.maxPolarAngle = Math.PI * 0.485;
+      controls.minDistance = 8;
+      controls.maxDistance = 190;
+      controls.target.set(52, 1.5, 0);
+
+      if (RoomEnvironment) {
+        const pmrem = new THREE.PMREMGenerator(gl);
+        scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+      }
+
+      hemiLight = new THREE.HemisphereLight(0xdbeafe, 0x0f172a, 0.85);
+      sunLight = new THREE.DirectionalLight(0xfff7ed, 2.2);
+      sunLight.position.set(65, 55, 45);
+      sunLight.castShadow = true;
+      Object.assign(sunLight.shadow.camera, { left: -75, right: 85, top: 35, bottom: -35, near: 5, far: 180 });
+      sunLight.shadow.mapSize.set(2048, 1024);
+      sunLight.shadow.bias = -0.0005;
+      sunLight.target.position.set(55, 0, 0);
+      scene.add(hemiLight, sunLight, sunLight.target);
+
+      trackGroup = new THREE.Group();
+      gateBannerGroup = new THREE.Group();
+      scene.add(trackGroup, gateBannerGroup);
+
+      buildStadiumTrack();
+      buildCheckpointGates($('assignmentSelect').value);
+      initSparkSystem();
+      resize3D();
+      window.addEventListener('resize', resize3D);
+    }
+
+    function makeLabelTexture(text, bgHex = '#0f172a', fgHex = '#f8fafc', borderHex = '#38bdf8') {
+      const c = document.createElement('canvas');
+      c.width = 256;
+      c.height = 64;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = bgHex;
+      ctx.strokeStyle = borderHex;
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.roundRect(4, 4, 248, 56, 12);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = fgHex;
+      ctx.font = '900 24px Outfit, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, 128, 33);
+      const tex = new THREE.CanvasTexture(c);
+      tex.needsUpdate = true;
+      return tex;
+    }
+
+    function buildStadiumTrack() {
+      // Surrounding stadium turf & apron
+      const turfGeo = new THREE.PlaneGeometry(240, 120);
+      turfGeo.rotateX(-Math.PI / 2);
+      const turfMat = new THREE.MeshStandardMaterial({ color: 0x06281e, roughness: 0.95 });
+      const turf = new THREE.Mesh(turfGeo, turfMat);
+      turf.position.set(55, -0.08, 0);
+      turf.receiveShadow = true;
+      trackGroup.add(turf);
+
+      // Tartan 100m Sprint Track (x = -6 to 104, width Z = 22)
+      const trackLen = 112;
+      const trackWidth = 22;
+      const trackGeo = new THREE.BoxGeometry(trackLen, 0.14, trackWidth);
+      const trackMat = new THREE.MeshStandardMaterial({
+        color: 0x991b1b,
+        roughness: 0.65,
+        metalness: 0.08
+      });
+      const trackMesh = new THREE.Mesh(trackGeo, trackMat);
+      trackMesh.position.set(50, -0.07, 0);
+      trackMesh.receiveShadow = true;
+      trackGroup.add(trackMesh);
+
+      // White lane lines (9 lane dividers across Z = -10 to +10)
+      const lineMat = new THREE.MeshBasicMaterial({ color: 0xf8fafc });
+      for (let i = 0; i <= 8; i++) {
+        const z = -10 + i * 2.5;
+        const laneLine = new THREE.Mesh(new THREE.BoxGeometry(102, 0.02, 0.07), lineMat);
+        laneLine.position.set(50, 0.01, z);
+        trackGroup.add(laneLine);
+      }
+
+      // Distance lines every 10m from 0m to 100m
+      for (let m = 0; m <= 100; m += 10) {
+        const isMajor = m === 0 || m === 50 || m === 100;
+        const mMat = new THREE.MeshBasicMaterial({
+          color: m === 100 ? 0xfbbf24 : isMajor ? 0x38bdf8 : 0xe2e8f0
+        });
+        const stripe = new THREE.Mesh(new THREE.BoxGeometry(isMajor ? 0.32 : 0.14, 0.025, trackWidth), mMat);
+        stripe.position.set(m, 0.015, 0);
+        trackGroup.add(stripe);
+
+        // Distance marker sign on far sideline
+        if (m % 20 === 0) {
+          const signTex = makeLabelTexture(
+            m === 0 ? 'START 0m' : m === 100 ? 'FINISH 100m' : `${m}m`,
+            '#0f172a',
+            m === 100 ? '#fbbf24' : '#f8fafc',
+            m === 100 ? '#fbbf24' : '#38bdf8'
+          );
+          const signMat = new THREE.MeshBasicMaterial({ map: signTex, transparent: true });
+          const sign = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 1.05), signMat);
+          sign.position.set(m, 1.1, -12.2);
+          trackGroup.add(sign);
+        }
+      }
+
+      // 100m Finish Arch & Checkered Banner
+      const pillarGeo = new THREE.CylinderGeometry(0.32, 0.38, 8.5, 16);
+      const pillarMat = new THREE.MeshStandardMaterial({
+        color: 0xfbbf24,
+        metalness: 0.75,
+        roughness: 0.25,
+        emissive: 0x78350f,
+        emissiveIntensity: 0.4
+      });
+      const pLeft = new THREE.Mesh(pillarGeo, pillarMat);
+      pLeft.position.set(100, 4.25, -11.3);
+      pLeft.castShadow = true;
+      const pRight = new THREE.Mesh(pillarGeo, pillarMat);
+      pRight.position.set(100, 4.25, 11.3);
+      pRight.castShadow = true;
+
+      const beam = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.1, 23.4), pillarMat);
+      beam.position.set(100, 8.3, 0);
+      beam.castShadow = true;
+
+      const finishTex = makeLabelTexture('🏁 100m FINISH • CHAMPIONS GATE', '#0f172a', '#fbbf24', '#fbbf24');
+      const finishBanner = new THREE.Mesh(
+        new THREE.PlaneGeometry(9.5, 1.6),
+        new THREE.MeshBasicMaterial({ map: finishTex, side: THREE.DoubleSide })
+      );
+      finishBanner.position.set(100, 9.6, 0);
+      finishBanner.rotation.y = -Math.PI / 2;
+
+      trackGroup.add(pLeft, pRight, beam, finishBanner);
+
+      // Champions Victory Plaza & Golden Podium Stage (x = 106m to 120m)
+      const plazaGeo = new THREE.CylinderGeometry(11.5, 12.2, 0.5, 36);
+      const plazaMat = new THREE.MeshStandardMaterial({
+        color: 0x1e293b,
+        metalness: 0.6,
+        roughness: 0.3,
+        emissive: 0x0f172a
+      });
+      const plaza = new THREE.Mesh(plazaGeo, plazaMat);
+      plaza.position.set(113, 0.2, 0);
+      plaza.receiveShadow = true;
+
+      const ringGeo = new THREE.RingGeometry(10.8, 11.4, 48);
+      ringGeo.rotateX(-Math.PI / 2);
+      const ringMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24, side: THREE.DoubleSide });
+      const goldRing = new THREE.Mesh(ringGeo, ringMat);
+      goldRing.position.set(113, 0.47, 0);
+
+      // Center Trophy Pedestal on Champions Stage
+      const pedGeo = new THREE.CylinderGeometry(1.8, 2.3, 1.4, 24);
+      const pedMat = new THREE.MeshStandardMaterial({
+        color: 0xfbbf24,
+        metalness: 0.85,
+        roughness: 0.2,
+        emissive: 0xb45309,
+        emissiveIntensity: 0.5
+      });
+      const pedestal = new THREE.Mesh(pedGeo, pedMat);
+      pedestal.position.set(113, 1.1, 0);
+      pedestal.castShadow = true;
+
+      const champSignTex = makeLabelTexture('🏆 HALL OF CHAMPIONS', '#451a03', '#fbbf24', '#fbbf24');
+      const champSign = new THREE.Mesh(
+        new THREE.PlaneGeometry(7.2, 1.5),
+        new THREE.MeshBasicMaterial({ map: champSignTex, side: THREE.DoubleSide })
+      );
+      champSign.position.set(113, 4.4, 0);
+      champSign.rotation.y = -Math.PI / 2;
+
+      trackGroup.add(plaza, goldRing, pedestal, champSign);
+    }
+
+    function buildCheckpointGates(assignmentKey) {
+      while (gateBannerGroup.children.length) {
+        gateBannerGroup.remove(gateBannerGroup.children[0]);
+      }
+      const cfg = ASSIGNMENTS[assignmentKey] || ASSIGNMENTS.unit2_monkey_hunter_studio;
+      cfg.gates.forEach(g => {
+        if (g.m >= 100) return;
+        const tex = makeLabelTexture(g.label, '#0f172a', '#38bdf8', '#38bdf8');
+        const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
+        const board = new THREE.Mesh(new THREE.PlaneGeometry(3.8, 0.95), mat);
+        board.position.set(g.m, 1.0, 12.0);
+        gateBannerGroup.add(board);
+      });
+    }
+
+    // ------------------------------------------------------------------
+    // Particle Spark System for Leaders & Champions
+    // ------------------------------------------------------------------
+    function initSparkSystem() {
+      const positions = new Float32Array(MAX_SPARKS * 3);
+      const colors = new Float32Array(MAX_SPARKS * 3);
+      sparkData = [];
+      for (let i = 0; i < MAX_SPARKS; i++) {
+        positions[i * 3 + 1] = -999;
+        sparkData.push({
+          active: false,
+          x: 0, y: -999, z: 0,
+          vx: 0, vy: 0, vz: 0,
+          life: 0, maxLife: 1
+        });
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+      const mat = new THREE.PointsMaterial({
+        size: 0.42,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.95,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+      sparkPoints = new THREE.Points(geo, mat);
+      scene.add(sparkPoints);
+    }
+
+    let sparkCursor = 0;
+    function emitSpark(x, y, z, colorHex, spread = 1.0, upward = 2.8) {
+      if (!sparkPoints) return;
+      const p = sparkData[sparkCursor];
+      sparkCursor = (sparkCursor + 1) % MAX_SPARKS;
+      p.active = true;
+      p.x = x + (Math.random() - 0.5) * 0.4;
+      p.y = y + Math.random() * 0.4;
+      p.z = z + (Math.random() - 0.5) * 0.4;
+      p.vx = -0.8 - Math.random() * 1.6 * spread;
+      p.vy = upward * (0.5 + Math.random() * 0.9);
+      p.vz = (Math.random() - 0.5) * 1.5 * spread;
+      p.life = 0;
+      p.maxLife = 0.45 + Math.random() * 0.55;
+
+      const c = new THREE.Color(colorHex);
+      const colAttr = sparkPoints.geometry.attributes.color;
+      const idx = (sparkCursor === 0 ? MAX_SPARKS - 1 : sparkCursor - 1) * 3;
+      colAttr.array[idx] = c.r;
+      colAttr.array[idx + 1] = c.g;
+      colAttr.array[idx + 2] = c.b;
+      colAttr.needsUpdate = true;
+    }
+
+    function updateSparks(dt) {
+      if (!sparkPoints) return;
+      const posAttr = sparkPoints.geometry.attributes.position;
+      for (let i = 0; i < MAX_SPARKS; i++) {
+        const p = sparkData[i];
+        if (!p.active) continue;
+        p.life += dt;
+        if (p.life >= p.maxLife) {
+          p.active = false;
+          posAttr.array[i * 3 + 1] = -999;
+          continue;
+        }
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.z += p.vz * dt;
+        p.vy -= 4.8 * dt;
+        posAttr.array[i * 3] = p.x;
+        posAttr.array[i * 3 + 1] = p.y;
+        posAttr.array[i * 3 + 2] = p.z;
+      }
+      posAttr.needsUpdate = true;
+    }
+
+    // ------------------------------------------------------------------
+    // Build Articulated 3D Sprinter Avatar (No Name Label!)
+    // ------------------------------------------------------------------
+    function createSprinterMesh() {
+      const root = new THREE.Group();
+
+      const bodyMat = new THREE.MeshStandardMaterial({
+        color: 0x38bdf8,
+        roughness: 0.3,
+        metalness: 0.45,
+        emissive: 0x0284c7,
+        emissiveIntensity: 0.25
+      });
+
+      const limbMat = new THREE.MeshStandardMaterial({
+        color: 0xe2e8f0,
+        roughness: 0.35,
+        metalness: 0.3,
+        emissive: 0x38bdf8,
+        emissiveIntensity: 0.15
+      });
+
+      // Torso
+      const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.26, 0.55, 8, 14), bodyMat);
+      torso.position.y = 1.15;
+      torso.rotation.z = -0.18; // Forward sprint lean
+      torso.castShadow = true;
+      root.add(torso);
+
+      // Head + Visor
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.24, 16, 14), bodyMat);
+      head.position.set(0.1, 1.78, 0);
+      head.castShadow = true;
+      root.add(head);
+
+      // Crown / Halo Ring for Leaders & Champions
+      const crownGeo = new THREE.TorusGeometry(0.32, 0.045, 10, 24);
+      crownGeo.rotateX(Math.PI / 2);
+      const crownMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
+      const crown = new THREE.Mesh(crownGeo, crownMat);
+      crown.position.set(0.1, 2.18, 0);
+      crown.visible = false;
+      root.add(crown);
+
+      // Ground Glow Ring
+      const haloGeo = new THREE.RingGeometry(0.42, 0.68, 28);
+      haloGeo.rotateX(-Math.PI / 2);
+      const haloMat = new THREE.MeshBasicMaterial({
+        color: 0x38bdf8,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.65
+      });
+      const halo = new THREE.Mesh(haloGeo, haloMat);
+      halo.position.y = 0.03;
+      root.add(halo);
+
+      // Limbs (Left/Right Arms & Legs)
+      const makeLimb = (y, z) => {
+        const g = new THREE.Group();
+        g.position.set(0, y, z);
+        const mesh = new THREE.Mesh(new THREE.CapsuleGeometry(0.09, 0.45, 6, 10), limbMat);
+        mesh.position.y = -0.24;
+        mesh.castShadow = true;
+        g.add(mesh);
+        root.add(g);
+        return g;
+      };
+
+      const armL = makeLimb(1.38, -0.32);
+      const armR = makeLimb(1.38, 0.32);
+      const legL = makeLimb(0.78, -0.16);
+      const legR = makeLimb(0.78, 0.16);
+
+      return {
+        root,
+        bodyMat,
+        limbMat,
+        halo,
+         haloMat,
+        crown,
+        limbs: { armL, armR, legL, legR }
+      };
+    }
+
+    function styleSprinterTier(entry, tier, surging) {
+      // Tiers: 'champion' | 'leader1' | 'leader2' | 'leader3' | 'frontpack' | 'pack'
+      const { bodyMat, limbMat, haloMat, crown, halo } = entry;
+      if (tier === 'champion') {
+        bodyMat.color.setHex(0xfde047);
+        bodyMat.emissive.setHex(0xf59e0b);
+        bodyMat.emissiveIntensity = 1.15;
+        limbMat.emissive.setHex(0xfbbf24);
+        limbMat.emissiveIntensity = 0.7;
+        haloMat.color.setHex(0x34d399);
+        haloMat.opacity = 0.95;
+        halo.scale.setScalar(1.35);
+        crown.visible = true;
+        crown.material.color.setHex(0xfef08a);
+        entry.root.scale.setScalar(1.22);
+      } else if (tier === 'leader1') {
+        bodyMat.color.setHex(0xfbbf24);
+        bodyMat.emissive.setHex(0xf59e0b);
+        bodyMat.emissiveIntensity = 1.25;
+        limbMat.emissive.setHex(0xfef08a);
+        limbMat.emissiveIntensity = 0.85;
+        haloMat.color.setHex(0xfbbf24);
+        haloMat.opacity = 1.0;
+        halo.scale.setScalar(1.55);
+        crown.visible = true;
+        crown.material.color.setHex(0xfbbf24);
+        entry.root.scale.setScalar(1.32);
+      } else if (tier === 'leader2') {
+        bodyMat.color.setHex(0x38bdf8);
+        bodyMat.emissive.setHex(0x0ea5e9);
+        bodyMat.emissiveIntensity = 0.95;
+        limbMat.emissive.setHex(0x7dd3fc);
+        limbMat.emissiveIntensity = 0.6;
+        haloMat.color.setHex(0x38bdf8);
+        haloMat.opacity = 0.9;
+        halo.scale.setScalar(1.35);
+        crown.visible = true;
+        crown.material.color.setHex(0x38bdf8);
+        entry.root.scale.setScalar(1.2);
+      } else if (tier === 'leader3') {
+        bodyMat.color.setHex(0xfb923c);
+        bodyMat.emissive.setHex(0xea580c);
+        bodyMat.emissiveIntensity = 0.85;
+        limbMat.emissive.setHex(0xfdba74);
+        limbMat.emissiveIntensity = 0.5;
+        haloMat.color.setHex(0xfb923c);
+        haloMat.opacity = 0.85;
+        halo.scale.setScalar(1.25);
+        crown.visible = false;
+        entry.root.scale.setScalar(1.14);
+      } else if (tier === 'frontpack' || surging) {
+        bodyMat.color.setHex(0xa855f7);
+        bodyMat.emissive.setHex(0x7e22ce);
+        bodyMat.emissiveIntensity = surging ? 0.85 : 0.5;
+        limbMat.emissive.setHex(0xc084fc);
+        limbMat.emissiveIntensity = 0.35;
+        haloMat.color.setHex(0xa855f7);
+        haloMat.opacity = 0.75;
+        halo.scale.setScalar(1.12);
+        crown.visible = false;
+        entry.root.scale.setScalar(1.06);
+      } else {
+        bodyMat.color.setHex(0x0284c7);
+        bodyMat.emissive.setHex(0x0369a1);
+        bodyMat.emissiveIntensity = 0.2;
+        limbMat.emissive.setHex(0x0284c7);
+        limbMat.emissiveIntensity = 0.1;
+        haloMat.color.setHex(0x38bdf8);
+        haloMat.opacity = 0.42;
+        halo.scale.setScalar(0.95);
+        crown.visible = false;
+        entry.root.scale.setScalar(0.96);
+      }
+    }
+
+    function resize3D() {
+      if (!gl || !container) return;
+      const w = container.clientWidth || 800;
+      const h = container.clientHeight || 500;
+      gl.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+
+    // ------------------------------------------------------------------
+    // Synchronize Student Progress Data with 3D Sprinters & Champions UI
+    // ------------------------------------------------------------------
+    let leadRunnerX = 25;
+
+    function render() {
+      const assignmentKey = $('assignmentSelect').value;
+      const periodFilter = $('periodSelect').value;
+      const courseFilter = $('courseSelect').value;
+      const cfg = ASSIGNMENTS[assignmentKey] || ASSIGNMENTS.unit2_monkey_hunter_studio;
+      $('linkTableMonitor').href = cfg.monitorHref;
+
+      const merged = new Map();
+      roster.forEach((r, id) => merged.set(id, { id, name: r.name, period: r.period, started: false }));
+      docs.forEach(d => {
+        const r = roster.get(d.id);
+        merged.set(d.id, Object.assign({}, d, {
+          started: true,
+          name: (r && r.name) || d.student_name || d.id,
+          period: d.class_period !== null && d.class_period !== undefined ? String(d.class_period) : (r ? r.period : '?')
+        }));
+      });
+
+      const all = [...merged.values()].filter(s => !TEACHER_IDS.includes(s.id));
+      all.forEach(s => { s.course = s.track || courseForPeriod(s.period); });
+
+      const periods = [...new Set(all.map(s => s.period))].filter(p => p !== '' && p !== undefined).sort((a, b) => Number(a) - Number(b));
+      $('periodSelect').innerHTML = '<option value="all">All Periods</option>' + periods.map(p => `<option value="${esc(p)}">Period ${esc(p)}</option>`).join('');
+      if (periods.includes(periodFilter)) $('periodSelect').value = periodFilter;
+
+      const inView = all.filter(s =>
+        ($('periodSelect').value === 'all' || s.period === $('periodSelect').value) &&
+        (courseFilter === 'all' || s.course === courseFilter)
+      );
+
+      const started = inView.filter(s => s.started);
+      const now = performance.now();
+
+      // Compute meters & detect recent surges
+      started.forEach((s, idx) => {
+        const m = computeMeters(s, assignmentKey);
+        const prev = prevMetersById.get(s.id);
+        if (prev !== undefined && m > prev) {
+          surgeUntilById.set(s.id, now + 6500);
+          // Burst of sparks on advancement
+          const existing = runnerMeshes.get(s.id);
+          if (existing) {
+            for (let k = 0; k < 22; k++) {
+              emitSpark(existing.currentX, 1.4, existing.laneZ, m >= 100 ? 0xfbbf24 : 0x38bdf8, 1.8, 3.8);
+            }
+          }
+        }
+        prevMetersById.set(s.id, m);
+        s.meters = m;
+        s.emblem = emblemForId(s.id, idx);
+        if (m >= 100 && !finishOrderById.has(s.id)) {
+          finishCounter++;
+          finishOrderById.set(s.id, {
+            order: finishCounter,
+            at: s.certificate_earned_at || Date.now()
+          });
+        }
+      });
+
+      // Separate active track runners (< 100m) vs 100m Champions (== 100m)
+      const champions = started
+        .filter(s => s.meters >= 100)
+        .sort((a, b) => (finishOrderById.get(a.id)?.order || 999) - (finishOrderById.get(b.id)?.order || 999));
+
+      const onTrack = started
+        .filter(s => s.meters < 100)
+        .sort((a, b) => b.meters - a.meters);
+
+      // Rank active leaders on the track for brightness / spark flare
+      const leader1Meters = onTrack.length > 0 ? onTrack[0].meters : -1;
+      const leader2Meters = onTrack.length > 1 ? onTrack[1].meters : -1;
+      const leader3Meters = onTrack.length > 2 ? onTrack[2].meters : -1;
+      const frontPackCutoff = onTrack.length > 3 ? onTrack[Math.floor(onTrack.length * 0.35)].meters : 50;
+
+      leadRunnerX = onTrack.length > 0 ? onTrack[0].meters : (champions.length > 0 ? 100 : 25);
+
+      // Top HUD tiles
+      const avgM = started.length
+        ? Math.round(started.reduce((sum, s) => sum + s.meters, 0) / started.length)
+        : 0;
+      $('statActive').textContent = `${onTrack.length}`;
+      $('statAvgMeters').textContent = `${avgM}m`;
+      $('statLeadMeters').textContent = onTrack.length ? `${onTrack[0].meters}m` : (champions.length ? '100m' : '0m');
+      $('statChampions').textContent = `${champions.length}`;
+
+      // Update 3D Sprinter Avatars
+      const activeIds = new Set(started.map(s => s.id));
+      for (const [id, entry] of runnerMeshes.entries()) {
+        if (!activeIds.has(id)) {
+          scene.remove(entry.root);
+          runnerMeshes.delete(id);
+        }
+      }
+
+      started.forEach((s, i) => {
+        let entry = runnerMeshes.get(s.id);
+        const h = hashId(s.id);
+        const laneZ = -9.2 + ((h % 19) / 18) * 18.4;
+
+        if (!entry) {
+          const created = createSprinterMesh();
+          entry = {
+            ...created,
+            id: s.id,
+            currentX: s.meters,
+            targetX: s.meters,
+            laneZ,
+            phase: (h % 100) * 0.1,
+            tier: 'pack',
+            surging: false
+          };
+          created.root.position.set(s.meters, 0, laneZ);
+          scene.add(created.root);
+          runnerMeshes.set(s.id, entry);
+        }
+
+        const isSurging = (surgeUntilById.get(s.id) || 0) > now;
+        let tier = 'pack';
+        if (s.meters >= 100) {
+          tier = 'champion';
+          // Arrange Champions in a celebratory semicircle around the Victory Podium (x ~ 113, z ~ 0)
+          const cIdx = champions.findIndex(c => c.id === s.id);
+          const angle = ((cIdx % 14) / 13 - 0.5) * Math.PI * 1.3;
+          const radius = 4.2 + Math.floor(cIdx / 14) * 2.2;
+          entry.targetX = 113 + Math.cos(angle) * radius;
+          entry.laneZ = Math.sin(angle) * radius;
+        } else {
+          entry.targetX = s.meters;
+          if (s.meters === leader1Meters && s.meters > 0) tier = 'leader1';
+          else if (s.meters === leader2Meters && s.meters > 0) tier = 'leader2';
+          else if (s.meters === leader3Meters && s.meters > 0) tier = 'leader3';
+          else if (s.meters >= frontPackCutoff && s.meters >= 30) tier = 'frontpack';
+        }
+
+        entry.tier = tier;
+        entry.surging = isSurging;
+        styleSprinterTier(entry, tier, isSurging);
+      });
+
+      // Render Collection of Champions Sidebar
+      $('champBadgeCount').textContent = `${champions.length} Finisher${champions.length === 1 ? '' : 's'}`;
+      if (!champions.length) {
+        $('championsList').innerHTML = `
+          <div style="text-align:center; padding:2rem 0.75rem; color:var(--muted); font-size:0.86rem;">
+            <div style="font-size:2rem; margin-bottom:0.35rem;">🏁</div>
+            No runners have crossed the <strong>100m Finish Line</strong> yet.<br>
+            Keep pushing—the first finisher claims the #1 Champion Crown!
+          </div>`;
+      } else {
+        $('championsList').innerHTML = champions.map((c, idx) => {
+          const rankNum = idx + 1;
+          const medal = rankNum === 1 ? '🥇' : rankNum === 2 ? '🥈' : rankNum === 3 ? '🥉' : '🏅';
+          const displayTitle = showChampionNames ? c.name : c.emblem;
+          const quizInfo = c.quiz_best ? `Mastery ${c.quiz_best}%` : '100m Complete';
+          return `
+            <div class="champ-card">
+              <div class="champ-rank">${medal}#${rankNum}</div>
+              <div class="champ-info">
+                <div class="champ-title">${esc(displayTitle)}</div>
+                <div class="champ-sub">Period ${esc(c.period)} · ${esc(quizInfo)}</div>
+              </div>
+              <div class="champ-flare">100m ✨</div>
+            </div>`;
+        }).join('');
+      }
+
+      // Render Bottom 100m Zone Breakdown
+      const zones = [
+        { label: '0–19m · Start Blocks', min: 0, max: 19 },
+        { label: '20–39m · Early Stride', min: 20, max: 39 },
+        { label: '40–59m · Mid-Track', min: 40, max: 59 },
+        { label: '60–79m · Back Straight', min: 60, max: 79 },
+        { label: '80–99m · Final Kick', min: 80, max: 99 },
+        { label: '100m · Champions 🏆', min: 100, max: 100 }
+      ];
+      $('zonesBar').innerHTML = zones.map(z => {
+        const count = started.filter(s => s.meters >= z.min && s.meters <= z.max).length;
+        return `
+          <div class="zone-pill">
+            <span>${esc(z.label)}</span>
+            <strong>${count}</strong>
+          </div>`;
+      }).join('');
+    }
+
+    // ------------------------------------------------------------------
+    // 60 FPS Animation Loop
+    // ------------------------------------------------------------------
+    let lastFrameTime = performance.now();
+    function animate(now) {
+      requestAnimationFrame(animate);
+      const dt = Math.min(0.05, (now - lastFrameTime) / 1000);
+      lastFrameTime = now;
+
+      // Update camera presets if selected
+      if (cameraMode === 'chase') {
+        const targetX = Math.min(100, Math.max(10, leadRunnerX));
+        controls.target.lerp(new THREE.Vector3(targetX + 4, 1.8, 0), 0.06);
+        camera.position.lerp(new THREE.Vector3(targetX - 18, 8.5, 16), 0.05);
+      } else if (cameraMode === 'overhead') {
+        controls.target.lerp(new THREE.Vector3(52, 0, 0), 0.06);
+        camera.position.lerp(new THREE.Vector3(52, 68, 12), 0.05);
+      } else if (cameraMode === 'champions') {
+        controls.target.lerp(new THREE.Vector3(111, 2.0, 0), 0.06);
+        camera.position.lerp(new THREE.Vector3(92, 11, 22), 0.05);
+      }
+
+      // Animate runners & emit leader/champion sparks
+      for (const entry of runnerMeshes.values()) {
+        // Smooth horizontal interpolation along track
+        entry.currentX += (entry.targetX - entry.currentX) * Math.min(1, dt * 4.5);
+        const curZ = entry.root.position.z + (entry.laneZ - entry.root.position.z) * Math.min(1, dt * 4.5);
+        entry.root.position.x = entry.currentX;
+        entry.root.position.z = curZ;
+
+        const speedMultiplier = entry.tier === 'leader1' ? 11.5
+          : (entry.tier === 'leader2' || entry.tier === 'leader3' || entry.surging) ? 9.5
+          : entry.tier === 'champion' ? 5.5
+          : 7.2;
+
+        entry.phase += dt * speedMultiplier;
+        const swing = Math.sin(entry.phase) * 0.72;
+        entry.limbs.armL.rotation.z = swing;
+        entry.limbs.armR.rotation.z = -swing;
+        entry.limbs.legL.rotation.z = -swing;
+        entry.limbs.legR.rotation.z = swing;
+
+        // Vertical sprint bounce (or champion victory jump)
+        if (entry.tier === 'champion') {
+          entry.root.position.y = Math.abs(Math.sin(entry.phase * 0.9)) * 0.55;
+          entry.root.rotation.y += dt * 1.2;
+        } else {
+          entry.root.position.y = Math.abs(Math.sin(entry.phase)) * 0.18;
+          entry.root.rotation.y = 0;
+        }
+
+        // Rotate crown halo
+        if (entry.crown.visible) {
+          entry.crown.rotation.z += dt * 2.5;
+        }
+
+        // Emit continuous sparks for leaders & champions
+        if (entry.tier === 'leader1' && Math.random() < 0.85) {
+          emitSpark(entry.currentX - 0.3, 1.3, curZ, 0xfbbf24, 1.2, 2.6);
+          emitSpark(entry.currentX - 0.5, 0.5, curZ, 0xfef08a, 0.9, 1.8);
+        } else if (entry.tier === 'leader2' && Math.random() < 0.6) {
+          emitSpark(entry.currentX - 0.3, 1.2, curZ, 0x38bdf8, 1.0, 2.2);
+        } else if (entry.tier === 'leader3' && Math.random() < 0.55) {
+          emitSpark(entry.currentX - 0.3, 1.2, curZ, 0xfb923c, 1.0, 2.2);
+        } else if (entry.tier === 'champion' && Math.random() < 0.35) {
+          emitSpark(entry.currentX, 2.1, curZ, 0xfde047, 1.3, 3.1);
+        } else if (entry.surging && Math.random() < 0.65) {
+          emitSpark(entry.currentX - 0.3, 1.1, curZ, 0xa855f7, 1.1, 2.3);
+        }
+      }
+
+      updateSparks(dt);
+      controls.update();
+      if (gl && scene && camera) {
+        gl.render(scene, camera);
+      }
+    }
+
+    // ------------------------------------------------------------------
+    // Controls, Auth, & Live / Demo Data Feeds
+    // ------------------------------------------------------------------
+    document.querySelectorAll('.cam-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.cam-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        cameraMode = btn.dataset.cam;
+        if (cameraMode === 'broadcast') {
+          camera.position.set(48, 26, 62);
+          controls.target.set(52, 1.5, 0);
+        }
+      });
+    });
+
+    $('btnChampIdentity').addEventListener('click', () => {
+      showChampionNames = !showChampionNames;
+      $('btnChampIdentity').textContent = showChampionNames
+        ? '🏆 Champions: Showing Names'
+        : '🏆 Champions: Anonymous Emblem';
+      render();
+    });
+
+    $('btnThemeToggle').addEventListener('click', () => {
+      const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+      const next = cur === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      $('btnThemeToggle').textContent = next === 'light' ? '🌙 Night' : '☀️ Day';
+      if (scene) {
+        const skyHex = next === 'light' ? 0xdbeafe : 0x040814;
+        scene.background.setHex(skyHex);
+        scene.fog.color.setHex(skyHex);
+      }
+    });
+
+    $('assignmentSelect').addEventListener('change', () => {
+      const aKey = $('assignmentSelect').value;
+      buildCheckpointGates(aKey);
+      prevMetersById.clear();
+      finishOrderById.clear();
+      finishCounter = 0;
+      if (isDemoMode) startDemoRace();
+      else subscribeAssignment(aKey);
+    });
+
+    $('courseSelect').addEventListener('change', render);
+    $('periodSelect').addEventListener('change', render);
+
+    $('btnDemoToggle').addEventListener('click', () => {
+      if (isDemoMode) {
+        stopDemoRace();
+        startLiveFirestore();
+      } else {
+        startDemoRace();
+      }
+    });
+
+    $('btnStartDemoGate').addEventListener('click', () => {
+      $('gate').hidden = true;
+      $('arenaMain').hidden = false;
+      $('controlsBar').hidden = false;
+      resize3D();
+      startDemoRace();
+    });
+
+    function startDemoRace() {
+      if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+      clearInterval(demoTimer);
+      isDemoMode = true;
+      $('demoBanner').hidden = false;
+      $('btnDemoToggle').textContent = '📡 Exit Demo';
+      $('btnDemoToggle').classList.add('active');
+
+      roster = new Map();
+      docs = [];
+      prevMetersById.clear();
+      finishOrderById.clear();
+      finishCounter = 0;
+
+      const assignmentKey = $('assignmentSelect').value;
+      const cfg = ASSIGNMENTS[assignmentKey] || ASSIGNMENTS.unit2_monkey_hunter_studio;
+
+      // Seed 22 simulated sprinters across periods
+      for (let i = 1; i <= 22; i++) {
+        const id = `demo_sprinter_${i}`;
+        const per = i <= 4 ? '0' : i <= 11 ? '2' : '4';
+        const baseScore = i === 1 ? 10 : i === 2 ? 9.4 : i === 3 ? 8.8 : Math.max(0.8, Math.round((Math.random() * 8.2) * 10) / 10);
+        roster.set(id, { name: `Demo Student ${i}`, period: per });
+        docs.push({
+          id,
+          student_name: `Demo Student ${i}`,
+          class_period: Number(per),
+          track: courseForPeriod(per),
+          score: baseScore,
+          parts_required: cfg.parts,
+          parts_done: baseScore >= 10 ? cfg.parts.slice() : cfg.parts.slice(0, Math.floor((baseScore / 10) * cfg.parts.length)),
+          parts_progress: {},
+          quiz_best: baseScore >= 10 ? 95 : null,
+          isCompleted: baseScore >= 10
+        });
+      }
+      render();
+
+      // Advance random sprinters every 1.8s so the teacher can see live surges, leader sparks, and new Champions
+      demoTimer = setInterval(() => {
+        const active = docs.filter(d => !d.isCompleted);
+        if (!active.length) return;
+        for (let k = 0; k < 3; k++) {
+          const pick = active[Math.floor(Math.random() * active.length)];
+          if (!pick) continue;
+          pick.score = Math.min(10, Number((pick.score + 0.45 + Math.random() * 0.65).toFixed(2)));
+          if (pick.score >= 10) {
+            pick.score = 10;
+            pick.isCompleted = true;
+            pick.parts_done = cfg.parts.slice();
+            pick.quiz_best = 85 + Math.floor(Math.random() * 16);
+          }
+        }
+        render();
+      }, 1800);
+    }
+
+    function stopDemoRace() {
+      clearInterval(demoTimer);
+      demoTimer = null;
+      isDemoMode = false;
+      $('demoBanner').hidden = true;
+      $('btnDemoToggle').textContent = '🎬 Demo Race';
+      $('btnDemoToggle').classList.remove('active');
+    }
+
+    function subscribeAssignment(assignmentId) {
+      if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+      const db = firebase.firestore();
+      unsubscribe = db.collection('student_results').doc(assignmentId).collection('students').onSnapshot(snap => {
+        docs = snap.docs.map(d => Object.assign({ id: d.id }, d.data()));
+        render();
+      }, e => {
+        $('liveTickLabel').textContent = `⚠️ Could not load results: ${e.message}`;
+      });
+    }
+
+    function startLiveFirestore() {
+      stopDemoRace();
+      $('gate').hidden = true;
+      $('arenaMain').hidden = false;
+      $('controlsBar').hidden = false;
+      resize3D();
+
+      const db = firebase.firestore();
+      db.collection('roster').get().then(snap => {
+        roster = new Map();
+        snap.forEach(doc => {
+          const d = doc.data();
+          roster.set(doc.id, {
+            name: d.name || d.full_name || `${d.first_name || ''} ${d.last_name || ''}`.trim() || doc.id,
+            period: String(d.class_period ?? d.period ?? '')
+          });
+        });
+        render();
+      }).catch(e => console.warn('Roster lookup warning:', e));
+
+      subscribeAssignment($('assignmentSelect').value);
+    }
+
+    function showGate(msg, err) {
+      if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+      stopDemoRace();
+      $('arenaMain').hidden = true;
+      $('controlsBar').hidden = true;
+      $('gate').hidden = false;
+      $('gateMsg').textContent = msg;
+      $('gateErr').textContent = err || '';
+      $('btnSignIn').hidden = false;
+    }
+
+    // Boot 3D scene and Auth
+    init3D();
+    requestAnimationFrame(animate);
+
+    if (urlParams.has('demo')) {
+      $('gate').hidden = true;
+      $('arenaMain').hidden = false;
+      $('controlsBar').hidden = false;
+      resize3D();
+      startDemoRace();
+    } else {
+      $('btnSignIn').addEventListener('click', () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        firebase.auth().signInWithPopup(provider).catch(e => {
+          if (e.code === 'auth/popup-blocked') firebase.auth().signInWithRedirect(provider);
+          else if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') $('gateErr').textContent = e.message;
+        });
+      });
+
+      $('btnSignOut').addEventListener('click', () => firebase.auth().signOut());
+      firebase.auth().getRedirectResult().catch(e => { $('gateErr').textContent = e.message; });
+      firebase.auth().onAuthStateChanged(user => {
+        const email = user && (user.email || '').toLowerCase();
+        if (user && TEACHER_EMAILS.includes(email)) {
+          startLiveFirestore();
+        } else if (user) {
+          firebase.auth().signOut();
+          showGate('Teacher sign-in required.', 'This live monitor is restricted to the teacher account.');
+        } else if (!$('gateErr').textContent) {
+          showGate('Sign in with your teacher Google account to view live class progress, or preview the 3D Demo Race.');
+        }
+      });
+    }
+  </script>
+</body>
+</html>
+

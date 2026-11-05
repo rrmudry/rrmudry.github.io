@@ -1617,3 +1617,6 @@ Append-only log tracking pattern changes across recent sessions.
 - **2026-11-04**: Added patterns/monkey-hunter-studio.md for the new Monkey Hunter Studio (`Unit_2/monkey_hunter_studio/`, hanging-balls meter stick, three-class hunts) and its teacher monitor. Listed it as a reference app in student-app-standards.md.
 
 - **2026-11-04**: Posted Monkey Hunter Studio to Classroom (`unit2_monkey_hunter_studio`, 10 pts, due Nov 5 at 6:00 PM) and added it to Day 49 in `assets/lessons-data.js`.
+
+## 2026-11-05 — 3D 100m Dash Class Progress & Champions Arena
+- Created dmin/sprint_progress_3d.html and linked from dmin/monkey_hunter_monitor.html, dmin/projectile_range_monitor.html, dmin/vector_decomposition_monitor.html, and dmin/index.html.
