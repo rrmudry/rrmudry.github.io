@@ -734,15 +734,22 @@
     let sharedEightPointStarTex = null;
     let sharedRibbonGlowTex = null;
 
-    // Multicolored 3D Fireworks over Hall of Champions
+    // Multicolored 3D Fireworks over Hall of Champions (Dedicated Particle & Flash System)
+    let fwPoints = null;
+    let fwData = [];
+    let fwCursor = 0;
+    const MAX_FW = 4000;
     const fireworkRockets = [];
-    let nextFireworkTimer = 0.4;
+    const fireworkFlashes = [];
+    let nextFireworkTimer = 0.05;
+    let sharedWhiteBurstTex = null;
     const FIREWORK_PALETTES = [
-      [0xf43f5e, 0xfde047, 0xffffff], // Ruby & Gold
-      [0x38bdf8, 0xc084fc, 0xe879f9], // Cyan & Arcane Violet
-      [0x34d399, 0xfbbf24, 0xa7f3d0], // Emerald & Sunburst Gold
-      [0xfb923c, 0xec4899, 0xfef08a], // Tangerine & Hot Magenta
-      [0xf43f5e, 0xfb923c, 0xfde047, 0x34d399, 0x38bdf8, 0xa855f7, 0xec4899, 0xffffff] // Full Rainbow Supernova
+      [0xff1e56, 0xfde047, 0xffffff, 0xff758f], // Ruby Crimson & Gold
+      [0x00f2fe, 0xc084fc, 0xe879f9, 0xffffff], // Electric Cyan & Neon Violet
+      [0x10b981, 0xfbbf24, 0x6ee7b7, 0xfef08a], // Emerald & Sunburst Gold
+      [0xff6b00, 0xff007f, 0xfde047, 0xffffff], // Sunset Tangerine & Hot Magenta
+      [0x3b82f6, 0x38bdf8, 0xf43f5e, 0xfde047], // Royal Blue, Cyan, Coral & Gold
+      [0xff1e56, 0xff6b00, 0xfde047, 0x10b981, 0x00f2fe, 0xa855f7, 0xff007f, 0xffffff] // Full Rainbow Supernova
     ];
 
     function init3D() {
@@ -758,7 +765,7 @@
       scene.fog = new THREE.FogExp2(0x040814, 0.0042);
 
       camera = new THREE.PerspectiveCamera(38, 16 / 9, 0.5, 600);
-      camera.position.set(48, 26, 62);
+      camera.position.set(58, 25, 66);
 
       controls = new OrbitControls(camera, canvas);
       controls.enableDamping = true;
@@ -766,7 +773,7 @@
       controls.maxPolarAngle = Math.PI * 0.485;
       controls.minDistance = 8;
       controls.maxDistance = 190;
-      controls.target.set(52, 1.5, 0);
+      controls.target.set(62, 2.5, 0);
 
       if (RoomEnvironment) {
         const pmrem = new THREE.PMREMGenerator(gl);
@@ -1133,11 +1140,35 @@
       return mesh;
     }
 
+    function createPureWhiteFireworkTexture() {
+      const c = document.createElement('canvas');
+      c.width = 64;
+      c.height = 64;
+      const ctx = c.getContext('2d');
+      const g = ctx.createRadialGradient(32, 32, 1, 32, 32, 30);
+      g.addColorStop(0, 'rgba(255,255,255,1)');
+      g.addColorStop(0.28, 'rgba(255,255,255,0.95)');
+      g.addColorStop(0.6, 'rgba(255,255,255,0.42)');
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 64, 64);
+
+      // Subtle 4-point cross glint in pure white so vertexColors stay 100% true
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.fillRect(30, 4, 4, 56);
+      ctx.fillRect(4, 30, 56, 4);
+
+      const tex = new THREE.CanvasTexture(c);
+      tex.needsUpdate = true;
+      return tex;
+    }
+
     function initSparkSystem() {
       sharedEightPointStarTex = createStarSpriteTexture();
       sharedRibbonGlowTex = createRibbonGlowTexture();
+      sharedWhiteBurstTex = createPureWhiteFireworkTexture();
 
-      // 1. Sparkling 8-Point Stars & Firework Starburst Points
+      // 1. Sparkling 8-Point Stars for Runner Trails
       const positions = new Float32Array(MAX_SPARKS * 3);
       const colors = new Float32Array(MAX_SPARKS * 3);
       sparkData = [];
@@ -1159,7 +1190,7 @@
       geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
       const mat = new THREE.PointsMaterial({
-        size: 0.88,
+        size: 0.92,
         map: sharedEightPointStarTex,
         vertexColors: true,
         transparent: true,
@@ -1168,6 +1199,7 @@
         depthWrite: false
       });
       sparkPoints = new THREE.Points(geo, mat);
+      sparkPoints.frustumCulled = false; // Prevent Three.js from culling dynamic particles!
       scene.add(sparkPoints);
 
       // 2. Dense Golden Magic Dust Cloud Points
@@ -1191,16 +1223,66 @@
       dGeo.setAttribute('color', new THREE.BufferAttribute(dColors, 3));
 
       const dMat = new THREE.PointsMaterial({
-        size: 0.48,
+        size: 0.52,
         map: createMagicDustTexture(),
         vertexColors: true,
         transparent: true,
-        opacity: 0.92,
+        opacity: 0.94,
         blending: THREE.AdditiveBlending,
         depthWrite: false
       });
       dustPoints = new THREE.Points(dGeo, dMat);
+      dustPoints.frustumCulled = false; // Prevent Three.js from culling dynamic magic dust!
       scene.add(dustPoints);
+
+      // 3. Dedicated Multicolored Fireworks Particle System Over Hall of Champions
+      const fwPos = new Float32Array(MAX_FW * 3);
+      const fwCol = new Float32Array(MAX_FW * 3);
+      fwData = [];
+      for (let i = 0; i < MAX_FW; i++) {
+        fwPos[i * 3 + 1] = -999;
+        fwData.push({
+          active: false,
+          x: 0, y: -999, z: 0,
+          vx: 0, vy: 0, vz: 0,
+          gravity: 3.2,
+          isPrimary: false,
+          colorHex: 0xffffff,
+          baseR: 1, baseG: 1, baseB: 1,
+          twinkleSeed: Math.random() * 10,
+          life: 0, maxLife: 1
+        });
+      }
+      const fwGeo = new THREE.BufferGeometry();
+      fwGeo.setAttribute('position', new THREE.BufferAttribute(fwPos, 3));
+      fwGeo.setAttribute('color', new THREE.BufferAttribute(fwCol, 3));
+
+      const fwMat = new THREE.PointsMaterial({
+        size: 1.65,
+        map: sharedWhiteBurstTex,
+        vertexColors: true,
+        transparent: true,
+        opacity: 1.0,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+      fwPoints = new THREE.Points(fwGeo, fwMat);
+      fwPoints.frustumCulled = false; // Always render fireworks regardless of initial bounds!
+      scene.add(fwPoints);
+
+      // Launch an immediate opening multicolored firework salvo over the Hall of Champions!
+      for (let k = 0; k < 4; k++) {
+        launchFireworkRocket(105 + k * 4.2, (k - 1.5) * 4.8);
+      }
+      // Also detonate 2 shells immediately in mid-air so fireworks are blooming on Frame 1
+      detonateFirework({
+        x: 111, y: 10.5, z: -3.5,
+        palette: FIREWORK_PALETTES[5]
+      });
+      detonateFirework({
+        x: 115, y: 12.2, z: 4.0,
+        palette: FIREWORK_PALETTES[1]
+      });
     }
 
     let sparkCursor = 0;
@@ -1441,99 +1523,134 @@
     // ------------------------------------------------------------------
     // Multicolored 3D Fireworks Over the Hall of Champions (x ~ 113, z ~ 0)
     // ------------------------------------------------------------------
+    function emitFireworkParticle(x, y, z, colorHex, vx, vy, vz, maxLife = 1.2, gravity = 3.2, isPrimary = false) {
+      if (!fwPoints) return;
+      const idx = fwCursor;
+      fwCursor = (fwCursor + 1) % MAX_FW;
+      const p = fwData[idx];
+      p.active = true;
+      p.x = x;
+      p.y = y;
+      p.z = z;
+      p.vx = vx;
+      p.vy = vy;
+      p.vz = vz;
+      p.gravity = gravity;
+      p.isPrimary = isPrimary;
+      p.colorHex = colorHex;
+      p.life = 0;
+      p.maxLife = maxLife;
+
+      const c = new THREE.Color(colorHex);
+      p.baseR = c.r;
+      p.baseG = c.g;
+      p.baseB = c.b;
+      const colAttr = fwPoints.geometry.attributes.color;
+      colAttr.array[idx * 3] = c.r;
+      colAttr.array[idx * 3 + 1] = c.g;
+      colAttr.array[idx * 3 + 2] = c.b;
+      colAttr.needsUpdate = true;
+    }
+
     function launchFireworkRocket(customX = null, customZ = null) {
       const palette = FIREWORK_PALETTES[Math.floor(Math.random() * FIREWORK_PALETTES.length)];
-      const x = customX !== null ? customX : 106.5 + Math.random() * 14.5;
-      const z = customZ !== null ? customZ : (Math.random() - 0.5) * 20.0;
-      const targetY = 9.5 + Math.random() * 7.8;
+      const x = customX !== null ? customX : 102.0 + Math.random() * 18.0;
+      const z = customZ !== null ? customZ : (Math.random() - 0.5) * 18.0;
+      const targetY = 7.2 + Math.random() * 7.2;
+
+      // Visible glowing 3D rocket head sprite streaking into the sky
+      let sprite = null;
+      if (scene && sharedWhiteBurstTex) {
+        const sMat = new THREE.SpriteMaterial({
+          map: sharedWhiteBurstTex,
+          color: palette[0],
+          transparent: true,
+          opacity: 1.0,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
+        });
+        sprite = new THREE.Sprite(sMat);
+        sprite.scale.set(1.35, 1.35, 1);
+        sprite.position.set(x, 0.8, z);
+        scene.add(sprite);
+      }
+
       fireworkRockets.push({
         x,
-        y: 0.6,
+        y: 0.8,
         z,
-        vx: (Math.random() - 0.5) * 1.6,
-        vy: 13.5 + Math.random() * 4.5,
-        vz: (Math.random() - 0.5) * 1.6,
+        vx: (Math.random() - 0.5) * 1.4,
+        vy: 14.5 + Math.random() * 4.5,
+        vz: (Math.random() - 0.5) * 1.4,
         targetY,
         palette,
-        trailColor: palette[0]
+        trailColor: palette[0],
+        sprite
       });
     }
 
     function detonateFirework(rocket) {
       const { x, y, z, palette } = rocket;
-      const burstCount = 95 + Math.floor(Math.random() * 40);
-      const isDoubleRing = Math.random() < 0.38;
+      const burstCount = 150 + Math.floor(Math.random() * 60);
+      const isDoubleRing = Math.random() < 0.42;
 
       for (let i = 0; i < burstCount; i++) {
         const colorHex = palette[i % palette.length];
-        // Fibonacci / spherical distribution or double-ring starburst
         let vx, vy, vz;
         if (isDoubleRing && i % 3 === 0) {
           const ringAngle = (i / burstCount) * Math.PI * 2 * 3;
-          const ringSpeed = 6.5 + Math.random() * 2.5;
+          const ringSpeed = 7.5 + Math.random() * 2.8;
           vx = Math.cos(ringAngle) * ringSpeed;
-          vy = (Math.random() - 0.5) * 1.8;
+          vy = (Math.random() - 0.5) * 2.0;
           vz = Math.sin(ringAngle) * ringSpeed;
         } else {
           const theta = Math.random() * Math.PI * 2;
           const phi = Math.acos(2 * Math.random() - 1);
-          const speed = (4.2 + Math.random() * 6.8) * (i % 5 === 0 ? 0.55 : 1.0);
+          const layerMul = i % 6 === 0 ? 0.48 : (i % 4 === 0 ? 0.78 : 1.0);
+          const speed = (5.2 + Math.random() * 7.5) * layerMul;
           vx = Math.sin(phi) * Math.cos(theta) * speed;
-          vy = Math.cos(phi) * speed + 1.2;
+          vy = Math.cos(phi) * speed + 1.4;
           vz = Math.sin(phi) * Math.sin(theta) * speed;
         }
-        const life = 0.85 + Math.random() * 0.75;
-        emitSpark(x, y, z, colorHex, 1.0, 1.0, { vx, vy, vz }, life, 3.8);
+        const life = 1.05 + Math.random() * 0.85;
+        emitFireworkParticle(x, y, z, colorHex, vx, vy, vz, life, 3.4, i % 2 === 0);
       }
 
-      // Inner shimmer cloud of multicolored magic dust at burst center
-      for (let k = 0; k < 24; k++) {
-        const cHex = palette[k % palette.length];
-        if (!dustPoints) break;
-        const idx = dustCursor;
-        dustCursor = (dustCursor + 1) % MAX_DUST;
-        const d = dustData[idx];
-        d.active = true;
-        d.x = x;
-        d.y = y;
-        d.z = z;
-        const theta = Math.random() * Math.PI * 2;
-        const phi = Math.acos(2 * Math.random() - 1);
-        const sp = 1.8 + Math.random() * 3.6;
-        d.vx = Math.sin(phi) * Math.cos(theta) * sp;
-        d.vy = Math.cos(phi) * sp;
-        d.vz = Math.sin(phi) * Math.sin(theta) * sp;
-        d.swirlFreq = 3;
-        d.swirlAmp = 0.2;
-        d.life = 0;
-        d.maxLife = 0.75 + Math.random() * 0.45;
-        const c = new THREE.Color(cHex);
-        d.baseR = c.r; d.baseG = c.g; d.baseB = c.b;
-        const colAttr = dustPoints.geometry.attributes.color;
-        colAttr.array[idx * 3] = c.r;
-        colAttr.array[idx * 3 + 1] = c.g;
-        colAttr.array[idx * 3 + 2] = c.b;
-        colAttr.needsUpdate = true;
+      // Bright expanding 3D flash glow sprite at the center of the firework explosion
+      if (scene && sharedWhiteBurstTex) {
+        const fMat = new THREE.SpriteMaterial({
+          map: sharedWhiteBurstTex,
+          color: palette[0],
+          transparent: true,
+          opacity: 0.95,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
+        });
+        const flashSprite = new THREE.Sprite(fMat);
+        flashSprite.position.set(x, y, z);
+        flashSprite.scale.set(3.5, 3.5, 1);
+        scene.add(flashSprite);
+        fireworkFlashes.push({ sprite: flashSprite, life: 0, maxLife: 0.42 });
       }
 
       // Flash the Hall of Champions dynamic point light with the firework burst color
       if (fireworkLight) {
         fireworkLight.color.setHex(palette[0]);
         fireworkLight.position.set(x, y, z);
-        fireworkLight.intensity = 6.5;
+        fireworkLight.intensity = 8.0;
       }
     }
 
     function updateSparks(dt, nowSec) {
-      // Update firework rockets & periodic Hall of Champions fireworks show
+      // Update firework rockets & continuous Hall of Champions fireworks show
       nextFireworkTimer -= dt;
       if (nextFireworkTimer <= 0) {
         launchFireworkRocket();
-        if (Math.random() < 0.35) {
-          // Occasional twin shell over Hall of Champions
+        if (Math.random() < 0.52) {
+          // Frequent twin/triple shells over Hall of Champions
           launchFireworkRocket();
         }
-        nextFireworkTimer = 0.68 + Math.random() * 0.55;
+        nextFireworkTimer = 0.45 + Math.random() * 0.42;
       }
 
       for (let r = fireworkRockets.length - 1; r >= 0; r--) {
@@ -1541,26 +1658,102 @@
         rk.x += rk.vx * dt;
         rk.y += rk.vy * dt;
         rk.z += rk.vz * dt;
-        rk.vy -= 2.2 * dt;
+        rk.vy -= 2.0 * dt;
+        if (rk.sprite) {
+          rk.sprite.position.set(rk.x, rk.y, rk.z);
+        }
         // Rising golden/colored rocket spark tail
-        emitSpark(
-          rk.x, rk.y - 0.2, rk.z,
-          Math.random() < 0.5 ? 0xfef08a : rk.trailColor,
-          0.3, 0.2,
-          { vx: (Math.random() - 0.5) * 0.8, vy: -1.5 - Math.random() * 1.5, vz: (Math.random() - 0.5) * 0.8 },
-          0.26, 2.0
-        );
+        for (let t = 0; t < 2; t++) {
+          emitFireworkParticle(
+            rk.x + (Math.random() - 0.5) * 0.18,
+            rk.y - 0.15,
+            rk.z + (Math.random() - 0.5) * 0.18,
+            t === 0 ? 0xfef08a : rk.trailColor,
+            (Math.random() - 0.5) * 0.9,
+            -1.8 - Math.random() * 1.5,
+            (Math.random() - 0.5) * 0.9,
+            0.34,
+            1.8,
+            false
+          );
+        }
         if (rk.y >= rk.targetY || rk.vy <= 1.0) {
+          if (rk.sprite && scene) scene.remove(rk.sprite);
           detonateFirework(rk);
           fireworkRockets.splice(r, 1);
         }
       }
 
-      if (fireworkLight && fireworkLight.intensity > 1.2) {
-        fireworkLight.intensity = Math.max(1.2, fireworkLight.intensity - dt * 8.5);
+      // Update expanding 3D firework burst flashes
+      for (let f = fireworkFlashes.length - 1; f >= 0; f--) {
+        const fl = fireworkFlashes[f];
+        fl.life += dt;
+        if (fl.life >= fl.maxLife) {
+          if (scene) scene.remove(fl.sprite);
+          fireworkFlashes.splice(f, 1);
+          continue;
+        }
+        const prog = fl.life / fl.maxLife;
+        const scale = 3.5 + prog * 7.5;
+        fl.sprite.scale.set(scale, scale, 1);
+        fl.sprite.material.opacity = (1 - prog) * 0.9;
       }
 
-      // Update Sparkling Stars & Firework Starbursts
+      if (fireworkLight && fireworkLight.intensity > 1.5) {
+        fireworkLight.intensity = Math.max(1.5, fireworkLight.intensity - dt * 10.0);
+      }
+
+      // Update Dedicated Hall of Champions Multicolored Firework Particles
+      if (fwPoints) {
+        const fwPos = fwPoints.geometry.attributes.position;
+        const fwCol = fwPoints.geometry.attributes.color;
+        for (let i = 0; i < MAX_FW; i++) {
+          const p = fwData[i];
+          if (!p.active) continue;
+          p.life += dt;
+          if (p.life >= p.maxLife) {
+            p.active = false;
+            fwPos.array[i * 3 + 1] = -999;
+            continue;
+          }
+          const drag = Math.pow(0.955, dt * 60);
+          p.vx *= drag;
+          p.vz *= drag;
+          p.vy -= p.gravity * dt;
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.z += p.vz * dt;
+          fwPos.array[i * 3] = p.x;
+          fwPos.array[i * 3 + 1] = p.y;
+          fwPos.array[i * 3 + 2] = p.z;
+
+          // Spawn chrysanthemum streamer sub-trail behind primary firework stars
+          if (p.isPrimary && p.life < p.maxLife * 0.65 && Math.random() < 0.28) {
+            emitFireworkParticle(
+              p.x, p.y, p.z, p.colorHex,
+              p.vx * 0.15 + (Math.random() - 0.5) * 0.4,
+              p.vy * 0.15 + (Math.random() - 0.5) * 0.4,
+              p.vz * 0.15 + (Math.random() - 0.5) * 0.4,
+              0.24 + Math.random() * 0.16,
+              1.2,
+              false
+            );
+          }
+
+          const fade = Math.pow(Math.max(0, 1 - (p.life / p.maxLife)), 0.65);
+          const strobe = p.life > p.maxLife * 0.6
+            ? (0.55 + 0.45 * Math.sin(nowSec * 38 + p.twinkleSeed))
+            : 1.0;
+          const b = fade * strobe;
+          fwCol.array[i * 3] = p.baseR * b;
+          fwCol.array[i * 3 + 1] = p.baseG * b;
+          fwCol.array[i * 3 + 2] = p.baseB * b;
+        }
+        fwPos.needsUpdate = true;
+        fwCol.needsUpdate = true;
+      }
+
+      // Update Runner Sparkling Stars
       if (sparkPoints) {
         const posAttr = sparkPoints.geometry.attributes.position;
         const colAttr = sparkPoints.geometry.attributes.color;
@@ -2136,8 +2329,8 @@
         btn.classList.add('active');
         cameraMode = btn.dataset.cam;
         if (cameraMode === 'broadcast') {
-          camera.position.set(48, 26, 62);
-          controls.target.set(52, 1.5, 0);
+          camera.position.set(58, 25, 66);
+          controls.target.set(62, 2.5, 0);
         }
       });
     });
