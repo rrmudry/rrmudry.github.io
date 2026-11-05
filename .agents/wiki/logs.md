@@ -1613,3 +1613,5 @@ Append-only log tracking pattern changes across recent sessions.
   - Day 48 (Wednesday, Nov 4): Set strictly as **Projectile Range Studio** (`title: "Projectile Range Studio"`, `unit2_day47_projectile_range_studio`).
   - Day 49 (Thursday, Nov 5): Restored to **Complementary Launch Angles & Range Maximization Studio**.
   - Day 47 (Tuesday, Nov 3): Removed all references to block scheduling from summaries and holiday notices.
+
+- **2026-11-04**: Added patterns/monkey-hunter-studio.md for the new Monkey Hunter Studio (`Unit_2/monkey_hunter_studio/`, hanging-balls meter stick, three-class hunts) and its teacher monitor. Listed it as a reference app in student-app-standards.md.

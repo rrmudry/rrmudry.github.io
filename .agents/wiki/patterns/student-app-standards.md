@@ -67,6 +67,7 @@ Classes come from `roster/{id}.class_period`:
 
 ## Reference apps
 - `Unit_2/projectile_range_studio/`: three-class lesson, Back, stacked math, certificate, monitor.
+- `Unit_2/monkey_hunter_studio/`: drag-to-build apparatus, a slider on the picture, an ungraded prediction page.
 - `Unit_2/vector_decomposition_studio/`: Desmos work checking, step-by-step credit.
 - `Unit_2/horizontal_projectile_workbench/`: measure, table and graph tasks.
 - `Unit_2/newtons_second_law_studio/`: guided lessons with force diagrams.

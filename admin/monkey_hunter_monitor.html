@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Monkey Hunter Class Progress</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/unit2-favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
+  <style>
+    :root {
+      --bg: #f1f5f9; --card: #ffffff; --line: #cbd5e1; --line-soft: #e2e8f0;
+      --text: #0f172a; --muted: #475569; --bar: #0284c7; --good: #15803d; --warn: #b45309; --bad: #be123c;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #070d19; --card: #0f172a; --line: #334155; --line-soft: #1e293b; --text: #f8fafc; --muted: #cbd5e1; --bar: #38bdf8; --good: #34d399; --warn: #fbbf24; --bad: #fb7185; }
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Outfit, system-ui, sans-serif; line-height: 1.4; }
+    header { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: var(--card); border-bottom: 1px solid var(--line); }
+    h1 { margin: 0; font-size: 1.25rem; font-weight: 800; }
+    h2 { margin: 0 0 0.6rem; font-size: 1rem; font-weight: 800; }
+    .sub { margin: 0; color: var(--muted); font-size: 0.85rem; }
+    main { padding: 1rem; max-width: 92rem; margin: 0 auto; display: grid; gap: 1rem; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 0.8rem; padding: 0.9rem; min-width: 0; }
+    select, button { font: inherit; font-weight: 700; color: var(--text); background: var(--card); border: 1px solid var(--line); border-radius: 0.5rem; padding: 0.3rem 0.6rem; }
+    button { cursor: pointer; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0.75rem; }
+    .tile strong { display: block; font-size: 1.8rem; font-variant-numeric: tabular-nums; }
+    .tile span { font-size: 0.85rem; color: var(--muted); }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr)); gap: 1rem; }
+    .bar-row { display: grid; grid-template-columns: 11rem 1fr 3.5rem; gap: 0.5rem; align-items: center; margin: 0.3rem 0; font-size: 0.9rem; }
+    .bar { height: 0.8rem; background: var(--line-soft); border-radius: 999px; overflow: hidden; }
+    .bar span { display: block; height: 100%; background: var(--bar); border-radius: 0 4px 4px 0; }
+    .val { font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+    .mistake { padding: 0.35rem 0; border-bottom: 1px solid var(--line-soft); font-size: 0.9rem; }
+    .mistake:last-child { border: 0; }
+    .mistake b { margin-right: 0.35rem; font-variant-numeric: tabular-nums; }
+    .mistake small { display: block; color: var(--muted); }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+    th { text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); padding: 0.35rem 0.5rem; border-bottom: 2px solid var(--line); white-space: nowrap; }
+    td { padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--line-soft); white-space: nowrap; }
+    td.name { font-weight: 700; }
+    td.num { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .pill { display: inline-block; min-width: 1.5rem; text-align: center; margin-right: 0.15rem; border: 1px solid var(--line); border-radius: 0.3rem; font-size: 0.72rem; font-weight: 700; color: var(--muted); padding: 0 0.25rem; }
+    .pill.on { border-color: var(--good); color: var(--good); }
+    .weak { color: var(--warn); font-size: 0.82rem; white-space: normal; min-width: 10rem; }
+    .none { color: var(--muted); }
+    .flag { color: var(--warn); font-size: 0.75rem; }
+    .filters { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .only-flagged { font-weight: 700; font-size: 0.9rem; }
+    .note { margin: 0 0 0.5rem; font-size: 0.85rem; color: var(--muted); }
+    .check { white-space: normal; min-width: 14rem; font-size: 0.82rem; color: var(--bad); font-weight: 600; }
+    .check div { margin: 0.1rem 0; }
+    tr.flagged td.name { color: var(--bad); }
+    .gate { text-align: center; padding: 3rem 1rem; }
+    .demo { background: var(--warn); color: #fff; font-weight: 700; text-align: center; padding: 0.25rem; }
+    .err { color: var(--bad); font-weight: 700; }
+    sub { font-size: 0.72em; }
+  </style>
+</head>
+<body>
+  <div id="demoBanner" class="demo" hidden>Sample data, not real students</div>
+  <header>
+    <div>
+      <h1>🐒 Monkey Hunter Class Progress</h1>
+      <p class="sub">Unit 2 · Updates live as students work</p>
+    </div>
+    <div class="filters" id="filters" hidden>
+      <label class="only-flagged"><input type="checkbox" id="onlyFlagged"> Only records to check</label>
+      <label>Class <select id="course"><option value="all">All classes</option><option value="honors">Honors</option><option value="cp">CP</option><option value="conceptual">Conceptual</option></select></label>
+      <label>Period <select id="period"><option value="all">All periods</option></select></label>
+      <button id="btnSignOut" type="button">Sign out</button>
+    </div>
+  </header>
+
+  <section id="gate" class="gate">
+    <p id="gateMsg">Checking sign-in…</p>
+    <button id="btnSignIn" type="button" hidden>Sign in with Google</button>
+    <p id="gateErr" class="err"></p>
+  </section>
+
+  <main id="main" hidden>
+    <section class="tiles" id="tiles"></section>
+    <div class="two">
+      <section class="card">
+        <h2>Skills on each student's latest Mastery Check</h2>
+        <div id="skills"></div>
+      </section>
+      <section class="card">
+        <h2>Most common mistakes (reteach these first)</h2>
+        <div id="mistakes"></div>
+      </section>
+    </div>
+    <section class="card">
+      <h2>Students</h2>
+      <p class="note">⚠ means a record is worth a look. It is not proof of cheating, and a careful cheater may not be flagged. A short in-person check settles it.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Student</th><th>Per.</th><th>Class</th><th>Grade /10</th><th>Parts</th><th>Check record</th><th>Mastery best</th><th>Attempts</th><th>Needs work</th><th>Last active</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="../Unit_2/vector_decomposition_studio/js/engine.js"></script>
+  <script src="../Unit_2/monkey_hunter_studio/js/physics.js"></script>
+  <script src="../Unit_2/monkey_hunter_studio/js/lesson.js"></script>
+  <script src="../Unit_2/monkey_hunter_studio/js/integrity.js"></script>
+  <script>
+    // firestore-audit: teacher-only
+    // Access: Google OAuth through Firebase Auth. This page's check only decides what to draw. The real lock is
+    // firestore.rules: listing student_results/*/students and roster is allowed only for the isAdmin() emails,
+    // so nobody else gets class data even if they edit this page. Keep this list matching isAdmin().
+    const ASSIGNMENT_ID = 'unit2_monkey_hunter_studio';
+    const TEACHER_IDS = ['rmudry', 'ryan.mudry', 'ryanmudry'];
+    const TEACHER_EMAILS = ['rmudry@orangeusd.org', 'ryan.mudry@gmail.com', 'ryanmudry@gmail.com'];
+    const PART_PILLS = [['line', 'Line'], ['drop', 'Drop'], ['strings', 'Strings'], ['monkey', 'Monkey'], ['hunts', 'Hunts'], ['quiz', 'MC']];
+    const COURSE = { honors: 'Honors', cp: 'CP', conceptual: 'Conceptual' };
+    const courseForPeriod = p => (String(p) === '0' ? 'honors' : ['1', '2', '3'].includes(String(p)) ? 'conceptual' : 'cp');
+    const SKILLS = { count: 'Counting marks', table: 'Using the drop table', time: 'Time to the monkey', trig: 'Aim and trig', drop: 'Finding the drop', meet: 'Where they meet', aim: 'Aiming high', speed: 'Smallest speed', concept: 'Big ideas' };
+    const MISTAKES = {
+      read_time: ['Read the time, not the ruler', 'Point at the dashed line from the ball to the ruler.'],
+      misread_ruler: ['Misread the ruler', 'Each small mark is 5 m. Read one together.'],
+      build_strings: ['Built a string the wrong length', 'Compare each string with the drop table, one at a time.'],
+      count_launcher: ['Counted the launcher as a mark', 'The launcher is time 0.'],
+      miscount: ['Miscounted the marks', 'Count one mark per second, starting after the launcher.'],
+      time_times: ['Multiplied instead of dividing', 'Distance ÷ speed gives time.'],
+      time_flipped: ['Divided the wrong way', 'Use ΔX ÷ v<sub>ox</sub>.'],
+      time_voy: ['Used v<sub>oy</sub> with ΔX', 'Sideways distance goes with sideways speed.'],
+      drop_no_square: ['Used 5 × t', 'Time counts twice. Show 5, 20, 45, 80 is not equal steps.'],
+      drop_used_g: ['Used 10 × t²', 'The ½ in ½ × g × t² makes it 5.'],
+      drop_speed: ['Gave a speed as the drop', '10 × t is how fast, not how far.'],
+      drop_no_five: ['Used t × t only', 'Multiply by 5 as well.'],
+      gave_time: ['Gave the time as the drop', 'Read the number beside the time in the table.'],
+      misread_table: ['Misread the drop table', 'Find the time, then read across.'],
+      line_vox: ['Used v<sub>ox</sub> for height', 'Height comes from v<sub>oy</sub>.'],
+      line_added: ['Added v<sub>oy</sub> and t', 'Each second rises v<sub>oy</sub> meters: multiply.'],
+      line_one_second: ['Stopped at one second', 'Multiply v<sub>oy</sub> by the time.'],
+      gave_line: ['Forgot to subtract the drop', 'The stick is where the ball would be with no gravity.'],
+      gave_drop: ['Gave the drop as the height', 'Take the drop away from the height.'],
+      gave_branch: ['Gave the monkey\'s starting height', 'The monkey has fallen since then.'],
+      added_drop: ['Added the drop', 'Both fall down, so subtract.'],
+      aim_at_monkey: ['Aimed at a monkey that holds on', 'Point above it by one string.'],
+      aim_low: ['Aimed below the monkey', 'The ball falls below the stick, so aim above.'],
+      radians: ['Calculator in radian mode', 'Show how to switch to DEG.'],
+      no_arctan: ['Stopped at H ÷ ΔX', 'That is tan(θ). Use tan⁻¹ for the angle.'],
+      flip_tan: ['Flipped H and ΔX', 'H is across from θ, so it goes on top.'],
+      swap: ['Switched sin and cos', 'Point to the side that touches θ before choosing.'],
+      whole_speed: ['Gave the whole launch speed', 'Only part of the speed goes each way.'],
+      early_same: ['Gave the monkey the ball\'s drop', 'The monkey falls 1 s longer.'],
+      early_add_five: ['Added 5 m for the extra second', 'Square (t + 1), not t.'],
+      no_root: ['Stopped at t²', 'Take the square root.'],
+      fall_used_g: ['Divided H by 10', '5 × t² = H, so divide by 5.'],
+      min_used_h: ['Used H for the smallest speed', 'The sideways speed covers ΔX.'],
+      needs_force: ['Thinks motion needs a force', 'With no force, inertia keeps it straight at steady speed.'],
+      sideways_changes_fall: ['Thinks sideways motion changes falling', 'Show the two balls staying level.'],
+      tilted_string: ['Thinks strings tilt with the stick', 'Gravity only pulls straight down.'],
+      different_drops: ['Thinks ball and monkey drop differently', 'Same time, same drop.'],
+      holds_on: ['Unsure what happens if the monkey holds on', 'The ball still falls below the stick.'],
+      faster_misses: ['Thinks a faster shot misses', 'Less time means less drop for both.'],
+      moon_misses: ['Thinks weaker gravity makes it miss', 'Both strings shrink together.'],
+      slow_still_hits: ['Missed that a slow shot lands first', 'Compare the drop with H.'],
+      fast_call_wrong: ['Called a good shot too slow', 'Compare the drop with H.'],
+      head_start: ['Unsure about the early monkey', 'The monkey falls longer, so the ball goes over.']
+    };
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
+    let roster = new Map(), docs = [], unsubscribe = null;
+
+    function render() {
+      const period = $('period').value, course = $('course').value;
+      const merged = new Map();
+      roster.forEach((r, id) => merged.set(id, { id, name: r.name, period: r.period, started: false }));
+      docs.forEach(d => {
+        const r = roster.get(d.id);
+        merged.set(d.id, Object.assign({}, d, {
+          started: true,
+          name: (r && r.name) || d.student_name || d.id,
+          period: d.class_period !== null && d.class_period !== undefined ? String(d.class_period) : (r ? r.period : '?')
+        }));
+      });
+      const all = [...merged.values()].filter(s => !TEACHER_IDS.includes(s.id));
+      all.forEach(s => { s.course = s.track || courseForPeriod(s.period); });
+      const periods = [...new Set(all.map(s => s.period))].filter(p => p !== '' && p !== undefined).sort((a, b) => Number(a) - Number(b));
+      $('period').innerHTML = '<option value="all">All periods</option>' + periods.map(p => `<option value="${esc(p)}">Period ${esc(p)}</option>`).join('');
+      $('period').value = periods.includes(period) ? period : 'all';
+      // Sample rows without saved work stay unflagged so the demo shows only the example problem record
+      const isDemo = !$('demoBanner').hidden;
+      all.forEach(s => { s.flags = s.started && (!isDemo || s.studioState) ? Integrity.check(s) : []; });
+      const inView = all.filter(s => ($('period').value === 'all' || s.period === $('period').value) && (course === 'all' || s.course === course));
+      const list = inView
+        .filter(s => !$('onlyFlagged').checked || s.flags.length)
+        .sort((a, b) => Number(a.period) - Number(b.period) || String(a.name).localeCompare(String(b.name)));
+
+      const started = inView.filter(s => s.started);
+      const tookQuiz = started.filter(s => (s.quiz_history || []).length);
+      const avgOf = a => (a.length ? (a.reduce((t, x) => t + x, 0) / a.length) : null);
+      const avgGrade = avgOf(started.map(s => s.score || 0));
+      const avgBest = avgOf(tookQuiz.map(s => s.quiz_best || 0));
+      $('tiles').innerHTML = [
+        [`${started.length}/${inView.length}`, 'students started'],
+        [avgGrade === null ? '—' : avgGrade.toFixed(1), 'average grade so far (of 10)'],
+        [String(tookQuiz.length), 'took the Mastery Check'],
+        [avgBest === null ? '—' : `${Math.round(avgBest)}%`, 'average best Mastery score'],
+        [String(inView.filter(s => s.flags.length).length), 'records to check']
+      ].map(([n, l]) => `<div class="card tile"><strong>${n}</strong><span>${l}</span></div>`).join('');
+
+      const totals = {};
+      tookQuiz.forEach(s => Object.entries(s.quiz_skills || {}).forEach(([k, v]) => {
+        totals[k] = totals[k] || { right: 0, total: 0 };
+        totals[k].right += v.right; totals[k].total += v.total;
+      }));
+      const skillKeys = Object.keys(SKILLS).filter(k => totals[k]);
+      $('skills').innerHTML = skillKeys.length ? skillKeys.map(k => {
+        const p = Math.round(100 * totals[k].right / totals[k].total);
+        return `<div class="bar-row" title="${totals[k].right} of ${totals[k].total} correct"><span>${SKILLS[k]}</span><span class="bar"><span style="width:${p}%"></span></span><span class="val">${p}%</span></div>`;
+      }).join('') : '<p class="none">No Mastery Checks yet.</p>';
+
+      const counts = {};
+      started.forEach(s => Object.entries(s.mistakes || {}).forEach(([k, v]) => { if (MISTAKES[k]) counts[k] = (counts[k] || 0) + v; }));
+      const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+      $('mistakes').innerHTML = top.length
+        ? top.map(([k, v]) => `<div class="mistake"><b>${v}×</b>${MISTAKES[k][0]}<small>${MISTAKES[k][1]}</small></div>`).join('')
+        : '<p class="none">No mistakes recorded yet.</p>';
+
+      $('rows').innerHTML = list.map(s => {
+        const hist = s.quiz_history || [];
+        const pills = PART_PILLS.map(([k, label]) => {
+          const pct = (s.parts_progress || {})[k];
+          const partial = pct > 0 && pct < 100;
+          return `<span class="pill ${(s.parts_done || []).includes(k) ? 'on' : ''}">${label}${partial ? ` ${pct}%` : ''}</span>`;
+        }).join('');
+        const weak = Object.entries(s.quiz_skills || {}).filter(([, v]) => v.right < v.total).map(([k]) => SKILLS[k]).filter(Boolean).join(', ');
+        const when = s.timestamp && s.timestamp.toDate ? s.timestamp.toDate().toLocaleString([], { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+        return `<tr class="${s.flags.length ? 'flagged' : ''}"><td class="name">${esc(s.name)}${s.certificate_code ? ` <span title="Certificate ${esc(s.certificate_code)}">🎓</span>` : ''}${s.calc_unavailable ? ' <span class="flag" title="Desmos did not load for this student, so they could type answers">⚠ typed</span>' : ''}</td><td>${esc(s.period)}</td><td>${COURSE[s.course] || ''}</td><td class="num">${s.started ? Number(s.score || 0).toFixed(1) : '<span class="none">—</span>'}</td>
+          <td>${s.started ? pills : '<span class="none">Not started</span>'}</td>
+          <td class="check">${s.flags.map(f => `<div>⚠ ${esc(f)}</div>`).join('')}</td>
+          <td class="num">${hist.length ? `${s.quiz_best}%` : '<span class="none">—</span>'}</td>
+          <td class="num">${hist.length ? hist.map(p => `${p}%`).join(' → ') : ''}</td>
+          <td class="weak">${weak}</td><td>${esc(when)}</td></tr>`;
+      }).join('');
+    }
+
+    function showGate(msg, err) {
+      if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+      roster = new Map(); docs = [];
+      $('main').hidden = true;
+      $('filters').hidden = true;
+      $('rows').innerHTML = '';
+      $('gate').hidden = false;
+      $('gateMsg').textContent = msg;
+      $('gateErr').textContent = err || '';
+      $('btnSignIn').hidden = false;
+    }
+
+    function start() {
+      $('gate').hidden = true;
+      $('main').hidden = false;
+      $('filters').hidden = false;
+      const db = firebase.firestore();
+      db.collection('roster').get().then(snap => {
+        snap.forEach(doc => {
+          const d = doc.data();
+          roster.set(doc.id, {
+            name: d.name || d.full_name || `${d.first_name || ''} ${d.last_name || ''}`.trim() || doc.id,
+            period: String(d.class_period ?? d.period ?? '')
+          });
+        });
+        render();
+      }).catch(e => console.warn('Roster not loaded:', e));
+      unsubscribe = db.collection('student_results').doc(ASSIGNMENT_ID).collection('students').onSnapshot(snap => {
+        docs = snap.docs.map(d => Object.assign({ id: d.id }, d.data()));
+        render();
+      }, e => { $('tiles').innerHTML = `<p class="err">Could not load results: ${esc(e.message)}</p>`; });
+    }
+
+    // Sample data for working on this page. Local dev only, so the deployed page shows nothing without sign-in.
+    function demo() {
+      $('demoBanner').hidden = false;
+      $('gate').hidden = true;
+      $('main').hidden = false;
+      $('filters').hidden = false;
+      roster = new Map([['s9', { name: 'Sample Student I', period: '1' }]]);
+      const skills = (d, a) => ({ drop: { right: d, total: 2 }, aim: { right: a, total: 1 }, concept: { right: 1, total: 2 } });
+      const all = ['line', 'drop', 'strings', 'monkey', 'hunts', 'quiz'];
+      docs = [
+        { id: 's1', student_name: 'Sample Student A', class_period: 1, track: 'conceptual', score: 8.5, parts_done: all, quiz_best: 63, quiz_history: [38, 63], quiz_skills: Object.assign(skills(1, 1), { count: { right: 2, total: 2 } }), mistakes: { misread_table: 5, aim_at_monkey: 2 } },
+        { id: 's2', student_name: 'Sample Student B', class_period: 2, track: 'conceptual', score: 1.8, parts_done: ['line'], parts_progress: { line: 100, drop: 38 }, quiz_history: [], mistakes: { misread_ruler: 3 } },
+        { id: 's3', student_name: 'Sample Student C', class_period: 4, track: 'cp', score: 10, parts_done: all, quiz_best: 100, quiz_history: [80, 100], quiz_skills: Object.assign(skills(2, 1), { time: { right: 2, total: 2 } }), mistakes: { drop_no_square: 2, aim_at_monkey: 1 } },
+        { id: 's5', student_name: 'Sample Student E', class_period: 5, track: 'cp', score: 10, parts_done: all, quiz_best: 100, quiz_history: [100], quiz_skills: skills(2, 1), studioState: { v: 1, parts: { line: { done: true }, drop: { far: 1 }, strings: {}, monkey: {}, hunts: {} }, quiz: { best: 100, attempts: [{ pct: 100, correct: 10, total: 10, at: 1 }], last: null } } },
+        { id: 's4', student_name: 'Sample Student D', class_period: 0, track: 'honors', score: 9.1, parts_done: all, quiz_best: 80, quiz_history: [80], quiz_skills: Object.assign(skills(2, 1), { trig: { right: 3, total: 4 } }), mistakes: { flip_tan: 2, no_root: 1 } }
+      ];
+      render();
+    }
+
+    $('period').addEventListener('change', render);
+    $('course').addEventListener('change', render);
+    $('onlyFlagged').addEventListener('change', render);
+    const isLocal = ['localhost', '127.0.0.1'].includes(location.hostname);
+    if (isLocal && new URLSearchParams(location.search).has('demo')) demo();
+    else {
+      $('btnSignIn').addEventListener('click', () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        firebase.auth().signInWithPopup(provider).catch(e => {
+          if (e.code === 'auth/popup-blocked') firebase.auth().signInWithRedirect(provider);
+          else if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') $('gateErr').textContent = e.message;
+        });
+      });
+      $('btnSignOut').addEventListener('click', () => firebase.auth().signOut());
+      firebase.auth().getRedirectResult().catch(e => { $('gateErr').textContent = e.message; });
+      firebase.auth().onAuthStateChanged(user => {
+        const email = user && (user.email || '').toLowerCase();
+        if (user && TEACHER_EMAILS.includes(email)) start();
+        else if (user) {
+          firebase.auth().signOut();
+          showGate('Teacher sign-in required.', 'This page is for the teacher only.');
+        } else if (!$('gateErr').textContent) showGate('Teacher sign-in required.');
+      });
+    }
+  </script>
+</body>
+</html>
