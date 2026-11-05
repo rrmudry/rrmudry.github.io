@@ -11,57 +11,75 @@ function playSequence(st, moves) {
   return cur;
 }
 
-// 1. Initial board has 20 legal moves for White
-let g = C.createGame();
-assert.strictEqual(C.legalMoves(g).length, 20, 'Start position should have 20 legal moves');
+test('Initial board has 20 legal moves for White', () => {
+  const g = C.createGame();
+  expect(C.legalMoves(g).length).toBe(20);
+});
 
-// 2. Fool's Mate (1. f3 e5 2. g4 Qh4#)
-g = playSequence(C.createGame(), [
-  ['f2', 'f3'],
-  ['e7', 'e5'],
-  ['g2', 'g4'],
-  ['d8', 'h4']
-]);
-let st = C.evaluateStatus(g);
-assert.strictEqual(st.over, true);
-assert.strictEqual(st.outcome, 'checkmate');
-assert.strictEqual(st.winner, 'b');
-assert.strictEqual(g.history[g.history.length - 1].san, 'Qh4#');
+test("Fool's Mate (1. f3 e5 2. g4 Qh4#)", () => {
+  const g = playSequence(C.createGame(), [
+    ['f2', 'f3'],
+    ['e7', 'e5'],
+    ['g2', 'g4'],
+    ['d8', 'h4']
+  ]);
+  const st = C.evaluateStatus(g);
+  expect(st.over).toBe(true);
+  expect(st.outcome).toBe('checkmate');
+  expect(st.winner).toBe('b');
+  expect(g.history[g.history.length - 1].san).toBe('Qh4#');
+});
 
-// 3. En Passant (1. e4 a6 2. e5 d5 3. exd6)
-g = playSequence(C.createGame(), [
-  ['e2', 'e4'],
-  ['a7', 'a6'],
-  ['e4', 'e5'],
-  ['d7', 'd5'],
-  ['e5', 'd6']
-]);
-assert.strictEqual(g.board[2][3], 'wp', 'White pawn should be on d6');
-assert.strictEqual(g.board[3][3], null, 'Black pawn on d5 should be captured en-passant');
-assert.strictEqual(g.history[g.history.length - 1].san, 'exd6');
+test('En Passant (1. e4 a6 2. e5 d5 3. exd6)', () => {
+  const g = playSequence(C.createGame(), [
+    ['e2', 'e4'],
+    ['a7', 'a6'],
+    ['e4', 'e5'],
+    ['d7', 'd5'],
+    ['e5', 'd6']
+  ]);
+  expect(g.board[2][3]).toBe('wp');
+  expect(g.board[3][3]).toBeNull();
+  expect(g.history[g.history.length - 1].san).toBe('exd6');
+});
 
-// 4. Kingside Castling (1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. O-O)
-g = playSequence(C.createGame(), [
-  ['e2', 'e4'], ['e7', 'e5'],
-  ['g1', 'f3'], ['b8', 'c6'],
-  ['f1', 'c4'], ['f8', 'c5'],
-  ['e1', 'g1']
-]);
-assert.strictEqual(g.board[7][6], 'wk');
-assert.strictEqual(g.board[7][5], 'wr');
-assert.strictEqual(g.history[g.history.length - 1].san, 'O-O');
+test('Kingside Castling (1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. O-O)', () => {
+  const g = playSequence(C.createGame(), [
+    ['e2', 'e4'], ['e7', 'e5'],
+    ['g1', 'f3'], ['b8', 'c6'],
+    ['f1', 'c4'], ['f8', 'c5'],
+    ['e1', 'g1']
+  ]);
+  expect(g.board[7][6]).toBe('wk');
+  expect(g.board[7][5]).toBe('wr');
+  expect(g.history[g.history.length - 1].san).toBe('O-O');
+});
 
-// 5. Bot AI returns valid move across all tiers
-for (const diff of ['easy', 'medium', 'hard', 'master']) {
-  const mv = C.chooseBotMove(g, diff);
-  assert(mv && mv.from && mv.to, `Bot (${diff}) should pick a valid move`);
-}
+test('Bot AI returns valid move across all tiers', () => {
+  const g = playSequence(C.createGame(), [
+    ['e2', 'e4'], ['e7', 'e5'],
+    ['g1', 'f3'], ['b8', 'c6']
+  ]);
+  for (const diff of ['easy', 'medium', 'hard', 'master']) {
+    const mv = C.chooseBotMove(g, diff);
+    expect(mv).toBeDefined();
+    expect(mv.from).toBeDefined();
+    expect(mv.to).toBeDefined();
+  }
+});
 
-// 6. Move Score Record & Accuracy Summary
-const summary = C.summarizeMoveScores(g);
-assert(typeof summary.w.accuracy === 'number' && summary.w.accuracy > 0, 'White accuracy should be calculated');
-assert(typeof summary.b.accuracy === 'number' && summary.b.accuracy > 0, 'Black accuracy should be calculated');
-assert(g.history.every(h => h.grade && h.symbol && h.evalText), 'Every move should have grade, symbol, and evalText');
-
-console.log('✅ All ChessEngine unit tests passed!');
+test('Move Score Record & Accuracy Summary', () => {
+  const g = playSequence(C.createGame(), [
+    ['e2', 'e4'], ['e7', 'e5'],
+    ['g1', 'f3'], ['b8', 'c6'],
+    ['f1', 'c4'], ['f8', 'c5'],
+    ['e1', 'g1']
+  ]);
+  const summary = C.summarizeMoveScores(g);
+  expect(typeof summary.w.accuracy).toBe('number');
+  expect(summary.w.accuracy).toBeGreaterThan(0);
+  expect(typeof summary.b.accuracy).toBe('number');
+  expect(summary.b.accuracy).toBeGreaterThan(0);
+  expect(g.history.every(h => h.grade && h.symbol && h.evalText)).toBe(true);
+});
 
