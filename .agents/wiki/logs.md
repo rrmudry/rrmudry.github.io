@@ -3,6 +3,20 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-05 — 3D 100m Dash Class Progress & Hall of Champions Arena (Three.js)
+**Patterns Updated**: `classroom-projection-and-high-contrast-theming.md`.
+**Files Added/Updated**: `admin/sprint_progress_3d.html`, `admin/monkey_hunter_monitor.html`, `admin/projectile_range_monitor.html`, `admin/vector_decomposition_monitor.html`, `admin/index.html`, `partials/footer.html`.
+
+**Changes**:
+- **Anonymous 3D 100m Sprint Track (`admin/sprint_progress_3d.html`)**:
+  - Built a Three.js 3D stadium 100m dash monitor for studio assignments (`unit2_monkey_hunter_studio`, `unit2_projectile_range_studio`, `unit2_vector_decomposition_studio`) where active runners on the track (`0m–99m`) have zero name labels to preserve student anonymity.
+- **Progressive Sparkling Stars & Magic Dust Trail by Pack Frontness**:
+  - Computed a continuous `frontness` score (`0.0` to `1.0`) for each runner based on distance ratio (`s.meters / leader1Meters`) and pack rank order.
+  - Added two procedural sprite particle systems (`createStarSpriteTexture()` 4-point glowing star flare + `createMagicDustTexture()` radial fairy-dust glow) plus 6 orbiting 3D star-crystals (`THREE.OctahedronGeometry`) in each runner's wake. Trail length, backward velocity, helical swirl, and star crystal count grow progressively as runners get closer to the front of the pack.
+- **Unclipped Auto-Scaled 3D Sign Textures & Multicolored Hall of Champions Fireworks**:
+  - Upgraded `makeLabelTexture()` to a `768 × 144` canvas with an auto-scaling font loop (`ctx.measureText(text).width <= maxTextWidth`) so `"🏆 HALL OF CHAMPIONS"` and `"🏁 100m FINISH • CHAMPIONS GATE"` never clip.
+  - Added ascending 3D firework rockets and multicolored spherical/double-ring starburst explosions over the Hall of Champions (`x = 113, z = 0`) with dynamic `THREE.PointLight` stadium flashes and a 4-shell celebratory salvo whenever a student crosses the `100m` finish line.
+
 ## 2026-11-03 — Student App Standards & Definition of Done
 **Patterns Updated**: `student-app-standards.md` (new).
 **Files Added/Updated**: `.agent/workflows/create-student-webapp.md`, `.agents/AGENTS.md`, `.agents/wiki/index.md`.

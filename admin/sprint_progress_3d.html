@@ -553,10 +553,10 @@
           </div>
 
           <div class="flare-legend">
-            <span class="legend-item"><span class="dot" style="background:#fbbf24; box-shadow:0 0 8px #fbbf24;"></span> 1st Leader (Solar Sparks)</span>
-            <span class="legend-item"><span class="dot" style="background:#38bdf8; box-shadow:0 0 8px #38bdf8;"></span> 2nd–3rd (Plasma Flare)</span>
-            <span class="legend-item"><span class="dot" style="background:#a855f7;"></span> Front Pack Aura</span>
-            <span class="legend-item"><span class="dot" style="background:#34d399; box-shadow:0 0 8px #34d399;"></span> 100m Champion</span>
+            <span class="legend-item"><span class="dot" style="background:#fbbf24; box-shadow:0 0 8px #fbbf24;"></span> 1st Leader (Star Comet &amp; Magic Dust)</span>
+            <span class="legend-item"><span class="dot" style="background:#38bdf8; box-shadow:0 0 8px #38bdf8;"></span> 2nd–3rd (Starlight Stream)</span>
+            <span class="legend-item"><span class="dot" style="background:#a855f7;"></span> Front Pack (Growing Magic Dust)</span>
+            <span class="legend-item"><span class="dot" style="background:#34d399; box-shadow:0 0 8px #34d399;"></span> 100m Champion (Fireworks Plaza)</span>
           </div>
         </div>
 
@@ -713,17 +713,35 @@
     }
 
     // ------------------------------------------------------------------
-    // Three.js 3D Stadium, Sprinters, Sparks, & Champions Plaza
+    // Three.js 3D Stadium, Sprinters, Star/Magic Dust Trails & Fireworks
     // ------------------------------------------------------------------
     const canvas = $('trackCanvas3D');
     const container = $('viewportContainer');
-    let gl, scene, camera, controls, hemiLight, sunLight;
+    let gl, scene, camera, controls, hemiLight, sunLight, fireworkLight;
     let trackGroup, gateBannerGroup;
     let cameraMode = 'broadcast';
-    const runnerMeshes = new Map(); // id -> { root, limbs, halo, auraLight, tier, currentX, targetX, laneZ }
+    const runnerMeshes = new Map(); // id -> { root, limbs, halo, crown, trailStars, tier, frontness, currentX, targetX, laneZ }
+
+    // Sparkling Stars & Firework Starburst System (4-point glowing star sprite)
     let sparkPoints = null;
     let sparkData = [];
-    const MAX_SPARKS = 900;
+    const MAX_SPARKS = 1800;
+
+    // Swirling Magic Dust System (soft radial fairy-dust glow sprite)
+    let dustPoints = null;
+    let dustData = [];
+    const MAX_DUST = 1600;
+
+    // Multicolored 3D Fireworks over Hall of Champions
+    const fireworkRockets = [];
+    let nextFireworkTimer = 0.4;
+    const FIREWORK_PALETTES = [
+      [0xf43f5e, 0xfde047, 0xffffff], // Ruby & Gold
+      [0x38bdf8, 0xc084fc, 0xe879f9], // Cyan & Arcane Violet
+      [0x34d399, 0xfbbf24, 0xa7f3d0], // Emerald & Sunburst Gold
+      [0xfb923c, 0xec4899, 0xfef08a], // Tangerine & Hot Magenta
+      [0xf43f5e, 0xfb923c, 0xfde047, 0x34d399, 0x38bdf8, 0xa855f7, 0xec4899, 0xffffff] // Full Rainbow Supernova
+    ];
 
     function init3D() {
       gl = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
@@ -761,7 +779,12 @@
       sunLight.shadow.mapSize.set(2048, 1024);
       sunLight.shadow.bias = -0.0005;
       sunLight.target.position.set(55, 0, 0);
-      scene.add(hemiLight, sunLight, sunLight.target);
+
+      // Dynamic point light over Hall of Champions that flashes with firework bursts
+      fireworkLight = new THREE.PointLight(0xfbbf24, 1.5, 45, 1.4);
+      fireworkLight.position.set(113, 12, 0);
+
+      scene.add(hemiLight, sunLight, sunLight.target, fireworkLight);
 
       trackGroup = new THREE.Group();
       gateBannerGroup = new THREE.Group();
@@ -776,21 +799,30 @@
 
     function makeLabelTexture(text, bgHex = '#0f172a', fgHex = '#f8fafc', borderHex = '#38bdf8') {
       const c = document.createElement('canvas');
-      c.width = 256;
-      c.height = 64;
+      c.width = 768;
+      c.height = 144;
       const ctx = c.getContext('2d');
       ctx.fillStyle = bgHex;
       ctx.strokeStyle = borderHex;
-      ctx.lineWidth = 5;
+      ctx.lineWidth = 8;
       ctx.beginPath();
-      ctx.roundRect(4, 4, 248, 56, 12);
+      ctx.roundRect(8, 8, c.width - 16, c.height - 16, 24);
       ctx.fill();
       ctx.stroke();
+
+      // Auto-scale font size so long titles like "🏆 HALL OF CHAMPIONS" never clip
+      let fontSize = 54;
+      const maxTextWidth = c.width - 76;
+      do {
+        ctx.font = `900 ${fontSize}px Outfit, "Segoe UI Emoji", "Apple Color Emoji", sans-serif`;
+        if (ctx.measureText(text).width <= maxTextWidth) break;
+        fontSize -= 2;
+      } while (fontSize > 20);
+
       ctx.fillStyle = fgHex;
-      ctx.font = '900 24px Outfit, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(text, 128, 33);
+      ctx.fillText(text, c.width / 2, c.height / 2 + 2);
       const tex = new THREE.CanvasTexture(c);
       tex.needsUpdate = true;
       return tex;
@@ -848,7 +880,7 @@
             m === 100 ? '#fbbf24' : '#38bdf8'
           );
           const signMat = new THREE.MeshBasicMaterial({ map: signTex, transparent: true });
-          const sign = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 1.05), signMat);
+          const sign = new THREE.Mesh(new THREE.PlaneGeometry(4.5, 0.95), signMat);
           sign.position.set(m, 1.1, -12.2);
           trackGroup.add(sign);
         }
@@ -876,8 +908,8 @@
 
       const finishTex = makeLabelTexture('🏁 100m FINISH • CHAMPIONS GATE', '#0f172a', '#fbbf24', '#fbbf24');
       const finishBanner = new THREE.Mesh(
-        new THREE.PlaneGeometry(9.5, 1.6),
-        new THREE.MeshBasicMaterial({ map: finishTex, side: THREE.DoubleSide })
+        new THREE.PlaneGeometry(11.4, 2.0),
+        new THREE.MeshBasicMaterial({ map: finishTex, side: THREE.DoubleSide, transparent: true })
       );
       finishBanner.position.set(100, 9.6, 0);
       finishBanner.rotation.y = -Math.PI / 2;
@@ -917,10 +949,10 @@
 
       const champSignTex = makeLabelTexture('🏆 HALL OF CHAMPIONS', '#451a03', '#fbbf24', '#fbbf24');
       const champSign = new THREE.Mesh(
-        new THREE.PlaneGeometry(7.2, 1.5),
-        new THREE.MeshBasicMaterial({ map: champSignTex, side: THREE.DoubleSide })
+        new THREE.PlaneGeometry(9.6, 1.8),
+        new THREE.MeshBasicMaterial({ map: champSignTex, side: THREE.DoubleSide, transparent: true })
       );
-      champSign.position.set(113, 4.4, 0);
+      champSign.position.set(113, 4.5, 0);
       champSign.rotation.y = -Math.PI / 2;
 
       trackGroup.add(plaza, goldRing, pedestal, champSign);
@@ -935,16 +967,76 @@
         if (g.m >= 100) return;
         const tex = makeLabelTexture(g.label, '#0f172a', '#38bdf8', '#38bdf8');
         const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
-        const board = new THREE.Mesh(new THREE.PlaneGeometry(3.8, 0.95), mat);
+        const board = new THREE.Mesh(new THREE.PlaneGeometry(4.4, 0.95), mat);
         board.position.set(g.m, 1.0, 12.0);
         gateBannerGroup.add(board);
       });
     }
 
     // ------------------------------------------------------------------
-    // Particle Spark System for Leaders & Champions
+    // Procedural Star Sprite & Magic Dust Textures + Fireworks Engine
     // ------------------------------------------------------------------
+    function createStarSpriteTexture() {
+      const c = document.createElement('canvas');
+      c.width = 64;
+      c.height = 64;
+      const ctx = c.getContext('2d');
+      const cx = 32, cy = 32;
+
+      // Soft outer halo
+      const rad = ctx.createRadialGradient(cx, cy, 1, cx, cy, 30);
+      rad.addColorStop(0, 'rgba(255,255,255,1)');
+      rad.addColorStop(0.25, 'rgba(255,250,220,0.85)');
+      rad.addColorStop(0.6, 'rgba(255,255,255,0.22)');
+      rad.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = rad;
+      ctx.fillRect(0, 0, 64, 64);
+
+      // Crisp 4-point star flare + 4 diagonal glints
+      ctx.save();
+      ctx.translate(cx, cy);
+      for (let pass = 0; pass < 2; pass++) {
+        const len = pass === 0 ? 30 : 18;
+        const wid = pass === 0 ? 4.2 : 2.6;
+        ctx.fillStyle = '#ffffff';
+        for (let r = 0; r < 2; r++) {
+          ctx.beginPath();
+          ctx.moveTo(0, -len);
+          ctx.quadraticCurveTo(wid, -wid, len, 0);
+          ctx.quadraticCurveTo(wid, wid, 0, len);
+          ctx.quadraticCurveTo(-wid, wid, -len, 0);
+          ctx.quadraticCurveTo(-wid, -wid, 0, -len);
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.rotate(Math.PI / 4);
+      }
+      ctx.restore();
+
+      const tex = new THREE.CanvasTexture(c);
+      tex.needsUpdate = true;
+      return tex;
+    }
+
+    function createMagicDustTexture() {
+      const c = document.createElement('canvas');
+      c.width = 64;
+      c.height = 64;
+      const ctx = c.getContext('2d');
+      const g = ctx.createRadialGradient(32, 32, 2, 32, 32, 30);
+      g.addColorStop(0, 'rgba(255,255,255,1)');
+      g.addColorStop(0.35, 'rgba(255,255,255,0.75)');
+      g.addColorStop(0.7, 'rgba(255,255,255,0.2)');
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 64, 64);
+      const tex = new THREE.CanvasTexture(c);
+      tex.needsUpdate = true;
+      return tex;
+    }
+
     function initSparkSystem() {
+      // 1. Sparkling Stars & Firework Starburst Points
       const positions = new Float32Array(MAX_SPARKS * 3);
       const colors = new Float32Array(MAX_SPARKS * 3);
       sparkData = [];
@@ -954,6 +1046,10 @@
           active: false,
           x: 0, y: -999, z: 0,
           vx: 0, vy: 0, vz: 0,
+          gravity: 4.5,
+          drag: 0.99,
+          baseR: 1, baseG: 1, baseB: 1,
+          twinkleSeed: Math.random() * 10,
           life: 0, maxLife: 1
         });
       }
@@ -962,62 +1058,356 @@
       geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
       const mat = new THREE.PointsMaterial({
-        size: 0.42,
+        size: 0.72,
+        map: createStarSpriteTexture(),
         vertexColors: true,
         transparent: true,
-        opacity: 0.95,
+        opacity: 0.98,
         blending: THREE.AdditiveBlending,
         depthWrite: false
       });
       sparkPoints = new THREE.Points(geo, mat);
       scene.add(sparkPoints);
+
+      // 2. Swirling Magic Dust Points
+      const dPositions = new Float32Array(MAX_DUST * 3);
+      const dColors = new Float32Array(MAX_DUST * 3);
+      dustData = [];
+      for (let i = 0; i < MAX_DUST; i++) {
+        dPositions[i * 3 + 1] = -999;
+        dustData.push({
+          active: false,
+          x: 0, y: -999, z: 0,
+          vx: 0, vy: 0, vz: 0,
+          swirlFreq: 6,
+          swirlAmp: 0.5,
+          baseR: 1, baseG: 1, baseB: 1,
+          life: 0, maxLife: 1
+        });
+      }
+      const dGeo = new THREE.BufferGeometry();
+      dGeo.setAttribute('position', new THREE.BufferAttribute(dPositions, 3));
+      dGeo.setAttribute('color', new THREE.BufferAttribute(dColors, 3));
+
+      const dMat = new THREE.PointsMaterial({
+        size: 0.54,
+        map: createMagicDustTexture(),
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.88,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+      dustPoints = new THREE.Points(dGeo, dMat);
+      scene.add(dustPoints);
     }
 
     let sparkCursor = 0;
-    function emitSpark(x, y, z, colorHex, spread = 1.0, upward = 2.8) {
+    function emitSpark(x, y, z, colorHex, spread = 1.0, upward = 2.8, customVel = null, maxLife = null, gravity = 4.6) {
       if (!sparkPoints) return;
-      const p = sparkData[sparkCursor];
+      const idx = sparkCursor;
       sparkCursor = (sparkCursor + 1) % MAX_SPARKS;
+      const p = sparkData[idx];
       p.active = true;
-      p.x = x + (Math.random() - 0.5) * 0.4;
-      p.y = y + Math.random() * 0.4;
-      p.z = z + (Math.random() - 0.5) * 0.4;
-      p.vx = -0.8 - Math.random() * 1.6 * spread;
-      p.vy = upward * (0.5 + Math.random() * 0.9);
-      p.vz = (Math.random() - 0.5) * 1.5 * spread;
+      p.x = x + (Math.random() - 0.5) * 0.25;
+      p.y = y + (Math.random() - 0.5) * 0.25;
+      p.z = z + (Math.random() - 0.5) * 0.25;
+      if (customVel) {
+        p.vx = customVel.vx;
+        p.vy = customVel.vy;
+        p.vz = customVel.vz;
+      } else {
+        p.vx = -0.8 - Math.random() * 1.8 * spread;
+        p.vy = upward * (0.45 + Math.random() * 0.85);
+        p.vz = (Math.random() - 0.5) * 1.5 * spread;
+      }
+      p.gravity = gravity;
       p.life = 0;
-      p.maxLife = 0.45 + Math.random() * 0.55;
+      p.maxLife = maxLife || (0.45 + Math.random() * 0.55);
 
       const c = new THREE.Color(colorHex);
+      p.baseR = c.r;
+      p.baseG = c.g;
+      p.baseB = c.b;
       const colAttr = sparkPoints.geometry.attributes.color;
-      const idx = (sparkCursor === 0 ? MAX_SPARKS - 1 : sparkCursor - 1) * 3;
-      colAttr.array[idx] = c.r;
-      colAttr.array[idx + 1] = c.g;
-      colAttr.array[idx + 2] = c.b;
+      colAttr.array[idx * 3] = c.r;
+      colAttr.array[idx * 3 + 1] = c.g;
+      colAttr.array[idx * 3 + 2] = c.b;
       colAttr.needsUpdate = true;
     }
 
-    function updateSparks(dt) {
-      if (!sparkPoints) return;
-      const posAttr = sparkPoints.geometry.attributes.position;
-      for (let i = 0; i < MAX_SPARKS; i++) {
-        const p = sparkData[i];
-        if (!p.active) continue;
-        p.life += dt;
-        if (p.life >= p.maxLife) {
-          p.active = false;
-          posAttr.array[i * 3 + 1] = -999;
-          continue;
-        }
-        p.x += p.vx * dt;
-        p.y += p.vy * dt;
-        p.z += p.vz * dt;
-        p.vy -= 4.8 * dt;
-        posAttr.array[i * 3] = p.x;
-        posAttr.array[i * 3 + 1] = p.y;
-        posAttr.array[i * 3 + 2] = p.z;
+    let dustCursor = 0;
+    function emitMagicDust(x, y, z, colorHex, frontness = 0.5) {
+      if (!dustPoints) return;
+      const idx = dustCursor;
+      dustCursor = (dustCursor + 1) % MAX_DUST;
+      const d = dustData[idx];
+      d.active = true;
+      const spreadZ = 0.25 + frontness * 0.45;
+      d.x = x - Math.random() * 0.35;
+      d.y = y + (Math.random() - 0.5) * 0.45;
+      d.z = z + (Math.random() - 0.5) * spreadZ;
+      // Trail streams further backward as runner gets closer to the front of the pack
+      d.vx = -(1.8 + frontness * 5.6 + Math.random() * 1.8);
+      d.vy = (Math.random() - 0.35) * (0.9 + frontness * 1.4);
+      d.vz = (Math.random() - 0.5) * (0.8 + frontness * 1.8);
+      d.swirlFreq = 5 + Math.random() * 5;
+      d.swirlAmp = 0.35 + frontness * 0.9;
+      d.life = 0;
+      d.maxLife = 0.35 + frontness * 0.85 + Math.random() * 0.3;
+
+      const c = new THREE.Color(colorHex);
+      d.baseR = c.r;
+      d.baseG = c.g;
+      d.baseB = c.b;
+      const colAttr = dustPoints.geometry.attributes.color;
+      colAttr.array[idx * 3] = c.r;
+      colAttr.array[idx * 3 + 1] = c.g;
+      colAttr.array[idx * 3 + 2] = c.b;
+      colAttr.needsUpdate = true;
+    }
+
+    // Emit a progressive sparkling star + magic dust comet wake behind front-pack runners
+    function emitLeaderStarAndDustTrail(entry, nowSec) {
+      const f = entry.frontness || 0;
+      if (f < 0.16 && !entry.surging) return;
+
+      const eff = entry.surging ? Math.max(f, 0.72) : f;
+      const rx = entry.currentX;
+      const rz = entry.root.position.z;
+      const ry = entry.root.position.y;
+
+      // Color palette gets richer & more radiant toward the very front of the pack
+      const starPalette = entry.tier === 'leader1'
+        ? [0xfef08a, 0xfbbf24, 0xffffff, 0x38bdf8, 0xe879f9]
+        : entry.tier === 'leader2'
+        ? [0x38bdf8, 0x7dd3fc, 0xffffff, 0xc084fc]
+        : entry.tier === 'leader3'
+        ? [0xfb923c, 0xfde047, 0xffffff, 0xf472b6]
+        : [0xc084fc, 0x38bdf8, 0xfde047, 0xe879f9];
+
+      // Number of magic dust motes & sparkling stars scales with eff (frontness)
+      const dustCount = Math.max(1, Math.round(eff * 4.5));
+      for (let i = 0; i < dustCount; i++) {
+        if (Math.random() > eff * 1.15) continue;
+        const cHex = starPalette[(i + Math.floor(nowSec * 12)) % starPalette.length];
+        emitMagicDust(rx - 0.25, ry + 0.65 + Math.random() * 0.9, rz, cHex, eff);
       }
-      posAttr.needsUpdate = true;
+
+      // Sparkling 4-point stars streaming in a helical wake that grows longer near the front
+      const starChance = 0.25 + eff * 1.65;
+      const starDraws = Math.ceil(starChance);
+      for (let s = 0; s < starDraws; s++) {
+        if (Math.random() > starChance / starDraws) continue;
+        const angle = nowSec * 9.0 + entry.phase + s * Math.PI;
+        const helixR = (0.18 + eff * 0.45);
+        const startY = ry + 0.95 + Math.sin(angle) * helixR;
+        const startZ = rz + Math.cos(angle) * helixR;
+        const cHex = starPalette[Math.floor(Math.random() * starPalette.length)];
+        const trailVx = -(2.4 + eff * 6.0 + Math.random() * 2.0);
+        const trailVy = Math.cos(angle) * (0.8 + eff * 1.4) + 0.4;
+        const trailVz = -Math.sin(angle) * (0.8 + eff * 1.4);
+        const starLife = 0.35 + eff * 0.85 + Math.random() * 0.25;
+        emitSpark(
+          rx - 0.3,
+          startY,
+          startZ,
+          cHex,
+          1.0,
+          1.0,
+          { vx: trailVx, vy: trailVy, vz: trailVz },
+          starLife,
+          0.9 // Low gravity so stars float and linger in a long comet tail!
+        );
+      }
+    }
+
+    // ------------------------------------------------------------------
+    // Multicolored 3D Fireworks Over the Hall of Champions (x ~ 113, z ~ 0)
+    // ------------------------------------------------------------------
+    function launchFireworkRocket(customX = null, customZ = null) {
+      const palette = FIREWORK_PALETTES[Math.floor(Math.random() * FIREWORK_PALETTES.length)];
+      const x = customX !== null ? customX : 106.5 + Math.random() * 14.5;
+      const z = customZ !== null ? customZ : (Math.random() - 0.5) * 20.0;
+      const targetY = 9.5 + Math.random() * 7.8;
+      fireworkRockets.push({
+        x,
+        y: 0.6,
+        z,
+        vx: (Math.random() - 0.5) * 1.6,
+        vy: 13.5 + Math.random() * 4.5,
+        vz: (Math.random() - 0.5) * 1.6,
+        targetY,
+        palette,
+        trailColor: palette[0]
+      });
+    }
+
+    function detonateFirework(rocket) {
+      const { x, y, z, palette } = rocket;
+      const burstCount = 95 + Math.floor(Math.random() * 40);
+      const isDoubleRing = Math.random() < 0.38;
+
+      for (let i = 0; i < burstCount; i++) {
+        const colorHex = palette[i % palette.length];
+        // Fibonacci / spherical distribution or double-ring starburst
+        let vx, vy, vz;
+        if (isDoubleRing && i % 3 === 0) {
+          const ringAngle = (i / burstCount) * Math.PI * 2 * 3;
+          const ringSpeed = 6.5 + Math.random() * 2.5;
+          vx = Math.cos(ringAngle) * ringSpeed;
+          vy = (Math.random() - 0.5) * 1.8;
+          vz = Math.sin(ringAngle) * ringSpeed;
+        } else {
+          const theta = Math.random() * Math.PI * 2;
+          const phi = Math.acos(2 * Math.random() - 1);
+          const speed = (4.2 + Math.random() * 6.8) * (i % 5 === 0 ? 0.55 : 1.0);
+          vx = Math.sin(phi) * Math.cos(theta) * speed;
+          vy = Math.cos(phi) * speed + 1.2;
+          vz = Math.sin(phi) * Math.sin(theta) * speed;
+        }
+        const life = 0.85 + Math.random() * 0.75;
+        emitSpark(x, y, z, colorHex, 1.0, 1.0, { vx, vy, vz }, life, 3.8);
+      }
+
+      // Inner shimmer cloud of multicolored magic dust at burst center
+      for (let k = 0; k < 24; k++) {
+        const cHex = palette[k % palette.length];
+        if (!dustPoints) break;
+        const idx = dustCursor;
+        dustCursor = (dustCursor + 1) % MAX_DUST;
+        const d = dustData[idx];
+        d.active = true;
+        d.x = x;
+        d.y = y;
+        d.z = z;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        const sp = 1.8 + Math.random() * 3.6;
+        d.vx = Math.sin(phi) * Math.cos(theta) * sp;
+        d.vy = Math.cos(phi) * sp;
+        d.vz = Math.sin(phi) * Math.sin(theta) * sp;
+        d.swirlFreq = 3;
+        d.swirlAmp = 0.2;
+        d.life = 0;
+        d.maxLife = 0.75 + Math.random() * 0.45;
+        const c = new THREE.Color(cHex);
+        d.baseR = c.r; d.baseG = c.g; d.baseB = c.b;
+        const colAttr = dustPoints.geometry.attributes.color;
+        colAttr.array[idx * 3] = c.r;
+        colAttr.array[idx * 3 + 1] = c.g;
+        colAttr.array[idx * 3 + 2] = c.b;
+        colAttr.needsUpdate = true;
+      }
+
+      // Flash the Hall of Champions dynamic point light with the firework burst color
+      if (fireworkLight) {
+        fireworkLight.color.setHex(palette[0]);
+        fireworkLight.position.set(x, y, z);
+        fireworkLight.intensity = 6.5;
+      }
+    }
+
+    function updateSparks(dt, nowSec) {
+      // Update firework rockets & periodic Hall of Champions fireworks show
+      nextFireworkTimer -= dt;
+      if (nextFireworkTimer <= 0) {
+        launchFireworkRocket();
+        if (Math.random() < 0.35) {
+          // Occasional twin shell over Hall of Champions
+          launchFireworkRocket();
+        }
+        nextFireworkTimer = 0.68 + Math.random() * 0.55;
+      }
+
+      for (let r = fireworkRockets.length - 1; r >= 0; r--) {
+        const rk = fireworkRockets[r];
+        rk.x += rk.vx * dt;
+        rk.y += rk.vy * dt;
+        rk.z += rk.vz * dt;
+        rk.vy -= 2.2 * dt;
+        // Rising golden/colored rocket spark tail
+        emitSpark(
+          rk.x, rk.y - 0.2, rk.z,
+          Math.random() < 0.5 ? 0xfef08a : rk.trailColor,
+          0.3, 0.2,
+          { vx: (Math.random() - 0.5) * 0.8, vy: -1.5 - Math.random() * 1.5, vz: (Math.random() - 0.5) * 0.8 },
+          0.26, 2.0
+        );
+        if (rk.y >= rk.targetY || rk.vy <= 1.0) {
+          detonateFirework(rk);
+          fireworkRockets.splice(r, 1);
+        }
+      }
+
+      if (fireworkLight && fireworkLight.intensity > 1.2) {
+        fireworkLight.intensity = Math.max(1.2, fireworkLight.intensity - dt * 8.5);
+      }
+
+      // Update Sparkling Stars & Firework Starbursts
+      if (sparkPoints) {
+        const posAttr = sparkPoints.geometry.attributes.position;
+        const colAttr = sparkPoints.geometry.attributes.color;
+        for (let i = 0; i < MAX_SPARKS; i++) {
+          const p = sparkData[i];
+          if (!p.active) continue;
+          p.life += dt;
+          if (p.life >= p.maxLife) {
+            p.active = false;
+            posAttr.array[i * 3 + 1] = -999;
+            continue;
+          }
+          const drag = Math.pow(0.96, dt * 60);
+          p.vx *= drag;
+          p.vz *= drag;
+          p.vy -= p.gravity * dt;
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.z += p.vz * dt;
+          posAttr.array[i * 3] = p.x;
+          posAttr.array[i * 3 + 1] = p.y;
+          posAttr.array[i * 3 + 2] = p.z;
+
+          // Sparkling twinkle fade
+          const fade = Math.max(0, 1 - (p.life / p.maxLife));
+          const twinkle = 0.72 + 0.28 * Math.sin(nowSec * 26 + p.twinkleSeed);
+          const b = fade * twinkle;
+          colAttr.array[i * 3] = p.baseR * b;
+          colAttr.array[i * 3 + 1] = p.baseG * b;
+          colAttr.array[i * 3 + 2] = p.baseB * b;
+        }
+        posAttr.needsUpdate = true;
+        colAttr.needsUpdate = true;
+      }
+
+      // Update Swirling Magic Dust
+      if (dustPoints) {
+        const dPos = dustPoints.geometry.attributes.position;
+        const dCol = dustPoints.geometry.attributes.color;
+        for (let i = 0; i < MAX_DUST; i++) {
+          const d = dustData[i];
+          if (!d.active) continue;
+          d.life += dt;
+          if (d.life >= d.maxLife) {
+            d.active = false;
+            dPos.array[i * 3 + 1] = -999;
+            continue;
+          }
+          d.x += d.vx * dt;
+          d.y += (d.vy + Math.sin(d.life * d.swirlFreq) * d.swirlAmp) * dt;
+          d.z += (d.vz + Math.cos(d.life * d.swirlFreq) * d.swirlAmp) * dt;
+          dPos.array[i * 3] = d.x;
+          dPos.array[i * 3 + 1] = d.y;
+          dPos.array[i * 3 + 2] = d.z;
+
+          const fade = Math.pow(Math.max(0, 1 - d.life / d.maxLife), 0.75);
+          dCol.array[i * 3] = d.baseR * fade;
+          dCol.array[i * 3 + 1] = d.baseG * fade;
+          dCol.array[i * 3 + 2] = d.baseB * fade;
+        }
+        dPos.needsUpdate = true;
+        dCol.needsUpdate = true;
+      }
     }
 
     // ------------------------------------------------------------------
@@ -1077,6 +1467,23 @@
       halo.position.y = 0.03;
       root.add(halo);
 
+      // Trailing 3D Sparkling Star Crystals (grow in count & length as runner nears front of pack)
+      const trailStars = [];
+      const starGemGeo = new THREE.OctahedronGeometry(0.16, 0);
+      const starGemColors = [0xfef08a, 0x38bdf8, 0xe879f9, 0xfbbf24, 0x7dd3fc, 0xf472b6];
+      for (let s = 0; s < 6; s++) {
+        const sMat = new THREE.MeshBasicMaterial({
+          color: starGemColors[s % starGemColors.length],
+          transparent: true,
+          opacity: 0.92
+        });
+        const starMesh = new THREE.Mesh(starGemGeo, sMat);
+        starMesh.position.set(-0.55 - s * 0.52, 1.15, 0);
+        starMesh.visible = false;
+        root.add(starMesh);
+        trailStars.push(starMesh);
+      }
+
       // Limbs (Left/Right Arms & Legs)
       const makeLimb = (y, z) => {
         const g = new THREE.Group();
@@ -1099,15 +1506,16 @@
         bodyMat,
         limbMat,
         halo,
-         haloMat,
+        haloMat,
         crown,
+        trailStars,
         limbs: { armL, armR, legL, legR }
       };
     }
 
-    function styleSprinterTier(entry, tier, surging) {
+    function styleSprinterTier(entry, tier, surging, frontness = 0) {
       // Tiers: 'champion' | 'leader1' | 'leader2' | 'leader3' | 'frontpack' | 'pack'
-      const { bodyMat, limbMat, haloMat, crown, halo } = entry;
+      const { bodyMat, limbMat, haloMat, crown, halo, trailStars } = entry;
       if (tier === 'champion') {
         bodyMat.color.setHex(0xfde047);
         bodyMat.emissive.setHex(0xf59e0b);
@@ -1123,42 +1531,42 @@
       } else if (tier === 'leader1') {
         bodyMat.color.setHex(0xfbbf24);
         bodyMat.emissive.setHex(0xf59e0b);
-        bodyMat.emissiveIntensity = 1.25;
+        bodyMat.emissiveIntensity = 1.3;
         limbMat.emissive.setHex(0xfef08a);
-        limbMat.emissiveIntensity = 0.85;
+        limbMat.emissiveIntensity = 0.9;
         haloMat.color.setHex(0xfbbf24);
         haloMat.opacity = 1.0;
-        halo.scale.setScalar(1.55);
+        halo.scale.setScalar(1.6);
         crown.visible = true;
         crown.material.color.setHex(0xfbbf24);
         entry.root.scale.setScalar(1.32);
       } else if (tier === 'leader2') {
         bodyMat.color.setHex(0x38bdf8);
         bodyMat.emissive.setHex(0x0ea5e9);
-        bodyMat.emissiveIntensity = 0.95;
+        bodyMat.emissiveIntensity = 1.0;
         limbMat.emissive.setHex(0x7dd3fc);
-        limbMat.emissiveIntensity = 0.6;
+        limbMat.emissiveIntensity = 0.65;
         haloMat.color.setHex(0x38bdf8);
-        haloMat.opacity = 0.9;
-        halo.scale.setScalar(1.35);
+        haloMat.opacity = 0.92;
+        halo.scale.setScalar(1.38);
         crown.visible = true;
         crown.material.color.setHex(0x38bdf8);
         entry.root.scale.setScalar(1.2);
       } else if (tier === 'leader3') {
         bodyMat.color.setHex(0xfb923c);
         bodyMat.emissive.setHex(0xea580c);
-        bodyMat.emissiveIntensity = 0.85;
+        bodyMat.emissiveIntensity = 0.9;
         limbMat.emissive.setHex(0xfdba74);
-        limbMat.emissiveIntensity = 0.5;
+        limbMat.emissiveIntensity = 0.55;
         haloMat.color.setHex(0xfb923c);
-        haloMat.opacity = 0.85;
-        halo.scale.setScalar(1.25);
+        haloMat.opacity = 0.88;
+        halo.scale.setScalar(1.28);
         crown.visible = false;
         entry.root.scale.setScalar(1.14);
       } else if (tier === 'frontpack' || surging) {
         bodyMat.color.setHex(0xa855f7);
         bodyMat.emissive.setHex(0x7e22ce);
-        bodyMat.emissiveIntensity = surging ? 0.85 : 0.5;
+        bodyMat.emissiveIntensity = surging ? 0.85 : (0.35 + frontness * 0.45);
         limbMat.emissive.setHex(0xc084fc);
         limbMat.emissiveIntensity = 0.35;
         haloMat.color.setHex(0xa855f7);
@@ -1169,14 +1577,22 @@
       } else {
         bodyMat.color.setHex(0x0284c7);
         bodyMat.emissive.setHex(0x0369a1);
-        bodyMat.emissiveIntensity = 0.2;
+        bodyMat.emissiveIntensity = 0.2 + frontness * 0.25;
         limbMat.emissive.setHex(0x0284c7);
         limbMat.emissiveIntensity = 0.1;
         haloMat.color.setHex(0x38bdf8);
-        haloMat.opacity = 0.42;
-        halo.scale.setScalar(0.95);
+        haloMat.opacity = 0.42 + frontness * 0.25;
+        halo.scale.setScalar(0.95 + frontness * 0.15);
         crown.visible = false;
-        entry.root.scale.setScalar(0.96);
+        entry.root.scale.setScalar(0.96 + frontness * 0.08);
+      }
+
+      // Activate trailing 3D star gems proportionally to frontness
+      if (trailStars) {
+        const activeGems = tier === 'champion' ? 3 : Math.floor(frontness * 6.5);
+        trailStars.forEach((gem, idx) => {
+          gem.visible = idx < activeGems;
+        });
       }
     }
 
@@ -1240,6 +1656,12 @@
               emitSpark(existing.currentX, 1.4, existing.laneZ, m >= 100 ? 0xfbbf24 : 0x38bdf8, 1.8, 3.8);
             }
           }
+          // If the runner just crossed 100m into the Hall of Champions, launch a celebratory firework salvo!
+          if (m >= 100 && prev < 100) {
+            for (let fw = 0; fw < 4; fw++) {
+              launchFireworkRocket(108 + fw * 3.2, (fw - 1.5) * 5.0);
+            }
+          }
         }
         prevMetersById.set(s.id, m);
         s.meters = m;
@@ -1267,6 +1689,10 @@
       const leader2Meters = onTrack.length > 1 ? onTrack[1].meters : -1;
       const leader3Meters = onTrack.length > 2 ? onTrack[2].meters : -1;
       const frontPackCutoff = onTrack.length > 3 ? onTrack[Math.floor(onTrack.length * 0.35)].meters : 50;
+
+      // Map each on-track runner to their pack rank index so frontness grows smoothly toward the front
+      const trackRankById = new Map();
+      onTrack.forEach((r, idx) => trackRankById.set(r.id, idx));
 
       leadRunnerX = onTrack.length > 0 ? onTrack[0].meters : (champions.length > 0 ? 100 : 25);
 
@@ -1303,6 +1729,7 @@
             laneZ,
             phase: (h % 100) * 0.1,
             tier: 'pack',
+            frontness: 0,
             surging: false
           };
           created.root.position.set(s.meters, 0, laneZ);
@@ -1312,8 +1739,11 @@
 
         const isSurging = (surgeUntilById.get(s.id) || 0) > now;
         let tier = 'pack';
+        let frontness = 0;
+
         if (s.meters >= 100) {
           tier = 'champion';
+          frontness = 0.65;
           // Arrange Champions in a celebratory semicircle around the Victory Podium (x ~ 113, z ~ 0)
           const cIdx = champions.findIndex(c => c.id === s.id);
           const angle = ((cIdx % 14) / 13 - 0.5) * Math.PI * 1.3;
@@ -1322,15 +1752,31 @@
           entry.laneZ = Math.sin(angle) * radius;
         } else {
           entry.targetX = s.meters;
-          if (s.meters === leader1Meters && s.meters > 0) tier = 'leader1';
-          else if (s.meters === leader2Meters && s.meters > 0) tier = 'leader2';
-          else if (s.meters === leader3Meters && s.meters > 0) tier = 'leader3';
-          else if (s.meters >= frontPackCutoff && s.meters >= 30) tier = 'frontpack';
+          const leadM = Math.max(10, leader1Meters);
+          const distRatio = Math.max(0, Math.min(1, s.meters / leadM));
+          const rIdx = trackRankById.get(s.id) ?? onTrack.length;
+          const rankRatio = onTrack.length > 1 ? 1 - (rIdx / (onTrack.length - 1)) : 1;
+          frontness = Math.pow(distRatio * 0.65 + rankRatio * 0.35, 1.35);
+
+          if (s.meters === leader1Meters && s.meters > 0) {
+            tier = 'leader1';
+            frontness = 1.0;
+          } else if (s.meters === leader2Meters && s.meters > 0) {
+            tier = 'leader2';
+            frontness = Math.max(frontness, 0.86);
+          } else if (s.meters === leader3Meters && s.meters > 0) {
+            tier = 'leader3';
+            frontness = Math.max(frontness, 0.74);
+          } else if (s.meters >= frontPackCutoff && s.meters >= 30) {
+            tier = 'frontpack';
+            frontness = Math.max(frontness, 0.48);
+          }
         }
 
         entry.tier = tier;
+        entry.frontness = frontness;
         entry.surging = isSurging;
-        styleSprinterTier(entry, tier, isSurging);
+        styleSprinterTier(entry, tier, isSurging, frontness);
       });
 
       // Render Collection of Champions Sidebar
@@ -1386,6 +1832,7 @@
     function animate(now) {
       requestAnimationFrame(animate);
       const dt = Math.min(0.05, (now - lastFrameTime) / 1000);
+      const nowSec = now * 0.001;
       lastFrameTime = now;
 
       // Update camera presets if selected
@@ -1397,11 +1844,11 @@
         controls.target.lerp(new THREE.Vector3(52, 0, 0), 0.06);
         camera.position.lerp(new THREE.Vector3(52, 68, 12), 0.05);
       } else if (cameraMode === 'champions') {
-        controls.target.lerp(new THREE.Vector3(111, 2.0, 0), 0.06);
-        camera.position.lerp(new THREE.Vector3(92, 11, 22), 0.05);
+        controls.target.lerp(new THREE.Vector3(112, 4.5, 0), 0.06);
+        camera.position.lerp(new THREE.Vector3(88, 13, 24), 0.05);
       }
 
-      // Animate runners & emit leader/champion sparks
+      // Animate runners, trailing 3D star gems, & progressive star/magic-dust trails
       for (const entry of runnerMeshes.values()) {
         // Smooth horizontal interpolation along track
         entry.currentX += (entry.targetX - entry.currentX) * Math.min(1, dt * 4.5);
@@ -1412,7 +1859,7 @@
         const speedMultiplier = entry.tier === 'leader1' ? 11.5
           : (entry.tier === 'leader2' || entry.tier === 'leader3' || entry.surging) ? 9.5
           : entry.tier === 'champion' ? 5.5
-          : 7.2;
+          : (7.0 + (entry.frontness || 0) * 2.5);
 
         entry.phase += dt * speedMultiplier;
         const swing = Math.sin(entry.phase) * 0.72;
@@ -1435,22 +1882,37 @@
           entry.crown.rotation.z += dt * 2.5;
         }
 
-        // Emit continuous sparks for leaders & champions
-        if (entry.tier === 'leader1' && Math.random() < 0.85) {
-          emitSpark(entry.currentX - 0.3, 1.3, curZ, 0xfbbf24, 1.2, 2.6);
-          emitSpark(entry.currentX - 0.5, 0.5, curZ, 0xfef08a, 0.9, 1.8);
-        } else if (entry.tier === 'leader2' && Math.random() < 0.6) {
-          emitSpark(entry.currentX - 0.3, 1.2, curZ, 0x38bdf8, 1.0, 2.2);
-        } else if (entry.tier === 'leader3' && Math.random() < 0.55) {
-          emitSpark(entry.currentX - 0.3, 1.2, curZ, 0xfb923c, 1.0, 2.2);
-        } else if (entry.tier === 'champion' && Math.random() < 0.35) {
-          emitSpark(entry.currentX, 2.1, curZ, 0xfde047, 1.3, 3.1);
-        } else if (entry.surging && Math.random() < 0.65) {
-          emitSpark(entry.currentX - 0.3, 1.1, curZ, 0xa855f7, 1.1, 2.3);
+        // Animate orbiting 3D star crystals in the runner's wake
+        if (entry.trailStars) {
+          const f = entry.frontness || 0;
+          entry.trailStars.forEach((gem, idx) => {
+            if (!gem.visible) return;
+            const t = nowSec * 6.5 + entry.phase + idx * 0.95;
+            const distBack = (0.55 + idx * (0.38 + f * 0.42));
+            gem.position.x = -distBack;
+            gem.position.y = 1.05 + Math.sin(t) * (0.22 + idx * 0.05);
+            gem.position.z = Math.cos(t) * (0.24 + idx * 0.06);
+            gem.rotation.x += dt * 4.5;
+            gem.rotation.y += dt * 5.5;
+            const sScale = Math.max(0.35, (1.15 - idx * 0.14) * (0.65 + f * 0.6));
+            gem.scale.setScalar(sScale);
+          });
+        }
+
+        // Emit progressive trail of sparkling stars & magic dust that grows toward the front of the pack
+        if (entry.tier === 'champion') {
+          if (Math.random() < 0.42) {
+            emitSpark(entry.currentX, 2.1, curZ, 0xfde047, 1.3, 3.1);
+          }
+          if (Math.random() < 0.35) {
+            emitMagicDust(entry.currentX, 1.4, curZ, 0x34d399, 0.5);
+          }
+        } else {
+          emitLeaderStarAndDustTrail(entry, nowSec);
         }
       }
 
-      updateSparks(dt);
+      updateSparks(dt, nowSec);
       controls.update();
       if (gl && scene && camera) {
         gl.render(scene, camera);
