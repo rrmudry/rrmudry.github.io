@@ -769,10 +769,13 @@
 
       controls = new OrbitControls(camera, canvas);
       controls.enableDamping = true;
-      controls.dampingFactor = 0.06;
+      controls.dampingFactor = 0.08;
+      controls.zoomSpeed = 0.28;
+      controls.rotateSpeed = 0.6;
+      controls.panSpeed = 0.65;
       controls.maxPolarAngle = Math.PI * 0.485;
-      controls.minDistance = 8;
-      controls.maxDistance = 190;
+      controls.minDistance = 6;
+      controls.maxDistance = 220;
       controls.target.set(62, 2.5, 0);
 
       if (RoomEnvironment) {
@@ -2250,23 +2253,38 @@
     // 60 FPS Animation Loop
     // ------------------------------------------------------------------
     let lastFrameTime = performance.now();
+    let camTransitionUntil = 0;
+
     function animate(now) {
       requestAnimationFrame(animate);
       const dt = Math.min(0.05, (now - lastFrameTime) / 1000);
       const nowSec = now * 0.001;
       lastFrameTime = now;
 
-      // Update camera presets if selected
+      // Update camera presets without fighting user zoom/orbit
+      const isTransitioning = now < camTransitionUntil;
       if (cameraMode === 'chase') {
         const targetX = Math.min(100, Math.max(10, leadRunnerX));
-        controls.target.lerp(new THREE.Vector3(targetX + 4, 1.8, 0), 0.06);
-        camera.position.lerp(new THREE.Vector3(targetX - 18, 8.5, 16), 0.05);
-      } else if (cameraMode === 'overhead') {
-        controls.target.lerp(new THREE.Vector3(52, 0, 0), 0.06);
-        camera.position.lerp(new THREE.Vector3(52, 68, 12), 0.05);
-      } else if (cameraMode === 'champions') {
-        controls.target.lerp(new THREE.Vector3(112, 4.5, 0), 0.06);
-        camera.position.lerp(new THREE.Vector3(88, 13, 24), 0.05);
+        if (isTransitioning) {
+          controls.target.lerp(new THREE.Vector3(targetX + 4, 1.8, 0), 0.08);
+          camera.position.lerp(new THREE.Vector3(targetX - 18, 8.5, 16), 0.08);
+        } else {
+          // Track leader along X while preserving the user's chosen zoom distance & orbit angle
+          const dx = (targetX + 4 - controls.target.x) * 0.05;
+          controls.target.x += dx;
+          camera.position.x += dx;
+        }
+      } else if (isTransitioning) {
+        if (cameraMode === 'broadcast') {
+          controls.target.lerp(new THREE.Vector3(62, 2.5, 0), 0.08);
+          camera.position.lerp(new THREE.Vector3(58, 25, 66), 0.08);
+        } else if (cameraMode === 'overhead') {
+          controls.target.lerp(new THREE.Vector3(52, 0, 0), 0.08);
+          camera.position.lerp(new THREE.Vector3(52, 68, 12), 0.08);
+        } else if (cameraMode === 'champions') {
+          controls.target.lerp(new THREE.Vector3(112, 4.5, 0), 0.08);
+          camera.position.lerp(new THREE.Vector3(88, 13, 24), 0.08);
+        }
       }
 
       // Animate runners, trailing 3D star gems, & progressive star/magic-dust trails
@@ -2334,12 +2352,12 @@
         document.querySelectorAll('.cam-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         cameraMode = btn.dataset.cam;
-        if (cameraMode === 'broadcast') {
-          camera.position.set(58, 25, 66);
-          controls.target.set(62, 2.5, 0);
-        }
+        camTransitionUntil = performance.now() + 900;
       });
     });
+
+    canvas.addEventListener('wheel', () => { camTransitionUntil = 0; }, { passive: true });
+    canvas.addEventListener('pointerdown', () => { camTransitionUntil = 0; }, { passive: true });
 
     $('btnChampIdentity').addEventListener('click', () => {
       showChampionNames = !showChampionNames;
