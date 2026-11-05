@@ -5225,14 +5225,30 @@ const lessonsData = [
     "day": 47,
     "date": "2026-11-03",
     "unit": 2,
-    "title": "Apogee Kinematics: Peak Height, Hang-Time & Trajectory Symmetry",
-    "topic": "Vertical Velocity at Peak (v_y = 0), Flight Time Symmetry, and Maximum Height",
+    "title": "Student-Free Day / Staff Development (No School)",
+    "topic": "Student-Free Day — No School",
+    "dok": 0,
+    "type": "Student-Free Day",
+    "semester": 1,
+    "isFeatured": false,
+    "summary": "Student-Free Day / Staff Development Day. Campus closed for instruction; no classes or school activities were held. All Unit 2 angled projectile kinematics, trajectory symmetry derivations, and the Projectile Range Studio are conducted during the Wednesday (Periods 0, 2, 4, 6) and Thursday (Periods 0, 1, 3, 5) block schedule.",
+    "activity": "No student attendance — Staff Development Day. Teacher professional development and instructional planning.",
+    "standards": [
+      "HS-PS2-1"
+    ]
+  },
+  {
+    "day": 48,
+    "date": "2026-11-04",
+    "unit": 2,
+    "title": "Angled Projectiles & Projectile Range Studio",
+    "topic": "Vertical Velocity at Peak (v_y = 0), Hang Time & Range Studio",
     "dok": 2,
-    "type": "Guided Practice / Problem Solving",
+    "type": "Guided Practice / Simulation Studio",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Staff Development / Student-Free Day (Nov 3). Analyze the vertical trajectory of angled projectiles: at peak apogee v_y = 0, time to rise equals time to fall, and total hang-time is t_total = 2v_0y / g. Coursework is consolidated into Wednesday (Periods 0, 2, 4, 6) and Thursday (Periods 0, 1, 3, 5) block periods.",
-    "activity": "Apogee Kinematics & Projectile Range Studio: Students work through the Projectile Range Studio interactive modules (vertical velocity, flight time, and horizontal landing range), connecting trajectory symmetry to pneumatic rocket telemetry.",
+    "summary": "Block Day (Periods 0, 2, 4, 6 — 105 min). Analyze the vertical trajectory of angled projectiles: at peak apogee v_y = 0, time to rise equals time to fall, and total hang-time is t_total = 2v_0y / g. Students complete the interactive Projectile Range Studio.",
+    "activity": "Angled Projectile Kinematics & Projectile Range Studio: Direct instruction deriving maximum height (h_max = v_0y² / 2g) and trajectory symmetry from cardstock rocket telemetry, followed by the multi-stage Projectile Range Studio modules and Mastery Check.",
     "essentialQuestion": "Why must vertical velocity drop to exactly zero at the highest point of an arc, and how does that unlock the entire flight trajectory?",
     "standards": [
       "HS-PS2-1"
@@ -5240,9 +5256,82 @@ const lessonsData = [
     "wicor": {
       "Writing": "Explaining why instantaneous vertical velocity is zero at apogee while horizontal velocity remains non-zero.",
       "Inquiry": "Deriving the relationship between initial vertical velocity, peak height, and total hang-time.",
-      "Collaboration": "Partner problem solving finding peak apogee heights and total ranges.",
+      "Collaboration": "Paired problem solving finding peak apogee heights and horizontal ranges.",
       "Organization": "Step-by-step problem-solving templates for 3-stage projectile motion.",
-      "Reading": "Reading trajectory height vs distance graphs."
+      "Reading": "Reading trajectory height vs distance graphs and vector resolution diagrams."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "A baseball is hit straight upward with an initial vertical velocity of 30 m/s. If g ≈ 10 m/s², how long does it take to reach its highest point, and what is its vertical velocity at that instant?",
+      "explanation": "At its peak, vertical velocity is momentarily 0 m/s. Using v_y = v_0y - gt: 0 = 30 - 10t, so t = 3.0 seconds to reach the top. Total hang-time back to ground level is 6.0 seconds.",
+      "defaultDuration": 3
+    },
+    "links": {
+      "Projectile Motion 2 angles (Slides)": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQBKUM90s6lPRpagPMzhMbp8AePjnyBo_L_in6NdwpD72NQ?e=fhfaOC",
+      "Projectile Range Studio": "Unit_2/projectile_range_studio/index.html",
+      "Interactive Projectile Motion Tutorial": "interactive-projectile-motion-tutorial/index.html",
+      "Artillery Duel Game": "Cannon_duel/index.html"
+    },
+    "assignments": [
+      {
+        "title": "Projectile Range Studio",
+        "url": "Unit_2/projectile_range_studio/index.html",
+        "typeLabel": "Interactive Studio & Mastery Check",
+        "submission": "Automatic Classroom Sync (10 pts)",
+        "actionLabel": "Launch Range Studio",
+        "description": "See a launch split into two motions, find how long it stays in the air, then use that time to find how far it goes. Earn credit for every step, then pass the Mastery Check.",
+        "status": "active"
+      }
+    ],
+    "resources": [
+      {
+        "title": "Projectile Motion 2 angles (Slides)",
+        "url": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQBKUM90s6lPRpagPMzhMbp8AePjnyBo_L_in6NdwpD72NQ?e=fhfaOC",
+        "typeLabel": "Classroom Slides",
+        "description": "Lecture and guided problem slides covering 2D angled projectiles, flight time symmetry, and calculating maximum height."
+      },
+      {
+        "title": "Projectile Range Studio",
+        "url": "Unit_2/projectile_range_studio/index.html",
+        "typeLabel": "Interactive Studio",
+        "description": "Step through a flight second by second to find hang time and range."
+      },
+      {
+        "title": "Interactive Projectile Motion Tutorial",
+        "url": "interactive-projectile-motion-tutorial/index.html",
+        "typeLabel": "Inquiry Sandbox",
+        "description": "Visualize apogee inflection points and multi-angle trajectory overlays."
+      },
+      {
+        "title": "Artillery Duel Game",
+        "url": "Cannon_duel/index.html",
+        "typeLabel": "2-Player Simulation Game",
+        "description": "Competitive artillery trajectory showdown adjusting angle and velocity."
+      }
+    ]
+  },
+  {
+    "day": 49,
+    "date": "2026-11-05",
+    "unit": 2,
+    "title": "Angled Projectiles & Projectile Range Studio",
+    "topic": "Vertical Velocity at Peak (v_y = 0), Hang Time & Range Studio",
+    "dok": 2,
+    "type": "Guided Practice / Simulation Studio",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Block Day (Periods 0, 1, 3, 5 — 105 min). Analyze the vertical trajectory of angled projectiles: at peak apogee v_y = 0, time to rise equals time to fall, and total hang-time is t_total = 2v_0y / g. Students complete the interactive Projectile Range Studio.",
+    "activity": "Angled Projectile Kinematics & Projectile Range Studio: Periods 1, 3, 5 receive direct instruction on resolving initial velocities, flight time symmetry, and maximum height, followed by the multi-stage Projectile Range Studio modules and Mastery Check.",
+    "essentialQuestion": "Why must vertical velocity drop to exactly zero at the highest point of an arc, and how does that unlock the entire flight trajectory?",
+    "standards": [
+      "HS-PS2-1"
+    ],
+    "wicor": {
+      "Writing": "Explaining why instantaneous vertical velocity is zero at apogee while horizontal velocity remains non-zero.",
+      "Inquiry": "Deriving the relationship between initial vertical velocity, peak height, and total hang-time.",
+      "Collaboration": "Paired problem solving finding peak apogee heights and horizontal ranges.",
+      "Organization": "Step-by-step problem-solving templates for 3-stage projectile motion.",
+      "Reading": "Reading trajectory height vs distance graphs and vector resolution diagrams."
     },
     "bellRinger": {
       "type": "free_response",
@@ -5264,14 +5353,6 @@ const lessonsData = [
         "actionLabel": "Launch Range Studio",
         "description": "See a launch split into two motions, find how long it stays in the air, then use that time to find how far it goes. Earn credit for every step, then pass the Mastery Check.",
         "status": "active"
-      },
-      {
-        "title": "Apogee & Hang-Time Problem Set",
-        "typeLabel": "Problem Set",
-        "submission": "Turn In in Classroom",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Calculate time-to-peak, total flight time, maximum height, and horizontal landing range.",
-        "status": "active"
       }
     ],
     "resources": [
@@ -5290,150 +5371,8 @@ const lessonsData = [
       {
         "title": "Interactive Projectile Motion Tutorial",
         "url": "interactive-projectile-motion-tutorial/index.html",
-        "typeLabel": "Interactive Model",
-        "description": "Visualize apogee inflection points and vector arrow transformations during flight."
-      }
-    ]
-  },
-  {
-    "day": 48,
-    "date": "2026-11-04",
-    "unit": 2,
-    "title": "Complementary Launch Angles & Projectile Range Studio",
-    "topic": "Complementary Angle Symmetry (θ and 90° - θ) & Projectile Range Studio",
-    "dok": 3,
-    "type": "Inquiry / Simulation Studio",
-    "semester": 1,
-    "isFeatured": true,
-    "summary": "Block Day (Periods 0, 2, 4, 6 - 105 min). Complete the Projectile Range Studio and investigate the complementary angle theorem: any two launch angles that add to 90 degrees produce the exact same horizontal range on level ground.",
-    "activity": "Projectile Range Studio & Complementary Angle Virtual Inquiry: Students complete the multi-stage Projectile Range Studio mastery modules, then test angle pairs (15° and 75°, 30° and 60°, 20° and 70°) using the interactive simulators to analyze trade-offs between hang-time and horizontal speed.",
-    "essentialQuestion": "Why do two completely different launch angles, like 30° and 60°, land in the exact same spot on level ground?",
-    "standards": [
-      "HS-PS2-1"
-    ],
-    "wicor": {
-      "Writing": "Synthesizing the mathematical product of v_x and t_hang to explain range equality for complementary angles.",
-      "Inquiry": "Formulating hypotheses about launch angle vs distance and systematically testing 15° increments.",
-      "Collaboration": "Lab partners recording and comparing trajectory profiles across angle sets.",
-      "Organization": "Creating comparative tables of launch angle, hang time, max height, and landing distance.",
-      "Reading": "Interpreting multi-trajectory overlay graphs."
-    },
-    "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "A water cannon shoots water at 30° above horizontal and lands 40 meters away. Without changing launch speed, what other launch angle will land at the exact same 40-meter mark? Which angle stays in the air longer?",
-      "explanation": "60° produces the exact same 40-meter range because 30° and 60° are complementary angles (sum to 90°). The 60° launch reaches a higher peak and stays in the air significantly longer.",
-      "defaultDuration": 3
-    },
-    "links": {
-      "Projectile Range Studio": "Unit_2/projectile_range_studio/index.html",
-      "Interactive Projectile Motion Tutorial": "interactive-projectile-motion-tutorial/index.html",
-      "Artillery Duel Game": "Cannon_duel/index.html"
-    },
-    "assignments": [
-      {
-        "title": "Projectile Range Studio",
-        "url": "Unit_2/projectile_range_studio/index.html",
-        "typeLabel": "Interactive Studio & Mastery Check",
-        "submission": "Automatic Classroom Sync (10 pts)",
-        "actionLabel": "Launch Range Studio",
-        "description": "See a launch split into two motions, find how long it stays in the air, then use that time to find how far it goes. Earn credit for every step, then pass the Mastery Check.",
-        "status": "active"
-      },
-      {
-        "title": "Complementary Angles Inquiry Lab Report",
-        "typeLabel": "Digital Investigation",
-        "submission": "Turn In in Classroom",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Document 5 complementary angle trials, graph range vs angle, and justify the 45-degree maximum.",
-        "status": "active"
-      }
-    ],
-    "resources": [
-      {
-        "title": "Projectile Range Studio",
-        "url": "Unit_2/projectile_range_studio/index.html",
-        "typeLabel": "Interactive Studio",
-        "description": "Step through a flight second by second to find hang time and range."
-      },
-      {
-        "title": "Interactive Projectile Motion Tutorial",
-        "url": "interactive-projectile-motion-tutorial/index.html",
         "typeLabel": "Inquiry Sandbox",
-        "description": "Multi-angle trajectory overlay tool with flight statistics."
-      },
-      {
-        "title": "Artillery Duel Game",
-        "url": "Cannon_duel/index.html",
-        "typeLabel": "2-Player Simulation Game",
-        "description": "Competitive artillery trajectory showdown adjusting angle and velocity."
-      }
-    ]
-  },
-  {
-    "day": 49,
-    "date": "2026-11-05",
-    "unit": 2,
-    "title": "Emergency Air-Drop Delivery Challenge & Projectile Range Studio",
-    "topic": "3D Science Assessment: Calculating Release Distance & Projectile Range Studio",
-    "dok": 3,
-    "type": "CAST 3D Performance Task / Problem Solving",
-    "semester": 1,
-    "isFeatured": true,
-    "summary": "Block Day (Periods 0, 1, 3, 5 - 105 min). Complete the Projectile Range Studio and apply 2D projectile physics to an authentic emergency scenario calculating exact release coordinates for a cargo relief aircraft.",
-    "activity": "Projectile Range Studio & Relief Plane Air-Drop Performance Task: Periods 1, 3, 5 complete the Projectile Range Studio mastery modules, then receive drone and aircraft flight telemetry to calculate falling time and lead distance.",
-    "essentialQuestion": "Why must emergency relief pilots release cargo packages kilometers before reaching the drop zone?",
-    "standards": [
-      "HS-PS2-1",
-      "HS-ETS1-2"
-    ],
-    "wicor": {
-      "Writing": "Drafting an evidence-based flight controller report justifying the computed release lead distance.",
-      "Inquiry": "Modeling the forward momentum of released cargo and predicting impact coordinates.",
-      "Collaboration": "Peer auditing of cargo drop flight plans and unit conversions.",
-      "Organization": "Completing standardized CAST multi-tier calculation rubrics.",
-      "Reading": "Reading aviation telemetry tables and topographic landing charts."
-    },
-    "bellRinger": {
-      "type": "free_response",
-      "promptQuestion": "A cargo plane flying horizontally at 100 m/s drops an emergency food crate directly above a rescue island. Where does the crate land relative to the island? Why?",
-      "explanation": "The crate lands far past the island (downrange). Due to inertia, when the crate is released from the plane it continues moving forward at 100 m/s while falling, traveling forward hundreds of meters before hitting the ground.",
-      "defaultDuration": 3
-    },
-    "links": {
-      "Projectile Range Studio": "Unit_2/projectile_range_studio/index.html",
-      "Horizontal Projectile Motion Explorer": "horizontal-projectile-motion/index.html"
-    },
-    "assignments": [
-      {
-        "title": "Projectile Range Studio",
-        "url": "Unit_2/projectile_range_studio/index.html",
-        "typeLabel": "Interactive Studio & Mastery Check",
-        "submission": "Automatic Classroom Sync (10 pts)",
-        "actionLabel": "Launch Range Studio",
-        "description": "See a launch split into two motions, find how long it stays in the air, then use that time to find how far it goes. Earn credit for every step, then pass the Mastery Check.",
-        "status": "active"
-      },
-      {
-        "title": "Emergency Air-Drop 2D Kinematics Performance Task",
-        "typeLabel": "CAST Performance Task",
-        "submission": "Turn In in Classroom / Auto-Saved Score",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Calculate falling time, horizontal lead distance, and write CER justification for air-drop coordinates.",
-        "status": "active"
-      }
-    ],
-    "resources": [
-      {
-        "title": "Projectile Range Studio",
-        "url": "Unit_2/projectile_range_studio/index.html",
-        "typeLabel": "Interactive Studio",
-        "description": "Step through a flight second by second to find hang time and range."
-      },
-      {
-        "title": "Horizontal Projectile Motion Explorer",
-        "url": "horizontal-projectile-motion/index.html",
-        "typeLabel": "Aviation Sandbox",
-        "description": "Simulate high-altitude horizontal drops and impact offsets."
+        "description": "Visualize apogee inflection points and vector arrow transformations during flight."
       }
     ]
   },

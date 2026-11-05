@@ -658,7 +658,7 @@
     </div>
 
     <script src="assets/partials.js"></script>
-    <script src="assets/lessons-data.js?v=20261103"></script>
+    <script src="assets/lessons-data.js?v=20261104b"></script>
     <script>
         // Ensure categorizeLessonLinks is always defined
         if (typeof window.categorizeLessonLinks !== 'function') {
@@ -806,7 +806,7 @@
                     'planned': '<span class="text-slate-500 text-[10px] font-bold">SCHEDULED</span>'
                 };
 
-                const isHoliday = day.type === 'Holiday' || day.dok === 0;
+                const isHoliday = day.type === 'Holiday' || day.type === 'Student-Free Day' || day.dok === 0;
                 const dokBadge = isHoliday 
                     ? '<span class="text-[10px] bg-amber-950/80 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/40 font-mono font-bold">NO_SCHOOL</span>'
                     : `<span class="text-[10px] bg-lime-950/80 text-[#ccff00] px-2 py-0.5 rounded-full border border-lime-500/40 font-mono font-bold">DOK_${day.dok || 1}</span>`;
@@ -1222,8 +1222,12 @@
             const modalSubtitle = document.getElementById('modal-subtitle');
             const modalContent = document.getElementById('modal-content');
 
+            const isHoliday = day.type === 'Holiday' || day.type === 'Student-Free Day' || day.dok === 0;
+
             modalTitle.innerHTML = `DAY ${String(day.day).padStart(2, '0')}: ${day.topic || day.title}`;
-            modalSubtitle.innerText = `${day.date || ''} • Type: ${day.type} • DOK Level: ${day.dok || 1}`;
+            modalSubtitle.innerText = isHoliday 
+                ? `${day.date || ''} • No School (${day.type || 'Holiday'})`
+                : `${day.date || ''} • Type: ${day.type} • DOK Level: ${day.dok || 1}`;
 
             const categorizedLinksHtml = renderCategorizedLinksHtml(day);
 
@@ -1257,11 +1261,22 @@
             ` : '';
 
             modalContent.innerHTML = `
+                ${isHoliday ? `
+                    <div class="bg-amber-950/70 border border-amber-500/50 rounded-2xl p-4 flex items-center gap-3.5 text-amber-200 shadow-xl">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xl flex-shrink-0">
+                            🏫
+                        </div>
+                        <div>
+                            <h4 class="font-bold font-mono text-amber-300 uppercase text-xs tracking-wider">Campus Closed — No School Scheduled</h4>
+                            <p class="text-xs text-amber-100/90 leading-relaxed mt-0.5">There were no classes or instructional activities held on this date due to the ${day.title || 'student-free day'}. All coursework and studio inquiries resume on block schedule days.</p>
+                        </div>
+                    </div>
+                ` : ''}
                 <div>
                     <h4 class="text-xs font-mono text-lime-300 uppercase tracking-wider mb-1">Lesson Summary</h4>
                     <p class="text-sm text-slate-200 leading-relaxed">${day.summary || day.details || 'No summary available.'}</p>
                 </div>
-                ${day.essentialQuestion ? `
+                ${(!isHoliday && day.essentialQuestion) ? `
                     <div class="bg-lime-950/50 p-3.5 rounded-lg border border-lime-500/30">
                         <h4 class="text-xs font-mono text-[#ccff00] uppercase tracking-wider mb-1">Essential Question</h4>
                         <p class="text-sm italic text-lime-100/90">"${day.essentialQuestion}"</p>
