@@ -142,5 +142,8 @@ When creating a follow-along guided notes worksheet accompanying an instructor P
    - Include subtle pill badges (`Slides 2–4`, `Slides 5–9`, `Slides 10–22`, `Slides 26–28`) in card headers so students who briefly look down can immediately re-anchor to the projected slide.
 4. **Isolated Headless Chrome PDF Verification**:
    - On Windows, render companion `.pdf` files via `chrome.exe --headless=new --disable-gpu --user-data-dir=<temp> --no-pdf-header-footer --print-to-pdf=<out.pdf> <file:///...html>` using `Start-Process -Wait`, then visually inspect every rendered PDF page screenshot (`read_file` on the `.pdf`) to confirm exact page count ($\le 2$ pages), zero footer descender clipping (`padding-bottom: 3px`), and generous whitespace.
+5. **SVG Subscripts & Non-Wrapping Card Header Tags**:
+   - Inside `<svg><text>...</text></svg>`, HTML `<sub>`/`<sup>` tags do not render in Chromium PDF print; always use `<tspan dy="2" font-size="6.5">ox</tspan><tspan dy="-2"> (m/s)</tspan>` instead of programmer underscores (`v_ox`).
+   - Apply `white-space: nowrap; flex-shrink: 0;` to `.card-tag` header badges so unit tags (e.g., `Flight Time: t = 3 s`) never wrap mid-unit.
 
 

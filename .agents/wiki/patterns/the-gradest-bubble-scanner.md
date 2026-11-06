@@ -32,3 +32,16 @@
     - **Quick Score Presets**: Fast-tap percentage chips (`100%`, `90%`, `80%`, `70%`, `50%`, `0% Missing`).
     - **Batching Workflow ("Save & Add Another")**: Lets the teacher record multiple unbubbled sheets in sequence without dismissing the modal.
     - **Dual Persistence & Sync**: Saves to `state.grades` with status `"Manually Entered"`, updates Session Log in the scanner sidebar, updates Grades Directory and Stats, and syncs immediately to local storage and Cloud Firestore (`gradest_assignments`).
+
+## 4. Embedding Integrated OMR Bubble Cards Directly into Printable Worksheets
+- **Eliminating Stapled Bubble Sheets**:
+  - Any 2-page printable worksheet can embed a native `The_Gradest` OMR Bubble Card directly into the top-right corner of Page 1 (`width: 2.28in; height: 3.01in;`, preserving the exact `250:330` aspect ratio) alongside the header and experimental setup card.
+- **Strict Homography & Coordinate Invariants (`viewBox="0 0 250 330"`)**:
+  - **4 Asymmetric Fiducial Anchors**:
+    - Top-Left Square: `<rect x="7" y="7" width="16" height="16" fill="#000000"/>` (center `15, 15`)
+    - Top-Right Square: `<rect x="227" y="7" width="16" height="16" fill="#000000"/>` (center `235, 15`)
+    - Bottom-Left Circle: `<circle cx="15" cy="315" r="7.0" fill="#000000"/>` (center `15, 315`)
+    - Bottom-Right Circle: `<circle cx="235" cy="315" r="7.0" fill="#000000"/>` (center `235, 315`)
+  - **Student ID Grid (6 columns, 10 rows)**: `x = 25 + col * 14` (`col = 0..5`), `y = 115 + row * 14` (`row = 0..9`), bubble radius `r="4.5"`.
+  - **Score Grid (`D` columns, 10 rows)**: `x = 135 + col * 14` (`D = 1` for Max Score `<= 9`, `D = 2` for `10..99`, `D = 3` for `100+`), `y = 115 + row * 14`, bubble radius `r="4.5"`.
+  - **Embedded QR Code Isolation**: Place the static SVG `<path>` QR code at `(172, 248)` with module size `1.75` (`50.75 × 50.75` pt) so it leaves a generous white margin around the Bottom-Right fiducial circle at `(235, 315)` (satisfying `isIsolatedMarginFiducial()`).

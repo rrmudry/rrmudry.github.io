@@ -5382,51 +5382,119 @@ const lessonsData = [
     "day": 50,
     "date": "2026-11-06",
     "unit": 2,
-    "title": "2D Kinematics Synthesis & Projectile Trajectory Checkpoint",
-    "topic": "Summative Synthesis: 1D vs 2D Motion Comparison & Vector Mastery",
+    "title": "Projectile Motion Wrap-Up: CAST Science Data Analysis & CER Synthesis",
+    "topic": "Analyzing Ballistic Telemetry Tables, Multi-Series Slope Trends & Complementary Angle CER",
     "dok": 3,
-    "type": "Assessment / Workshop",
+    "type": "Data Analysis / CAST Synthesis",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Formative checkpoint evaluating student mastery across horizontal and angled projectile motion, vector decomposition, and trajectory predictions before entering circular dynamics.",
-    "activity": "Projectile Motion Mastery Checkpoint & Workshop: Students complete a formative diagnostic covering horizontal drops, angled launches, and vector arithmetic, followed by targeted peer tutoring and simulation corrections.",
-    "essentialQuestion": "How completely can we model and predict any two-dimensional path under the influence of gravity?",
+    "summary": "Synthesize 2D projectile motion through a CAST-aligned scientific data analysis investigation. Students interpret horizontal cliff launch tables and level-ground angular telemetry graphs, calculate graph slopes (flight time), and construct a 4-point Claim-Evidence-Reasoning (CER) argument.",
+    "activity": "CAST Projectile Data Analysis Investigation: Using differentiated investigation packets (Form A Guided, Form B Standard CP, and Honors Telemetry Synthesis), students analyze linear range-vs-speed graphs (where slope equals flight time t) and non-linear symmetric range-vs-angle arches (peaking at 45° with complementary angle pairs 30° & 60°), culminating in a structured CER scientific argument.",
+    "essentialQuestion": "How can experimental data tables and multi-series graphs reveal the mathematical trade-off between horizontal velocity and vertical hang time?",
     "standards": [
       "HS-PS2-1"
     ],
     "wicor": {
-      "Writing": "Writing clear mathematical derivations and justifying vector sign conventions.",
-      "Inquiry": "Reflecting on formative assessment feedback and diagnosing vector calculation errors.",
-      "Collaboration": "Small-group workshop stations reviewing launch calculations.",
-      "Organization": "Consolidating 1D and 2D kinematic equations into a unified formula reference sheet.",
-      "Reading": "Interpreting multi-step engineering prompts and velocity vector diagrams."
+      "Writing": "Constructing a 4-point CAST Claim-Evidence-Reasoning (CER) scientific argument citing quantitative data pairs and units.",
+      "Inquiry": "Evaluating student misconceptions about steep launch angles using empirical range and hang-time telemetry.",
+      "Collaboration": "Partner graph reading, stacked slope calculations, and peer rubric verification.",
+      "Organization": "Cross-referencing multi-column telemetry tables with linear and parabolic coordinate graphs.",
+      "Reading": "Interpreting CAST-style experimental setups, dual-series legends, and coordinate locators."
     },
     "bellRinger": {
       "type": "free_response",
       "promptQuestion": "What are the two most fundamental rules you must always remember when solving any projectile motion problem?",
-      "explanation": "1. Horizontal motion is constant velocity (a_x = 0, Δx = v_x · t). 2. Vertical motion is free fall accelerated by gravity (a_y = -9.8 m/s²). Time (t) is the only variable shared by both dimensions.",
+      "explanation": "1. Horizontal motion is constant velocity (a_x = 0, Δx = v_ox × t). 2. Vertical motion is free fall accelerated downward by gravity (g = 10 m/s²). Flight time (t) is the bridge shared by both dimensions.",
       "defaultDuration": 3
     },
     "links": {
-      "Horizontal Projectile Motion Explorer": "horizontal-projectile-motion/index.html",
+      "CAST Projectile Data Analysis (Form A — Guided PDF)": "Unit_2/worksheets/Day50_Projectile_Data_Analysis_Guided.pdf",
+      "CAST Projectile Data Analysis (Form B — CP PDF)": "Unit_2/worksheets/Day50_Projectile_Data_Analysis_CP.pdf",
+      "CAST Projectile Data Analysis (Honors PDF)": "Unit_2/worksheets/Day50_Projectile_Data_Analysis_Honors.pdf",
+      "CAST CER Sentence Starters & Formula Guide (PDF)": "Unit_2/worksheets/Day50_CAST_CER_Sentence_Starters.pdf",
+      "Análisis de Datos CAST — Forma A en Español (PDF)": "Unit_2/worksheets/Day50_Projectile_Data_Analysis_Guided_ES.pdf",
+      "Análisis de Datos CAST — Forma B en Español (PDF)": "Unit_2/worksheets/Day50_Projectile_Data_Analysis_CP_ES.pdf",
+      "Análisis de Datos CAST — Honores en Español (PDF)": "Unit_2/worksheets/Day50_Projectile_Data_Analysis_Honors_ES.pdf",
+      "Guía de Inicios de Oración CER en Español (PDF)": "Unit_2/worksheets/Day50_CAST_CER_Sentence_Starters_ES.pdf",
       "Interactive Projectile Motion Tutorial": "interactive-projectile-motion-tutorial/index.html"
     },
     "assignments": [
       {
-        "title": "Projectile Motion Mastery Checkpoint",
-        "typeLabel": "Formative Checkpoint",
-        "submission": "In-Class Handout",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Evaluate mastery of horizontal and angled projectile calculations and vector decomposition.",
+        "title": "CAST Projectile Data Analysis Investigation (Form A)",
+        "url": "Unit_2/worksheets/Day50_Projectile_Data_Analysis_Guided.pdf",
+        "typeLabel": "Printable CAST Investigation (2 Pages)",
+        "submission": "In-Class Printable Packet (10 pts)",
+        "actionLabel": "Open Form A Packet (PDF)",
+        "description": "Guided 2-page CAST data analysis investigation featuring visual graph coordinate locators, stacked math boxes, and built-in CER sentence starters.",
+        "status": "active"
+      },
+      {
+        "title": "CAST Projectile Data Analysis Investigation (Form B)",
+        "url": "Unit_2/worksheets/Day50_Projectile_Data_Analysis_CP.pdf",
+        "typeLabel": "Printable CAST Investigation (2 Pages)",
+        "submission": "In-Class Printable Packet (10 pts)",
+        "actionLabel": "Open Form B Packet (PDF)",
+        "description": "Standard 2-page CAST data analysis investigation comparing two launch heights, slope-as-flight-time calculations, and a 3-zone CER response.",
+        "status": "active"
+      },
+      {
+        "title": "Honors CAST Projectile Motion Data Analysis",
+        "url": "Unit_2/worksheets/Day50_Projectile_Data_Analysis_Honors.pdf",
+        "typeLabel": "Honors Printable Investigation (2 Pages)",
+        "submission": "In-Class Printable Packet (10 pts)",
+        "actionLabel": "Open Honors Packet (PDF)",
+        "description": "Period 0 Honors data analysis investigation covering multi-series graph slope (flight time), completing missing 60° table data using trig components (v_ox = v_o cos θ, v_oy = v_o sin θ) and Δx = v_ox × t_hang, and a 3-zone CER response.",
         "status": "active"
       }
     ],
     "resources": [
       {
-        "title": "2D Kinematics Formula & Vector Sheet",
-        "url": "horizontal-projectile-motion/index.html",
-        "typeLabel": "Reference Resource",
-        "description": "Comprehensive formula card for horizontal and angled projectile trajectories."
+        "title": "CAST CER Sentence Starters & Formula Toolkit",
+        "url": "Unit_2/worksheets/Day50_CAST_CER_Sentence_Starters.pdf",
+        "typeLabel": "Printable Desk Reference (1 Page)",
+        "description": "Student desk reference card with Claim, Quantitative Evidence, and Formula Reasoning sentence frames plus projectile equations (g = 10 m/s²)."
+      },
+      {
+        "title": "CAST Data Analysis — Form A (Print-Ready HTML)",
+        "url": "Unit_2/worksheets/Day50_Projectile_Data_Analysis_Guided.html",
+        "typeLabel": "Interactive / Print HTML",
+        "description": "Browser-printable version of Form A with one-click print toolbar."
+      },
+      {
+        "title": "CAST Data Analysis — Form B (Print-Ready HTML)",
+        "url": "Unit_2/worksheets/Day50_Projectile_Data_Analysis_CP.html",
+        "typeLabel": "Interactive / Print HTML",
+        "description": "Browser-printable version of Form B with one-click print toolbar."
+      },
+      {
+        "title": "Honors CAST Data Analysis (Print-Ready HTML)",
+        "url": "Unit_2/worksheets/Day50_Projectile_Data_Analysis_Honors.html",
+        "typeLabel": "Interactive / Print HTML",
+        "description": "Browser-printable version of the Honors telemetry investigation."
+      },
+      {
+        "title": "Análisis de Datos CAST — Forma A en Español (PDF)",
+        "url": "Unit_2/worksheets/Day50_Projectile_Data_Analysis_Guided_ES.pdf",
+        "typeLabel": "Investigación Imprimible (2 Páginas)",
+        "description": "Versión en español de la Forma A con localizadores de coordenadas gráficas y cuadros de matemáticas paso a paso."
+      },
+      {
+        "title": "Análisis de Datos CAST — Forma B en Español (PDF)",
+        "url": "Unit_2/worksheets/Day50_Projectile_Data_Analysis_CP_ES.pdf",
+        "typeLabel": "Investigación Imprimible (2 Páginas)",
+        "description": "Versión estándar en español con cálculo de pendiente (tiempo de vuelo) y 11 líneas amplias para la respuesta CER."
+      },
+      {
+        "title": "Análisis de Datos CAST — Honores en Español (PDF)",
+        "url": "Unit_2/worksheets/Day50_Projectile_Data_Analysis_Honors_ES.pdf",
+        "typeLabel": "Investigación Imprimible (2 Páginas)",
+        "description": "Versión con honores en español con cálculo de componentes trigonométricas a 60° y argumentación científica CER."
+      },
+      {
+        "title": "Guía de Inicios de Oración CER en Español (PDF)",
+        "url": "Unit_2/worksheets/Day50_CAST_CER_Sentence_Starters_ES.pdf",
+        "typeLabel": "Hoja de Referencia (1 Página)",
+        "description": "Tarjeta de escritorio para estudiantes con marcos de oraciones de Afirmación, Evidencia Cuantitativa y Razonamiento Físico."
       }
     ]
   },

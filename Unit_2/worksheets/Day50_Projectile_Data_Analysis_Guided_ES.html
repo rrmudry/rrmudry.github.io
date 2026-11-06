@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Investigación de Movimiento de Proyectiles: Análisis de Datos CAST (Forma A)</title>
+  <style>
+    @page {
+      size: letter portrait;
+      margin: 0.30in 0.40in;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #0f172a;
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+      line-height: 1.26;
+      font-size: 9pt;
+      font-variant-numeric: normal;
+      font-feature-settings: "zero" 0;
+    }
+
+    @media screen {
+      body {
+        background: #cbd5e1;
+        padding: 18px 0;
+      }
+      .worksheet-page {
+        background: #ffffff;
+        width: 8.5in;
+        margin: 0 auto 20px auto;
+        padding: 0.30in 0.40in;
+        box-shadow: 0 8px 25px rgba(15, 23, 42, 0.22);
+      }
+      .print-toolbar {
+        max-width: 8.5in;
+        margin: 0 auto 12px auto;
+        display: flex;
+        justify-content: flex-end;
+      }
+      .print-btn {
+        background: #0f172a;
+        color: #ffffff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: 800;
+        font-size: 9.5pt;
+        cursor: pointer;
+      }
+    }
+    @media print {
+      .print-toolbar {
+        display: none !important;
+      }
+    }
+
+    .worksheet-page {
+      width: 100%;
+      height: 10.32in;
+      max-height: 10.32in;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      page-break-after: always;
+      position: relative;
+    }
+    .worksheet-page:last-child {
+      page-break-after: avoid;
+    }
+
+    /* Math & Subscripts */
+    .mvar {
+      font-family: Georgia, "Times New Roman", serif;
+      font-style: italic;
+      font-weight: 700;
+    }
+    .mvar sub, .mvar sup, sub, sup {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-style: normal;
+      font-weight: 700;
+      font-size: 0.74em;
+      line-height: 0;
+    }
+    .mnum {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-style: normal;
+      font-weight: 700;
+      font-variant-numeric: normal;
+      font-feature-settings: "zero" 0;
+    }
+
+    /* Header */
+    .sheet-header {
+      border-bottom: 2.2px solid #0f172a;
+      padding-bottom: 6px;
+      margin-bottom: 8px;
+    }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 6px;
+    }
+    .header-title {
+      font-size: 13pt;
+      font-weight: 900;
+      color: #0f172a;
+      margin: 0;
+      letter-spacing: -0.015em;
+    }
+    .header-sub {
+      font-size: 8.2pt;
+      font-weight: 700;
+      color: #334155;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-top: 2px;
+    }
+    .ngss-pill {
+      font-size: 8pt;
+      font-weight: 800;
+      border: 1.5px solid #0f172a;
+      background: #f8fafc;
+      padding: 2px 8px;
+      border-radius: 5px;
+      white-space: nowrap;
+    }
+    .student-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      font-size: 9pt;
+      font-weight: 700;
+    }
+    .meta-item {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+    }
+    .write-line {
+      display: inline-block;
+      border-bottom: 1.5px solid #0f172a;
+      height: 16px;
+      vertical-align: baseline;
+    }
+
+    /* Running Header Page 2 */
+    .running-header {
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 4px;
+      margin-bottom: 7px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 8.6pt;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    /* Cards */
+    .card {
+      border: 1.6px solid #0f172a;
+      border-radius: 7px;
+      background: #ffffff;
+      overflow: hidden;
+      break-inside: avoid;
+      page-break-inside: avoid;
+      margin-bottom: 5px;
+    }
+    .card-header {
+      background: #f1f5f9;
+      border-bottom: 1.5px solid #0f172a;
+      padding: 3px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-title {
+      font-size: 9.1pt;
+      font-weight: 900;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    .card-tag {
+      font-size: 7.6pt;
+      font-weight: 800;
+      color: #334155;
+      background: #ffffff;
+      border: 1.2px solid #475569;
+      padding: 1px 7px;
+      border-radius: 99px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .card-body {
+      padding: 4.5px 10px;
+    }
+
+    /* Tables */
+    table.cast-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.3pt;
+      text-align: center;
+    }
+    table.cast-table th {
+      background: #e2e8f0;
+      border: 1.4px solid #0f172a;
+      padding: 3.5px 5px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.15;
+    }
+    table.cast-table td {
+      border: 1.3px solid #334155;
+      padding: 2px 5px;
+      font-weight: 700;
+    }
+    table.cast-table tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    /* Prompt Lines (Two-Column Flex Pattern) */
+    .prompt-line {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      margin-bottom: 5px;
+      font-size: 8.8pt;
+    }
+    .prompt-badge-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .step-pill {
+      background: #0f172a;
+      color: #ffffff;
+      font-size: 7.6pt;
+      font-weight: 800;
+      padding: 1.5px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .prompt-body {
+      flex: 1 1 auto;
+      line-height: 1.3;
+    }
+
+    .blank-line {
+      display: inline-block;
+      border-bottom: 1.6px solid #0f172a;
+      min-width: 0.7in;
+      height: 15px;
+      margin: 0 3px;
+      vertical-align: baseline;
+    }
+
+    /* Stacked Math Box */
+    .math-stack-box {
+      border: 1.4px solid #334155;
+      border-radius: 6px;
+      background: #f8fafc;
+      padding: 5px 9px;
+      font-size: 8.8pt;
+      font-weight: 700;
+      line-height: 1.55;
+    }
+
+    /* CER Zones */
+    .cer-zone {
+      border: 1.4px solid #334155;
+      border-radius: 6px;
+      padding: 5px 9px;
+      margin-bottom: 5px;
+      background: #ffffff;
+    }
+    .cer-zone-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 8.2pt;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 3px;
+    }
+    .starter-text {
+      font-size: 8.6pt;
+      line-height: 1.68;
+      color: #0f172a;
+    }
+
+    .page-footer {
+      border-top: 1.4px solid #cbd5e1;
+      padding-top: 3px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 7.9pt;
+      font-weight: 700;
+      color: #475569;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="print-toolbar">
+    <button class="print-btn" onclick="window.print()">🖨️ Imprimir Análisis de Datos CAST — Forma A (2 Páginas)</button>
+  </div>
+
+  <!-- =====================================================================
+       PAGE 1: INVESTIGATION SETUP, DATA TABLES & CAST GRAPHS
+       ===================================================================== -->
+  <div class="worksheet-page">
+    <div>
+      <!-- Top Row: Header + Experimental Setup (Left) & Integrated The_Gradest OMR Bubble Card (Right) -->
+      <div style="display: grid; grid-template-columns: 1fr 3.42in; gap: 10px; align-items: center; margin-bottom: 5px;">
+        <div>
+          <header class="sheet-header" style="margin-bottom: 6px; padding-bottom: 5px;">
+            <div class="header-top" style="margin-bottom: 4px;">
+              <div>
+                <h1 class="header-title" style="font-size: 12.2pt;">Investigación CAST: Análisis de Datos de Proyectiles</h1>
+                <div class="header-sub" style="font-size: 7.5pt;">Cierre de Unidad 2 &bull; Tablas, Tendencias y Argumentos Científicos (Forma A)</div>
+              </div>
+              <div class="ngss-pill" style="font-size: 7.4pt;">HS-PS2-1 &bull; Pág. 1 de 2</div>
+            </div>
+            <div class="student-meta" style="font-size: 8.6pt; gap: 10px;">
+              <div class="meta-item" style="flex: 1.7;"><span>Nombre:</span><span class="write-line" style="flex: 1;"></span></div>
+              <div class="meta-item" style="flex: 0.55;"><span>Per.:</span><span class="write-line" style="flex: 1;"></span></div>
+              <div class="meta-item" style="flex: 0.75;"><span>Fecha:</span><span class="write-line" style="flex: 1;"></span></div>
+            </div>
+          </header>
+
+          <section class="card" style="margin-bottom: 0;">
+            <div class="card-header" style="padding: 3.5px 10px;">
+              <span class="card-title" style="font-size: 8.5pt;">Diseño Experimental: Pruebas de Lanzamiento</span>
+              <span class="card-tag" style="font-size: 7.3pt;">Gravedad: g = 10 m/s²</span>
+            </div>
+            <div class="card-body" style="padding: 5px 9px; display: grid; grid-template-columns: 145px 1fr; gap: 8px; align-items: center;">
+              <div style="border: 1.2px solid #cbd5e1; border-radius: 5px; padding: 3px; background: #f8fafc;">
+                <svg viewBox="0 0 185 88" width="100%" height="66" style="display: block;">
+                  <rect x="6" y="18" width="32" height="54" fill="#cbd5e1" stroke="#0f172a" stroke-width="1.4"/>
+                  <text x="10" y="48" font-size="7.5" font-weight="800" fill="#0f172a">45 m</text>
+                  <line x1="4" y1="72" x2="180" y2="72" stroke="#0f172a" stroke-width="1.8"/>
+                  <rect x="24" y="11" width="16" height="6" rx="1.5" fill="#0f172a"/>
+                  <line x1="43" y1="14" x2="66" y2="14" stroke="#0284c7" stroke-width="2"/>
+                  <polygon points="64,11 71,14 64,17" fill="#0284c7"/>
+                  <text x="45" y="9" font-size="7.5" font-weight="800" fill="#0284c7">v<tspan dy="2" font-size="5.8">ox</tspan></text>
+                  <path d="M 40,14 Q 95,14 148,71" fill="none" stroke="#0f172a" stroke-width="1.6" stroke-dasharray="4,2"/>
+                  <circle cx="148" cy="71" r="3.2" fill="#dc2626"/>
+                  <text x="93" y="84" font-size="7.2" font-weight="800" text-anchor="middle" fill="#0f172a">Alcance Horizontal Δx (m)</text>
+                </svg>
+              </div>
+              <div style="font-size: 7.9pt; line-height: 1.25;">
+                <div><strong>&bull; Investigación 1 (Rapidez Horizontal):</strong> Un lanzador dispara pelotas horizontalmente desde un risco para que cada prueba tenga el mismo tiempo de vuelo (<span class="mvar">t</span> = <span class="mnum">3 s</span>) mientras aumenta la <strong>Rapidez Horizontal (<span class="mvar">v<sub>ox</sub></span>)</strong>.</div>
+                <div style="margin-top: 2px;"><strong>&bull; Investigación 2 (Ángulo de Lanzamiento):</strong> En suelo plano con rapidez constante <span class="mvar">v<sub>o</sub></span> = <span class="mnum">20 m/s</span>, se prueban cinco <strong>Ángulos (<span class="mvar">θ</span>)</strong> de <span class="mnum">15°</span> a <span class="mnum">75°</span>.</div>
+              </div>
+            </div>
+            <div style="background: #f0f9ff; border-top: 1.2px solid #bae6fd; padding: 3.5px 9px; font-size: 7.6pt; color: #0c4a6e;">
+              <strong>✏️ Tarjeta de Escaneo (Derecha):</strong> Escribe y rellena tu <strong>ID Estudiantil de 6 dígitos</strong>. <strong>¡Deja en blanco las burbujas de SCORE</strong> para tu maestro!
+            </div>
+          </section>
+        </div>
+        <!-- Integrated The_Gradest OMR Bubble Sheet (50% Larger: 3.42in x 4.51in, Exact 250:330 Geometry) -->
+        <div style="width: 3.42in; height: 4.51in; padding: 2px; background: #ffffff; border-radius: 4px;">
+          <svg viewBox="0 0 250 330" width="100%" height="100%" style="display:block; background:#ffffff;"><rect x="1" y="1" width="248" height="328" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="4,4"/><rect x="7" y="7" width="16" height="16" fill="#000000"/><rect x="227" y="7" width="16" height="16" fill="#000000"/><circle cx="15" cy="315" r="7.0" fill="#000000"/><circle cx="235" cy="315" r="7.0" fill="#000000"/><text x="25" y="31" font-family="Helvetica, Arial, sans-serif" font-size="8.5" font-weight="bold" fill="#000000">CAST Projectile Data Analysis</text><text x="225" y="31" font-family="Helvetica, Arial, sans-serif" font-size="7.2" font-weight="bold" fill="#000000" text-anchor="end">MAX SCORE: 10</text><text x="25" y="42" font-family="Helvetica, Arial, sans-serif" font-size="5.6" fill="#334155">Investigación Unidad 2 (Forma A - Español)</text><text x="25" y="51" font-family="Helvetica, Arial, sans-serif" font-size="5.3" fill="#334155">Rellena tu ID de 6 dígitos. Deja SCORE en blanco.</text><text x="25" y="85" font-family="Helvetica, Arial, sans-serif" font-size="7.5" font-weight="bold" fill="#000000">STUDENT ID</text><text x="135" y="85" font-family="Helvetica, Arial, sans-serif" font-size="7.5" font-weight="bold" fill="#000000">SCORE</text><rect x="20" y="92" width="10" height="10" fill="none" stroke="#000000" stroke-width="0.75"/><circle cx="25" cy="115" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="25" y="116.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">0</text><circle cx="25" cy="129" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="25" y="130.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">1</text><circle cx="25" cy="143" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="25" y="144.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">2</text><circle cx="25" cy="157" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="25" y="158.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">3</text><circle cx="25" cy="171" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="25" y="172.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">4</text><circle cx="25" cy="185" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="25" y="186.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">5</text><circle cx="25" cy="199" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="25" y="200.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">6</text><circle cx="25" cy="213" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="25" y="214.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">7</text><circle cx="25" cy="227" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="25" y="228.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">8</text><circle cx="25" cy="241" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="25" y="242.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">9</text><rect x="34" y="92" width="10" height="10" fill="none" stroke="#000000" stroke-width="0.75"/><circle cx="39" cy="115" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="39" y="116.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">0</text><circle cx="39" cy="129" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="39" y="130.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">1</text><circle cx="39" cy="143" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="39" y="144.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">2</text><circle cx="39" cy="157" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="39" y="158.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">3</text><circle cx="39" cy="171" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="39" y="172.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">4</text><circle cx="39" cy="185" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="39" y="186.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">5</text><circle cx="39" cy="199" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="39" y="200.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">6</text><circle cx="39" cy="213" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="39" y="214.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">7</text><circle cx="39" cy="227" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="39" y="228.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">8</text><circle cx="39" cy="241" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="39" y="242.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">9</text><rect x="48" y="92" width="10" height="10" fill="none" stroke="#000000" stroke-width="0.75"/><circle cx="53" cy="115" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="53" y="116.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">0</text><circle cx="53" cy="129" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="53" y="130.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">1</text><circle cx="53" cy="143" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="53" y="144.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">2</text><circle cx="53" cy="157" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="53" y="158.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">3</text><circle cx="53" cy="171" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="53" y="172.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">4</text><circle cx="53" cy="185" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="53" y="186.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">5</text><circle cx="53" cy="199" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="53" y="200.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">6</text><circle cx="53" cy="213" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="53" y="214.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">7</text><circle cx="53" cy="227" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="53" y="228.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">8</text><circle cx="53" cy="241" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="53" y="242.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">9</text><rect x="62" y="92" width="10" height="10" fill="none" stroke="#000000" stroke-width="0.75"/><circle cx="67" cy="115" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="67" y="116.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">0</text><circle cx="67" cy="129" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="67" y="130.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">1</text><circle cx="67" cy="143" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="67" y="144.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">2</text><circle cx="67" cy="157" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="67" y="158.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">3</text><circle cx="67" cy="171" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="67" y="172.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">4</text><circle cx="67" cy="185" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="67" y="186.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">5</text><circle cx="67" cy="199" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="67" y="200.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">6</text><circle cx="67" cy="213" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="67" y="214.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">7</text><circle cx="67" cy="227" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="67" y="228.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">8</text><circle cx="67" cy="241" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="67" y="242.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">9</text><rect x="76" y="92" width="10" height="10" fill="none" stroke="#000000" stroke-width="0.75"/><circle cx="81" cy="115" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="81" y="116.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">0</text><circle cx="81" cy="129" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="81" y="130.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">1</text><circle cx="81" cy="143" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="81" y="144.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">2</text><circle cx="81" cy="157" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="81" y="158.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">3</text><circle cx="81" cy="171" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="81" y="172.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">4</text><circle cx="81" cy="185" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="81" y="186.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">5</text><circle cx="81" cy="199" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="81" y="200.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">6</text><circle cx="81" cy="213" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="81" y="214.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">7</text><circle cx="81" cy="227" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="81" y="228.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">8</text><circle cx="81" cy="241" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="81" y="242.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">9</text><rect x="90" y="92" width="10" height="10" fill="none" stroke="#000000" stroke-width="0.75"/><circle cx="95" cy="115" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="95" y="116.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">0</text><circle cx="95" cy="129" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="95" y="130.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">1</text><circle cx="95" cy="143" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="95" y="144.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">2</text><circle cx="95" cy="157" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="95" y="158.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">3</text><circle cx="95" cy="171" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="95" y="172.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">4</text><circle cx="95" cy="185" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="95" y="186.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">5</text><circle cx="95" cy="199" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="95" y="200.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">6</text><circle cx="95" cy="213" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="95" y="214.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">7</text><circle cx="95" cy="227" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="95" y="228.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">8</text><circle cx="95" cy="241" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="95" y="242.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">9</text><rect x="130" y="92" width="10" height="10" fill="none" stroke="#000000" stroke-width="0.75"/><circle cx="135" cy="115" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="135" y="116.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">0</text><circle cx="135" cy="129" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="135" y="130.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">1</text><circle cx="135" cy="143" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="135" y="144.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">2</text><circle cx="135" cy="157" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="135" y="158.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">3</text><circle cx="135" cy="171" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="135" y="172.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">4</text><circle cx="135" cy="185" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="135" y="186.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">5</text><circle cx="135" cy="199" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="135" y="200.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">6</text><circle cx="135" cy="213" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="135" y="214.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">7</text><circle cx="135" cy="227" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="135" y="228.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">8</text><circle cx="135" cy="241" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="135" y="242.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">9</text><rect x="144" y="92" width="10" height="10" fill="none" stroke="#000000" stroke-width="0.75"/><circle cx="149" cy="115" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="149" y="116.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">0</text><circle cx="149" cy="129" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="149" y="130.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">1</text><circle cx="149" cy="143" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="149" y="144.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">2</text><circle cx="149" cy="157" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="149" y="158.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">3</text><circle cx="149" cy="171" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="149" y="172.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">4</text><circle cx="149" cy="185" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="149" y="186.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">5</text><circle cx="149" cy="199" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="149" y="200.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">6</text><circle cx="149" cy="213" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="149" y="214.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">7</text><circle cx="149" cy="227" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="149" y="228.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">8</text><circle cx="149" cy="241" r="4.5" fill="none" stroke="#000000" stroke-width="0.75"/><text x="149" y="242.8" font-family="Arial, sans-serif" font-size="5" font-weight="bold" text-anchor="middle" fill="#000000">9</text><text x="161" y="100" font-family="Helvetica, Arial, sans-serif" font-size="8.5" font-weight="bold" fill="#000000">/ 10</text><path d="M172.00,248.00h1.75v1.75h-1.75zM173.75,248.00h1.75v1.75h-1.75zM175.50,248.00h1.75v1.75h-1.75zM177.25,248.00h1.75v1.75h-1.75zM179.00,248.00h1.75v1.75h-1.75zM180.75,248.00h1.75v1.75h-1.75zM182.50,248.00h1.75v1.75h-1.75zM186.00,248.00h1.75v1.75h-1.75zM191.25,248.00h1.75v1.75h-1.75zM194.75,248.00h1.75v1.75h-1.75zM196.50,248.00h1.75v1.75h-1.75zM198.25,248.00h1.75v1.75h-1.75zM203.50,248.00h1.75v1.75h-1.75zM210.50,248.00h1.75v1.75h-1.75zM212.25,248.00h1.75v1.75h-1.75zM214.00,248.00h1.75v1.75h-1.75zM215.75,248.00h1.75v1.75h-1.75zM217.50,248.00h1.75v1.75h-1.75zM219.25,248.00h1.75v1.75h-1.75zM221.00,248.00h1.75v1.75h-1.75zM172.00,249.75h1.75v1.75h-1.75zM182.50,249.75h1.75v1.75h-1.75zM186.00,249.75h1.75v1.75h-1.75zM187.75,249.75h1.75v1.75h-1.75zM191.25,249.75h1.75v1.75h-1.75zM193.00,249.75h1.75v1.75h-1.75zM194.75,249.75h1.75v1.75h-1.75zM196.50,249.75h1.75v1.75h-1.75zM198.25,249.75h1.75v1.75h-1.75zM201.75,249.75h1.75v1.75h-1.75zM205.25,249.75h1.75v1.75h-1.75zM210.50,249.75h1.75v1.75h-1.75zM221.00,249.75h1.75v1.75h-1.75zM172.00,251.50h1.75v1.75h-1.75zM175.50,251.50h1.75v1.75h-1.75zM177.25,251.50h1.75v1.75h-1.75zM179.00,251.50h1.75v1.75h-1.75zM182.50,251.50h1.75v1.75h-1.75zM186.00,251.50h1.75v1.75h-1.75zM191.25,251.50h1.75v1.75h-1.75zM193.00,251.50h1.75v1.75h-1.75zM194.75,251.50h1.75v1.75h-1.75zM196.50,251.50h1.75v1.75h-1.75zM203.50,251.50h1.75v1.75h-1.75zM205.25,251.50h1.75v1.75h-1.75zM210.50,251.50h1.75v1.75h-1.75zM214.00,251.50h1.75v1.75h-1.75zM215.75,251.50h1.75v1.75h-1.75zM217.50,251.50h1.75v1.75h-1.75zM221.00,251.50h1.75v1.75h-1.75zM172.00,253.25h1.75v1.75h-1.75zM175.50,253.25h1.75v1.75h-1.75zM177.25,253.25h1.75v1.75h-1.75zM179.00,253.25h1.75v1.75h-1.75zM182.50,253.25h1.75v1.75h-1.75zM191.25,253.25h1.75v1.75h-1.75zM196.50,253.25h1.75v1.75h-1.75zM198.25,253.25h1.75v1.75h-1.75zM201.75,253.25h1.75v1.75h-1.75zM207.00,253.25h1.75v1.75h-1.75zM210.50,253.25h1.75v1.75h-1.75zM214.00,253.25h1.75v1.75h-1.75zM215.75,253.25h1.75v1.75h-1.75zM217.50,253.25h1.75v1.75h-1.75zM221.00,253.25h1.75v1.75h-1.75zM172.00,255.00h1.75v1.75h-1.75zM175.50,255.00h1.75v1.75h-1.75zM177.25,255.00h1.75v1.75h-1.75zM179.00,255.00h1.75v1.75h-1.75zM182.50,255.00h1.75v1.75h-1.75zM186.00,255.00h1.75v1.75h-1.75zM187.75,255.00h1.75v1.75h-1.75zM189.50,255.00h1.75v1.75h-1.75zM193.00,255.00h1.75v1.75h-1.75zM194.75,255.00h1.75v1.75h-1.75zM198.25,255.00h1.75v1.75h-1.75zM201.75,255.00h1.75v1.75h-1.75zM203.50,255.00h1.75v1.75h-1.75zM210.50,255.00h1.75v1.75h-1.75zM214.00,255.00h1.75v1.75h-1.75zM215.75,255.00h1.75v1.75h-1.75zM217.50,255.00h1.75v1.75h-1.75zM221.00,255.00h1.75v1.75h-1.75zM172.00,256.75h1.75v1.75h-1.75zM182.50,256.75h1.75v1.75h-1.75zM189.50,256.75h1.75v1.75h-1.75zM194.75,256.75h1.75v1.75h-1.75zM196.50,256.75h1.75v1.75h-1.75zM201.75,256.75h1.75v1.75h-1.75zM203.50,256.75h1.75v1.75h-1.75zM210.50,256.75h1.75v1.75h-1.75zM221.00,256.75h1.75v1.75h-1.75zM172.00,258.50h1.75v1.75h-1.75zM173.75,258.50h1.75v1.75h-1.75zM175.50,258.50h1.75v1.75h-1.75zM177.25,258.50h1.75v1.75h-1.75zM179.00,258.50h1.75v1.75h-1.75zM180.75,258.50h1.75v1.75h-1.75zM182.50,258.50h1.75v1.75h-1.75zM186.00,258.50h1.75v1.75h-1.75zM189.50,258.50h1.75v1.75h-1.75zM193.00,258.50h1.75v1.75h-1.75zM196.50,258.50h1.75v1.75h-1.75zM200.00,258.50h1.75v1.75h-1.75zM203.50,258.50h1.75v1.75h-1.75zM207.00,258.50h1.75v1.75h-1.75zM210.50,258.50h1.75v1.75h-1.75zM212.25,258.50h1.75v1.75h-1.75zM214.00,258.50h1.75v1.75h-1.75zM215.75,258.50h1.75v1.75h-1.75zM217.50,258.50h1.75v1.75h-1.75zM219.25,258.50h1.75v1.75h-1.75zM221.00,258.50h1.75v1.75h-1.75zM187.75,260.25h1.75v1.75h-1.75zM189.50,260.25h1.75v1.75h-1.75zM193.00,260.25h1.75v1.75h-1.75zM196.50,260.25h1.75v1.75h-1.75zM205.25,260.25h1.75v1.75h-1.75zM207.00,260.25h1.75v1.75h-1.75zM172.00,262.00h1.75v1.75h-1.75zM177.25,262.00h1.75v1.75h-1.75zM179.00,262.00h1.75v1.75h-1.75zM180.75,262.00h1.75v1.75h-1.75zM182.50,262.00h1.75v1.75h-1.75zM184.25,262.00h1.75v1.75h-1.75zM186.00,262.00h1.75v1.75h-1.75zM189.50,262.00h1.75v1.75h-1.75zM191.25,262.00h1.75v1.75h-1.75zM194.75,262.00h1.75v1.75h-1.75zM196.50,262.00h1.75v1.75h-1.75zM198.25,262.00h1.75v1.75h-1.75zM200.00,262.00h1.75v1.75h-1.75zM201.75,262.00h1.75v1.75h-1.75zM205.25,262.00h1.75v1.75h-1.75zM208.75,262.00h1.75v1.75h-1.75zM214.00,262.00h1.75v1.75h-1.75zM217.50,262.00h1.75v1.75h-1.75zM219.25,262.00h1.75v1.75h-1.75zM221.00,262.00h1.75v1.75h-1.75zM172.00,263.75h1.75v1.75h-1.75zM175.50,263.75h1.75v1.75h-1.75zM177.25,263.75h1.75v1.75h-1.75zM180.75,263.75h1.75v1.75h-1.75zM186.00,263.75h1.75v1.75h-1.75zM193.00,263.75h1.75v1.75h-1.75zM196.50,263.75h1.75v1.75h-1.75zM201.75,263.75h1.75v1.75h-1.75zM203.50,263.75h1.75v1.75h-1.75zM205.25,263.75h1.75v1.75h-1.75zM207.00,263.75h1.75v1.75h-1.75zM212.25,263.75h1.75v1.75h-1.75zM214.00,263.75h1.75v1.75h-1.75zM215.75,263.75h1.75v1.75h-1.75zM217.50,263.75h1.75v1.75h-1.75zM219.25,263.75h1.75v1.75h-1.75zM221.00,263.75h1.75v1.75h-1.75zM172.00,265.50h1.75v1.75h-1.75zM173.75,265.50h1.75v1.75h-1.75zM175.50,265.50h1.75v1.75h-1.75zM180.75,265.50h1.75v1.75h-1.75zM182.50,265.50h1.75v1.75h-1.75zM186.00,265.50h1.75v1.75h-1.75zM187.75,265.50h1.75v1.75h-1.75zM193.00,265.50h1.75v1.75h-1.75zM196.50,265.50h1.75v1.75h-1.75zM201.75,265.50h1.75v1.75h-1.75zM208.75,265.50h1.75v1.75h-1.75zM210.50,265.50h1.75v1.75h-1.75zM212.25,265.50h1.75v1.75h-1.75zM214.00,265.50h1.75v1.75h-1.75zM217.50,265.50h1.75v1.75h-1.75zM172.00,267.25h1.75v1.75h-1.75zM175.50,267.25h1.75v1.75h-1.75zM177.25,267.25h1.75v1.75h-1.75zM186.00,267.25h1.75v1.75h-1.75zM187.75,267.25h1.75v1.75h-1.75zM189.50,267.25h1.75v1.75h-1.75zM193.00,267.25h1.75v1.75h-1.75zM196.50,267.25h1.75v1.75h-1.75zM198.25,267.25h1.75v1.75h-1.75zM201.75,267.25h1.75v1.75h-1.75zM203.50,267.25h1.75v1.75h-1.75zM208.75,267.25h1.75v1.75h-1.75zM210.50,267.25h1.75v1.75h-1.75zM214.00,267.25h1.75v1.75h-1.75zM219.25,267.25h1.75v1.75h-1.75zM173.75,269.00h1.75v1.75h-1.75zM175.50,269.00h1.75v1.75h-1.75zM179.00,269.00h1.75v1.75h-1.75zM182.50,269.00h1.75v1.75h-1.75zM184.25,269.00h1.75v1.75h-1.75zM186.00,269.00h1.75v1.75h-1.75zM187.75,269.00h1.75v1.75h-1.75zM191.25,269.00h1.75v1.75h-1.75zM193.00,269.00h1.75v1.75h-1.75zM194.75,269.00h1.75v1.75h-1.75zM196.50,269.00h1.75v1.75h-1.75zM205.25,269.00h1.75v1.75h-1.75zM207.00,269.00h1.75v1.75h-1.75zM210.50,269.00h1.75v1.75h-1.75zM215.75,269.00h1.75v1.75h-1.75zM219.25,269.00h1.75v1.75h-1.75zM221.00,269.00h1.75v1.75h-1.75zM172.00,270.75h1.75v1.75h-1.75zM175.50,270.75h1.75v1.75h-1.75zM179.00,270.75h1.75v1.75h-1.75zM184.25,270.75h1.75v1.75h-1.75zM187.75,270.75h1.75v1.75h-1.75zM189.50,270.75h1.75v1.75h-1.75zM191.25,270.75h1.75v1.75h-1.75zM201.75,270.75h1.75v1.75h-1.75zM210.50,270.75h1.75v1.75h-1.75zM212.25,270.75h1.75v1.75h-1.75zM214.00,270.75h1.75v1.75h-1.75zM215.75,270.75h1.75v1.75h-1.75zM217.50,270.75h1.75v1.75h-1.75zM219.25,270.75h1.75v1.75h-1.75zM172.00,272.50h1.75v1.75h-1.75zM179.00,272.50h1.75v1.75h-1.75zM182.50,272.50h1.75v1.75h-1.75zM187.75,272.50h1.75v1.75h-1.75zM196.50,272.50h1.75v1.75h-1.75zM198.25,272.50h1.75v1.75h-1.75zM203.50,272.50h1.75v1.75h-1.75zM205.25,272.50h1.75v1.75h-1.75zM212.25,272.50h1.75v1.75h-1.75zM215.75,272.50h1.75v1.75h-1.75zM221.00,272.50h1.75v1.75h-1.75zM172.00,274.25h1.75v1.75h-1.75zM173.75,274.25h1.75v1.75h-1.75zM180.75,274.25h1.75v1.75h-1.75zM186.00,274.25h1.75v1.75h-1.75zM189.50,274.25h1.75v1.75h-1.75zM193.00,274.25h1.75v1.75h-1.75zM194.75,274.25h1.75v1.75h-1.75zM196.50,274.25h1.75v1.75h-1.75zM200.00,274.25h1.75v1.75h-1.75zM210.50,274.25h1.75v1.75h-1.75zM214.00,274.25h1.75v1.75h-1.75zM215.75,274.25h1.75v1.75h-1.75zM217.50,274.25h1.75v1.75h-1.75zM219.25,274.25h1.75v1.75h-1.75zM221.00,274.25h1.75v1.75h-1.75zM172.00,276.00h1.75v1.75h-1.75zM173.75,276.00h1.75v1.75h-1.75zM175.50,276.00h1.75v1.75h-1.75zM177.25,276.00h1.75v1.75h-1.75zM179.00,276.00h1.75v1.75h-1.75zM182.50,276.00h1.75v1.75h-1.75zM184.25,276.00h1.75v1.75h-1.75zM186.00,276.00h1.75v1.75h-1.75zM187.75,276.00h1.75v1.75h-1.75zM189.50,276.00h1.75v1.75h-1.75zM198.25,276.00h1.75v1.75h-1.75zM212.25,276.00h1.75v1.75h-1.75zM215.75,276.00h1.75v1.75h-1.75zM217.50,276.00h1.75v1.75h-1.75zM219.25,276.00h1.75v1.75h-1.75zM172.00,277.75h1.75v1.75h-1.75zM187.75,277.75h1.75v1.75h-1.75zM193.00,277.75h1.75v1.75h-1.75zM201.75,277.75h1.75v1.75h-1.75zM205.25,277.75h1.75v1.75h-1.75zM207.00,277.75h1.75v1.75h-1.75zM214.00,277.75h1.75v1.75h-1.75zM221.00,277.75h1.75v1.75h-1.75zM172.00,279.50h1.75v1.75h-1.75zM173.75,279.50h1.75v1.75h-1.75zM175.50,279.50h1.75v1.75h-1.75zM180.75,279.50h1.75v1.75h-1.75zM182.50,279.50h1.75v1.75h-1.75zM184.25,279.50h1.75v1.75h-1.75zM186.00,279.50h1.75v1.75h-1.75zM187.75,279.50h1.75v1.75h-1.75zM189.50,279.50h1.75v1.75h-1.75zM193.00,279.50h1.75v1.75h-1.75zM194.75,279.50h1.75v1.75h-1.75zM196.50,279.50h1.75v1.75h-1.75zM200.00,279.50h1.75v1.75h-1.75zM203.50,279.50h1.75v1.75h-1.75zM205.25,279.50h1.75v1.75h-1.75zM210.50,279.50h1.75v1.75h-1.75zM214.00,279.50h1.75v1.75h-1.75zM215.75,279.50h1.75v1.75h-1.75zM217.50,279.50h1.75v1.75h-1.75zM221.00,279.50h1.75v1.75h-1.75zM172.00,281.25h1.75v1.75h-1.75zM173.75,281.25h1.75v1.75h-1.75zM184.25,281.25h1.75v1.75h-1.75zM186.00,281.25h1.75v1.75h-1.75zM187.75,281.25h1.75v1.75h-1.75zM191.25,281.25h1.75v1.75h-1.75zM194.75,281.25h1.75v1.75h-1.75zM198.25,281.25h1.75v1.75h-1.75zM200.00,281.25h1.75v1.75h-1.75zM205.25,281.25h1.75v1.75h-1.75zM207.00,281.25h1.75v1.75h-1.75zM208.75,281.25h1.75v1.75h-1.75zM212.25,281.25h1.75v1.75h-1.75zM214.00,281.25h1.75v1.75h-1.75zM217.50,281.25h1.75v1.75h-1.75zM219.25,281.25h1.75v1.75h-1.75zM221.00,281.25h1.75v1.75h-1.75zM172.00,283.00h1.75v1.75h-1.75zM173.75,283.00h1.75v1.75h-1.75zM175.50,283.00h1.75v1.75h-1.75zM177.25,283.00h1.75v1.75h-1.75zM180.75,283.00h1.75v1.75h-1.75zM182.50,283.00h1.75v1.75h-1.75zM186.00,283.00h1.75v1.75h-1.75zM193.00,283.00h1.75v1.75h-1.75zM194.75,283.00h1.75v1.75h-1.75zM201.75,283.00h1.75v1.75h-1.75zM205.25,283.00h1.75v1.75h-1.75zM207.00,283.00h1.75v1.75h-1.75zM208.75,283.00h1.75v1.75h-1.75zM210.50,283.00h1.75v1.75h-1.75zM212.25,283.00h1.75v1.75h-1.75zM214.00,283.00h1.75v1.75h-1.75zM217.50,283.00h1.75v1.75h-1.75zM219.25,283.00h1.75v1.75h-1.75zM221.00,283.00h1.75v1.75h-1.75zM186.00,284.75h1.75v1.75h-1.75zM187.75,284.75h1.75v1.75h-1.75zM189.50,284.75h1.75v1.75h-1.75zM191.25,284.75h1.75v1.75h-1.75zM193.00,284.75h1.75v1.75h-1.75zM194.75,284.75h1.75v1.75h-1.75zM200.00,284.75h1.75v1.75h-1.75zM201.75,284.75h1.75v1.75h-1.75zM203.50,284.75h1.75v1.75h-1.75zM207.00,284.75h1.75v1.75h-1.75zM214.00,284.75h1.75v1.75h-1.75zM217.50,284.75h1.75v1.75h-1.75zM221.00,284.75h1.75v1.75h-1.75zM172.00,286.50h1.75v1.75h-1.75zM173.75,286.50h1.75v1.75h-1.75zM175.50,286.50h1.75v1.75h-1.75zM177.25,286.50h1.75v1.75h-1.75zM179.00,286.50h1.75v1.75h-1.75zM180.75,286.50h1.75v1.75h-1.75zM182.50,286.50h1.75v1.75h-1.75zM186.00,286.50h1.75v1.75h-1.75zM194.75,286.50h1.75v1.75h-1.75zM198.25,286.50h1.75v1.75h-1.75zM200.00,286.50h1.75v1.75h-1.75zM201.75,286.50h1.75v1.75h-1.75zM203.50,286.50h1.75v1.75h-1.75zM205.25,286.50h1.75v1.75h-1.75zM207.00,286.50h1.75v1.75h-1.75zM210.50,286.50h1.75v1.75h-1.75zM214.00,286.50h1.75v1.75h-1.75zM172.00,288.25h1.75v1.75h-1.75zM182.50,288.25h1.75v1.75h-1.75zM186.00,288.25h1.75v1.75h-1.75zM187.75,288.25h1.75v1.75h-1.75zM189.50,288.25h1.75v1.75h-1.75zM191.25,288.25h1.75v1.75h-1.75zM194.75,288.25h1.75v1.75h-1.75zM200.00,288.25h1.75v1.75h-1.75zM201.75,288.25h1.75v1.75h-1.75zM205.25,288.25h1.75v1.75h-1.75zM207.00,288.25h1.75v1.75h-1.75zM214.00,288.25h1.75v1.75h-1.75zM215.75,288.25h1.75v1.75h-1.75zM219.25,288.25h1.75v1.75h-1.75zM221.00,288.25h1.75v1.75h-1.75zM172.00,290.00h1.75v1.75h-1.75zM175.50,290.00h1.75v1.75h-1.75zM177.25,290.00h1.75v1.75h-1.75zM179.00,290.00h1.75v1.75h-1.75zM182.50,290.00h1.75v1.75h-1.75zM186.00,290.00h1.75v1.75h-1.75zM189.50,290.00h1.75v1.75h-1.75zM191.25,290.00h1.75v1.75h-1.75zM193.00,290.00h1.75v1.75h-1.75zM194.75,290.00h1.75v1.75h-1.75zM198.25,290.00h1.75v1.75h-1.75zM200.00,290.00h1.75v1.75h-1.75zM205.25,290.00h1.75v1.75h-1.75zM207.00,290.00h1.75v1.75h-1.75zM208.75,290.00h1.75v1.75h-1.75zM210.50,290.00h1.75v1.75h-1.75zM212.25,290.00h1.75v1.75h-1.75zM214.00,290.00h1.75v1.75h-1.75zM215.75,290.00h1.75v1.75h-1.75zM172.00,291.75h1.75v1.75h-1.75zM175.50,291.75h1.75v1.75h-1.75zM177.25,291.75h1.75v1.75h-1.75zM179.00,291.75h1.75v1.75h-1.75zM182.50,291.75h1.75v1.75h-1.75zM186.00,291.75h1.75v1.75h-1.75zM189.50,291.75h1.75v1.75h-1.75zM193.00,291.75h1.75v1.75h-1.75zM196.50,291.75h1.75v1.75h-1.75zM200.00,291.75h1.75v1.75h-1.75zM205.25,291.75h1.75v1.75h-1.75zM207.00,291.75h1.75v1.75h-1.75zM219.25,291.75h1.75v1.75h-1.75zM172.00,293.50h1.75v1.75h-1.75zM175.50,293.50h1.75v1.75h-1.75zM177.25,293.50h1.75v1.75h-1.75zM179.00,293.50h1.75v1.75h-1.75zM182.50,293.50h1.75v1.75h-1.75zM187.75,293.50h1.75v1.75h-1.75zM194.75,293.50h1.75v1.75h-1.75zM200.00,293.50h1.75v1.75h-1.75zM201.75,293.50h1.75v1.75h-1.75zM203.50,293.50h1.75v1.75h-1.75zM208.75,293.50h1.75v1.75h-1.75zM212.25,293.50h1.75v1.75h-1.75zM214.00,293.50h1.75v1.75h-1.75zM217.50,293.50h1.75v1.75h-1.75zM219.25,293.50h1.75v1.75h-1.75zM221.00,293.50h1.75v1.75h-1.75zM172.00,295.25h1.75v1.75h-1.75zM182.50,295.25h1.75v1.75h-1.75zM191.25,295.25h1.75v1.75h-1.75zM196.50,295.25h1.75v1.75h-1.75zM198.25,295.25h1.75v1.75h-1.75zM207.00,295.25h1.75v1.75h-1.75zM210.50,295.25h1.75v1.75h-1.75zM215.75,295.25h1.75v1.75h-1.75zM217.50,295.25h1.75v1.75h-1.75zM221.00,295.25h1.75v1.75h-1.75zM172.00,297.00h1.75v1.75h-1.75zM173.75,297.00h1.75v1.75h-1.75zM175.50,297.00h1.75v1.75h-1.75zM177.25,297.00h1.75v1.75h-1.75zM179.00,297.00h1.75v1.75h-1.75zM180.75,297.00h1.75v1.75h-1.75zM182.50,297.00h1.75v1.75h-1.75zM186.00,297.00h1.75v1.75h-1.75zM187.75,297.00h1.75v1.75h-1.75zM189.50,297.00h1.75v1.75h-1.75zM191.25,297.00h1.75v1.75h-1.75zM193.00,297.00h1.75v1.75h-1.75zM196.50,297.00h1.75v1.75h-1.75zM201.75,297.00h1.75v1.75h-1.75zM203.50,297.00h1.75v1.75h-1.75zM205.25,297.00h1.75v1.75h-1.75zM207.00,297.00h1.75v1.75h-1.75zM208.75,297.00h1.75v1.75h-1.75zM212.25,297.00h1.75v1.75h-1.75z" fill="#000000"/><text x="197.4" y="304.8" font-family="Helvetica, Arial, sans-serif" font-size="4.2" text-anchor="middle" fill="#475569">THE GRADEST OMR</text></svg>
+        </div>
+      </div>
+
+      <!-- INVESTIGATION 1: TABLE 1 + GRAPH 1 -->
+      <section class="card">
+        <div class="card-header">
+          <span class="card-title">Investigación 1: Efecto de la Rapidez Horizontal (v<sub>ox</sub>) en el Alcance (Δx)</span>
+          <span class="card-tag">Tiempo de Vuelo: t = 3 s</span>
+        </div>
+        <div class="card-body" style="display: grid; grid-template-columns: 44% 54%; gap: 2%; align-items: center;">
+          <!-- Table 1 -->
+          <div>
+            <div style="font-size: 8.1pt; font-weight: 800; margin-bottom: 3px; color: #1e293b;">Tabla 1: Datos de Lanzamiento Horizontal</div>
+            <table class="cast-table">
+              <thead>
+                <tr>
+                  <th>Prueba</th>
+                  <th>Rapidez Horiz.<br><span class="mvar">v<sub>ox</sub></span> (m/s)</th>
+                  <th>Tiempo de Vuelo<br><span class="mvar">t</span> (s)</th>
+                  <th>Alcance<br><span class="mvar">Δx</span> (m)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>1</td><td>0</td><td>3</td><td>0</td></tr>
+                <tr><td>2</td><td>5</td><td>3</td><td>15</td></tr>
+                <tr style="background: #e0f2fe;"><td><strong>3 ★</strong></td><td><strong>10</strong></td><td><strong>3</strong></td><td><strong>30</strong></td></tr>
+                <tr><td>4</td><td>15</td><td>3</td><td>45</td></tr>
+                <tr><td>5</td><td>20</td><td>3</td><td>60</td></tr>
+              </tbody>
+            </table>
+            <div style="margin-top: 4px; padding: 3.5px 7px; border: 1.3px solid #0284c7; background: #f0f9ff; border-radius: 5px; font-size: 7.7pt; line-height: 1.2;">
+              <strong>💡 Cómo Leer el Punto ★ en la Gráfica 1:</strong><br>
+              1. Busca <strong>10 m/s</strong> en el eje inferior (<span class="mvar">v<sub>ox</sub></span>).<br>
+              2. Sigue la flecha hacia ARRIBA y a la IZQUIERDA para leer <strong>30 m</strong>.
+            </div>
+          </div>
+
+          <!-- Graph 1 SVG -->
+          <div style="border: 1.3px solid #cbd5e1; border-radius: 6px; padding: 4px; background: #ffffff;">
+            <div style="font-size: 8.1pt; font-weight: 800; text-align: center; margin-bottom: 2px;">Gráfica 1: Alcance (Δx) vs. Rapidez Horizontal (v<sub>ox</sub>)</div>
+            <svg viewBox="0 0 320 182" width="100%" height="116" style="display: block;">
+              <line x1="48" y1="144" x2="298" y2="144" stroke="#0f172a" stroke-width="1.8"/>
+              <line x1="48" y1="114" x2="298" y2="114" stroke="#cbd5e1" stroke-width="1"/>
+              <line x1="48" y1="84"  x2="298" y2="84"  stroke="#cbd5e1" stroke-width="1"/>
+              <line x1="48" y1="54"  x2="298" y2="54"  stroke="#cbd5e1" stroke-width="1"/>
+              <line x1="48" y1="24"  x2="298" y2="24"  stroke="#cbd5e1" stroke-width="1"/>
+
+              <line x1="48"  y1="14" x2="48"  y2="144" stroke="#0f172a" stroke-width="1.8"/>
+              <line x1="98"  y1="14" x2="98"  y2="144" stroke="#cbd5e1" stroke-width="1"/>
+              <line x1="148" y1="14" x2="148" y2="144" stroke="#cbd5e1" stroke-width="1"/>
+              <line x1="198" y1="14" x2="198" y2="144" stroke="#cbd5e1" stroke-width="1"/>
+              <line x1="248" y1="14" x2="248" y2="144" stroke="#cbd5e1" stroke-width="1"/>
+              <line x1="298" y1="14" x2="298" y2="144" stroke="#cbd5e1" stroke-width="1"/>
+
+              <line x1="148" y1="144" x2="148" y2="88" stroke="#0284c7" stroke-width="1.6" stroke-dasharray="3,2"/>
+              <polygon points="145,91 151,91 148,85" fill="#0284c7"/>
+              <line x1="148" y1="84" x2="53" y2="84" stroke="#0284c7" stroke-width="1.6" stroke-dasharray="3,2"/>
+              <polygon points="55,81 55,87 49,84" fill="#0284c7"/>
+
+              <line x1="48" y1="144" x2="248" y2="24" stroke="#0f172a" stroke-width="2.3"/>
+              <line x1="248" y1="24" x2="268" y2="12" stroke="#64748b" stroke-width="1.6" stroke-dasharray="4,3"/>
+
+              <circle cx="48"  cy="144" r="4" fill="#0f172a"/>
+              <circle cx="98"  cy="114" r="4" fill="#0f172a"/>
+              <circle cx="148" cy="84"  r="5" fill="#0284c7" stroke="#0f172a" stroke-width="1.5"/>
+              <circle cx="198" cy="54"  r="4" fill="#0f172a"/>
+              <circle cx="248" cy="24"  r="4" fill="#0f172a"/>
+              <text x="154" y="94" font-size="8" font-weight="800" fill="#0284c7">★ (10 m/s, 30 m)</text>
+
+              <text x="42" y="147" font-size="8" font-weight="700" text-anchor="end" fill="#0f172a">0</text>
+              <text x="42" y="117" font-size="8" font-weight="700" text-anchor="end" fill="#0f172a">15</text>
+              <text x="42" y="87"  font-size="8" font-weight="800" text-anchor="end" fill="#0284c7">30</text>
+              <text x="42" y="57"  font-size="8" font-weight="700" text-anchor="end" fill="#0f172a">45</text>
+              <text x="42" y="27"  font-size="8" font-weight="700" text-anchor="end" fill="#0f172a">60</text>
+              <text x="14" y="82" font-size="8.2" font-weight="800" text-anchor="middle" fill="#0f172a" transform="rotate(-90 14,82)">Alcance Δx (m)</text>
+
+              <text x="48"  y="157" font-size="8" font-weight="700" text-anchor="middle" fill="#0f172a">0</text>
+              <text x="98"  y="157" font-size="8" font-weight="700" text-anchor="middle" fill="#0f172a">5</text>
+              <text x="148" y="157" font-size="8" font-weight="800" text-anchor="middle" fill="#0284c7">10</text>
+              <text x="198" y="157" font-size="8" font-weight="700" text-anchor="middle" fill="#0f172a">15</text>
+              <text x="248" y="157" font-size="8" font-weight="700" text-anchor="middle" fill="#0f172a">20</text>
+              <text x="298" y="157" font-size="8" font-weight="700" text-anchor="middle" fill="#0f172a">25</text>
+              <text x="173" y="174" font-size="8.5" font-weight="800" text-anchor="middle" fill="#0f172a">Rapidez Horizontal v<tspan dy="2" font-size="6.5">ox</tspan><tspan dy="-2"> (m/s)</tspan></text>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- INVESTIGATION 2: TABLE 2 + GRAPH 2 -->
+      <section class="card" style="margin-bottom: 0;">
+        <div class="card-header">
+          <span class="card-title">Investigación 2: Efecto del Ángulo de Lanzamiento (θ) en Tiempo y Alcance</span>
+          <span class="card-tag">Rapidez Inicial: v<sub>o</sub> = 20 m/s</span>
+        </div>
+        <div class="card-body" style="display: grid; grid-template-columns: 44% 54%; gap: 2%; align-items: center;">
+          <!-- Table 2 -->
+          <div>
+            <div style="font-size: 8.1pt; font-weight: 800; margin-bottom: 3px; color: #1e293b;">Tabla 2: Lanzamiento en Ángulo (<span class="mvar">v<sub>o</sub></span> = 20 m/s)</div>
+            <table class="cast-table">
+              <thead>
+                <tr>
+                  <th>Ángulo<br><span class="mvar">θ</span> (°)</th>
+                  <th>Rapidez Horiz.<br><span class="mvar">v<sub>ox</sub></span> (m/s)</th>
+                  <th>Tiempo de Vuelo<br><span class="mvar">t<sub>hang</sub></span> (s)</th>
+                  <th>Alcance<br><span class="mvar">Δx</span> (m)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>15°</td><td>19.3</td><td>1.0</td><td>20</td></tr>
+                <tr style="background: #fef3c7;"><td><strong>30° ●</strong></td><td>17.3</td><td>2.0</td><td><strong>35</strong></td></tr>
+                <tr style="background: #dcfce7;"><td><strong>45° ★</strong></td><td>14.1</td><td>2.8</td><td><strong>40 (Máx.)</strong></td></tr>
+                <tr style="background: #fef3c7;"><td><strong>60° ●</strong></td><td>10.0</td><td>3.5</td><td><strong>35</strong></td></tr>
+                <tr><td>75°</td><td>5.2</td><td>3.9</td><td>20</td></tr>
+              </tbody>
+            </table>
+            <div style="margin-top: 4px; padding: 3.5px 7px; border: 1.3px solid #334155; background: #f8fafc; border-radius: 5px; font-size: 7.7pt; line-height: 1.2;">
+              <strong>🔍 Observa el Patrón en la Tabla 2:</strong><br>
+              &bull; Al subir el ángulo de <strong>15° a 75°</strong>, el Tiempo (<span class="mvar">t<sub>hang</sub></span>) siempre <strong>aumenta</strong>.<br>
+              &bull; Ángulos complementarios que suman <strong>90°</strong> (como <strong>30° y 60°</strong>) caen a la <strong>misma distancia (35 m)</strong>.
+            </div>
+          </div>
+
+          <!-- Graph 2 SVG -->
+          <div style="border: 1.3px solid #cbd5e1; border-radius: 6px; padding: 4px; background: #ffffff;">
+            <div style="font-size: 8.1pt; font-weight: 800; text-align: center; margin-bottom: 2px;">Gráfica 2: Alcance (Δx) vs. Ángulo de Lanzamiento (θ)</div>
+            <svg viewBox="0 0 320 180" width="100%" height="116" style="display: block;">
+              <line x1="48" y1="140" x2="288" y2="140" stroke="#0f172a" stroke-width="1.8"/>
+              <line x1="48" y1="110" x2="288" y2="110" stroke="#cbd5e1" stroke-width="1"/>
+              <line x1="48" y1="80"  x2="288" y2="80"  stroke="#cbd5e1" stroke-width="1"/>
+              <line x1="48" y1="50"  x2="288" y2="50"  stroke="#cbd5e1" stroke-width="1"/>
+              <line x1="48" y1="20"  x2="288" y2="20"  stroke="#cbd5e1" stroke-width="1"/>
+
+              <line x1="48"  y1="14" x2="48"  y2="140" stroke="#0f172a" stroke-width="1.8"/>
+              <line x1="88"  y1="14" x2="88"  y2="140" stroke="#cbd5e1" stroke-width="1"/>
+              <line x1="128" y1="14" x2="128" y2="140" stroke="#cbd5e1" stroke-width="1"/>
+              <line x1="168" y1="14" x2="168" y2="140" stroke="#cbd5e1" stroke-width="1"/>
+              <line x1="208" y1="14" x2="208" y2="140" stroke="#cbd5e1" stroke-width="1"/>
+              <line x1="248" y1="14" x2="248" y2="140" stroke="#cbd5e1" stroke-width="1"/>
+              <line x1="288" y1="14" x2="288" y2="140" stroke="#cbd5e1" stroke-width="1"/>
+
+              <line x1="48" y1="35" x2="208" y2="35" stroke="#d97706" stroke-width="1.4" stroke-dasharray="3,2"/>
+              <path d="M 88,80 Q 128,22 168,20 Q 208,22 248,80" fill="none" stroke="#0f172a" stroke-width="2.2"/>
+
+              <circle cx="88"  cy="80" r="4" fill="#0f172a"/>
+              <circle cx="128" cy="35" r="4.5" fill="#f59e0b" stroke="#0f172a" stroke-width="1.4"/>
+              <circle cx="168" cy="20" r="5" fill="#16a34a" stroke="#0f172a" stroke-width="1.5"/>
+              <circle cx="208" cy="35" r="4.5" fill="#f59e0b" stroke="#0f172a" stroke-width="1.4"/>
+              <circle cx="248" cy="80" r="4" fill="#0f172a"/>
+
+              <text x="168" y="13" font-size="7.8" font-weight="800" text-anchor="middle" fill="#15803d">★ Alcance Máx. (45°, 40 m)</text>
+              <text x="108" y="47" font-size="7.5" font-weight="800" fill="#b45309">35 m</text>
+              <text x="214" y="47" font-size="7.5" font-weight="800" fill="#b45309">35 m</text>
+
+              <text x="42" y="143" font-size="8" font-weight="700" text-anchor="end" fill="#0f172a">0</text>
+              <text x="42" y="113" font-size="8" font-weight="700" text-anchor="end" fill="#0f172a">10</text>
+              <text x="42" y="83"  font-size="8" font-weight="700" text-anchor="end" fill="#0f172a">20</text>
+              <text x="42" y="53"  font-size="8" font-weight="700" text-anchor="end" fill="#0f172a">30</text>
+              <text x="42" y="23"  font-size="8" font-weight="700" text-anchor="end" fill="#0f172a">40</text>
+              <text x="14" y="80" font-size="8.2" font-weight="800" text-anchor="middle" fill="#0f172a" transform="rotate(-90 14,80)">Alcance Δx (m)</text>
+
+              <text x="88"  y="153" font-size="8" font-weight="700" text-anchor="middle" fill="#0f172a">15°</text>
+              <text x="128" y="153" font-size="8" font-weight="800" text-anchor="middle" fill="#b45309">30°</text>
+              <text x="168" y="153" font-size="8" font-weight="800" text-anchor="middle" fill="#15803d">45°</text>
+              <text x="208" y="153" font-size="8" font-weight="800" text-anchor="middle" fill="#b45309">60°</text>
+              <text x="248" y="153" font-size="8" font-weight="700" text-anchor="middle" fill="#0f172a">75°</text>
+              <text x="168" y="170" font-size="8.5" font-weight="800" text-anchor="middle" fill="#0f172a">Ángulo de Lanzamiento θ (grados)</text>
+            </svg>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="page-footer">
+      <span>Unidad 2: Movimiento de Proyectiles 2D &bull; Práctica de Análisis de Datos CAST (Forma A)</span>
+      <span>Usa las Tablas y Gráficas de la Página 1 para Responder la Página 2 &rarr;</span>
+    </footer>
+  </div>
+
+  <!-- =====================================================================
+       PAGE 2: 5-STEP CAST DATA ANALYSIS & GUIDED CER
+       ===================================================================== -->
+  <div class="worksheet-page">
+    <div>
+      <!-- Compact Single-Line Running Header -->
+      <div class="running-header">
+        <span>Análisis de Datos de Proyectiles CAST (Forma A) &bull; Página 2 de 2</span>
+        <span>Recordatorio de Fórmula: &nbsp; Δx = v<sub>ox</sub> &times; t &nbsp;&nbsp;|&nbsp;&nbsp; g = 10 m/s²</span>
+      </div>
+
+      <!-- STEP 1 & STEP 2: READ THE DATA & IDENTIFY TRENDS -->
+      <section class="card">
+        <div class="card-header">
+          <span class="card-title">Parte 1: Leer las Tablas de Datos e Identificar Patrones (2 Puntos)</span>
+          <span class="card-tag">Mira la Tabla 1 y Gráfica 1</span>
+        </div>
+        <div class="card-body">
+          <div class="prompt-line">
+            <span class="prompt-badge-group"><span class="step-pill">(1) LEER DATOS</span></span>
+            <div class="prompt-body">
+              Observa la <strong>Tabla 1 y la Gráfica 1</strong>:
+              <div style="margin-top: 2px;">
+                &bull; <strong>a) Ejemplo Resuelto:</strong> Cuando la Rapidez Horizontal (<span class="mvar">v<sub>ox</sub></span>) es <strong>10 m/s</strong>, el Alcance (<span class="mvar">Δx</span>) es <strong><u>&nbsp;30 m&nbsp;</u></strong>.
+              </div>
+              <div style="margin-top: 2px;">
+                &bull; <strong>b) Tu Turno:</strong> Cuando la Rapidez Horizontal (<span class="mvar">v<sub>ox</sub></span>) es <strong>15 m/s</strong>, el Alcance (<span class="mvar">Δx</span>) es <span class="blank-line" style="min-width: 0.65in;"></span> <strong>m</strong>.
+                &nbsp;&nbsp;Cuando <span class="mvar">v<sub>ox</sub></span> es <strong>20 m/s</strong>, el Alcance (<span class="mvar">Δx</span>) es <span class="blank-line" style="min-width: 0.65in;"></span> <strong>m</strong>.
+              </div>
+            </div>
+          </div>
+
+          <div class="prompt-line" style="margin-top: 5px; margin-bottom: 0;">
+            <span class="prompt-badge-group"><span class="step-pill">(2) TENDENCIA</span></span>
+            <div class="prompt-body">
+              <strong>Encierra en un círculo UNA opción en cada corchete</strong> para describir el patrón en la <strong>Gráfica 1</strong>:<br>
+              A medida que la Rapidez Horizontal (<span class="mvar">v<sub>ox</sub></span>) aumenta, el Alcance (<span class="mvar">Δx</span>) <strong>[ aumenta / disminuye / se mantiene igual ]</strong> a un ritmo constante, formando una <strong>[ línea recta lineal / curva en arco ]</strong>.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 3: CALCULATE & PREDICT -->
+      <section class="card">
+        <div class="card-header">
+          <span class="card-title">Parte 2: Calcular la Tasa de Cambio y Hacer una Predicción (2 Puntos)</span>
+          <span class="card-tag">Matemáticas Paso a Paso</span>
+        </div>
+        <div class="card-body" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: stretch;">
+          <div class="math-stack-box">
+            <div style="font-size: 8.2pt; color: #0284c7; text-transform: uppercase; margin-bottom: 2px;">(3A) Patrón Resuelto: Pendiente de Gráfica 1</div>
+            <div>Cada <strong>+1 m/s</strong> de rapidez horizontal agrega <strong>+3 m</strong> de distancia porque el tiempo de vuelo es <strong>3 s</strong>:</div>
+            <div style="margin-top: 2px; padding-left: 8px; border-left: 2.5px solid #0284c7;">
+              <div><span class="mvar">t</span> = <span class="mvar">Δx</span> &divide; <span class="mvar">v<sub>ox</sub></span></div>
+              <div><span class="mvar">t</span> = 30 m &divide; 10 m/s = <strong>3 s</strong></div>
+            </div>
+          </div>
+
+          <div class="math-stack-box" style="background: #ffffff;">
+            <div style="font-size: 8.2pt; color: #0f172a; text-transform: uppercase; margin-bottom: 2px;">(3B) Tu Turno: Predecir Prueba 6 (v<sub>ox</sub> = 25 m/s)</div>
+            <div>Si se lanza una pelota a <span class="mvar">v<sub>ox</sub></span> = <strong>25 m/s</strong> con el mismo tiempo de vuelo (<span class="mvar">t</span> = <strong>3 s</strong>), ¿a qué distancia caerá?</div>
+            <div style="margin-top: 2px; padding-left: 8px; border-left: 2.5px solid #0f172a;">
+              <div><span class="mvar">Δx</span> = <span class="mvar">v<sub>ox</sub></span> &times; <span class="mvar">t</span></div>
+              <div><span class="mvar">Δx</span> = <span class="blank-line" style="min-width: 0.55in;"></span> m/s &times; <strong>3 s</strong> = <span class="blank-line" style="min-width: 0.6in;"></span> <strong>m</strong></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 4: INVESTIGATION 2 ANGLE CHECK -->
+      <section class="card">
+        <div class="card-header">
+          <span class="card-title">Parte 3: Patrones del Ángulo de Lanzamiento en la Investigación 2 (2 Puntos)</span>
+          <span class="card-tag">Mira la Tabla 2 y Gráfica 2</span>
+        </div>
+        <div class="card-body">
+          <div class="prompt-line">
+            <span class="prompt-badge-group"><span class="step-pill">(4A) ÁNGULO MÁX.</span></span>
+            <div class="prompt-body">
+              Según la <strong>Tabla 2 y la Gráfica 2</strong>, ¿qué ángulo de lanzamiento (<span class="mvar">θ</span>) produce el <strong>Alcance más lejano (40 m)</strong>?
+              &nbsp;&nbsp;<strong>Encierra UNO:</strong> &nbsp;&nbsp; [ <strong>15°</strong> &nbsp;/&nbsp; <strong>30°</strong> &nbsp;/&nbsp; <strong>45°</strong> &nbsp;/&nbsp; <strong>60°</strong> &nbsp;/&nbsp; <strong>75°</strong> ]
+            </div>
+          </div>
+          <div class="prompt-line" style="margin-bottom: 0;">
+            <span class="prompt-badge-group"><span class="step-pill">(4B) PAR IGUAL</span></span>
+            <div class="prompt-body">
+              Observa <strong>15°</strong> en la Tabla 2 (Alcance = <strong>20 m</strong>). ¿Qué <strong>otro ángulo</strong> cae exactamente a <strong>20 m</strong>, y cuál permanece más tiempo en el aire?<br>
+              &bull; Ángulo con igual alcance: <span class="blank-line" style="min-width: 0.55in;"></span> <strong>°</strong> &nbsp;&nbsp;&nbsp;&nbsp;
+              &bull; Más tiempo en el aire (mayor <span class="mvar">t<sub>hang</sub></span>): <span class="blank-line" style="min-width: 0.55in;"></span> <strong>°</strong> (Tiempo = <span class="blank-line" style="min-width: 0.5in;"></span> <strong>s</strong>)
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 5: GUIDED CAST SCIENTIFIC ARGUMENT (CER WITH EMBEDDED SENTENCE STARTERS) -->
+      <section class="card" style="margin-bottom: 0;">
+        <div class="card-header">
+          <span class="card-title">Parte 4: Argumento Científico CAST — Afirmación, Evidencia y Razonamiento (4 Puntos)</span>
+          <span class="card-tag">Completa las Oraciones</span>
+        </div>
+        <div class="card-body">
+          <div style="font-size: 8.5pt; margin-bottom: 5px; padding: 4px 8px; background: #fef2f2; border: 1.3px solid #dc2626; border-radius: 5px;">
+            <strong>❓ Idea Errónea de un Estudiante:</strong> Un estudiante afirma: <em>"Disparar un proyectil a un ángulo más inclinado (como 60° o 75°) SIEMPRE hace que llegue más lejos porque dura más tiempo en el aire."</em> Usa la <strong>Tabla 2 y la Gráfica 2</strong> para explicar por qué esta afirmación es <strong>incorrecta</strong>.
+          </div>
+
+          <!-- Zone A: Claim -->
+          <div class="cer-zone">
+            <div class="cer-zone-header">
+              <span>☐ ZONA A — AFIRMACIÓN / CLAIM (1 pto): Indica si el estudiante está en lo correcto o incorrecto y el patrón real.</span>
+            </div>
+            <div class="starter-text">
+              La afirmación del estudiante es <strong>[ encierra uno: correcta / incorrecta ]</strong>. En la Investigación 2, el alcance aumenta desde <strong>15°</strong> hasta un máximo en <span class="blank-line" style="min-width: 0.6in;"></span> <strong>°</strong>, y luego <strong>[ aumenta / disminuye ]</strong> en ángulos más inclinados como <strong>60°</strong> y <strong>75°</strong>.
+            </div>
+          </div>
+
+          <!-- Zone B: Evidence -->
+          <div class="cer-zone">
+            <div class="cer-zone-header">
+              <span>☐ ZONA B — EVIDENCIA / EVIDENCE (2 ptos): Completa dos datos de la Tabla 2 (¡incluye números y unidades!).</span>
+            </div>
+            <div class="starter-text">
+              &bull; <strong>Dato 1:</strong> A un ángulo de lanzamiento de <strong>45°</strong>, el tiempo en el aire es <strong>2.8 s</strong> y el alcance llega a un máximo de <span class="blank-line" style="min-width: 0.65in;"></span> <strong>m</strong>.<br>
+              &bull; <strong>Dato 2:</strong> Cuando el ángulo aumenta a <strong>60°</strong> (o <strong>75°</strong>), el tiempo en el aire sube a <span class="blank-line" style="min-width: 0.6in;"></span> <strong>s</strong>, pero el alcance baja a <span class="blank-line" style="min-width: 0.65in;"></span> <strong>m</strong>.
+            </div>
+          </div>
+
+          <!-- Zone C: Reasoning -->
+          <div class="cer-zone" style="margin-bottom: 0;">
+            <div class="cer-zone-header">
+              <span>☐ ZONA C — RAZONAMIENTO / REASONING (1 pto): Conecta la evidencia con la fórmula Δx = v<sub>ox</sub> &times; t<sub>hang</sub>.</span>
+            </div>
+            <div class="starter-text">
+              Como el alcance horizontal es igual a <strong>Rapidez Horizontal (<span class="mvar">v<sub>ox</sub></span>) &times; Tiempo en el Aire (<span class="mvar">t<sub>hang</sub></span>)</strong>, disparar a un ángulo muy inclinado le da a la pelota más <span class="blank-line" style="min-width: 0.9in;"></span> en el aire, pero la deja con muy poca <span class="blank-line" style="min-width: 0.9in;"></span> horizontal (<span class="mvar">v<sub>ox</sub></span> baja a solo <strong>10.0 m/s</strong> a 60° y <strong>5.2 m/s</strong> a 75°).
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="page-footer">
+      <span>Revisa tu Trabajo: ¿Incluiste números y unidades (m, s, m/s, °) en cada espacio?</span>
+      <span>Puntaje Total: _____ / 10 Puntos</span>
+    </footer>
+  </div>
+
+</body>
+</html>
+

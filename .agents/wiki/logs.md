@@ -3,6 +3,38 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-06 — Day 50 CAST Projectile Data Analysis: Spanish Versions (_ES) & Honors Calibration
+**Patterns Updated**: `low-stress-worksheet-skill.md`, `the-gradest-bubble-scanner.md`.
+**Files Added/Updated**: `Unit_2/worksheets/Day50_Projectile_Data_Analysis_Guided_ES.html` & `.pdf`, `Unit_2/worksheets/Day50_Projectile_Data_Analysis_CP_ES.html` & `.pdf`, `Unit_2/worksheets/Day50_Projectile_Data_Analysis_Honors_ES.html` & `.pdf`, `Unit_2/worksheets/Day50_CAST_CER_Sentence_Starters_ES.html` & `.pdf`, `assets/lessons-data.js`, `partials/footer.html`.
+
+**Changes**:
+- **Spanish Packets (_ES) Matching Exact English Layout**:
+  - Generated print-ready Spanish HTML & PDF versions for all three differentiated tiers: **Forma A (`Guided_ES.pdf`)**, **Forma B (`CP_ES.pdf`)**, and **Honors (`Honors_ES.pdf`)**, plus the student reference card **Inicios de Oración CER (`Sentence_Starters_ES.pdf`)**.
+  - Tuned CSS font sizes (`8.9pt–9.0pt`) and padding to accommodate ~15–20% longer Spanish text while strictly enforcing the **2-page limit** for worksheets and **1-page limit** for the reference card.
+  - Visually confirmed zero page spillover and zero bottom margin clipping via `pdftoppm` rendering.
+- **Scanner Compatibility Across English & Spanish Sheets**:
+  - Replicated the 50%-larger `The_Gradest` OMR bubble card (`3.42in × 4.51in`) with the exact same QR payload (`"CAST Projectile Data Analysis"`) and `viewBox="0 0 250 330"` coordinates, enabling mixed-language single-pass scanning in `The_Gradest`.
+- **Honors Calibration**:
+  - Toned down the Period 0 Honors worksheet: replaced non-linear free-fall height scaling and full algebraic range derivation with reading multi-series graph slopes (slope = flight time), finding velocity components at 60° via trig (`v_ox = v_o cos θ`, `v_oy = v_o sin θ`), and completing missing table rows.
+- **Curriculum Metadata**:
+  - Linked all Spanish PDF and HTML resources under Day 50 (`2026-11-06`) in `assets/lessons-data.js`.
+
+## 2026-11-05 — Day 50 Projectile Motion CAST Data Analysis Suite (3 Differentiated Tiers + Sentence Starters + Master Key)
+**Patterns Updated**: `low-stress-worksheet-skill.md`.
+**Files Added/Updated**: `Unit_2/worksheets/Day50_Projectile_Data_Analysis_Guided.html` & `.pdf`, `Unit_2/worksheets/Day50_Projectile_Data_Analysis_CP.html` & `.pdf`, `Unit_2/worksheets/Day50_Projectile_Data_Analysis_Honors.html` & `.pdf`, `Unit_2/worksheets/Day50_CAST_CER_Sentence_Starters.html` & `.pdf`, `Unit_2/worksheets/Teacher_Master_Key_Day50_Projectile_Data_Analysis.html` & `.pdf` (gitignored), `assets/lessons-data.js`, `partials/footer.html`.
+
+**Changes**:
+- **Differentiated 2-Page CAST Data Analysis Packets (`g = 10 m/s²`)**:
+  - **Form A — Guided (`Day50_Projectile_Data_Analysis_Guided.pdf`)** for Periods 1–3 (no "Conceptual" label on sheet): Whole-number cliff launch table, visual coordinate locator arrows on Graph 1, stacked math boxes, and built-in fill-in-the-blank CER sentence starters.
+  - **Form B — Standard CP (`Day50_Projectile_Data_Analysis_CP.pdf`)** for Periods 4–6: Multi-series horizontal cliff launches from two heights (`Platform A: h = 5 m, t = 1 s` vs. `Platform B: h = 45 m, t = 3 s`), slope-as-flight-time derivation, and a 3-zone CER evaluating complementary launch angles (`30°` vs. `60°`).
+  - **Honors (`Day50_Projectile_Data_Analysis_Honors.pdf`)** for Period 0: Non-linear free-fall height scaling (`t ∝ √h`), missing telemetry calculation, quadratic apogee height scaling (`y_max ∝ v_oy²`), and algebraic derivation of `Δx = (2 v_ox v_oy) / g`.
+- **Desk Reference & Teacher Master Key**:
+  - Created a 1-page printable **CAST CER Sentence Starters & Formula Guide** (`Day50_CAST_CER_Sentence_Starters.pdf`) and a confidential 2-page **Teacher Master Key & 50-Minute Pacing Guide** (`Teacher_Master_Key_Day50_Projectile_Data_Analysis.pdf`, excluded from git and student links).
+- **Integrated `The_Gradest` OMR Bubble Card on Page 1**:
+  - Embedded a 100% scanner-compatible `The_Gradest` OMR bubble card (`viewBox="0 0 250 330"`, `MAX SCORE: 10`, 6-digit Student ID grid, 2-column Score grid, asymmetric square/circle corner fiducials, and embedded QR code routing to `"CAST Projectile Data Analysis"`) directly into the top-right corner of Page 1 across all three worksheet versions so students do not need to staple a separate bubble card.
+- **SVG Subscript & Card Tag Pattern**:
+  - Documented `<tspan dy="2">` subscript rendering inside inline SVG `<text>` labels and `white-space: nowrap; flex-shrink: 0;` on `.card-tag` header pills.
+
 ## 2026-11-05 — 3D 100m Dash Class Progress & Hall of Champions Arena (Three.js)
 **Patterns Updated**: `classroom-projection-and-high-contrast-theming.md`.
 **Files Added/Updated**: `admin/sprint_progress_3d.html`, `admin/monkey_hunter_monitor.html`, `admin/projectile_range_monitor.html`, `admin/vector_decomposition_monitor.html`, `admin/index.html`, `partials/footer.html`.
