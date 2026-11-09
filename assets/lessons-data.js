@@ -1702,14 +1702,6 @@ const lessonsData = [
         "actionLabel": "Launch Studio 🚀",
         "description": "6 leveled missions: 3-segment x-t motion, interval Δx, slope-to-velocity, and interactive v-t translation.",
         "points": 10
-      },
-      {
-        "title": "Dual-Graph Translation Workshop: x-t to v-t",
-        "status": "planned",
-        "typeLabel": "Classwork Practice",
-        "submission": "In-Class Handout (Subject to Pacing)",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Convert 4 piecewise position graphs into step-wise velocity-time profiles."
       }
     ],
     "resources": [
@@ -2653,12 +2645,6 @@ const lessonsData = [
         "description": "Video walkthrough showing the metric track setup, stopwatch placement in frame, and phone camera angle."
       },
       {
-        "title": "Graphing Pull-Back Toy Handout (PDF)",
-        "url": "https://rrmudry.github.io/Unit_2/pull_back_toy_lab/index.html",
-        "typeLabel": "Lab Activity Guide",
-        "description": "Official laboratory procedure, safety rules, and data collection protocol."
-      },
-      {
         "title": "Velocity vs. Time Visualizer",
         "url": "Unit_2/velocity_time_graph_studio/index.html",
         "typeLabel": "Interactive Web Tool",
@@ -2852,12 +2838,6 @@ const lessonsData = [
         "url": "https://drive.google.com/file/d/1AzjHUlsL2X34YtQUKrtjvGBCyjtupQ-k/view",
         "typeLabel": "Demonstration Video",
         "description": "Periods 1–6: Walkthrough video showing metric track setup, stopwatch placement, and phone camera angle."
-      },
-      {
-        "title": "Graphing Pull-Back Toy Handout (PDF)",
-        "url": "https://rrmudry.github.io/Unit_2/pull_back_toy_lab/index.html",
-        "typeLabel": "Lab Activity Guide",
-        "description": "Periods 1–6: Official laboratory procedure, safety rules, and data collection protocol."
       },
       {
         "title": "Dual-Graph Motion Studio",
@@ -3165,6 +3145,7 @@ const lessonsData = [
     "assignments": [
       {
         "title": "Reaction Time Lab Calculations & Graphing Submission",
+        "url": "Unit_2/worksheets/P031_Reaction_Time_2026.pdf",
         "typeLabel": "Lab Analysis & Report",
         "submission": "Turn In Lab Handout (10 pts)",
         "actionLabel": "Review Lab Handout",
@@ -3371,15 +3352,7 @@ const lessonsData = [
         "status": "active"
       }
     ],
-    "resources": [
-      {
-        "title": "Mass vs. Weight Reference Guide",
-        "typeLabel": "Reference Handout",
-        "description": "Comparing inertial mass (kg) and gravitational force (N = m · g) across the solar system.",
-        "status": "planned",
-        "actionLabel": "In-Class Resource Notice"
-      }
-    ]
+    "resources": []
   },
   {
     "day": 25,
@@ -3467,9 +3440,7 @@ const lessonsData = [
     "links": {
       "Newton's 2nd Law Studio": "Unit_2/newtons_second_law_studio/index.html",
       "Inertia Demonstration Peer Observation Log (Period 0 Honors)": "Unit_2/worksheets/Inertia_Demonstration_Observation_Log.pdf",
-      "Inertia Demonstration Planner (Student PDF)": "Unit_2/worksheets/Inertia_Demonstration_Planner.pdf",
-      "Translational Equilibrium Notes": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
-      "Vector Calculator App": "Unit_2/Vector_displacement_calculator_app/index.html"
+      "Inertia Demonstration Planner (Student PDF)": "Unit_2/worksheets/Inertia_Demonstration_Planner.pdf"
     },
     "assignments": [
       {
@@ -3503,12 +3474,6 @@ const lessonsData = [
         "url": "Unit_2/worksheets/Inertia_Demonstration_Planner.pdf",
         "typeLabel": "Printable Worksheet",
         "description": "Single-page student planner: Materials list, setup diagram, protocol, Free-Body Diagram defense, CER, and 16-point rubric."
-      },
-      {
-        "title": "Translational Equilibrium & Balanced Forces Notes",
-        "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
-        "typeLabel": "Lecture Notes",
-        "description": "Resolving balanced forces into perpendicular components: ΣFx = 0 and ΣFy = 0."
       }
     ],
     "practice": [
@@ -3517,12 +3482,6 @@ const lessonsData = [
         "url": "Unit_2/newtons_second_law_studio/index.html",
         "typeLabel": "Interactive Simulation",
         "description": "Virtual dual-pulley Atwood track with photogate timers: isolate force (M<sub>total</sub> locked) and isolate mass (F<sub>net</sub> locked), graph a vs F<sub>net</sub> and a vs 1/M<sub>total</sub>."
-      },
-      {
-        "title": "Vector Displacement & Force Calculator",
-        "url": "Unit_2/Vector_displacement_calculator_app/index.html",
-        "typeLabel": "Interactive Tool",
-        "description": "Compute vector components and resultant net forces."
       }
     ]
   },
@@ -3621,8 +3580,7 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
-      "Hall's Carriage Modified Atwood Lab": "Unit_2/halls_carriage_lab/index.html",
-      "Science of Friction Presentation": "Unit_2/describing-motion-presentation/index.html"
+      "Hall's Carriage Modified Atwood Lab": "Unit_2/halls_carriage_lab/index.html"
     },
     "assignments": [
       {
@@ -3633,24 +3591,9 @@ const lessonsData = [
         "actionLabel": "Open Lab Workbench",
         "description": "Authentic video timing of a Hall's carriage accelerated across 1.0 m by a constant hanging weight over the table edge (no pulleys). Collect 5 mass configurations, complete the 3-step kinematic acceleration ladder, graph a vs m and a vs 1/m, and write your CER conclusion.",
         "status": "active"
-      },
-      {
-        "title": "Static vs. Kinetic Friction Analysis Worksheet",
-        "typeLabel": "Class Worksheet",
-        "submission": "In-Class Handout (Subject to Pacing)",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Analyze force vs time sensor graphs to identify static breakaway peaks and kinetic plateaus.",
-        "status": "planned"
       }
     ],
-    "resources": [
-      {
-        "title": "Microscopic Friction & Normal Force Slides",
-        "url": "Unit_2/describing-motion-presentation/index.html",
-        "typeLabel": "Classroom Slides",
-        "description": "Contact asperities, cold welding, normal force dependence, and friction coefficients."
-      }
-    ]
+    "resources": []
   },
   {
     "day": 29,
@@ -3683,8 +3626,7 @@ const lessonsData = [
     },
     "links": {
       "Hall's Carriage Modified Atwood Lab": "Unit_2/halls_carriage_lab/index.html",
-      "Newton's 2nd Law Studio": "Unit_2/newtons_second_law_studio/index.html",
-      "Science of Friction Presentation": "Unit_2/describing-motion-presentation/index.html"
+      "Newton's 2nd Law Studio": "Unit_2/newtons_second_law_studio/index.html"
     },
     "assignments": [
       {
@@ -3697,14 +3639,7 @@ const lessonsData = [
         "status": "active"
       }
     ],
-    "resources": [
-      {
-        "title": "Science of Friction & Resistive Forces Slides",
-        "url": "Unit_2/describing-motion-presentation/index.html",
-        "typeLabel": "Review Slide Deck",
-        "description": "Exploration of contact asperities, rolling resistance, and net force retardation."
-      }
-    ]
+    "resources": []
   },
   {
     "day": 30,
@@ -3736,40 +3671,11 @@ const lessonsData = [
       "explanation": "a = F<sub>net</sub> / m = -5000 N / 1000 kg = -5.0 m/s². The deceleration produced by the net force determines the rate at which velocity drops to zero (t = Δv / a) and the required stopping distance (d = v₀t + ½at²).",
       "defaultDuration": 3
     },
-    "links": {
-      "Two-Car Intercept Challenge": "Unit_2/two_car_intercept/index.html"
-    },
-    "assignments": [
-      {
-        "title": "Highway Safety & Traction Engineering Specification Report",
-        "typeLabel": "DOK 4 Engineering Report",
-        "submission": "In-Class Handout (Subject to Pacing)",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Design two competing friction protocols, reconcile systematic errors, and establish wet-weather speed limit specifications.",
-        "status": "planned"
-      }
-    ],
-    "resources": [
-      {
-        "title": "Experimental Friction Methodology & Pavement Design Guide",
-        "url": "https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing",
-        "typeLabel": "Engineering Guide",
-        "description": "Comparing drag force sensors vs critical incline slip angles (μs = tan theta) and highway banking equations."
-      },
-      {
-        "title": "Two-Car Kinematic Intercept Simulator",
-        "url": "Unit_2/two_car_intercept/index.html",
-        "typeLabel": "Simulation Tool",
-        "description": "Simulate vehicle stopping distances under varying friction coefficients."
-      }
-    ],
+    "links": {},
+    "assignments": [],
+    "resources": [],
     "practice": [
-      {
-        "title": "Two-Car Intercept Simulator",
-        "url": "Unit_2/two_car_intercept/index.html",
-        "typeLabel": "Practice Tool",
-        "description": "Test braking deceleration and stopping distance profiles."
-      }
+      
     ]
   },
   {
@@ -4157,8 +4063,7 @@ const lessonsData = [
     "links": {
       "Hot Wheels Coasting Baseline (Periods 1, 2, 3)": "Unit_2/hot_wheels_coasting/index.html",
       "Cardstock Rocket Phase 2 (Periods 0, 4, 5, 6)": "Unit_2/rocket_phase2/index.html",
-      "Rocket Flight Forensics (Phase 1)": "Unit_2/rocket_recovery/index.html",
-      "Newton's 3rd Law Slides": "Unit_2/describing-motion-presentation/index.html"
+      "Rocket Flight Forensics (Phase 1)": "Unit_2/rocket_recovery/index.html"
     },
     "assignments": [
       {
@@ -4192,12 +4097,6 @@ const lessonsData = [
         "url": "Unit_2/rocket_phase2/index.html",
         "typeLabel": "Interactive CAD & Satellite Map",
         "description": "Periods 0, 4, 5, 6: Dual 1cm × 1cm technical blueprint, variable isolation tracker, and campus touchdown coordinates."
-      },
-      {
-        "title": "Newton's Third Law Presentation",
-        "url": "Unit_2/describing-motion-presentation/index.html",
-        "typeLabel": "Classroom Slides",
-        "description": "Mutual interaction pairs, equal force vs unequal acceleration, and recoil physics."
       }
     ],
     "practice": [
@@ -4419,7 +4318,6 @@ const lessonsData = [
       "Hot Wheels Wind Resistance (Periods 1, 2, 3)": "Unit_2/hot_wheels_air_resistance/index.html",
       "Hot Wheels Coasting (Periods 1, 2, 3)": "Unit_2/hot_wheels_coasting/index.html",
       "Cardstock Rocket Lab Guide (PDF)": "Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf",
-      "Unit 2 Review Slide Deck": "Unit_2/describing-motion-presentation/index.html",
       "Missing Work & Grade Portal": "missing-work.html"
     },
     "assignments": [
@@ -4465,12 +4363,6 @@ const lessonsData = [
         "description": "Periods 1, 2, 3: Fan air brake procedures, stopping distance measurement guides, and force analysis."
       },
       {
-        "title": "Unit 2 Grand Synthesis & Review Presentation",
-        "url": "Unit_2/describing-motion-presentation/index.html",
-        "typeLabel": "Review Slide Deck",
-        "description": "Comprehensive review slide deck unifying 1D Kinematics and Newtonian Dynamics with practice problems."
-      },
-      {
         "title": "Student Missing Work & Assignment Portal",
         "url": "missing-work.html",
         "typeLabel": "Classroom Tool",
@@ -4483,12 +4375,6 @@ const lessonsData = [
         "url": "Unit_2/cardstock_rocket/index.html",
         "typeLabel": "Aerodynamic Sandbox",
         "description": "Virtual launch sandbox to simulate apogee height and stability based on fin geometry and mass balance."
-      },
-      {
-        "title": "Operation Safe Heeler Simulator",
-        "url": "operation-safe-heeler.html",
-        "typeLabel": "Engineering Sandbox",
-        "description": "Virtual crash simulator to test material deformation and impulse curves."
       }
     ]
   },
@@ -4646,7 +4532,7 @@ const lessonsData = [
       ]
     },
     "links": {
-      "Cardstock Rocket Phase 2 (Periods 0, 4, 5, 6)": "Unit_2/cardstock_rocket_phase2/index.html",
+      "Cardstock Rocket Phase 2 (Periods 0, 4, 5, 6)": "Unit_2/rocket_phase2/index.html",
       "Hot Wheels Wind Resistance (Periods 1, 2, 3)": "Unit_2/hot_wheels_air_resistance/index.html",
       "Hot Wheels Coasting (Periods 1, 2, 3)": "Unit_2/hot_wheels_coasting/index.html",
       "Cardstock Rocket Lab Guide (PDF)": "Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf",
@@ -4655,7 +4541,7 @@ const lessonsData = [
     "assignments": [
       {
         "title": "Cardstock Rocket Engineering: Phase 2 Final Launch & Telemetry (Periods 0, 4, 5, 6)",
-        "url": "Unit_2/cardstock_rocket_phase2/index.html",
+        "url": "Unit_2/rocket_phase2/index.html",
         "typeLabel": "Engineering Synthesis & Redesign",
         "submission": "Auto-Saved on Google Sign-In (10 pts) / Turn In in Classroom",
         "actionLabel": "Open Phase 2 Studio ↗",
@@ -4727,8 +4613,7 @@ const lessonsData = [
     },
     "links": {
       "Day 41 Student Follow-Along Worksheet": "Unit_2/worksheets/Day41_Student_Follow_Along_Worksheet.html",
-      "Horizontal Projectile Motion Explorer": "horizontal-projectile-motion/index.html",
-      "Describing Motion Presentation": "Unit_2/describing-motion-presentation/index.html"
+      "Horizontal Projectile Motion Explorer": "horizontal-projectile-motion/index.html"
     },
     "assignments": [
       {
@@ -5347,14 +5232,6 @@ const lessonsData = [
         "actionLabel": "Launch Monkey Hunter Studio",
         "description": "See why a launched ball falls below its straight path by the same distance a dropped ball falls. Measure a drop, hang the strings on a meter stick, then solve the hunts. Due Thursday, Nov 5 at 6:00 PM.",
         "status": "active"
-      },
-      {
-        "title": "Complementary Angles Inquiry Lab Report",
-        "typeLabel": "Digital Investigation",
-        "submission": "Turn In in Classroom",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Document 5 complementary angle trials, graph range vs angle, and justify the 45-degree maximum.",
-        "status": "active"
       }
     ],
     "resources": [
@@ -5502,103 +5379,85 @@ const lessonsData = [
     "day": 51,
     "date": "2026-11-09",
     "unit": 2,
-    "title": "Circular Motion: The Centripetal Acceleration Concept",
-    "topic": "Velocity as a Vector: Why Changing Direction Requires Acceleration (a_c = v² / r)",
+    "title": "Circular Motion: Why Turning Means Accelerating",
+    "topic": "Velocity Arrows, the Tangent Line & Centripetal Acceleration (a<sub>c</sub> = v² ÷ r)",
     "dok": 2,
-    "type": "Direct Instruction / Demonstration",
+    "type": "Demonstration / Guided Practice",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Explore why an object moving in a circle at constant speed is continuously accelerating: velocity is a vector, and changing direction requires a continuous center-directed acceleration.",
-    "activity": "Centripetal Sensation & Tangential Velocity Demos: Whirling a stopper on a string, analyzing stroboscopic circular paths, and observing what happens when the string is cut (the mass flies off along a straight tangent line, NOT outward). Deriving centripetal acceleration a_c = v² / r.",
-    "essentialQuestion": "How can an object accelerate if its speedometer reading never changes?",
+    "summary": "An object can go around a circle at a steady speed and still be accelerating. Velocity has a direction, and the direction keeps changing. The acceleration always points toward the center of the circle. We call it centripetal acceleration.",
+    "activity": "Whirling Stopper Demo & Arrow Diagrams: (1) Mr. Mudry whirls a rubber stopper on a string. Before the string is let go, everyone sketches where they think the stopper will fly. (2) Watch the release. The stopper flies off in a straight line along the tangent, not straight out from the center. This is Newton's 1st Law. (3) On a circle diagram, draw the velocity arrow along the tangent and the acceleration arrow toward the center at four points. (4) Use a table of speeds and radii to find the pattern: twice the speed gives 4 times the acceleration, and twice the radius gives half the acceleration. (5) Practice a<sub>c</sub> = v² ÷ r with stacked steps. Example: a car at 20 m/s on a 50 m curve has a<sub>c</sub> = 8 m/s². Extension: find speed from the time for one lap, v = 2πr ÷ T.",
+    "essentialQuestion": "How can an object be accelerating if its speedometer reading never changes?",
     "standards": [
       "HS-PS2-1"
     ],
     "wicor": {
-      "Writing": "Explaining why velocity vector direction change constitutes true acceleration under Newton's laws.",
-      "Inquiry": "Predicting the path of a released object in circular motion (Newton's 1st Law tangent line vs centrifugal myth).",
-      "Collaboration": "Hands-on whirling stopper trials and circular radius observations.",
-      "Organization": "Constructing vector difference diagrams (Δv = v_2 - v_1) showing inward acceleration.",
-      "Reading": "Reading circular trajectory diagrams and radial acceleration vectors."
+      "Writing": "Explaining in two sentences why a change in direction counts as acceleration.",
+      "Inquiry": "Sketching a prediction of the stopper's path before the release, then comparing it to what happened.",
+      "Collaboration": "Partners check each other's velocity and acceleration arrows on the circle diagram.",
+      "Organization": "Filling in a speed–radius–acceleration table and spotting the doubling patterns.",
+      "Reading": "Reading circle diagrams with tangent velocity arrows and center-pointing acceleration arrows."
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "A racecar drives around a circular track at a constant speed of 50 mph. Is the car accelerating? Why or why not?",
-      "explanation": "Yes, the car is accelerating. Acceleration is the rate of change of velocity, and velocity is a vector (speed AND direction). Because the car is constantly changing its direction of travel to stay on the circle, it experiences continuous centripetal acceleration toward the center of the track.",
+      "promptQuestion": "A racecar drives around a circular track at a steady 50 mph. Is the car accelerating? Why or why not?",
+      "explanation": "Yes. Acceleration is any change in velocity, and velocity includes direction. The car's direction keeps changing as it goes around the track, so it is always accelerating toward the center, even though its speed stays the same.",
       "defaultDuration": 3
     },
-    "links": {
-      "Rotation Oracle": "Rotation_Oracle/index.html"
-    },
+    "links": {},
     "assignments": [
       {
-        "title": "Centripetal Acceleration Conceptual Workshop",
-        "typeLabel": "Concept Practice Set",
-        "submission": "Turn In in Classroom",
+        "title": "Circular Motion Arrows & Acceleration Practice",
+        "typeLabel": "In-Class Handout",
+        "submission": "Turn In to Mr. Mudry",
         "actionLabel": "In-Class Activity Notice",
-        "description": "Calculate centripetal acceleration for varying speeds and radii, and sketch velocity and acceleration vectors.",
+        "description": "Draw velocity and acceleration arrows at four points on a circle, then find centripetal acceleration for three cars on curves using stacked steps.",
         "status": "active"
       }
     ],
-    "resources": [
-      {
-        "title": "Rotation Oracle",
-        "url": "Rotation_Oracle/index.html",
-        "typeLabel": "Rotational Simulator",
-        "description": "Explore rotational dynamics, tangential speed, and centripetal vector orientation."
-      }
-    ]
+    "resources": []
   },
   {
     "day": 52,
     "date": "2026-11-10",
     "unit": 2,
-    "title": "Centripetal Force & Free-Body Diagrams: What Pulls It In?",
-    "topic": "Identifying Physical Center-Directed Forces (F_c = m · a_c = m · v² / r)",
+    "title": "Centripetal Force: What Does the Pulling?",
+    "topic": "Naming the Real Force Toward the Center (F<sub>net</sub> = m · v² ÷ r)",
     "dok": 2,
-    "type": "Guided Practice / Problem Solving",
+    "type": "Guided Practice / Force Diagrams",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Apply Newton's 2nd Law to circular motion: centripetal force is not a magical new force, but a label for the real net inward force (tension, friction, gravity, or normal force).",
-    "activity": "Circular Free-Body Diagram Construction & Force Analysis: Constructing FBDs for real circular systems: a car rounding a flat turn (friction F_f), a planet orbiting the sun (gravity F_g), a tetherball (tension F_T), and a loop-the-loop coaster (normal force F_N). Calculating required inward force F_c = mv² / r.",
-    "essentialQuestion": "What physical forces keep objects moving along curved paths, and what happens when that force disappears?",
+    "summary": "\"Centripetal force\" is not a new kind of force. It is a name for whatever real force points toward the center: tension, friction, gravity or a push from a wall. Newton's 2nd Law tells us how big that force has to be.",
+    "activity": "Who Pulls It In? Force Diagram Stations: For each system, draw two diagrams side by side: a picture with the forces on the object, and a free-body diagram. Then name the real force that points toward the center. (1) Tetherball: the rope's tension. (2) Car on a flat curve: friction from the road on the tires. (3) Moon around Earth: gravity. (4) Clothes in a washer's spin cycle: the drum wall pushing in (normal force). Water escapes through the holes along a tangent line. Then calculate the net force needed with F<sub>net</sub> = m · v² ÷ r using stacked steps. Example: a 1,000 kg car at 20 m/s on a 50 m curve needs 8,000 N of friction. Extension: work backward from a rope's breaking force to find the fastest safe speed.",
+    "essentialQuestion": "What real force keeps an object on a curved path, and what happens the moment that force disappears?",
     "standards": [
       "HS-PS2-1"
     ],
     "wicor": {
-      "Writing": "Articulating why centrifugal force is an apparent inertial sensation rather than an actual physical force.",
-      "Inquiry": "Identifying which real physical contact or field force provides the centripetal acceleration in different scenarios.",
-      "Collaboration": "Whiteboard FBD pairs mapping forces acting on curved trajectories.",
-      "Organization": "Setting up circular dynamics equations: F_net,radial = m · v² / r.",
-      "Reading": "Reading Free-Body Diagrams of circular systems."
+      "Writing": "Explaining why the \"push outward\" you feel in a turning car is inertia, not a real force.",
+      "Inquiry": "Deciding which real force points toward the center in four different systems.",
+      "Collaboration": "Whiteboard partners rotate through the four stations and compare force diagrams.",
+      "Organization": "Drawing a pictorial diagram and a free-body diagram side by side for each system.",
+      "Reading": "Reading force diagrams for objects moving in circles."
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "When a car turns sharply to the left, passengers feel pushed outward to the right against the car door. What real force is acting on them, and why do they feel this sensation?",
-      "explanation": "There is NO outward force. The passenger's body simply wants to continue moving in a straight line at constant speed due to inertia (Newton's 1st Law). The car turns left around them, and the car door must push INWARD on the passenger to force them into the circular path.",
+      "promptQuestion": "When a car turns sharply left, passengers feel pushed to the right against the door. What real force acts on them, and why do they feel pushed?",
+      "explanation": "Nothing pushes them outward. Their bodies keep moving in a straight line because of inertia (Newton's 1st Law). The car turns left underneath them, so the door has to push them inward, toward the center of the turn, to keep them moving in a circle.",
       "defaultDuration": 3
     },
-    "links": {
-      "Rotation Oracle": "Rotation_Oracle/index.html"
-    },
+    "links": {},
     "assignments": [
       {
-        "title": "Centripetal Force & FBD Practice Sheet",
-        "typeLabel": "Problem Set",
-        "submission": "Turn In in Classroom",
+        "title": "Who Pulls It In? Force Diagram Stations",
+        "typeLabel": "In-Class Handout",
+        "submission": "Turn In to Mr. Mudry",
         "actionLabel": "In-Class Activity Notice",
-        "description": "Construct 5 circular FBDs and calculate required centripetal forces across vehicle and planetary systems.",
+        "description": "For four circular systems, draw a pictorial diagram and a free-body diagram, name the real force toward the center, and calculate the net force needed.",
         "status": "active"
       }
     ],
-    "resources": [
-      {
-        "title": "Rotation Oracle",
-        "url": "Rotation_Oracle/index.html",
-        "typeLabel": "Simulation Tool",
-        "description": "Interactive rotational and circular dynamics laboratory."
-      }
-    ]
+    "resources": []
   },
   {
     "day": 53,
@@ -5629,105 +5488,93 @@ const lessonsData = [
     "day": 54,
     "date": "2026-11-12",
     "unit": 2,
-    "title": "Highway Curve Safety & Road Banking Engineering Investigation",
-    "topic": "Centripetal Friction Limits, Safe Cornering Speeds, and Road Banking Angles",
+    "title": "Highway Curve Safety: How Fast Is Too Fast?",
+    "topic": "Friction as the Centripetal Force & the Fastest Safe Speed (v<sub>max</sub> = √(μ · g · r))",
     "dok": 3,
-    "type": "Engineering Design / Investigation",
+    "type": "Engineering Investigation / CER",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Investigate the physics of highway safety: calculating maximum safe turn speeds without skidding (v_max = √(μ · g · r)) and analyzing how banked turns use the normal force to prevent accidents.",
-    "activity": "Highway Curve Safety Specification Challenge: Students act as transportation safety engineers. Given a highway off-ramp curve of radius r = 50 m and tire-asphalt friction coefficients for dry (μ = 0.8) vs icy (μ = 0.1) conditions, teams calculate maximum non-skid cornering speeds and determine the optimal roadway banking angle θ.",
-    "essentialQuestion": "How do civil engineers use centripetal force and friction limits to design safe roadway curves and speed limits?",
+    "summary": "On a flat curve, friction from the road is the only force turning the car. Friction has a limit. If the car goes too fast, or rain or ice lowers the friction, the tires can't pull hard enough and the car slides off along a tangent line. Today you act as a traffic engineer and choose a safe speed limit.",
+    "activity": "Speed Limit Sign Challenge: A highway off-ramp curves with radius r = 50 m. (1) Start from yesterday's car diagram: friction points toward the center. (2) See where the speed limit comes from: the most friction the road can give is μ · m · g, and setting it equal to m · v² ÷ r gives v<sub>max</sub> = √(μ · g · r). Mass cancels, so a truck and a small car have the same limit (in this simple model). (3) Find the fastest safe speed for three road conditions, either by reading the speed–friction chart or by calculating with stacked steps: dry (μ = 0.8) → 20 m/s ≈ 45 mph; wet (μ = 0.5) → about 16 m/s ≈ 35 mph; icy (μ = 0.1) → about 7 m/s ≈ 16 mph. (4) Choose a posted speed limit with a safety margin and defend it in a short Claim-Evidence-Reasoning (CER). Extension: on a banked curve, part of the road's push points toward the center. Find the bank angle for a 15 m/s design speed with tan θ = v² ÷ (r · g), which gives θ ≈ 24°.",
+    "essentialQuestion": "How do engineers use friction and centripetal force to set safe speed limits on curves, and why do those limits change in rain or ice?",
     "standards": [
       "HS-PS2-1",
       "HS-ETS1-2"
     ],
     "wicor": {
-      "Writing": "Drafting a civil engineering speed limit and roadway banking recommendation report.",
-      "Inquiry": "Deriving the maximum speed equation by equating centripetal force to maximum static friction: m v² / r = μ m g.",
-      "Collaboration": "Engineering design teams calculating safety margins and weather-dependent speed envelopes.",
-      "Organization": "Structuring parametric data tables comparing turning radius vs safe speed across weather conditions.",
-      "Reading": "Interpreting highway geometry schematics and Department of Transportation curvature guidelines."
+      "Writing": "Writing a CER that recommends a posted speed limit and backs it with friction data.",
+      "Inquiry": "Testing how road condition (μ) and curve radius change the fastest safe speed.",
+      "Collaboration": "Engineering teams compare their speed limits and argue for a safety margin.",
+      "Organization": "Building a table of road condition, μ, fastest safe speed (m/s and mph), and chosen limit.",
+      "Reading": "Reading a curve diagram and a speed–friction chart."
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "Why does a car need to slow down when taking a sharp highway curve, and why is this even more critical when the road is wet or icy?",
-      "explanation": "To turn in a circle, the tires must provide a centripetal force F_c = m v² / r. The maximum available force is limited by static friction (F_f = μ m g). If speed is too high or wet pavement lowers μ, the tires cannot provide enough inward force, and the car skids outward tangentially.",
+      "promptQuestion": "Why does a car need to slow down for a sharp curve, and why is slowing down even more important when the road is wet or icy?",
+      "explanation": "To turn, the tires need friction pointing toward the center of the curve. The faster the car goes, the more friction it needs. Wet or icy roads lower μ, so the most friction available drops. If the car needs more friction than the road can give, it slides off along a tangent line.",
       "defaultDuration": 3
     },
-    "links": {
-      "Two-Car Intercept Challenge": "Unit_2/two_car_intercept/index.html",
-      "Rotation Oracle": "Rotation_Oracle/index.html"
-    },
+    "links": {},
     "assignments": [
       {
-        "title": "Highway Curve Safety & Road Banking Report",
-        "typeLabel": "Engineering Design Task",
-        "submission": "Turn In in Classroom",
+        "title": "Speed Limit Sign Challenge",
+        "typeLabel": "Engineering Investigation",
+        "submission": "Turn In to Mr. Mudry",
         "actionLabel": "In-Class Activity Notice",
-        "description": "Calculate maximum curve speeds across friction coefficients and determine optimal road banking angles.",
+        "description": "Find the fastest safe speed on a 50 m curve for dry, wet and icy roads, choose a posted speed limit, and defend it with a CER.",
         "status": "active"
       }
     ],
-    "resources": [
-      {
-        "title": "Two-Car Intercept & Stopping Simulator",
-        "url": "Unit_2/two_car_intercept/index.html",
-        "typeLabel": "Simulation Tool",
-        "description": "Simulate vehicle deceleration, friction coefficients, and roadway stopping dynamics."
-      }
-    ]
+    "resources": []
   },
   {
     "day": 55,
     "date": "2026-11-13",
     "unit": 2,
-    "title": "Unit 2 Comprehensive Summative Assessment",
-    "topic": "Kinematics, Dynamics, 2D Projectiles & Circular Motion Evaluation",
-    "dok": 3,
-    "type": "Assessment",
+    "title": "Spin Art Reward Day & Catch-Up Studio",
+    "topic": "Seeing the Tangent Line: Paint on a Spinning Sheet",
+    "dok": 2,
+    "type": "Reward Activity / Catch-Up Studio",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Comprehensive summative evaluation covering full mechanics mastery: 1D kinematics (graphs, UAM), Newton's laws (inertia, F_net = ma, friction, action-reaction), 2D horizontal and angled projectile motion, and centripetal dynamics.",
-    "activity": "Comprehensive Unit 2 Mechanics Examination: Featuring conceptual diagnostic questions, coordinate graph slope/area calculations, projectile flight predictions, circular FBDs, and multi-step dynamics word problems.",
-    "essentialQuestion": "How effectively can we calculate, model, and justify the motion, interactions, and trajectory of physical systems in one and two dimensions?",
+    "summary": "A reward for finishing the week's work. Spin art stations use buckets with a motor in the base. A square sheet of paper spins on top, and you drop paint onto it while it turns. Watch where the paint goes. It is the same physics as the whirling stopper.",
+    "activity": "Spin Art Stations + Catch-Up Studio: (1) Check your work for Days 50–54. If it is all turned in, you go to the spin art stations. If not, you finish it in the catch-up studio, and you join spin art as soon as it is done. (2) At a station, mount a square sheet on the bucket, start the motor and drop paint near the center. (3) Watch closely: paint near the center stays close to where it landed, but paint near the edge streaks off the sheet. The edge moves faster, so paint there needs more pull to stay in a circle than the paper's grip can give. (4) Turn off the motor before removing your sheet. (5) Exit card: draw your sheet with one arrow showing which way a drop leaves the edge.",
+    "essentialQuestion": "Why does paint leave a spinning sheet along a tangent line instead of flying straight out from the center?",
     "standards": [
-      "HS-PS2-1",
-      "HS-ETS1-2"
+      "HS-PS2-1"
     ],
     "wicor": {
-      "Writing": "Writing formal mathematical derivations, explaining vector conventions, and completing CER responses.",
-      "Inquiry": "Applying 1D, 2D, and circular mechanics principles to novel physical and engineering scenarios.",
-      "Collaboration": "Post-assessment student reflection on personal and classwide mechanics mastery.",
-      "Organization": "Allocating exam time effectively across conceptual, computational, and diagrammatic sections.",
-      "Reading": "Carefully analyzing exam prompts, coordinate conventions, and engineering constraints."
+      "Writing": "Exit card: one sentence and one arrow connecting a paint streak to the tangent line.",
+      "Inquiry": "Comparing where paint stays put and where it streaks, near the center and near the edge.",
+      "Collaboration": "Station partners take turns running the motor and dropping paint.",
+      "Organization": "Checking Days 50–54 work before the reward stations.",
+      "Reading": "Reading the station steps before starting the motor."
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "What is one mechanics concept from Unit 2 that you feel most confident explaining, and what is one concept you want to double-check before beginning the exam?",
-      "explanation": "Metacognitive reflection: Activating prior knowledge across kinematics (speed, velocity, acceleration), Newton's Laws, projectile independence, and centripetal force.",
+      "promptQuestion": "A drop of paint slides off the edge of a spinning sheet of paper. Sketch the sheet from above and draw the path the drop takes after it leaves. Does it go straight out from the center, along a tangent, or in a curve?",
+      "explanation": "Along a tangent. Once the drop leaves the paper, nothing pulls it toward the center anymore, so it keeps going in a straight line in the direction it was moving at that moment (Newton's 1st Law).",
       "defaultDuration": 3
     },
     "links": {
-      "Describing Motion Presentation": "Unit_2/describing-motion-presentation/index.html",
-      "Horizontal Projectile Motion Explorer": "horizontal-projectile-motion/index.html"
+      "Missing Work & Grade Portal": "missing-work.html"
     },
     "assignments": [
       {
-        "title": "Unit 2 Comprehensive Mechanics Examination",
-        "typeLabel": "Summative Exam",
-        "submission": "In-Class Handout",
+        "title": "Spin Art Exit Card",
+        "typeLabel": "Exit Card",
+        "submission": "Turn In to Mr. Mudry",
         "actionLabel": "In-Class Activity Notice",
-        "description": "Comprehensive evaluation covering 1D/2D Kinematics, Newton's Laws of Motion, Projectiles, and Circular Dynamics.",
+        "description": "Draw your spin art sheet from above with one arrow showing the path a paint drop takes when it leaves the edge, and write one sentence explaining it.",
         "status": "active"
       }
     ],
     "resources": [
       {
-        "title": "Unit 2 Comprehensive Mechanics Formula Sheet",
-        "url": "Unit_2/describing-motion-presentation/index.html",
-        "typeLabel": "Formula & Reference Sheet",
-        "description": "Complete physics reference sheet covering 1D UAM, Newton's Laws, 2D Projectiles, and Circular Motion."
+        "title": "Missing Work & Grade Portal",
+        "url": "missing-work.html",
+        "typeLabel": "Grade Portal",
+        "description": "Check which Days 50–54 assignments are still open before spin art."
       }
     ]
   },

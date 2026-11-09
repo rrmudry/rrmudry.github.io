@@ -3,6 +3,25 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-08 — Unit 2 Link & Placeholder Audit (All 55 Days)
+**Files Updated**: `assets/lessons-data.js`, `Unit_2/outline.md`.
+
+**Changes**:
+- Removed the Describing Motion slides where they were relabeled as friction slides (Days 28–29), Newton's 3rd Law slides (Day 36), a unit review deck (Day 39), and an off-topic link on Day 41. That deck covers only vectors, distance and displacement.
+- Fixed Day 40's broken Rocket Phase 2 path (`cardstock_rocket_phase2` → `rocket_phase2`) in the data and the outline.
+- Removed the Fantasy Map vector calculator from Day 26, the constant-speed Two-Car Intercept app from Day 30, Operation Safe Heeler (Unit 4) from Day 39, and a "PDF" on Days 18–19 that actually opened the web app.
+- Removed assignments and resources that had no file behind them (Days 12, 24, 28, 30, 49) and "(Planned In-Class)" placeholders in the outline. Day 21's turn-in now links to the P031 lab PDF.
+- **Audit tip**: check the `practice` array and other URL fields too, not just `links`, `resources` and `assignments`.
+
+## 2026-11-08 — Unit 2 Days 51–55 Rework: Circular Motion, Spin Art & No Placeholder Links
+**Patterns Updated**: `student-app-standards.md` (new section: "Lesson links on dashboards and outlines").
+**Files Updated**: `assets/lessons-data.js`, `Unit_2/outline.md`, `unit2-dashboard.html`.
+
+**Changes**:
+- Rewrote Days 51–55: centripetal acceleration (51), centripetal force stations (52), highway curve speed limits with banking as a Period 0 extension (54), and a spin art reward + catch-up day (55). Removed the comprehensive Unit 2 exam at the teacher's request.
+- Added Weeks 9–11 (Days 41–55) to the outline and synced Day 40 with the dashboard.
+- Removed the Rotation Oracle links (it's a who-goes-first picker, not a physics sim) and every filler link on days whose materials aren't built yet. The Google Slides deck `10-afry9hEiN…` is *Fantasy Map Ideas and Tips*; removed it where it was mislabeled as equilibrium notes (Day 26) and a friction/pavement guide (Day 30). It now appears only on Days 1–4.
+
 ## 2026-11-06 — Day 50 CAST Projectile Data Analysis: Spanish Versions (_ES) & Honors Calibration
 **Patterns Updated**: `low-stress-worksheet-skill.md`, `the-gradest-bubble-scanner.md`.
 **Files Added/Updated**: `Unit_2/worksheets/Day50_Projectile_Data_Analysis_Guided_ES.html` & `.pdf`, `Unit_2/worksheets/Day50_Projectile_Data_Analysis_CP_ES.html` & `.pdf`, `Unit_2/worksheets/Day50_Projectile_Data_Analysis_Honors_ES.html` & `.pdf`, `Unit_2/worksheets/Day50_CAST_CER_Sentence_Starters_ES.html` & `.pdf`, `assets/lessons-data.js`, `partials/footer.html`.

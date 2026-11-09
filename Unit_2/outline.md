@@ -1,6 +1,6 @@
 # Unit 2: 1D Kinematics & Newton's Laws of Motion (Motion and Forces)
 
-**Pacing:** 8 Weeks (40 Instructional Days)  
+**Pacing:** 11 Weeks (55 Days, including 2 no-school days)  
 **Target Audience:** High School Physics (Physics of the Universe / California NGSS)  
 **Core Disciplinary Core Ideas (DCI):** PS2.A: Forces and Motion  
 **Target Performance Expectations:** [HS-PS2-1](https://rrmudry.github.io/ngss-explorer/), [HS-ETS1-2](https://rrmudry.github.io/ngss-explorer/)  
@@ -14,7 +14,9 @@ This unit follows the classical and cognitive progression:
 1. **Part 1: Describing Motion (1D Kinematics — Weeks 1, 2, 3 & 4 | Days 1–20):**  
    Students establish coordinate frames, measure distance and displacement, calculate uniform speed (`v = d / t`), decode position-time (`x-t`) and velocity-time (`v-t`) graphs, geometrically integrate displacement as the area under `v-t`, master uniformly accelerated motion (UAM: `v = v₀ + at`, `x = x₀ + v₀t + ½at²`), analyze free fall under gravity (`a = -10 m/s²`), verify ramp dilution with Galileo's incline lab, solve multi-vehicle intercepts, and complete a mid-unit kinematics milestone checkpoint.
 2. **Part 2: Explaining Motion & Engineering Synthesis (Newtonian Dynamics & Rocketry — Weeks 5, 6, 7 & 8 | Days 21–40):**  
-   With the concept of acceleration firmly grounded, students investigate *why* acceleration occurs. They explore Inertia (Newton's 1st Law), quantify mass as resistance to acceleration, differentiate mass from gravitational weight, construct Free-Body Diagrams (FBDs), analyze mechanical equilibrium (F<sub>net</sub> = 0), empirically verify Newton's 2nd Law (F<sub>net</sub> = m · a) using Atwood track carts, and measure static vs. kinetic friction. In **Week 7**, students synthesize kinematics and dynamics in a hands-on **Cardstock Rocketry Engineering Challenge** (AVID close reading on performance characteristics, precision fabrication, minimum-day QC inspection, outdoor launch telemetry, and apogee kinematics calculations). In **Week 8**, students analyze interaction pairs (Newton's 3rd Law), resolve system boundary paradoxes, engineer vehicle crumple zones, and synthesize unit concepts in a peer gallery walk and summative examination.
+   With the concept of acceleration firmly grounded, students investigate *why* acceleration occurs. They explore Inertia (Newton's 1st Law), quantify mass as resistance to acceleration, differentiate mass from gravitational weight, construct Free-Body Diagrams (FBDs), analyze mechanical equilibrium (F<sub>net</sub> = 0), empirically verify Newton's 2nd Law (F<sub>net</sub> = m · a) using Atwood track carts, and measure static vs. kinetic friction. In **Week 7**, students synthesize kinematics and dynamics in a hands-on **Cardstock Rocketry Engineering Challenge** (AVID close reading on performance characteristics, precision fabrication, minimum-day QC inspection, outdoor launch telemetry, and apogee kinematics calculations). In **Week 8**, students analyze interaction pairs (Newton's 3rd Law), resolve system boundary paradoxes, engineer vehicle crumple zones, and finish their rocket and Hot Wheels projects with a catch-up and re-launch day.
+3. **Part 3: Motion in Two Dimensions (Projectiles & Circular Motion — Weeks 9, 10 & 11 | Days 41–55):**  
+   Students show that horizontal and vertical motion are independent, predict where horizontally launched marbles land, split angled launch velocities into components (v<sub>ox</sub> = v<sub>o</sub> cos θ, v<sub>oy</sub> = v<sub>o</sub> sin θ), find hang time and range, discover complementary launch angles, and analyze projectile data in a CAST-style CER. In **Week 11**, students learn why turning at a steady speed is still acceleration (a<sub>c</sub> = v² ÷ r), name the real force that pulls objects toward the center, set safe highway curve speed limits from friction, and end the unit with a spin art reward day that shows the tangent line in paint. There is no comprehensive unit exam.
 
 ---
 
@@ -238,7 +240,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Zero-G Mass, Weight & Inertia Studio: Students isolate mass as the intrinsic measure of inertia using 3 interactive stations (Volume Chamber, Planetary Scale (Earth, Moon, Mars, Deep Space), and Zero-G Nudge/Catch Chamber), concluding with the 5-question Deep Space Mythbusters Arena (4 / 5 required for certificate).
     *   *Essential Question:* Why would an anvil have the exact same inertia in deep space as it does on Earth, even though its weight in space is zero Newtons?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Lab / Activity
-    *   *Links:* [Zero-G Inertia Studio](Unit_2/mass_weight_studio/index.html), Mass vs. Weight Reference Guide *(Planned In-Class)*
+    *   *Links:* [Zero-G Inertia Studio](Unit_2/mass_weight_studio/index.html)
 
 *   **Day 25 (2026-10-02): Inertia Demonstration & Physics Defense Planner**
     *   *Bell-Ringer:* Inertia Defense & The "Forward Force" Trap (AI Chat): A student planning an inertia demonstration claims a forward force of inertia pushes an occupant into the dashboard during a crash. Explain why calling inertia a "force" is incorrect and how Newton's First Law describes what actually happens.
@@ -261,7 +263,7 @@ This unit follows the classical and cognitive progression:
         *   *Period 0 Honors:* Live Inertia Demonstration Showcase — student pairs execute their engineered physical demonstrations of Newton's First Law (Rest, Motion, or Direction). Classmates act as peer forensic observers, documenting the setup, impulse duration, mass response, and Newton's 1st Law defense on the 2-page Observation Log, verifying that zero forward force acts on the mass.
     *   *Essential Question:* How do virtual dual-pulley experiments and live physical demonstrations prove that zero forward force acts on a body moving at constant velocity?
     *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Performance Task / Interactive Lab
-    *   *Links:* [Newton's 2nd Law Studio (Mastery Arena)](Unit_2/newtons_second_law_studio/index.html), [Inertia Demonstration Peer Observation Log (Period 0 Honors)](Unit_2/worksheets/Inertia_Demonstration_Observation_Log.pdf), [Inertia Demonstration Planner (Student PDF)](Unit_2/worksheets/Inertia_Demonstration_Planner.pdf), [Translational Equilibrium Notes](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), [Vector Calculator App](Unit_2/Vector_displacement_calculator_app/index.html)
+    *   *Links:* [Newton's 2nd Law Studio (Mastery Arena)](Unit_2/newtons_second_law_studio/index.html), [Inertia Demonstration Peer Observation Log (Period 0 Honors)](Unit_2/worksheets/Inertia_Demonstration_Observation_Log.pdf), [Inertia Demonstration Planner (Student PDF)](Unit_2/worksheets/Inertia_Demonstration_Planner.pdf)
 
 *   **Day 27 (2026-10-06): Unbalanced Forces & Newton's Second Law Lab — Part 1: Force vs. Acceleration**
     *   *Bell-Ringer:* Atwood Accelerating Mass (CAST Challenge): A 0.80 kg cart on a frictionless track is pulled by a hanging 0.20 kg mass over a pulley. Calculate the net accelerating force, the total system mass, and the theoretical acceleration of the system.
@@ -277,7 +279,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Demonstration & Interactive Analysis: Slowly increasing tension on a heavy wood block using a force sensor until breakaway, displaying the classic static peak spike followed by the lower, flat kinetic friction plateau.
     *   *Essential Question:* What occurs at the microscopic interface between two solid surfaces when static friction breaks away into kinetic friction?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Demonstration
-    *   *Links:* [Modified Atwood Machine: Hall's Carriage Lab](Unit_2/halls_carriage_lab/index.html), [Science of Friction Presentation](Unit_2/describing-motion-presentation/index.html), Friction Analysis Handout *(Planned In-Class)*
+    *   *Links:* [Modified Atwood Machine: Hall's Carriage Lab](Unit_2/halls_carriage_lab/index.html)
 
 *   **Day 29 (2026-10-08): Friction Block Inquiry Lab: Measuring Friction Coefficients**
     *   *Bell-Ringer:* Friction Coefficient Calculation (CAST Challenge): A 4.0 kg wooden crate requires 16.0 N of horizontal force to slide across a warehouse floor at constant speed. Calculate the normal force, the kinetic friction force, and the coefficient of kinetic friction μ<sub>k</sub>.
@@ -285,7 +287,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Tabletop Friction Coefficient Lab: Teams drag multi-sided wooden friction blocks across lab benches with spring scales, log dynamic pull forces under varying added masses (0.5 kg, 1.0 kg, 1.5 kg), plot F<sub>f</sub> vs F<sub>N</sub>, and extract μ<sub>k</sub> from the regression slope.
     *   *Essential Question:* How do materials scientists determine the friction coefficient between two substances, and why is this value independent of surface area?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Lab
-    *   *Links:* Friction Block Lab Handout *(Planned In-Class)*
+    *   *Links:* None yet
 
 *   **Day 30 (2026-10-09): Student-Designed Traction Investigation & Highway Curve Safety Specification**
     *   *Bell-Ringer:* Emergency Braking on Wet vs. Dry Road (CAST Challenge): A 1,200 kg car traveling at 25 m/s slams on its brakes. On dry asphalt μ<sub>k</sub> = 0.80; on icy wet pavement μ<sub>k</sub> = 0.20. Calculate the deceleration and total stopping distance for both road conditions.
@@ -293,7 +295,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Comparative Traction Protocol & Highway Safety Specification (DOK 4 Extended Investigation): Teams act as highway safety research consultants. Rather than following a step-by-step procedure, teams must: (1) independently formulate and carry out two distinct experimental protocols to measure friction coefficients on road materials (horizontal force sensor drag vs. critical angle of incline slip where μ<sub>s</sub> = tan θ), (2) identify and reconcile discrepancies between the methods by analyzing contact temperature, surface wear, and stick-slip chatter, and (3) synthesize empirical friction coefficients with Newton's 2nd Law and kinematics to calculate stopping distance envelopes and specify safe wet-weather speed limits for a banked mountain highway curve.
     *   *Essential Question:* Why must materials engineers reconcile multiple experimental paradigms and error sources before establishing critical safety specifications for transportation systems?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 4 | *Type:* Engineering Design / Investigation
-    *   *Links:* Highway Safety Engineering Specification *(Planned In-Class)*, [Friction Methodology & Pavement Guide](https://docs.google.com/presentation/d/10-afry9hEiN-b1U_qzE--Z5f7CUKvfde_nuPIWVNJgk/edit?usp=sharing), [Two-Car Intercept Challenge](Unit_2/two_car_intercept/index.html)
+    *   *Links:* None yet
 
 
 ---
@@ -343,8 +345,8 @@ This unit follows the classical and cognitive progression:
 
 ---
 
-### Week 8: Newton's Third Law, Crash Engineering & Unit Summative Assessment
-**Goal:** Explore interaction pairs (Newton's 3rd Law), resolve action-reaction paradoxes, apply impulse and impact forces to vehicle collision safety engineering, and master summative performance goals.
+### Week 8: Newton's Third Law, Crash Engineering & Project Completion
+**Goal:** Explore interaction pairs (Newton's 3rd Law), resolve action-reaction paradoxes, apply impulse and impact forces to vehicle collision safety engineering, and finish the rocket and Hot Wheels projects.
 
 *   **Day 36 (2026-10-19): Newton's Third Law (Action-Reaction Pairs), Cardstock Rocket Phase 2 Kickoff & Hot Wheels Coasting Baseline**
     *   *Bell-Ringer:* Semi-Truck vs. Mosquito Collision (AI Chat): A massive semi-truck traveling down the highway collides with a tiny mosquito hovering in midair. Which experiences the greater impact force during the collision: the truck or the mosquito? Defend your answer using physics.
@@ -352,7 +354,7 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Dual Force Sensor Collisions & Skateboard Recoil: Students pair Vernier force sensors together and record real-time force graphs during collisions, pushes, and pulls between equal and unequal cart masses. *(Periods 1, 2, 3 Hot Wheels Lab Studio)*: Set up 4-piece track launch ramps (propped at 20–30 cm height on a chair/books) curving out across the classroom floor, conduct the 3-car coasting shootout, crown the Champion Car, test added penny weight on the roof to uncover real-world friction and momentum trade-offs, and analyze deceleration (negative acceleration). *(Periods 0, 4, 5, 6 Aerospace Studio)*: Rocket squads form teams (max 3), select their isolated independent variable (fin geometry, fin count, fin offset, fuselage length, nose geometry, or nose ballast mass), formulate pre-flight CER hypotheses, input baseline Rocket A specs, and draft scaled CAD blueprints in the Phase 2 Webapp.
     *   *Essential Question:* When two objects of wildly different masses interact, why MUST the forces they exert on each other be exactly equal in size? (Conceptual EQ: Why do moving cars coast to a stop, and why is slowing down considered negative acceleration? Aerospace EQ: How does systematically isolating exactly one design variable allow engineers to evaluate aerodynamic performance deltas?)
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2`, `HS-ETS1-3` | *DOK:* 3 | *Type:* Direct Instruction / Laboratory Inquiry
-    *   *Links:* [Hot Wheels Coasting Baseline (Periods 1, 2, 3)](Unit_2/hot_wheels_coasting/index.html), [Cardstock Rocket Phase 2 (Periods 0, 4, 5, 6)](Unit_2/rocket_phase2/index.html), [Rocket Flight Forensics (Phase 1)](Unit_2/rocket_recovery/index.html), [Newton's 3rd Law Slides](Unit_2/describing-motion-presentation/index.html)
+    *   *Links:* [Hot Wheels Coasting Baseline (Periods 1, 2, 3)](Unit_2/hot_wheels_coasting/index.html), [Cardstock Rocket Phase 2 (Periods 0, 4, 5, 6)](Unit_2/rocket_phase2/index.html), [Rocket Flight Forensics (Phase 1)](Unit_2/rocket_recovery/index.html)
 
 *   **Day 37 (2026-10-20): Hot Wheels Wind Resistance Lab (P1-3) & Cardstock Rocket Phase 2 (P0, 4-6)**
     *   *Bell-Ringer:* Air Brake & Net Deceleration Force: How does taping an index card air brake to a toy car change the net deceleration force when it coasts into a headwind from a fan? Which forces are opposing its motion?
@@ -378,13 +380,137 @@ This unit follows the classical and cognitive progression:
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2`, `HS-PS2-2` | *DOK:* 3 | *Type:* Lab Launch & Catch-Up Studio
     *   *Links:* [Cardstock Rocket Phase 2 (Periods 0, 4, 5, 6)](Unit_2/rocket_phase2/index.html), [Hot Wheels Wind Resistance (Periods 1, 2, 3)](Unit_2/hot_wheels_air_resistance/index.html), [Hot Wheels Coasting (Periods 1, 2, 3)](Unit_2/hot_wheels_coasting/index.html), [Cardstock Rocket Lab Guide (PDF)](Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf), [Missing Work & Grade Portal](missing-work.html)
 
-*   **Day 40 (2026-10-23): Unit 2 Summative Assessment**
-    *   *Bell-Ringer:* CAST 3D Performance Task: Autonomous Delivery Pod Emergency Braking & Stopping Distance Telemetry (`HS-PS2-1`, `HS-ETS1-2`). Students analyze 800 kg vehicle obstacle braking data, resolve vector signs, calculate 6.0 m/s² deceleration and 4,800 N net force, and defend Newton's 3rd Law road-tire interaction pairs with the AI mentor.
-    *   *Focus:* Comprehensive summative evaluation across 1D Kinematics and Newtonian Dynamics (Days 1–39).
-    *   *Activity:* Unit 2 Summative Examination: 50-minute exam featuring conceptual multiple-choice items, graphical slope and area calculations, FBD construction and equilibrium problem solving, and multi-step F<sub>net</sub> = m · a dynamics-kinematics integration (DOK 1-3).
-    *   *Essential Question:* How effectively can we measure, calculate, model, and explain the motion and interactions of physical systems?
-    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Summative Assessment
-    *   *Links:* Unit 2 Reference Formula Sheet *(Planned In-Class)*
+*   **Day 40 (2026-10-23): Unit 2 Project Completion, Rocket Phase 2 Launch & Catch-Up Day**
+    *   *Focus:* Engineering refinement, telemetry re-testing and lab deliverable completion.
+    *   *Activity:* Project Completion & Final Launch Re-Trials: Outdoor launch pad operations for redesigned cardstock rockets (P0, 4, 5, 6), calculating improved hang-time telemetry and apogee. Indoor lab workbench completion for Hot Wheels wind resistance air brakes and coasting baseline trials (P1, 2, 3). Students audit grades and submit outstanding lab reports.
+    *   *Essential Question:* How do iterative design modifications and empirical re-testing produce measurable performance improvements in physical systems?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2`, `HS-ETS1-3` | *DOK:* 3 | *Type:* Lab Launch & Catch-Up Studio
+    *   *Links:* [Cardstock Rocket Phase 2 (Periods 0, 4, 5, 6)](Unit_2/rocket_phase2/index.html), [Hot Wheels Wind Resistance (Periods 1, 2, 3)](Unit_2/hot_wheels_air_resistance/index.html), [Hot Wheels Coasting (Periods 1, 2, 3)](Unit_2/hot_wheels_coasting/index.html), [Cardstock Rocket Lab Guide (PDF)](Unit_2/worksheets/Cardstock_Rocket_Lab_Guide.pdf), [Missing Work & Grade Portal](missing-work.html)
+
+---
+
+### Week 9: Free Fall, Horizontal Projectiles & Target Labs
+**Goal:** Show that horizontal and vertical motion are independent, connect free-fall time to horizontal range (Δx = v<sub>x</sub> · t), and predict real landing spots in tabletop and ramp target labs.
+
+*   **Day 41 (2026-10-26): Free Fall Foundations & 2D Vector Independence**
+    *   *Bell-Ringer:* A heavy metal ball is dropped from a 1.0 m table. At the same instant, an identical ball is shot horizontally off the table at 15 m/s. Which hits the ground first?
+    *   *Focus:* Free fall at g = 10 m/s², the speed rule (v = 10 · t) and drop rule (Δy = 5 · t²); horizontal motion does not change fall time.
+    *   *Activity:* Book-and-paper drop demo, then the simultaneous drop vs. horizontal launch challenge (listen for one impact sound), confirmed on the Horizontal Projectile Explorer.
+    *   *Essential Question:* How does free fall gravity control the flight time of horizontally launched objects?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Demonstration
+    *   *Links:* [Day 41 Student Follow-Along Worksheet](Unit_2/worksheets/Day41_Student_Follow_Along_Worksheet.html), [Horizontal Projectile Motion Explorer](horizontal-projectile-motion/index.html)
+
+*   **Day 42 (2026-10-27): Horizontal Projectile Mathematics & Target Math**
+    *   *Focus:* Connecting vertical free-fall time to horizontal range (Δx = v<sub>x</sub> · t).
+    *   *Activity:* Two-column T-chart problem solving (x-axis constant speed vs. y-axis free fall), with the Horizontal Projectile Motion Explorer.
+    *   *Essential Question:* How does vertical drop height decide how far an object travels horizontally before impact?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Guided Practice / Problem Solving
+    *   *Links:* [Projectile Target Arena](Unit_2/horizontal_projectile_workbench/index.html), [Impact Velocity & Vector Angle Workbench](Unit_2/impact_velocity_workbench/index.html), [Horizontal Projectile Motion Explorer](horizontal-projectile-motion/index.html)
+
+*   **Day 43 (2026-10-28): Tabletop Marble Launch Lab: The Target Cup Challenge *(Block: Periods 0, 2, 4, 6)***
+    *   *Bell-Ringer:* A marble rolls across a 1.2 m tabletop in 0.6 s. What is its launch speed (v<sub>x</sub>) when it leaves the edge?
+    *   *Focus:* Measuring launch speed on the tabletop and predicting the landing spot blind.
+    *   *Activity:* Teams measure v<sub>x</sub> across the tabletop and the table height (Δy), predict the floor landing spot, tape a target cup there, run one live confirmation drop, and analyze their error.
+    *   *Essential Question:* Can free fall and kinematics models accurately predict where a real projectile lands?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Laboratory Investigation (Block)
+    *   *Links:* [Target Range Solver & Calibration Tool](Unit_2/projectile_target_range/index.html), [Horizontal Projectile Motion Explorer](horizontal-projectile-motion/index.html)
+
+*   **Day 44 (2026-10-29): Horizontal Projectile Marble Ramp Lab: Step-by-Step Build & Target Challenge *(Block: Periods 0, 1, 3, 5)***
+    *   *Bell-Ringer:* Why must the bottom of the cardstock ramp curve smoothly onto the flat tabletop so the marble leaves the edge horizontally?
+    *   *Focus:* Ramp calibration with teacher checkpoint gates and blind target prediction.
+    *   *Activity:* 9-step guided build (fold channels, cut a gentle bottom curve, mount on a chair on the table, tape a floor meter stick, mark the ramp every 10 cm), record landing distance from each mark, then use the calibration graph to hit 3 target rounds. Two Mr. Mudry approval checkpoints.
+    *   *Essential Question:* How can a graph of landing distance vs. release mark predict the release point needed to hit any target?
+    *   *Standards:* `HS-PS2-1`, `HS-PS3-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Laboratory Investigation & Target Challenge (Block)
+    *   *Links:* [Step-by-Step Ramp Lab & Target Graph](Unit_2/projectile_target_range/index.html), [Horizontal Projectile Motion Explorer](horizontal-projectile-motion/index.html)
+
+*   **Day 45 (2026-10-30): Cannon Duel Trajectory Showdown: Angles, Speed & Elevation**
+    *   *Bell-Ringer:* What launch angle sends a cannonball the farthest across flat ground? Why?
+    *   *Focus:* Angled launches, bracketing a target, and adjusting for elevation.
+    *   *Activity:* Partner teams compete in the Cannon Duel simulator, use the Measure tool (Δx and Δy) and "meters short/long" feedback, record 5 shots, compare 35° vs. 55°, and earn sign-offs on their Battle Ticket.
+    *   *Essential Question:* How do launch angle and initial speed combine with target distance and elevation to make a direct hit?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Inquiry / Gamified Challenge
+    *   *Links:* [Cannon Duel Game](Cannon_duel/index.html), [Day 45 Battle Ticket (PDF)](Unit_2/worksheets/Day45_Cannon_Duel_Battle_Ticket.pdf), [Horizontal Projectile Motion Explorer](horizontal-projectile-motion/index.html)
+
+---
+
+### Week 10: Angled Projectiles, Range & CAST Data Analysis (4-Day Week)
+**Goal:** Split angled launch velocities into components, find hang time and range, discover complementary angles, and argue from projectile data in a CAST-style CER.
+
+*   **Day 46 (2026-11-02): Angled Projectiles: Resolving Initial Velocity Vectors**
+    *   *Bell-Ringer:* A soccer ball is kicked at 20 m/s at 30° above horizontal (sin 30° = 0.50, cos 30° = 0.87). What are its initial horizontal and vertical velocities?
+    *   *Focus:* v<sub>ox</sub> = v<sub>o</sub> cos θ and v<sub>oy</sub> = v<sub>o</sub> sin θ.
+    *   *Activity:* Build right triangles from launch vectors and calculate starting horizontal and vertical velocities; see how angle trades horizontal speed for height.
+    *   *Essential Question:* How does trigonometry turn diagonal motion into two simple 1D problems?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Direct Instruction / Guided Practice
+    *   *Links:* [Projectile Motion 2 angles (Slides)](https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQBKUM90s6lPRpagPMzhMbp8AePjnyBo_L_in6NdwpD72NQ?e=fhfaOC), [Angled Projectiles Guided Notes (PDF)](Unit_2/worksheets/Day46_Angled_Projectiles_Guided_Notes.pdf), [Vector Decomposition Studio](Unit_2/vector_decomposition_studio/index.html), [Interactive Projectile Motion Tutorial](interactive-projectile-motion-tutorial/index.html)
+
+*   **Day 47 (2026-11-03): Student-Free Day / Staff Development (No School)**
+
+*   **Day 48 (2026-11-04): Projectile Range Studio**
+    *   *Bell-Ringer:* A baseball is hit straight up at 30 m/s. How long until it reaches the top, and what is its vertical velocity there?
+    *   *Focus:* Vertical velocity at the peak, hang time and range.
+    *   *Activity:* Projectile Range Studio: step through a flight second by second, find hang time and landing distance, and complete the retakeable Mastery Check.
+    *   *Essential Question:* Why must vertical velocity be zero at the top of the arc, and how does that unlock the whole flight?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Interactive Studio & Practice
+    *   *Links:* [Projectile Range Studio](Unit_2/projectile_range_studio/index.html), [Interactive Projectile Motion Tutorial](interactive-projectile-motion-tutorial/index.html)
+
+*   **Day 49 (2026-11-05): Complementary Launch Angles & Range Maximization Studio**
+    *   *Bell-Ringer:* A water cannon at 30° lands 40 m away. What other angle, at the same speed, lands at 40 m? Which stays in the air longer?
+    *   *Focus:* Angles that add to 90° give the same range on level ground.
+    *   *Activity:* Test angle pairs (15°/75°, 30°/60°, 20°/70°) in the simulators and explain the trade-off between horizontal speed and hang time; Monkey Hunter Studio.
+    *   *Essential Question:* Why do 30° and 60° land in the same spot on level ground?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Inquiry / Simulation Studio
+    *   *Links:* [Interactive Projectile Motion Tutorial](interactive-projectile-motion-tutorial/index.html), [Artillery Duel Game](Cannon_duel/index.html), [Projectile Range Studio](Unit_2/projectile_range_studio/index.html), [Monkey Hunter Studio](Unit_2/monkey_hunter_studio/index.html)
+
+*   **Day 50 (2026-11-06): Projectile Motion Wrap-Up: CAST Data Analysis & CER**
+    *   *Bell-Ringer:* What are the two most important rules for solving any projectile motion problem?
+    *   *Focus:* Reading projectile data tables and graphs, slope as flight time, and complementary angle evidence.
+    *   *Activity:* Differentiated CAST investigation packets (Form A, Form B, Honors, plus Spanish editions): range-vs-speed graphs where slope = flight time, range-vs-angle arches peaking at 45°, and a structured CER.
+    *   *Essential Question:* How can data tables and multi-series graphs reveal the trade-off between horizontal speed and hang time?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 3 | *Type:* Data Analysis / CAST Synthesis
+    *   *Links:* [Form A (PDF)](Unit_2/worksheets/Day50_Projectile_Data_Analysis_Guided.pdf), [Form B (PDF)](Unit_2/worksheets/Day50_Projectile_Data_Analysis_CP.pdf), [Honors (PDF)](Unit_2/worksheets/Day50_Projectile_Data_Analysis_Honors.pdf), [CER Sentence Starters (PDF)](Unit_2/worksheets/Day50_CAST_CER_Sentence_Starters.pdf), Spanish editions alongside each
+
+---
+
+### Week 11: Circular Motion & Spin Art (4-Day Week)
+**Goal:** Show that turning at a steady speed is acceleration toward the center, name the real force that provides it, apply friction limits to highway curve safety, and see the tangent line in spin art. No comprehensive unit exam.
+
+*   **Day 51 (2026-11-09): Circular Motion: Why Turning Means Accelerating**
+    *   *Bell-Ringer:* A racecar drives around a circular track at a steady 50 mph. Is it accelerating? Why or why not?
+    *   *Focus:* Velocity has direction; the velocity arrow is tangent to the circle; acceleration points to the center; a<sub>c</sub> = v² ÷ r.
+    *   *Activity:* Whirling stopper demo with a sketched prediction before release (the stopper leaves along the tangent, not straight out). Draw velocity and acceleration arrows at four points on a circle. Find the patterns in a speed–radius table (2× speed → 4× a<sub>c</sub>; 2× radius → ½ a<sub>c</sub>). Practice a<sub>c</sub> = v² ÷ r with stacked steps (20 m/s on a 50 m curve → 8 m/s²).
+    *   *Differentiation:* Periods 1–3: arrow diagrams and reading the patterns off the table, with no calculation required (the support stays unlabeled). Periods 4–6: one-step a<sub>c</sub> calculations, stacked. Period 0: also v = 2πr ÷ T from lap time.
+    *   *Essential Question:* How can an object be accelerating if its speedometer reading never changes?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Demonstration / Guided Practice
+    *   *Links:* None yet (handout not built)
+
+*   **Day 52 (2026-11-10): Centripetal Force: What Does the Pulling?**
+    *   *Bell-Ringer:* When a car turns sharply left, passengers feel pushed right against the door. What real force acts on them, and why do they feel pushed?
+    *   *Focus:* "Centripetal" names a direction, not a new force. Name the real force toward the center; F<sub>net</sub> = m · v² ÷ r.
+    *   *Activity:* Four stations, each with a pictorial diagram and a free-body diagram side by side: tetherball (tension), car on a flat curve (road friction on tires), Moon around Earth (gravity), washer spin cycle (drum wall's normal force; water escapes along tangents). Calculate the net force needed (1,000 kg car, 20 m/s, 50 m curve → 8,000 N of friction).
+    *   *Differentiation:* Periods 1–3: name the force and draw the arrow toward the center, plus a "more speed needs more pull" table. Periods 4–6: one-step F<sub>net</sub> calculations. Period 0: work backward from a rope's breaking force to the fastest safe speed.
+    *   *Essential Question:* What real force keeps an object on a curved path, and what happens the moment that force disappears?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Guided Practice / Force Diagrams
+    *   *Links:* None yet (handout not built)
+
+*   **Day 53 (2026-11-11): Veterans Day (No School)**
+
+*   **Day 54 (2026-11-12): Highway Curve Safety: How Fast Is Too Fast?**
+    *   *Bell-Ringer:* Why does a car need to slow down for a sharp curve, and why is that even more important on wet or icy roads?
+    *   *Focus:* On a flat curve, friction is the centripetal force. Most friction available = μ · m · g, so v<sub>max</sub> = √(μ · g · r). Mass cancels.
+    *   *Activity:* Speed Limit Sign Challenge on a 50 m off-ramp: dry (μ = 0.8) → 20 m/s ≈ 45 mph; wet (μ = 0.5) → about 16 m/s ≈ 35 mph; icy (μ = 0.1) → about 7 m/s ≈ 16 mph. Choose a posted limit with a safety margin and defend it in a CER.
+    *   *Differentiation:* Periods 1–3: read fastest safe speeds off a speed–friction chart (no square roots or division), then choose and defend the sign. Periods 4–6: calculate v<sub>max</sub> with stacked steps for each road condition. Period 0 (required): banked curve, tan θ = v² ÷ (r · g) for a 15 m/s design speed → θ ≈ 24°.
+    *   *Essential Question:* How do engineers use friction and centripetal force to set safe speed limits on curves, and why do those limits change in rain or ice?
+    *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Engineering Investigation / CER
+    *   *Links:* None yet (handout not built)
+
+*   **Day 55 (2026-11-13): Spin Art Reward Day & Catch-Up Studio**
+    *   *Bell-Ringer:* A paint drop slides off the edge of a spinning sheet. Sketch it from above: does the drop go straight out from the center, along a tangent, or in a curve?
+    *   *Focus:* Seeing the tangent line: nothing pulls the drop toward the center once it leaves, so it goes straight (Newton's 1st Law). The edge moves faster, so paint there needs more pull than the paper's grip can give.
+    *   *Activity:* Students who have finished Days 50–54 go to the spin art stations (5-gallon buckets with motors in the base, square sheets mounted on top, paint dropped while spinning). Everyone else works in the catch-up studio with teacher conferencing and joins spin art once they're finished. Exit card: sketch the sheet with one arrow showing a drop's path off the edge, plus one sentence.
+    *   *Essential Question:* Why does paint leave a spinning sheet along a tangent line instead of flying straight out from the center?
+    *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Reward Activity / Catch-Up Studio
+    *   *Links:* [Missing Work & Grade Portal](missing-work.html)
 
 ---
 
@@ -397,3 +523,5 @@ This unit follows the classical and cognitive progression:
 *   **Force & Newton's 2nd Law:** Low-friction dynamics carts, track pulleys, braided nylon string, slotted hanging masses (10g - 100g), dual spring scales (0-5N, 0-10N), Vernier/smart force sensors (if available).
 *   **Friction Exploration:** Wooden friction blocks with felt/sandpaper/bare faces, standard 500g bar weights, spring scales (0-5N, 0-10N).
 *   **Crash Safety Engineering:** Cardboard bumpers, foam padding, egg collision carts, dynamics carts, force sensors.
+*   **Projectile Labs:** Marbles, cardstock ramp strips, meter sticks, floor tape, target cups, stopwatches.
+*   **Circular Motion & Spin Art:** Rubber stopper on a string, 5-gallon bucket spinners with base motors, square paper sheets, squeeze bottles of paint, aprons, drop cloths, a drying rack.

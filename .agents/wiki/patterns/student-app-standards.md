@@ -1,7 +1,7 @@
 # Student App Standards (How We Build for This Class)
 
 > **Tags**: `standards`, `pedagogy`, `differentiation`, `notation`, `desmos`, `firestore`, `checklist`
-> **Last Updated**: 2026-11-03
+> **Last Updated**: 2026-11-08
 
 The teaching standards every student-facing app, worksheet and lesson follows. These came from the teacher's reviews of real apps. To check a finished app against them, use the "Definition of Done" in `.agent/workflows/create-student-webapp.md`.
 
@@ -64,6 +64,11 @@ Classes come from `roster/{id}.class_period`:
 - **The default grade** is points for the guided parts plus a Mastery Check. The best score counts and is never lowered.
 - **Certificate:** a PDF for finishing every part and scoring 75% or higher on the Mastery Check. Signed-in students only. Reference: `Unit_2/projectile_range_studio/js/certificate.js`.
 - **Teacher monitor:** progress is visible only to teacher accounts, enforced by `firestore.rules`.
+
+## Lesson links on dashboards and outlines
+- **Only link materials that exist and were made for that lesson.** If a day's worksheet, slides or app isn't built yet, leave `links` and `resources` empty in `assets/lessons-data.js` and write "None yet" in the outline. Never fill the gap with a loosely related app or an older deck.
+- **Check what a link actually opens before reusing it.** Labels copied from older entries can be wrong. For example, the Google Slides deck `10-afry9hEiN…` is *Fantasy Map Ideas and Tips* (Unit 2 Day 1), not friction or equilibrium notes.
+- **The first link becomes an embedded preview** in the dashboard's lesson modal, so a wrong link shows up front and center.
 
 ## Reference apps
 - `Unit_2/projectile_range_studio/`: three-class lesson, Back, stacked math, certificate, monitor.
