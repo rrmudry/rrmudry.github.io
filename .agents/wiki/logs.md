@@ -3,6 +3,14 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-08 — Day 51 Uniform Circular Motion Guided Notes & In-Class Handout
+**Patterns Updated**: `low-stress-worksheet-skill.md`.
+**Files Added/Updated**: `Unit_2/worksheets/Day51_Uniform_Circular_Motion_Guided_Notes.html`, `Unit_2/worksheets/Day51_Uniform_Circular_Motion_Guided_Notes.pdf`, `assets/lessons-data.js`, `unit2-dashboard.html`, `Unit_2/outline.md`, `partials/footer.html`.
+
+**Changes**:
+- Created a 2-page follow-along guided notes handout (`Day51_Uniform_Circular_Motion_Guided_Notes.pdf` and `.html`) aligned to Slides 1–50 of `Uniform Circular Motion Basics 2022.pptx`.
+- Linked the SharePoint presentation deck and configured `Unit_2/worksheets/Day51_Uniform_Circular_Motion_Guided_Notes.pdf` as the active Day 51 **In-Class Handout** in `assets/lessons-data.js` and `Unit_2/outline.md`, and refreshed the cache-busting query string on `unit2-dashboard.html`.
+
 ## 2026-11-08 — Centripetal Acceleration Workshop (Day 51)
 **Patterns Added**: `centripetal-acceleration-workshop.md`.
 **Files Added**: `Unit_2/centripetal_workshop/` (src.html, js/, css/, built index.html), `admin/centripetal_workshop_monitor.src.html` + built page, `scripts/inline-studio.js`, `tests/centripetalWorkshop.test.js`. **Updated**: `admin/index.html` (monitor card).

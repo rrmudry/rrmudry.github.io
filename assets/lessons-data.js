@@ -5405,7 +5405,9 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
-      "Centripetal Acceleration Workshop": "Unit_2/centripetal_workshop/index.html"
+      "Centripetal Acceleration Workshop": "Unit_2/centripetal_workshop/index.html",
+      "Uniform Circular Motion Basics.pptx": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQBihhGMjiY6QpSCeM6cZ9tzAcZKlVS7kJoyM1Wu4aDx-Sk?e=itXLmT",
+      "Uniform Circular Motion Guided Notes (In-Class Handout)": "Unit_2/worksheets/Day51_Uniform_Circular_Motion_Guided_Notes.pdf"
     },
     "assignments": [
       {
@@ -5416,17 +5418,23 @@ const lessonsData = [
         "actionLabel": "Launch Centripetal Workshop",
         "description": "See why turning at a steady speed is still accelerating, watch a let-go stopper fly along the tangent, find which way a<sub>c</sub> points, then how big it is. Progress saves automatically. Due Monday, Nov 9 at 6:00 PM.",
         "status": "active"
-      },
-      {
-        "title": "Circular Motion Arrows & Acceleration Practice",
-        "typeLabel": "In-Class Handout",
-        "submission": "Turn In to Mr. Mudry",
-        "actionLabel": "In-Class Activity Notice",
-        "description": "Draw velocity and acceleration arrows at four points on a circle, then find centripetal acceleration for three cars on curves using stacked steps.",
-        "status": "active"
       }
     ],
-    "resources": []
+    "resources": [
+      {
+        "title": "Uniform Circular Motion Basics (PPTX)",
+        "url": "https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQBihhGMjiY6QpSCeM6cZ9tzAcZKlVS7kJoyM1Wu4aDx-Sk?e=itXLmT",
+        "typeLabel": "Classroom Slides (PPTX)",
+        "description": "Presentation slide deck covering circular motion, velocity tangent vectors, center-directed acceleration, and a_c = v² / r."
+      },
+      {
+        "title": "Uniform Circular Motion Guided Notes (In-Class Handout)",
+        "url": "Unit_2/worksheets/Day51_Uniform_Circular_Motion_Guided_Notes.pdf",
+        "typeLabel": "In-Class Handout",
+        "description": "Two-page follow-along handout for Slides 1–50: rotation vs. revolution, rotational speed (RPM) vs. tangential speed, two ways to accelerate, velocity/force/acceleration vectors on a circle, and the three circular motion formulas (v = 2πr / t, a = v² / r, F = m v² / r).",
+        "status": "active"
+      }
+    ]
   },
   {
     "day": 52,

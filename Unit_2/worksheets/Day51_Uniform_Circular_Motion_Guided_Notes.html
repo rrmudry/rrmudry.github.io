@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 51: Uniform Circular Motion Follow-Along Guided Notes (Slides 1–50)</title>
+  <style>
+    @page {
+      size: letter portrait;
+      margin: 0.28in 0.40in;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 9.5pt;
+      line-height: 1.32;
+      color: #0f172a;
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+      font-variant-numeric: normal;
+      font-feature-settings: "zero" 0;
+    }
+
+    /* Screen preview presentation */
+    @media screen {
+      body {
+        background: #cbd5e1;
+        padding: 24px 12px 40px 12px;
+      }
+      .worksheet-page {
+        width: 8.5in;
+        height: 11in;
+        max-height: 11in;
+        padding: 0.28in 0.40in;
+        margin: 0 auto 28px auto;
+        background: #ffffff;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+        border-radius: 4px;
+      }
+    }
+
+    /* Strict 2-page print budget */
+    .worksheet-page {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      background: #ffffff;
+      page-break-after: always;
+      break-after: page;
+    }
+
+    .worksheet-page:last-child {
+      page-break-after: avoid;
+      break-after: auto;
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+        margin: 0;
+        padding: 0;
+      }
+      .print-toolbar {
+        display: none !important;
+      }
+      .worksheet-page {
+        width: 100%;
+        height: 10.40in;
+        max-height: 10.40in;
+        padding: 0;
+        margin: 0;
+        box-shadow: none;
+      }
+    }
+
+    /* Screen-only Print Toolbar */
+    .print-toolbar {
+      position: fixed;
+      top: 14px;
+      right: 18px;
+      z-index: 1000;
+      display: flex;
+      gap: 8px;
+    }
+
+    .print-btn {
+      background: #0f172a;
+      color: #ffffff;
+      border: 1.5px solid #0f172a;
+      padding: 9px 16px;
+      font-size: 10pt;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+    }
+
+    .print-btn:hover {
+      background: #1e293b;
+    }
+
+    /* Math variable typography (No LaTeX, unslashed zeros, clean subscripts) */
+    .mv {
+      font-family: Georgia, "Cambria Math", "Times New Roman", serif;
+      font-style: italic;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .mv sub, .mv sup {
+      font-style: italic;
+      font-size: 0.74em;
+      line-height: 0;
+    }
+
+    .mnum {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-style: normal;
+      font-weight: 700;
+      font-variant-numeric: normal;
+      font-feature-settings: "zero" 0;
+    }
+
+    /* Clean vertical stacked fraction */
+    .vfrac {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      vertical-align: middle;
+      margin: 0 3px;
+      line-height: 1.05;
+    }
+
+    .vfrac .num {
+      border-bottom: 1.6px solid #0f172a;
+      padding: 0 5px 2px 5px;
+      text-align: center;
+      min-width: 22px;
+    }
+
+    .vfrac .den {
+      padding: 2px 5px 0 5px;
+      text-align: center;
+      min-width: 22px;
+    }
+
+    /* Page 1 Header */
+    .sheet-header {
+      border-bottom: 2.2px solid #0f172a;
+      padding-bottom: 5px;
+      margin-bottom: 7px;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 5px;
+    }
+
+    .header-title {
+      font-size: 14.2pt;
+      font-weight: 900;
+      color: #0f172a;
+      margin: 0;
+      letter-spacing: -0.015em;
+      line-height: 1.12;
+    }
+
+    .header-sub {
+      font-size: 8.2pt;
+      font-weight: 700;
+      color: #334155;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-top: 2px;
+    }
+
+    .ngss-pill {
+      font-size: 8pt;
+      font-weight: 800;
+      border: 1.5px solid #0f172a;
+      background: #f8fafc;
+      padding: 2.5px 8px;
+      border-radius: 5px;
+      white-space: nowrap;
+    }
+
+    .student-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      font-size: 9.4pt;
+      font-weight: 700;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .write-line {
+      display: inline-block;
+      border-bottom: 1.5px solid #0f172a;
+      height: 15px;
+      vertical-align: baseline;
+    }
+
+    /* Page 2 Compact Single-Line Running Header */
+    .running-header {
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 4px;
+      margin-bottom: 7px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 8.8pt;
+      font-weight: 800;
+      color: #0f172a;
+      white-space: nowrap;
+    }
+
+    /* Atomic Section Cards */
+    .note-card {
+      border: 1.5px solid #0f172a;
+      border-radius: 7px;
+      background: #ffffff;
+      overflow: hidden;
+      break-inside: avoid;
+      page-break-inside: avoid;
+      margin-bottom: 7px;
+    }
+
+    .card-header {
+      background: #f1f5f9;
+      border-bottom: 1.4px solid #0f172a;
+      padding: 4px 11px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title {
+      font-size: 9.6pt;
+      font-weight: 900;
+      color: #0f172a;
+      letter-spacing: 0.01em;
+    }
+
+    .slide-tag {
+      font-size: 7.6pt;
+      font-weight: 800;
+      color: #334155;
+      background: #ffffff;
+      border: 1.2px solid #475569;
+      padding: 1px 7px;
+      border-radius: 99px;
+      white-space: nowrap;
+    }
+
+    .card-body {
+      padding: 7px 11px;
+    }
+
+    /* Two-column prompt lines (strict no-wrap badge group) */
+    .prompt-line {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 5px;
+    }
+
+    .prompt-badge-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    .verb-badge {
+      background: #0f172a;
+      color: #ffffff;
+      font-size: 7.4pt;
+      font-weight: 800;
+      padding: 1px 5.5px;
+      border-radius: 3px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .prompt-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Fill-in blanks & boxes */
+    .blank-line {
+      display: inline-block;
+      border-bottom: 1.5px solid #0f172a;
+      min-width: 1.1in;
+      height: 15px;
+      margin: 0 3px;
+      vertical-align: baseline;
+    }
+
+    .choice-pill {
+      display: inline-block;
+      border: 1.4px solid #0f172a;
+      border-radius: 99px;
+      padding: 0.5px 8px;
+      font-size: 8.4pt;
+      font-weight: 800;
+      margin: 0 2px;
+      background: #ffffff;
+      white-space: nowrap;
+    }
+
+    .sub-box {
+      border: 1.2px solid #cbd5e1;
+      border-radius: 5px;
+      padding: 5.5px 9px;
+      background: #f8fafc;
+    }
+
+    .frac-slot {
+      display: inline-block;
+      width: 0.54in;
+      height: 0.25in;
+      border: 1.4px dashed #334155;
+      border-radius: 4px;
+      background: #ffffff;
+      vertical-align: middle;
+    }
+
+    /* Footer */
+    .page-footer {
+      border-top: 1.4px solid #cbd5e1;
+      padding-top: 3px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 7.8pt;
+      font-weight: 700;
+      color: #475569;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="print-toolbar">
+    <button class="print-btn" onclick="window.print()">🖨️ Print Guided Notes (2 Pages)</button>
+  </div>
+
+  <!-- =====================================================================
+       PAGE 1: ROTATION, REVOLUTION, SPEED & CENTRIPETAL INTRO (SLIDES 1–24)
+       ===================================================================== -->
+  <div class="worksheet-page">
+    <div>
+      <!-- Header -->
+      <header class="sheet-header">
+        <div class="header-top">
+          <div>
+            <h1 class="header-title">Uniform Circular Motion: Follow-Along Notes</h1>
+            <div class="header-sub">Unit 2: Circular Motion &bull; Day 51 Lecture Notes (Slides 1&ndash;50)</div>
+          </div>
+          <div class="ngss-pill">NGSS HS-PS2-1 &bull; Page 1 of 2</div>
+        </div>
+        <div class="student-meta">
+          <div class="meta-item" style="flex: 1.6;">
+            <span>Name:</span>
+            <span class="write-line" style="flex: 1;"></span>
+          </div>
+          <div class="meta-item" style="flex: 0.6;">
+            <span>Period:</span>
+            <span class="write-line" style="flex: 1;"></span>
+          </div>
+          <div class="meta-item" style="flex: 0.8;">
+            <span>Date:</span>
+            <span class="write-line" style="flex: 1;"></span>
+          </div>
+        </div>
+      </header>
+
+      <!-- PART 1: REVIEW QUESTION (SLIDES 2 & 18) -->
+      <section class="note-card">
+        <div class="card-header">
+          <span class="card-title">Warm-Up Review: Units of Force</span>
+          <span class="slide-tag">Slides 2 &amp; 18</span>
+        </div>
+        <div class="card-body">
+          <div class="prompt-line" style="margin-bottom: 5px;">
+            <span class="prompt-badge-group"><span>&#9744;</span><span class="verb-badge">IDENTIFY</span></span>
+            <div class="prompt-body">
+              <strong>Review Question:</strong> What are the units for each of the following forces?
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px 16px; padding: 4px 8px; background: #f8fafc; border: 1.2px solid #cbd5e1; border-radius: 5px;">
+            <div>&bull; Force of a <strong>push</strong>: <span class="blank-line" style="min-width: 1.35in;"></span></div>
+            <div>&bull; Force of <strong>friction</strong>: <span class="blank-line" style="min-width: 1.35in;"></span></div>
+            <div>&bull; Force of a <strong>pull</strong>: <span class="blank-line" style="min-width: 1.35in;"></span></div>
+            <div>&bull; Force of <strong>gravity</strong>: <span class="blank-line" style="min-width: 1.35in;"></span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PART 2: CIRCULAR MOVEMENT — ROTATION VS. REVOLUTION (SLIDES 3–12) -->
+      <section class="note-card">
+        <div class="card-header">
+          <span class="card-title">Part 1: Circular Movement &mdash; Rotation vs. Revolution</span>
+          <span class="slide-tag">Slides 3&ndash;12</span>
+        </div>
+        <div class="card-body">
+          <!-- Row A: Axis, Rotation, Revolution boxes -->
+          <div style="display: grid; grid-template-columns: 1.05fr 1fr 1fr; gap: 7px; margin-bottom: 7px;">
+            <div class="sub-box">
+              <div style="font-weight: 900; font-size: 8.8pt; margin-bottom: 2px;">Circular Movement (Slide 3)</div>
+              <div style="margin-bottom: 3px;">
+                &bull; <strong>Axis:</strong> A straight <span class="blank-line" style="min-width: 0.65in;"></span> around which an object rotates.
+              </div>
+              <div>
+                &bull; <strong>Rotation:</strong> The motion of an object as it turns about its <span class="blank-line" style="min-width: 0.6in;"></span>.
+              </div>
+            </div>
+
+            <div class="sub-box">
+              <div style="font-weight: 900; font-size: 8.8pt; margin-bottom: 2px;">ROTATION (Slides 4&ndash;5)</div>
+              <div style="margin-bottom: 3px;">
+                &bull; Spinning around <span class="blank-line" style="min-width: 0.95in;"></span>.
+              </div>
+              <div style="font-size: 8.4pt; color: #334155;">
+                <strong>What else rotates? (Slide 9):</strong><br>
+                1. <span class="blank-line" style="min-width: 1.45in; height: 14px;"></span><br>
+                2. <span class="blank-line" style="min-width: 1.45in; height: 14px;"></span>
+              </div>
+            </div>
+
+            <div class="sub-box">
+              <div style="font-weight: 900; font-size: 8.8pt; margin-bottom: 2px;">REVOLUTION (Slides 5&ndash;6)</div>
+              <div style="margin-bottom: 3px;">
+                &bull; Moving around <span class="blank-line" style="min-width: 0.95in;"></span>.
+              </div>
+              <div style="font-size: 8.4pt; color: #334155;">
+                <strong>What else revolves? (Slide 11):</strong><br>
+                1. <span class="blank-line" style="min-width: 1.45in; height: 14px;"></span><br>
+                2. <span class="blank-line" style="min-width: 1.45in; height: 14px;"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row B: Earth & Propeller + Slide 12 Sentence -->
+          <div style="display: grid; grid-template-columns: 132px 1fr; gap: 10px; align-items: center;">
+            <!-- Propeller SVG Diagram matching Slides 7, 8, 10, 13, 14 -->
+            <div style="border: 1.2px solid #cbd5e1; border-radius: 5px; padding: 3px; background: #ffffff; text-align: center;">
+              <svg viewBox="0 0 150 112" width="100%" height="94" style="display: block;">
+                <!-- Outer, Middle, Inner concentric paths -->
+                <circle cx="75" cy="52" r="44" fill="none" stroke="#94a3b8" stroke-width="1.1" stroke-dasharray="3,2"/>
+                <circle cx="75" cy="52" r="30" fill="none" stroke="#94a3b8" stroke-width="1.1" stroke-dasharray="3,2"/>
+                <circle cx="75" cy="52" r="17" fill="none" stroke="#94a3b8" stroke-width="1.1" stroke-dasharray="3,2"/>
+                <!-- Propeller Blades -->
+                <ellipse cx="44" cy="52" rx="27" ry="5" fill="#cbd5e1" stroke="#0f172a" stroke-width="1.4"/>
+                <ellipse cx="106" cy="52" rx="27" ry="5" fill="#cbd5e1" stroke="#0f172a" stroke-width="1.4"/>
+                <!-- Center Hub / Axis -->
+                <circle cx="75" cy="52" r="5.5" fill="#ffffff" stroke="#0f172a" stroke-width="1.8"/>
+                <circle cx="75" cy="52" r="2" fill="#0f172a"/>
+                <!-- Points A, B, C -->
+                <circle cx="92" cy="52" r="2.5" fill="#b91c1c"/>
+                <text x="89" y="45" font-size="9.5" font-weight="900" fill="#b91c1c" font-family="sans-serif">A</text>
+                <circle cx="105" cy="52" r="2.5" fill="#b91c1c"/>
+                <text x="102" y="45" font-size="9.5" font-weight="900" fill="#b91c1c" font-family="sans-serif">B</text>
+                <circle cx="119" cy="52" r="2.5" fill="#b91c1c"/>
+                <text x="121" y="47" font-size="9.5" font-weight="900" fill="#b91c1c" font-family="sans-serif">C</text>
+                <!-- 2500 RPM labels -->
+                <text x="75" y="75" text-anchor="middle" font-size="7" font-weight="800" fill="#334155" font-family="sans-serif">2500 RPM</text>
+                <text x="75" y="107" text-anchor="middle" font-size="8" font-weight="800" fill="#0f172a" font-family="sans-serif">Propeller (Slides 7&ndash;14)</text>
+              </svg>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+              <div>
+                <strong>&bull; Slide 6 (Earth):</strong> The Earth is <span class="blank-line" style="min-width: 1.1in;"></span> as it <span class="blank-line" style="min-width: 1.1in;"></span> around the sun!
+              </div>
+              <div>
+                <strong>&bull; Slides 7&ndash;10 (Propeller):</strong> The whole propeller <span class="blank-line" style="min-width: 0.95in;"></span>, while Points <strong>A</strong>, <strong>B</strong>, and <strong>C</strong> <span class="blank-line" style="min-width: 0.95in;"></span> around the axis of the propeller.
+              </div>
+              <div style="background: #f8fafc; border: 1.2px solid #cbd5e1; border-radius: 5px; padding: 4px 8px; font-size: 9pt;">
+                <strong>&#9744; Complete the Sentence (Slide 12):</strong><br>
+                <span class="blank-line" style="min-width: 0.9in;"></span>, <span class="blank-line" style="min-width: 0.9in;"></span>, and <span class="blank-line" style="min-width: 0.9in;"></span> are all objects that <strong>rotate</strong> on their axis; while <span class="blank-line" style="min-width: 0.9in;"></span>, <span class="blank-line" style="min-width: 0.9in;"></span>, and <span class="blank-line" style="min-width: 0.9in;"></span> <strong>revolve</strong> around the axis of another object.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PART 3: WHICH POINT MOVES FASTEST? ROTATIONAL VS TANGENTIAL SPEED (SLIDES 13–17) -->
+      <section class="note-card">
+        <div class="card-header">
+          <span class="card-title">Part 2: Rotational Speed vs. Tangential Speed</span>
+          <span class="slide-tag">Slides 13&ndash;17</span>
+        </div>
+        <div class="card-body">
+          <div class="prompt-line">
+            <span class="prompt-badge-group"><span>&#9744;</span><span class="verb-badge">PREDICT</span></span>
+            <div class="prompt-body">
+              <strong>Slide 13:</strong> Which point on the propeller is moving the fastest? &nbsp;<span class="choice-pill">Point A</span> <span class="choice-pill">Point B</span> <span class="choice-pill">Point C</span>
+            </div>
+          </div>
+          <div class="prompt-line" style="margin-bottom: 6px;">
+            <span class="prompt-badge-group"><span>&#9744;</span><span class="verb-badge">EXPLAIN</span></span>
+            <div class="prompt-body">
+              <strong>Slide 14:</strong> Because Point <span class="blank-line" style="min-width: 0.35in;"></span> travels a <span class="blank-line" style="min-width: 0.95in;"></span> distance, in the <span class="blank-line" style="min-width: 0.8in;"></span> amount of time, Point <span class="blank-line" style="min-width: 0.35in;"></span> is traveling the fastest.
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div class="sub-box">
+              <div style="font-weight: 900; font-size: 9pt; margin-bottom: 2px;">Rotational Speed (Slides 15&ndash;17)</div>
+              <div style="margin-bottom: 3px;">
+                &bull; Definition: The number of <span class="blank-line" style="min-width: 0.95in;"></span> per second or minute.
+              </div>
+              <div style="margin-bottom: 3px;">
+                &bull; <strong>R.P.M.</strong> = <span class="blank-line" style="min-width: 1.65in;"></span>
+              </div>
+              <div style="font-size: 8.4pt; color: #334155;">
+                &bull; <em>Examples:</em> Dremel Tool (27,000 RPM) &amp; Car <strong>Tachometer</strong>.
+              </div>
+            </div>
+
+            <div class="sub-box">
+              <div style="font-weight: 900; font-size: 9pt; margin-bottom: 2px;">Tangential Speed (Slide 15)</div>
+              <div style="margin-bottom: 3px;">
+                &bull; Notes: <span class="blank-line" style="min-width: 2.2in;"></span><br>
+                <span class="blank-line" style="min-width: 2.7in;"></span>
+              </div>
+              <div>
+                &bull; On the propeller, all points have the same <strong>RPM</strong> (2500 RPM), but Point <span class="blank-line" style="min-width: 0.4in;"></span> has the greatest <strong>tangential speed</strong>.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PART 4: ROLLER COASTER LOOP & CENTRIPETAL FORCE (SLIDES 19–24) -->
+      <section class="note-card" style="margin-bottom: 0;">
+        <div class="card-header">
+          <span class="card-title">Part 3: Roller Coaster Loops &amp; Centripetal Force</span>
+          <span class="slide-tag">Slides 19&ndash;24</span>
+        </div>
+        <div class="card-body" style="display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 10px; align-items: center;">
+          <div>
+            <div style="margin-bottom: 5px;">
+              <strong>&bull; Slides 19&ndash;22 Question:</strong> When you ride a roller coaster through a loop, why don't you fall out of your seat?
+            </div>
+            <div>
+              <strong>Answer:</strong> <span class="blank-line" style="min-width: 2.3in;"></span>
+            </div>
+          </div>
+
+          <div style="border: 1.8px solid #0f172a; border-radius: 6px; padding: 5px 8px; background: #f8fafc; text-align: center;">
+            <div style="font-size: 8pt; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px;">
+              &#9888;&#65039; IMPORTANT!!! (Slide 23)
+            </div>
+            <div style="font-size: 9.2pt; font-weight: 800;">
+              <span class="blank-line" style="min-width: 1.2in;"></span> Force<br>
+              <span style="text-decoration: underline;">NOT</span> <span class="blank-line" style="min-width: 1.3in;"></span>!
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="page-footer">
+      <span>Unit 2 Physics &bull; Day 51: Uniform Circular Motion (Slides 1&ndash;24)</span>
+      <span>Turn over for Page 2 (Slides 25&ndash;50) &rarr;</span>
+    </footer>
+  </div>
+
+  <!-- =====================================================================
+       PAGE 2: ACCELERATION, VECTORS & THE 3 FORMULAS (SLIDES 25–50)
+       ===================================================================== -->
+  <div class="worksheet-page">
+    <div>
+      <!-- Compact 1-Line Running Header -->
+      <div class="running-header">
+        <span>Uniform Circular Motion Notes (Slides 25&ndash;50)</span>
+        <span>Name: <span class="write-line" style="width: 1.8in; height: 13px;"></span></span>
+        <span>Period: <span class="write-line" style="width: 0.45in; height: 13px;"></span></span>
+        <span>Page 2 of 2</span>
+      </div>
+
+      <!-- PART 5: NEWTON'S 2ND LAW & TWO WAYS TO ACCELERATE (SLIDES 25–33) -->
+      <section class="note-card">
+        <div class="card-header">
+          <span class="card-title">Part 4: Newton's Second Law &amp; Two Ways to Accelerate</span>
+          <span class="slide-tag">Slides 25&ndash;33</span>
+        </div>
+        <div class="card-body">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px dashed #cbd5e1;">
+            <div>
+              <strong>Newton's Second Law (Slides 25 &amp; 33):</strong> &nbsp;Force = <span class="blank-line" style="min-width: 0.9in;"></span> &times; <span class="blank-line" style="min-width: 1.1in;"></span>
+            </div>
+            <div style="font-size: 11pt; font-weight: 900; border: 1.5px solid #0f172a; border-radius: 5px; padding: 1.5px 9px; background: #f8fafc;">
+              <span class="mv">F</span> = <span class="mv">m a</span>
+            </div>
+          </div>
+
+          <div class="prompt-line" style="margin-bottom: 5px;">
+            <span class="prompt-badge-group"><span>&#9744;</span><span class="verb-badge">IDENTIFY</span></span>
+            <div class="prompt-body">
+              <strong>Slide 26:</strong> What are <strong>two ways</strong> to make a mass accelerate?
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 6px;">
+            <div class="sub-box">
+              <strong>Way #1 (Slide 27):</strong> Change its <span class="blank-line" style="min-width: 1.1in;"></span>.<br>
+              <span style="font-size: 8.4pt; color: #334155;">(Up <strong>+</strong> or Down <strong>&minus;</strong>)</span>
+            </div>
+            <div class="sub-box">
+              <strong>Way #2 (Slide 28):</strong> Change its <span class="blank-line" style="min-width: 1.1in;"></span>!<br>
+              <span style="font-size: 8.4pt; color: #334155;">Notes: <span class="blank-line" style="min-width: 1.9in; height: 13px;"></span></span>
+            </div>
+          </div>
+
+          <div style="background: #f8fafc; border: 1.4px solid #0f172a; border-radius: 5px; padding: 5px 9px;">
+            <div style="margin-bottom: 3px;">
+              <strong>&bull; Slides 29&ndash;31 (The Orange Ball):</strong> The orange ball moving in a circle is changing <span class="blank-line" style="min-width: 1.0in;"></span>, so its <strong>velocity</strong> is also <span class="blank-line" style="min-width: 1.0in;"></span>.
+            </div>
+            <div>
+              <strong>&bull; Slide 32 Rule:</strong> Anytime the <span class="blank-line" style="min-width: 0.9in;"></span> or <span class="blank-line" style="min-width: 1.0in;"></span> changes, the object <strong>IS <span class="blank-line" style="min-width: 1.4in;"></span></strong>!
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PART 6: VECTOR DIRECTIONS ON A CIRCULAR PATH (SLIDES 34–39) -->
+      <section class="note-card">
+        <div class="card-header">
+          <span class="card-title">Part 5: Velocity, Force &amp; Acceleration Vectors</span>
+          <span class="slide-tag">Slides 34&ndash;39</span>
+        </div>
+        <div class="card-body" style="display: grid; grid-template-columns: 185px 1fr; gap: 12px; align-items: center;">
+          <!-- Diagram matching Slides 34–39 (Orange ball at top of circle) -->
+          <div style="border: 1.2px solid #cbd5e1; border-radius: 5px; padding: 5px; background: #ffffff; text-align: center;">
+            <div style="font-size: 7.8pt; font-weight: 800; text-transform: uppercase; color: #334155; margin-bottom: 2px;">
+              Draw &amp; Label the 3 Vectors:
+            </div>
+            <svg viewBox="0 0 185 118" width="100%" height="108" style="display: block;">
+              <!-- Circular Path -->
+              <circle cx="95" cy="66" r="41" fill="none" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4,3"/>
+              <!-- Center Crosshair -->
+              <line x1="91" y1="66" x2="99" y2="66" stroke="#b91c1c" stroke-width="1.5"/>
+              <line x1="95" y1="62" x2="95" y2="70" stroke="#b91c1c" stroke-width="1.5"/>
+              <text x="103" y="69" font-size="8.5" font-weight="700" fill="#475569" font-family="sans-serif">Center</text>
+              <!-- Orange Ball at Top (12 o'clock) matching Slides 34-39 -->
+              <circle cx="95" cy="25" r="12.5" fill="#fb923c" stroke="#9a3412" stroke-width="1.8"/>
+              <text x="95" y="115" text-anchor="middle" font-size="7.6" font-weight="700" fill="#475569" font-family="sans-serif">Draw Velocity, Force &amp; Acceleration arrows</text>
+            </svg>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <div class="prompt-line" style="margin-bottom: 0;">
+              <span class="prompt-badge-group"><span>&#9744;</span><span class="verb-badge">SKETCH</span></span>
+              <div class="prompt-body">
+                <strong>Slide 35 &mdash; Velocity Vector (<span class="mv">v</span>):</strong> Draw the velocity arrow on the orange ball at left. Which way does it point? <span class="blank-line" style="min-width: 1.8in;"></span>
+              </div>
+            </div>
+
+            <div class="prompt-line" style="margin-bottom: 0;">
+              <span class="prompt-badge-group"><span>&#9744;</span><span class="verb-badge">SKETCH</span></span>
+              <div class="prompt-body">
+                <strong>Slides 36&ndash;37 &mdash; Force Vector (<span class="mv">F</span>):</strong> Which way does the force vector point?<br>
+                <span class="blank-line" style="min-width: 2.7in;"></span>
+              </div>
+            </div>
+
+            <div class="prompt-line" style="margin-bottom: 0;">
+              <span class="prompt-badge-group"><span>&#9744;</span><span class="verb-badge">SKETCH</span></span>
+              <div class="prompt-body">
+                <strong>Slides 38&ndash;39 &mdash; Acceleration Vector (<span class="mv">a</span>):</strong> Which way does the acceleration vector point?<br>
+                <span class="blank-line" style="min-width: 2.7in;"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PART 7: 3 THINGS — SPEED, ACCELERATION & CENTRIPETAL FORCE (SLIDES 40–50) -->
+      <section class="note-card" style="margin-bottom: 0;">
+        <div class="card-header">
+          <span class="card-title">Part 6: Three Things &mdash; Speed, Acceleration &amp; Centripetal Force</span>
+          <span class="slide-tag">Slides 40&ndash;50</span>
+        </div>
+        <div class="card-body">
+          <!-- Slide 40-42 Banner -->
+          <div style="background: #f8fafc; border: 1.2px solid #cbd5e1; border-radius: 5px; padding: 4px 10px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 8.8pt; font-weight: 800;">
+            <span><strong>Slides 40&ndash;42 ("3 Things"):</strong></span>
+            <span>1. How do we determine <u>speed</u>?</span>
+            <span>2. How do we determine <u>acceleration</u>?</span>
+            <span>3. How do we calculate <u>force</u>?</span>
+          </div>
+
+          <!-- Thing #1: First Speed (Slides 43–44) -->
+          <div style="border: 1.4px solid #0f172a; border-radius: 6px; padding: 6px 10px; margin-bottom: 6px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="font-weight: 900; font-size: 9.4pt;">1. First: Speed (Slides 43&ndash;44)</span>
+              <span style="font-size: 8.2pt; font-weight: 700; color: #334155;">Slide 44: "What is the speed of this 1 kg orange?"</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 10px; align-items: center;">
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <div>&bull; How much <strong>distance</strong> does it go in 1 circle? &nbsp;<em>How far?</em> = <span class="blank-line" style="min-width: 0.75in;"></span></div>
+                <div>&bull; How much <strong>time</strong> does it take? = <span class="blank-line" style="min-width: 0.75in;"></span></div>
+                <div style="display: flex; align-items: center; gap: 6px; font-weight: 800; padding-top: 1px;">
+                  <span>Circular Speed Formula: &nbsp;<span class="mv">v</span> =</span>
+                  <span class="vfrac">
+                    <span class="num"><span class="frac-slot" style="width: 0.62in;"></span></span>
+                    <span class="den"><span class="frac-slot" style="width: 0.62in;"></span></span>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Workspace for Slide 44 1 kg orange speed calculation -->
+              <div style="border: 1.3px dashed #64748b; border-radius: 5px; padding: 5px 8px; background: #fafafa; min-height: 0.82in; display: flex; flex-direction: column; justify-content: space-between;">
+                <div style="font-size: 7.8pt; font-weight: 800; color: #475569; text-transform: uppercase;">
+                  Slide 44 Demo / Speed Calculation (1 kg orange):
+                </div>
+                <div style="display: flex; justify-content: flex-end; align-items: baseline; gap: 4px; font-weight: 800;">
+                  <span><span class="mv">v</span> =</span>
+                  <span class="write-line" style="width: 0.9in;"></span>
+                  <span style="font-size: 8.6pt;">m/s</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Thing #2 & Thing #3 Side by Side (Slides 46–50) -->
+          <div style="display: grid; grid-template-columns: 1.08fr 0.92fr; gap: 8px;">
+            <!-- Thing #2: Now Acceleration (Slides 46–48) -->
+            <div style="border: 1.4px solid #0f172a; border-radius: 6px; padding: 6px 9px; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div style="font-weight: 900; font-size: 9.4pt; margin-bottom: 1px;">2. Now: Acceleration (Slides 46&ndash;48)</div>
+                <div style="font-size: 8.2pt; color: #334155; margin-bottom: 4px;">
+                  <em>How is acceleration determined at constant speed?</em>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center; justify-content: center; gap: 10px; background: #f8fafc; border: 1.2px solid #cbd5e1; border-radius: 5px; padding: 4px 8px; margin-bottom: 4px;">
+                <span style="font-size: 12pt; font-weight: 900;"><span class="mv">a</span> &nbsp;becomes</span>
+                <span class="vfrac" style="font-size: 11.5pt;">
+                  <span class="num"><span class="frac-slot" style="width: 0.6in; height: 0.27in;"></span></span>
+                  <span class="den"><span class="frac-slot" style="width: 0.6in; height: 0.27in;"></span></span>
+                </span>
+              </div>
+
+              <div style="font-size: 8.6pt; display: flex; flex-direction: column; gap: 3px;">
+                <div>&bull; <span class="mv">v</span> = <span class="blank-line" style="min-width: 0.9in;"></span> &nbsp;(units = <span class="blank-line" style="min-width: 0.5in;"></span>)</div>
+                <div>&bull; <span class="mv">r</span> = <span class="blank-line" style="min-width: 0.9in;"></span> &nbsp;(units = <span class="blank-line" style="min-width: 0.5in;"></span>)</div>
+              </div>
+            </div>
+
+            <!-- Thing #3: Centripetal Force (Slides 47, 49–50) -->
+            <div style="border: 1.4px solid #0f172a; border-radius: 6px; padding: 6px 9px; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div style="font-weight: 900; font-size: 9.4pt; margin-bottom: 1px;">3. Centripetal Force (Slides 47, 49&ndash;50)</div>
+                <div style="font-size: 8.2pt; color: #334155; margin-bottom: 4px;">
+                  Substitute circular acceleration into <span class="mv">F</span> = <span class="mv">m a</span>:
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center; justify-content: center; gap: 8px; background: #f8fafc; border: 1.5px solid #0f172a; border-radius: 5px; padding: 4px 8px; margin-bottom: 4px;">
+                <span style="font-size: 10.5pt; font-weight: 800;"><span class="mv">F</span> = <span class="mv">m a</span> &nbsp;&rarr;&nbsp;</span>
+                <span style="font-size: 12pt; font-weight: 900;"><span class="mv">F</span> = <span class="mv">m</span></span>
+                <span class="vfrac" style="font-size: 11.5pt;">
+                  <span class="num"><span class="frac-slot" style="width: 0.58in; height: 0.27in;"></span></span>
+                  <span class="den"><span class="frac-slot" style="width: 0.58in; height: 0.27in;"></span></span>
+                </span>
+              </div>
+
+              <div style="background: #f1f5f9; border: 1.2px solid #475569; border-radius: 5px; padding: 4px 8px; font-size: 8.2pt; font-weight: 800; text-align: center;">
+                &#9744; <strong>Slide 50:</strong> Find this Centripetal Force formula on your Reference Sheet!
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="page-footer">
+      <span>Unit 2 Physics &bull; Mr. Mudry &bull; Uniform Circular Motion Guided Notes (Slides 1&ndash;50)</span>
+      <span>Keep in your binder for the Centripetal Acceleration Workshop!</span>
+    </footer>
+  </div>
+
+</body>
+</html>

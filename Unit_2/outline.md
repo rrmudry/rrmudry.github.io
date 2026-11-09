@@ -482,7 +482,7 @@ This unit follows the classical and cognitive progression:
     *   *Differentiation:* Periods 1–3: arrow diagrams and reading the patterns off the table, with no calculation required (the support stays unlabeled). Periods 4–6: one-step a<sub>c</sub> calculations, stacked. Period 0: also v = 2πr ÷ T from lap time.
     *   *Essential Question:* How can an object be accelerating if its speedometer reading never changes?
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Demonstration / Guided Practice
-    *   *Links:* None yet (handout not built)
+    *   *Links:* [Centripetal Acceleration Workshop](centripetal_workshop/index.html) | [Uniform Circular Motion Basics.pptx](https://orangeusdorg-my.sharepoint.com/:p:/g/personal/rmudry_orangeusd_org/IQBihhGMjiY6QpSCeM6cZ9tzAcZKlVS7kJoyM1Wu4aDx-Sk?e=itXLmT) | [Follow-Along Guided Notes (PDF)](worksheets/Day51_Uniform_Circular_Motion_Guided_Notes.pdf)
 
 *   **Day 52 (2026-11-10): Centripetal Force: What Does the Pulling?**
     *   *Bell-Ringer:* When a car turns sharply left, passengers feel pushed right against the door. What real force acts on them, and why do they feel pushed?
