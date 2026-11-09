@@ -615,39 +615,54 @@ async function main() {
       let dueDateObj = null;
       let dueTimeObj = null;
       if (options.endDate) {
-        const [year, month, day] = options.endDate.split('-').map(Number);
-        if (year && month && day) {
-          dueDateObj = { year, month, day };
-          dueTimeObj = { hours: 23, minutes: 59, seconds: 0 };
+        // Construct ISO string for 23:59 local Pacific time
+        // Note: Months < 11 are PDT (-07:00), months >= 11 (after Nov 1) are PST (-08:00)
+        const [yr, mo, dy] = options.endDate.split('-').map(Number);
+        const tzOffset = (mo > 11 || (mo === 11 && dy >= 1) || mo < 3) ? '-08:00' : '-07:00';
+        const d = new Date(`${options.endDate}T23:59:00${tzOffset}`);
+        if (!isNaN(d.getTime())) {
+          dueDateObj = {
+            year: d.getUTCFullYear(),
+            month: d.getUTCMonth() + 1,
+            day: d.getUTCDate()
+          };
+          dueTimeObj = {
+            hours: d.getUTCHours(),
+            minutes: d.getUTCMinutes()
+          };
         }
       }
 
+      // Attach dueDate and dueTime directly to initial payload if in future
+      if (dueDateObj && dueTimeObj) {
+        cwPayload.dueDate = dueDateObj;
+        cwPayload.dueTime = dueTimeObj;
+      }
+
       try {
-        const createRes = await classroom.courses.courseWork.create({
-          courseId: course.courseId,
-          requestBody: cwPayload
-        });
+        let createRes;
+        try {
+          createRes = await classroom.courses.courseWork.create({
+            courseId: course.courseId,
+            requestBody: cwPayload
+          });
+        } catch (createErr) {
+          // If creation fails due to past dueDate ("Due date must be in the future"), retry without dueDate
+          if (createErr.message && createErr.message.includes('Due date must be in the future')) {
+            console.warn(`   ⚠️ Period ${course.period}: Due date ${options.endDate} is in the past; creating coursework without due date (must be set in UI).`);
+            delete cwPayload.dueDate;
+            delete cwPayload.dueTime;
+            createRes = await classroom.courses.courseWork.create({
+              courseId: course.courseId,
+              requestBody: cwPayload
+            });
+          } else {
+            throw createErr;
+          }
+        }
         cwId = createRes.data.id;
         courseworkIds[course.courseId] = cwId;
         console.log(`   ✅ Period ${course.period}: Created coursework (ID: ${cwId})`);
-
-        // If a due date is specified (e.g. past Friday), patch it onto the created coursework
-        if (dueDateObj) {
-          try {
-            await classroom.courses.courseWork.patch({
-              courseId: course.courseId,
-              id: cwId,
-              updateMask: 'dueDate,dueTime',
-              requestBody: {
-                dueDate: dueDateObj,
-                dueTime: dueTimeObj
-              }
-            });
-            console.log(`      ↳ Set due date to ${options.endDate} 23:59.`);
-          } catch (patchDueErr) {
-            console.warn(`      ⚠️ Could not set due date:`, patchDueErr.message);
-          }
-        }
       } catch (e) {
         console.error(`   ❌ Period ${course.period}: Failed to create coursework:`, e.message);
         continue;
@@ -656,7 +671,7 @@ async function main() {
   }
 
   // Update assignment_registry
-  await registryRef.set({
+  const regPayload = {
     assignmentId: options.assignmentId,
     title: options.title,
     maxPoints: options.maxPoints,
@@ -665,7 +680,14 @@ async function main() {
     courseworkIds: courseworkIds,
     lastSyncedAt: admin.firestore.FieldValue.serverTimestamp(),
     updatedAt: admin.firestore.FieldValue.serverTimestamp()
-  }, { merge: true });
+  };
+  if (options.endDate) {
+    const [yr, mo, dy] = options.endDate.split('-').map(Number);
+    const tzOffset = (mo > 11 || (mo === 11 && dy >= 1) || mo < 3) ? '-08:00' : '-07:00';
+    regPayload.dueDate = `${options.endDate}T23:59:00${tzOffset}`;
+  }
+
+  await registryRef.set(regPayload, { merge: true });
   console.log(`   ✅ assignment_registry updated for "${options.assignmentId}".`);
 
   // =====================================================================
