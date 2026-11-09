@@ -1,0 +1,3366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Centripetal Acceleration Workshop</title>
+  <meta name="description" content="See why going around a circle at a steady speed is still accelerating, which way that acceleration points, and how big it is.">
+  <link rel="icon" type="image/svg+xml" href="../../assets/unit2-favicon.svg">
+  <!-- Built from src.html by scripts/inline-studio.js. Edit the source files, not this page. -->
+  <script>
+    // Apply saved theme + projector mode before first paint to avoid a flash
+    try {
+      if (localStorage.getItem('caw_projector') === 'on') document.documentElement.classList.add('projector');
+      else if (localStorage.getItem('caw_theme') === 'dark') document.documentElement.classList.add('theme-dark');
+    } catch (e) { /* storage blocked */ }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+/* === Unit_2/centripetal_workshop/css/style.css === */
+/* Centripetal Acceleration Workshop — high-contrast light mode (default), dark mode, projector mode (22px root).
+   Sizes are in rem so projector mode scales everything. Copied from Unit_2/monkey_hunter_studio/css/style.css.
+   Blue = velocity v, rose = acceleration a_c (toward the center), purple = the radius r, everywhere in the lesson.
+   Answer-choice arrows are all one gray so color never gives the answer away. */
+
+:root {
+  --bg-page: #f1f5f9;
+  --bg-header: rgba(255, 255, 255, 0.97);
+  --bg-card: #ffffff;
+  --bg-subcard: #f8fafc;
+  --border-color: #cbd5e1;
+  --border-subtle: #e2e8f0;
+  --text-main: #0f172a;
+  --text-muted: #334155;
+  --text-dim: #475569;
+  --accent: #0284c7;
+  --good: #15803d;
+  --bad: #be123c;
+  --warn: #b45309;
+  --accent-x: #0369a1;
+  --accent-y: #c2410c;
+  --accent-v: #7c3aed;
+  --accent-g: #be123c;
+  --sky: #f0f9ff;
+  --ground: #dcfce7;
+  --ground-line: #15803d;
+  --grid: #cbd5e1;
+  --ball: #0f172a;
+  --radius: 0.85rem;
+  --font-sans: 'Outfit', system-ui, sans-serif;
+  font-size: 16px;
+}
+
+html.theme-dark {
+  --bg-page: #070d19;
+  --bg-header: rgba(7, 13, 25, 0.95);
+  --bg-card: #0f172a;
+  --bg-subcard: #1e293b;
+  --border-color: rgba(56, 189, 248, 0.3);
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --text-main: #f8fafc;
+  --text-muted: #cbd5e1;
+  --text-dim: #94a3b8;
+  --accent: #38bdf8;
+  --good: #34d399;
+  --bad: #fb7185;
+  --warn: #fbbf24;
+  --accent-x: #38bdf8;
+  --accent-y: #fb923c;
+  --accent-v: #c084fc;
+  --accent-g: #fb7185;
+  --sky: #0b1324;
+  --ground: #14532d;
+  --ground-line: #34d399;
+  --grid: #334155;
+  --ball: #f8fafc;
+}
+
+html.projector {
+  font-size: 22px;
+  --bg-page: #ffffff;
+  --bg-subcard: #ffffff;
+  --border-color: #000000;
+  --border-subtle: #000000;
+  --text-muted: #0f172a;
+  --text-dim: #1e293b;
+  --grid: #94a3b8;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; height: 100vh; display: flex; flex-direction: column; background: var(--bg-page); color: var(--text-main); font-family: var(--font-sans); font-size: 1rem; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+[hidden] { display: none !important; }
+button { font: inherit; cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+p { margin: 0 0 0.5rem; }
+p:last-child { margin-bottom: 0; }
+sub { font-size: 0.72em; line-height: 0; }
+.formula { white-space: nowrap; font-weight: 700; font-variant-numeric: tabular-nums; }
+.nowrap { white-space: nowrap; }
+.calc-stack { display: grid; grid-template-columns: auto auto auto; gap: 0.1rem 0.35rem; width: fit-content; margin: 0.2rem 0; white-space: nowrap; font-weight: 700; font-variant-numeric: tabular-nums; }
+.calc-sym { text-align: right; }
+.worked { display: inline-block; margin-top: 0.35rem; }
+
+/* ---------- Header ---------- */
+.app-header { flex-shrink: 0; position: sticky; top: 0; z-index: 100; background: var(--bg-header); border-bottom: 1px solid var(--border-color); padding: 0.35rem 0.75rem 0.45rem; }
+.header-row { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; max-width: 110rem; margin: 0 auto; }
+.header-left { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+.app-icon { font-size: 1.4rem; }
+.app-title { margin: 0; font-size: 1.1rem; font-weight: 800; }
+.header-right { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+.btn-tool { background: var(--bg-subcard); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 0.5rem; padding: 0.2rem 0.55rem; font-size: 0.82rem; font-weight: 600; text-decoration: none; }
+.btn-tool.btn-on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.view-wrap { font-size: 0.82rem; font-weight: 600; display: flex; align-items: center; gap: 0.3rem; }
+.view-wrap select { font: inherit; color: var(--text-main); background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 0.4rem; padding: 0.15rem 0.3rem; }
+.user-chip { display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; padding-left: 0.35rem; }
+.user-name { font-weight: 700; max-width: 11rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-track { color: var(--text-dim); font-weight: 600; white-space: nowrap; }
+.score-chip { font-weight: 800; background: var(--bg-subcard); border: 1px solid var(--border-color); border-radius: 999px; padding: 0.05rem 0.55rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.save-indicator { font-weight: 600; white-space: nowrap; }
+.cert-chip { background: var(--bg-card); color: var(--good); border: 2px solid var(--good); border-radius: 999px; padding: 0.1rem 0.65rem; font-size: 0.82rem; font-weight: 800; white-space: nowrap; }
+.cert-box { border: 2px solid var(--border-color); border-radius: 0.6rem; padding: 0.5rem 0.7rem; }
+.cert-ready { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; border-color: var(--good); background: color-mix(in srgb, var(--good) 12%, var(--bg-card)); font-size: 1.05rem; }
+.cert-wait { background: var(--bg-subcard); font-size: 0.95rem; }
+.save-ok { color: var(--good); }
+.save-busy, .save-guest { color: var(--text-dim); }
+.save-error { color: var(--bad); }
+.btn-signout { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); border-radius: 0.4rem; font-size: 0.78rem; padding: 0.1rem 0.4rem; }
+
+.part-strip { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.4rem; max-width: 110rem; margin: 0.35rem auto 0; }
+.part-tab { background: var(--bg-subcard); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 0.55rem; padding: 0.22rem 0.5rem; text-align: left; min-width: 0; }
+.part-tab:disabled { color: var(--text-dim); background: transparent; }
+.part-on { border-color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); }
+.part-name { display: block; font-size: 0.88rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.part-bar { display: block; height: 0.28rem; margin-top: 0.18rem; background: var(--border-subtle); border-radius: 999px; overflow: hidden; }
+.part-bar span { display: block; height: 100%; background: var(--accent); }
+.part-done .part-bar span { background: var(--good); }
+html.projector .part-bar, html.projector .skill-bar { background: #cbd5e1; }
+
+/* ---------- Layout ---------- */
+.workbench { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 0.65rem; padding: 0.65rem; width: 100%; max-width: 110rem; margin: 0 auto; flex: 1; min-height: 0; }
+.card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); min-width: 0; min-height: 0; }
+.stage-card { display: flex; flex-direction: column; gap: 0.45rem; padding: 0.5rem; }
+.stage { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; border-radius: 0.6rem; overflow: hidden; border: 1px solid var(--border-subtle); background: var(--sky); }
+.scene-svg { display: block; width: 100%; height: 100%; overflow: visible; }
+/* These rows keep their height on every page, so the picture never changes size */
+.stage-foot { flex: none; display: flex; flex-direction: column; gap: 0.25rem; }
+.foot-row { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; height: 2.6rem; }
+.ladder-slot { height: 1.6rem; display: flex; align-items: center; overflow: hidden; }
+.readout { display: flex; align-items: center; gap: 0.7rem; min-width: 0; }
+.clock { font-size: 1.05rem; white-space: nowrap; }
+.clock strong { font-size: 1.3rem; font-variant-numeric: tabular-nums; }
+.clock-label { color: var(--text-dim); font-weight: 600; }
+.ladder { display: flex; align-items: center; gap: 0.2rem; }
+.ladder-label { font-weight: 800; margin-right: 0.3rem; }
+.chip { border: 1px solid var(--border-color); border-radius: 0.35rem; padding: 0 0.32rem; font-size: 0.86rem; font-weight: 700; color: var(--text-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.chip-now { border-color: var(--accent-y); color: var(--accent-y); box-shadow: inset 0 0 0 1px var(--accent-y); }
+.chip-zero { background: var(--accent-y); color: #fff; border-color: var(--accent-y); }
+.stage-ctl { display: flex; gap: 0.4rem; margin-left: auto; }
+.btn-step { background: var(--accent); color: #fff; border: 0; border-radius: 0.55rem; padding: 0.42rem 0.95rem; font-weight: 800; font-size: 1rem; white-space: nowrap; }
+html:not(.theme-dark) .btn-step { background: #0369a1; }
+html.theme-dark .btn-step { color: #0f172a; }
+html .btn-step:disabled { background: var(--border-color); color: var(--text-muted); }
+.btn-ghost { background: transparent; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 0.55rem; padding: 0.42rem 0.7rem; font-weight: 600; white-space: nowrap; }
+.solved { flex: none; height: 1.9rem; display: flex; align-items: center; gap: 0.4rem; overflow: hidden; }
+.solved-chip { background: var(--bg-subcard); border: 1px solid var(--border-color); border-radius: 0.45rem; padding: 0.14rem 0.55rem; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.solved-x { color: var(--accent-x); }
+.solved-y { color: var(--accent-y); }
+
+/* ---------- SVG picture ---------- */
+.sv-ground { fill: var(--ground); }
+.sv-ground-line { stroke: var(--ground-line); stroke-width: 2.5; }
+.sv-text { font-family: var(--font-sans); font-weight: 700; font-size: 17px; fill: var(--text-main); }
+.sv-small { font-size: 14px; font-weight: 600; }
+.sv-plate { fill: var(--bg-card); fill-opacity: 0.9; }
+.sv-note { font-size: 19px; font-weight: 800; }
+.sv-x line { stroke: var(--accent-x); } .sv-x polygon { fill: var(--accent-x); }
+.sv-y line { stroke: var(--accent-y); } .sv-y polygon { fill: var(--accent-y); }
+.sv-v line { stroke: var(--accent-v); } .sv-v polygon { fill: var(--accent-v); }
+.sv-x-text { fill: var(--accent-x); }
+.sv-y-text { fill: var(--accent-y); }
+.sv-v-text { fill: var(--accent-v); }
+.sv-angle { font-size: 18px; }
+.sv-arc { fill: none; stroke: var(--text-main); stroke-width: 2.5; }
+.sv-ball { fill: var(--ball); }
+.sv-ghost { fill: var(--ball); opacity: 0.4; }
+.sv-path { fill: none; stroke: var(--text-dim); stroke-width: 2.5; }
+.sv-path-faint { fill: none; stroke: var(--text-dim); stroke-width: 2; stroke-dasharray: 3 7; opacity: 0.7; }
+.sv-drop { stroke: var(--text-dim); stroke-width: 1.5; stroke-dasharray: 4 5; }
+.sv-tile { fill: var(--accent-x); opacity: 0.32; }
+.sv-tile-alt { opacity: 0.52; }
+.sv-tile-text { font-size: 13px; }
+.sv-flagpole { stroke: var(--bad); stroke-width: 3; }
+.sv-flag { fill: var(--bad); }
+.sv-range line { stroke: var(--text-main); } .sv-range polygon { fill: var(--text-main); }
+.sv-range-line { stroke: var(--text-main); stroke-width: 2.5; }
+.sv-range-text { font-size: 18px; }
+.sv-grid { stroke: var(--grid); stroke-width: 1.5; }
+.sv-key { fill: var(--bg-card); stroke: var(--border-color); }
+.sv-key-square { fill: none; stroke: var(--text-main); stroke-width: 2; }
+.sv-key-text { font-size: 16px; }
+.sv-key-value { font-size: 20px; font-weight: 800; }
+.sv-arc-line { fill: none; stroke-width: 4; }
+.sv-arc-a { stroke: #0f766e; }
+.sv-arc-b { stroke: #be185d; }
+html.theme-dark .sv-arc-a { stroke: #2dd4bf; }
+html.theme-dark .sv-arc-b { stroke: #f472b6; }
+.sv-cmp-text { font-size: 16px; }
+
+/* The stick, the strings, the monkey */
+.sv-stick { stroke: var(--accent-v); stroke-width: 7; stroke-linecap: round; opacity: 0.62; }
+.sv-tick { stroke: var(--text-main); stroke-width: 3; }
+.sv-mark { fill: var(--bg-card); stroke: var(--text-main); stroke-width: 2.5; }
+.sv-string { stroke: var(--accent-g); stroke-width: 3; }
+.sv-string-text { fill: var(--accent-g); }
+.solved-g { color: var(--accent-g); }
+.sv-hang { fill: var(--accent-g); }
+.sv-hang-hit { fill: var(--good); }
+.sv-handle { fill: var(--accent-g); opacity: 0.16; }
+.sv-handle-on { opacity: 0.34; }
+.sv-ball-b { fill: var(--accent-x); }
+.sv-tag { font-size: 20px; font-weight: 800; }
+.sv-level { stroke: var(--text-dim); stroke-width: 1.5; stroke-dasharray: 5 6; }
+.sv-tower { fill: var(--text-dim); opacity: 0.42; }
+.sv-barrel { stroke: var(--text-main); stroke-width: 11; stroke-linecap: round; }
+.sv-launcher { fill: var(--text-main); }
+.sv-trunk { fill: #92400e; }
+.sv-branch { stroke: #92400e; stroke-width: 8; stroke-linecap: round; }
+.sv-fur { fill: #78350f; }
+.sv-face { fill: #fcd9a8; }
+.sv-eye { fill: #0f172a; }
+.sv-limb { stroke: #78350f; stroke-width: 4.5; stroke-linecap: round; }
+.sv-tail { fill: none; stroke: #78350f; stroke-width: 3.5; stroke-linecap: round; }
+html.theme-dark .sv-fur { fill: #b45309; }
+html.theme-dark .sv-limb, html.theme-dark .sv-tail { stroke: #b45309; }
+html.theme-dark .sv-trunk { fill: #b45309; }
+html.theme-dark .sv-branch { stroke: #b45309; }
+.sv-burst { fill: #facc15; stroke: #b45309; stroke-width: 2; }
+.sv-star { fill: var(--accent-v); stroke: var(--bg-card); stroke-width: 1.5; }
+.sv-aim-gap { stroke: var(--accent-g); stroke-width: 3; stroke-dasharray: 7 6; }
+.sv-dim { stroke: var(--text-main); stroke-width: 2; }
+.sv-dim-text { font-size: 16px; }
+.sv-ruler { fill: #fef3c7; stroke: #92400e; stroke-width: 1.5; }
+html.theme-dark .sv-ruler { fill: #422006; }
+.sv-ruler-tick { stroke: var(--text-main); stroke-width: 1.5; }
+.sv-ruler-big { stroke-width: 3; }
+.sv-ruler-num { font-size: 18px; font-weight: 800; }
+.sv-pointer { stroke: var(--accent-g); stroke-width: 2.5; stroke-dasharray: 6 5; }
+.slider-wrap { display: flex; align-items: center; gap: 0.5rem; flex: 1; min-width: 0; font-weight: 800; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.slider-wrap span { min-width: 7.5rem; }
+.slider-wrap input { flex: 1; min-width: 4rem; max-width: 20rem; accent-color: var(--accent-v); }
+.stage-drag { touch-action: none; cursor: ns-resize; }
+.chip-t { color: var(--text-dim); font-weight: 600; }
+.ladder-label { color: var(--accent-g); }
+
+/* ---------- Task card ---------- */
+.task-card { display: flex; flex-direction: column; gap: 0.7rem; overflow-y: auto; padding: 0.9rem 1rem; }
+.task-card > * { flex-shrink: 0; }
+body.calc-open .task-card { padding-bottom: calc(var(--calc-height) + 1rem); }
+.task-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.task-count { font-size: 0.85rem; font-weight: 700; color: var(--text-dim); }
+.btn-read { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); border-radius: 0.45rem; padding: 0.08rem 0.45rem; font-size: 0.78rem; font-weight: 600; }
+.task-title { margin: 0; font-size: 1.32rem; line-height: 1.25; font-weight: 800; }
+.launch-tag { margin: 0; font-size: 0.85rem; font-weight: 800; color: var(--accent); }
+.task-body { font-size: 1.08rem; }
+.key-list { list-style: none; margin: 0.4rem 0; padding: 0; display: grid; gap: 0.4rem; }
+.key-list.numbered { list-style: decimal; padding-left: 1.4rem; }
+.dot { width: 0.8rem; height: 0.8rem; border-radius: 50%; display: inline-block; margin-right: 0.45rem; }
+.dot-x { background: var(--accent-x); }
+.dot-y { background: var(--accent-y); }
+.worked-line { font-size: 1.1rem; margin: 0.25rem 0; padding: 0.25rem 0.55rem; background: var(--bg-subcard); border-radius: 0.4rem; overflow-x: auto; }
+.takeaway { margin-top: 0.6rem; padding: 0.55rem 0.7rem; border-left: 4px solid var(--good); background: var(--bg-subcard); border-radius: 0 0.45rem 0.45rem 0; }
+.formula-box { margin: 0; padding: 0.4rem 0.7rem; font-size: 1.2rem; background: var(--bg-subcard); border: 1px solid var(--border-subtle); border-radius: 0.5rem; text-align: center; overflow-x: auto; }
+.ans-row { display: flex; align-items: center; gap: 0.5rem; font-size: 1.2rem; font-weight: 700; white-space: nowrap; }
+.ans-sym { white-space: nowrap; }
+.ans-row input { font: inherit; width: 7.5rem; padding: 0.3rem 0.5rem; border: 2px solid var(--accent); border-radius: 0.5rem; color: var(--text-main); background: var(--bg-card); font-variant-numeric: tabular-nums; }
+.ans-row input.calc-readonly { background: var(--bg-subcard); border-color: var(--border-color); cursor: default; }
+.ans-row input.calc-readonly::placeholder { font-size: 0.8rem; font-weight: 500; color: var(--text-dim); }
+.ans-row input:disabled { border-color: var(--border-color); }
+.task-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.btn-primary { background: #0369a1; color: #fff; border: 0; border-radius: 0.55rem; padding: 0.5rem 1.2rem; font-weight: 800; font-size: 1.05rem; }
+html.theme-dark .btn-primary { background: #38bdf8; color: #0f172a; }
+.btn-primary:disabled { background: var(--border-color); color: var(--text-dim); font-weight: 600; }
+.btn-secondary { background: transparent; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 0.55rem; padding: 0.5rem 0.9rem; font-weight: 700; }
+.feedback { border-radius: 0.55rem; padding: 0.55rem 0.7rem; font-size: 1.02rem; border: 1.5px solid; }
+.fb-ok { border-color: var(--good); color: var(--text-main); background: color-mix(in srgb, var(--good) 10%, transparent); }
+.fb-bad { border-color: var(--bad); color: var(--text-main); background: color-mix(in srgb, var(--bad) 8%, transparent); }
+.fb-retry { border-color: var(--warn); color: var(--text-main); background: color-mix(in srgb, var(--warn) 10%, transparent); }
+.hints { display: grid; gap: 0.35rem; justify-items: start; }
+.hint { background: var(--bg-subcard); border-radius: 0.45rem; padding: 0.3rem 0.6rem; font-size: 0.98rem; }
+.btn-hint { background: transparent; border: 0; color: var(--accent); font-weight: 700; padding: 0.1rem 0; text-decoration: underline; }
+.opts { display: grid; gap: 0.45rem; }
+.opt { text-align: left; background: var(--bg-card); color: var(--text-main); border: 2px solid var(--border-color); border-radius: 0.6rem; padding: 0.55rem 0.8rem; font-size: 1.05rem; font-weight: 600; }
+.opt:hover:not(:disabled) { border-color: var(--accent); }
+.opt-picked { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.opt-right { border-color: var(--good); box-shadow: inset 0 0 0 1px var(--good); }
+.opt-wrong { border-color: var(--bad); box-shadow: inset 0 0 0 1px var(--bad); }
+.done-card { display: grid; gap: 0.6rem; justify-items: center; text-align: center; margin: auto 0; }
+.done-mark { font-size: 2.6rem; line-height: 1; }
+.quiz-msg { color: var(--bad); font-weight: 700; margin: 0; min-height: 0; }
+.quiz-msg:empty { display: none; }
+.score-big { display: flex; align-items: baseline; gap: 0.6rem; }
+.score-big strong { font-size: 2.6rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.score-big span { color: var(--text-dim); font-weight: 600; }
+.grade-line { margin: 0; font-size: 1.05rem; }
+.skills { display: grid; gap: 0.3rem; }
+.skill-row { display: grid; grid-template-columns: 9.5rem 1fr 2.6rem; gap: 0.5rem; align-items: center; font-size: 0.95rem; font-weight: 600; }
+.skill-bar { display: block; height: 0.6rem; background: var(--border-subtle); border-radius: 999px; overflow: hidden; }
+.skill-bar span { display: block; height: 100%; background: var(--accent); }
+.skill-val { text-align: right; font-variant-numeric: tabular-nums; }
+.misses { margin: 0.2rem 0 0; padding-left: 1.1rem; font-size: 0.98rem; display: grid; gap: 0.35rem; }
+
+/* ---------- Floating calculator ---------- */
+/* Taller on taller screens, stopping short of the question and its buttons */
+:root { --calc-height: clamp(19rem, calc(100vh - 26rem), 36rem); }   /* 19rem keeps two hints clear of the calculator at 1366 × 650 */
+.calc-panel { position: fixed; right: 1.1rem; bottom: 0.8rem; width: 24rem; max-width: calc(100vw - 1.2rem); height: var(--calc-height); z-index: 90; display: flex; flex-direction: column; background: var(--bg-card); border: 2px solid var(--accent); border-radius: 0.7rem; overflow: hidden; box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28); }
+.calc-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.2rem 0.6rem; background: var(--bg-subcard); cursor: move; touch-action: none; font-size: 0.88rem; }
+.calc-drag { font-size: 0.75rem; font-weight: 600; color: var(--text-dim); }
+.calc-host { flex: 1; min-height: 0; }
+.calc-foot { padding: 0.35rem 0.5rem; background: var(--bg-subcard); border-top: 1px solid var(--border-color); display: grid; gap: 0.25rem; }
+.calc-msg { margin: 0; color: var(--bad); font-size: 0.88rem; font-weight: 700; line-height: 1.2; }
+.calc-missing { padding: 0.8rem; }
+.btn-grab { width: 100%; background: var(--accent-v); color: #fff; border: 0; border-radius: 0.5rem; padding: 0.42rem; font-weight: 800; font-size: 1rem; }
+
+/* ---------- Sign-in gate ---------- */
+.login-gate { position: fixed; inset: 0; z-index: 200; background: var(--bg-page); display: flex; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto; }
+.gate-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 1rem; padding: 1.5rem; width: min(30rem, 100%); text-align: center; display: grid; gap: 0.7rem; }
+.gate-icon { font-size: 2.4rem; line-height: 1; }
+.gate-title { margin: 0; font-size: 1.5rem; font-weight: 800; }
+.gate-sub { margin: 0; color: var(--text-dim); font-weight: 600; }
+.gate-text { margin: 0; }
+.gate-grading { text-align: left; background: var(--bg-subcard); border-radius: 0.6rem; padding: 0.55rem 0.75rem; display: grid; gap: 0.3rem; font-size: 0.95rem; }
+.btn-google { display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem; background: #fff; color: #1f2937; border: 1px solid #94a3b8; border-radius: 0.55rem; padding: 0.55rem 1rem; font-weight: 700; }
+.btn-guest { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); border-radius: 0.55rem; padding: 0.35rem 0.9rem; font-weight: 600; }
+.gate-guest-note { margin: 0.3rem 0 0; font-size: 0.85rem; color: var(--text-dim); }
+.gate-status { margin: 0; font-weight: 600; }
+.gate-status:empty { display: none; }
+.gate-error { margin: 0; color: var(--bad); font-weight: 700; }
+
+/* ---------- Short screens (Chromebooks): keep the question and its buttons above the calculator ---------- */
+@media (max-height: 751px) and (min-width: 901px) {
+  body.calc-open .task-card { flex-direction: row; flex-wrap: wrap; align-items: center; align-content: flex-start; gap: 0.4rem 0.6rem; padding-top: 0.5rem; }
+  body.calc-open .task-card > * { flex: 0 0 100%; }
+  body.calc-open .task-card > .launch-tag { flex: 0 0 auto; order: -1; }
+  body.calc-open .task-card > .task-top { flex: 1 1 0; order: -1; }
+  body.calc-open .task-card > .ans-row, body.calc-open .task-card > .task-actions { flex: 0 0 auto; }
+  body.calc-open .task-title { font-size: 1.12rem; line-height: 1.2; }
+  body.calc-open .formula-box { padding: 0.12rem 0.5rem; font-size: 1.05rem; }
+  body.calc-open .ans-row { font-size: 1.05rem; }
+  body.calc-open .hint { padding: 0.15rem 0.5rem; font-size: 0.9rem; line-height: 1.2; }
+  body.calc-open .task-actions .btn-primary, body.calc-open .task-actions .btn-secondary { padding: 0.35rem 0.8rem; font-size: 0.98rem; }
+}
+
+/* ---------- Narrow screens: picture on top ---------- */
+@media (max-width: 900px) {
+  body { height: auto; display: block; }
+  .workbench { display: flex; flex-direction: column; }
+  .stage { aspect-ratio: 760 / 520; flex: none; }
+  .ladder-slot, .solved { height: auto; min-height: 1.6rem; overflow: visible; }
+  .ladder, .solved { flex-wrap: wrap; }
+  .task-card { overflow: visible; }
+  .calc-panel { position: static; width: auto; max-width: none; height: 26rem; margin: 0 0.65rem 0.65rem; }
+  body.calc-open .task-card { padding-bottom: 0.9rem; }
+}
+
+@media print { .calc-panel, .app-header { display: none; } }
+
+
+/* ---------- Centripetal Acceleration Workshop: the top-down picture ---------- */
+.sv-floor { fill: var(--sky); }
+.sv-circle { fill: none; stroke: var(--text-dim); stroke-width: 2.5; stroke-dasharray: 9 8; }
+.sv-center { fill: var(--text-main); }
+.sv-radius { stroke: var(--accent-v); stroke-width: 3; stroke-dasharray: 2 6; stroke-linecap: round; }
+.sv-r-text { fill: var(--accent-v); }
+.sv-v line { stroke: var(--accent-x); } .sv-v polygon { fill: var(--accent-x); }
+.sv-v-text { fill: var(--accent-x); }
+.sv-a line { stroke: var(--accent-g); } .sv-a polygon { fill: var(--accent-g); }
+.sv-a-text { fill: var(--accent-g); }
+.sv-faint { opacity: 0.35; }
+.sv-car { fill: var(--ball); }
+.sv-car-glass { fill: var(--sky); }
+.sv-turn { fill: none; stroke: var(--text-dim); stroke-width: 3; }
+.sv-turn-head line { stroke: var(--text-dim); } .sv-turn-head polygon { fill: var(--text-dim); }
+.sv-trail { fill: var(--ball); }
+.sv-tangent { stroke: var(--text-dim); stroke-width: 2; stroke-dasharray: 4 6; }
+.sv-string { stroke: var(--text-main); stroke-width: 2.5; }
+.sv-star { fill: #f59e0b; stroke: #92400e; stroke-width: 1.5; }
+.sv-paper { fill: #fefce8; stroke: var(--text-dim); stroke-width: 2; }
+html.theme-dark .sv-paper { fill: #1e293b; }
+.sv-choice line { stroke: var(--text-muted); } .sv-choice polygon { fill: var(--text-muted); }
+.sv-choice-path { fill: none; stroke: var(--text-muted); stroke-width: 3; stroke-dasharray: 10 7; }
+.sv-letter { font-size: 21px; font-weight: 800; }
+.sv-panel { fill: var(--bg-card); stroke: var(--border-color); stroke-width: 1.5; }
+.sv-title { font-size: 21px; font-weight: 800; }
+.solved-v { color: var(--accent-x); }
+.solved-a { color: var(--accent-g); }
+.opts-letters { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.opt-letter { text-align: center; font-size: 1.15rem; font-weight: 800; }
+.sv-dim { fill: var(--text-dim); }
+</style>
+
+  <!-- Firebase (compat SDK, same as the rest of the site) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
+  <!-- Desmos Scientific Calculator API (same key as the other Unit 2 labs) -->
+  <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+  <script src="../../assets/ngss-helper.js" defer></script>
+</head>
+<body oncontextmenu="return false;">
+
+  <!-- Sign-in gate: sign in with a school Google account, or continue as an ungraded guest -->
+  <div id="loginGate" class="login-gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+    <div class="gate-card">
+      <div class="gate-icon" aria-hidden="true">🌀</div>
+      <h1 id="gateTitle" class="gate-title">Centripetal Acceleration Workshop</h1>
+      <p class="gate-sub">Unit 2 · Circular Motion</p>
+      <p class="gate-text">Sign in with your <strong>@orangeusd.org</strong> Google account. Your work saves automatically. If you stop, come back on any Chromebook and pick up where you left off.</p>
+      <div class="gate-grading">
+        <div><span aria-hidden="true">📚</span> Guided parts (6 pts): you earn credit for every step you finish</div>
+        <div><span aria-hidden="true">🏆</span> Mastery Check (4 pts): your best score counts</div>
+      </div>
+      <button type="button" id="btnGateSignIn" class="btn-google">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" width="20" height="20">
+        Sign in with Google
+      </button>
+      <div class="gate-guest">
+        <button type="button" id="btnGateGuest" class="btn-guest">Continue as Guest</button>
+        <p class="gate-guest-note">Guest progress stays on this device only and is <strong>not graded</strong>.</p>
+      </div>
+      <p id="gateStatus" class="gate-status" aria-live="polite"></p>
+      <p id="gateError" class="gate-error" role="alert" hidden></p>
+      <div class="gate-ngss" data-ngss="HS-PS2-1"></div>
+    </div>
+  </div>
+
+  <header class="app-header">
+    <div class="header-row">
+      <div class="header-left">
+        <span class="app-icon" aria-hidden="true">🌀</span>
+        <h1 class="app-title">Centripetal Acceleration Workshop</h1>
+      </div>
+      <div class="header-right">
+        <label id="viewWrap" class="view-wrap" hidden>View as
+          <select id="viewSelect" aria-label="Teacher: view the workshop as">
+            <option value="teacher">Teacher</option>
+            <option value="conceptual">Conceptual (P1–3)</option>
+            <option value="cp">CP (P4–6)</option>
+            <option value="honors">Honors (P0)</option>
+          </select>
+        </label>
+        <button id="btn-projector-mode" class="btn-tool" title="Big text and extra contrast for the classroom projector">🖥️ Projector</button>
+        <button id="btn-theme-toggle" class="btn-tool" title="Toggle light / dark theme">🌙 Dark</button>
+        <a id="btnMonitor" href="../../admin/centripetal_workshop_monitor.html" target="_blank" class="btn-tool" title="See class progress and common mistakes" hidden>📊 Class Progress</a>
+        <button type="button" id="btnCert" class="cert-chip" title="Download your certificate as a PDF" hidden>🎓 Certificate</button>
+        <a href="../../unit2-dashboard.html" class="btn-tool" title="Back to Unit 2 Dashboard">🏠 Unit 2</a>
+        <div id="userChip" class="user-chip" hidden>
+          <span id="scoreChip" class="score-chip" title="Your grade so far"></span>
+          <span id="saveIndicator" class="save-indicator save-busy" aria-live="polite">⏳ Saving…</span>
+          <span id="userName" class="user-name"></span>
+          <span id="userTrack" class="user-track"></span>
+          <button type="button" id="btnSignOut" class="btn-signout" title="Sign out">Sign out</button>
+          <button type="button" id="btnChipSignIn" class="btn-signout" title="Sign in to get credit" hidden>Sign in for credit</button>
+        </div>
+      </div>
+    </div>
+    <nav id="partStrip" class="part-strip" aria-label="Parts"></nav>
+  </header>
+
+  <main class="workbench">
+    <!-- LEFT: the picture, with everything needed for the current question -->
+    <section class="card stage-card" aria-label="Picture">
+      <div id="stage" class="stage" tabindex="0" role="img" aria-label="Picture for the current step, seen from above. The values you need appear here."></div>
+      <div class="stage-foot">
+        <div class="foot-row">
+          <div id="readout" class="readout" aria-live="polite" hidden></div>
+          <div id="stageCtl" class="stage-ctl" hidden>
+            <button type="button" id="btnNextSecond" class="btn-step">▶ Next second</button>
+            <button type="button" id="btnPlay" class="btn-step" hidden>▶ Play</button>
+            <button type="button" id="btnStartOver" class="btn-ghost" hidden>↺ Start over</button>
+          </div>
+        </div>
+      </div>
+      <div id="solved" class="solved" aria-label="What you have found so far"></div>
+    </section>
+
+    <!-- RIGHT: one guided task at a time -->
+    <section class="card task-card" id="taskCard" aria-live="polite"></section>
+  </main>
+
+  <!-- Floating calculator: drag it by its title bar -->
+  <div id="calcPanel" class="calc-panel" hidden>
+    <div id="calcHead" class="calc-head" title="Drag to move the calculator"><strong>🧮 Calculator</strong><span class="calc-drag" aria-hidden="true">⠿ drag to move</span></div>
+    <div id="calcHost" class="calc-host"></div>
+    <div class="calc-foot">
+      <p id="calcMsg" class="calc-msg" role="alert" hidden></p>
+      <button type="button" id="btnUseCalc" class="btn-grab">📥 Use calculator answer</button>
+    </div>
+  </div>
+
+  <script>
+// === Unit_2/centripetal_workshop/js/ngss-data.js ===
+// NGSS standard shown on the sign-in card, inlined so it works even if standards-data.js is filtered.
+window.NGSS_STANDARDS_DATA = window.NGSS_STANDARDS_DATA || [{
+  code: "HS-PS2-1",
+  domain: "Physical Science",
+  domainCode: "PS",
+  is: "IS1",
+  topic: "Forces and Motion",
+  title: "Newton's Second Law of Motion",
+  pe: "Analyze data to support the claim that Newton's second law of motion describes the mathematical relationship among the net force on a macroscopic object, its mass, and its acceleration.",
+  clarification: "Examples of data could include tables or graphs of position or velocity as a function of time for objects subject to a net force.",
+  boundary: "Assessment is limited to one-dimensional motion, with constant forces.",
+  sep: "Analyzing and Interpreting Data",
+  dci: "PS2.A: Forces and Motion",
+  ccc: "Cause and Effect",
+  unitLink: "../../unit2-dashboard.html",
+  keywords: ["force", "mass", "acceleration", "newton", "motion", "f=ma", "kinematics", "data"]
+}];
+
+
+// === Unit_2/centripetal_workshop/js/text.js ===
+// Centripetal Acceleration Workshop — real subscripts and no-wrap math in the task card.
+// Symbols are written in source as a_c, v_o, X_o, X_f. Adapted from Unit_2/vector_decomposition_studio/js/text.js.
+
+(function () {
+  const SUB_RE = /\b(v|X|a)_(ox|oy|o|f|c)\b/g;
+  const NBSP = ' ';
+  // Only text between tags is changed, so attributes stay valid.
+  window.subHTML = str => String(str).split(/(<[^>]+>)/).map(part => (part.startsWith('<') ? part : part
+    .replace(SUB_RE, '$1<sub>$2</sub>')
+    .replace(/(\d)\s+(?=(?:m\/s²|m\/s|m|s|times)(?![A-Za-z]))/g, '$1' + NBSP)
+    .replace(/\s+([=−+×÷])\s+/g, NBSP + '$1' + NBSP)
+  )).join('');
+})();
+
+// === Unit_2/vector_decomposition_studio/js/engine.js ===
+// Vector Decomposition Studio — Physics, scenario generators, answer checking, diagnostics, quiz builder
+// Angle θ is measured up from the ground unless a scenario says fromVertical.
+// Every wrong answer is compared against known mistakes so the student hears WHY, not just "wrong".
+// Questions are plain JSON so an unfinished Mastery Check can be saved and resumed with the same numbers.
+
+(function () {
+  const rad = d => d * Math.PI / 180;
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+
+  const Phys = {
+    vx: (v0, th) => v0 * Math.cos(rad(th)),
+    vy: (v0, th) => v0 * Math.sin(rad(th)),
+    speed: (x, y) => Math.hypot(x, y),
+    angle: (x, y) => Math.atan2(y, x) * 180 / Math.PI
+  };
+
+  function fmt(v, d) {
+    const s = Number(v).toFixed(d);
+    return /^-0\.?0*$/.test(s) ? s.slice(1) : s;
+  }
+  // Answers students compute: 1 decimal, 2 when small
+  const fmtAns = v => fmt(v, Math.abs(v) < 10 ? 2 : 1);
+
+  const near = (v, target, rel = 0.02, abs = 0.1) => Math.abs(v - target) <= Math.max(Math.abs(target) * rel, abs);
+
+  function parseNum(raw) {
+    const v = parseFloat(String(raw).replace(',', '.').replace(/[−–]/g, '-').replace(/[^0-9.\-eE]/g, ''));
+    return isFinite(v) ? v : null;
+  }
+
+  // ---------- Scenario contexts: the words never contain the numbers (those live on the picture) ----------
+  const THINGS = [
+    { icon: '⚽', name: 'soccer ball', verb: 'is kicked' },
+    { icon: '🏀', name: 'basketball', verb: 'is shot' },
+    { icon: '🏈', name: 'football', verb: 'is punted' },
+    { icon: '⛳', name: 'golf ball', verb: 'is hit' },
+    { icon: '🎾', name: 'tennis ball', verb: 'is lobbed' },
+    { icon: '🐸', name: 'frog', verb: 'jumps' },
+    { icon: '💣', name: 'cannonball', verb: 'is fired' },
+    { icon: '🚀', name: 'toy rocket', verb: 'is launched' }
+  ];
+
+  // No angles close to 45° in calculations: sin and cos must give clearly different answers.
+  const EASY_ANGLES = [30, 60];
+  const ALL_ANGLES = [15, 20, 25, 30, 35, 37, 40, 50, 53, 55, 60, 65, 70, 75];
+  const FIVE_ANGLES = [20, 25, 30, 35, 40, 50, 55, 60, 65, 70];
+  const EASY_SPEEDS = [10, 20, 30, 40];
+  const ALL_SPEEDS = [12, 14, 15, 16, 18, 20, 22, 24, 25, 26, 28, 30, 32, 35, 36, 40, 45, 50];
+
+  function launch(level = 2, not) {
+    let sc;
+    do {
+      sc = {
+        v0: pick(level <= 1 ? EASY_SPEEDS : ALL_SPEEDS),
+        th: pick(level <= 1 ? EASY_ANGLES : level === 'five' ? FIVE_ANGLES : ALL_ANGLES),
+        thing: Math.floor(Math.random() * THINGS.length)
+      };
+    } while (not && not.v0 === sc.v0 && not.th === sc.th);
+    sc.x = Phys.vx(sc.v0, sc.th);
+    sc.y = Phys.vy(sc.v0, sc.th);
+    return sc;
+  }
+
+  // Whole-number arrows that land exactly on grid corners, for reading squares with no trig
+  const TRIPLES = [[8, 6], [6, 8], [12, 5], [5, 12], [12, 9], [9, 12], [15, 8], [8, 15], [4, 3], [3, 4], [16, 12], [12, 16]];
+  function gridArrow(scales = [1], not) {
+    let sc;
+    do {
+      const [gx, gy] = pick(TRIPLES);
+      const scale = pick(scales);
+      sc = { gx, gy, scale, x: gx * scale, y: gy * scale, v0: Math.hypot(gx, gy) * scale, thing: Math.floor(Math.random() * THINGS.length) };
+    } while (not && not.gx === sc.gx && not.gy === sc.gy && not.scale === sc.scale);
+    sc.th = Phys.angle(sc.x, sc.y);
+    return sc;
+  }
+
+  // ---------- Worked solutions ----------
+  const fn = asked => asked === 'x' ? 'cos' : 'sin';
+  const sym = asked => asked === 'x' ? 'v_0x' : 'v_0y';
+  const work = (asked, sc) =>
+    `${sym(asked)} = v_0 × ${fn(asked)}(θ) = ${sc.v0} m/s × ${fn(asked)}(${sc.th}°) = ${fmtAns(asked === 'x' ? sc.x : sc.y)} m/s`;
+
+  // ---------- Diagnostics: [id, test(v, sc), message(sc)] — first match wins. Ids feed the teacher monitor. ----------
+  function calcMistakes(asked) {
+    const f = asked === 'x' ? Math.cos : Math.sin;
+    const part = asked === 'x' ? 'sideways' : 'upward';
+    const other = asked === 'x' ? 'upward' : 'sideways';
+    const value = sc => f(rad(sc.th));
+    return [
+      ['swap', (v, s) => near(v, asked === 'x' ? s.y : s.x),
+        () => `You found the ${other} part. The ${part} part is the side that ${asked === 'x' ? 'touches' : 'is across from'} θ, so it uses ${fn(asked)}.`],
+      ['radians', (v, s) => near(v, s.v0 * f(s.th)) || near(v, f(s.th)),
+        () => `Your calculator is in radian mode. Switch it to degrees (DEG) and try again.`],
+      ['no_speed', (v, s) => near(v, value(s), 0.03, 0.01),
+        s => `${fn(asked)}(${s.th}°) only tells how much of the speed, as a decimal. Multiply it by v_0 to get m/s.`],
+      ['divided', (v, s) => near(v, s.v0 / value(s)),
+        () => `You divided. A part can never be bigger than the whole speed. Multiply v_0 by the decimal.`],
+      ['tan', (v, s) => near(v, s.v0 * Math.tan(rad(s.th))),
+        () => `That is tangent. Use sin or cos, because v_0 is the long side (the hypotenuse) of the triangle.`],
+      ['no_trig', (v, s) => near(v, s.v0 * s.th),
+        () => `You multiplied by the angle itself. Multiply by ${fn(asked)} of the angle.`],
+      ['added', (v, s) => near(v, s.v0 + value(s)),
+        () => `You added. Multiply the speed by the decimal: v_0 × ${fn(asked)}(θ).`],
+      ['whole_speed', (v, s) => near(v, s.v0),
+        () => `That is the whole launch speed v_0. Only part of it goes ${asked === 'x' ? 'sideways' : 'up'}.`],
+      ['angle_read', (v, s) => near(v, s.th),
+        () => `That is the angle. The answer is a speed in m/s. Use v_0 × ${fn(asked)}(θ).`],
+      ['decimal', (v, s) => { const t = asked === 'x' ? s.x : s.y; return near(v, t * 10) || near(v, t / 10); },
+        () => `Your digits are right but the decimal point moved. Check your typing.`]
+    ];
+  }
+
+  // Check a calculated component. Returns { ok, msg, mistake }.
+  function checkCalc(asked, raw, sc) {
+    const v = parseNum(raw);
+    if (v === null) return { ok: null, msg: 'Type a number first.' };
+    const target = asked === 'x' ? sc.x : sc.y;
+    if (near(v, target)) return { ok: true, msg: `<span class="formula">${work(asked, sc)}</span>` };
+    const hit = calcMistakes(asked).find(([, test]) => test(v, sc));
+    const why = hit ? hit[2](sc) : 'Not quite. Check each step: which function, then multiply by v_0.';
+    return {
+      ok: false,
+      mistake: hit ? hit[0] : 'other',
+      msg: `${why}<br><span class="worked">The right way: <span class="formula">${work(asked, sc)}</span></span>`
+    };
+  }
+
+  // ---------- Mastery Check questions ----------
+  // Each is plain JSON: { kind, skill, sc, asked?, order? }. QUESTION[kind] knows how to show and grade it.
+  const SKILLS = {
+    read: { label: 'Read parts off a grid' },
+    concept: { label: 'Angle and the parts' },
+    choose: { label: 'Choose sin or cos' },
+    calc_x: { label: 'Calculate v_0x' },
+    calc_y: { label: 'Calculate v_0y' },
+    sense: { label: 'Does the answer make sense?' },
+    honors: { label: 'Honors challenges' }
+  };
+
+  function shuffled(n) {
+    const a = [...Array(n).keys()];
+    for (let i = n - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  const QUESTION = {
+    // Read one part off a grid (the scale changes, so students must read the key)
+    read: {
+      make: () => ({ kind: 'read', skill: 'read', asked: pick(['x', 'y']), sc: gridArrow([1, 2, 5]) }),
+      type: 'num',
+      text: q => `Use the grid. Read the scale first. How fast is the ${q.asked === 'x' ? 'sideways' : 'upward'} part, ${sym(q.asked)}?`,
+      scene: q => ({ mode: 'grid', sc: q.sc, showArrow: true, showX: q.asked === 'x', showY: q.asked === 'y', keyLabel: true }),
+      unit: 'm/s',
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const t = q.asked === 'x' ? q.sc.x : q.sc.y;
+        if (v === null) return { ok: false, msg: `No answer. ${sym(q.asked)} = ${t} m/s.`, mistake: 'blank' };
+        if (near(v, t, 0, 0.01)) return { ok: true, msg: `${sym(q.asked)} = ${t} m/s.` };
+        const squares = q.asked === 'x' ? q.sc.gx : q.sc.gy;
+        if (near(v, squares, 0, 0.01) && q.sc.scale !== 1) {
+          return { ok: false, mistake: 'scale', msg: `You counted ${squares} squares, but each square is worth ${q.sc.scale} m/s here. ${squares} × ${q.sc.scale} = ${t} m/s.` };
+        }
+        if (near(v, q.asked === 'x' ? q.sc.y : q.sc.x, 0, 0.01)) {
+          return { ok: false, mistake: 'swap', msg: `You read the other part. ${q.asked === 'x' ? 'Sideways is along the ground' : 'Upward is the height of the tip'}. ${sym(q.asked)} = ${t} m/s.` };
+        }
+        return { ok: false, mistake: 'read', msg: `Count squares, then multiply by the scale. ${sym(q.asked)} = ${t} m/s.` };
+      }
+    },
+
+    // Which part is bigger at this angle?
+    concept: {
+      make: () => {
+        const th = pick([15, 20, 30, 45, 60, 70, 75]);
+        return { kind: 'concept', skill: 'concept', sc: { v0: pick([20, 30, 40]), th, thing: Math.floor(Math.random() * THINGS.length) }, order: shuffled(3) };
+      },
+      type: 'mc',
+      text: () => 'Look at the launch angle. Which part of the launch velocity is bigger?',
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: false, showY: false, labelV0: false }),
+      options: () => [{ t: 'The sideways part, v_0x', id: 'x' }, { t: 'The upward part, v_0y', id: 'y' }, { t: 'They are equal', id: 'eq' }],
+      grade: (q, id) => {
+        const right = q.sc.th === 45 ? 'eq' : q.sc.th < 45 ? 'x' : 'y';
+        const why = q.sc.th === 45 ? 'At 45° the speed splits evenly.' : q.sc.th < 45 ? 'A low angle aims mostly sideways, so v_0x is bigger.' : 'A steep angle aims mostly up, so v_0y is bigger.';
+        return { ok: id === right, msg: why, mistake: id === right ? null : 'angle_concept' };
+      }
+    },
+
+    // Pick the correct setup from symbols
+    choose: {
+      make: () => ({ kind: 'choose', skill: 'choose', asked: pick(['x', 'y']), sc: launch(2), order: shuffled(4) }),
+      type: 'mc',
+      text: q => `Which setup finds the part marked with "?" in the picture?`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: q.asked === 'x', showY: q.asked === 'y', mark: q.asked }),
+      options: () => [
+        { t: 'v_0 × cos(θ)', id: 'x', formula: true }, { t: 'v_0 × sin(θ)', id: 'y', formula: true },
+        { t: 'v_0 ÷ cos(θ)', id: 'dc', formula: true }, { t: 'v_0 × tan(θ)', id: 't', formula: true }
+      ],
+      grade: (q, id) => {
+        const ok = id === q.asked;
+        return {
+          ok,
+          mistake: ok ? null : (id === 'x' || id === 'y') ? 'swap' : id === 't' ? 'tan' : 'divided',
+          msg: q.asked === 'x' ? 'The sideways side touches θ (adjacent), so it uses cos.' : 'The upward side is across from θ (opposite), so it uses sin.'
+        };
+      }
+    },
+
+    calc_x: {
+      make: () => ({ kind: 'calc_x', skill: 'calc_x', asked: 'x', sc: launch(2) }),
+      type: 'num',
+      text: q => `A ${THINGS[q.sc.thing].name} ${THINGS[q.sc.thing].verb}. Use the picture to find the sideways part, v_0x.`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: true, showY: false, mark: 'x' }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, q.sc.th] }),
+      grade: (q, raw) => gradeCalc('x', raw, q.sc)
+    },
+
+    calc_y: {
+      make: () => ({ kind: 'calc_y', skill: 'calc_y', asked: 'y', sc: launch(2) }),
+      type: 'num',
+      text: q => `A ${THINGS[q.sc.thing].name} ${THINGS[q.sc.thing].verb}. Use the picture to find the upward part, v_0y.`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: false, showY: true, mark: 'y' }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, q.sc.th] }),
+      grade: (q, raw) => gradeCalc('y', raw, q.sc)
+    },
+
+    // A claimed answer: possible or not, and why?
+    sense: {
+      make: () => {
+        const sc = launch(2);
+        const bad = Math.random() < 0.5;
+        const asked = pick(['x', 'y']);
+        // Bad claims are bigger than the launch speed, a mistake students can catch without a calculator
+        const claim = bad ? Math.round(sc.v0 * pick([1.2, 1.4, 1.5])) : Math.round(asked === 'x' ? sc.x : sc.y);
+        return { kind: 'sense', skill: 'sense', asked, sc, claim, bad, order: shuffled(3) };
+      },
+      type: 'mc',
+      text: q => `A student says the ${q.asked === 'x' ? 'sideways' : 'upward'} part of this launch is ${q.claim} m/s. Without calculating, could that be right?`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: q.asked === 'x', showY: q.asked === 'y', mark: q.asked }),
+      options: () => [
+        { t: 'No. A part cannot be bigger than the launch speed.', id: 'no' },
+        { t: 'Yes. It could be right, because it is smaller than the launch speed.', id: 'yes' },
+        { t: 'Yes. Parts are always bigger than the launch speed.', id: 'bigger' }
+      ],
+      grade: (q, id) => {
+        const right = q.bad ? 'no' : 'yes';
+        return {
+          ok: id === right,
+          mistake: id === right ? null : 'part_bigger',
+          msg: q.bad ? `v_0 is the long side of the triangle, so each part must be smaller than ${q.sc.v0} m/s.` : `${q.claim} m/s is smaller than ${q.sc.v0} m/s, so it passes the check.`
+        };
+      }
+    },
+
+    // ---------- Honors (Period 0 only) ----------
+    h_vertical: {
+      make: () => ({ kind: 'h_vertical', skill: 'honors', asked: pick(['x', 'y']), sc: Object.assign(launch(2), {}) }),
+      type: 'num',
+      text: q => `Careful: this angle is measured from the vertical, not the ground. Find ${sym(q.asked)}.`,
+      hints: () => ['Look at which side touches the marked angle. Here it is the upward side.', 'The side that touches the angle uses cos. The side across from it uses sin.'],
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: q.asked === 'x', showY: q.asked === 'y', mark: q.asked, fromVertical: true }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, 90 - q.sc.th] }),
+      // sc.th is the angle from the GROUND; the picture shows 90° − th from the vertical.
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const t = q.asked === 'x' ? q.sc.x : q.sc.y;
+        const shown = 90 - q.sc.th;
+        const right = `${sym(q.asked)} = ${q.sc.v0} m/s × ${q.asked === 'x' ? 'sin' : 'cos'}(${shown}°) = ${fmtAns(t)} m/s`;
+        if (v !== null && near(v, t)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const flipped = v !== null && near(v, q.asked === 'x' ? q.sc.y : q.sc.x);
+        return {
+          ok: false,
+          mistake: flipped ? 'vertical_angle' : 'other',
+          msg: `${flipped ? `You used the ground rule. Here the UPWARD side touches the angle, so cos goes with v_0y and sin goes with v_0x.<br>` : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>`
+        };
+      }
+    },
+
+    h_down: {
+      make: () => ({ kind: 'h_down', skill: 'honors', asked: 'y', sc: launch(2) }),
+      type: 'num',
+      text: () => 'This launch aims BELOW the horizontal. Up is positive and down is negative. Calculate how fast the vertical part is. Then choose its direction.',
+      signed: true,
+      hints: () => ['Use v_0 × sin(θ) in the calculator. You do not need a minus sign there.', 'Look at the arrow. Which way does the vertical part point? Choose Up or Down.'],
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: false, showY: true, mark: 'y', downward: true }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, q.sc.th] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const t = -q.sc.y;
+        const right = `v_0y = −(${q.sc.v0} m/s × sin(${q.sc.th}°)) = ${fmtAns(t).replace('-', '−')} m/s`;
+        if (v !== null && near(v, t)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const noSign = v !== null && near(v, q.sc.y);
+        return { ok: false, mistake: noSign ? 'sign' : 'other', msg: `${noSign ? 'Right size, wrong sign. Downward is negative.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    },
+
+    h_speed: {
+      make: () => ({ kind: 'h_speed', skill: 'honors', sc: gridArrow([1, 2]) }),
+      type: 'num',
+      text: () => 'Work backward. Read both parts off the grid, then find the launch speed v_0.',
+      hints: () => ['The parts are at a right angle, so use the Pythagorean theorem.', 'On the calculator: press the √ button. Inside it, type the first part, press a², press +, type the second part, press a².'],
+      scene: q => ({ mode: 'grid', sc: q.sc, showArrow: true, showX: true, showY: true, keyLabel: true }),
+      unit: 'm/s',
+      needs: q => ({ fn: 'sqrt', nums: [q.sc.x, q.sc.y] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const right = `v_0 = √(v_0x² + v_0y²) = √(${q.sc.x}² + ${q.sc.y}²) = ${fmtAns(q.sc.v0)} m/s`;
+        if (v !== null && near(v, q.sc.v0)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const added = v !== null && near(v, q.sc.x + q.sc.y);
+        return { ok: false, mistake: added ? 'added_parts' : 'other', msg: `${added ? 'You added the parts. They are at a right angle, so use the Pythagorean theorem.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    },
+
+    h_angle: {
+      make: () => ({ kind: 'h_angle', skill: 'honors', sc: gridArrow([1, 2]) }),
+      type: 'num',
+      text: () => 'Work backward. Read both parts off the grid, then find the launch angle θ above the ground.',
+      hints: () => ['Use θ = tan⁻¹(v_0y ÷ v_0x).', 'The tan⁻¹ button is on the calculator\'s func tab. Press func, then tan⁻¹.', 'Press main to get the numbers back. Type the upward part, press ÷, then type the sideways part.'],
+      scene: q => ({ mode: 'grid', sc: q.sc, showArrow: true, showX: true, showY: true, keyLabel: true }),
+      unit: '°',
+      needs: q => ({ fn: 'atan', nums: [q.sc.x, q.sc.y] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const right = `θ = tan⁻¹(v_0y ÷ v_0x) = tan⁻¹(${q.sc.y} ÷ ${q.sc.x}) = ${fmt(q.sc.th, 1)}°`;
+        if (v !== null && Math.abs(v - q.sc.th) <= 1) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const flipped = v !== null && Math.abs(v - (90 - q.sc.th)) <= 1;
+        return { ok: false, mistake: flipped ? 'vertical_angle' : 'other', msg: `${flipped ? 'That angle is from the vertical. Divide up by sideways.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    },
+
+    h_back: {
+      make: () => ({ kind: 'h_back', skill: 'honors', sc: launch(2) }),
+      type: 'num',
+      text: () => 'The picture gives v_0x and θ. Work backward to find the launch speed v_0.',
+      hints: () => ['Normally v_0x = v_0 × cos(θ). Here you know v_0x, so divide instead.', 'On the calculator: type v_0x, press ÷, then press cos and type the angle.'],
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: true, showY: false, labelV0: false, giveX: true }),
+      unit: 'm/s',
+      needs: q => ({ fn: 'cos', nums: [Number(fmt(q.sc.x, 1)), q.sc.th] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const shownX = Number(fmt(q.sc.x, 1));
+        const t = shownX / Math.cos(rad(q.sc.th));
+        const right = `v_0 = v_0x ÷ cos(θ) = ${fmt(shownX, 1)} ÷ cos(${q.sc.th}°) = ${fmtAns(t)} m/s`;
+        if (v !== null && near(v, t)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const times = v !== null && near(v, shownX * Math.cos(rad(q.sc.th)));
+        return { ok: false, mistake: times ? 'multiplied' : 'other', msg: `${times ? 'You multiplied, so your answer came out smaller than v_0x. The whole speed must be bigger. Divide.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    }
+  };
+
+  function gradeCalc(asked, raw, sc) {
+    const r = checkCalc(asked, raw, sc);
+    if (r.ok === null) return { ok: false, mistake: 'blank', msg: `No answer. <span class="formula">${work(asked, sc)}</span>` };
+    return r;
+  }
+
+  // Mastery Check: one blueprint so every retake tests the same skills with new numbers.
+  function buildQuiz(honors) {
+    const list = ['read', 'concept', 'choose', 'calc_x', 'calc_x', 'calc_y', 'calc_y', 'sense'];
+    if (honors) list.push(pick(['h_speed', 'h_angle']), pick(['h_vertical', 'h_down', 'h_back']));
+    return list.map(kind => QUESTION[kind].make());
+  }
+
+  function gradeQuiz(questions, answers) {
+    const results = questions.map((q, i) => {
+      const r = QUESTION[q.kind].grade(q, answers[i]);
+      return { skill: q.skill, ok: !!r.ok, msg: r.msg, mistake: r.mistake || null };
+    });
+    const correct = results.filter(r => r.ok).length;
+    const skills = {};
+    results.forEach(r => {
+      skills[r.skill] = skills[r.skill] || { right: 0, total: 0 };
+      skills[r.skill].total++;
+      if (r.ok) skills[r.skill].right++;
+    });
+    return { results, correct, total: questions.length, pct: Math.round(100 * correct / questions.length), skills };
+  }
+
+  // ---------- Reading the Desmos scientific calculator ----------
+  // Its API reports what was typed (LaTeX) but not the result, so this evaluates the LaTeX itself.
+  // It also records which numbers and functions were used, so "17.3" alone can't pass as work.
+  function parseCalc(latex, degrees, prev) {
+    let src = String(latex)
+      .replace(/\\left|\\right/g, '').replace(/\\cdot|\\times/g, '*').replace(/\\div/g, '/')
+      .replace(/\\operatorname\{([a-z]+)\}/g, '\\$1').replace(/\\ /g, '').replace(/\s+/g, '')
+      .replace(/−/g, '-').replace(/\^\{?\\circ\}?|°/g, '°');
+    let i = 0;
+    const nums = [], fns = [];
+    const peek = t => src.startsWith(t, i);
+    const take = t => (peek(t) ? (i += t.length, true) : false);
+    const fail = () => { throw new Error('unreadable'); };
+    const need = t => { if (!take(t)) fail(); };
+    const group = () => { need('{'); const v = expr(); need('}'); return v; };
+
+    const FN = { sin: Math.sin, cos: Math.cos, tan: Math.tan };
+    const INV = { sin: Math.asin, cos: Math.acos, tan: Math.atan };
+    const toRad = x => (degrees ? rad(x) : x);
+    const fromRad = x => (degrees ? x * 180 / Math.PI : x);
+
+    function funcCall() {
+      for (const name of ['arcsin', 'arccos', 'arctan', 'sin', 'cos', 'tan']) {
+        if (!take('\\' + name)) continue;
+        const base = name.replace('arc', '');
+        let inverse = name.startsWith('arc');
+        if (take('^{-1}')) inverse = true;
+        const arg = unary();
+        fns.push((inverse ? 'a' : '') + base);
+        return inverse ? fromRad(INV[base](arg)) : FN[base](toRad(arg));
+      }
+      return null;
+    }
+
+    function atom() {
+      if (take('(')) { const v = expr(); need(')'); return v; }
+      if (take('\\frac')) { const a = group(); const b = group(); return a / b; }
+      if (take('\\sqrt')) {
+        let n = 2;
+        if (take('[')) { n = expr(); need(']'); }
+        fns.push('sqrt');
+        return Math.pow(group(), 1 / n);
+      }
+      if (take('\\pi')) return Math.PI;
+      if (take('ans') || take('\\ans')) {
+        if (!prev) fail();
+        nums.push(...prev.nums); fns.push(...prev.fns);
+        return prev.value;
+      }
+      const m = src.slice(i).match(/^(\d+\.?\d*|\.\d+)/);
+      if (m) { i += m[0].length; const v = parseFloat(m[0]); nums.push(v); return v; }
+      const f = funcCall();
+      if (f !== null) return f;
+      return fail();
+    }
+
+    function postfix() {
+      let v = atom();
+      for (;;) {
+        if (take('°')) { if (!degrees) v = rad(v); }
+        else if (take('\\%')) v /= 100;
+        else if (take('^')) {
+          if (peek('{')) v = Math.pow(v, group());
+          else { const m = src.slice(i).match(/^\d/); if (!m) fail(); i++; v = Math.pow(v, Number(m[0])); }
+        } else return v;
+      }
+    }
+    function unary() { return take('-') ? -unary() : postfix(); }
+    function term() {
+      let v = unary();
+      for (;;) {
+        if (take('*')) v *= unary();
+        else if (take('/')) v /= unary();
+        else if (i < src.length && /[\d(\\.a]/.test(src[i])) v *= unary();   // 20\cos(30)
+        else return v;
+      }
+    }
+    function expr() {
+      let v = term();
+      for (;;) {
+        if (take('+')) v += term();
+        else if (take('-')) v -= term();
+        else return v;
+      }
+    }
+
+    try {
+      const value = expr();
+      if (i !== src.length || !isFinite(value)) return null;
+      return { value, nums, fns, latex };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // state = desmos.getState(). Uses the student's latest line, as the calculator itself would show it.
+  function readCalculator(state) {
+    const list = (state && state.expressions && state.expressions.list) || [];
+    const degrees = !state || !state.settings || state.settings.degreeMode !== false;
+    let prev = null, last = null, unreadable = false;
+    list.forEach(item => {
+      if (!item || !item.latex) return;
+      const parsed = parseCalc(item.latex, degrees, prev);
+      unreadable = !parsed;
+      last = item.latex;
+      if (parsed) prev = parsed;
+    });
+    if (last === null) return { empty: true };
+    if (unreadable) return { unreadable: true };
+    return prev;
+  }
+
+  // needs = { nums: [...], fn: 'sin' | 'cos' | 'sqrt' | 'atan', trig: true }. Returns a message, or null when it is real work.
+  // These stop a looked-up answer without costing a streak, so a real mistake still gets its diagnosis at Check.
+  function checkWork(work, needs = {}) {
+    if (!work.fns.length && work.nums.length <= 1) {
+      return 'Type the whole calculation into the calculator, not just the answer.';
+    }
+    if (needs.fn && !work.fns.includes(needs.fn)) {
+      const names = { sin: 'the sin button', cos: 'the cos button', sqrt: 'the square root button', atan: 'the tan⁻¹ button' };
+      return `Your calculation needs to use ${names[needs.fn]}.`;
+    }
+    if (needs.trig && !work.fns.some(f => ['sin', 'cos', 'tan'].includes(f))) {
+      return 'Your calculation needs to use the sin or cos button.';
+    }
+    const missing = (needs.nums || []).filter(n => !work.nums.some(w => Math.abs(w - Math.abs(n)) < 1e-6));
+    if (missing.length) return `Your calculation needs to use the numbers from the problem. Look for ${missing.join(' and ')}.`;
+    return null;
+  }
+
+  window.Engine = { parseCalc, readCalculator, checkWork, Phys, THINGS, SKILLS, QUESTION, fmt, fmtAns, near, parseNum, pick, shuffled, rad, launch, gridArrow, work, fn, sym, checkCalc, buildQuiz, gradeQuiz };
+})();
+
+// === Unit_2/centripetal_workshop/js/physics.js ===
+// Centripetal Acceleration Workshop — physics, problems for each class, answer checking, diagnostics, Mastery Check.
+// The big idea: going around a circle at a steady speed is still accelerating, because the direction of the velocity
+// keeps changing. The acceleration points to the center: a_c = v² ÷ r.
+// All three classes see the same circles. They differ in how they find a_c:
+//   conceptual (P1–3): compare two circles. Twice the speed makes a_c 4 times as big; half the radius makes it twice as
+//                      big. They multiply the old a_c by that factor. No division.
+//   cp (P4–6):         v and r are on the picture: a_c = v² ÷ r.
+//   honors (P0):       the same, plus v from the time for one lap (v = 2πr ÷ T), and working backward to the fastest
+//                      safe speed on a curve (v = √(a_c × r)).
+// Every wrong answer is compared against known mistakes, so the student hears WHY. Mistake ids feed the teacher monitor.
+
+(function () {
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const shuffled = n => {
+    const a = [...Array(n).keys()];
+    for (let i = n - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+
+  // The circle used on every teaching page: 10 m/s on a 10 m circle, so one second turns it one radian.
+  const TEACH = { v: 10, r: 10 };
+
+  // Whole numbers stay whole, then 1 decimal, 2 when small
+  function fmt(v) {
+    if (Math.abs(v - Math.round(v)) < 1e-9) return String(Math.round(v));
+    return Math.abs(v) < 10 ? v.toFixed(2) : v.toFixed(1);
+  }
+  const near = (v, target, rel = 0.02, abs = 0.05) => Math.abs(v - target) <= Math.max(Math.abs(target) * rel, abs);
+  function parseNum(raw) {
+    const v = parseFloat(String(raw).replace(',', '.').replace(/[−–]/g, '-').replace(/[^0-9.\-eE]/g, ''));
+    return isFinite(v) ? v : null;
+  }
+  const accel = (v, r) => (v * v) / r;
+
+  // ---------- Problems ----------
+  // a_c = v² ÷ r with friendly results. Level 1: whole numbers. Level 2: up to one decimal place.
+  const SPEEDS_1 = [4, 5, 6, 8, 10, 12, 15, 20];
+  const SPEEDS_2 = [6, 8, 9, 10, 12, 14, 15, 16, 18, 20, 24, 25, 30];
+  const RADII = [5, 8, 10, 12, 15, 16, 18, 20, 24, 25, 30, 32, 36, 40, 45, 50, 60, 64, 75, 80, 90, 100];
+  const AC_PAIRS = level => {
+    const out = [];
+    (level === 1 ? SPEEDS_1 : SPEEDS_2).forEach(v => RADII.forEach(r => {
+      const a = accel(v, r), tenths = Math.round(a * 10);
+      if (a < 2 || a > 25 || Math.abs(a * 10 - tenths) > 1e-9) return;
+      if (level === 1 && Math.abs(a - Math.round(a)) > 1e-9) return;
+      out.push({ v, r });
+    }));
+    return out;
+  };
+  const PAIRS = { 1: AC_PAIRS(1), 2: AC_PAIRS(2) };
+
+  function acProblem(level = 2) {
+    const { v, r } = pick(PAIRS[level === 1 ? 1 : 2]);
+    return { kind: 'ac', v, r, a: accel(v, r) };
+  }
+
+  // Conceptual: the same circle changed one way. The old a_c is on the picture; the new one is that times a factor.
+  const BASES = [[10, 20], [10, 50], [6, 12], [8, 16], [8, 32], [4, 8], [12, 24], [12, 36], [6, 18], [4, 4], [6, 6]];
+  function compareProblem(level = 2) {
+    for (;;) {
+      const [v1, r1] = pick(BASES), a1 = accel(v1, r1);
+      const change = pick(level === 1 ? ['v2', 'rhalf'] : ['v2', 'v2', 'v3', 'rhalf']);
+      if (change === 'v3' && v1 > 8) continue;
+      const v2 = change === 'v2' ? 2 * v1 : change === 'v3' ? 3 * v1 : v1;
+      const r2 = change === 'rhalf' ? r1 / 2 : r1;
+      const factor = change === 'v2' ? 4 : change === 'v3' ? 9 : 2;
+      return { kind: 'compare', change, v1, r1, a1, v2, r2, factor, a2: a1 * factor };
+    }
+  }
+
+  // Honors: speed from the time for one lap
+  function periodProblem() {
+    for (;;) {
+      const r = pick([2, 3, 4, 5, 6, 8, 10, 12]), T = pick([2, 3, 4, 5, 6, 8]);
+      const v = 2 * Math.PI * r / T, a = accel(v, r);
+      if (a < 2 || a > 60) continue;
+      return { kind: 'period', r, T, v, a };
+    }
+  }
+
+  // Honors: the fastest speed around a curve when the tires can only give so much a_c
+  function vmaxProblem() {
+    const a = pick([4, 5, 6, 8]), r = pick([20, 25, 30, 40, 45, 50, 80, 100]);
+    return { kind: 'vmax', a, r, v: Math.sqrt(a * r) };
+  }
+
+  const MAKERS = { ac: acProblem, compare: compareProblem, period: periodProblem, vmax: vmaxProblem };
+  const same = (a, b) => !!(a && b) && a.kind === b.kind && ['v', 'r', 'v1', 'r1', 'change', 'T', 'a'].every(k => a[k] === b[k]);
+
+  function newProblem(kind, level = 2, not) {
+    let sc;
+    do { sc = MAKERS[kind](level); } while (same(sc, not));
+    return sc;
+  }
+
+  // ---------- Calculator work: a looked-up number alone can't pass ----------
+  // needs = { fn: 'sqrt', pi: true, routes: [[numbers], ...] }. Any one route of the problem's numbers counts.
+  function workProblem(work, needs = {}) {
+    if (!work.fns.length && work.nums.length <= 1 && !/\\pi/.test(work.latex || '')) return 'Type the whole calculation into the calculator, not just the answer.';
+    if (needs.fn && !work.fns.includes(needs.fn)) return `Your calculation needs to use the ${needs.label || needs.fn} button.`;
+    if (needs.pi && !/\\pi/.test(work.latex || '')) return 'Your calculation needs to use the π button.';
+    const has = n => work.nums.some(w => Math.abs(w - Math.abs(n)) <= Math.max(Math.abs(n) * 0.015, 0.051));
+    const routes = needs.routes || [];
+    if (routes.length && !routes.some(r => r.every(has))) {
+      return `Your calculation needs to use the numbers from this problem. Look for ${routes[0].map(fmt).join(' and ')}.`;
+    }
+    return null;
+  }
+
+  // Student's own earlier answer when there is one, for follow-through credit and for matching their work
+  const own = (ans, k, fallback) => (ans && typeof ans[k] === 'number' ? ans[k] : fallback);
+
+  // ---------- Steps ----------
+  // Each step: k, sym, unit, skill, ask, formula, hints, target, own (follow-through), calc (needs Desmos), needs, mistake, right.
+  const changeWords = {
+    v2: 'The speed doubled. Same circle.',
+    v3: 'The speed tripled. Same circle.',
+    rhalf: 'The circle is half as wide. Same speed.'
+  };
+
+  const factorStep = {
+    k: 'factor', sym: 'new a_c is', noEq: true, unit: 'times as big', skill: 'pattern',
+    ask: sc => `${changeWords[sc.change]} How many times as big is the new a_c?`,
+    formula: sc => (sc.change === 'rhalf' ? 'smaller circle → bigger a_c' : 'speed counts twice: speed change × speed change'),
+    hints: sc => (sc.change === 'rhalf'
+      ? ['A tighter turn bends the path faster, so a_c gets bigger.', 'Half the radius makes a_c 2 times as big.']
+      : [`Compare the two speeds on the picture. The new one is ${sc.change === 'v2' ? 2 : 3} times as fast.`, `Speed counts twice: ${sc.change === 'v2' ? '2 × 2' : '3 × 3'}.`]),
+    target: sc => sc.factor,
+    mistake: (v, sc) => {
+      if (sc.change !== 'rhalf' && near(v, sc.factor === 4 ? 2 : 3, 0, 0.01)) return ['no_square', `Speed counts twice. ${sc.factor === 4 ? '2 × 2 = 4' : '3 × 3 = 9'}, not ${fmt(v)}.`];
+      if (sc.change === 'v3' && near(v, 6, 0, 0.01)) return ['added_not_squared', 'That is 3 + 3. Speed counts twice, so multiply: 3 × 3 = 9.'];
+      if (sc.change === 'rhalf' && near(v, 0.5, 0, 0.01)) return ['radius_flip', 'A smaller circle makes a_c bigger, not smaller. It is a tighter turn.'];
+      if (sc.change === 'rhalf' && near(v, 4, 0, 0.01)) return ['radius_squared', 'Only speed counts twice. Half the radius makes a_c 2 times as big.'];
+      if (near(v, 1, 0, 0.01)) return ['no_change', 'It does change. Look at what is different in the second circle.'];
+      return null;
+    },
+    right: sc => (sc.change === 'rhalf' ? 'Half the radius → 2 times as big' : `${sc.change === 'v2' ? '2 × 2' : '3 × 3'} → ${sc.factor} times as big`)
+  };
+
+  const newAcStep = {
+    k: 'newac', sym: 'new a_c', unit: 'm/s²', skill: 'pattern', calc: true,
+    ask: () => 'Now find the new a_c.',
+    formula: () => 'new a_c = old a_c × how many times as big',
+    hints: (sc, ans) => ['The old a_c is on the first circle.', `In the calculator: ${fmt(sc.a1)} × ${fmt(own(ans, 'factor', sc.factor))}`],
+    target: sc => sc.a2,
+    own: (sc, ans) => sc.a1 * own(ans, 'factor', sc.factor),
+    needs: (sc, ans) => ({ routes: [[sc.a1, own(ans, 'factor', sc.factor)]] }),
+    mistake: (v, sc) => {
+      if (sc.change !== 'rhalf' && near(v, sc.a1 * (sc.factor === 4 ? 2 : 3), 0.01)) return ['no_square', `Speed counts twice. Multiply by ${sc.factor}, not ${sc.factor === 4 ? 2 : 3}.`];
+      if (near(v, sc.a1 / 2, 0.01)) return ['radius_flip', 'A smaller circle makes a_c bigger, not smaller.'];
+      if (near(v, sc.a1 + sc.factor, 0.01)) return ['added', 'You added. "Times as big" means multiply.'];
+      if (near(v, sc.a1, 0.01)) return ['no_change', 'That is the old a_c. The new one is bigger.'];
+      return null;
+    },
+    right: (sc, ans) => {
+      const f = own(ans, 'factor', sc.factor);
+      return `new a_c = ${fmt(sc.a1)} m/s² × ${fmt(f)} = ${fmt(sc.a1 * f)} m/s²`;
+    }
+  };
+
+  const ownV = (sc, ans) => own(ans, 'v', sc.v);
+
+  const acStep = {
+    k: 'ac', sym: 'a_c', unit: 'm/s²', skill: 'ac', calc: true,
+    ask: sc => (sc.kind === 'period' ? 'Now find the centripetal acceleration.' : 'Find the centripetal acceleration.'),
+    formula: () => 'a_c = v² ÷ r',
+    hints: (sc, ans) => ['v² means v × v. Speed counts twice.', `In the calculator: ${fmt(ownV(sc, ans))} × ${fmt(ownV(sc, ans))} ÷ ${fmt(sc.r)}`],
+    target: sc => sc.a,
+    own: (sc, ans) => accel(ownV(sc, ans), sc.r),
+    needs: (sc, ans) => ({ routes: [[ownV(sc, ans), sc.r]] }),
+    mistake: (x, sc, ans) => {
+      const v = ownV(sc, ans), r = sc.r;
+      if (near(x, v / r, 0.01)) return ['no_square', 'You used v, not v². Speed counts twice: v × v.'];
+      if (near(x, v * v * r, 0.01)) return ['times_r', 'You multiplied by r. A bigger circle makes a_c smaller, so divide by r.'];
+      if (near(x, r / (v * v), 0.01)) return ['flipped', 'You divided the wrong way. v² goes on top: v² ÷ r.'];
+      if (near(x, 2 * v / r, 0.01)) return ['doubled', 'That is 2 × v. v² means v × v, not v + v.'];
+      if (near(x, v * v, 0.01)) return ['no_r', 'That is v². Now divide by r.'];
+      return null;
+    },
+    right: (sc, ans) => {
+      const v = ownV(sc, ans);
+      return `a_c = ${fmt(v)}² ÷ ${fmt(sc.r)} = ${fmt(v * v)} ÷ ${fmt(sc.r)} = ${fmt(accel(v, sc.r))} m/s²`;
+    }
+  };
+
+  const speedStep = {
+    k: 'v', sym: 'v', unit: 'm/s', skill: 'period', calc: true,
+    ask: () => 'The picture shows the time for one lap. How fast does it move?',
+    formula: () => 'v = 2πr ÷ T',
+    hints: sc => ['One lap is 2πr, the distance around. Use the π button.', `In the calculator: 2 × π × ${fmt(sc.r)} ÷ ${fmt(sc.T)}`],
+    target: sc => sc.v,
+    needs: sc => ({ pi: true, routes: [[sc.r, sc.T]] }),
+    mistake: (x, sc) => {
+      const { r, T } = sc;
+      if (near(x, Math.PI * r / T, 0.01)) return ['half_lap', 'That is πr, half a lap. One lap is 2πr.'];
+      if (near(x, 2 * Math.PI * r * T, 0.01)) return ['times_T', 'You multiplied by T. Distance ÷ time gives speed.'];
+      if (near(x, r / T, 0.01)) return ['used_r', 'r only reaches from the center to the edge. One lap is 2πr.'];
+      if (near(x, 2 * Math.PI * r, 0.01)) return ['no_T', 'That is the distance around. Divide by the time for one lap.'];
+      if (near(x, Math.PI * r * r / T, 0.01)) return ['area', 'πr² is the area inside the circle. The distance around is 2πr.'];
+      return null;
+    },
+    right: sc => `v = 2 × π × ${fmt(sc.r)} ÷ ${fmt(sc.T)} = ${fmt(sc.v)} m/s`
+  };
+
+  const vmaxStep = {
+    k: 'vmax', sym: 'v', unit: 'm/s', skill: 'backward', calc: true,
+    ask: () => 'The tires can give at most the a_c on the picture. What is the fastest speed around this curve?',
+    formula: () => 'v = √(a_c × r)',
+    hints: sc => ['v² = a_c × r, so take the square root.', `In the calculator: √(${fmt(sc.a)} × ${fmt(sc.r)})`],
+    target: sc => sc.v,
+    needs: sc => ({ fn: 'sqrt', label: 'square root', routes: [[sc.a, sc.r]] }),
+    mistake: (x, sc) => {
+      if (near(x, sc.a * sc.r, 0.01)) return ['no_root', 'That is v². Take the square root to get v.'];
+      if (near(x, Math.sqrt(sc.a / sc.r), 0.01)) return ['divided', 'a_c = v² ÷ r, so v² = a_c × r. Multiply, then take the square root.'];
+      if (near(x, sc.a / sc.r, 0.01) || near(x, sc.r / sc.a, 0.01)) return ['divided', 'Multiply a_c by r, then take the square root.'];
+      return null;
+    },
+    right: sc => `v = √(${fmt(sc.a)} × ${fmt(sc.r)}) = ${fmt(sc.v)} m/s`
+  };
+
+  const STEP = {
+    conceptual: { factor: factorStep, newac: newAcStep },
+    cp: { ac: acStep },
+    honors: { ac: acStep, v: speedStep, vmax: vmaxStep }
+  };
+
+  // The steps of a whole problem, in order
+  const SOLVE = { compare: ['factor', 'newac'], ac: ['ac'], period: ['v', 'ac'], vmax: ['vmax'] };
+
+  // A calculation reads one step per line with the equals signs lined up, never as one long chain.
+  function stack(calc) {
+    const [sym, ...steps] = calc.split(' = ');
+    if (!steps.length) return `<span class="formula">${calc}</span>`;
+    return `<span class="calc-stack">${steps.map(s => `<span class="calc-sym">${sym}</span><span>=</span><span>${s}</span>`).join('')}</span>`;
+  }
+
+  // Returns { ok, retry, mistake, msg }. retry = no new numbers.
+  function gradeStep(step, raw, sc, ans) {
+    const v = parseNum(raw);
+    if (v === null) return { ok: false, mistake: 'blank', msg: stack(step.right(sc, ans)) };
+    const ok = near(v, step.target(sc, ans)) || (step.own && near(v, step.own(sc, ans), 0.01));
+    if (ok) return { ok: true, msg: stack(step.right(sc, ans)) };
+    const hit = step.mistake ? step.mistake(v, sc, ans) : null;
+    if (hit && hit[2]) return { ok: false, retry: true, mistake: hit[0], msg: hit[1] };
+    return {
+      ok: false,
+      mistake: hit ? hit[0] : 'other',
+      msg: `${hit ? hit[1] : 'Not quite.'}<br><span class="worked">The right way: ${stack(step.right(sc, ans))}</span>`
+    };
+  }
+
+  // ---------- Concept questions. Plain JSON so a Mastery Check resumes with the same numbers. ----------
+  const LETTERS = ['A', 'B', 'C', 'D'];
+  // Gives each direction on the picture a random letter
+  function letterMap(keys) {
+    const order = shuffled(keys.length);
+    const map = {};
+    keys.forEach((k, i) => { map[k] = LETTERS[order[i]]; });
+    return map;
+  }
+  const typeOf = (q, letter) => Object.keys(q.letters || {}).find(k => q.letters[k] === letter);
+  const letterOptions = (n, word) => LETTERS.slice(0, n).map(l => ({ id: l, t: `${word} ${l}` }));
+  const SPOTS = [20, 45, 70, 110, 135, 160, 200, 225, 250, 290, 315, 340];
+
+  const CONCEPT = {
+    accel_turn: {
+      make: () => ({ v: pick([8, 10, 12, 15]) }),
+      text: () => 'This car goes around the track at a steady speed. Is it accelerating?',
+      scene: q => ({ mode: 'circle', phi: 60, vLabel: `v = ${q.v || 10} m/s`, speedNote: `Speed: ${q.v || 10} m/s the whole way`, ghosts: [-60, 0], car: true }),
+      options: () => [
+        { id: 'r', t: 'Yes. Its direction keeps changing, so its velocity changes.' },
+        { id: 'no', t: 'No. Its speed never changes.' },
+        { id: 'speed', t: 'Only if it speeds up or slows down.' }
+      ],
+      right: () => 'r',
+      mistake: () => 'speed_only',
+      why: () => 'Velocity is speed and direction. Turning changes the direction, so the velocity changes. A change in velocity is acceleration.'
+    },
+    v_dir: {
+      letters: true,
+      make: () => ({ phi: pick(SPOTS), letters: letterMap(['fwd', 'back', 'in', 'out']) }),
+      text: () => 'The puck goes around the circle the way the curved arrow shows. Which arrow shows its velocity right now?',
+      scene: q => ({ mode: 'pick', phi: q.phi, letters: q.letters, kind: 'arrows' }),
+      options: () => letterOptions(4, 'Arrow'),
+      right: q => q.letters.fwd,
+      mistake: (q, picked) => ({ in: 'v_inward', out: 'v_outward', back: 'v_backward' }[typeOf(q, picked)] || 'v_dir'),
+      why: q => `Arrow ${q.letters.fwd}. Velocity points the way the puck is moving right now. That is along the tangent line, which just touches the circle.`
+    },
+    a_dir: {
+      letters: true,
+      make: () => ({ phi: pick(SPOTS), letters: letterMap(['fwd', 'back', 'in', 'out']) }),
+      text: () => 'The puck goes around the circle at a steady speed. Which arrow shows its acceleration right now?',
+      scene: q => ({ mode: 'pick', phi: q.phi, letters: q.letters, kind: 'arrows' }),
+      options: () => letterOptions(4, 'Arrow'),
+      right: q => q.letters.in,
+      mistake: (q, picked) => ({ out: 'a_outward', fwd: 'a_along_v', back: 'a_along_v' }[typeOf(q, picked)] || 'a_dir'),
+      why: q => `Arrow ${q.letters.in}. The acceleration points toward the center of the circle. That is why it is called centripetal: center-seeking.`
+    },
+    release_path: {
+      letters: true,
+      make: () => ({ phi: pick(SPOTS), letters: letterMap(['tan', 'out', 'curve']) }),
+      text: () => 'The stopper whirls the way the curved arrow shows. The string is let go right now. Which path does the stopper take?',
+      scene: q => ({ mode: 'pick', phi: q.phi, letters: q.letters, kind: 'paths' }),
+      options: () => letterOptions(3, 'Path'),
+      right: q => q.letters.tan,
+      mistake: (q, picked) => ({ out: 'flies_outward', curve: 'keeps_curving' }[typeOf(q, picked)] || 'release_path'),
+      why: q => `Path ${q.letters.tan}. Once the string lets go, nothing pulls the stopper toward the center. With no force, it keeps going straight the way it was moving: along the tangent line.`
+    },
+    paint: {
+      letters: true,
+      make: () => ({ phi: pick(SPOTS), letters: letterMap(['tan', 'out', 'curve']) }),
+      text: () => 'A drop of paint slides off the edge of a spinning sheet of paper. Seen from above, which path does it take after it leaves?',
+      scene: q => ({ mode: 'pick', phi: q.phi, letters: q.letters, kind: 'paths', paper: true }),
+      options: () => letterOptions(3, 'Path'),
+      right: q => q.letters.tan,
+      mistake: (q, picked) => ({ out: 'flies_outward', curve: 'keeps_curving' }[typeOf(q, picked)] || 'release_path'),
+      why: q => `Path ${q.letters.tan}. Off the paper, nothing pulls the drop toward the center, so it goes straight along the tangent line.`
+    },
+    speed_double: {
+      make: () => { const [v, r] = pick(BASES); return { v, r, a: accel(v, r) }; },
+      text: () => 'Same circle, but now twice as fast. What happens to the centripetal acceleration?',
+      scene: q => ({ mode: 'compare', sc: { change: 'v2', v1: q.v || 10, r1: q.r || 20, a1: q.a || 5, v2: 2 * (q.v || 10), r2: q.r || 20 } }),
+      options: q => [
+        { id: 'r', t: `It is 4 times as big: ${fmt(4 * (q.a || 5))} m/s².` },
+        { id: 'two', t: `It is 2 times as big: ${fmt(2 * (q.a || 5))} m/s².` },
+        { id: 'same', t: `It stays the same: ${fmt(q.a || 5)} m/s².` }
+      ],
+      right: () => 'r',
+      mistake: (q, picked) => (picked === 'two' ? 'no_square' : 'speed_no_effect'),
+      why: () => 'Speed counts twice in a_c = v² ÷ r. Twice the speed makes a_c 2 × 2 = 4 times as big.'
+    },
+    radius_half: {
+      make: () => { const [v, r] = pick(BASES.filter(([, r]) => r % 2 === 0)); return { v, r, a: accel(v, r) }; },
+      text: () => 'Same speed, but the circle is half as wide. What happens to the centripetal acceleration?',
+      scene: q => ({ mode: 'compare', sc: { change: 'rhalf', v1: q.v || 10, r1: q.r || 20, a1: q.a || 5, v2: q.v || 10, r2: (q.r || 20) / 2 } }),
+      options: q => [
+        { id: 'r', t: `It is 2 times as big: ${fmt(2 * (q.a || 5))} m/s².` },
+        { id: 'half', t: `It is half as big: ${fmt((q.a || 5) / 2)} m/s².` },
+        { id: 'same', t: `It stays the same: ${fmt(q.a || 5)} m/s².` }
+      ],
+      right: () => 'r',
+      mistake: (q, picked) => (picked === 'half' ? 'radius_flip' : 'radius_no_effect'),
+      why: () => 'A tighter turn bends the path faster. Half the radius makes a_c 2 times as big.'
+    },
+    right_angle: {
+      make: () => ({ phi: pick(SPOTS) }),
+      text: () => 'On a circle at a steady speed, how do the velocity arrow and the acceleration arrow line up?',
+      scene: q => ({ mode: 'circle', phi: q.phi || 45, showA: true, vLabel: 'v', aLabel: 'a_c', ghosts: [] }),
+      options: () => [
+        { id: 'r', t: 'At a right angle. Velocity is along the tangent, and a_c points to the center.' },
+        { id: 'same', t: 'They point the same way.' },
+        { id: 'opposite', t: 'They point opposite ways.' }
+      ],
+      right: () => 'r',
+      mistake: () => 'a_along_v',
+      why: () => 'a_c is always at a right angle to v. That is why it only turns the puck and never speeds it up or slows it down.'
+    }
+  };
+
+  const conceptOptions = q => (CONCEPT[q.id].letters ? CONCEPT[q.id].options(q) : q.order.map(i => CONCEPT[q.id].options(q)[i]));
+  function makeConcept(id) {
+    const def = CONCEPT[id];
+    return Object.assign({ kind: 'mc', id, skill: 'concept', order: shuffled(def.options({}).length) }, def.make());
+  }
+  function gradeConcept(q, picked) {
+    const def = CONCEPT[q.id];
+    const ok = picked === def.right(q);
+    return { ok, mistake: ok ? null : def.mistake(q, picked), msg: def.why(q) };
+  }
+
+  // ---------- Mastery Check: same blueprint every retake, new numbers. ----------
+  const QUIZ_PROBLEMS = { conceptual: ['compare', 'compare'], cp: ['ac', 'ac'], honors: ['period', 'vmax'] };
+
+  function buildQuiz(tier) {
+    const probs = [];
+    QUIZ_PROBLEMS[tier].forEach((kind, f) => probs.push(newProblem(kind, 2, probs[f - 1])));
+    const qs = [];
+    probs.forEach((sc, f) => SOLVE[sc.kind].forEach(k => qs.push({ kind: 'step', k, f, skill: STEP[tier][k].skill })));
+    const dirs = pick(['v_dir', 'a_dir', 'release_path']);
+    const ideas = tier === 'conceptual' ? pick(['accel_turn', 'paint', 'right_angle']) : pick(['speed_double', 'radius_half', 'accel_turn']);
+    qs.push(makeConcept(dirs), makeConcept(ideas));
+    if (tier === 'cp') qs.push(makeConcept(pick(['paint', 'right_angle'].concat(dirs === 'release_path' ? [] : ['release_path']))));
+    return { tier, probs, qs, answers: qs.map(() => null), work: qs.map(() => null), i: 0 };
+  }
+
+  // Follow-through: a later step is graded against the student's own earlier answers, so one slip costs one point.
+  function gradeQuiz(quiz) {
+    const chains = quiz.probs.map(() => ({}));
+    const results = quiz.qs.map((q, i) => {
+      const raw = quiz.answers[i];
+      if (q.kind === 'mc') return Object.assign({ skill: q.skill }, gradeConcept(q, raw));
+      const step = STEP[quiz.tier][q.k];
+      const r = gradeStep(step, raw === null || raw === undefined ? '' : raw, quiz.probs[q.f], chains[q.f]);
+      const v = parseNum(raw);
+      if (v !== null) chains[q.f][step.k] = v;
+      return { skill: q.skill, ok: r.ok, mistake: r.ok ? null : r.mistake, msg: r.msg };
+    });
+    const correct = results.filter(r => r.ok).length;
+    const skills = {};
+    results.forEach(r => {
+      skills[r.skill] = skills[r.skill] || { right: 0, total: 0 };
+      skills[r.skill].total++;
+      if (r.ok) skills[r.skill].right++;
+    });
+    return { results, correct, total: results.length, pct: Math.round(100 * correct / results.length), skills };
+  }
+
+  window.PR = {
+    TEACH, STEP, SOLVE, CONCEPT, PAIRS, BASES,
+    accel, fmt, near, parseNum, pick, own,
+    newProblem, workProblem, stack, gradeStep, makeConcept, conceptOptions, gradeConcept, buildQuiz, gradeQuiz
+  };
+})();
+
+// === Unit_2/centripetal_workshop/js/scene.js ===
+// Centripetal Acceleration Workshop — the picture, seen from above. Drawn as SVG so it stays sharp on a projector.
+// Colors are fixed for the whole lesson: blue = velocity v (along the tangent), rose = acceleration a_c (toward the
+// center), purple = the radius r. Answer-choice arrows on the "which arrow" questions are all the same dark gray,
+// so color never gives the answer away. Everything moves counterclockwise.
+// Views: circle (one circle, with steps in time), release (whirl and let go), pick (lettered arrows or paths),
+// dv (why the change in velocity points to the center), compare (before and after), problem (numbers to solve).
+
+(function () {
+  const W = 760, H = 520;
+  const CX = 380, CY = 272, R = 170;
+  const SUB_RE = /\b(v|a)_(c|o)\b/g;
+
+  const esc = s => String(s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
+  const fmt = v => window.PR.fmt(v);
+  const rad = d => d * Math.PI / 180;
+
+  // Real subscripts inside SVG text
+  function rich(str) {
+    let out = '', last = 0, shifted = false;
+    const s = String(str);
+    s.replace(SUB_RE, (m, base, sub, idx) => {
+      out += (shifted ? `<tspan dy="-5">${esc(s.slice(last, idx))}</tspan>` : esc(s.slice(last, idx))) + base;
+      out += `<tspan dy="5" font-size="72%">${sub}</tspan>`;
+      shifted = true;
+      last = idx + m.length;
+      return m;
+    });
+    const rest = s.slice(last);
+    return out + (shifted ? `<tspan dy="-5">${esc(rest) || '&#8203;'}</tspan>` : esc(rest));
+  }
+
+  const text = (x, y, str, cls = '', anchor = 'middle') => `<text x="${x}" y="${y}" class="sv-text ${cls}" text-anchor="${anchor}">${rich(str)}</text>`;
+
+  // Label on a soft plate so it stays readable over lines and arcs
+  function plate(x, y, str, cls = '', anchor = 'middle') {
+    const w = String(str).replace(/_/g, '').length * 9.4 + 14;
+    const left = anchor === 'middle' ? x - w / 2 : anchor === 'end' ? x - w : x;
+    const cx = Math.max(4, Math.min(W - w - 4, left));
+    return `<rect x="${cx}" y="${y - 18}" width="${w}" height="26" rx="6" class="sv-plate"/>${text(cx + w / 2, y, str, cls)}`;
+  }
+
+  function arrow(x1, y1, x2, y2, cls, width = 5) {
+    const len = Math.hypot(x2 - x1, y2 - y1);
+    if (len < 3) return '';
+    const head = Math.min(width * 3.2, len * 0.6);
+    const ux = (x2 - x1) / len, uy = (y2 - y1) / len;
+    const bx = x2 - ux * head, by = y2 - uy * head;
+    const nx = -uy * head * 0.55, ny = ux * head * 0.55;
+    return `<g class="${cls}"><line x1="${x1}" y1="${y1}" x2="${bx}" y2="${by}" stroke-width="${width}" stroke-linecap="round"/><polygon points="${x2},${y2} ${bx + nx},${by + ny} ${bx - nx},${by - ny}"/></g>`;
+  }
+
+  const frame = inner => `<svg viewBox="0 0 ${W} ${H}" class="scene-svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"><rect x="0" y="0" width="${W}" height="${H}" class="sv-floor"/>${inner}</svg>`;
+
+  // ---------- Geometry (screen y points down; angles are degrees, counterclockwise from the right) ----------
+  const at = (phi, r = R, cx = CX, cy = CY) => ({ x: cx + r * Math.cos(rad(phi)), y: cy - r * Math.sin(rad(phi)) });
+  const fwd = phi => ({ x: -Math.sin(rad(phi)), y: -Math.cos(rad(phi)) });   // velocity direction, counterclockwise
+  const inward = phi => ({ x: -Math.cos(rad(phi)), y: Math.sin(rad(phi)) });
+
+  // Puts a label just past an arrow's tip, pushed outward from the arrow
+  const tipLabel = (p, d, len, str, cls) => plate(p.x + d.x * (len + 26), p.y + d.y * (len + 26) + 6, str, cls);
+
+  // ---------- Parts ----------
+  function track(cx = CX, cy = CY, r = R) {
+    return `<circle cx="${cx}" cy="${cy}" r="${r}" class="sv-circle"/><circle cx="${cx}" cy="${cy}" r="5" class="sv-center"/>`;
+  }
+
+  function radiusLine(phi, label, cx = CX, cy = CY, r = R) {
+    const p = at(phi, r, cx, cy);
+    const mid = at(phi, r / 2, cx, cy);
+    const off = { x: Math.sin(rad(phi)) * 18, y: Math.cos(rad(phi)) * 18 };
+    return `<line x1="${cx}" y1="${cy}" x2="${p.x}" y2="${p.y}" class="sv-radius"/>${label ? plate(mid.x + off.x, mid.y + off.y + 6, label, 'sv-r-text') : ''}`;
+  }
+
+  function puck(p, car, phi) {
+    if (!car) return `<circle cx="${p.x}" cy="${p.y}" r="12" class="sv-ball"/>`;
+    const d = fwd(phi), ang = Math.atan2(d.y, d.x) * 180 / Math.PI;
+    return `<g transform="translate(${p.x} ${p.y}) rotate(${ang})"><rect x="-19" y="-11" width="38" height="22" rx="6" class="sv-car"/><rect x="4" y="-8" width="9" height="16" rx="2" class="sv-car-glass"/></g>`;
+  }
+
+  // Small curved arrow inside the circle that shows which way things go around
+  function turnSign(cx = CX, cy = CY, r = R * 0.42) {
+    const a = at(200, r, cx, cy), b = at(340, r, cx, cy);
+    const tipDir = fwd(340);
+    const tip = { x: b.x + tipDir.x * 2, y: b.y + tipDir.y * 2 };
+    const low = at(270, r, cx, cy);
+    return `<path d="M ${a.x} ${a.y} A ${r} ${r} 0 0 0 ${b.x} ${b.y}" class="sv-turn"/>
+      ${arrow(b.x - tipDir.x * 14, b.y - tipDir.y * 14, tip.x, tip.y, 'sv-turn-head', 3)}
+      ${text(low.x, low.y + 24, 'moves this way', 'sv-small sv-dim')}`;
+  }
+
+  function trail(phi, cx = CX, cy = CY, r = R) {
+    return [12, 24, 36].map((d, i) => {
+      const p = at(phi - d, r, cx, cy);
+      return `<circle cx="${p.x}" cy="${p.y}" r="${8 - i * 1.5}" class="sv-trail" style="opacity:${0.45 - i * 0.12}"/>`;
+    }).join('');
+  }
+
+  function vArrow(phi, label, len = 110, cx = CX, cy = CY, r = R, faint = false) {
+    const p = at(phi, r, cx, cy), d = fwd(phi);
+    return arrow(p.x, p.y, p.x + d.x * len, p.y + d.y * len, faint ? 'sv-v sv-faint' : 'sv-v') + (label ? tipLabel(p, d, len, label, 'sv-v-text') : '');
+  }
+
+  function aArrow(phi, label, len = 82, cx = CX, cy = CY, r = R) {
+    const p = at(phi, r, cx, cy), d = inward(phi);
+    return arrow(p.x, p.y, p.x + d.x * len, p.y + d.y * len, 'sv-a') + (label ? plate(p.x + d.x * (len + 30), p.y + d.y * (len + 30) + 6, label, 'sv-a-text') : '');
+  }
+
+  // The longest a line from p along d can be and still end inside the picture, with room for a label
+  function fit(p, d, len, pad = 46) {
+    let best = len;
+    if (d.x > 1e-6) best = Math.min(best, (W - pad - p.x) / d.x);
+    if (d.x < -1e-6) best = Math.min(best, (pad - p.x) / d.x);
+    if (d.y > 1e-6) best = Math.min(best, (H - pad - p.y) / d.y);
+    if (d.y < -1e-6) best = Math.min(best, (pad + 30 - p.y) / d.y);
+    return Math.max(40, best);
+  }
+
+  const note = str => (str ? plate(20, 36, str, 'sv-note', 'start') : '');
+
+  // ---------- Views ----------
+  // One circle. With `omega` and `t`, it steps around and leaves faded copies at each whole second.
+  function circleView(o) {
+    const omega = o.omega || 0;
+    const phi = (o.phi || 0) + omega * (o.t || 0);
+    let g = track() + turnSign();
+    if (o.rLabel) g += radiusLine(phi, o.rLabel);
+    if (o.tangentLine) {
+      const p = at(phi), d = fwd(phi);
+      g += `<line x1="${p.x - d.x * 230}" y1="${p.y - d.y * 230}" x2="${p.x + d.x * 230}" y2="${p.y + d.y * 230}" class="sv-tangent"/>`;
+      g += plate(p.x - d.x * 170, p.y - d.y * 170 - 14, 'tangent line', 'sv-small');
+    }
+    const ghosts = [];
+    if (omega) for (let s = 0; s < Math.floor((o.t || 0) + 1e-6); s++) ghosts.push((o.phi || 0) + omega * s);
+    else (o.ghosts || []).forEach(d => ghosts.push(phi + d));
+    ghosts.forEach(gp => { g += vArrow(gp, '', 90, CX, CY, R, true) + `<circle cx="${at(gp).x}" cy="${at(gp).y}" r="10" class="sv-ghost"/>`; });
+    if (o.showA) g += aArrow(phi, o.aLabel);
+    if (o.showV !== false) g += vArrow(phi, o.vLabel);
+    g += puck(at(phi), o.car, phi);
+    return frame(g + note(o.speedNote || o.note));
+  }
+
+  // Whirl on a string, then let go at phiRel when t reaches tRel. After that it moves in a straight line.
+  function releaseView(o) {
+    const omega = o.omega || 57.2958, tRel = o.tRel || 4, phiRel = o.phiRel === undefined ? 90 : o.phiRel;
+    const t = o.t || 0;
+    const rel = at(phiRel);
+    let g = track() + turnSign();
+    const so = at(phiRel, R + 34);
+    g += `<path d="M ${so.x} ${so.y - 14} l 4.5 9 l 10 1.5 l -7.5 7 l 2 10 l -9 -5 l -9 5 l 2 -10 l -7.5 -7 l 10 -1.5 z" class="sv-star"/>`;
+    if (t <= tRel + 1e-9) {
+      const phi = phiRel - omega * (tRel - t);
+      const p = at(phi);
+      g += `<line x1="${CX}" y1="${CY}" x2="${p.x}" y2="${p.y}" class="sv-string"/>`;
+      if (!o.noV) g += vArrow(phi, o.vLabel || '', 90);
+      g += puck(p);
+      return frame(g + note(o.note || 'The star marks where the string is let go'));
+    }
+    const d = fwd(phiRel), vpx = R * rad(omega);
+    const dist = vpx * (t - tRel);
+    const p = { x: rel.x + d.x * dist, y: rel.y + d.y * dist };
+    g += `<line x1="${rel.x}" y1="${rel.y}" x2="${p.x}" y2="${p.y}" class="sv-path"/>`;
+    for (let s = 1; s * vpx * 0.5 < dist; s++) {
+      const q = { x: rel.x + d.x * s * vpx * 0.5, y: rel.y + d.y * s * vpx * 0.5 };
+      g += `<circle cx="${q.x}" cy="${q.y}" r="7" class="sv-trail" style="opacity:0.35"/>`;
+    }
+    g += `<line x1="${CX}" y1="${CY}" x2="${CX + (rel.x - CX) * 0.35}" y2="${CY + (rel.y - CY) * 0.35}" class="sv-string sv-faint"/>`;
+    const vl = Math.max(0, Math.min(90, fit(p, d, 90, 8)));
+    g += arrow(p.x, p.y, p.x + d.x * vl, p.y + d.y * vl, 'sv-v') + puck(p);
+    return frame(g + note('No string: it keeps going straight'));
+  }
+
+  // Lettered answer choices drawn on the picture: four arrows, or three paths. A smaller circle leaves room for the
+  // arrows and letters at every spot on it.
+  function pickView(o) {
+    const PR_ = 118, phi = o.phi || 45, p = at(phi, PR_), L = o.letters || {};
+    let g = '';
+    if (o.paper) {
+      const corners = [0, 90, 180, 270].map(d => at(phi + d, PR_ + 4));
+      g += `<polygon points="${corners.map(c => `${c.x},${c.y}`).join(' ')}" class="sv-paper"/><circle cx="${CX}" cy="${CY}" r="5" class="sv-center"/>`;
+    } else g += track(CX, CY, PR_);
+    g += turnSign(CX, CY, PR_ * 0.45);
+    if (o.kind === 'paths') {
+      g += trail(phi, CX, CY, PR_);
+      if (!o.paper) g += `<line x1="${CX}" y1="${CY}" x2="${p.x}" y2="${p.y}" class="sv-string sv-faint"/>`;
+      const d = fwd(phi), out = { x: -inward(phi).x, y: -inward(phi).y };
+      const curve = [];
+      for (let i = 0; i < 16; i++) {
+        const q = at(phi + i * 6, PR_ + i * i * 0.5);
+        if (q.x < 40 || q.x > W - 40 || q.y < 76 || q.y > H - 40) break;
+        curve.push(q);
+      }
+      const tanLen = fit(p, d, 210), outLen = fit(p, out, 160);
+      const paths = {
+        tan: [p, { x: p.x + d.x * tanLen, y: p.y + d.y * tanLen }],
+        out: [p, { x: p.x + out.x * outLen, y: p.y + out.y * outLen }],
+        curve
+      };
+      Object.entries(paths).forEach(([k, pts]) => {
+        if (pts.length < 2) return;
+        g += `<polyline points="${pts.map(q => `${q.x},${q.y}`).join(' ')}" class="sv-choice-path"/>`;
+        const end = pts[pts.length - 1], prev = pts[pts.length - 2];
+        const len = Math.hypot(end.x - prev.x, end.y - prev.y) || 1;
+        const ux = (end.x - prev.x) / len, uy = (end.y - prev.y) / len;
+        g += arrow(end.x - ux * 16, end.y - uy * 16, end.x, end.y, 'sv-choice', 3);
+        if (L[k]) g += plate(end.x + ux * 22, end.y + uy * 22 + 7, L[k], 'sv-letter');
+      });
+      g += puck(p, false, phi);
+      return frame(g + note(o.paper ? 'Spinning paper, seen from above' : 'The string is let go when the stopper is where it is now'));
+    }
+    const dirs = { fwd: fwd(phi), back: { x: -fwd(phi).x, y: -fwd(phi).y }, in: inward(phi), out: { x: -inward(phi).x, y: -inward(phi).y } };
+    Object.entries(dirs).forEach(([k, d]) => {
+      g += arrow(p.x, p.y, p.x + d.x * 86, p.y + d.y * 86, 'sv-choice', 4);
+      if (L[k]) g += plate(p.x + d.x * 112, p.y + d.y * 112 + 7, L[k], 'sv-letter');
+    });
+    g += puck(p, false, phi);
+    return frame(g);
+  }
+
+  // Why the change in velocity points to the center. t = 0: two moments on the circle; 1: tail to tail; 2: the change.
+  function dvView(o) {
+    const t = Math.floor((o.t || 0) + 1e-6);
+    const p1 = 60, p2 = 120, len = 100;
+    let g = track() + turnSign();
+    g += vArrow(p1, 'v before', len) + puck(at(p1));
+    g += vArrow(p2, 'v after', len) + puck(at(p2));
+    if (t >= 1) {
+      const o0 = { x: 140, y: 330 };
+      const a = fwd(p1), b = fwd(p2);
+      g += `<rect x="20" y="186" width="200" height="236" rx="12" class="sv-panel"/>` + text(120, 214, 'Tail to tail', 'sv-small');
+      g += arrow(o0.x, o0.y, o0.x + a.x * len, o0.y + a.y * len, 'sv-v');
+      g += arrow(o0.x, o0.y, o0.x + b.x * len, o0.y + b.y * len, 'sv-v');
+      g += text(o0.x + a.x * len - 8, o0.y + a.y * len - 10, 'before', 'sv-small sv-v-text', 'middle');
+      g += text(o0.x + b.x * len - 8, o0.y + b.y * len + 24, 'after', 'sv-small sv-v-text', 'middle');
+      if (t >= 2) {
+        const s = { x: o0.x + a.x * len, y: o0.y + a.y * len }, e = { x: o0.x + b.x * len, y: o0.y + b.y * len };
+        g += arrow(s.x, s.y, e.x, e.y, 'sv-a', 5) + text(s.x + 34, (s.y + e.y) / 2 + 6, 'change', 'sv-small sv-a-text', 'start');
+        g += aArrow(90, 'change points to the center', 90);
+        g += puck(at(90));
+      }
+    }
+    return frame(g + note(t >= 2 ? 'The change in velocity points to the center' : t >= 1 ? 'Slide them so their tails touch' : 'Same speed, new direction'));
+  }
+
+  // Before and after: the same circle changed one way
+  function compareView(o) {
+    const sc = o.sc;
+    const left = { cx: 200, cy: 300, r: 120 };
+    const right = { cx: 565, cy: 300, r: sc.change === 'rhalf' ? 60 : 120 };
+    const vLen = v => Math.min(185, 62 * v / sc.v1);
+    let g = '';
+    [[left, sc.v1, sc.r1, `a_c = ${fmt(sc.a1)} m/s²`, 'Before'], [right, sc.v2, sc.r2, o.newA !== undefined ? `a_c = ${fmt(o.newA)} m/s²` : 'a_c = ?', 'After']].forEach(([c, v, r, aText, title]) => {
+      g += track(c.cx, c.cy, c.r) + text(c.cx, 64, title, 'sv-title');
+      g += radiusLine(-90, `r = ${fmt(r)} m`, c.cx, c.cy, c.r);
+      const top = at(90, c.r, c.cx, c.cy), d = fwd(90);
+      g += arrow(top.x, top.y, top.x + d.x * vLen(v), top.y + d.y * vLen(v), 'sv-v');
+      g += plate(top.x + d.x * vLen(v) / 2, top.y - 18, `v = ${fmt(v)} m/s`, 'sv-v-text');
+      g += arrow(top.x, top.y, top.x, top.y + Math.min(62, c.r * 0.7), 'sv-a');
+      g += plate(c.cx + 40, top.y + 52, aText, 'sv-a-text', 'start');
+      g += puck(top);
+    });
+    return frame(g);
+  }
+
+  // A problem to solve. The numbers live here, never in the words.
+  function problemView(o) {
+    const sc = o.sc, ans = o.ans || {}, phi = 50;
+    let g = track() + turnSign();
+    if (sc.kind === 'compare') return compareView({ sc, newA: typeof ans.newac === 'number' ? ans.newac : undefined });
+    g += radiusLine(200, `r = ${fmt(sc.r)} m`);   // the radius is the same everywhere; drawn away from the a_c arrow so labels never collide
+    const vKnown = sc.kind === 'ac' ? sc.v : typeof ans.v === 'number' ? ans.v : typeof ans.vmax === 'number' ? ans.vmax : null;
+    g += vArrow(phi, vKnown === null ? 'v = ?' : `v = ${fmt(vKnown)} m/s`);
+    let aText = typeof ans.ac === 'number' ? `a_c = ${fmt(ans.ac)} m/s²` : 'a_c = ?';
+    if (sc.kind === 'vmax') aText = `a_c = ${fmt(sc.a)} m/s²`;
+    g += aArrow(phi, aText, 82);
+    g += puck(at(phi), sc.kind === 'vmax', phi);
+    let tag = '';
+    if (sc.kind === 'period') tag = `One lap takes T = ${fmt(sc.T)} s`;
+    if (sc.kind === 'vmax') tag = 'Highway curve: the a_c arrow is the most the tires can give';
+    return frame(g + (tag ? plate(20, H - 22, tag, 'sv-note', 'start') : ''));
+  }
+
+  function render(o) {
+    if (!o) return frame('');
+    if (o.mode === 'release') return releaseView(o);
+    if (o.mode === 'pick') return pickView(o);
+    if (o.mode === 'dv') return dvView(o);
+    if (o.mode === 'compare') return compareView(o);
+    if (o.mode === 'problem') return problemView(o);
+    return circleView(o);
+  }
+
+  window.Scene = { render, W, H };
+})();
+
+// === Unit_2/centripetal_workshop/js/lesson.js ===
+// Centripetal Acceleration Workshop — the lesson, one page at a time.
+// The order builds the idea before any math: velocity has a direction, so turning is accelerating; let go and it goes
+// straight along the tangent; the change in velocity points to the center; then how big a_c is.
+//   page = { title, body, after, scene(), stepper: { T, require, launch, label }, predict, options,
+//            ask: stepKey | mc: conceptId, fresh, make: problem kind, level }
+// A wrong answer shows why, then restarts from the page marked `fresh` with new numbers.
+
+(function () {
+  const PR = window.PR, stack = PR.stack;
+  const OMEGA = 57.2958;   // the teaching circle turns one radian each second: 10 m/s on a 10 m circle
+
+  function problemScene(tier, sc, ans = {}) {
+    return { mode: 'problem', sc, ans, tier };
+  }
+
+  // ---------- Part 1: turning is accelerating ----------
+  const turnPages = () => [
+    {
+      title: 'Steady speed, new direction',
+      body: `<p>A car drives around a circular track. You are looking down from above. Its speedometer never changes.</p>
+        <p>Press <strong>Next second</strong>. Watch the blue arrow. It shows the car's <strong>velocity</strong>.</p>`,
+      after: `<p>The speed stayed the same, but the blue arrow pointed a <strong>new way</strong> every second.</p>
+        <p><strong>Velocity</strong> is speed <em>and</em> direction. When the direction changes, the velocity changes.</p>`,
+      stepper: { T: 4, require: true },
+      scene: () => ({ mode: 'circle', phi: -30, omega: OMEGA, car: true, vLabel: 'v = 10 m/s', speedNote: 'Speedometer: 10 m/s' })
+    },
+    {
+      title: 'Turning is accelerating',
+      body: `<p><strong>Acceleration</strong> means the velocity is changing. There are three ways to change velocity:</p>
+        <ul><li>speed up</li><li>slow down</li><li><strong>turn</strong></li></ul>
+        <p>So a car going around a curve at a steady speed <strong>is accelerating</strong>, the whole time.</p>`,
+      scene: () => ({ mode: 'circle', phi: 120, car: true, ghosts: [-120, -60], vLabel: 'v' })
+    },
+    { mc: 'accel_turn', fresh: true },
+    {
+      title: 'The velocity arrow',
+      body: `<p>The velocity arrow points the way the car is going <strong>right now</strong>.</p>
+        <p>It just touches the circle at one point. A line like that is called a <strong>tangent line</strong>.</p>`,
+      scene: () => ({ mode: 'circle', phi: 40, tangentLine: true, vLabel: 'v' })
+    },
+    { mc: 'v_dir', fresh: true },
+    { mc: 'v_dir', fresh: true }
+  ];
+
+  // ---------- Part 2: let go ----------
+  const letGoPages = () => [
+    {
+      predict: true,
+      title: 'What if you let go?',
+      body: `<p>A rubber stopper whirls on a string. The star marks where the string will be let go.</p>
+        <p>Which way will the stopper fly? There is no wrong answer here. Make your best prediction.</p>`,
+      options: [
+        { id: 'tan', t: 'Straight ahead, the way it was moving' },
+        { id: 'out', t: 'Straight out, away from the center' },
+        { id: 'curve', t: 'It keeps curving around' }
+      ],
+      scene: () => ({ mode: 'release', t: 4, tRel: 4, noV: true })
+    },
+    {
+      title: 'Let go!',
+      body: `<p>Press <strong>Let go</strong>. The stopper whirls, and the string is let go at the star.</p>`,
+      after: `<p>It flew off in a <strong>straight line</strong> along the tangent. It did not fly straight out from the center.</p>
+        <p>With no string, nothing pulls it toward the center. Newton's 1st Law says it keeps going straight, the way it was already moving.</p>`,
+      stepper: { T: 6, require: true, launch: true, label: 'Let go' },
+      scene: () => ({ mode: 'release', tRel: 4 })
+    },
+    {
+      title: 'So what was the string doing?',
+      body: `<p>While the string was on, it pulled the stopper <strong>toward the center</strong>, all the time.</p>
+        <p>That pull kept bending the path into a circle. Take the pull away, and the path goes straight.</p>`,
+      scene: () => ({ mode: 'circle', phi: 90, showA: true, aLabel: 'pull toward the center', vLabel: 'v' })
+    },
+    { mc: 'release_path', fresh: true },
+    { mc: 'paint', fresh: true },
+    { mc: 'release_path', fresh: true }
+  ];
+
+  // ---------- Part 3: toward the center ----------
+  const centerPages = () => [
+    {
+      title: 'Which way does the velocity change?',
+      body: `<p>Here is the puck at two moments. Same speed, but the arrow turned.</p>
+        <p>Press <strong>Next step</strong> to see what changed.</p>`,
+      after: `<p>The change in velocity points <strong>toward the center</strong> of the circle.</p>`,
+      stepper: { T: 2, require: true, label: 'Next step' },
+      scene: () => ({ mode: 'dv' })
+    },
+    {
+      title: 'Centripetal acceleration',
+      body: `<p>Acceleration points the same way as the change in velocity. So on a circle, the acceleration points <strong>toward the center</strong>.</p>
+        <p>We call it <strong>centripetal acceleration</strong>, a_c. <em>Centripetal</em> means "center-seeking."</p>`,
+      scene: () => ({ mode: 'circle', phi: 60, showA: true, aLabel: 'a_c', vLabel: 'v' })
+    },
+    { mc: 'a_dir', fresh: true },
+    {
+      title: 'A right angle',
+      body: `<p>Velocity runs along the tangent. a_c points to the center.</p>
+        <p>The two arrows are always at a <strong>right angle</strong>. That is why a_c only turns the puck. It never speeds it up or slows it down.</p>`,
+      scene: () => ({ mode: 'circle', phi: 130, showA: true, aLabel: 'a_c', vLabel: 'v' })
+    },
+    { mc: 'a_dir', fresh: true },
+    { mc: 'right_angle', fresh: true }
+  ];
+
+  // ---------- Part 4: how big is a_c? ----------
+  const SPEED_BASE = { change: 'v2', v1: 10, r1: 20, a1: 5, v2: 20, r2: 20 };
+  const RADIUS_BASE = { change: 'rhalf', v1: 10, r1: 20, a1: 5, v2: 10, r2: 10 };
+
+  const bigger = {
+    conceptual: `<p>a_c gets bigger when the car goes <strong>faster</strong> or turns a <strong>tighter</strong> circle.</p>
+      <p><strong>Speed counts twice.</strong> Twice the speed makes a_c 2 × 2 = <strong>4 times as big</strong>.</p>
+      <p>Three times the speed makes it 3 × 3 = <strong>9 times as big</strong>.</p>`,
+    cp: `<p>a_c gets bigger when the puck goes <strong>faster</strong> or the circle is <strong>smaller</strong>.</p>
+      <p class="worked-line"><span class="formula">a_c = v² ÷ r</span></p>
+      <p>v² means v × v, so speed counts twice. For the first circle:</p>
+      <p class="worked-line">${stack('a_c = (10 m/s)² ÷ 20 m = 100 ÷ 20 = 5 m/s²')}</p>`
+  };
+  bigger.honors = bigger.cp;
+
+  const periodTeach = {
+    title: 'Speed from one lap',
+    body: `<p>Sometimes you know how long <strong>one lap</strong> takes instead of the speed. One lap is the distance around the circle: 2πr.</p>
+      <p class="worked-line"><span class="formula">v = 2πr ÷ T</span></p>
+      <p>T is the time for one lap. Then use a_c = v² ÷ r as before.</p>`,
+    scene: () => problemScene('honors', { kind: 'period', r: 4, T: 2 }, {})
+  };
+
+  const vmaxTeach = {
+    title: 'The fastest safe speed',
+    body: `<p>Tires can only grip so hard, so a curve has a <strong>most</strong> a_c it can give. Work backward to find the fastest safe speed:</p>
+      <p class="worked-line"><span class="formula">a_c = v² ÷ r</span></p>
+      <p class="worked-line"><span class="formula">v² = a_c × r</span></p>
+      <p class="worked-line"><span class="formula">v = √(a_c × r)</span></p>`,
+    scene: () => problemScene('honors', { kind: 'vmax', a: 8, r: 50 }, {})
+  };
+
+  const sizePages = tier => {
+    const pages = [
+      {
+        title: 'Two things make a_c bigger',
+        body: bigger[tier],
+        scene: () => ({ mode: 'compare', sc: SPEED_BASE, newA: 20 })
+      },
+      {
+        title: 'A tighter circle',
+        body: `<p>Now keep the speed the same and make the circle <strong>half as wide</strong>.</p>
+          <p>The turn is tighter, so a_c is <strong>2 times as big</strong>.</p>`,
+        scene: () => ({ mode: 'compare', sc: RADIUS_BASE, newA: 10 })
+      },
+      { mc: 'speed_double', fresh: true },
+      { mc: 'radius_half', fresh: true }
+    ];
+    if (tier === 'conceptual') {
+      [1, 2, 2].forEach(level => pages.push({ ask: 'factor', fresh: true, make: 'compare', level }, { ask: 'newac' }));
+    } else if (tier === 'cp') {
+      [1, 1, 2, 2].forEach(level => pages.push({ ask: 'ac', fresh: true, make: 'ac', level }));
+    } else {
+      pages.push(
+        { ask: 'ac', fresh: true, make: 'ac', level: 1 },
+        { ask: 'ac', fresh: true, make: 'ac', level: 2 },
+        periodTeach,
+        { ask: 'v', fresh: true, make: 'period' },
+        { ask: 'ac' },
+        vmaxTeach,
+        { ask: 'vmax', fresh: true, make: 'vmax' }
+      );
+    }
+    return pages;
+  };
+
+  const PAGES = { turn: turnPages, letgo: letGoPages, center: centerPages, size: sizePages };
+
+  // weight = share of the 6 step-by-step points
+  const PARTS = [
+    { id: 'turn', label: 'Turning', icon: '🔄', weight: 1 },
+    { id: 'letgo', label: 'Let Go', icon: '🪢', weight: 1 },
+    { id: 'center', label: 'Toward the Center', icon: '🎯', weight: 1 },
+    { id: 'size', label: 'How Big?', icon: '📐', weight: 2 },
+    { id: 'quiz', label: 'Mastery Check', icon: '🏆', weight: 0 }
+  ];
+
+  // ---------- Grade: 10 pts. 6 pts grow step by step across the parts, 4 pts × best Mastery Check. ----------
+  const PART_POINTS = 6, QUIZ_POINTS = 4;
+
+  function partProgress(st, p, tier) {
+    const part = st.parts[p.id];
+    if (!part) return 0;
+    if (part.done) return 1;
+    return Math.min(part.far || 0, PAGES[p.id](tier).length) / PAGES[p.id](tier).length;
+  }
+
+  function earnedPoints(st, tier) {
+    const req = PARTS.filter(p => p.weight > 0);
+    const total = req.reduce((a, p) => a + p.weight, 0);
+    const parts = PART_POINTS * req.reduce((a, p) => a + p.weight * partProgress(st, p, tier), 0) / total;
+    return parts + QUIZ_POINTS * (st.quiz.best || 0) / 100;
+  }
+
+  window.Lesson = { PARTS, PAGES, PART_POINTS, QUIZ_POINTS, problemScene, partProgress, earnedPoints, pages: (id, tier) => PAGES[id](tier) };
+})();
+
+// === Unit_2/centripetal_workshop/js/certificate.js ===
+// Centripetal Acceleration Workshop — completion certificate, downloaded as a real PDF
+// jsPDF is vendored in assets/vendor (no CDN for the district web filter to block) and only loads on click.
+// The built-in PDF fonts can't show every student name (Nguyễn, for example), so the name is drawn
+// on a canvas in the page's font and placed as an image. Colors stay light so it prints cheaply.
+// Adapted from Unit_2/monkey_hunter_studio/js/certificate.js.
+
+(function () {
+  const LIB = '../../assets/vendor/jspdf.umd.min.js';
+  const INK = '#0f172a', MUTED = '#475569', NAVY = '#0f4c81', GOLD = '#b7892b';
+  const VEL = '#0369a1', ACC = '#be123c';
+
+  function loadLibrary() {
+    if (window.jspdf) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = LIB;
+      s.onload = resolve;
+      s.onerror = () => reject(new Error('Could not load the PDF library'));
+      document.head.append(s);
+    });
+  }
+
+  // Quick checksum so a typed-up fake code stands out; not cryptographic
+  function code(id, best) {
+    const text = `${id}|${best}|CAW-U2`;
+    let h = 5381;
+    for (let i = 0; i < text.length; i++) h = ((h * 33) ^ text.charCodeAt(i)) >>> 0;
+    return `MUD-CAW-${id}-${best}-${h.toString(16).toUpperCase().padStart(8, '0')}`;
+  }
+
+  async function nameImage(name, maxW) {
+    const family = 'Outfit, system-ui, sans-serif';
+    if (document.fonts && document.fonts.load) {
+      try { await document.fonts.load('700 96px Outfit', name); } catch (e) { /* falls back to a system font */ }
+    }
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    let px = 96;
+    ctx.font = `700 ${px}px ${family}`;
+    const want = maxW * 2.4;   // sharp in print
+    const w = ctx.measureText(name).width;
+    if (w > want) px = Math.floor(px * want / w);
+    ctx.font = `700 ${px}px ${family}`;
+    canvas.width = Math.ceil(ctx.measureText(name).width) + 8;
+    canvas.height = Math.ceil(px * 1.35);
+    ctx.font = `700 ${px}px ${family}`;
+    ctx.fillStyle = INK;
+    ctx.textBaseline = 'middle';
+    ctx.fillText(name, 4, canvas.height / 2);
+    return { url: canvas.toDataURL('image/png'), w: canvas.width / 2.4, h: canvas.height / 2.4 };
+  }
+
+  function loadImage(src) {
+    return new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => {
+        // The source image is 8000 px wide; a small copy keeps the PDF light
+        const c = document.createElement('canvas');
+        c.height = 320;
+        c.width = Math.round(320 * img.naturalWidth / img.naturalHeight);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        resolve({ url: c.toDataURL('image/png'), ratio: img.naturalWidth / img.naturalHeight });
+      };
+      img.onerror = () => resolve(null);
+      img.src = src;
+    });
+  }
+
+  // The lesson's picture: a circle, the velocity along the tangent, and a_c pointing to the center
+  function emblem(doc, ox, oy, w, h) {
+    const cx = ox + w / 2, cy = oy - h / 2, r = h / 2 - 4;
+    doc.setDrawColor('#94a3b8');
+    doc.setLineWidth(1.3);
+    doc.circle(cx, cy, r, 'S');
+    doc.setFillColor(INK);
+    doc.circle(cx, cy, 2, 'F');
+    const top = { x: cx, y: cy - r };
+    const head = (x, y, dx, dy, color) => {
+      doc.setFillColor(color);
+      doc.triangle(x, y, x - dx * 7 - dy * 4, y - dy * 7 + dx * 4, x - dx * 7 + dy * 4, y - dy * 7 - dx * 4, 'F');
+    };
+    doc.setDrawColor(VEL);
+    doc.setLineWidth(2.6);
+    doc.line(top.x, top.y, top.x - 52, top.y);
+    head(top.x - 56, top.y, -1, 0, VEL);
+    doc.setDrawColor(ACC);
+    doc.line(top.x, top.y, top.x, top.y + r * 0.62);
+    head(top.x, top.y + r * 0.62 + 4, 0, 1, ACC);
+    doc.setFillColor(INK);
+    doc.circle(top.x, top.y, 4, 'F');
+  }
+
+  function statBox(doc, x, y, w, h, label, value) {
+    doc.setDrawColor('#cbd5e1');
+    doc.setLineWidth(1);
+    doc.roundedRect(x, y, w, h, 5, 5, 'S');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10.5);
+    doc.setTextColor(MUTED);
+    doc.text(label, x + w / 2, y + 16, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(15);
+    doc.setTextColor(INK);
+    doc.text(value, x + w / 2, y + 36, { align: 'center' });
+  }
+
+  async function build(info) {
+    await loadLibrary();
+    const doc = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'pt', format: 'letter', compress: true });
+    const W = 792, H = 612, cx = W / 2;
+    doc.setProperties({ title: `Certificate of Completion: ${info.name}`, subject: 'Centripetal Acceleration Workshop', creator: 'Mr. Mudry, Orange High School Physics' });
+
+    doc.setDrawColor(NAVY); doc.setLineWidth(4); doc.rect(24, 24, W - 48, H - 48);
+    doc.setDrawColor(GOLD); doc.setLineWidth(1.2); doc.rect(33, 33, W - 66, H - 66);
+
+    const logo = await loadImage('../../OrangeHS_PantherMark.png');
+    if (logo) doc.addImage(logo.url, 'PNG', cx - 24 * logo.ratio, 44, 48 * logo.ratio, 48);
+
+    doc.setTextColor(MUTED); doc.setFont('helvetica', 'bold'); doc.setFontSize(12);
+    doc.text('ORANGE HIGH SCHOOL PHYSICS   ·   UNIT 2', cx, 110, { align: 'center', charSpace: 0.6 });
+
+    doc.setTextColor(NAVY); doc.setFont('times', 'bold'); doc.setFontSize(44);
+    doc.text('Certificate of Completion', cx, 158, { align: 'center' });
+
+    doc.setTextColor(MUTED); doc.setFont('helvetica', 'normal'); doc.setFontSize(14);
+    doc.text('This certifies that', cx, 188, { align: 'center' });
+
+    const maxName = W - 180;
+    const nm = await nameImage(info.name || 'Student', maxName);
+    const nameH = Math.min(nm.h, 48), nameW = nm.w * (nameH / nm.h);
+    doc.addImage(nm.url, 'PNG', cx - nameW / 2, 246 - nameH, nameW, nameH);   // sits on the line at any size
+    doc.setDrawColor(GOLD); doc.setLineWidth(1); doc.line(cx - 220, 248, cx + 220, 248);
+
+    doc.setTextColor(INK); doc.setFont('helvetica', 'bold'); doc.setFontSize(17);
+    doc.text('has completed the Centripetal Acceleration Workshop', cx, 276, { align: 'center' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(12.5); doc.setTextColor(MUTED);
+    doc.text('Showing why moving in a circle at a steady speed is acceleration toward the center', cx, 296, { align: 'center' });
+    if (info.honors) {
+      doc.setFont('helvetica', 'bold'); doc.setTextColor(NAVY);
+      doc.text('Completed at the Honors Physics level', cx, 314, { align: 'center' });
+    }
+
+    const when = new Date(info.earned).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    const boxes = [['Mastery Check', `${info.best}%`], ['Date earned', when]];
+    if (info.period) boxes.splice(1, 0, ['Class', info.period]);
+    const bw = 170, gap = 14, total = boxes.length * bw + (boxes.length - 1) * gap;
+    boxes.forEach(([l, v], i) => statBox(doc, cx - total / 2 + i * (bw + gap), 328, bw, 48, l, v));
+
+    // Teacher on the left, the lesson's flight on the right
+    const tx = cx - 170;
+    doc.setTextColor(INK); doc.setFont('times', 'bolditalic'); doc.setFontSize(26);
+    doc.text('Mr. Mudry', tx, 476, { align: 'center' });
+    doc.setDrawColor(GOLD); doc.setLineWidth(1); doc.line(tx - 90, 484, tx + 90, 484);
+    doc.setTextColor(MUTED); doc.setFont('helvetica', 'normal'); doc.setFontSize(11);
+    doc.text('Teacher', tx, 499, { align: 'center' });
+
+    emblem(doc, cx + 70, 498, 150, 82);
+
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(MUTED);
+    doc.text(`Verification code: ${info.code}`, cx, 556, { align: 'center' });
+
+    if (info.sample) {
+      doc.setTextColor('#b91c1c'); doc.setFont('helvetica', 'bold'); doc.setFontSize(13);
+      doc.text('SAMPLE: teacher preview, not an earned certificate', cx, 574, { align: 'center' });
+    }
+    return doc;
+  }
+
+  async function download(info) {
+    const doc = await build(info);
+    const safe = (info.name || 'Student').normalize('NFD').replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    doc.save(`Centripetal_Workshop_Certificate_${safe || 'Student'}.pdf`);
+    return doc;
+  }
+
+  window.Certificate = { code, build, download };
+})();
+
+// === Unit_2/centripetal_workshop/js/app.js ===
+// Centripetal Acceleration Workshop — runs the lesson: one page at a time, picture on the left, one task on the right.
+// Saved after every step, so a student resumes on any device with the same numbers. Credit never drops.
+// Built from Unit_2/monkey_hunter_studio/js/app.js.
+
+const WorkshopApp = (function () {
+  if (typeof document !== 'undefined') {
+    document.addEventListener('contextmenu', e => e.preventDefault());
+  }
+  const $ = id => document.getElementById(id);
+  const PR = window.PR, Lesson = window.Lesson, Scene = window.Scene;
+  const STATE_VERSION = 1;
+  const CERT_PERCENT = 75;   // Mastery Check score needed, on top of finishing every part, to earn the certificate
+  const esc = s => String(s === null || s === undefined ? '' : s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
+
+  let state, cloud, profile, tier;
+  let fb = null;              // feedback on the current page
+  let draft = '';             // what is in the answer box
+  let draftWork = null;       // calculator line behind the answer
+  let hintsOpen = 0;
+  let sim = { t: 0, raf: null, reachedEnd: false };
+  let desmos = null;
+
+  // ---------- State ----------
+  function newState() {
+    const parts = {};
+    Lesson.PARTS.filter(p => p.id !== 'quiz').forEach(p => { parts[p.id] = { i: 0, far: 0, done: false, sc: null, scAt: -1, ans: {}, q: null, trail: [] }; });
+    return { v: STATE_VERSION, current: 'turn', parts, prediction: null, quiz: { best: 0, attempts: [], cur: null, last: null }, mistakes: {}, calcUnavailable: false, bestPoints: 0, savedAt: 0 };
+  }
+  const validState = st => !!(st && st.v === STATE_VERSION && st.parts && st.quiz && typeof st.current === 'string' && st.parts.turn);
+
+  function scoreState(st, forTier = tier) {
+    const earned = Math.round(Lesson.earnedPoints(st, forTier) * 10) / 10;
+    st.bestPoints = Math.max(st.bestPoints || 0, earned);
+    const req = Lesson.PARTS.filter(p => p.weight > 0);
+    const progress = Object.fromEntries(req.map(p => [p.id, Math.round(Lesson.partProgress(st, p, forTier) * 100)]));
+    const done = req.filter(p => st.parts[p.id] && st.parts[p.id].done).map(p => p.id);
+    if ((st.quiz.attempts || []).length) done.push('quiz');
+    const last = st.quiz.attempts[st.quiz.attempts.length - 1];
+    return {
+      points: st.bestPoints,
+      percentage: Math.round(st.bestPoints * 10),
+      progress, done,
+      required: req.length + 1,
+      quizBest: st.quiz.best || 0,
+      quizHistory: st.quiz.attempts.map(a => a.pct),
+      skills: last ? last.skills : {},
+      mistakes: st.mistakes,
+      calcUnavailable: !!st.calcUnavailable,
+      cert: st.cert || null
+    };
+  }
+
+  function save(immediate) {
+    scoreState(state);
+    if (cloud) cloud.queueSave(immediate);
+    updateScoreChip();
+  }
+
+  const unlockedAll = () => profile.teacher || profile.preview;
+  function isUnlocked(id) {
+    if (unlockedAll()) return true;
+    const list = Lesson.PARTS;
+    const idx = list.findIndex(p => p.id === id);
+    return idx === 0 || !!(state.parts[list[idx - 1].id] && state.parts[list[idx - 1].id].done);
+  }
+
+  // ---------- Where we are ----------
+  const part = () => state.parts[state.current];
+  const pages = () => Lesson.pages(state.current, tier);
+  const page = () => (state.current === 'quiz' || !part() || part().i >= pages().length ? null : pages()[part().i]);
+  const support = () => tier === 'conceptual';   // first hint open; never labeled
+
+  function freshPage() { fb = null; draft = ''; draftWork = null; hintsOpen = support() ? 1 : 0; resetSim(); clearCalc(); }
+
+  // A page marked fresh deals a new problem. The saved numbers come back on resume because scAt still matches.
+  function dealIfNeeded() {
+    const pg = page();
+    if (!pg || !pg.fresh) return;
+    const p = part();
+    if (p.scAt === p.i) return;
+    if (p.scAt >= 0) keepProblem(p);
+    if (pg.mc) p.q = PR.makeConcept(pg.mc);
+    else {
+      p.sc = PR.newProblem(pg.make, pg.level || 2, p.sc);
+      p.ans = {};
+    }
+    p.scAt = p.i;
+    save();
+  }
+
+  // Each problem replaced by a new one is kept, so Back returns to the same numbers and answers.
+  function keepProblem(p) {
+    (p.trail = p.trail || []).push({ sc: p.sc, ans: p.ans, q: p.q, scAt: p.scAt });
+  }
+  function restoreProblem(p) {
+    Object.assign(p, p.trail.pop());
+  }
+
+  // A page already answered correctly reopens answered, so Back never asks for it again.
+  function showSavedAnswer() {
+    const pg = page(), p = part();
+    if (!pg) return;
+    if (pg.mc && p.q && p.q.picked) { draft = p.q.picked; fb = PR.gradeConcept(p.q, draft); return; }
+    if (!pg.ask) return;
+    const step = PR.STEP[tier][pg.ask];
+    if (typeof p.ans[step.k] !== 'number') return;
+    const saved = String(p.ans[step.k]), r = PR.gradeStep(step, saved, p.sc, p.ans);
+    if (r.ok) { draft = saved; fb = r; }
+  }
+
+  function enterPage() {
+    freshPage();
+    dealIfNeeded();
+    showSavedAnswer();
+  }
+
+  function goTo(i) {
+    const p = part();
+    p.far = Math.max(p.far || 0, i);
+    p.i = i;
+    enterPage();
+    save();
+    render();
+  }
+
+  function previousPart() {
+    const list = Lesson.PARTS, idx = list.findIndex(x => x.id === state.current);
+    return idx > 0 ? list[idx - 1].id : null;
+  }
+
+  // Hidden while a wrong answer is showing: that answer's way forward is new numbers.
+  const canGoBack = () => {
+    if (fb && !fb.ok && !fb.retry) return false;
+    return !!previousPart() || (part() && part().i > 0);
+  };
+  const backBtn = () => (canGoBack() ? '<button type="button" class="btn-secondary" id="btnBack">◀ Back</button>' : '');
+
+  function goBack() {
+    if (state.current === 'quiz') {
+      const c = state.quiz.cur;
+      if (c && c.i > 0) { c.i--; save(); loadQuizQuestion(); } else openPart(previousPart());
+      return;
+    }
+    const p = part(), list = pages();
+    p.trail = p.trail || [];
+    if (p.i === 0) { if (previousPart()) openPart(previousPart()); return; }
+    p.i = Math.min(p.i, list.length) - 1;
+    const usesProblem = list[p.i].ask || list[p.i].mc;
+    while (usesProblem && p.scAt > p.i && p.trail.length) restoreProblem(p);
+    enterPage();
+    save();
+    render();
+  }
+
+  function advance() {
+    const p = part(), list = pages();
+    if (p.i + 1 >= list.length) { finishPart(); return; }
+    goTo(p.i + 1);
+  }
+
+  function finishPart() {
+    const p = part();
+    p.far = pages().length;
+    p.done = true;
+    p.i = pages().length;
+    freshPage();
+    save(true);
+    render();
+  }
+
+  // Wrong answer: same part, new numbers, back to where this problem began.
+  function restartProblem() {
+    const p = part(), list = pages();
+    let i = p.i;
+    while (i > 0 && !list[i].fresh) i--;
+    p.i = i; p.scAt = -1;
+    freshPage();
+    dealIfNeeded();
+    save();
+    render();
+  }
+
+  function openPart(id) {
+    if (!isUnlocked(id)) return;
+    state.current = id;
+    const p = part();
+    if (p && p.done && p.i >= pages().length) p.i = pages().length;
+    enterPage();
+    if (id === 'quiz' && state.quiz.cur) {
+      const c = state.quiz.cur;
+      draft = c.answers[c.i] === null || c.answers[c.i] === undefined ? '' : c.answers[c.i];
+    }
+    save();
+    render();
+  }
+
+  function recordMistake(id) {
+    if (!id || id === 'blank') return;
+    state.mistakes[id] = (state.mistakes[id] || 0) + 1;
+  }
+
+  // ---------- Stepping through motion ----------
+  function resetSim() {
+    if (sim.raf) cancelAnimationFrame(sim.raf);
+    sim = { t: 0, raf: null, reachedEnd: false };
+  }
+
+  // { T, launch: one press plays it all, require: must finish before Next, label }
+  function stepperOf() {
+    if (state.current === 'quiz') return null;
+    const pg = page();
+    return pg && pg.stepper ? pg.stepper : null;
+  }
+
+  function animateTo(target, ms, done) {
+    if (sim.raf) cancelAnimationFrame(sim.raf);
+    const from = sim.t, reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || ms <= 0) { sim.t = target; renderScene(); renderReadout(); done && done(); return; }
+    const start = performance.now();
+    const tick = now => {
+      const f = Math.min(1, (now - start) / ms);
+      sim.t = from + (target - from) * f;
+      renderScene();
+      if (f < 1) sim.raf = requestAnimationFrame(tick);
+      else { sim.raf = null; sim.t = target; renderScene(); renderReadout(); done && done(); }
+    };
+    sim.raf = requestAnimationFrame(tick);
+  }
+
+  function nextSecond() {
+    const st = stepperOf();
+    if (!st || sim.raf || sim.t >= st.T - 1e-6) return;
+    animateTo(Math.min(st.T, Math.floor(sim.t + 1e-6) + 1), 650, afterMove);
+  }
+
+  function afterMove() {
+    const st = stepperOf();
+    if (st && sim.t >= st.T - 1e-6 && !sim.reachedEnd) {
+      sim.reachedEnd = true;
+      renderTask();   // shows the takeaway and opens the Next button
+    }
+    renderControls();
+  }
+
+  function playFlight() {
+    const st = stepperOf();
+    if (!st) return;
+    sim.t = 0;
+    animateTo(st.T, Math.min(5200, Math.max(1800, st.T * 700)), afterMove);
+  }
+
+  function restartSim() {
+    if (sim.raf) cancelAnimationFrame(sim.raf);
+    sim.raf = null; sim.t = 0;
+    renderScene(); renderReadout(); renderControls();
+  }
+
+  // ---------- Picture ----------
+  const TEACH_END = () => ({ mode: 'circle', phi: 60, showA: true, aLabel: 'a_c', vLabel: 'v' });
+
+  function sceneOpts() {
+    if (state.current === 'quiz') return quizScene();
+    const p = part(), pg = page();
+    if (!pg) return TEACH_END();
+    if (pg.scene) {
+      const o = pg.scene();
+      if (pg.stepper) o.t = sim.t;
+      return o;
+    }
+    if (pg.mc) return PR.CONCEPT[pg.mc].scene(p.q);
+    return Lesson.problemScene(tier, p.sc, p.ans);
+  }
+
+  function renderScene() {
+    $('stage').innerHTML = Scene.render(sceneOpts());
+  }
+
+  function renderReadout() {
+    const box = $('readout');
+    const st = stepperOf();
+    if (!st || st.launch || st.label) { box.hidden = true; return; }
+    box.innerHTML = `<span class="clock"><span class="clock-label">Time</span> <strong>${Math.floor(sim.t + 1e-6)} s</strong></span>`;
+    box.hidden = false;
+  }
+
+  function renderControls() {
+    const box = $('stageCtl');
+    const st = stepperOf();
+    if (!st) { box.hidden = true; return; }
+    box.hidden = false;
+    const ended = sim.t >= st.T - 1e-6;
+    if (st.launch) {
+      $('btnNextSecond').hidden = true;
+      $('btnPlay').hidden = false;
+      $('btnPlay').textContent = sim.t > 0 ? `↺ ${st.label || 'Play'} again` : `▶ ${st.label || 'Play'}`;
+      $('btnPlay').disabled = !!sim.raf;
+      $('btnStartOver').hidden = true;
+    } else {
+      $('btnNextSecond').hidden = false;
+      $('btnNextSecond').textContent = `▶ ${st.label || 'Next second'}`;
+      $('btnNextSecond').disabled = ended;
+      $('btnPlay').hidden = true;
+      // Holds its place at the start so the step button never moves under the student's finger
+      $('btnStartOver').hidden = false;
+      $('btnStartOver').style.visibility = sim.t === 0 ? 'hidden' : '';
+    }
+  }
+
+  // What the student has found so far stays on screen
+  function renderSolved() {
+    const box = $('solved');
+    let ans = null;
+    if (state.current === 'quiz') {
+      const c = state.quiz.cur, q = c && c.qs[c.i];
+      if (q && q.kind === 'step') ans = chainFor(c, q.f, c.i);
+    } else if (page() && page().ask) ans = part().ans;
+    const rows = [['factor', 'new a_c is', '× as big', 'a'], ['newac', 'new a_c', 'm/s²', 'a'], ['v', 'v', 'm/s', 'v'], ['ac', 'a_c', 'm/s²', 'a'], ['vmax', 'v', 'm/s', 'v']];
+    const html = ans ? rows.filter(([k]) => typeof ans[k] === 'number')
+      .map(([k, sym, unit, cls]) => `<span class="solved-chip solved-${cls}">${subHTML(k === 'factor' ? `${sym} ${PR.fmt(ans[k])} ${unit}` : `${sym} = ${PR.fmt(ans[k])} ${unit}`)}</span>`).join('') : '';
+    box.innerHTML = html;
+  }
+
+  // ---------- Task card ----------
+  function renderTask() {
+    if (state.current === 'quiz') { renderQuiz(); syncCalc(); return; }
+    const pg = page();
+    let html;
+    if (!pg) html = donePartHTML();
+    else if (pg.mc) html = mcHTML(part().q, pg.mc, pageHeader());
+    else if (pg.predict) html = predictHTML(pg);
+    else if (pg.ask) html = stepHTML(PR.STEP[tier][pg.ask], part().sc, part().ans);
+    else html = teachHTML(pg);
+    $('taskCard').innerHTML = subHTML(html);
+    bindTask();
+    syncCalc();
+  }
+
+  function progressLabel() {
+    const p = part(), n = pages().length;
+    return `Step ${Math.min(p.i + 1, n)} of ${n}`;
+  }
+
+  const readBtn = '<button type="button" class="btn-read" id="btnRead" title="Read this page out loud">🔊 Read to me</button>';
+  const pageHeader = () => `<div class="task-top"><span class="task-count">${progressLabel()}</span>${readBtn}</div>`;
+
+  function teachHTML(pg) {
+    const needsEnd = pg.stepper && pg.stepper.require && !sim.reachedEnd;
+    const wait = pg.stepper ? `Press ${pg.stepper.label || 'Next second'} first` : '';
+    return `${pageHeader()}<h2 class="task-title">${pg.title}</h2>
+      <div class="task-body" id="readable">${pg.body}${pg.after && sim.reachedEnd ? `<div class="takeaway">${pg.after}</div>` : ''}</div>
+      <div class="task-actions">
+        ${backBtn()}
+        <button type="button" class="btn-primary" id="btnNext" ${needsEnd ? 'disabled' : ''}>${needsEnd ? wait : 'Next ▶'}</button>
+      </div>`;
+  }
+
+  function predictHTML(pg) {
+    const opts = pg.options.map(o => `<button type="button" class="opt ${state.prediction === o.id ? 'opt-picked' : ''}" data-predict="${o.id}">${o.t}</button>`).join('');
+    return `${pageHeader()}<h2 class="task-title">${pg.title}</h2>
+      <div class="task-body" id="readable">${pg.body}</div>
+      <div class="opts">${opts}</div>
+      <div class="task-actions">${backBtn()}</div>`;
+  }
+
+  function hintsHTML(hints) {
+    if (!hints.length) return '';
+    const shown = hints.slice(0, hintsOpen).map(h => `<div class="hint">💡 ${h}</div>`).join('');
+    const more = hintsOpen < hints.length ? `<button type="button" class="btn-hint" id="btnHint">${hintsOpen ? 'Another hint' : 'Show a hint'}</button>` : '';
+    return `<div class="hints">${shown}${more}</div>`;
+  }
+
+  function answerBox(step, disabled) {
+    const useCalc = step.calc && window.Desmos;
+    if (step.calc && !window.Desmos) state.calcUnavailable = true;
+    return `<label class="ans-row"><span class="ans-sym">${step.sym}${step.noEq ? '' : ' ='}</span>
+      <input id="answer" type="text" inputmode="decimal" autocomplete="off" value="${esc(draft)}"
+        ${useCalc ? 'readonly tabindex="-1" class="calc-readonly" placeholder="calculator"' : ''} ${disabled ? 'disabled' : ''}
+        aria-label="${step.sym.replace(/_/g, ' ')}${useCalc ? ', filled in from the calculator' : ''}">
+      <span class="ans-unit">${step.unit}</span></label>`;
+  }
+
+  function stepHTML(step, sc, ans) {
+    const answered = !!fb && !fb.retry;
+    const formula = step.formula(sc, ans);
+    const hints = step.hints(sc, ans);
+    return `${pageHeader()}<h2 class="task-title" id="readable">${step.ask(sc, ans)}</h2>
+      ${formula ? `<p class="formula-box"><span class="formula">${formula}</span></p>` : ''}
+      ${answerBox(step, answered)}
+      ${fbHTML()}
+      <div class="task-actions">${backBtn()}${answered ? fbActions() : '<button type="button" class="btn-primary" id="btnCheck">Check</button>'}</div>
+      ${answered ? '' : hintsHTML(hints)}`;
+  }
+
+  function fbHTML() {
+    if (!fb) return '';
+    if (fb.retry) return `<div class="feedback fb-retry" role="status">${fb.msg}</div>`;
+    return `<div class="feedback ${fb.ok ? 'fb-ok' : 'fb-bad'}" role="status"><strong>${fb.ok ? '✓ Correct!' : '✗ Not yet.'}</strong> ${fb.msg || ''}</div>`;
+  }
+
+  const fbActions = () => (fb.ok
+    ? '<button type="button" class="btn-primary" id="btnNext">Next ▶</button>'
+    : '<button type="button" class="btn-primary" id="btnNew">Try new numbers ▶</button>');
+
+  function mcHTML(q, id, top) {
+    const def = PR.CONCEPT[id];
+    const answered = !!fb;
+    const opts = PR.conceptOptions(q).map(o => {
+      const cls = !answered ? '' : o.id === def.right(q) ? 'opt-right' : o.id === draft ? 'opt-wrong' : '';
+      return `<button type="button" class="opt ${cls} ${o.id === draft ? 'opt-picked' : ''} ${def.letters ? 'opt-letter' : ''}" data-opt="${o.id}" ${answered ? 'disabled' : ''}>${o.t}</button>`;
+    }).join('');
+    return `${top}<h2 class="task-title" id="readable">${def.text(q)}</h2>
+      <div class="opts ${def.letters ? 'opts-letters' : ''}">${opts}</div>${fbHTML()}
+      <div class="task-actions">${backBtn()}${answered ? fbActions() : ''}</div>`;
+  }
+
+  function donePartHTML() {
+    const list = Lesson.PARTS, idx = list.findIndex(p => p.id === state.current);
+    const next = list[idx + 1];
+    return `<div class="done-card"><div class="done-mark" aria-hidden="true">✅</div>
+      <h2 class="task-title">${list[idx].label} finished!</h2>
+      <p>Your credit for this part is saved.</p>
+      <div class="task-actions">
+        ${backBtn()}
+        <button type="button" class="btn-secondary" id="btnReview">Go through it again</button>
+        ${next ? `<button type="button" class="btn-primary" data-part="${next.id}">${next.label} ▶</button>` : ''}
+      </div></div>`;
+  }
+
+  // ---------- Checking ----------
+  function check() {
+    const pg = page(), step = PR.STEP[tier][pg.ask], p = part();
+    if (PR.parseNum(draft) === null) { showBoxError(step.calc && window.Desmos ? 'Use the calculator, then press its Use calculator answer button.' : 'Type a number first.'); return; }
+    const r = PR.gradeStep(step, draft, p.sc, p.ans);
+    fb = r;
+    if (r.ok) p.ans[step.k] = PR.parseNum(draft);
+    else if (r.retry) { draft = ''; recordMistake(r.mistake); }
+    else recordMistake(r.mistake);
+    save();
+    render();
+  }
+
+  function showBoxError(msg) {
+    fb = { retry: true, msg };
+    renderTask();
+  }
+
+  function pickOption(id) {
+    if (state.current === 'quiz') {
+      const c = state.quiz.cur;
+      c.answers[c.i] = id;
+      save();
+      renderTask();
+      return;
+    }
+    draft = id;
+    const r = PR.gradeConcept(part().q, id);
+    fb = r;
+    if (r.ok) part().q.picked = id;
+    else recordMistake(r.mistake);
+    save();
+    render();
+  }
+
+  function bindTask() {
+    const on = (id, fn) => { const el = $(id); if (el) el.addEventListener('click', fn); };
+    on('btnNext', advance);
+    on('btnNew', restartProblem);
+    on('btnCheck', check);
+    on('btnBack', goBack);
+    on('btnHint', () => { hintsOpen++; renderTask(); });
+    on('btnRead', readAloud);
+    on('btnReview', () => { part().i = 0; part().scAt = -1; part().trail = []; enterPage(); save(); render(); });
+    on('btnStartQuiz', startQuiz);
+    on('btnQuizNext', quizNext);
+    document.querySelectorAll('#taskCard [data-cert]').forEach(b => b.addEventListener('click', () => downloadCertificate(b)));
+    document.querySelectorAll('#taskCard [data-opt]').forEach(b => b.addEventListener('click', () => pickOption(b.dataset.opt)));
+    document.querySelectorAll('#taskCard [data-part]').forEach(b => b.addEventListener('click', () => openPart(b.dataset.part)));
+    document.querySelectorAll('#taskCard [data-predict]').forEach(b => b.addEventListener('click', () => { state.prediction = b.dataset.predict; advance(); }));
+    const input = $('answer');
+    if (input && !input.readOnly) {
+      input.addEventListener('input', () => { draft = input.value; quizSaveDraft(); });
+      input.addEventListener('keydown', e => {
+        if (e.key !== 'Enter') return;
+        if ($('btnCheck')) check();
+        else if ($('btnQuizNext')) quizNext();
+      });
+      if (!input.disabled) input.focus({ preventScroll: true });
+    }
+  }
+
+  function readAloud() {
+    if (!window.speechSynthesis) return;
+    const el = $('readable');
+    if (!el) return;
+    speechSynthesis.cancel();
+    const clean = el.innerText.replace(/\s*\n+\s*=\s*\n+\s*/g, ' equals ')
+      .replace(/a\s*c\b/g, 'a c').replace(/v²/g, 'v squared').replace(/²/g, ' squared')
+      .replace(/√/g, 'the square root of ').replace(/π/g, ' pi ').replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/→/g, ' gives ');
+    speechSynthesis.speak(new SpeechSynthesisUtterance(clean));
+  }
+
+  // ---------- Mastery Check ----------
+  const chainFor = (quiz, f, upTo) => {
+    const chain = {};
+    quiz.qs.forEach((q, i) => {
+      if (i >= upTo || q.kind !== 'step' || q.f !== f) return;
+      const v = PR.parseNum(quiz.answers[i]);
+      if (v !== null) chain[PR.STEP[quiz.tier][q.k].k] = v;
+    });
+    return chain;
+  };
+
+  function quizScene() {
+    const c = state.quiz.cur;
+    if (!c) return TEACH_END();
+    const q = c.qs[c.i];
+    if (q.kind === 'mc') return PR.CONCEPT[q.id].scene(q);
+    return Lesson.problemScene(tier, c.probs[q.f], chainFor(c, q.f, c.i));
+  }
+
+  function startQuiz() {
+    state.quiz.cur = PR.buildQuiz(tier);
+    state.quiz.cur.startedAt = Date.now();
+    loadQuizQuestion();
+    save(true);
+  }
+
+  function loadQuizQuestion() {
+    const c = state.quiz.cur;
+    freshPage();
+    draft = c.answers[c.i] === null || c.answers[c.i] === undefined ? '' : c.answers[c.i];
+    render();
+  }
+
+  function quizSaveDraft() {
+    if (state.current !== 'quiz' || !state.quiz.cur) return;
+    const c = state.quiz.cur;
+    c.answers[c.i] = draft;
+    c.work[c.i] = draftWork;
+    save();
+  }
+
+  function quizNext() {
+    const c = state.quiz.cur, q = c.qs[c.i];
+    const value = q.kind === 'mc' ? c.answers[c.i] : draft;
+    if (value === null || value === undefined || value === '') {
+      $('quizMsg').textContent = q.kind === 'mc' ? 'Choose an answer first.' : 'Enter an answer first.';
+      return;
+    }
+    if (q.kind === 'step') { c.answers[c.i] = draft; c.work[c.i] = draftWork || c.work[c.i]; }
+    if (c.i + 1 < c.qs.length) { c.i++; save(); loadQuizQuestion(); return; }
+    finishQuiz();
+  }
+
+  function finishQuiz() {
+    const c = state.quiz.cur;
+    const g = PR.gradeQuiz(c);
+    g.results.forEach(r => { if (!r.ok) recordMistake(r.mistake); });
+    state.quiz.attempts.push({
+      pct: g.pct, correct: g.correct, total: g.total, at: Date.now(),
+      secs: c.startedAt ? Math.round((Date.now() - c.startedAt) / 1000) : null,
+      skills: g.skills
+    });
+    state.quiz.best = Math.max(state.quiz.best || 0, g.pct);
+    state.quiz.last = c;
+    state.quiz.cur = null;
+    updateCert();
+    freshPage();
+    save(true);
+    render();
+  }
+
+  const SKILL_LABEL = { pattern: 'Speed and radius patterns', ac: 'Finding a_c', period: 'Speed from one lap', backward: 'Fastest safe speed', concept: 'Big ideas' };
+
+  function quizIntro() {
+    const n = PR.buildQuiz(tier);
+    const steps = n.qs.filter(q => q.kind === 'step').length, mcs = n.qs.length - steps;
+    return `You will answer <strong>${steps} calculation steps</strong> and <strong>${mcs} questions</strong>.`;
+  }
+
+  function renderQuiz() {
+    const q = state.quiz;
+    let html;
+    if (q.cur) html = quizQuestionHTML();
+    else if (q.attempts.length) html = quizResultsHTML();
+    else {
+      html = `<h2 class="task-title">Mastery Check</h2>
+        <div class="task-body" id="readable">
+          <p>${quizIntro()}</p>
+          <p>You will not see right or wrong until the end. If one answer is off, later steps that use it still earn credit when your work is right.</p>
+          <p>You can retake it with new numbers. Your <strong>best score</strong> counts for 4 of your 10 points.</p>
+        </div>
+        ${certHTML()}
+        <div class="task-actions">${backBtn()}<button type="button" class="btn-primary" id="btnStartQuiz">Start ▶</button></div>`;
+    }
+    $('taskCard').innerHTML = subHTML(html);
+    bindTask();
+  }
+
+  function quizQuestionHTML() {
+    const c = state.quiz.cur, q = c.qs[c.i];
+    const top = `<div class="task-top"><span class="task-count">Question ${c.i + 1} of ${c.qs.length}</span>${readBtn}</div>`;
+    const nextLabel = c.i + 1 < c.qs.length ? 'Next ▶' : 'Finish';
+    const actions = `<p id="quizMsg" class="quiz-msg" role="alert"></p><div class="task-actions">
+      ${backBtn()}
+      <button type="button" class="btn-primary" id="btnQuizNext">${nextLabel}</button></div>`;
+    if (q.kind === 'mc') {
+      const def = PR.CONCEPT[q.id];
+      const opts = PR.conceptOptions(q).map(o => `<button type="button" class="opt ${c.answers[c.i] === o.id ? 'opt-picked' : ''} ${def.letters ? 'opt-letter' : ''}" data-opt="${o.id}">${o.t}</button>`).join('');
+      return `${top}<h2 class="task-title" id="readable">${def.text(q)}</h2><div class="opts ${def.letters ? 'opts-letters' : ''}">${opts}</div>${actions}`;
+    }
+    const step = PR.STEP[tier][q.k], sc = c.probs[q.f], ans = chainFor(c, q.f, c.i);
+    const formula = step.formula(sc, ans);
+    return `${top}<p class="launch-tag">Problem ${q.f + 1}</p><h2 class="task-title" id="readable">${step.ask(sc, ans)}</h2>
+      ${formula ? `<p class="formula-box"><span class="formula">${formula}</span></p>` : ''}
+      ${answerBox(step, false)}${fbHTML()}${actions}`;
+  }
+
+  function quizResultsHTML() {
+    const q = state.quiz, last = q.attempts[q.attempts.length - 1];
+    const g = q.last ? PR.gradeQuiz(q.last) : null;
+    const skills = Object.entries(last.skills || {}).map(([k, v]) => {
+      const pct = Math.round(100 * v.right / v.total);
+      return `<div class="skill-row"><span>${SKILL_LABEL[k] || k}</span><span class="skill-bar"><span style="width:${pct}%"></span></span><span class="skill-val">${v.right}/${v.total}</span></div>`;
+    }).join('');
+    const misses = g ? g.results.filter(r => !r.ok).slice(0, 3).map(r => `<li>${r.msg}</li>`).join('') : '';
+    const s = scoreState(state);
+    return `<h2 class="task-title">Mastery Check results</h2>
+      <div class="score-big"><strong>${last.pct}%</strong><span>this try · best ${q.best}%</span></div>
+      <p class="grade-line">Your grade so far: <strong class="nowrap">${s.points.toFixed(1)} / 10</strong></p>
+      ${certHTML()}
+      <div class="skills">${skills}</div>
+      ${misses ? `<div class="task-body"><p><strong>Look at these:</strong></p><ul class="misses">${misses}</ul></div>` : ''}
+      <div class="task-actions">${backBtn()}<button type="button" class="${certStatus().ready ? 'btn-secondary' : 'btn-primary'}" id="btnStartQuiz">Retake with new numbers ▶</button></div>`;
+  }
+
+  // ---------- Part strip + score ----------
+  function renderStrip() {
+    $('partStrip').innerHTML = Lesson.PARTS.map(p => {
+      const open = isUnlocked(p.id), on = state.current === p.id;
+      const pct = p.id === 'quiz' ? (state.quiz.best || 0) : Math.round(Lesson.partProgress(state, p, tier) * 100);
+      const finished = p.id === 'quiz' ? state.quiz.attempts.length > 0 : state.parts[p.id].done;
+      return `<button type="button" class="part-tab ${on ? 'part-on' : ''} ${finished ? 'part-done' : ''}" data-part="${p.id}" ${open ? '' : 'disabled'} ${on ? 'aria-current="step"' : ''}>
+        <span class="part-name">${open ? p.icon : '🔒'} ${p.label}${finished && p.id !== 'quiz' ? ' ✓' : ''}</span>
+        <span class="part-bar"><span style="width:${pct}%"></span></span></button>`;
+    }).join('');
+    document.querySelectorAll('#partStrip [data-part]').forEach(b => b.addEventListener('click', () => openPart(b.dataset.part)));
+  }
+
+  function updateScoreChip() {
+    const el = $('scoreChip');
+    if (el && state) el.textContent = `${(state.bestPoints || 0).toFixed(1)} / 10`;
+    $('btnCert').hidden = !(certStatus().ready && (!profile.guest || profile.preview));
+  }
+
+  // ---------- Completion certificate ----------
+  function certStatus() {
+    const missing = Lesson.PARTS.filter(p => p.weight > 0 && !state.parts[p.id].done);
+    const best = state.quiz.best || 0;
+    return { ready: !missing.length && state.quiz.attempts.length > 0 && best >= CERT_PERCENT, missing, best };
+  }
+
+  // Remembers the day it was first earned; the code follows the best score, which can still rise
+  function updateCert() {
+    if (profile.guest && !profile.preview) return;
+    if (!certStatus().ready) return;
+    const id = profile.preview ? 'SAMPLE' : (cloud && cloud.studentId) || 'TEACHER';
+    const code = Certificate.code(id, state.quiz.best);
+    if (state.cert && state.cert.code === code) return;
+    state.cert = { code, at: (state.cert && state.cert.at) || Date.now() };
+  }
+
+  function certHTML() {
+    const c = certStatus();
+    if (profile.guest && !profile.preview) {
+      return '<div class="cert-box cert-wait">🎓 <strong>Certificates are for signed-in students.</strong> Sign in with your school account to earn yours.</div>';
+    }
+    if (c.ready) {
+      return '<div class="cert-box cert-ready"><strong>🎓 You earned your certificate!</strong><button type="button" class="btn-primary" data-cert>📄 Download certificate (PDF)</button></div>';
+    }
+    const need = c.missing.length ? `finish ${c.missing.map(p => p.label).join(', ')} and ` : '';
+    return `<div class="cert-box cert-wait">🎓 <strong>Earn your certificate:</strong> ${need}score ${CERT_PERCENT}% or higher on the Mastery Check. Your best so far is <span class="nowrap">${c.best}%</span>.</div>`;
+  }
+
+  async function downloadCertificate(btn) {
+    updateCert();
+    if (!state.cert) return;
+    const label = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Making your certificate…';
+    try {
+      await Certificate.download({
+        name: profile.preview ? 'Sample Student' : profile.name,
+        sample: !!profile.preview,
+        best: state.quiz.best,
+        honors: tier === 'honors',
+        period: profile.teacher ? 'Teacher' : (profile.period !== null && profile.period !== undefined) ? `Period ${profile.period}` : '',
+        earned: state.cert.at,
+        code: state.cert.code
+      });
+      btn.textContent = label;
+    } catch (e) {
+      console.error('Certificate failed:', e);
+      btn.textContent = 'It did not download. Try again';
+    }
+    btn.disabled = false;
+    save(true);
+  }
+
+  function render() {
+    renderStrip();
+    renderScene();
+    renderReadout();
+    renderControls();
+    renderSolved();
+    renderTask();
+    updateScoreChip();
+  }
+
+  // ---------- Calculator ----------
+  function toggleCalc(open) {
+    const panel = $('calcPanel');
+    panel.hidden = !open;
+    document.body.classList.toggle('calc-open', open);
+    if (!open) return;
+    if (!window.Desmos) return;
+    if (!desmos) {
+      try {
+        desmos = Desmos.ScientificCalculator($('calcHost'), {
+          degreeMode: true,
+          invertedColors: document.documentElement.classList.contains('theme-dark'),
+          fontSize: Desmos.FontSizes ? Desmos.FontSizes.LARGE : undefined
+        });
+      } catch (e) {
+        $('calcHost').innerHTML = '<p class="calc-missing">The calculator did not load.</p>';
+      }
+    } else if (desmos.resize) desmos.resize();
+  }
+
+  function clearCalc() { if (desmos && desmos.setBlank) desmos.setBlank(); sayCalc(''); }
+
+  function sayCalc(msg) {
+    $('calcMsg').hidden = !msg;
+    $('calcMsg').innerHTML = msg ? subHTML(msg) : '';
+  }
+
+  // The step whose answer the calculator should fill in right now, with its needs
+  function calcTarget() {
+    if (state.current === 'quiz') {
+      const c = state.quiz.cur, q = c && c.qs[c.i];
+      if (!q || q.kind !== 'step') return null;
+      const step = PR.STEP[tier][q.k];
+      return step.calc ? { step, sc: c.probs[q.f], ans: chainFor(c, q.f, c.i) } : null;
+    }
+    const pg = page();
+    if (!pg || !pg.ask || (fb && !fb.retry)) return null;
+    const step = PR.STEP[tier][pg.ask];
+    return step.calc ? { step, sc: part().sc, ans: part().ans } : null;
+  }
+
+  function syncCalc() {
+    const t = calcTarget();
+    toggleCalc(!!(t && window.Desmos));
+  }
+
+  function grabAnswer() {
+    const t = calcTarget();
+    if (!t || !desmos) return;
+    const work = window.Engine.readCalculator(desmos.getState());
+    if (work.empty) return sayCalc('Type your calculation into the calculator first.');
+    if (work.unreadable) return sayCalc('The calculator line is not finished. Check it, or press "clear all" and type it again.');
+    const problem = PR.workProblem(work, t.step.needs ? t.step.needs(t.sc, t.ans) : {});
+    if (problem) return sayCalc(problem);
+    sayCalc('');
+    draft = String(Number(work.value.toFixed(3)));
+    draftWork = work.latex;
+    if (fb && fb.retry) fb = null;
+    quizSaveDraft();
+    renderTask();
+  }
+
+  function bindCalcDrag() {
+    const panel = $('calcPanel'), head = $('calcHead');
+    let grab = null;
+    head.addEventListener('pointerdown', e => {
+      const r = panel.getBoundingClientRect();
+      grab = { dx: e.clientX - r.left, dy: e.clientY - r.top };
+      head.setPointerCapture(e.pointerId);
+    });
+    head.addEventListener('pointermove', e => {
+      if (!grab) return;
+      const r = panel.getBoundingClientRect();
+      panel.style.left = `${Math.max(0, Math.min(innerWidth - r.width, e.clientX - grab.dx))}px`;
+      panel.style.top = `${Math.max(0, Math.min(innerHeight - r.height, e.clientY - grab.dy))}px`;
+      panel.style.right = 'auto';
+      panel.style.bottom = 'auto';
+    });
+    head.addEventListener('pointerup', () => { grab = null; });
+  }
+
+  // ---------- Display tools ----------
+  function bindTools() {
+    const root = document.documentElement;
+    const setTheme = () => {
+      $('btn-theme-toggle').textContent = root.classList.contains('theme-dark') ? '☀️ Light' : '🌙 Dark';
+      $('btn-projector-mode').classList.toggle('btn-on', root.classList.contains('projector'));
+    };
+    $('btn-theme-toggle').addEventListener('click', () => {
+      root.classList.remove('projector');
+      root.classList.toggle('theme-dark');
+      try {
+        localStorage.setItem('caw_theme', root.classList.contains('theme-dark') ? 'dark' : 'light');
+        localStorage.setItem('caw_projector', 'off');
+      } catch (e) { /* storage blocked */ }
+      if (desmos && desmos.updateSettings) desmos.updateSettings({ invertedColors: root.classList.contains('theme-dark') });
+      setTheme();
+    });
+    $('btn-projector-mode').addEventListener('click', () => {
+      const on = !root.classList.contains('projector');
+      root.classList.toggle('projector', on);
+      if (on) root.classList.remove('theme-dark');
+      try { localStorage.setItem('caw_projector', on ? 'on' : 'off'); } catch (e) { /* storage blocked */ }
+      setTheme();
+    });
+    setTheme();
+  }
+
+  function start(s, c, prof) {
+    state = s; cloud = c; profile = prof; tier = prof.tier;
+    $('btnNextSecond').addEventListener('click', nextSecond);
+    $('btnPlay').addEventListener('click', playFlight);
+    $('btnStartOver').addEventListener('click', restartSim);
+    $('btnUseCalc').addEventListener('click', grabAnswer);
+    $('btnCert').addEventListener('click', () => downloadCertificate($('btnCert')));
+    bindCalcDrag();
+    bindTools();
+    if (state.current !== 'quiz' && !state.parts[state.current]) state.current = 'turn';
+    enterPage();
+    if (state.current === 'quiz' && state.quiz.cur) {
+      const cur = state.quiz.cur;
+      draft = cur.answers[cur.i] === null || cur.answers[cur.i] === undefined ? '' : cur.answers[cur.i];
+    }
+    if (prof.teacher || prof.preview) {
+      $('viewWrap').hidden = false;
+      $('viewSelect').value = prof.previewView || 'teacher';
+      $('viewSelect').addEventListener('change', e => {
+        location.search = e.target.value === 'teacher' ? '' : `?preview&view=${e.target.value}`;
+      });
+    }
+    if (prof.teacher) $('btnMonitor').hidden = false;
+    render();
+  }
+
+  return { start, newState, validState, scoreState, debug: () => ({ state, tier, sim, fb, desmos }) };
+})();
+
+window.WorkshopApp = WorkshopApp;
+
+// === Unit_2/centripetal_workshop/js/auth.js ===
+// Centripetal Acceleration Workshop — Google Sign-In gate, roster lookup, and Firestore progress + score sync.
+// Path: student_results/{ASSIGNMENT_ID}/students/{studentId}  (owner-only per firestore.rules; the doc ID is the
+// email prefix, and the admin-only parent doc is written by sync-classroom/deploy-assignment.js).
+// Class comes from roster/{studentId}: P0 Honors, P1–3 Conceptual Physics, P4–6 CP Physics. It is never shown to
+// P1–6 students as a label. The teacher can preview each class from the header.
+// Guest: no sign-in, saved only on this device, never graded. Preview (?preview&view=conceptual|cp|honors): nothing saved.
+// Copied from Unit_2/monkey_hunter_studio/js/auth.js.
+
+const ASSIGNMENT_ID = 'unit2_day51_centripetal_workshop';
+const MAX_POINTS = 10;
+const TEACHER_EMAILS = ['rmudry@orangeusd.org', 'ryan.mudry@gmail.com', 'ryanmudry@gmail.com'];
+const GUEST_KEY = 'caw_state_guest';
+
+const tierForPeriod = p => (p === 0 ? 'honors' : [1, 2, 3].includes(p) ? 'conceptual' : 'cp');
+
+class StudioAuth {
+  constructor(onReady) {
+    this.onReady = onReady;
+    this.started = false;
+    this.user = null;
+    this.studentId = null;
+    this.saveTimer = null;
+    this.saving = false;
+    this.pending = false;
+    this.state = null;
+    this.guest = false;
+    this.preview = false;
+    this.stalled = false;
+    this.profile = null;
+
+    this.gate = document.getElementById('loginGate');
+    this.gateError = document.getElementById('gateError');
+    this.gateBtn = document.getElementById('btnGateSignIn');
+    this.gateStatus = document.getElementById('gateStatus');
+    this.indicator = document.getElementById('saveIndicator');
+
+    this.gateBtn.addEventListener('click', () => this.signIn());
+    document.getElementById('btnGateGuest').addEventListener('click', () => this.startGuest());
+    document.getElementById('btnSignOut').addEventListener('click', () => this.signOut());
+    document.getElementById('btnChipSignIn').addEventListener('click', () => this.signIn());
+    // Chromebook lid closed, tab switched, or page closing: save right away
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden' && this.saveTimer) this.flush();
+    });
+    window.addEventListener('pagehide', () => { if (this.saveTimer) this.flush(); });
+    window.addEventListener('beforeunload', e => {
+      if (this.saveTimer || this.saving) {
+        this.flush();
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('preview')) {
+      this.startPreview(params.get('view') || 'cp');
+      return;
+    }
+
+    if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) {
+      this.showError('Could not load Google Sign-In. Check your internet connection and refresh, or continue as a guest.');
+      this.gateBtn.disabled = true;
+      return;
+    }
+    this.db = firebase.firestore();
+    firebase.auth().getRedirectResult().catch(err => this.showError(`Sign-in error: ${err.message || err.code}`));
+    firebase.auth().onAuthStateChanged(user => this.handleUser(user));
+  }
+
+  showError(msg) {
+    this.gateError.textContent = msg;
+    this.gateError.hidden = !msg;
+  }
+
+  setGateBusy(text) {
+    this.gateStatus.textContent = text || '';
+    this.gateBtn.hidden = !!text;
+  }
+
+  signIn() {
+    if (!this.db) return;
+    this.showError('');
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ hd: 'orangeusd.org', prompt: 'select_account' });
+    this.gateBtn.disabled = true;
+    firebase.auth().signInWithPopup(provider)
+      .catch(err => {
+        if (err.code === 'auth/popup-blocked') {
+          firebase.auth().signInWithRedirect(provider);
+        } else if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
+          this.showError(`Google Sign-In error: ${err.message || err.code}`);
+        }
+      })
+      .finally(() => { this.gateBtn.disabled = false; });
+  }
+
+  async signOut() {
+    if (!window.confirm('Sign out? Your progress is saved to your school account.')) return;
+    await this.flush();
+    await firebase.auth().signOut();
+    window.location.reload();
+  }
+
+  docRef() {
+    return this.db.collection('student_results').doc(ASSIGNMENT_ID).collection('students').doc(this.studentId);
+  }
+
+  localKey() {
+    return this.guest ? GUEST_KEY : `caw_state_${this.studentId}`;
+  }
+
+  static readLocal(key) {
+    try {
+      const s = JSON.parse(localStorage.getItem(key));
+      return WorkshopApp.validState(s) ? s : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  showChip(name, track) {
+    document.getElementById('userName').textContent = name;
+    document.getElementById('userTrack').textContent = track || '';
+    document.getElementById('userChip').hidden = false;
+  }
+
+  startPreview(view) {
+    const tier = ['conceptual', 'cp', 'honors'].includes(view) ? view : 'cp';
+    this.preview = true;
+    this.guest = true;
+    this.state = WorkshopApp.newState();
+    this.profile = { guest: true, preview: true, previewView: tier, tier, period: null, name: 'Preview' };
+    this.started = true;
+    this.gate.hidden = true;
+    this.showChip('👁 Preview', '');
+    document.getElementById('btnSignOut').hidden = true;
+    this.onReady({ state: this.state, cloud: this, profile: this.profile });
+    this.setIndicator('guest', 'Nothing is saved');
+  }
+
+  startGuest() {
+    if (this.started) return;
+    this.guest = true;
+    const state = StudioAuth.readLocal(GUEST_KEY) || WorkshopApp.newState();
+    this.state = state;
+    this.profile = { guest: true, tier: 'cp', period: null, name: 'Guest' };
+    this.started = true;
+    this.gate.hidden = true;
+    this.showChip('👤 Guest', '');
+    document.getElementById('btnSignOut').hidden = true;
+    document.getElementById('btnChipSignIn').hidden = !this.db;
+    this.onReady({ state, cloud: this, profile: this.profile });
+    this.setIndicator('guest', '💾 This device only');
+  }
+
+  // The roster stores class_period as an integer 0–6 (older docs use period). Strict checks keep Period 0.
+  async lookupPeriod(email) {
+    if (TEACHER_EMAILS.includes(email)) return { period: 'T', teacher: true };
+    try {
+      const snap = await this.db.collection('roster').doc(this.studentId).get();
+      if (snap.exists) {
+        const d = snap.data();
+        const p = d.class_period !== undefined && d.class_period !== null ? d.class_period
+          : d.period !== undefined && d.period !== null ? d.period : null;
+        if (p !== null) {
+          const num = parseInt(p, 10);
+          return { period: Number.isNaN(num) ? p : num };
+        }
+      }
+    } catch (e) {
+      console.warn('Roster lookup failed; using the standard class view:', e);
+    }
+    return { period: null };
+  }
+
+  async handleUser(user) {
+    if (!user) {
+      if (this.started && !this.guest) window.location.reload();
+      if (this.started) return;
+      this.gate.hidden = false;
+      this.setGateBusy('');
+      return;
+    }
+    const email = (user.email || '').toLowerCase();
+    if (!email.endsWith('@orangeusd.org') && !TEACHER_EMAILS.includes(email)) {
+      this.showError(`${email} is not a school account. Sign in with your @orangeusd.org Google account.`);
+      firebase.auth().signOut();
+      return;
+    }
+    // A guest who signs in mid-activity: reload so the studio boots on their account
+    if (this.started && this.guest) {
+      this.flushLocal();
+      window.location.reload();
+      return;
+    }
+    if (this.started) return;
+
+    this.user = user;
+    this.studentId = email.split('@')[0];
+    this.setGateBusy('Loading your saved progress…');
+
+    let cloudDoc = null;
+    for (let tryNum = 1; ; tryNum++) {
+      try {
+        const snap = await this.docRef().get();
+        cloudDoc = snap.exists ? snap.data() : null;
+        break;
+      } catch (e) {
+        // Starting without the saved copy would let the next save overwrite real progress,
+        // so keep the gate up and retry until the read succeeds.
+        console.warn(`Could not load Firestore progress (try ${tryNum}):`, e);
+        this.setGateBusy(`Can't reach the server to load your saved work. Retrying… (try ${tryNum})`);
+        await new Promise(r => setTimeout(r, Math.min(10000, 2000 * tryNum)));
+      }
+    }
+    const roster = await this.lookupPeriod(email);
+
+    const cloudState = cloudDoc && WorkshopApp.validState(cloudDoc.studioState) ? cloudDoc.studioState : null;
+    const localState = StudioAuth.readLocal(this.localKey());
+    let state = cloudState;
+    // Prefer an unsynced local copy if it is newer (e.g. the connection dropped mid-class)
+    if (localState && (!state || (localState.savedAt || 0) > (state.savedAt || 0))) state = localState;
+    // No account progress yet: carry over work done in guest mode on this device
+    const guestState = StudioAuth.readLocal(GUEST_KEY);
+    if (!state && guestState) {
+      state = guestState;
+      try { localStorage.removeItem(GUEST_KEY); } catch (e) { /* ignore */ }
+    }
+    if (!state) state = WorkshopApp.newState();
+    // Never let the gradebook score drop below what is already recorded
+    if (cloudDoc) state.bestPoints = Math.max(state.bestPoints || 0, cloudDoc.score || 0);
+    this.state = state;
+
+    this.profile = {
+      guest: false,
+      period: roster.period,
+      teacher: !!roster.teacher,
+      tier: tierForPeriod(roster.period),
+      name: user.displayName || this.studentId
+    };
+
+    this.started = true;
+    this.gate.hidden = true;
+    const track = roster.teacher ? 'Teacher'
+      : roster.period === null ? ''
+      : `Period ${roster.period}${roster.period === 0 ? ' · Honors' : ''}`;
+    this.showChip(this.profile.name, track);
+    this.onReady({ state, cloud: this, profile: this.profile });
+
+    if (state !== cloudState) this.queueSave(true);
+    else this.setIndicator('ok', '☁️ Saved');
+  }
+
+  setIndicator(kind, text) {
+    this.indicator.textContent = text;
+    this.indicator.className = `save-indicator save-${kind}`;
+  }
+
+  flushLocal() {
+    if (!this.state || this.preview) return;
+    try { localStorage.setItem(this.localKey(), JSON.stringify(this.state)); } catch (e) { /* storage blocked */ }
+  }
+
+  // Debounced save: every answer lands in Firestore within ~1.5 s
+  queueSave(immediate = false) {
+    if (!this.state || this.preview) return;
+    this.state.savedAt = Date.now();
+    this.flushLocal();
+    if (this.guest) return;
+    clearTimeout(this.saveTimer);
+    if (!this.stalled) this.setIndicator('busy', '⏳ Saving…');
+    this.saveTimer = setTimeout(() => this.flush(), immediate ? 0 : 1500);
+  }
+
+  async flush() {
+    clearTimeout(this.saveTimer);
+    this.saveTimer = null;
+    if (!this.state || !this.studentId || this.guest) return;
+    if (this.saving) {
+      this.pending = true;
+      return;
+    }
+    this.saving = true;
+    const s = WorkshopApp.scoreState(this.state, this.profile.tier);
+    const period = this.profile.period !== undefined && this.profile.period !== null ? this.profile.period : null;
+    const partNow = this.state.parts[this.state.current];
+    const payload = {
+      student_id: this.studentId,
+      student_name: this.profile.name || this.studentId,
+      email: (this.user && this.user.email) || `${this.studentId}@orangeusd.org`,
+      score: s.points,
+      maxScore: MAX_POINTS,
+      maxPoints: MAX_POINTS,
+      percentage: s.percentage,
+      parts_done: s.done,                    // e.g. ['turn', 'letgo']
+      parts_progress: s.progress,            // percent of each part finished, e.g. { turn: 100, letgo: 40 }
+      parts_required: s.required,
+      current_part: this.state.current,
+      current_page: partNow ? partNow.i : null,
+      prediction: this.state.prediction || null,   // which way they first said the stopper would fly
+      quiz_best: s.quizBest,
+      quiz_history: s.quizHistory,           // every attempt's %, oldest first
+      quiz_skills: s.skills,                 // latest attempt: { ac: { right, total }, ... }
+      mistakes: s.mistakes,                  // counts by diagnosed mistake, e.g. { no_square: 3 }
+      calc_unavailable: s.calcUnavailable,   // Desmos did not load, so this student could type answers
+      certificate_code: s.cert ? s.cert.code : null,
+      certificate_earned_at: s.cert ? s.cert.at : null,
+      track: this.profile.tier,              // conceptual | cp | honors
+      class_period: period,
+      honors_required: this.profile.tier === 'honors',
+      isCompleted: s.points >= MAX_POINTS,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      // JSON round-trip strips undefined values, which Firestore rejects
+      studioState: JSON.parse(JSON.stringify(this.state))
+    };
+    const slow = setTimeout(() => {
+      this.stalled = true;
+      this.setIndicator('error', '⚠️ No connection: kept on this device, will sync');
+    }, 6000);
+    try {
+      // mergeFields replaces each listed field wholesale while leaving fields other tools add.
+      await this.docRef().set(payload, { mergeFields: Object.keys(payload) });
+      this.stalled = false;
+      this.setIndicator('ok', '☁️ Saved');
+    } catch (e) {
+      console.error('Firestore save failed:', e);
+      this.setIndicator('error', '⚠️ Not saved: retrying');
+      this.saveTimer = setTimeout(() => this.flush(), 8000);
+    } finally {
+      clearTimeout(slow);
+      this.saving = false;
+      if (this.pending) {
+        this.pending = false;
+        this.flush();
+      }
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  window.studioAuth = new StudioAuth(({ state, cloud, profile }) => WorkshopApp.start(state, cloud, profile));
+});
+
+</script>
+</body>
+</html>

@@ -3,6 +3,15 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-08 — Centripetal Acceleration Workshop (Day 51)
+**Patterns Added**: `centripetal-acceleration-workshop.md`.
+**Files Added**: `Unit_2/centripetal_workshop/` (src.html, js/, css/, built index.html), `admin/centripetal_workshop_monitor.src.html` + built page, `scripts/inline-studio.js`, `tests/centripetalWorkshop.test.js`. **Updated**: `admin/index.html` (monitor card).
+
+**Changes**:
+- New three-class studio for Day 51 with Firestore saving after every step, resume on any device, Desmos-checked answers, certificate, and a teacher-only monitor. Built from the Monkey Hunter Studio.
+- New `scripts/inline-studio.js` builds the deployed page from `src.html`, so studio scripts stay readable as separate files while the deployed page is inlined.
+- Not yet posted to Classroom or linked from Day 51; that waits for `deploy-assignment.js` and `npm run verify`.
+
 ## 2026-11-08 — Unit 2 Link & Placeholder Audit (All 55 Days)
 **Files Updated**: `assets/lessons-data.js`, `Unit_2/outline.md`.
 

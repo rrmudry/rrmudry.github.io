@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Centripetal Workshop Class Progress</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/unit2-favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Built from centripetal_workshop_monitor.src.html by scripts/inline-studio.js. Edit the source files, not this page. -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
+  <style>
+    :root {
+      --bg: #f1f5f9; --card: #ffffff; --line: #cbd5e1; --line-soft: #e2e8f0;
+      --text: #0f172a; --muted: #475569; --bar: #0284c7; --good: #15803d; --warn: #b45309; --bad: #be123c;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #070d19; --card: #0f172a; --line: #334155; --line-soft: #1e293b; --text: #f8fafc; --muted: #cbd5e1; --bar: #38bdf8; --good: #34d399; --warn: #fbbf24; --bad: #fb7185; }
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Outfit, system-ui, sans-serif; line-height: 1.4; }
+    header { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: var(--card); border-bottom: 1px solid var(--line); }
+    h1 { margin: 0; font-size: 1.25rem; font-weight: 800; }
+    h2 { margin: 0 0 0.6rem; font-size: 1rem; font-weight: 800; }
+    .sub { margin: 0; color: var(--muted); font-size: 0.85rem; }
+    main { padding: 1rem; max-width: 92rem; margin: 0 auto; display: grid; gap: 1rem; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 0.8rem; padding: 0.9rem; min-width: 0; }
+    select, button { font: inherit; font-weight: 700; color: var(--text); background: var(--card); border: 1px solid var(--line); border-radius: 0.5rem; padding: 0.3rem 0.6rem; }
+    button { cursor: pointer; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0.75rem; }
+    .tile strong { display: block; font-size: 1.8rem; font-variant-numeric: tabular-nums; }
+    .tile span { font-size: 0.85rem; color: var(--muted); }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr)); gap: 1rem; }
+    .bar-row { display: grid; grid-template-columns: 11rem 1fr 3.5rem; gap: 0.5rem; align-items: center; margin: 0.3rem 0; font-size: 0.9rem; }
+    .bar { height: 0.8rem; background: var(--line-soft); border-radius: 999px; overflow: hidden; }
+    .bar span { display: block; height: 100%; background: var(--bar); border-radius: 0 4px 4px 0; }
+    .val { font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+    .mistake { padding: 0.35rem 0; border-bottom: 1px solid var(--line-soft); font-size: 0.9rem; }
+    .mistake:last-child { border: 0; }
+    .mistake b { margin-right: 0.35rem; font-variant-numeric: tabular-nums; }
+    .mistake small { display: block; color: var(--muted); }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+    th { text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); padding: 0.35rem 0.5rem; border-bottom: 2px solid var(--line); white-space: nowrap; }
+    td { padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--line-soft); white-space: nowrap; }
+    td.name { font-weight: 700; }
+    td.num { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .pill { display: inline-block; min-width: 1.5rem; text-align: center; margin-right: 0.15rem; border: 1px solid var(--line); border-radius: 0.3rem; font-size: 0.72rem; font-weight: 700; color: var(--muted); padding: 0 0.25rem; }
+    .pill.on { border-color: var(--good); color: var(--good); }
+    .weak { color: var(--warn); font-size: 0.82rem; white-space: normal; min-width: 10rem; }
+    .none { color: var(--muted); }
+    .flag { color: var(--warn); font-size: 0.75rem; }
+    .filters { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .only-flagged { font-weight: 700; font-size: 0.9rem; }
+    .note { margin: 0 0 0.5rem; font-size: 0.85rem; color: var(--muted); }
+    .check { white-space: normal; min-width: 14rem; font-size: 0.82rem; color: var(--bad); font-weight: 600; }
+    .check div { margin: 0.1rem 0; }
+    tr.flagged td.name { color: var(--bad); }
+    .gate { text-align: center; padding: 3rem 1rem; }
+    .demo { background: var(--warn); color: #fff; font-weight: 700; text-align: center; padding: 0.25rem; }
+    .err { color: var(--bad); font-weight: 700; }
+    sub { font-size: 0.72em; }
+  </style>
+</head>
+<body>
+  <div id="demoBanner" class="demo" hidden>Sample data, not real students</div>
+  <header>
+    <div>
+      <h1>🌀 Centripetal Workshop Class Progress</h1>
+      <p class="sub">Unit 2 · Day 51 · Updates live as students work</p>
+    </div>
+    <div class="filters" id="filters" hidden>
+      <label class="only-flagged"><input type="checkbox" id="onlyFlagged"> Only records to check</label>
+      <label>Class <select id="course"><option value="all">All classes</option><option value="honors">Honors</option><option value="cp">CP</option><option value="conceptual">Conceptual</option></select></label>
+      <label>Period <select id="period"><option value="all">All periods</option></select></label>
+      <a href="sprint_progress_3d.html?assignment=unit2_day51_centripetal_workshop" style="font:inherit;font-weight:700;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:0.5rem;padding:0.3rem 0.6rem;text-decoration:none;">🏟️ 3D 100m Dash</a>
+      <button id="btnSignOut" type="button">Sign out</button>
+    </div>
+  </header>
+
+  <section id="gate" class="gate">
+    <p id="gateMsg">Checking sign-in…</p>
+    <button id="btnSignIn" type="button" hidden>Sign in with Google</button>
+    <p id="gateErr" class="err"></p>
+  </section>
+
+  <main id="main" hidden>
+    <section class="tiles" id="tiles"></section>
+    <div class="two">
+      <section class="card">
+        <h2>Skills on each student's latest Mastery Check</h2>
+        <div id="skills"></div>
+      </section>
+      <section class="card">
+        <h2>Most common mistakes (reteach these first)</h2>
+        <div id="mistakes"></div>
+      </section>
+    </div>
+    <section class="card">
+      <h2>Students</h2>
+      <p class="note">⚠ means a record is worth a look. It is not proof of cheating, and a careful cheater may not be flagged. A short in-person check settles it.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Student</th><th>Per.</th><th>Class</th><th>Grade /10</th><th>Parts</th><th>Check record</th><th>Mastery best</th><th>Attempts</th><th>Needs work</th><th>Last active</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+// === Unit_2/vector_decomposition_studio/js/engine.js ===
+// Vector Decomposition Studio — Physics, scenario generators, answer checking, diagnostics, quiz builder
+// Angle θ is measured up from the ground unless a scenario says fromVertical.
+// Every wrong answer is compared against known mistakes so the student hears WHY, not just "wrong".
+// Questions are plain JSON so an unfinished Mastery Check can be saved and resumed with the same numbers.
+
+(function () {
+  const rad = d => d * Math.PI / 180;
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+
+  const Phys = {
+    vx: (v0, th) => v0 * Math.cos(rad(th)),
+    vy: (v0, th) => v0 * Math.sin(rad(th)),
+    speed: (x, y) => Math.hypot(x, y),
+    angle: (x, y) => Math.atan2(y, x) * 180 / Math.PI
+  };
+
+  function fmt(v, d) {
+    const s = Number(v).toFixed(d);
+    return /^-0\.?0*$/.test(s) ? s.slice(1) : s;
+  }
+  // Answers students compute: 1 decimal, 2 when small
+  const fmtAns = v => fmt(v, Math.abs(v) < 10 ? 2 : 1);
+
+  const near = (v, target, rel = 0.02, abs = 0.1) => Math.abs(v - target) <= Math.max(Math.abs(target) * rel, abs);
+
+  function parseNum(raw) {
+    const v = parseFloat(String(raw).replace(',', '.').replace(/[−–]/g, '-').replace(/[^0-9.\-eE]/g, ''));
+    return isFinite(v) ? v : null;
+  }
+
+  // ---------- Scenario contexts: the words never contain the numbers (those live on the picture) ----------
+  const THINGS = [
+    { icon: '⚽', name: 'soccer ball', verb: 'is kicked' },
+    { icon: '🏀', name: 'basketball', verb: 'is shot' },
+    { icon: '🏈', name: 'football', verb: 'is punted' },
+    { icon: '⛳', name: 'golf ball', verb: 'is hit' },
+    { icon: '🎾', name: 'tennis ball', verb: 'is lobbed' },
+    { icon: '🐸', name: 'frog', verb: 'jumps' },
+    { icon: '💣', name: 'cannonball', verb: 'is fired' },
+    { icon: '🚀', name: 'toy rocket', verb: 'is launched' }
+  ];
+
+  // No angles close to 45° in calculations: sin and cos must give clearly different answers.
+  const EASY_ANGLES = [30, 60];
+  const ALL_ANGLES = [15, 20, 25, 30, 35, 37, 40, 50, 53, 55, 60, 65, 70, 75];
+  const FIVE_ANGLES = [20, 25, 30, 35, 40, 50, 55, 60, 65, 70];
+  const EASY_SPEEDS = [10, 20, 30, 40];
+  const ALL_SPEEDS = [12, 14, 15, 16, 18, 20, 22, 24, 25, 26, 28, 30, 32, 35, 36, 40, 45, 50];
+
+  function launch(level = 2, not) {
+    let sc;
+    do {
+      sc = {
+        v0: pick(level <= 1 ? EASY_SPEEDS : ALL_SPEEDS),
+        th: pick(level <= 1 ? EASY_ANGLES : level === 'five' ? FIVE_ANGLES : ALL_ANGLES),
+        thing: Math.floor(Math.random() * THINGS.length)
+      };
+    } while (not && not.v0 === sc.v0 && not.th === sc.th);
+    sc.x = Phys.vx(sc.v0, sc.th);
+    sc.y = Phys.vy(sc.v0, sc.th);
+    return sc;
+  }
+
+  // Whole-number arrows that land exactly on grid corners, for reading squares with no trig
+  const TRIPLES = [[8, 6], [6, 8], [12, 5], [5, 12], [12, 9], [9, 12], [15, 8], [8, 15], [4, 3], [3, 4], [16, 12], [12, 16]];
+  function gridArrow(scales = [1], not) {
+    let sc;
+    do {
+      const [gx, gy] = pick(TRIPLES);
+      const scale = pick(scales);
+      sc = { gx, gy, scale, x: gx * scale, y: gy * scale, v0: Math.hypot(gx, gy) * scale, thing: Math.floor(Math.random() * THINGS.length) };
+    } while (not && not.gx === sc.gx && not.gy === sc.gy && not.scale === sc.scale);
+    sc.th = Phys.angle(sc.x, sc.y);
+    return sc;
+  }
+
+  // ---------- Worked solutions ----------
+  const fn = asked => asked === 'x' ? 'cos' : 'sin';
+  const sym = asked => asked === 'x' ? 'v_0x' : 'v_0y';
+  const work = (asked, sc) =>
+    `${sym(asked)} = v_0 × ${fn(asked)}(θ) = ${sc.v0} m/s × ${fn(asked)}(${sc.th}°) = ${fmtAns(asked === 'x' ? sc.x : sc.y)} m/s`;
+
+  // ---------- Diagnostics: [id, test(v, sc), message(sc)] — first match wins. Ids feed the teacher monitor. ----------
+  function calcMistakes(asked) {
+    const f = asked === 'x' ? Math.cos : Math.sin;
+    const part = asked === 'x' ? 'sideways' : 'upward';
+    const other = asked === 'x' ? 'upward' : 'sideways';
+    const value = sc => f(rad(sc.th));
+    return [
+      ['swap', (v, s) => near(v, asked === 'x' ? s.y : s.x),
+        () => `You found the ${other} part. The ${part} part is the side that ${asked === 'x' ? 'touches' : 'is across from'} θ, so it uses ${fn(asked)}.`],
+      ['radians', (v, s) => near(v, s.v0 * f(s.th)) || near(v, f(s.th)),
+        () => `Your calculator is in radian mode. Switch it to degrees (DEG) and try again.`],
+      ['no_speed', (v, s) => near(v, value(s), 0.03, 0.01),
+        s => `${fn(asked)}(${s.th}°) only tells how much of the speed, as a decimal. Multiply it by v_0 to get m/s.`],
+      ['divided', (v, s) => near(v, s.v0 / value(s)),
+        () => `You divided. A part can never be bigger than the whole speed. Multiply v_0 by the decimal.`],
+      ['tan', (v, s) => near(v, s.v0 * Math.tan(rad(s.th))),
+        () => `That is tangent. Use sin or cos, because v_0 is the long side (the hypotenuse) of the triangle.`],
+      ['no_trig', (v, s) => near(v, s.v0 * s.th),
+        () => `You multiplied by the angle itself. Multiply by ${fn(asked)} of the angle.`],
+      ['added', (v, s) => near(v, s.v0 + value(s)),
+        () => `You added. Multiply the speed by the decimal: v_0 × ${fn(asked)}(θ).`],
+      ['whole_speed', (v, s) => near(v, s.v0),
+        () => `That is the whole launch speed v_0. Only part of it goes ${asked === 'x' ? 'sideways' : 'up'}.`],
+      ['angle_read', (v, s) => near(v, s.th),
+        () => `That is the angle. The answer is a speed in m/s. Use v_0 × ${fn(asked)}(θ).`],
+      ['decimal', (v, s) => { const t = asked === 'x' ? s.x : s.y; return near(v, t * 10) || near(v, t / 10); },
+        () => `Your digits are right but the decimal point moved. Check your typing.`]
+    ];
+  }
+
+  // Check a calculated component. Returns { ok, msg, mistake }.
+  function checkCalc(asked, raw, sc) {
+    const v = parseNum(raw);
+    if (v === null) return { ok: null, msg: 'Type a number first.' };
+    const target = asked === 'x' ? sc.x : sc.y;
+    if (near(v, target)) return { ok: true, msg: `<span class="formula">${work(asked, sc)}</span>` };
+    const hit = calcMistakes(asked).find(([, test]) => test(v, sc));
+    const why = hit ? hit[2](sc) : 'Not quite. Check each step: which function, then multiply by v_0.';
+    return {
+      ok: false,
+      mistake: hit ? hit[0] : 'other',
+      msg: `${why}<br><span class="worked">The right way: <span class="formula">${work(asked, sc)}</span></span>`
+    };
+  }
+
+  // ---------- Mastery Check questions ----------
+  // Each is plain JSON: { kind, skill, sc, asked?, order? }. QUESTION[kind] knows how to show and grade it.
+  const SKILLS = {
+    read: { label: 'Read parts off a grid' },
+    concept: { label: 'Angle and the parts' },
+    choose: { label: 'Choose sin or cos' },
+    calc_x: { label: 'Calculate v_0x' },
+    calc_y: { label: 'Calculate v_0y' },
+    sense: { label: 'Does the answer make sense?' },
+    honors: { label: 'Honors challenges' }
+  };
+
+  function shuffled(n) {
+    const a = [...Array(n).keys()];
+    for (let i = n - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  const QUESTION = {
+    // Read one part off a grid (the scale changes, so students must read the key)
+    read: {
+      make: () => ({ kind: 'read', skill: 'read', asked: pick(['x', 'y']), sc: gridArrow([1, 2, 5]) }),
+      type: 'num',
+      text: q => `Use the grid. Read the scale first. How fast is the ${q.asked === 'x' ? 'sideways' : 'upward'} part, ${sym(q.asked)}?`,
+      scene: q => ({ mode: 'grid', sc: q.sc, showArrow: true, showX: q.asked === 'x', showY: q.asked === 'y', keyLabel: true }),
+      unit: 'm/s',
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const t = q.asked === 'x' ? q.sc.x : q.sc.y;
+        if (v === null) return { ok: false, msg: `No answer. ${sym(q.asked)} = ${t} m/s.`, mistake: 'blank' };
+        if (near(v, t, 0, 0.01)) return { ok: true, msg: `${sym(q.asked)} = ${t} m/s.` };
+        const squares = q.asked === 'x' ? q.sc.gx : q.sc.gy;
+        if (near(v, squares, 0, 0.01) && q.sc.scale !== 1) {
+          return { ok: false, mistake: 'scale', msg: `You counted ${squares} squares, but each square is worth ${q.sc.scale} m/s here. ${squares} × ${q.sc.scale} = ${t} m/s.` };
+        }
+        if (near(v, q.asked === 'x' ? q.sc.y : q.sc.x, 0, 0.01)) {
+          return { ok: false, mistake: 'swap', msg: `You read the other part. ${q.asked === 'x' ? 'Sideways is along the ground' : 'Upward is the height of the tip'}. ${sym(q.asked)} = ${t} m/s.` };
+        }
+        return { ok: false, mistake: 'read', msg: `Count squares, then multiply by the scale. ${sym(q.asked)} = ${t} m/s.` };
+      }
+    },
+
+    // Which part is bigger at this angle?
+    concept: {
+      make: () => {
+        const th = pick([15, 20, 30, 45, 60, 70, 75]);
+        return { kind: 'concept', skill: 'concept', sc: { v0: pick([20, 30, 40]), th, thing: Math.floor(Math.random() * THINGS.length) }, order: shuffled(3) };
+      },
+      type: 'mc',
+      text: () => 'Look at the launch angle. Which part of the launch velocity is bigger?',
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: false, showY: false, labelV0: false }),
+      options: () => [{ t: 'The sideways part, v_0x', id: 'x' }, { t: 'The upward part, v_0y', id: 'y' }, { t: 'They are equal', id: 'eq' }],
+      grade: (q, id) => {
+        const right = q.sc.th === 45 ? 'eq' : q.sc.th < 45 ? 'x' : 'y';
+        const why = q.sc.th === 45 ? 'At 45° the speed splits evenly.' : q.sc.th < 45 ? 'A low angle aims mostly sideways, so v_0x is bigger.' : 'A steep angle aims mostly up, so v_0y is bigger.';
+        return { ok: id === right, msg: why, mistake: id === right ? null : 'angle_concept' };
+      }
+    },
+
+    // Pick the correct setup from symbols
+    choose: {
+      make: () => ({ kind: 'choose', skill: 'choose', asked: pick(['x', 'y']), sc: launch(2), order: shuffled(4) }),
+      type: 'mc',
+      text: q => `Which setup finds the part marked with "?" in the picture?`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: q.asked === 'x', showY: q.asked === 'y', mark: q.asked }),
+      options: () => [
+        { t: 'v_0 × cos(θ)', id: 'x', formula: true }, { t: 'v_0 × sin(θ)', id: 'y', formula: true },
+        { t: 'v_0 ÷ cos(θ)', id: 'dc', formula: true }, { t: 'v_0 × tan(θ)', id: 't', formula: true }
+      ],
+      grade: (q, id) => {
+        const ok = id === q.asked;
+        return {
+          ok,
+          mistake: ok ? null : (id === 'x' || id === 'y') ? 'swap' : id === 't' ? 'tan' : 'divided',
+          msg: q.asked === 'x' ? 'The sideways side touches θ (adjacent), so it uses cos.' : 'The upward side is across from θ (opposite), so it uses sin.'
+        };
+      }
+    },
+
+    calc_x: {
+      make: () => ({ kind: 'calc_x', skill: 'calc_x', asked: 'x', sc: launch(2) }),
+      type: 'num',
+      text: q => `A ${THINGS[q.sc.thing].name} ${THINGS[q.sc.thing].verb}. Use the picture to find the sideways part, v_0x.`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: true, showY: false, mark: 'x' }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, q.sc.th] }),
+      grade: (q, raw) => gradeCalc('x', raw, q.sc)
+    },
+
+    calc_y: {
+      make: () => ({ kind: 'calc_y', skill: 'calc_y', asked: 'y', sc: launch(2) }),
+      type: 'num',
+      text: q => `A ${THINGS[q.sc.thing].name} ${THINGS[q.sc.thing].verb}. Use the picture to find the upward part, v_0y.`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: false, showY: true, mark: 'y' }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, q.sc.th] }),
+      grade: (q, raw) => gradeCalc('y', raw, q.sc)
+    },
+
+    // A claimed answer: possible or not, and why?
+    sense: {
+      make: () => {
+        const sc = launch(2);
+        const bad = Math.random() < 0.5;
+        const asked = pick(['x', 'y']);
+        // Bad claims are bigger than the launch speed, a mistake students can catch without a calculator
+        const claim = bad ? Math.round(sc.v0 * pick([1.2, 1.4, 1.5])) : Math.round(asked === 'x' ? sc.x : sc.y);
+        return { kind: 'sense', skill: 'sense', asked, sc, claim, bad, order: shuffled(3) };
+      },
+      type: 'mc',
+      text: q => `A student says the ${q.asked === 'x' ? 'sideways' : 'upward'} part of this launch is ${q.claim} m/s. Without calculating, could that be right?`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: q.asked === 'x', showY: q.asked === 'y', mark: q.asked }),
+      options: () => [
+        { t: 'No. A part cannot be bigger than the launch speed.', id: 'no' },
+        { t: 'Yes. It could be right, because it is smaller than the launch speed.', id: 'yes' },
+        { t: 'Yes. Parts are always bigger than the launch speed.', id: 'bigger' }
+      ],
+      grade: (q, id) => {
+        const right = q.bad ? 'no' : 'yes';
+        return {
+          ok: id === right,
+          mistake: id === right ? null : 'part_bigger',
+          msg: q.bad ? `v_0 is the long side of the triangle, so each part must be smaller than ${q.sc.v0} m/s.` : `${q.claim} m/s is smaller than ${q.sc.v0} m/s, so it passes the check.`
+        };
+      }
+    },
+
+    // ---------- Honors (Period 0 only) ----------
+    h_vertical: {
+      make: () => ({ kind: 'h_vertical', skill: 'honors', asked: pick(['x', 'y']), sc: Object.assign(launch(2), {}) }),
+      type: 'num',
+      text: q => `Careful: this angle is measured from the vertical, not the ground. Find ${sym(q.asked)}.`,
+      hints: () => ['Look at which side touches the marked angle. Here it is the upward side.', 'The side that touches the angle uses cos. The side across from it uses sin.'],
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: q.asked === 'x', showY: q.asked === 'y', mark: q.asked, fromVertical: true }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, 90 - q.sc.th] }),
+      // sc.th is the angle from the GROUND; the picture shows 90° − th from the vertical.
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const t = q.asked === 'x' ? q.sc.x : q.sc.y;
+        const shown = 90 - q.sc.th;
+        const right = `${sym(q.asked)} = ${q.sc.v0} m/s × ${q.asked === 'x' ? 'sin' : 'cos'}(${shown}°) = ${fmtAns(t)} m/s`;
+        if (v !== null && near(v, t)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const flipped = v !== null && near(v, q.asked === 'x' ? q.sc.y : q.sc.x);
+        return {
+          ok: false,
+          mistake: flipped ? 'vertical_angle' : 'other',
+          msg: `${flipped ? `You used the ground rule. Here the UPWARD side touches the angle, so cos goes with v_0y and sin goes with v_0x.<br>` : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>`
+        };
+      }
+    },
+
+    h_down: {
+      make: () => ({ kind: 'h_down', skill: 'honors', asked: 'y', sc: launch(2) }),
+      type: 'num',
+      text: () => 'This launch aims BELOW the horizontal. Up is positive and down is negative. Calculate how fast the vertical part is. Then choose its direction.',
+      signed: true,
+      hints: () => ['Use v_0 × sin(θ) in the calculator. You do not need a minus sign there.', 'Look at the arrow. Which way does the vertical part point? Choose Up or Down.'],
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: false, showY: true, mark: 'y', downward: true }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, q.sc.th] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const t = -q.sc.y;
+        const right = `v_0y = −(${q.sc.v0} m/s × sin(${q.sc.th}°)) = ${fmtAns(t).replace('-', '−')} m/s`;
+        if (v !== null && near(v, t)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const noSign = v !== null && near(v, q.sc.y);
+        return { ok: false, mistake: noSign ? 'sign' : 'other', msg: `${noSign ? 'Right size, wrong sign. Downward is negative.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    },
+
+    h_speed: {
+      make: () => ({ kind: 'h_speed', skill: 'honors', sc: gridArrow([1, 2]) }),
+      type: 'num',
+      text: () => 'Work backward. Read both parts off the grid, then find the launch speed v_0.',
+      hints: () => ['The parts are at a right angle, so use the Pythagorean theorem.', 'On the calculator: press the √ button. Inside it, type the first part, press a², press +, type the second part, press a².'],
+      scene: q => ({ mode: 'grid', sc: q.sc, showArrow: true, showX: true, showY: true, keyLabel: true }),
+      unit: 'm/s',
+      needs: q => ({ fn: 'sqrt', nums: [q.sc.x, q.sc.y] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const right = `v_0 = √(v_0x² + v_0y²) = √(${q.sc.x}² + ${q.sc.y}²) = ${fmtAns(q.sc.v0)} m/s`;
+        if (v !== null && near(v, q.sc.v0)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const added = v !== null && near(v, q.sc.x + q.sc.y);
+        return { ok: false, mistake: added ? 'added_parts' : 'other', msg: `${added ? 'You added the parts. They are at a right angle, so use the Pythagorean theorem.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    },
+
+    h_angle: {
+      make: () => ({ kind: 'h_angle', skill: 'honors', sc: gridArrow([1, 2]) }),
+      type: 'num',
+      text: () => 'Work backward. Read both parts off the grid, then find the launch angle θ above the ground.',
+      hints: () => ['Use θ = tan⁻¹(v_0y ÷ v_0x).', 'The tan⁻¹ button is on the calculator\'s func tab. Press func, then tan⁻¹.', 'Press main to get the numbers back. Type the upward part, press ÷, then type the sideways part.'],
+      scene: q => ({ mode: 'grid', sc: q.sc, showArrow: true, showX: true, showY: true, keyLabel: true }),
+      unit: '°',
+      needs: q => ({ fn: 'atan', nums: [q.sc.x, q.sc.y] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const right = `θ = tan⁻¹(v_0y ÷ v_0x) = tan⁻¹(${q.sc.y} ÷ ${q.sc.x}) = ${fmt(q.sc.th, 1)}°`;
+        if (v !== null && Math.abs(v - q.sc.th) <= 1) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const flipped = v !== null && Math.abs(v - (90 - q.sc.th)) <= 1;
+        return { ok: false, mistake: flipped ? 'vertical_angle' : 'other', msg: `${flipped ? 'That angle is from the vertical. Divide up by sideways.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    },
+
+    h_back: {
+      make: () => ({ kind: 'h_back', skill: 'honors', sc: launch(2) }),
+      type: 'num',
+      text: () => 'The picture gives v_0x and θ. Work backward to find the launch speed v_0.',
+      hints: () => ['Normally v_0x = v_0 × cos(θ). Here you know v_0x, so divide instead.', 'On the calculator: type v_0x, press ÷, then press cos and type the angle.'],
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: true, showY: false, labelV0: false, giveX: true }),
+      unit: 'm/s',
+      needs: q => ({ fn: 'cos', nums: [Number(fmt(q.sc.x, 1)), q.sc.th] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const shownX = Number(fmt(q.sc.x, 1));
+        const t = shownX / Math.cos(rad(q.sc.th));
+        const right = `v_0 = v_0x ÷ cos(θ) = ${fmt(shownX, 1)} ÷ cos(${q.sc.th}°) = ${fmtAns(t)} m/s`;
+        if (v !== null && near(v, t)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const times = v !== null && near(v, shownX * Math.cos(rad(q.sc.th)));
+        return { ok: false, mistake: times ? 'multiplied' : 'other', msg: `${times ? 'You multiplied, so your answer came out smaller than v_0x. The whole speed must be bigger. Divide.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    }
+  };
+
+  function gradeCalc(asked, raw, sc) {
+    const r = checkCalc(asked, raw, sc);
+    if (r.ok === null) return { ok: false, mistake: 'blank', msg: `No answer. <span class="formula">${work(asked, sc)}</span>` };
+    return r;
+  }
+
+  // Mastery Check: one blueprint so every retake tests the same skills with new numbers.
+  function buildQuiz(honors) {
+    const list = ['read', 'concept', 'choose', 'calc_x', 'calc_x', 'calc_y', 'calc_y', 'sense'];
+    if (honors) list.push(pick(['h_speed', 'h_angle']), pick(['h_vertical', 'h_down', 'h_back']));
+    return list.map(kind => QUESTION[kind].make());
+  }
+
+  function gradeQuiz(questions, answers) {
+    const results = questions.map((q, i) => {
+      const r = QUESTION[q.kind].grade(q, answers[i]);
+      return { skill: q.skill, ok: !!r.ok, msg: r.msg, mistake: r.mistake || null };
+    });
+    const correct = results.filter(r => r.ok).length;
+    const skills = {};
+    results.forEach(r => {
+      skills[r.skill] = skills[r.skill] || { right: 0, total: 0 };
+      skills[r.skill].total++;
+      if (r.ok) skills[r.skill].right++;
+    });
+    return { results, correct, total: questions.length, pct: Math.round(100 * correct / questions.length), skills };
+  }
+
+  // ---------- Reading the Desmos scientific calculator ----------
+  // Its API reports what was typed (LaTeX) but not the result, so this evaluates the LaTeX itself.
+  // It also records which numbers and functions were used, so "17.3" alone can't pass as work.
+  function parseCalc(latex, degrees, prev) {
+    let src = String(latex)
+      .replace(/\\left|\\right/g, '').replace(/\\cdot|\\times/g, '*').replace(/\\div/g, '/')
+      .replace(/\\operatorname\{([a-z]+)\}/g, '\\$1').replace(/\\ /g, '').replace(/\s+/g, '')
+      .replace(/−/g, '-').replace(/\^\{?\\circ\}?|°/g, '°');
+    let i = 0;
+    const nums = [], fns = [];
+    const peek = t => src.startsWith(t, i);
+    const take = t => (peek(t) ? (i += t.length, true) : false);
+    const fail = () => { throw new Error('unreadable'); };
+    const need = t => { if (!take(t)) fail(); };
+    const group = () => { need('{'); const v = expr(); need('}'); return v; };
+
+    const FN = { sin: Math.sin, cos: Math.cos, tan: Math.tan };
+    const INV = { sin: Math.asin, cos: Math.acos, tan: Math.atan };
+    const toRad = x => (degrees ? rad(x) : x);
+    const fromRad = x => (degrees ? x * 180 / Math.PI : x);
+
+    function funcCall() {
+      for (const name of ['arcsin', 'arccos', 'arctan', 'sin', 'cos', 'tan']) {
+        if (!take('\\' + name)) continue;
+        const base = name.replace('arc', '');
+        let inverse = name.startsWith('arc');
+        if (take('^{-1}')) inverse = true;
+        const arg = unary();
+        fns.push((inverse ? 'a' : '') + base);
+        return inverse ? fromRad(INV[base](arg)) : FN[base](toRad(arg));
+      }
+      return null;
+    }
+
+    function atom() {
+      if (take('(')) { const v = expr(); need(')'); return v; }
+      if (take('\\frac')) { const a = group(); const b = group(); return a / b; }
+      if (take('\\sqrt')) {
+        let n = 2;
+        if (take('[')) { n = expr(); need(']'); }
+        fns.push('sqrt');
+        return Math.pow(group(), 1 / n);
+      }
+      if (take('\\pi')) return Math.PI;
+      if (take('ans') || take('\\ans')) {
+        if (!prev) fail();
+        nums.push(...prev.nums); fns.push(...prev.fns);
+        return prev.value;
+      }
+      const m = src.slice(i).match(/^(\d+\.?\d*|\.\d+)/);
+      if (m) { i += m[0].length; const v = parseFloat(m[0]); nums.push(v); return v; }
+      const f = funcCall();
+      if (f !== null) return f;
+      return fail();
+    }
+
+    function postfix() {
+      let v = atom();
+      for (;;) {
+        if (take('°')) { if (!degrees) v = rad(v); }
+        else if (take('\\%')) v /= 100;
+        else if (take('^')) {
+          if (peek('{')) v = Math.pow(v, group());
+          else { const m = src.slice(i).match(/^\d/); if (!m) fail(); i++; v = Math.pow(v, Number(m[0])); }
+        } else return v;
+      }
+    }
+    function unary() { return take('-') ? -unary() : postfix(); }
+    function term() {
+      let v = unary();
+      for (;;) {
+        if (take('*')) v *= unary();
+        else if (take('/')) v /= unary();
+        else if (i < src.length && /[\d(\\.a]/.test(src[i])) v *= unary();   // 20\cos(30)
+        else return v;
+      }
+    }
+    function expr() {
+      let v = term();
+      for (;;) {
+        if (take('+')) v += term();
+        else if (take('-')) v -= term();
+        else return v;
+      }
+    }
+
+    try {
+      const value = expr();
+      if (i !== src.length || !isFinite(value)) return null;
+      return { value, nums, fns, latex };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // state = desmos.getState(). Uses the student's latest line, as the calculator itself would show it.
+  function readCalculator(state) {
+    const list = (state && state.expressions && state.expressions.list) || [];
+    const degrees = !state || !state.settings || state.settings.degreeMode !== false;
+    let prev = null, last = null, unreadable = false;
+    list.forEach(item => {
+      if (!item || !item.latex) return;
+      const parsed = parseCalc(item.latex, degrees, prev);
+      unreadable = !parsed;
+      last = item.latex;
+      if (parsed) prev = parsed;
+    });
+    if (last === null) return { empty: true };
+    if (unreadable) return { unreadable: true };
+    return prev;
+  }
+
+  // needs = { nums: [...], fn: 'sin' | 'cos' | 'sqrt' | 'atan', trig: true }. Returns a message, or null when it is real work.
+  // These stop a looked-up answer without costing a streak, so a real mistake still gets its diagnosis at Check.
+  function checkWork(work, needs = {}) {
+    if (!work.fns.length && work.nums.length <= 1) {
+      return 'Type the whole calculation into the calculator, not just the answer.';
+    }
+    if (needs.fn && !work.fns.includes(needs.fn)) {
+      const names = { sin: 'the sin button', cos: 'the cos button', sqrt: 'the square root button', atan: 'the tan⁻¹ button' };
+      return `Your calculation needs to use ${names[needs.fn]}.`;
+    }
+    if (needs.trig && !work.fns.some(f => ['sin', 'cos', 'tan'].includes(f))) {
+      return 'Your calculation needs to use the sin or cos button.';
+    }
+    const missing = (needs.nums || []).filter(n => !work.nums.some(w => Math.abs(w - Math.abs(n)) < 1e-6));
+    if (missing.length) return `Your calculation needs to use the numbers from the problem. Look for ${missing.join(' and ')}.`;
+    return null;
+  }
+
+  window.Engine = { parseCalc, readCalculator, checkWork, Phys, THINGS, SKILLS, QUESTION, fmt, fmtAns, near, parseNum, pick, shuffled, rad, launch, gridArrow, work, fn, sym, checkCalc, buildQuiz, gradeQuiz };
+})();
+
+// === Unit_2/centripetal_workshop/js/physics.js ===
+// Centripetal Acceleration Workshop — physics, problems for each class, answer checking, diagnostics, Mastery Check.
+// The big idea: going around a circle at a steady speed is still accelerating, because the direction of the velocity
+// keeps changing. The acceleration points to the center: a_c = v² ÷ r.
+// All three classes see the same circles. They differ in how they find a_c:
+//   conceptual (P1–3): compare two circles. Twice the speed makes a_c 4 times as big; half the radius makes it twice as
+//                      big. They multiply the old a_c by that factor. No division.
+//   cp (P4–6):         v and r are on the picture: a_c = v² ÷ r.
+//   honors (P0):       the same, plus v from the time for one lap (v = 2πr ÷ T), and working backward to the fastest
+//                      safe speed on a curve (v = √(a_c × r)).
+// Every wrong answer is compared against known mistakes, so the student hears WHY. Mistake ids feed the teacher monitor.
+
+(function () {
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const shuffled = n => {
+    const a = [...Array(n).keys()];
+    for (let i = n - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+
+  // The circle used on every teaching page: 10 m/s on a 10 m circle, so one second turns it one radian.
+  const TEACH = { v: 10, r: 10 };
+
+  // Whole numbers stay whole, then 1 decimal, 2 when small
+  function fmt(v) {
+    if (Math.abs(v - Math.round(v)) < 1e-9) return String(Math.round(v));
+    return Math.abs(v) < 10 ? v.toFixed(2) : v.toFixed(1);
+  }
+  const near = (v, target, rel = 0.02, abs = 0.05) => Math.abs(v - target) <= Math.max(Math.abs(target) * rel, abs);
+  function parseNum(raw) {
+    const v = parseFloat(String(raw).replace(',', '.').replace(/[−–]/g, '-').replace(/[^0-9.\-eE]/g, ''));
+    return isFinite(v) ? v : null;
+  }
+  const accel = (v, r) => (v * v) / r;
+
+  // ---------- Problems ----------
+  // a_c = v² ÷ r with friendly results. Level 1: whole numbers. Level 2: up to one decimal place.
+  const SPEEDS_1 = [4, 5, 6, 8, 10, 12, 15, 20];
+  const SPEEDS_2 = [6, 8, 9, 10, 12, 14, 15, 16, 18, 20, 24, 25, 30];
+  const RADII = [5, 8, 10, 12, 15, 16, 18, 20, 24, 25, 30, 32, 36, 40, 45, 50, 60, 64, 75, 80, 90, 100];
+  const AC_PAIRS = level => {
+    const out = [];
+    (level === 1 ? SPEEDS_1 : SPEEDS_2).forEach(v => RADII.forEach(r => {
+      const a = accel(v, r), tenths = Math.round(a * 10);
+      if (a < 2 || a > 25 || Math.abs(a * 10 - tenths) > 1e-9) return;
+      if (level === 1 && Math.abs(a - Math.round(a)) > 1e-9) return;
+      out.push({ v, r });
+    }));
+    return out;
+  };
+  const PAIRS = { 1: AC_PAIRS(1), 2: AC_PAIRS(2) };
+
+  function acProblem(level = 2) {
+    const { v, r } = pick(PAIRS[level === 1 ? 1 : 2]);
+    return { kind: 'ac', v, r, a: accel(v, r) };
+  }
+
+  // Conceptual: the same circle changed one way. The old a_c is on the picture; the new one is that times a factor.
+  const BASES = [[10, 20], [10, 50], [6, 12], [8, 16], [8, 32], [4, 8], [12, 24], [12, 36], [6, 18], [4, 4], [6, 6]];
+  function compareProblem(level = 2) {
+    for (;;) {
+      const [v1, r1] = pick(BASES), a1 = accel(v1, r1);
+      const change = pick(level === 1 ? ['v2', 'rhalf'] : ['v2', 'v2', 'v3', 'rhalf']);
+      if (change === 'v3' && v1 > 8) continue;
+      const v2 = change === 'v2' ? 2 * v1 : change === 'v3' ? 3 * v1 : v1;
+      const r2 = change === 'rhalf' ? r1 / 2 : r1;
+      const factor = change === 'v2' ? 4 : change === 'v3' ? 9 : 2;
+      return { kind: 'compare', change, v1, r1, a1, v2, r2, factor, a2: a1 * factor };
+    }
+  }
+
+  // Honors: speed from the time for one lap
+  function periodProblem() {
+    for (;;) {
+      const r = pick([2, 3, 4, 5, 6, 8, 10, 12]), T = pick([2, 3, 4, 5, 6, 8]);
+      const v = 2 * Math.PI * r / T, a = accel(v, r);
+      if (a < 2 || a > 60) continue;
+      return { kind: 'period', r, T, v, a };
+    }
+  }
+
+  // Honors: the fastest speed around a curve when the tires can only give so much a_c
+  function vmaxProblem() {
+    const a = pick([4, 5, 6, 8]), r = pick([20, 25, 30, 40, 45, 50, 80, 100]);
+    return { kind: 'vmax', a, r, v: Math.sqrt(a * r) };
+  }
+
+  const MAKERS = { ac: acProblem, compare: compareProblem, period: periodProblem, vmax: vmaxProblem };
+  const same = (a, b) => !!(a && b) && a.kind === b.kind && ['v', 'r', 'v1', 'r1', 'change', 'T', 'a'].every(k => a[k] === b[k]);
+
+  function newProblem(kind, level = 2, not) {
+    let sc;
+    do { sc = MAKERS[kind](level); } while (same(sc, not));
+    return sc;
+  }
+
+  // ---------- Calculator work: a looked-up number alone can't pass ----------
+  // needs = { fn: 'sqrt', pi: true, routes: [[numbers], ...] }. Any one route of the problem's numbers counts.
+  function workProblem(work, needs = {}) {
+    if (!work.fns.length && work.nums.length <= 1 && !/\\pi/.test(work.latex || '')) return 'Type the whole calculation into the calculator, not just the answer.';
+    if (needs.fn && !work.fns.includes(needs.fn)) return `Your calculation needs to use the ${needs.label || needs.fn} button.`;
+    if (needs.pi && !/\\pi/.test(work.latex || '')) return 'Your calculation needs to use the π button.';
+    const has = n => work.nums.some(w => Math.abs(w - Math.abs(n)) <= Math.max(Math.abs(n) * 0.015, 0.051));
+    const routes = needs.routes || [];
+    if (routes.length && !routes.some(r => r.every(has))) {
+      return `Your calculation needs to use the numbers from this problem. Look for ${routes[0].map(fmt).join(' and ')}.`;
+    }
+    return null;
+  }
+
+  // Student's own earlier answer when there is one, for follow-through credit and for matching their work
+  const own = (ans, k, fallback) => (ans && typeof ans[k] === 'number' ? ans[k] : fallback);
+
+  // ---------- Steps ----------
+  // Each step: k, sym, unit, skill, ask, formula, hints, target, own (follow-through), calc (needs Desmos), needs, mistake, right.
+  const changeWords = {
+    v2: 'The speed doubled. Same circle.',
+    v3: 'The speed tripled. Same circle.',
+    rhalf: 'The circle is half as wide. Same speed.'
+  };
+
+  const factorStep = {
+    k: 'factor', sym: 'new a_c is', noEq: true, unit: 'times as big', skill: 'pattern',
+    ask: sc => `${changeWords[sc.change]} How many times as big is the new a_c?`,
+    formula: sc => (sc.change === 'rhalf' ? 'smaller circle → bigger a_c' : 'speed counts twice: speed change × speed change'),
+    hints: sc => (sc.change === 'rhalf'
+      ? ['A tighter turn bends the path faster, so a_c gets bigger.', 'Half the radius makes a_c 2 times as big.']
+      : [`Compare the two speeds on the picture. The new one is ${sc.change === 'v2' ? 2 : 3} times as fast.`, `Speed counts twice: ${sc.change === 'v2' ? '2 × 2' : '3 × 3'}.`]),
+    target: sc => sc.factor,
+    mistake: (v, sc) => {
+      if (sc.change !== 'rhalf' && near(v, sc.factor === 4 ? 2 : 3, 0, 0.01)) return ['no_square', `Speed counts twice. ${sc.factor === 4 ? '2 × 2 = 4' : '3 × 3 = 9'}, not ${fmt(v)}.`];
+      if (sc.change === 'v3' && near(v, 6, 0, 0.01)) return ['added_not_squared', 'That is 3 + 3. Speed counts twice, so multiply: 3 × 3 = 9.'];
+      if (sc.change === 'rhalf' && near(v, 0.5, 0, 0.01)) return ['radius_flip', 'A smaller circle makes a_c bigger, not smaller. It is a tighter turn.'];
+      if (sc.change === 'rhalf' && near(v, 4, 0, 0.01)) return ['radius_squared', 'Only speed counts twice. Half the radius makes a_c 2 times as big.'];
+      if (near(v, 1, 0, 0.01)) return ['no_change', 'It does change. Look at what is different in the second circle.'];
+      return null;
+    },
+    right: sc => (sc.change === 'rhalf' ? 'Half the radius → 2 times as big' : `${sc.change === 'v2' ? '2 × 2' : '3 × 3'} → ${sc.factor} times as big`)
+  };
+
+  const newAcStep = {
+    k: 'newac', sym: 'new a_c', unit: 'm/s²', skill: 'pattern', calc: true,
+    ask: () => 'Now find the new a_c.',
+    formula: () => 'new a_c = old a_c × how many times as big',
+    hints: (sc, ans) => ['The old a_c is on the first circle.', `In the calculator: ${fmt(sc.a1)} × ${fmt(own(ans, 'factor', sc.factor))}`],
+    target: sc => sc.a2,
+    own: (sc, ans) => sc.a1 * own(ans, 'factor', sc.factor),
+    needs: (sc, ans) => ({ routes: [[sc.a1, own(ans, 'factor', sc.factor)]] }),
+    mistake: (v, sc) => {
+      if (sc.change !== 'rhalf' && near(v, sc.a1 * (sc.factor === 4 ? 2 : 3), 0.01)) return ['no_square', `Speed counts twice. Multiply by ${sc.factor}, not ${sc.factor === 4 ? 2 : 3}.`];
+      if (near(v, sc.a1 / 2, 0.01)) return ['radius_flip', 'A smaller circle makes a_c bigger, not smaller.'];
+      if (near(v, sc.a1 + sc.factor, 0.01)) return ['added', 'You added. "Times as big" means multiply.'];
+      if (near(v, sc.a1, 0.01)) return ['no_change', 'That is the old a_c. The new one is bigger.'];
+      return null;
+    },
+    right: (sc, ans) => {
+      const f = own(ans, 'factor', sc.factor);
+      return `new a_c = ${fmt(sc.a1)} m/s² × ${fmt(f)} = ${fmt(sc.a1 * f)} m/s²`;
+    }
+  };
+
+  const ownV = (sc, ans) => own(ans, 'v', sc.v);
+
+  const acStep = {
+    k: 'ac', sym: 'a_c', unit: 'm/s²', skill: 'ac', calc: true,
+    ask: sc => (sc.kind === 'period' ? 'Now find the centripetal acceleration.' : 'Find the centripetal acceleration.'),
+    formula: () => 'a_c = v² ÷ r',
+    hints: (sc, ans) => ['v² means v × v. Speed counts twice.', `In the calculator: ${fmt(ownV(sc, ans))} × ${fmt(ownV(sc, ans))} ÷ ${fmt(sc.r)}`],
+    target: sc => sc.a,
+    own: (sc, ans) => accel(ownV(sc, ans), sc.r),
+    needs: (sc, ans) => ({ routes: [[ownV(sc, ans), sc.r]] }),
+    mistake: (x, sc, ans) => {
+      const v = ownV(sc, ans), r = sc.r;
+      if (near(x, v / r, 0.01)) return ['no_square', 'You used v, not v². Speed counts twice: v × v.'];
+      if (near(x, v * v * r, 0.01)) return ['times_r', 'You multiplied by r. A bigger circle makes a_c smaller, so divide by r.'];
+      if (near(x, r / (v * v), 0.01)) return ['flipped', 'You divided the wrong way. v² goes on top: v² ÷ r.'];
+      if (near(x, 2 * v / r, 0.01)) return ['doubled', 'That is 2 × v. v² means v × v, not v + v.'];
+      if (near(x, v * v, 0.01)) return ['no_r', 'That is v². Now divide by r.'];
+      return null;
+    },
+    right: (sc, ans) => {
+      const v = ownV(sc, ans);
+      return `a_c = ${fmt(v)}² ÷ ${fmt(sc.r)} = ${fmt(v * v)} ÷ ${fmt(sc.r)} = ${fmt(accel(v, sc.r))} m/s²`;
+    }
+  };
+
+  const speedStep = {
+    k: 'v', sym: 'v', unit: 'm/s', skill: 'period', calc: true,
+    ask: () => 'The picture shows the time for one lap. How fast does it move?',
+    formula: () => 'v = 2πr ÷ T',
+    hints: sc => ['One lap is 2πr, the distance around. Use the π button.', `In the calculator: 2 × π × ${fmt(sc.r)} ÷ ${fmt(sc.T)}`],
+    target: sc => sc.v,
+    needs: sc => ({ pi: true, routes: [[sc.r, sc.T]] }),
+    mistake: (x, sc) => {
+      const { r, T } = sc;
+      if (near(x, Math.PI * r / T, 0.01)) return ['half_lap', 'That is πr, half a lap. One lap is 2πr.'];
+      if (near(x, 2 * Math.PI * r * T, 0.01)) return ['times_T', 'You multiplied by T. Distance ÷ time gives speed.'];
+      if (near(x, r / T, 0.01)) return ['used_r', 'r only reaches from the center to the edge. One lap is 2πr.'];
+      if (near(x, 2 * Math.PI * r, 0.01)) return ['no_T', 'That is the distance around. Divide by the time for one lap.'];
+      if (near(x, Math.PI * r * r / T, 0.01)) return ['area', 'πr² is the area inside the circle. The distance around is 2πr.'];
+      return null;
+    },
+    right: sc => `v = 2 × π × ${fmt(sc.r)} ÷ ${fmt(sc.T)} = ${fmt(sc.v)} m/s`
+  };
+
+  const vmaxStep = {
+    k: 'vmax', sym: 'v', unit: 'm/s', skill: 'backward', calc: true,
+    ask: () => 'The tires can give at most the a_c on the picture. What is the fastest speed around this curve?',
+    formula: () => 'v = √(a_c × r)',
+    hints: sc => ['v² = a_c × r, so take the square root.', `In the calculator: √(${fmt(sc.a)} × ${fmt(sc.r)})`],
+    target: sc => sc.v,
+    needs: sc => ({ fn: 'sqrt', label: 'square root', routes: [[sc.a, sc.r]] }),
+    mistake: (x, sc) => {
+      if (near(x, sc.a * sc.r, 0.01)) return ['no_root', 'That is v². Take the square root to get v.'];
+      if (near(x, Math.sqrt(sc.a / sc.r), 0.01)) return ['divided', 'a_c = v² ÷ r, so v² = a_c × r. Multiply, then take the square root.'];
+      if (near(x, sc.a / sc.r, 0.01) || near(x, sc.r / sc.a, 0.01)) return ['divided', 'Multiply a_c by r, then take the square root.'];
+      return null;
+    },
+    right: sc => `v = √(${fmt(sc.a)} × ${fmt(sc.r)}) = ${fmt(sc.v)} m/s`
+  };
+
+  const STEP = {
+    conceptual: { factor: factorStep, newac: newAcStep },
+    cp: { ac: acStep },
+    honors: { ac: acStep, v: speedStep, vmax: vmaxStep }
+  };
+
+  // The steps of a whole problem, in order
+  const SOLVE = { compare: ['factor', 'newac'], ac: ['ac'], period: ['v', 'ac'], vmax: ['vmax'] };
+
+  // A calculation reads one step per line with the equals signs lined up, never as one long chain.
+  function stack(calc) {
+    const [sym, ...steps] = calc.split(' = ');
+    if (!steps.length) return `<span class="formula">${calc}</span>`;
+    return `<span class="calc-stack">${steps.map(s => `<span class="calc-sym">${sym}</span><span>=</span><span>${s}</span>`).join('')}</span>`;
+  }
+
+  // Returns { ok, retry, mistake, msg }. retry = no new numbers.
+  function gradeStep(step, raw, sc, ans) {
+    const v = parseNum(raw);
+    if (v === null) return { ok: false, mistake: 'blank', msg: stack(step.right(sc, ans)) };
+    const ok = near(v, step.target(sc, ans)) || (step.own && near(v, step.own(sc, ans), 0.01));
+    if (ok) return { ok: true, msg: stack(step.right(sc, ans)) };
+    const hit = step.mistake ? step.mistake(v, sc, ans) : null;
+    if (hit && hit[2]) return { ok: false, retry: true, mistake: hit[0], msg: hit[1] };
+    return {
+      ok: false,
+      mistake: hit ? hit[0] : 'other',
+      msg: `${hit ? hit[1] : 'Not quite.'}<br><span class="worked">The right way: ${stack(step.right(sc, ans))}</span>`
+    };
+  }
+
+  // ---------- Concept questions. Plain JSON so a Mastery Check resumes with the same numbers. ----------
+  const LETTERS = ['A', 'B', 'C', 'D'];
+  // Gives each direction on the picture a random letter
+  function letterMap(keys) {
+    const order = shuffled(keys.length);
+    const map = {};
+    keys.forEach((k, i) => { map[k] = LETTERS[order[i]]; });
+    return map;
+  }
+  const typeOf = (q, letter) => Object.keys(q.letters || {}).find(k => q.letters[k] === letter);
+  const letterOptions = (n, word) => LETTERS.slice(0, n).map(l => ({ id: l, t: `${word} ${l}` }));
+  const SPOTS = [20, 45, 70, 110, 135, 160, 200, 225, 250, 290, 315, 340];
+
+  const CONCEPT = {
+    accel_turn: {
+      make: () => ({ v: pick([8, 10, 12, 15]) }),
+      text: () => 'This car goes around the track at a steady speed. Is it accelerating?',
+      scene: q => ({ mode: 'circle', phi: 60, vLabel: `v = ${q.v || 10} m/s`, speedNote: `Speed: ${q.v || 10} m/s the whole way`, ghosts: [-60, 0], car: true }),
+      options: () => [
+        { id: 'r', t: 'Yes. Its direction keeps changing, so its velocity changes.' },
+        { id: 'no', t: 'No. Its speed never changes.' },
+        { id: 'speed', t: 'Only if it speeds up or slows down.' }
+      ],
+      right: () => 'r',
+      mistake: () => 'speed_only',
+      why: () => 'Velocity is speed and direction. Turning changes the direction, so the velocity changes. A change in velocity is acceleration.'
+    },
+    v_dir: {
+      letters: true,
+      make: () => ({ phi: pick(SPOTS), letters: letterMap(['fwd', 'back', 'in', 'out']) }),
+      text: () => 'The puck goes around the circle the way the curved arrow shows. Which arrow shows its velocity right now?',
+      scene: q => ({ mode: 'pick', phi: q.phi, letters: q.letters, kind: 'arrows' }),
+      options: () => letterOptions(4, 'Arrow'),
+      right: q => q.letters.fwd,
+      mistake: (q, picked) => ({ in: 'v_inward', out: 'v_outward', back: 'v_backward' }[typeOf(q, picked)] || 'v_dir'),
+      why: q => `Arrow ${q.letters.fwd}. Velocity points the way the puck is moving right now. That is along the tangent line, which just touches the circle.`
+    },
+    a_dir: {
+      letters: true,
+      make: () => ({ phi: pick(SPOTS), letters: letterMap(['fwd', 'back', 'in', 'out']) }),
+      text: () => 'The puck goes around the circle at a steady speed. Which arrow shows its acceleration right now?',
+      scene: q => ({ mode: 'pick', phi: q.phi, letters: q.letters, kind: 'arrows' }),
+      options: () => letterOptions(4, 'Arrow'),
+      right: q => q.letters.in,
+      mistake: (q, picked) => ({ out: 'a_outward', fwd: 'a_along_v', back: 'a_along_v' }[typeOf(q, picked)] || 'a_dir'),
+      why: q => `Arrow ${q.letters.in}. The acceleration points toward the center of the circle. That is why it is called centripetal: center-seeking.`
+    },
+    release_path: {
+      letters: true,
+      make: () => ({ phi: pick(SPOTS), letters: letterMap(['tan', 'out', 'curve']) }),
+      text: () => 'The stopper whirls the way the curved arrow shows. The string is let go right now. Which path does the stopper take?',
+      scene: q => ({ mode: 'pick', phi: q.phi, letters: q.letters, kind: 'paths' }),
+      options: () => letterOptions(3, 'Path'),
+      right: q => q.letters.tan,
+      mistake: (q, picked) => ({ out: 'flies_outward', curve: 'keeps_curving' }[typeOf(q, picked)] || 'release_path'),
+      why: q => `Path ${q.letters.tan}. Once the string lets go, nothing pulls the stopper toward the center. With no force, it keeps going straight the way it was moving: along the tangent line.`
+    },
+    paint: {
+      letters: true,
+      make: () => ({ phi: pick(SPOTS), letters: letterMap(['tan', 'out', 'curve']) }),
+      text: () => 'A drop of paint slides off the edge of a spinning sheet of paper. Seen from above, which path does it take after it leaves?',
+      scene: q => ({ mode: 'pick', phi: q.phi, letters: q.letters, kind: 'paths', paper: true }),
+      options: () => letterOptions(3, 'Path'),
+      right: q => q.letters.tan,
+      mistake: (q, picked) => ({ out: 'flies_outward', curve: 'keeps_curving' }[typeOf(q, picked)] || 'release_path'),
+      why: q => `Path ${q.letters.tan}. Off the paper, nothing pulls the drop toward the center, so it goes straight along the tangent line.`
+    },
+    speed_double: {
+      make: () => { const [v, r] = pick(BASES); return { v, r, a: accel(v, r) }; },
+      text: () => 'Same circle, but now twice as fast. What happens to the centripetal acceleration?',
+      scene: q => ({ mode: 'compare', sc: { change: 'v2', v1: q.v || 10, r1: q.r || 20, a1: q.a || 5, v2: 2 * (q.v || 10), r2: q.r || 20 } }),
+      options: q => [
+        { id: 'r', t: `It is 4 times as big: ${fmt(4 * (q.a || 5))} m/s².` },
+        { id: 'two', t: `It is 2 times as big: ${fmt(2 * (q.a || 5))} m/s².` },
+        { id: 'same', t: `It stays the same: ${fmt(q.a || 5)} m/s².` }
+      ],
+      right: () => 'r',
+      mistake: (q, picked) => (picked === 'two' ? 'no_square' : 'speed_no_effect'),
+      why: () => 'Speed counts twice in a_c = v² ÷ r. Twice the speed makes a_c 2 × 2 = 4 times as big.'
+    },
+    radius_half: {
+      make: () => { const [v, r] = pick(BASES.filter(([, r]) => r % 2 === 0)); return { v, r, a: accel(v, r) }; },
+      text: () => 'Same speed, but the circle is half as wide. What happens to the centripetal acceleration?',
+      scene: q => ({ mode: 'compare', sc: { change: 'rhalf', v1: q.v || 10, r1: q.r || 20, a1: q.a || 5, v2: q.v || 10, r2: (q.r || 20) / 2 } }),
+      options: q => [
+        { id: 'r', t: `It is 2 times as big: ${fmt(2 * (q.a || 5))} m/s².` },
+        { id: 'half', t: `It is half as big: ${fmt((q.a || 5) / 2)} m/s².` },
+        { id: 'same', t: `It stays the same: ${fmt(q.a || 5)} m/s².` }
+      ],
+      right: () => 'r',
+      mistake: (q, picked) => (picked === 'half' ? 'radius_flip' : 'radius_no_effect'),
+      why: () => 'A tighter turn bends the path faster. Half the radius makes a_c 2 times as big.'
+    },
+    right_angle: {
+      make: () => ({ phi: pick(SPOTS) }),
+      text: () => 'On a circle at a steady speed, how do the velocity arrow and the acceleration arrow line up?',
+      scene: q => ({ mode: 'circle', phi: q.phi || 45, showA: true, vLabel: 'v', aLabel: 'a_c', ghosts: [] }),
+      options: () => [
+        { id: 'r', t: 'At a right angle. Velocity is along the tangent, and a_c points to the center.' },
+        { id: 'same', t: 'They point the same way.' },
+        { id: 'opposite', t: 'They point opposite ways.' }
+      ],
+      right: () => 'r',
+      mistake: () => 'a_along_v',
+      why: () => 'a_c is always at a right angle to v. That is why it only turns the puck and never speeds it up or slows it down.'
+    }
+  };
+
+  const conceptOptions = q => (CONCEPT[q.id].letters ? CONCEPT[q.id].options(q) : q.order.map(i => CONCEPT[q.id].options(q)[i]));
+  function makeConcept(id) {
+    const def = CONCEPT[id];
+    return Object.assign({ kind: 'mc', id, skill: 'concept', order: shuffled(def.options({}).length) }, def.make());
+  }
+  function gradeConcept(q, picked) {
+    const def = CONCEPT[q.id];
+    const ok = picked === def.right(q);
+    return { ok, mistake: ok ? null : def.mistake(q, picked), msg: def.why(q) };
+  }
+
+  // ---------- Mastery Check: same blueprint every retake, new numbers. ----------
+  const QUIZ_PROBLEMS = { conceptual: ['compare', 'compare'], cp: ['ac', 'ac'], honors: ['period', 'vmax'] };
+
+  function buildQuiz(tier) {
+    const probs = [];
+    QUIZ_PROBLEMS[tier].forEach((kind, f) => probs.push(newProblem(kind, 2, probs[f - 1])));
+    const qs = [];
+    probs.forEach((sc, f) => SOLVE[sc.kind].forEach(k => qs.push({ kind: 'step', k, f, skill: STEP[tier][k].skill })));
+    const dirs = pick(['v_dir', 'a_dir', 'release_path']);
+    const ideas = tier === 'conceptual' ? pick(['accel_turn', 'paint', 'right_angle']) : pick(['speed_double', 'radius_half', 'accel_turn']);
+    qs.push(makeConcept(dirs), makeConcept(ideas));
+    if (tier === 'cp') qs.push(makeConcept(pick(['paint', 'right_angle'].concat(dirs === 'release_path' ? [] : ['release_path']))));
+    return { tier, probs, qs, answers: qs.map(() => null), work: qs.map(() => null), i: 0 };
+  }
+
+  // Follow-through: a later step is graded against the student's own earlier answers, so one slip costs one point.
+  function gradeQuiz(quiz) {
+    const chains = quiz.probs.map(() => ({}));
+    const results = quiz.qs.map((q, i) => {
+      const raw = quiz.answers[i];
+      if (q.kind === 'mc') return Object.assign({ skill: q.skill }, gradeConcept(q, raw));
+      const step = STEP[quiz.tier][q.k];
+      const r = gradeStep(step, raw === null || raw === undefined ? '' : raw, quiz.probs[q.f], chains[q.f]);
+      const v = parseNum(raw);
+      if (v !== null) chains[q.f][step.k] = v;
+      return { skill: q.skill, ok: r.ok, mistake: r.ok ? null : r.mistake, msg: r.msg };
+    });
+    const correct = results.filter(r => r.ok).length;
+    const skills = {};
+    results.forEach(r => {
+      skills[r.skill] = skills[r.skill] || { right: 0, total: 0 };
+      skills[r.skill].total++;
+      if (r.ok) skills[r.skill].right++;
+    });
+    return { results, correct, total: results.length, pct: Math.round(100 * correct / results.length), skills };
+  }
+
+  window.PR = {
+    TEACH, STEP, SOLVE, CONCEPT, PAIRS, BASES,
+    accel, fmt, near, parseNum, pick, own,
+    newProblem, workProblem, stack, gradeStep, makeConcept, conceptOptions, gradeConcept, buildQuiz, gradeQuiz
+  };
+})();
+
+// === Unit_2/centripetal_workshop/js/lesson.js ===
+// Centripetal Acceleration Workshop — the lesson, one page at a time.
+// The order builds the idea before any math: velocity has a direction, so turning is accelerating; let go and it goes
+// straight along the tangent; the change in velocity points to the center; then how big a_c is.
+//   page = { title, body, after, scene(), stepper: { T, require, launch, label }, predict, options,
+//            ask: stepKey | mc: conceptId, fresh, make: problem kind, level }
+// A wrong answer shows why, then restarts from the page marked `fresh` with new numbers.
+
+(function () {
+  const PR = window.PR, stack = PR.stack;
+  const OMEGA = 57.2958;   // the teaching circle turns one radian each second: 10 m/s on a 10 m circle
+
+  function problemScene(tier, sc, ans = {}) {
+    return { mode: 'problem', sc, ans, tier };
+  }
+
+  // ---------- Part 1: turning is accelerating ----------
+  const turnPages = () => [
+    {
+      title: 'Steady speed, new direction',
+      body: `<p>A car drives around a circular track. You are looking down from above. Its speedometer never changes.</p>
+        <p>Press <strong>Next second</strong>. Watch the blue arrow. It shows the car's <strong>velocity</strong>.</p>`,
+      after: `<p>The speed stayed the same, but the blue arrow pointed a <strong>new way</strong> every second.</p>
+        <p><strong>Velocity</strong> is speed <em>and</em> direction. When the direction changes, the velocity changes.</p>`,
+      stepper: { T: 4, require: true },
+      scene: () => ({ mode: 'circle', phi: -30, omega: OMEGA, car: true, vLabel: 'v = 10 m/s', speedNote: 'Speedometer: 10 m/s' })
+    },
+    {
+      title: 'Turning is accelerating',
+      body: `<p><strong>Acceleration</strong> means the velocity is changing. There are three ways to change velocity:</p>
+        <ul><li>speed up</li><li>slow down</li><li><strong>turn</strong></li></ul>
+        <p>So a car going around a curve at a steady speed <strong>is accelerating</strong>, the whole time.</p>`,
+      scene: () => ({ mode: 'circle', phi: 120, car: true, ghosts: [-120, -60], vLabel: 'v' })
+    },
+    { mc: 'accel_turn', fresh: true },
+    {
+      title: 'The velocity arrow',
+      body: `<p>The velocity arrow points the way the car is going <strong>right now</strong>.</p>
+        <p>It just touches the circle at one point. A line like that is called a <strong>tangent line</strong>.</p>`,
+      scene: () => ({ mode: 'circle', phi: 40, tangentLine: true, vLabel: 'v' })
+    },
+    { mc: 'v_dir', fresh: true },
+    { mc: 'v_dir', fresh: true }
+  ];
+
+  // ---------- Part 2: let go ----------
+  const letGoPages = () => [
+    {
+      predict: true,
+      title: 'What if you let go?',
+      body: `<p>A rubber stopper whirls on a string. The star marks where the string will be let go.</p>
+        <p>Which way will the stopper fly? There is no wrong answer here. Make your best prediction.</p>`,
+      options: [
+        { id: 'tan', t: 'Straight ahead, the way it was moving' },
+        { id: 'out', t: 'Straight out, away from the center' },
+        { id: 'curve', t: 'It keeps curving around' }
+      ],
+      scene: () => ({ mode: 'release', t: 4, tRel: 4, noV: true })
+    },
+    {
+      title: 'Let go!',
+      body: `<p>Press <strong>Let go</strong>. The stopper whirls, and the string is let go at the star.</p>`,
+      after: `<p>It flew off in a <strong>straight line</strong> along the tangent. It did not fly straight out from the center.</p>
+        <p>With no string, nothing pulls it toward the center. Newton's 1st Law says it keeps going straight, the way it was already moving.</p>`,
+      stepper: { T: 6, require: true, launch: true, label: 'Let go' },
+      scene: () => ({ mode: 'release', tRel: 4 })
+    },
+    {
+      title: 'So what was the string doing?',
+      body: `<p>While the string was on, it pulled the stopper <strong>toward the center</strong>, all the time.</p>
+        <p>That pull kept bending the path into a circle. Take the pull away, and the path goes straight.</p>`,
+      scene: () => ({ mode: 'circle', phi: 90, showA: true, aLabel: 'pull toward the center', vLabel: 'v' })
+    },
+    { mc: 'release_path', fresh: true },
+    { mc: 'paint', fresh: true },
+    { mc: 'release_path', fresh: true }
+  ];
+
+  // ---------- Part 3: toward the center ----------
+  const centerPages = () => [
+    {
+      title: 'Which way does the velocity change?',
+      body: `<p>Here is the puck at two moments. Same speed, but the arrow turned.</p>
+        <p>Press <strong>Next step</strong> to see what changed.</p>`,
+      after: `<p>The change in velocity points <strong>toward the center</strong> of the circle.</p>`,
+      stepper: { T: 2, require: true, label: 'Next step' },
+      scene: () => ({ mode: 'dv' })
+    },
+    {
+      title: 'Centripetal acceleration',
+      body: `<p>Acceleration points the same way as the change in velocity. So on a circle, the acceleration points <strong>toward the center</strong>.</p>
+        <p>We call it <strong>centripetal acceleration</strong>, a_c. <em>Centripetal</em> means "center-seeking."</p>`,
+      scene: () => ({ mode: 'circle', phi: 60, showA: true, aLabel: 'a_c', vLabel: 'v' })
+    },
+    { mc: 'a_dir', fresh: true },
+    {
+      title: 'A right angle',
+      body: `<p>Velocity runs along the tangent. a_c points to the center.</p>
+        <p>The two arrows are always at a <strong>right angle</strong>. That is why a_c only turns the puck. It never speeds it up or slows it down.</p>`,
+      scene: () => ({ mode: 'circle', phi: 130, showA: true, aLabel: 'a_c', vLabel: 'v' })
+    },
+    { mc: 'a_dir', fresh: true },
+    { mc: 'right_angle', fresh: true }
+  ];
+
+  // ---------- Part 4: how big is a_c? ----------
+  const SPEED_BASE = { change: 'v2', v1: 10, r1: 20, a1: 5, v2: 20, r2: 20 };
+  const RADIUS_BASE = { change: 'rhalf', v1: 10, r1: 20, a1: 5, v2: 10, r2: 10 };
+
+  const bigger = {
+    conceptual: `<p>a_c gets bigger when the car goes <strong>faster</strong> or turns a <strong>tighter</strong> circle.</p>
+      <p><strong>Speed counts twice.</strong> Twice the speed makes a_c 2 × 2 = <strong>4 times as big</strong>.</p>
+      <p>Three times the speed makes it 3 × 3 = <strong>9 times as big</strong>.</p>`,
+    cp: `<p>a_c gets bigger when the puck goes <strong>faster</strong> or the circle is <strong>smaller</strong>.</p>
+      <p class="worked-line"><span class="formula">a_c = v² ÷ r</span></p>
+      <p>v² means v × v, so speed counts twice. For the first circle:</p>
+      <p class="worked-line">${stack('a_c = (10 m/s)² ÷ 20 m = 100 ÷ 20 = 5 m/s²')}</p>`
+  };
+  bigger.honors = bigger.cp;
+
+  const periodTeach = {
+    title: 'Speed from one lap',
+    body: `<p>Sometimes you know how long <strong>one lap</strong> takes instead of the speed. One lap is the distance around the circle: 2πr.</p>
+      <p class="worked-line"><span class="formula">v = 2πr ÷ T</span></p>
+      <p>T is the time for one lap. Then use a_c = v² ÷ r as before.</p>`,
+    scene: () => problemScene('honors', { kind: 'period', r: 4, T: 2 }, {})
+  };
+
+  const vmaxTeach = {
+    title: 'The fastest safe speed',
+    body: `<p>Tires can only grip so hard, so a curve has a <strong>most</strong> a_c it can give. Work backward to find the fastest safe speed:</p>
+      <p class="worked-line"><span class="formula">a_c = v² ÷ r</span></p>
+      <p class="worked-line"><span class="formula">v² = a_c × r</span></p>
+      <p class="worked-line"><span class="formula">v = √(a_c × r)</span></p>`,
+    scene: () => problemScene('honors', { kind: 'vmax', a: 8, r: 50 }, {})
+  };
+
+  const sizePages = tier => {
+    const pages = [
+      {
+        title: 'Two things make a_c bigger',
+        body: bigger[tier],
+        scene: () => ({ mode: 'compare', sc: SPEED_BASE, newA: 20 })
+      },
+      {
+        title: 'A tighter circle',
+        body: `<p>Now keep the speed the same and make the circle <strong>half as wide</strong>.</p>
+          <p>The turn is tighter, so a_c is <strong>2 times as big</strong>.</p>`,
+        scene: () => ({ mode: 'compare', sc: RADIUS_BASE, newA: 10 })
+      },
+      { mc: 'speed_double', fresh: true },
+      { mc: 'radius_half', fresh: true }
+    ];
+    if (tier === 'conceptual') {
+      [1, 2, 2].forEach(level => pages.push({ ask: 'factor', fresh: true, make: 'compare', level }, { ask: 'newac' }));
+    } else if (tier === 'cp') {
+      [1, 1, 2, 2].forEach(level => pages.push({ ask: 'ac', fresh: true, make: 'ac', level }));
+    } else {
+      pages.push(
+        { ask: 'ac', fresh: true, make: 'ac', level: 1 },
+        { ask: 'ac', fresh: true, make: 'ac', level: 2 },
+        periodTeach,
+        { ask: 'v', fresh: true, make: 'period' },
+        { ask: 'ac' },
+        vmaxTeach,
+        { ask: 'vmax', fresh: true, make: 'vmax' }
+      );
+    }
+    return pages;
+  };
+
+  const PAGES = { turn: turnPages, letgo: letGoPages, center: centerPages, size: sizePages };
+
+  // weight = share of the 6 step-by-step points
+  const PARTS = [
+    { id: 'turn', label: 'Turning', icon: '🔄', weight: 1 },
+    { id: 'letgo', label: 'Let Go', icon: '🪢', weight: 1 },
+    { id: 'center', label: 'Toward the Center', icon: '🎯', weight: 1 },
+    { id: 'size', label: 'How Big?', icon: '📐', weight: 2 },
+    { id: 'quiz', label: 'Mastery Check', icon: '🏆', weight: 0 }
+  ];
+
+  // ---------- Grade: 10 pts. 6 pts grow step by step across the parts, 4 pts × best Mastery Check. ----------
+  const PART_POINTS = 6, QUIZ_POINTS = 4;
+
+  function partProgress(st, p, tier) {
+    const part = st.parts[p.id];
+    if (!part) return 0;
+    if (part.done) return 1;
+    return Math.min(part.far || 0, PAGES[p.id](tier).length) / PAGES[p.id](tier).length;
+  }
+
+  function earnedPoints(st, tier) {
+    const req = PARTS.filter(p => p.weight > 0);
+    const total = req.reduce((a, p) => a + p.weight, 0);
+    const parts = PART_POINTS * req.reduce((a, p) => a + p.weight * partProgress(st, p, tier), 0) / total;
+    return parts + QUIZ_POINTS * (st.quiz.best || 0) / 100;
+  }
+
+  window.Lesson = { PARTS, PAGES, PART_POINTS, QUIZ_POINTS, problemScene, partProgress, earnedPoints, pages: (id, tier) => PAGES[id](tier) };
+})();
+
+// === Unit_2/centripetal_workshop/js/integrity.js ===
+// Centripetal Acceleration Workshop — looks for records that don't add up, for the teacher's Class Progress page.
+// A flag means "worth a look," not proof: everything here comes from the browser, so a careful
+// cheater could fake a consistent record. Only server-side grading would close that gap.
+
+(function () {
+  const FAST_SECONDS = 60;   // a passing Mastery Check faster than this is unusual
+
+  function check(doc) {
+    try {
+      return checkRecord(doc);
+    } catch (e) {
+      return ['This record could not be checked. It may have been edited.'];
+    }
+  }
+
+  function checkRecord(doc) {
+    const flags = [];
+    const st = doc.studioState;
+    const score = doc.score || 0;
+    if (!st || typeof st !== 'object' || !st.parts || !st.quiz) {
+      if (score > 0) flags.push('Score on record, but no saved work.');
+      return flags;
+    }
+    const tier = ['conceptual', 'cp', 'honors'].includes(doc.track) ? doc.track : 'cp';
+    const supported = window.Lesson.earnedPoints(st, tier);
+    if (score > supported + 0.15) flags.push(`Score of ${score} is higher than the saved work supports (about ${supported.toFixed(1)}).`);
+
+    const attempts = st.quiz.attempts || [];
+    const best = st.quiz.best || 0;
+    if (doc.quiz_best !== undefined && doc.quiz_best !== best) flags.push('Mastery Check score on record does not match the saved work.');
+    if (best > 0) {
+      if (!attempts.length || Math.max(...attempts.map(a => a.pct)) !== best) flags.push('Best Mastery Check score does not match any attempt.');
+      if (!st.quiz.last || !st.quiz.last.qs || !st.quiz.last.probs) flags.push('Mastery Check score, but no saved questions.');
+      else checkLast(doc, st.quiz.last, attempts[attempts.length - 1], flags);
+    }
+    return flags;
+  }
+
+  function checkLast(doc, last, attempt, flags) {
+    const PR = window.PR;
+    const graded = PR.gradeQuiz(last);
+    if (attempt && graded.pct !== attempt.pct) flags.push(`Latest Mastery Check says ${attempt.pct}%, but its saved answers grade to ${graded.pct}%.`);
+    if (attempt && attempt.secs !== null && attempt.secs !== undefined && attempt.secs < FAST_SECONDS && attempt.pct >= 75) {
+      flags.push(`Scored ${attempt.pct}% on the Mastery Check in ${attempt.secs} seconds.`);
+    }
+    if (doc.calc_unavailable) return;
+    let missing = false, mismatch = false;
+    last.qs.forEach((q, i) => {
+      if (q.kind !== 'step' || !PR.STEP[last.tier][q.k].calc) return;
+      const answer = PR.parseNum(last.answers[i]);
+      if (answer === null) return;
+      const work = (last.work || [])[i];
+      if (!work) { missing = true; return; }
+      const asDegrees = window.Engine.parseCalc(work, true), asRadians = window.Engine.parseCalc(work, false);
+      if (![asDegrees, asRadians].some(w => w && Math.abs(w.value - answer) < 0.01)) mismatch = true;
+    });
+    if (missing) flags.push('Mastery Check answers have no calculator work saved.');
+    if (mismatch) flags.push('Mastery Check answers do not match the calculator work saved.');
+  }
+
+  window.Integrity = { check };
+})();
+
+</script>
+<script>
+    // firestore-audit: teacher-only
+    // Access: Google OAuth through Firebase Auth. This page's check only decides what to draw. The real lock is
+    // firestore.rules: listing student_results/*/students and roster is allowed only for the isAdmin() emails,
+    // so nobody else gets class data even if they edit this page. Keep this list matching isAdmin().
+    const ASSIGNMENT_ID = 'unit2_day51_centripetal_workshop';
+    const TEACHER_IDS = ['rmudry', 'ryan.mudry', 'ryanmudry'];
+    const TEACHER_EMAILS = ['rmudry@orangeusd.org', 'ryan.mudry@gmail.com', 'ryanmudry@gmail.com'];
+    const PART_PILLS = [['turn', 'Turn'], ['letgo', 'Let go'], ['center', 'Center'], ['size', 'Size'], ['quiz', 'MC']];
+    const COURSE = { honors: 'Honors', cp: 'CP', conceptual: 'Conceptual' };
+    const courseForPeriod = p => (String(p) === '0' ? 'honors' : ['1', '2', '3'].includes(String(p)) ? 'conceptual' : 'cp');
+    const SKILLS = { pattern: 'Speed and radius patterns', ac: 'Finding a<sub>c</sub>', period: 'Speed from one lap', backward: 'Fastest safe speed', concept: 'Big ideas' };
+    const MISTAKES = {
+      speed_only: ['Thinks steady speed means no acceleration', 'Velocity includes direction; turning changes it.'],
+      v_inward: ['Drew velocity toward the center', 'Velocity points the way it is moving: along the tangent.'],
+      v_outward: ['Drew velocity away from the center', 'Velocity points along the tangent.'],
+      v_backward: ['Drew velocity backward along the tangent', 'Check the curved arrow for the way it moves.'],
+      a_outward: ['Drew acceleration outward', 'a<sub>c</sub> points toward the center. Show the tail-to-tail change.'],
+      a_along_v: ['Drew acceleration along the velocity', 'a<sub>c</sub> is at a right angle to v, toward the center.'],
+      flies_outward: ['Thinks a released object flies straight out', 'No pull means a straight line along the tangent. Redo the stopper demo.'],
+      keeps_curving: ['Thinks a released object keeps curving', 'Nothing pulls it toward the center anymore, so it goes straight.'],
+      no_square: ['Forgot that speed counts twice', 'Twice the speed is 4 times the a<sub>c</sub>: v × v.'],
+      added_not_squared: ['Added instead of squaring', '3 × 3 = 9, not 3 + 3.'],
+      radius_flip: ['Thinks a smaller circle means smaller a<sub>c</sub>', 'A tighter turn bends the path faster: bigger a<sub>c</sub>.'],
+      radius_squared: ['Squared the radius change', 'Only speed counts twice. Half the radius doubles a<sub>c</sub>.'],
+      speed_no_effect: ['Thinks speed does not change a<sub>c</sub>', 'Faster means much bigger a<sub>c</sub>.'],
+      radius_no_effect: ['Thinks radius does not change a<sub>c</sub>', 'Smaller circle, bigger a<sub>c</sub>.'],
+      no_change: ['Gave the old a<sub>c</sub>', 'Multiply by how many times as big.'],
+      added: ['Added the factor instead of multiplying', '"Times as big" means multiply.'],
+      times_r: ['Multiplied by r', 'Divide by r: a<sub>c</sub> = v² ÷ r.'],
+      flipped: ['Divided r by v²', 'v² goes on top.'],
+      doubled: ['Used 2 × v for v²', 'v² means v × v.'],
+      no_r: ['Stopped at v²', 'Divide by r.'],
+      half_lap: ['Used πr for one lap', 'One lap is 2πr.'],
+      times_T: ['Multiplied by T', 'Distance ÷ time gives speed.'],
+      used_r: ['Used r as the distance around', 'One lap is 2πr.'],
+      no_T: ['Stopped at 2πr', 'Divide by the time for one lap.'],
+      area: ['Used πr² (the area)', 'The distance around is 2πr.'],
+      no_root: ['Stopped at v²', 'Take the square root.'],
+      divided: ['Divided a<sub>c</sub> and r', 'v² = a<sub>c</sub> × r, then the square root.']
+    };
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
+    let roster = new Map(), docs = [], unsubscribe = null;
+
+    function render() {
+      const period = $('period').value, course = $('course').value;
+      const merged = new Map();
+      roster.forEach((r, id) => merged.set(id, { id, name: r.name, period: r.period, started: false }));
+      docs.forEach(d => {
+        const r = roster.get(d.id);
+        merged.set(d.id, Object.assign({}, d, {
+          started: true,
+          name: (r && r.name) || d.student_name || d.id,
+          period: d.class_period !== null && d.class_period !== undefined ? String(d.class_period) : (r ? r.period : '?')
+        }));
+      });
+      const all = [...merged.values()].filter(s => !TEACHER_IDS.includes(s.id));
+      all.forEach(s => { s.course = s.track || courseForPeriod(s.period); });
+      const periods = [...new Set(all.map(s => s.period))].filter(p => p !== '' && p !== undefined).sort((a, b) => Number(a) - Number(b));
+      $('period').innerHTML = '<option value="all">All periods</option>' + periods.map(p => `<option value="${esc(p)}">Period ${esc(p)}</option>`).join('');
+      $('period').value = periods.includes(period) ? period : 'all';
+      // Sample rows without saved work stay unflagged so the demo shows only the example problem record
+      const isDemo = !$('demoBanner').hidden;
+      all.forEach(s => { s.flags = s.started && (!isDemo || s.studioState) ? Integrity.check(s) : []; });
+      const inView = all.filter(s => ($('period').value === 'all' || s.period === $('period').value) && (course === 'all' || s.course === course));
+      const list = inView
+        .filter(s => !$('onlyFlagged').checked || s.flags.length)
+        .sort((a, b) => Number(a.period) - Number(b.period) || String(a.name).localeCompare(String(b.name)));
+
+      const started = inView.filter(s => s.started);
+      const tookQuiz = started.filter(s => (s.quiz_history || []).length);
+      const avgOf = a => (a.length ? (a.reduce((t, x) => t + x, 0) / a.length) : null);
+      const avgGrade = avgOf(started.map(s => s.score || 0));
+      const avgBest = avgOf(tookQuiz.map(s => s.quiz_best || 0));
+      $('tiles').innerHTML = [
+        [`${started.length}/${inView.length}`, 'students started'],
+        [avgGrade === null ? '—' : avgGrade.toFixed(1), 'average grade so far (of 10)'],
+        [String(tookQuiz.length), 'took the Mastery Check'],
+        [avgBest === null ? '—' : `${Math.round(avgBest)}%`, 'average best Mastery score'],
+        [String(inView.filter(s => s.flags.length).length), 'records to check']
+      ].map(([n, l]) => `<div class="card tile"><strong>${n}</strong><span>${l}</span></div>`).join('');
+
+      const totals = {};
+      tookQuiz.forEach(s => Object.entries(s.quiz_skills || {}).forEach(([k, v]) => {
+        totals[k] = totals[k] || { right: 0, total: 0 };
+        totals[k].right += v.right; totals[k].total += v.total;
+      }));
+      const skillKeys = Object.keys(SKILLS).filter(k => totals[k]);
+      $('skills').innerHTML = skillKeys.length ? skillKeys.map(k => {
+        const p = Math.round(100 * totals[k].right / totals[k].total);
+        return `<div class="bar-row" title="${totals[k].right} of ${totals[k].total} correct"><span>${SKILLS[k]}</span><span class="bar"><span style="width:${p}%"></span></span><span class="val">${p}%</span></div>`;
+      }).join('') : '<p class="none">No Mastery Checks yet.</p>';
+
+      const counts = {};
+      started.forEach(s => Object.entries(s.mistakes || {}).forEach(([k, v]) => { if (MISTAKES[k]) counts[k] = (counts[k] || 0) + v; }));
+      const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+      $('mistakes').innerHTML = top.length
+        ? top.map(([k, v]) => `<div class="mistake"><b>${v}×</b>${MISTAKES[k][0]}<small>${MISTAKES[k][1]}</small></div>`).join('')
+        : '<p class="none">No mistakes recorded yet.</p>';
+
+      $('rows').innerHTML = list.map(s => {
+        const hist = s.quiz_history || [];
+        const pills = PART_PILLS.map(([k, label]) => {
+          const pct = (s.parts_progress || {})[k];
+          const partial = pct > 0 && pct < 100;
+          return `<span class="pill ${(s.parts_done || []).includes(k) ? 'on' : ''}">${label}${partial ? ` ${pct}%` : ''}</span>`;
+        }).join('');
+        const weak = Object.entries(s.quiz_skills || {}).filter(([, v]) => v.right < v.total).map(([k]) => SKILLS[k]).filter(Boolean).join(', ');
+        const when = s.timestamp && s.timestamp.toDate ? s.timestamp.toDate().toLocaleString([], { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+        return `<tr class="${s.flags.length ? 'flagged' : ''}"><td class="name">${esc(s.name)}${s.certificate_code ? ` <span title="Certificate ${esc(s.certificate_code)}">🎓</span>` : ''}${s.calc_unavailable ? ' <span class="flag" title="Desmos did not load for this student, so they could type answers">⚠ typed</span>' : ''}</td><td>${esc(s.period)}</td><td>${COURSE[s.course] || ''}</td><td class="num">${s.started ? Number(s.score || 0).toFixed(1) : '<span class="none">—</span>'}</td>
+          <td>${s.started ? pills : '<span class="none">Not started</span>'}</td>
+          <td class="check">${s.flags.map(f => `<div>⚠ ${esc(f)}</div>`).join('')}</td>
+          <td class="num">${hist.length ? `${s.quiz_best}%` : '<span class="none">—</span>'}</td>
+          <td class="num">${hist.length ? hist.map(p => `${p}%`).join(' → ') : ''}</td>
+          <td class="weak">${weak}</td><td>${esc(when)}</td></tr>`;
+      }).join('');
+    }
+
+    function showGate(msg, err) {
+      if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+      roster = new Map(); docs = [];
+      $('main').hidden = true;
+      $('filters').hidden = true;
+      $('rows').innerHTML = '';
+      $('gate').hidden = false;
+      $('gateMsg').textContent = msg;
+      $('gateErr').textContent = err || '';
+      $('btnSignIn').hidden = false;
+    }
+
+    function start() {
+      $('gate').hidden = true;
+      $('main').hidden = false;
+      $('filters').hidden = false;
+      const db = firebase.firestore();
+      db.collection('roster').get().then(snap => {
+        snap.forEach(doc => {
+          const d = doc.data();
+          roster.set(doc.id, {
+            name: d.name || d.full_name || `${d.first_name || ''} ${d.last_name || ''}`.trim() || doc.id,
+            period: String(d.class_period ?? d.period ?? '')
+          });
+        });
+        render();
+      }).catch(e => console.warn('Roster not loaded:', e));
+      unsubscribe = db.collection('student_results').doc(ASSIGNMENT_ID).collection('students').onSnapshot(snap => {
+        docs = snap.docs.map(d => Object.assign({ id: d.id }, d.data()));
+        render();
+      }, e => { $('tiles').innerHTML = `<p class="err">Could not load results: ${esc(e.message)}</p>`; });
+    }
+
+    // Sample data for working on this page. Local dev only, so the deployed page shows nothing without sign-in.
+    function demo() {
+      $('demoBanner').hidden = false;
+      $('gate').hidden = true;
+      $('main').hidden = false;
+      $('filters').hidden = false;
+      roster = new Map([['s9', { name: 'Sample Student I', period: '1' }]]);
+      const skills = (p, a) => ({ pattern: { right: p, total: 2 }, ac: { right: a, total: 2 }, concept: { right: 1, total: 2 } });
+      const all = ['turn', 'letgo', 'center', 'size', 'quiz'];
+      docs = [
+        { id: 's1', student_name: 'Sample Student A', class_period: 1, track: 'conceptual', score: 8.5, parts_done: all, quiz_best: 67, quiz_history: [50, 67], quiz_skills: skills(1, 0), mistakes: { no_square: 4, flies_outward: 2 } },
+        { id: 's2', student_name: 'Sample Student B', class_period: 2, track: 'conceptual', score: 1.8, parts_done: ['turn'], parts_progress: { turn: 100, letgo: 33 }, quiz_history: [], mistakes: { v_inward: 3 } },
+        { id: 's3', student_name: 'Sample Student C', class_period: 4, track: 'cp', score: 10, parts_done: all, quiz_best: 100, quiz_history: [80, 100], quiz_skills: { ac: { right: 2, total: 2 }, concept: { right: 2, total: 3 } }, mistakes: { no_square: 2, a_outward: 1 } },
+        { id: 's5', student_name: 'Sample Student E', class_period: 5, track: 'cp', score: 10, parts_done: all, quiz_best: 100, quiz_history: [100], quiz_skills: { ac: { right: 2, total: 2 }, concept: { right: 3, total: 3 } }, studioState: { v: 1, parts: { turn: { done: true }, letgo: { far: 1 }, center: {}, size: {} }, quiz: { best: 100, attempts: [{ pct: 100, correct: 5, total: 5, at: 1 }], last: null } } },
+        { id: 's4', student_name: 'Sample Student D', class_period: 0, track: 'honors', score: 9.1, parts_done: all, quiz_best: 80, quiz_history: [80], quiz_skills: { period: { right: 1, total: 1 }, ac: { right: 0, total: 1 }, backward: { right: 1, total: 1 }, concept: { right: 2, total: 2 } }, mistakes: { half_lap: 2, no_root: 1 } }
+      ];
+      render();
+    }
+
+    $('period').addEventListener('change', render);
+    $('course').addEventListener('change', render);
+    $('onlyFlagged').addEventListener('change', render);
+    const isLocal = ['localhost', '127.0.0.1'].includes(location.hostname);
+    if (isLocal && new URLSearchParams(location.search).has('demo')) demo();
+    else {
+      $('btnSignIn').addEventListener('click', () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        firebase.auth().signInWithPopup(provider).catch(e => {
+          if (e.code === 'auth/popup-blocked') firebase.auth().signInWithRedirect(provider);
+          else if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') $('gateErr').textContent = e.message;
+        });
+      });
+      $('btnSignOut').addEventListener('click', () => firebase.auth().signOut());
+      firebase.auth().getRedirectResult().catch(e => { $('gateErr').textContent = e.message; });
+      firebase.auth().onAuthStateChanged(user => {
+        const email = user && (user.email || '').toLowerCase();
+        if (user && TEACHER_EMAILS.includes(email)) start();
+        else if (user) {
+          firebase.auth().signOut();
+          showGate('Teacher sign-in required.', 'This page is for the teacher only.');
+        } else if (!$('gateErr').textContent) showGate('Teacher sign-in required.');
+      });
+    }
+  </script>
+</body>
+</html>
