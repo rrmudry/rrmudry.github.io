@@ -1706,3 +1706,14 @@ Append-only log tracking pattern changes across recent sessions.
 - **2026-11-05**: Disabled right-click context menu on Monkey Hunter Studio (`Unit_2/monkey_hunter_studio/index.html` and `Unit_2/monkey_hunter_studio/js/app.js`).
 - **2026-11-05**: Fixed GitHub Pages CDN 404 race condition on `Unit_2/monkey_hunter_studio/` (`engine.js`, `text.js`, `auth.js`, `standards-data.js`). Root cause: `.github/workflows/deploy.yml` and GitHub's built-in `pages-build-deployment` were both triggered on every push to `main` and raced to overwrite the `github-pages` artifact within 1–2 seconds of each other, causing Fastly CDN to cache `404 Not Found` for sub-resources requested during the swap window. Disabled `push` trigger in `.github/workflows/deploy.yml`, added `.nojekyll`, and inlined all studio CSS/JS (`text.js`, `engine.js`, `physics.js`, `scene.js`, `lesson.js`, `certificate.js`, `app.js`, `auth.js`, plus `HS-PS2-1` NGSS data) directly into `Unit_2/monkey_hunter_studio/index.html`, `Unit_2/projectile_range_studio/index.html`, `Unit_2/vector_decomposition_studio/index.html`, and `admin/monkey_hunter_monitor.html`.
 - **2026-11-08**: Posted the Centripetal Acceleration Workshop (`unit2_day51_centripetal_workshop`) to Classroom in all 7 periods, due Mon 11/9 at 6:00 PM PST. `npm run verify` passed every check, including the live student-permission test. Then linked it on Day 51 in `assets/lessons-data.js` (link + assignment card; the handout card stays).
+
+## 2026-11-09 — Saved Design Review: Closing Guessing Loopholes in Studio Apps (For Home Computer)
+**Patterns Updated**: `centripetal-acceleration-workshop.md`, `student-app-standards.md`.
+
+**Summary of 3 Loopholes & Proposed Fixes to Review at Home**:
+1. **Remove Follow-Through Credit on `newac` When `factor` Is Wrong (`Unit_2/centripetal_workshop/js/physics.js`)**:
+   - In Conceptual, `newac` currently uses follow-through grading (`sc.a1 * own(ans, 'factor', sc.factor)`), so guessing the wrong factor (`2`, `4`, or `9`) on Step 1 still awards full credit on Step 2 if the student multiplies `old a_c` by their wrong factor (yielding 5/6 = 83% on the Mastery Check despite missing the pattern).
+2. **Mandatory Read-the-Explanation Cooldown on Wrong Answers (`js/app.js`)**:
+   - In Parts 1–4, `Try new numbers ▶` is active immediately (0s delay) after a wrong answer, allowing rapid-fire guessing on 3- and 4-option multiple-choice questions. Adding a 6–8s countdown (`Read why first (6s)…`) makes reading faster than guessing.
+3. **Require 2 Correct in a Row After a Multiple-Choice Miss (`js/app.js`)**:
+   - Requiring 2 fresh questions right in a row after missing a multiple-choice step prevents a 1-in-3 lucky click from advancing.

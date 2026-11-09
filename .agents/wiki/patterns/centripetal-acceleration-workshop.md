@@ -42,3 +42,22 @@ Same lock as the Monkey Hunter monitor: `firestore.rules` lets only `isAdmin()` 
 ## Status (as of 2026-11-08)
 - Posted to Classroom 2026-11-08 (all 7 periods, due 2026-11-09 6:00 PM); `npm run verify` fully green.
 - Linked from Day 51 in `assets/lessons-data.js` after verify passed.
+
+## Open Design Review: Closing Guessing Loopholes (Saved 2026-11-09 for Home Computer)
+Three places where students can currently benefit from or brute-force via guessing in `Unit_2/centripetal_workshop/` (and similar studio apps):
+
+1. **Follow-Through Credit on `newac` When `factor` Is Wrong (`js/physics.js`)**:
+   - In the Conceptual track, each problem has two steps:
+     1. `factor` (*"How many times as big is the new a<sub>c</sub>?"*) — a typed number (`2`, `4`, or `9`).
+     2. `newac` (*"Now find the new a<sub>c</sub>"*) — currently uses follow-through grading (`sc.a1 * own(ans, 'factor', sc.factor)`).
+   - Because of follow-through grading on the Mastery Check, if a student guesses the wrong factor on Step 1 (e.g., types `2` instead of `4` when speed doubles) and then multiplies `old a_c × 2` on Step 2, Step 2 is still marked 100% correct (allowing a 5/6 = 83% score even when missing the core pattern).
+   - **Proposed Fix**: Remove follow-through credit on `newac` when `factor` is wrong, since identifying the factor (`2`, `4`, or `9`) is the core Conceptual physics idea.
+
+2. **Zero Cooldown on "Try new numbers ▶" in Guided Parts (`js/app.js`)**:
+   - Parts 1, 2, and 3 are primarily 3-option or 4-option multiple-choice questions (`accel_turn`, `v_dir`, `release_path`, `paint`, `a_dir`, `right_angle`).
+   - Currently, when a student clicks a wrong choice, the `Try new numbers ▶` button is enabled immediately (0-second wait), allowing rapid click-guessing until hitting the 1-in-3 / 1-in-4 right answer.
+   - **Proposed Fix**: Add a 6–8 second read-the-explanation countdown on wrong answers (`Read why first (6s)…`) before enabling `Try new numbers ▶` so rapid guessing is slower than reading.
+
+3. **Instant Mastery Check Retakes & Single-Try Concept Checks (`js/app.js`)**:
+   - Currently there is no cooldown before clicking `Retake with new numbers ▶` on the Mastery Check, and in the guided parts a single lucky click advances past a concept check.
+   - **Proposed Fix**: Require 2 correct in a row after a miss on multiple-choice pages in guided parts (so a 1-in-3 lucky click after a miss cannot advance), and/or add a brief review pause before Mastery Check retakes.

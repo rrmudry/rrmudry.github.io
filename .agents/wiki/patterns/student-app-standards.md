@@ -71,6 +71,7 @@ Classes come from `roster/{id}.class_period`:
 - **The first link becomes an embedded preview** in the dashboard's lesson modal, so a wrong link shows up front and center.
 
 ## Reference apps
+- `Unit_2/centripetal_workshop/`: direction before size, lettered arrow/path picks, lap time and fastest curve speed for Honors, inline build (`scripts/inline-studio.js`). *(See `centripetal-acceleration-workshop.md` for the 2026-11-09 open design review on closing guessing loopholes: removing follow-through credit on `newac` when `factor` is wrong, adding a read-why cooldown on `Try new numbers`, and requiring 2 in a row after a multiple-choice miss.)*
 - `Unit_2/projectile_range_studio/`: three-class lesson, Back, stacked math, certificate, monitor.
 - `Unit_2/monkey_hunter_studio/`: drag-to-build apparatus, a slider on the picture, an ungraded prediction page.
 - `Unit_2/vector_decomposition_studio/`: Desmos work checking, step-by-step credit.
