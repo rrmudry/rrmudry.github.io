@@ -39,6 +39,6 @@ Going around a circle at a steady speed is still accelerating, because velocity 
 ## Teacher-only monitor
 Same lock as the Monkey Hunter monitor: `firestore.rules` lets only `isAdmin()` list `student_results/*/students` and `roster`. `?demo` sample data runs only on localhost. No rules change was needed, because the app only uses `student_results/{id}/students/{owner}` and `roster/{owner}`.
 
-## Not done yet (as of 2026-11-08)
-- Not posted to Classroom with `deploy-assignment.js`, so `npm run verify` has not run.
-- Not linked from Day 51 in `assets/lessons-data.js` (only after verify passes).
+## Status (as of 2026-11-08)
+- Posted to Classroom 2026-11-08 (all 7 periods, due 2026-11-09 6:00 PM); `npm run verify` fully green.
+- Linked from Day 51 in `assets/lessons-data.js` after verify passed.

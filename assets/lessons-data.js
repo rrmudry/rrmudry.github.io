@@ -5404,8 +5404,19 @@ const lessonsData = [
       "explanation": "Yes. Acceleration is any change in velocity, and velocity includes direction. The car's direction keeps changing as it goes around the track, so it is always accelerating toward the center, even though its speed stays the same.",
       "defaultDuration": 3
     },
-    "links": {},
+    "links": {
+      "Centripetal Acceleration Workshop": "Unit_2/centripetal_workshop/index.html"
+    },
     "assignments": [
+      {
+        "title": "Centripetal Acceleration Workshop",
+        "url": "Unit_2/centripetal_workshop/index.html",
+        "typeLabel": "Interactive Workshop & Mastery Check",
+        "submission": "Automatic Classroom Sync (10 pts)",
+        "actionLabel": "Launch Centripetal Workshop",
+        "description": "See why turning at a steady speed is still accelerating, watch a let-go stopper fly along the tangent, find which way a<sub>c</sub> points, then how big it is. Progress saves automatically. Due Monday, Nov 9 at 6:00 PM.",
+        "status": "active"
+      },
       {
         "title": "Circular Motion Arrows & Acceleration Practice",
         "typeLabel": "In-Class Handout",
