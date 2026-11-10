@@ -58,5 +58,5 @@ Same lock as the other monitors: `firestore.rules` lets only `isAdmin()` list `s
 ## Status (as of 2026-11-09)
 - Built and played through in preview for all three classes at 1366 × 768 and 1366 × 650, answering right and answering wrong first, in light, dark and Projector mode.
 - Also played through on larger screens (1920 × 1080 and 2560 × 1440, normal and Projector mode) and at window heights on each side of the `compact` limit. A wrong answer with every hint open is the tightest screen, so that is the one to replay after any layout change.
-- **Not yet posted to Classroom and not yet linked from Day 52** in `assets/lessons-data.js`. Both wait on a confirmed due date and a green `npm run verify`.
-- Not tested yet: a real student sign-in with saving to Firestore (verify covers it after posting), and the monitor with real class data.
+- **Posted to Classroom on 2026-11-09** in all 7 periods as "Centripetal Force Lab: What Does the Pulling?", 10 points, due Tue 11/10 at 6:00 PM PST. `npm run verify` passed every check, including the live student-permission test, and Day 52 in `assets/lessons-data.js` now links it.
+- Not seen yet: the monitor with real class data, and the lab on a real Chromebook (screen checks ran in headless Chrome at Chromebook sizes).

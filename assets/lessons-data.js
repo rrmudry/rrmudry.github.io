@@ -5465,8 +5465,19 @@ const lessonsData = [
       "explanation": "Nothing pushes them outward. Their bodies keep moving in a straight line because of inertia (Newton's 1st Law). The car turns left underneath them, so the door has to push them inward, toward the center of the turn, to keep them moving in a circle.",
       "defaultDuration": 3
     },
-    "links": {},
+    "links": {
+      "Centripetal Force Lab": "Unit_2/centripetal_force_lab/index.html"
+    },
     "assignments": [
+      {
+        "title": "Centripetal Force Lab: What Does the Pulling?",
+        "url": "Unit_2/centripetal_force_lab/index.html",
+        "typeLabel": "Interactive Lab & Mastery Check",
+        "submission": "Automatic Classroom Sync (10 pts)",
+        "actionLabel": "Launch Centripetal Force Lab",
+        "description": "Measure the force on a puck moving in a circle, record your data in a table, graph it, and use your graph to predict a speed you never tested. Then name the real force that does the pulling in four systems. Progress saves automatically. Due Tuesday, Nov 10 at 6:00 PM.",
+        "status": "active"
+      },
       {
         "title": "Who Pulls It In? Force Diagram Stations",
         "typeLabel": "In-Class Handout",

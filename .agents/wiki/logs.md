@@ -13,6 +13,7 @@ Append-only log tracking pattern changes across recent sessions.
 - Short screens: the page measures its height in rem and sets `compact` or `short` on `<html>`, so Projector mode's bigger text counts as a shorter screen. At 1366 × 650 the header and tabs get slimmer and the calculator's use-answer button moves into its title bar, which leaves room for a whole fraction line. Projector mode sizes its text from the screen.
 - Played through in preview for all three classes, right answers and wrong-first, at 1366 × 768 and 1366 × 650. Jest suite added (21 tests).
 - Not yet posted to Classroom or linked from Day 52; that waits for a confirmed due date, `deploy-assignment.js` and `npm run verify`.
+- Posted to Classroom in all 7 periods (10 points, due Tue 11/10 at 6:00 PM PST). `npm run verify` passed every check, then Day 52 was linked in `assets/lessons-data.js` (link + assignment card; the handout card stays).
 
 ## 2026-11-08 — Day 51 Uniform Circular Motion Guided Notes & In-Class Handout
 **Patterns Updated**: `low-stress-worksheet-skill.md`.

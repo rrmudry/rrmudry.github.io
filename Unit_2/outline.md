@@ -492,7 +492,7 @@ This unit follows the classical and cognitive progression:
     *   *Essential Question:* What real force keeps an object on a curved path, and what happens the moment that force disappears?
     *   *Web Lab:* Centripetal Force Lab (`centripetal_force_lab/`). Students run trials on a puck on a string, read the force dial, fill a data table, graph their own points, then predict and test a speed they never ran. Followed by the four "Who Pulls?" stations and a Mastery Check.
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Guided Practice / Force Diagrams
-    *   *Links:* None yet (lab built but not posted; handout not built)
+    *   *Links:* [Centripetal Force Lab](centripetal_force_lab/index.html) (posted to Classroom, due Tue 11/10 at 6:00 PM; handout not built)
 
 *   **Day 53 (2026-11-11): Veterans Day (No School)**
 
