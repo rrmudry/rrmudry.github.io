@@ -17,7 +17,8 @@ Follow these requirements and code patterns whenever creating or modifying inter
 - [ ] **Top-Level Parent Doc Set**: `deploy-assignment.js` creates the parent document (`student_results/{ASSIGNMENT_ID}`) so admin tools and gradebook export discover it. It is admin-only, so student pages must never write it.
 - [ ] **CAST Alignment & Productive Friction**: Preserve authentic student measurement (reading virtual rulers, stopwatches, protractors) and scale conversions rather than auto-calculating. Eliminate interface clutter, provide 2x–3x optical loupes/crosshairs, and offer targeted diagnostic hints for tolerance checks (see `.agents/wiki/patterns/cast-aligned-webapp-design.md`).
 - [ ] **Automatic NGSS Standards Linking**: Include `data-ngss="STANDARD_CODES"` (e.g. `data-ngss="HS-PS2-1,HS-PS2-2"`) or `data-ngss-is="IS1"` in the HTML body to automatically pull and render interactive NGSS standard badges and popover details via `NGSSHelper`.
-- [ ] **Teaching Standards**: Read `.agents/wiki/patterns/student-app-standards.md` before designing anything.
+- [ ] **Teaching Standards**: Read `.agents/wiki/patterns/student-app-standards.md` before designing anything, along with `student-task-engagement.md` and `cast-aligned-webapp-design.md` in the same folder.
+- [ ] **Investigation First**: If the activity teaches how one quantity depends on another, plan it as measure → data table → graph → answer from the graph (see "Investigate first" in the standards), not as reading followed by multiple choice.
 
 ---
 
@@ -27,7 +28,10 @@ Go through this before showing the teacher a new studio or calling it ready. Ski
 
 **Lesson**
 - [ ] One task on screen at a time, with new ideas taught before they are asked about.
+- [ ] No teaching page ends with only a Next button. Each ends with something to do that needs the words on the page.
+- [ ] New ideas open with an ungraded prediction that the student then tests.
 - [ ] A wrong answer explains why, then deals new numbers.
+- [ ] Trying every option doesn't work: the explanation stays up briefly before a retry, and a missed choice question needs 2 right in a row. Check by playing one part with random answers.
 - [ ] Back on every step, returning earlier numbers and answers. Hidden while a wrong answer is showing.
 - [ ] Hints open one at a time, with no penalty, and a read-aloud button is available.
 
@@ -44,6 +48,11 @@ Go through this before showing the teacher a new studio or calling it ready. Ski
 **Student work**
 - [ ] Calculation answers come only from Desmos, with the work checked.
 - [ ] Numbers appear on the picture or apparatus, not in the question's words.
+- [ ] Most answers are actions (drag, click a point, set the apparatus, read an instrument, calculator work). Multiple choice is never the main way a part is passed.
+- [ ] Students run 5 or 6 trials, read the instrument, record each value in a table and graph their own points. Entries are checked against the simulation, not filled in.
+- [ ] Questions are answered from the student's own table or graph, and they predict an untested case and then test it.
+- [ ] A short handwritten question on the handout or exit card uses the student's own numbers from the app.
+- [ ] The activity takes most of a class period when played honestly.
 
 **Classes**
 - [ ] Period 0, Periods 1–3 and Periods 4–6 each play through from start to finish in preview.
@@ -51,6 +60,8 @@ Go through this before showing the teacher a new studio or calling it ready. Ski
 
 **Saving and grades**
 - [ ] Credit grows step by step, and the best score is never lowered.
+- [ ] The Mastery Check uses new situations, brings back an idea from an earlier day, and shows a short review before a retake.
+- [ ] Time on each page and tries on each question are saved, and the monitor shows first-try accuracy next to the score.
 - [ ] Progress resumes after a reload with the same page and numbers.
 - [ ] The app's real save data passes Firestore's validation, with no `undefined` values or arrays inside arrays.
 - [ ] A certificate is earned by finishing every part and scoring 75% or higher, if the assignment has one.

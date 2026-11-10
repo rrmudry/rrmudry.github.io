@@ -490,8 +490,9 @@ This unit follows the classical and cognitive progression:
     *   *Activity:* Four stations, each with a pictorial diagram and a free-body diagram side by side: tetherball (tension), car on a flat curve (road friction on tires), Moon around Earth (gravity), washer spin cycle (drum wall's normal force; water escapes along tangents). Calculate the net force needed (1,000 kg car, 20 m/s, 50 m curve → 8,000 N of friction).
     *   *Differentiation:* Periods 1–3: name the force and draw the arrow toward the center, plus a "more speed needs more pull" table. Periods 4–6: one-step F<sub>net</sub> calculations. Period 0: work backward from a rope's breaking force to the fastest safe speed.
     *   *Essential Question:* What real force keeps an object on a curved path, and what happens the moment that force disappears?
+    *   *Web Lab:* Centripetal Force Lab (`centripetal_force_lab/`). Students run trials on a puck on a string, read the force dial, fill a data table, graph their own points, then predict and test a speed they never ran. Followed by the four "Who Pulls?" stations and a Mastery Check.
     *   *Standards:* `HS-PS2-1` | *DOK:* 2 | *Type:* Guided Practice / Force Diagrams
-    *   *Links:* None yet (handout not built)
+    *   *Links:* None yet (lab built but not posted; handout not built)
 
 *   **Day 53 (2026-11-11): Veterans Day (No School)**
 

@@ -3,6 +3,17 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-09 — Centripetal Force Lab (Day 52)
+**Patterns Added**: `centripetal-force-lab.md`. **Patterns Updated**: `student-app-standards.md` (reference apps).
+**Files Added**: `Unit_2/centripetal_force_lab/` (src.html, js/, css/, built index.html), `admin/centripetal_force_lab_monitor.src.html` + built page, `tests/centripetalForceLab.test.js`. **Updated**: `admin/index.html` (monitor card), `admin/sprint_progress_3d.html` (new activity in the list), `Unit_2/outline.md` (Day 52).
+
+**Changes**:
+- First studio built as an investigation under the new measure → table → graph standards. Students run 5 or 6 trials, read a force dial, record in a checked table, plot their own points, answer from the graph, then predict and test a case they never ran.
+- Guess-proofing: growing wait after a miss, a new arrow or station plus two right in a row after a missed pick, stations with tests that change nothing, a Mastery Check with new situations.
+- Short screens: the page measures its height in rem and sets `compact` or `short` on `<html>`, so Projector mode's bigger text counts as a shorter screen. At 1366 × 650 the header and tabs get slimmer and the calculator's use-answer button moves into its title bar, which leaves room for a whole fraction line. Projector mode sizes its text from the screen.
+- Played through in preview for all three classes, right answers and wrong-first, at 1366 × 768 and 1366 × 650. Jest suite added (21 tests).
+- Not yet posted to Classroom or linked from Day 52; that waits for a confirmed due date, `deploy-assignment.js` and `npm run verify`.
+
 ## 2026-11-08 — Day 51 Uniform Circular Motion Guided Notes & In-Class Handout
 **Patterns Updated**: `low-stress-worksheet-skill.md`.
 **Files Added/Updated**: `Unit_2/worksheets/Day51_Uniform_Circular_Motion_Guided_Notes.html`, `Unit_2/worksheets/Day51_Uniform_Circular_Motion_Guided_Notes.pdf`, `assets/lessons-data.js`, `unit2-dashboard.html`, `Unit_2/outline.md`, `partials/footer.html`.
@@ -1717,3 +1728,8 @@ Append-only log tracking pattern changes across recent sessions.
    - In Parts 1–4, `Try new numbers ▶` is active immediately (0s delay) after a wrong answer, allowing rapid-fire guessing on 3- and 4-option multiple-choice questions. Adding a 6–8s countdown (`Read why first (6s)…`) makes reading faster than guessing.
 3. **Require 2 Correct in a Row After a Multiple-Choice Miss (`js/app.js`)**:
    - Requiring 2 fresh questions right in a row after missing a multiple-choice step prevents a 1-in-3 lucky click from advancing.
+
+## 2026-11-09 — Standards: investigations and guess-proof answers
+- Added to `patterns/student-app-standards.md` after the teacher's review of the recent studios: a new "Investigate first: measure, record, graph" section (set a variable, read an instrument, record in a table, graph own points, answer from the graph, predict an untested case); teaching pages end with a task instead of a bare Next; predict → measure → explain; a missed choice question needs 2 right in a row and the explanation stays up before a retry; no follow-through credit for a wrong main idea; answers are actions and depend on the student's own data; a handwritten closing question; Mastery Check uses new situations with a review before retakes; save time per page and tries per question for the monitor.
+- Mirrored in the Definition of Done (`.agent/workflows/create-student-webapp.md`), which now also links `student-task-engagement.md` and `cast-aligned-webapp-design.md`.
+- Not applied to any existing app yet. First planned use: Day 52 (Centripetal Force). The Centripetal Workshop's three loophole fixes in `centripetal-acceleration-workshop.md` are still open.

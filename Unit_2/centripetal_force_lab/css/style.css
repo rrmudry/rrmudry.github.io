@@ -1,0 +1,386 @@
+/* Centripetal Force Lab — high-contrast light mode (default), dark mode, projector mode (root grows with the screen, up to 22px).
+   Sizes are in rem so projector mode scales everything. Built from Unit_2/centripetal_workshop/css/style.css.
+   Blue = velocity, rose = the net force toward the center, purple = the radius, everywhere in the lesson.
+   An arrow the student is still aiming is gray, so color never gives the answer away. */
+
+:root {
+  --bg-page: #f1f5f9;
+  --bg-header: rgba(255, 255, 255, 0.97);
+  --bg-card: #ffffff;
+  --bg-subcard: #f8fafc;
+  --border-color: #cbd5e1;
+  --border-subtle: #e2e8f0;
+  --text-main: #0f172a;
+  --text-muted: #334155;
+  --text-dim: #475569;
+  --accent: #0284c7;
+  --good: #15803d;
+  --bad: #be123c;
+  --warn: #b45309;
+  --accent-x: #0369a1;
+  --accent-y: #c2410c;
+  --accent-v: #7c3aed;
+  --accent-g: #be123c;
+  --sky: #f0f9ff;
+  --ground: #dcfce7;
+  --ground-line: #15803d;
+  --grid: #cbd5e1;
+  --ball: #0f172a;
+  --radius: 0.85rem;
+  --font-sans: 'Outfit', system-ui, sans-serif;
+  font-size: 16px;
+}
+
+html.theme-dark {
+  --bg-page: #070d19;
+  --bg-header: rgba(7, 13, 25, 0.95);
+  --bg-card: #0f172a;
+  --bg-subcard: #1e293b;
+  --border-color: rgba(56, 189, 248, 0.3);
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --text-main: #f8fafc;
+  --text-muted: #cbd5e1;
+  --text-dim: #94a3b8;
+  --accent: #38bdf8;
+  --good: #34d399;
+  --bad: #fb7185;
+  --warn: #fbbf24;
+  --accent-x: #38bdf8;
+  --accent-y: #fb923c;
+  --accent-v: #c084fc;
+  --accent-g: #fb7185;
+  --sky: #0b1324;
+  --ground: #14532d;
+  --ground-line: #34d399;
+  --grid: #334155;
+  --ball: #f8fafc;
+}
+
+html.projector {
+  /* Bigger text only when the screen has room for it: never less space than a 1366 × 650 screen at normal size */
+  font-size: clamp(16px, min(2.46vh, 1.17vw), 22px);
+  --bg-page: #ffffff;
+  --bg-subcard: #ffffff;
+  --border-color: #000000;
+  --border-subtle: #000000;
+  --text-muted: #0f172a;
+  --text-dim: #1e293b;
+  --grid: #94a3b8;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; height: 100vh; display: flex; flex-direction: column; background: var(--bg-page); color: var(--text-main); font-family: var(--font-sans); font-size: 1rem; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+[hidden] { display: none !important; }
+button { font: inherit; cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+p { margin: 0 0 0.5rem; }
+p:last-child { margin-bottom: 0; }
+sub { font-size: 0.72em; line-height: 0; }
+.formula { white-space: nowrap; font-weight: 700; font-variant-numeric: tabular-nums; }
+.nowrap { white-space: nowrap; }
+.calc-stack { display: grid; grid-template-columns: auto auto auto; gap: 0.1rem 0.35rem; width: fit-content; margin: 0.2rem 0; white-space: nowrap; font-weight: 700; font-variant-numeric: tabular-nums; }
+.calc-sym { text-align: right; }
+.worked { display: inline-block; margin-top: 0.35rem; }
+
+/* ---------- Header ---------- */
+.app-header { flex-shrink: 0; position: sticky; top: 0; z-index: 100; background: var(--bg-header); border-bottom: 1px solid var(--border-color); padding: 0.35rem 0.75rem 0.45rem; }
+.header-row { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; max-width: 110rem; margin: 0 auto; }
+.header-left { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+.app-icon { font-size: 1.4rem; }
+.app-title { margin: 0; font-size: 1.1rem; font-weight: 800; }
+.header-right { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+.btn-tool { background: var(--bg-subcard); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 0.5rem; padding: 0.2rem 0.55rem; font-size: 0.82rem; font-weight: 600; text-decoration: none; }
+.btn-tool.btn-on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.view-wrap { font-size: 0.82rem; font-weight: 600; display: flex; align-items: center; gap: 0.3rem; }
+.view-wrap select { font: inherit; color: var(--text-main); background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 0.4rem; padding: 0.15rem 0.3rem; }
+.user-chip { display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; padding-left: 0.35rem; }
+.user-name { font-weight: 700; max-width: 11rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-track { color: var(--text-dim); font-weight: 600; white-space: nowrap; }
+.score-chip { font-weight: 800; background: var(--bg-subcard); border: 1px solid var(--border-color); border-radius: 999px; padding: 0.05rem 0.55rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.save-indicator { font-weight: 600; white-space: nowrap; }
+.cert-chip { background: var(--bg-card); color: var(--good); border: 2px solid var(--good); border-radius: 999px; padding: 0.1rem 0.65rem; font-size: 0.82rem; font-weight: 800; white-space: nowrap; }
+.cert-box { border: 2px solid var(--border-color); border-radius: 0.6rem; padding: 0.5rem 0.7rem; }
+.cert-ready { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; border-color: var(--good); background: color-mix(in srgb, var(--good) 12%, var(--bg-card)); font-size: 1.05rem; }
+.cert-wait { background: var(--bg-subcard); font-size: 0.95rem; }
+.save-ok { color: var(--good); }
+.save-busy, .save-guest { color: var(--text-dim); }
+.save-error { color: var(--bad); }
+.btn-signout { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); border-radius: 0.4rem; font-size: 0.78rem; padding: 0.1rem 0.4rem; }
+
+.part-strip { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.4rem; max-width: 110rem; margin: 0.35rem auto 0; }
+.part-tab { background: var(--bg-subcard); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 0.55rem; padding: 0.22rem 0.5rem; text-align: left; min-width: 0; }
+.part-tab:disabled { color: var(--text-dim); background: transparent; }
+.part-on { border-color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); }
+.part-name { display: block; font-size: 0.88rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.part-bar { display: block; height: 0.28rem; margin-top: 0.18rem; background: var(--border-subtle); border-radius: 999px; overflow: hidden; }
+.part-bar span { display: block; height: 100%; background: var(--accent); }
+.part-done .part-bar span { background: var(--good); }
+html.projector .part-bar, html.projector .skill-bar { background: #cbd5e1; }
+
+/* ---------- Layout ---------- */
+.workbench { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 0.65rem; padding: 0.65rem; width: 100%; max-width: 110rem; margin: 0 auto; flex: 1; min-height: 0; }
+.card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); min-width: 0; min-height: 0; }
+.stage-card { display: flex; flex-direction: column; gap: 0.45rem; padding: 0.5rem; }
+.stage { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; border-radius: 0.6rem; overflow: hidden; border: 1px solid var(--border-subtle); background: var(--sky); }
+.scene-svg { display: block; width: 100%; height: 100%; overflow: visible; }
+/* These rows keep their height on every page, so the picture never changes size */
+.stage-foot { flex: none; display: flex; flex-direction: column; gap: 0.3rem; }
+.foot-row { display: flex; align-items: center; gap: 0.5rem; height: 2.6rem; overflow: hidden; }
+.btn-step { background: var(--accent); color: #fff; border: 0; border-radius: 0.55rem; padding: 0.42rem 0.95rem; font-weight: 800; font-size: 1rem; white-space: nowrap; }
+html:not(.theme-dark) .btn-step { background: #0369a1; }
+html.theme-dark .btn-step { color: #0f172a; }
+html .btn-step:disabled { background: var(--border-color); color: var(--text-muted); }
+.btn-ghost { background: transparent; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 0.55rem; padding: 0.42rem 0.7rem; font-weight: 600; white-space: nowrap; }
+
+/* ---------- SVG picture ---------- */
+.sv-text { font-family: var(--font-sans); font-weight: 700; font-size: 17px; fill: var(--text-main); }
+.sv-small { font-size: 14px; font-weight: 600; }
+.sv-plate { fill: var(--bg-card); fill-opacity: 0.9; }
+.sv-floor { fill: var(--sky); }
+.slider-wrap { display: flex; align-items: center; gap: 0.5rem; flex: 1; min-width: 0; font-weight: 800; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.slider-wrap span { min-width: 7.5rem; }
+.slider-wrap input { flex: 1; min-width: 4rem; max-width: 20rem; accent-color: var(--accent-v); }
+
+/* ---------- The air table and the force dial ---------- */
+.fl-table { fill: var(--bg-card); stroke: var(--border-color); stroke-width: 3; }
+.fl-track { fill: none; stroke: var(--text-dim); stroke-width: 2; stroke-dasharray: 8 8; }
+.fl-turn { fill: none; stroke: var(--text-dim); stroke-width: 2.5; }
+.fl-turn-head { fill: var(--text-dim); }
+.fl-dim { fill: var(--text-dim); }
+.fl-radius { stroke: var(--accent-v); stroke-width: 3; stroke-dasharray: 2 6; stroke-linecap: round; }
+.fl-radius-text { fill: var(--accent-v); }
+.fl-string { stroke: var(--text-main); stroke-width: 2.5; }
+.fl-hole { fill: var(--text-main); }
+.fl-puck { fill: var(--ball); stroke: var(--bg-card); stroke-width: 2; }
+.fl-puck-dot { fill: var(--bg-card); }
+.fl-vel line { stroke: var(--accent-x); } .fl-vel polygon { fill: var(--accent-x); }
+.fl-vel-text { fill: var(--accent-x); }
+.fl-force line { stroke: var(--accent-g); } .fl-force polygon { fill: var(--accent-g); }
+.fl-force-text { fill: var(--accent-g); }
+.fl-aim line { stroke: var(--text-muted); } .fl-aim polygon { fill: var(--text-muted); }
+.fl-tangent { stroke: var(--text-dim); stroke-width: 2.5; stroke-dasharray: 7 7; }
+.fl-dial-rim { fill: var(--text-dim); }
+.fl-dial-face { fill: var(--bg-card); stroke: var(--text-main); stroke-width: 2; }
+.fl-dial-red { fill: none; stroke: var(--bad); stroke-width: 9; opacity: 0.7; }
+.fl-tick { stroke: var(--text-main); stroke-width: 1.4; }
+.fl-tick-mid { stroke-width: 2; }
+.fl-tick-major { stroke-width: 3; }
+.fl-dial-num { font-size: 16px; font-weight: 800; }
+.fl-needle { stroke: var(--bad); stroke-width: 2; stroke-linecap: round; }
+.fl-needle-hub { fill: var(--text-main); }
+.fl-loupe-rim { fill: none; stroke: var(--accent-v); stroke-width: 4; }
+.fl-title { font-size: 19px; font-weight: 800; }
+.fl-coach { fill: var(--warn); }
+.fl-coach-line { fill: none; stroke: var(--warn); stroke-width: 2.5; }
+.fl-box { fill: var(--bg-card); stroke: var(--border-color); stroke-width: 1.5; }
+.fl-value { font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.fl-click { cursor: pointer; }
+.fl-cross { cursor: crosshair; }
+
+/* ---------- Stations: what goes around, and what pulls it ---------- */
+.fl-ball { fill: var(--ball); }
+.fl-penny { fill: #b45309; } .fl-penny-in { fill: none; stroke: #fde68a; stroke-width: 1.5; }
+.fl-car { fill: var(--ball); } .fl-glass { fill: var(--sky); }
+.fl-moon { fill: #94a3b8; stroke: var(--text-main); stroke-width: 1.5; } .fl-crater { fill: #64748b; }
+.fl-panel { fill: #1d4ed8; } .fl-sat { fill: #94a3b8; stroke: var(--text-main); stroke-width: 1.5; }
+.fl-rider-body { fill: var(--accent-y); } .fl-rider-head { fill: var(--ball); }
+.fl-sock { fill: var(--accent-y); stroke: var(--text-main); stroke-width: 1.5; }
+.fl-hand { fill: #fcd9a8; stroke: var(--text-main); stroke-width: 2; }
+.fl-road { fill: none; stroke: #94a3b8; stroke-width: 54; }
+.fl-road-line { fill: none; stroke: #fef08a; stroke-width: 2.5; stroke-dasharray: 12 12; }
+.fl-ice { fill: none; stroke: #bae6fd; stroke-width: 54; }
+.fl-turntable { fill: var(--bg-card); stroke: var(--text-dim); stroke-width: 3; }
+.fl-groove { fill: none; stroke: var(--text-dim); stroke-width: 1.5; stroke-dasharray: 3 5; }
+.fl-ice-disc { fill: #bae6fd; opacity: 0.8; }
+.fl-gravity { fill: none; stroke: var(--accent-v); stroke-width: 2; stroke-dasharray: 3 7; opacity: 0.75; }
+.fl-earth { fill: #0284c7; stroke: var(--text-main); stroke-width: 1.5; } .fl-land { fill: #16a34a; }
+.fl-floor { fill: var(--bg-card); stroke: var(--border-color); }
+.fl-wall { fill: none; stroke: var(--text-main); stroke-width: 9; }
+#unlink { display: none; }
+.link-off #link { display: none; }
+.link-off #unlink { display: inline; }
+
+/* ---------- Graphs and the Mastery Check table ---------- */
+.fl-plot { fill: var(--bg-card); }
+.fl-grid-major { stroke: var(--grid); stroke-width: 1.5; }
+.fl-grid-minor { stroke: var(--grid); stroke-width: 0.6; opacity: 0.75; }
+.fl-axis { fill: none; stroke: var(--text-main); stroke-width: 2.5; }
+.fl-axis-label { font-size: 16px; }
+.fl-guide { fill: none; stroke: var(--warn); stroke-width: 2.5; stroke-dasharray: 7 6; }
+.fl-fit { fill: none; stroke: var(--accent-v); stroke-width: 3; }
+.fl-pt { fill: var(--accent-g); stroke: var(--bg-card); stroke-width: 2; }
+.fl-pt-new { fill: var(--accent-v); }
+.fl-pt[data-pt] { cursor: pointer; }
+.fl-pt-label { paint-order: stroke; stroke: var(--bg-card); stroke-width: 4px; stroke-linejoin: round; pointer-events: none; }
+.fl-miss { fill: none; stroke: var(--text-dim); stroke-width: 3; }
+.fl-divider { stroke: var(--border-color); stroke-width: 2; }
+.fl-cell { fill: var(--bg-card); stroke: var(--text-dim); stroke-width: 1.5; }
+.fl-cell-head { fill: var(--bg-subcard); stroke: var(--text-dim); stroke-width: 1.5; }
+
+/* ---------- Under the picture: controls and the student's own data table (fixed height) ---------- */
+.ctl-label { font-weight: 800; white-space: nowrap; font-variant-numeric: tabular-nums; min-width: 8.4rem; }
+.ctl-range { flex: 1; min-width: 4rem; max-width: 15rem; accent-color: var(--accent-v); }
+.ctl-spacer { flex: 1; }
+.ctl-note { color: var(--text-dim); font-weight: 600; font-size: 0.92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.btn-test { background: var(--bg-subcard); color: var(--text-main); border: 2px solid var(--border-color); border-radius: 0.55rem; padding: 0.3rem 0.6rem; font-weight: 700; font-size: 0.9rem; white-space: nowrap; }
+.btn-test:hover:not(:disabled) { border-color: var(--accent); }
+.btn-test.on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.data-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13px; line-height: 1; font-variant-numeric: tabular-nums; }
+.data-table th, .data-table td { border: 1px solid var(--border-color); height: 21px; padding: 0 4px; text-align: center; font-weight: 700; white-space: nowrap; overflow: hidden; }
+.data-table th { background: var(--bg-subcard); font-weight: 800; }
+.data-table th:first-child { width: 9.2em; text-align: left; }
+.data-table .cell-now { box-shadow: inset 0 0 0 2px var(--accent); }
+.data-table .cell-empty { color: var(--text-dim); font-weight: 500; }
+html.projector .data-table { font-size: 15px; }
+html.projector .data-table th, html.projector .data-table td { height: 24px; }
+
+/* ---------- Task card ---------- */
+.task-card { display: flex; flex-direction: column; gap: 0.7rem; overflow-y: auto; padding: 0.9rem 1rem; }
+.task-card > * { flex-shrink: 0; }
+body.calc-open .task-card { padding-bottom: calc(var(--calc-height) + 1rem); }
+.task-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.task-count { font-size: 0.85rem; font-weight: 700; color: var(--text-dim); }
+.btn-read { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); border-radius: 0.45rem; padding: 0.08rem 0.45rem; font-size: 0.78rem; font-weight: 600; }
+.task-title { margin: 0; font-size: 1.32rem; line-height: 1.25; font-weight: 800; }
+.launch-tag { margin: 0; font-size: 0.85rem; font-weight: 800; color: var(--accent); }
+.task-body { font-size: 1.08rem; }
+.key-list { list-style: none; margin: 0.4rem 0; padding: 0; display: grid; gap: 0.4rem; }
+.key-list.numbered { list-style: decimal; padding-left: 1.4rem; }
+.dot { width: 0.8rem; height: 0.8rem; border-radius: 50%; display: inline-block; margin-right: 0.45rem; }
+.dot-x { background: var(--accent-x); }
+.dot-y { background: var(--accent-y); }
+.worked-line { font-size: 1.1rem; margin: 0.25rem 0; padding: 0.25rem 0.55rem; background: var(--bg-subcard); border-radius: 0.4rem; overflow-x: auto; }
+.takeaway { margin-top: 0.6rem; padding: 0.55rem 0.7rem; border-left: 4px solid var(--good); background: var(--bg-subcard); border-radius: 0 0.45rem 0.45rem 0; }
+.formula-box { margin: 0; padding: 0.4rem 0.7rem; font-size: 1.2rem; background: var(--bg-subcard); border: 1px solid var(--border-subtle); border-radius: 0.5rem; text-align: center; overflow-x: auto; }
+.ans-row { display: flex; align-items: center; gap: 0.5rem; font-size: 1.2rem; font-weight: 700; white-space: nowrap; }
+.ans-sym { white-space: nowrap; }
+.ans-row input { font: inherit; width: 7.5rem; padding: 0.3rem 0.5rem; border: 2px solid var(--accent); border-radius: 0.5rem; color: var(--text-main); background: var(--bg-card); font-variant-numeric: tabular-nums; }
+.ans-row input.calc-readonly { background: var(--bg-subcard); border-color: var(--border-color); cursor: default; }
+.ans-row input.calc-readonly::placeholder { font-size: 0.8rem; font-weight: 500; color: var(--text-dim); }
+.ans-row input:disabled { border-color: var(--border-color); }
+.task-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.btn-primary { background: #0369a1; color: #fff; border: 0; border-radius: 0.55rem; padding: 0.5rem 1.2rem; font-weight: 800; font-size: 1.05rem; }
+html.theme-dark .btn-primary { background: #38bdf8; color: #0f172a; }
+.btn-primary:disabled { background: var(--border-color); color: var(--text-dim); font-weight: 600; }
+.btn-secondary { background: transparent; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 0.55rem; padding: 0.5rem 0.9rem; font-weight: 700; }
+.feedback { border-radius: 0.55rem; padding: 0.55rem 0.7rem; font-size: 1.02rem; border: 1.5px solid; }
+.fb-ok { border-color: var(--good); color: var(--text-main); background: color-mix(in srgb, var(--good) 10%, transparent); }
+.fb-bad { border-color: var(--bad); color: var(--text-main); background: color-mix(in srgb, var(--bad) 8%, transparent); }
+.fb-retry { border-color: var(--warn); color: var(--text-main); background: color-mix(in srgb, var(--warn) 10%, transparent); }
+.hints { display: grid; gap: 0.35rem; justify-items: start; }
+.hint { background: var(--bg-subcard); border-radius: 0.45rem; padding: 0.3rem 0.6rem; font-size: 0.98rem; }
+.btn-hint { background: transparent; border: 0; color: var(--accent); font-weight: 700; padding: 0.1rem 0; text-decoration: underline; }
+.opts { display: grid; gap: 0.45rem; }
+.opt { text-align: left; background: var(--bg-card); color: var(--text-main); border: 2px solid var(--border-color); border-radius: 0.6rem; padding: 0.55rem 0.8rem; font-size: 1.05rem; font-weight: 600; }
+.opt:hover:not(:disabled) { border-color: var(--accent); }
+.opt-picked { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.opt-right { border-color: var(--good); box-shadow: inset 0 0 0 1px var(--good); }
+.opt-wrong { border-color: var(--bad); box-shadow: inset 0 0 0 1px var(--bad); }
+.done-card { display: grid; gap: 0.6rem; justify-items: center; text-align: center; margin: auto 0; }
+.done-mark { font-size: 2.6rem; line-height: 1; }
+.quiz-msg { color: var(--bad); font-weight: 700; margin: 0; min-height: 0; }
+.quiz-msg:empty { display: none; }
+.score-big { display: flex; align-items: baseline; gap: 0.6rem; }
+.score-big strong { font-size: 2.6rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.score-big span { color: var(--text-dim); font-weight: 600; }
+.grade-line { margin: 0; font-size: 1.05rem; }
+.skills { display: grid; gap: 0.3rem; }
+.skill-row { display: grid; grid-template-columns: 9.5rem 1fr 2.6rem; gap: 0.5rem; align-items: center; font-size: 0.95rem; font-weight: 600; }
+.skill-bar { display: block; height: 0.6rem; background: var(--border-subtle); border-radius: 999px; overflow: hidden; }
+.skill-bar span { display: block; height: 100%; background: var(--accent); }
+.skill-val { text-align: right; font-variant-numeric: tabular-nums; }
+.misses { margin: 0.2rem 0 0; padding-left: 1.1rem; font-size: 0.98rem; display: grid; gap: 0.35rem; }
+
+.rec-row { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; align-items: center; font-weight: 700; font-size: 1.1rem; }
+.rec-row label { display: flex; align-items: center; gap: 0.35rem; white-space: nowrap; }
+.rec-row input { font: inherit; width: 5.2rem; padding: 0.25rem 0.45rem; border: 2px solid var(--accent); border-radius: 0.5rem; color: var(--text-main); background: var(--bg-card); font-variant-numeric: tabular-nums; }
+.turn-row { display: flex; align-items: center; gap: 0.4rem; font-size: 0.92rem; color: var(--text-dim); font-weight: 600; }
+.turn-row button { padding: 0.2rem 0.6rem; }
+.paper-list { margin: 0; padding-left: 1.3rem; display: grid; gap: 0.35rem; font-size: 1.02rem; }
+.paper-blank { display: inline-block; min-width: 2.4rem; border-bottom: 2px solid var(--text-main); }
+
+/* ---------- Floating calculator ---------- */
+/* Taller on taller screens, stopping short of the question and its buttons */
+:root { --calc-height: clamp(19rem, calc(100vh - 28rem), 36rem); }   /* 19rem keeps two hints clear of the calculator at 1366 × 650 */
+.calc-panel { position: fixed; right: 1.1rem; bottom: 0.8rem; width: 24rem; max-width: calc(100vw - 1.2rem); height: var(--calc-height); z-index: 90; display: flex; flex-direction: column; background: var(--bg-card); border: 2px solid var(--accent); border-radius: 0.7rem; overflow: hidden; box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28); }
+.calc-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.2rem 0.6rem; background: var(--bg-subcard); cursor: move; touch-action: none; font-size: 0.88rem; }
+.calc-drag { font-size: 0.75rem; font-weight: 600; color: var(--text-dim); }
+.calc-host { flex: 1; min-height: 0; }
+.calc-foot { padding: 0.35rem 0.5rem; background: var(--bg-subcard); border-top: 1px solid var(--border-color); display: grid; gap: 0.25rem; }
+.calc-msg { margin: 0; color: var(--bad); font-size: 0.88rem; font-weight: 700; line-height: 1.2; }
+.calc-missing { padding: 0.8rem; }
+.btn-grab { width: 100%; background: var(--accent-v); color: #fff; border: 0; border-radius: 0.5rem; padding: 0.42rem; font-weight: 800; font-size: 1rem; }
+
+/* ---------- Sign-in gate ---------- */
+.login-gate { position: fixed; inset: 0; z-index: 200; background: var(--bg-page); display: flex; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto; }
+.gate-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 1rem; padding: 1.5rem; width: min(30rem, 100%); text-align: center; display: grid; gap: 0.7rem; }
+.gate-icon { font-size: 2.4rem; line-height: 1; }
+.gate-title { margin: 0; font-size: 1.5rem; font-weight: 800; }
+.gate-sub { margin: 0; color: var(--text-dim); font-weight: 600; }
+.gate-text { margin: 0; }
+.gate-grading { text-align: left; background: var(--bg-subcard); border-radius: 0.6rem; padding: 0.55rem 0.75rem; display: grid; gap: 0.3rem; font-size: 0.95rem; }
+.btn-google { display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem; background: #fff; color: #1f2937; border: 1px solid #94a3b8; border-radius: 0.55rem; padding: 0.55rem 1rem; font-weight: 700; }
+.btn-guest { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); border-radius: 0.55rem; padding: 0.35rem 0.9rem; font-weight: 600; }
+.gate-guest-note { margin: 0.3rem 0 0; font-size: 0.85rem; color: var(--text-dim); }
+.gate-status { margin: 0; font-weight: 600; }
+.gate-status:empty { display: none; }
+.gate-error { margin: 0; color: var(--bad); font-weight: 700; }
+
+/* ---------- Short screens (Chromebooks): keep the question and its buttons above the calculator ---------- */
+/* html.compact and html.short are set by the script at the top of the page from the screen height measured in rem,
+   so Projector mode (bigger rem) gets the same help as a small screen. compact: 75rem tall or less. short: 43.75rem or less. */
+html.compact body.calc-open .task-card { flex-direction: row; flex-wrap: wrap; align-items: center; align-content: flex-start; gap: 0.4rem 0.6rem; padding-top: 0.5rem; }
+html.compact body.calc-open .task-card > * { flex: 0 0 100%; }
+html.compact body.calc-open .task-card > .launch-tag { flex: 0 0 auto; order: -1; }
+html.compact body.calc-open .task-card > .task-top { flex: 1 1 0; order: -1; }
+html.compact body.calc-open .task-card > .ans-row, html.compact body.calc-open .task-card > .task-actions { flex: 0 0 auto; }
+html.compact body.calc-open .task-title { font-size: 1.12rem; line-height: 1.2; }
+html.compact body.calc-open .formula-box { padding: 0.12rem 0.5rem; font-size: 1.05rem; }
+html.compact body.calc-open .ans-row { font-size: 1.05rem; }
+html.compact body.calc-open .hint { padding: 0.15rem 0.5rem; font-size: 0.9rem; line-height: 1.2; }
+html.compact body.calc-open .task-actions .btn-primary, html.compact body.calc-open .task-actions .btn-secondary { padding: 0.35rem 0.8rem; font-size: 0.98rem; }
+/* The answer box, the buttons and the hint link share one row. Feedback goes under them, then the hints. */
+html.compact body.calc-open .task-card > .feedback { order: 1; padding: 0.28rem 0.6rem; font-size: 0.95rem; line-height: 1.25; }
+html.compact body.calc-open .task-card > .hints { display: contents; }
+html.compact body.calc-open .task-card > .hints > .hint { flex: 0 0 100%; order: 2; }
+html.compact body.calc-open .task-card > .hints > .btn-hint { flex: 0 0 auto; }
+/* While feedback is showing, only the newest hint stays open */
+html.compact body.calc-open .task-card > .feedback ~ .hints > .hint:not(:last-of-type) { display: none; }
+
+/* ---------- Very short screens: the "Use calculator answer" button moves into the calculator's title bar ---------- */
+html.short { --calc-height: 18.9rem; }   /* tall enough to show a whole fraction line in the calculator */
+/* The header and tabs give up a little height so the calculator can have it */
+html.short .app-header { padding: 0.15rem 0.75rem 0.25rem; }
+html.short .app-icon { font-size: 1.1rem; line-height: 1; }
+html.short .app-title { font-size: 1rem; }
+html.short .part-strip { margin-top: 0.2rem; }
+html.short .part-tab { padding: 0.08rem 0.5rem 0.14rem; }
+html.short .part-bar { height: 0.22rem; margin-top: 0.08rem; }
+html.short .workbench { padding-top: 0.35rem; padding-bottom: 0.35rem; }
+html.short .calc-head { padding: 0.1rem 0.6rem; }
+html.short body.calc-open .task-card { padding-bottom: calc(var(--calc-height) + 0.1rem); }
+html.short body.calc-open .task-actions .btn-ghost { padding: 0.3rem 0.6rem; font-size: 0.94rem; }
+html.short .calc-panel { display: grid; grid-template: auto minmax(0, 1fr) auto / minmax(0, 1fr) auto; bottom: 0.25rem; }
+html.short .calc-head { grid-area: 1 / 1; }
+html.short .calc-drag { display: none; }
+html.short .calc-foot { display: contents; }
+html.short .calc-foot .btn-grab { grid-area: 1 / 2; width: auto; border-radius: 0; padding: 0.22rem 0.7rem; font-size: 0.92rem; }
+html.short .calc-host { grid-area: 2 / 1 / 3 / 3; }
+html.short .calc-msg { grid-area: 3 / 1 / 4 / 3; padding: 0.3rem 0.55rem; background: var(--bg-subcard); border-top: 1px solid var(--border-color); }
+html.short .opts { gap: 0.3rem; }
+html.short .opt { padding: 0.38rem 0.8rem; }
+
+/* ---------- Narrow screens: picture on top ---------- */
+@media (max-width: 900px) {
+  body { height: auto; display: block; }
+  .workbench { display: flex; flex-direction: column; }
+  .stage { aspect-ratio: 760 / 520; flex: none; }
+  .foot-row { height: auto; min-height: 2.6rem; flex-wrap: wrap; overflow: visible; }
+  .task-card { overflow: visible; }
+  .calc-panel { position: static; width: auto; max-width: none; height: 26rem; margin: 0 0.65rem 0.65rem; }
+  body.calc-open .task-card { padding-bottom: 0.9rem; }
+}
+
+@media print { .calc-panel, .app-header { display: none; } }
+

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Centripetal Force Lab Class Progress</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/unit2-favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Source page. Edit this file, then run: node scripts/inline-studio.js admin/centripetal_force_lab_monitor.src.html -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
+  <style>
+    :root {
+      --bg: #f1f5f9; --card: #ffffff; --line: #cbd5e1; --line-soft: #e2e8f0;
+      --text: #0f172a; --muted: #475569; --bar: #0284c7; --good: #15803d; --warn: #b45309; --bad: #be123c;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #070d19; --card: #0f172a; --line: #334155; --line-soft: #1e293b; --text: #f8fafc; --muted: #cbd5e1; --bar: #38bdf8; --good: #34d399; --warn: #fbbf24; --bad: #fb7185; }
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Outfit, system-ui, sans-serif; line-height: 1.4; }
+    header { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: var(--card); border-bottom: 1px solid var(--line); }
+    h1 { margin: 0; font-size: 1.25rem; font-weight: 800; }
+    h2 { margin: 0 0 0.6rem; font-size: 1rem; font-weight: 800; }
+    .sub { margin: 0; color: var(--muted); font-size: 0.85rem; }
+    main { padding: 1rem; max-width: 92rem; margin: 0 auto; display: grid; gap: 1rem; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 0.8rem; padding: 0.9rem; min-width: 0; }
+    select, button { font: inherit; font-weight: 700; color: var(--text); background: var(--card); border: 1px solid var(--line); border-radius: 0.5rem; padding: 0.3rem 0.6rem; }
+    button { cursor: pointer; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0.75rem; }
+    .tile strong { display: block; font-size: 1.8rem; font-variant-numeric: tabular-nums; }
+    .tile span { font-size: 0.85rem; color: var(--muted); }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr)); gap: 1rem; }
+    .bar-row { display: grid; grid-template-columns: 11rem 1fr 3.5rem; gap: 0.5rem; align-items: center; margin: 0.3rem 0; font-size: 0.9rem; }
+    .bar { height: 0.8rem; background: var(--line-soft); border-radius: 999px; overflow: hidden; }
+    .bar span { display: block; height: 100%; background: var(--bar); border-radius: 0 4px 4px 0; }
+    .val { font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+    .mistake { padding: 0.35rem 0; border-bottom: 1px solid var(--line-soft); font-size: 0.9rem; }
+    .mistake:last-child { border: 0; }
+    .mistake b { margin-right: 0.35rem; font-variant-numeric: tabular-nums; }
+    .mistake small { display: block; color: var(--muted); }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+    th { text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); padding: 0.35rem 0.5rem; border-bottom: 2px solid var(--line); white-space: nowrap; }
+    td { padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--line-soft); white-space: nowrap; }
+    td.name { font-weight: 700; }
+    td.num { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .pill { display: inline-block; min-width: 1.5rem; text-align: center; margin-right: 0.15rem; border: 1px solid var(--line); border-radius: 0.3rem; font-size: 0.72rem; font-weight: 700; color: var(--muted); padding: 0 0.25rem; }
+    .pill.on { border-color: var(--good); color: var(--good); }
+    .weak { color: var(--warn); font-size: 0.82rem; white-space: normal; min-width: 10rem; }
+    .none { color: var(--muted); }
+    td.low { color: var(--warn); }
+    .flag { color: var(--warn); font-size: 0.75rem; }
+    .filters { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .only-flagged { font-weight: 700; font-size: 0.9rem; }
+    .note { margin: 0 0 0.5rem; font-size: 0.85rem; color: var(--muted); }
+    .check { white-space: normal; min-width: 14rem; font-size: 0.82rem; color: var(--bad); font-weight: 600; }
+    .check div { margin: 0.1rem 0; }
+    tr.flagged td.name { color: var(--bad); }
+    .gate { text-align: center; padding: 3rem 1rem; }
+    .demo { background: var(--warn); color: #fff; font-weight: 700; text-align: center; padding: 0.25rem; }
+    .err { color: var(--bad); font-weight: 700; }
+    sub { font-size: 0.72em; }
+  </style>
+</head>
+<body>
+  <div id="demoBanner" class="demo" hidden>Sample data, not real students</div>
+  <header>
+    <div>
+      <h1>🧵 Centripetal Force Lab Class Progress</h1>
+      <p class="sub">Unit 2 · Day 52 · Updates live as students work</p>
+    </div>
+    <div class="filters" id="filters" hidden>
+      <label class="only-flagged"><input type="checkbox" id="onlyFlagged"> Only records to check</label>
+      <label>Class <select id="course"><option value="all">All classes</option><option value="honors">Honors</option><option value="cp">CP</option><option value="conceptual">Conceptual</option></select></label>
+      <label>Period <select id="period"><option value="all">All periods</option></select></label>
+      <a href="sprint_progress_3d.html?assignment=unit2_day52_centripetal_force_lab" style="font:inherit;font-weight:700;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:0.5rem;padding:0.3rem 0.6rem;text-decoration:none;">🏟️ 3D 100m Dash</a>
+      <button id="btnSignOut" type="button">Sign out</button>
+    </div>
+  </header>
+
+  <section id="gate" class="gate">
+    <p id="gateMsg">Checking sign-in…</p>
+    <button id="btnSignIn" type="button" hidden>Sign in with Google</button>
+    <p id="gateErr" class="err"></p>
+  </section>
+
+  <main id="main" hidden>
+    <section class="tiles" id="tiles"></section>
+    <div class="two">
+      <section class="card">
+        <h2>Skills on each student's latest Mastery Check</h2>
+        <div id="skills"></div>
+      </section>
+      <section class="card">
+        <h2>Most common mistakes (reteach these first)</h2>
+        <div id="mistakes"></div>
+      </section>
+    </div>
+    <section class="card">
+      <h2>Students</h2>
+      <p class="note">⚠ means a record is worth a look. It is not proof of cheating, and a careful cheater may not be flagged. A short in-person check settles it.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Student</th><th>Per.</th><th>Class</th><th>Grade /10</th><th title="Questions answered correctly on the first try">First try</th><th title="Trials recorded in the data table">Trials</th><th>Min.</th><th>Parts</th><th>Check record</th><th>Mastery best</th><th>Attempts</th><th>Needs work</th><th>Last active</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="../Unit_2/vector_decomposition_studio/js/engine.js"></script>
+  <script src="../Unit_2/centripetal_force_lab/js/physics.js"></script>
+  <script src="../Unit_2/centripetal_force_lab/js/questions.js"></script>
+  <script src="../Unit_2/centripetal_force_lab/js/concepts.js"></script>
+  <script src="../Unit_2/centripetal_force_lab/js/lesson.js"></script>
+  <script src="../Unit_2/centripetal_force_lab/js/integrity.js"></script>
+  <script>
+    // firestore-audit: teacher-only
+    // Access: Google OAuth through Firebase Auth. This page's check only decides what to draw. The real lock is
+    // firestore.rules: listing student_results/*/students and roster is allowed only for the isAdmin() emails,
+    // so nobody else gets class data even if they edit this page. Keep this list matching isAdmin().
+    const ASSIGNMENT_ID = 'unit2_day52_centripetal_force_lab';
+    const TEACHER_IDS = ['rmudry', 'ryan.mudry', 'ryanmudry'];
+    const TEACHER_EMAILS = ['rmudry@orangeusd.org', 'ryan.mudry@gmail.com', 'ryanmudry@gmail.com'];
+    const PART_PILLS = [['pull', 'Pull'], ['measure', 'Measure'], ['graph', 'Graph'], ['who', 'Who'], ['much', 'Much'], ['quiz', 'MC']];
+    const COURSE = { honors: 'Honors', cp: 'CP', conceptual: 'Conceptual' };
+    const courseForPeriod = p => (String(p) === '0' ? 'honors' : ['1', '2', '3'].includes(String(p)) ? 'conceptual' : 'cp');
+    const SKILLS = window.FL.QUIZ_SKILLS;
+    const MISTAKES = {
+      read_speed: ['Typed the speed where the force goes', 'The force is on the round dial. The speed is in the box under it.'],
+      read_scale: ['Read the force dial 10 times off', 'Numbers on the dial go up by 10 N. Each small mark is 1 N.'],
+      read_close: ['Read the dial a mark or two off', 'Find the last mark the needle passed, then count small marks.'],
+      read_far: ['Dial reading far from the needle', 'Find the two numbers the needle is between first.'],
+      read_speed_box: ['Recorded a speed the trial was not running at', 'Read the Speed box after setting the slider.'],
+      read_timer: ['Misread the 10-lap timer', 'Record the whole timer reading. Dividing by 10 comes later.'],
+      plot_swapped: ['Switched the two numbers when plotting', 'Speed goes along the bottom. Force goes up the side.'],
+      plot_x: ['Plotted at the right height, wrong place sideways', 'Find the bottom-axis value first, then go up.'],
+      plot_y: ['Plotted above the right spot, wrong height', 'Go up until level with the force on the side axis.'],
+      plot_off: ['Plotted far from the point', 'Model one point: along the bottom, then straight up.'],
+      no_square: ['Forgot that speed counts twice', 'Twice the speed needs 4 times the force. Point to Trials 1 and 2 in their own table.'],
+      added_not_squared: ['Added instead of squaring', '3 × 3 = 9, not 3 + 3.'],
+      added: ['Added the factor instead of multiplying', '"Times as big" means multiply.'],
+      gave_force: ['Gave the force when asked how many times as big', 'Divide the bigger force by the smaller one.'],
+      subtracted: ['Subtracted to compare two forces', '"Times as big" asks what you multiply by.'],
+      factor_other: ['Could not find the pattern in the table', 'Compare two rows where one speed is double the other.'],
+      predict_other: ['Could not predict the untested case', 'Start from a row in the table and scale it.'],
+      slope_flip: ['Slope upside down (run ÷ rise)', 'The F numbers go on top.'],
+      slope_rise: ['Gave only the rise for the slope', 'Divide the rise by the run.'],
+      slope_other: ['Slope calculation off', 'Subtract in the same order on top and bottom.'],
+      mass_divide: ['Divided the slope by r to get mass', 'slope = m ÷ r, so multiply the slope by r.'],
+      mass_slope_only: ['Gave the slope as the mass', 'Multiply the slope by the radius.'],
+      mass_other: ['Mass from the graph off', 'Mass = slope × radius.'],
+      times_r: ['Multiplied by r', 'Divide by the radius: F<sub>net</sub> = m × v² ÷ r.'],
+      no_divide: ['Stopped at v²', 'Divide by the radius.'],
+      no_mass: ['Gave a<sub>c</sub> as the force', 'Multiply a<sub>c</sub> by the mass.'],
+      weight: ['Used the weight (m × g) as the force toward the center', 'The center-pointing force depends on speed and radius.'],
+      ten_laps: ['Used the time for all 10 laps', 'One lap takes the timer reading ÷ 10.'],
+      no_two: ['Used πr for one lap', 'One lap is 2πr.'],
+      lap_flip: ['Divided time by distance', 'Speed is distance ÷ time.'],
+      no_root: ['Stopped at v²', 'Take the square root.'],
+      break_flip: ['Swapped r and m in the top-speed problem', 'Multiply by r, divide by m, then the square root.'],
+      force_forward: ['Aimed the net force along the motion', 'That arrow is the velocity. A force that way speeds it up, it does not turn it.'],
+      force_outward: ['Aimed the net force outward', 'Nothing pushes outward. Redo the cut-the-string demo.'],
+      force_backward: ['Aimed the net force backward', 'A backward force only slows it down.'],
+      path_outward: ['Thinks a released object flies straight out', 'No pull means a straight line along the tangent.'],
+      path_center: ['Thinks a released object heads for the center', 'With the string gone, nothing pulls it in.'],
+      path_backward: ['Thinks a released object turns around', 'It keeps going the way it was already moving.'],
+      path_curve: ['Thinks a released object keeps curving', 'No net force means a straight line.'],
+      name_tension: ['Missed tension as the force toward the center', 'Rope or wire: cut it and the object leaves.'],
+      name_friction: ['Missed friction as the force toward the center', 'Car or penny: take away the grip and it slides straight.'],
+      name_gravity: ['Missed gravity as the force toward the center', 'Moon or satellite: nothing touches it, so it must be gravity.'],
+      name_normal: ['Missed the normal force as the force toward the center', 'A wall pushes the rider toward the center.'],
+      axis_v: ['Kept plain v on the bottom axis', 'The points curve. Try the axis that makes them a line.'],
+      axis_rootv: ['Chose √v to straighten the graph', 'The curve bends upward, so the bottom axis has to grow faster: v².'],
+      axis_inv: ['Chose 1 ÷ v to straighten the graph', 'Force rises with speed, so 1 ÷ v goes the wrong way.']
+    };
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
+    let roster = new Map(), docs = [], unsubscribe = null;
+
+    function render() {
+      const period = $('period').value, course = $('course').value;
+      const merged = new Map();
+      roster.forEach((r, id) => merged.set(id, { id, name: r.name, period: r.period, started: false }));
+      docs.forEach(d => {
+        const r = roster.get(d.id);
+        merged.set(d.id, Object.assign({}, d, {
+          started: true,
+          name: (r && r.name) || d.student_name || d.id,
+          period: d.class_period !== null && d.class_period !== undefined ? String(d.class_period) : (r ? r.period : '?')
+        }));
+      });
+      const all = [...merged.values()].filter(s => !TEACHER_IDS.includes(s.id));
+      all.forEach(s => { s.course = s.track || courseForPeriod(s.period); });
+      const periods = [...new Set(all.map(s => s.period))].filter(p => p !== '' && p !== undefined).sort((a, b) => Number(a) - Number(b));
+      $('period').innerHTML = '<option value="all">All periods</option>' + periods.map(p => `<option value="${esc(p)}">Period ${esc(p)}</option>`).join('');
+      $('period').value = periods.includes(period) ? period : 'all';
+      // Sample rows without saved work stay unflagged so the demo shows only the example problem record
+      const isDemo = !$('demoBanner').hidden;
+      all.forEach(s => { s.flags = s.started && (!isDemo || s.studioState) ? Integrity.check(s) : []; });
+      const inView = all.filter(s => ($('period').value === 'all' || s.period === $('period').value) && (course === 'all' || s.course === course));
+      const list = inView
+        .filter(s => !$('onlyFlagged').checked || s.flags.length)
+        .sort((a, b) => Number(a.period) - Number(b.period) || String(a.name).localeCompare(String(b.name)));
+
+      const started = inView.filter(s => s.started);
+      const tookQuiz = started.filter(s => (s.quiz_history || []).length);
+      const avgOf = a => (a.length ? (a.reduce((t, x) => t + x, 0) / a.length) : null);
+      const avgGrade = avgOf(started.map(s => s.score || 0));
+      const avgFirst = avgOf(started.filter(s => typeof s.first_try === 'number').map(s => s.first_try));
+      const avgBest = avgOf(tookQuiz.map(s => s.quiz_best || 0));
+      $('tiles').innerHTML = [
+        [`${started.length}/${inView.length}`, 'students started'],
+        [avgGrade === null ? '—' : avgGrade.toFixed(1), 'average grade so far (of 10)'],
+        [avgFirst === null ? '—' : `${Math.round(avgFirst)}%`, 'right on the first try'],
+        [String(tookQuiz.length), 'took the Mastery Check'],
+        [avgBest === null ? '—' : `${Math.round(avgBest)}%`, 'average best Mastery score'],
+        [String(inView.filter(s => s.flags.length).length), 'records to check']
+      ].map(([n, l]) => `<div class="card tile"><strong>${n}</strong><span>${l}</span></div>`).join('');
+
+      const totals = {};
+      tookQuiz.forEach(s => Object.entries(s.quiz_skills || {}).forEach(([k, v]) => {
+        totals[k] = totals[k] || { right: 0, total: 0 };
+        totals[k].right += v.right; totals[k].total += v.total;
+      }));
+      const skillKeys = Object.keys(SKILLS).filter(k => totals[k]);
+      $('skills').innerHTML = skillKeys.length ? skillKeys.map(k => {
+        const p = Math.round(100 * totals[k].right / totals[k].total);
+        return `<div class="bar-row" title="${totals[k].right} of ${totals[k].total} correct"><span>${SKILLS[k]}</span><span class="bar"><span style="width:${p}%"></span></span><span class="val">${p}%</span></div>`;
+      }).join('') : '<p class="none">No Mastery Checks yet.</p>';
+
+      const counts = {};
+      started.forEach(s => Object.entries(s.mistakes || {}).forEach(([k, v]) => { if (MISTAKES[k]) counts[k] = (counts[k] || 0) + v; }));
+      const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+      $('mistakes').innerHTML = top.length
+        ? top.map(([k, v]) => `<div class="mistake"><b>${v}×</b>${MISTAKES[k][0]}<small>${MISTAKES[k][1]}</small></div>`).join('')
+        : '<p class="none">No mistakes recorded yet.</p>';
+
+      $('rows').innerHTML = list.map(s => {
+        const hist = s.quiz_history || [];
+        const pills = PART_PILLS.map(([k, label]) => {
+          const pct = (s.parts_progress || {})[k];
+          const partial = pct > 0 && pct < 100;
+          return `<span class="pill ${(s.parts_done || []).includes(k) ? 'on' : ''}">${label}${partial ? ` ${pct}%` : ''}</span>`;
+        }).join('');
+        const weak = Object.entries(s.quiz_skills || {}).filter(([, v]) => v.right < v.total).map(([k]) => SKILLS[k]).filter(Boolean).join(', ');
+        const when = s.timestamp && s.timestamp.toDate ? s.timestamp.toDate().toLocaleString([], { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+        return `<tr class="${s.flags.length ? 'flagged' : ''}"><td class="name">${esc(s.name)}${s.certificate_code ? ` <span title="Certificate ${esc(s.certificate_code)}">🎓</span>` : ''}${s.calc_unavailable ? ' <span class="flag" title="Desmos did not load for this student, so they could type answers">⚠ typed</span>' : ''}</td><td>${esc(s.period)}</td><td>${COURSE[s.course] || ''}</td><td class="num">${s.started ? Number(s.score || 0).toFixed(1) : '<span class="none">—</span>'}</td>
+          <td class="num ${typeof s.first_try === 'number' && s.first_try < 60 ? 'low' : ''}" title="${s.questions || 0} questions answered">${typeof s.first_try === 'number' ? `${s.first_try}%` : ''}</td><td class="num">${s.started ? (s.trials || 0) : ''}</td><td class="num">${s.minutes || ''}</td>
+          <td>${s.started ? pills : '<span class="none">Not started</span>'}</td>
+          <td class="check">${s.flags.map(f => `<div>⚠ ${esc(f)}</div>`).join('')}</td>
+          <td class="num">${hist.length ? `${s.quiz_best}%` : '<span class="none">—</span>'}</td>
+          <td class="num">${hist.length ? hist.map(p => `${p}%`).join(' → ') : ''}</td>
+          <td class="weak">${weak}</td><td>${esc(when)}</td></tr>`;
+      }).join('');
+    }
+
+    function showGate(msg, err) {
+      if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+      roster = new Map(); docs = [];
+      $('main').hidden = true;
+      $('filters').hidden = true;
+      $('rows').innerHTML = '';
+      $('gate').hidden = false;
+      $('gateMsg').textContent = msg;
+      $('gateErr').textContent = err || '';
+      $('btnSignIn').hidden = false;
+    }
+
+    function start() {
+      $('gate').hidden = true;
+      $('main').hidden = false;
+      $('filters').hidden = false;
+      const db = firebase.firestore();
+      db.collection('roster').get().then(snap => {
+        snap.forEach(doc => {
+          const d = doc.data();
+          roster.set(doc.id, {
+            name: d.name || d.full_name || `${d.first_name || ''} ${d.last_name || ''}`.trim() || doc.id,
+            period: String(d.class_period ?? d.period ?? '')
+          });
+        });
+        render();
+      }).catch(e => console.warn('Roster not loaded:', e));
+      unsubscribe = db.collection('student_results').doc(ASSIGNMENT_ID).collection('students').onSnapshot(snap => {
+        docs = snap.docs.map(d => Object.assign({ id: d.id }, d.data()));
+        render();
+      }, e => { $('tiles').innerHTML = `<p class="err">Could not load results: ${esc(e.message)}</p>`; });
+    }
+
+    // Sample data for working on this page. Local dev only, so the deployed page shows nothing without sign-in.
+    function demo() {
+      $('demoBanner').hidden = false;
+      $('gate').hidden = true;
+      $('main').hidden = false;
+      $('filters').hidden = false;
+      roster = new Map([['s9', { name: 'Sample Student I', period: '1' }]]);
+      const sk = (d, n, p, t, g) => ({ direction: { right: d, total: 1 }, name: { right: n, total: 1 }, path: { right: p, total: 1 }, table: { right: t, total: 1 }, graph: { right: g, total: 2 } });
+      const all = ['pull', 'measure', 'graph', 'who', 'much', 'quiz'];
+      const parts = done => Object.fromEntries(['pull', 'measure', 'graph', 'who', 'much'].map(p => [p, { i: 0, far: 9, done }]));
+      docs = [
+        { id: 's1', student_name: 'Sample Student A', class_period: 1, track: 'conceptual', score: 8.7, first_try: 58, questions: 41, trials: 5, minutes: 44, parts_done: all, quiz_best: 67, quiz_history: [50, 67], quiz_skills: sk(1, 1, 0, 1, 1), mistakes: { no_square: 4, path_outward: 2, read_close: 3 } },
+        { id: 's2', student_name: 'Sample Student B', class_period: 2, track: 'conceptual', score: 1.9, first_try: 71, questions: 7, trials: 2, minutes: 12, parts_done: ['pull'], parts_progress: { pull: 100, measure: 40 }, quiz_history: [], mistakes: { force_outward: 2, read_scale: 1 } },
+        { id: 's3', student_name: 'Sample Student C', class_period: 4, track: 'cp', score: 10, first_try: 88, questions: 36, trials: 5, minutes: 39, parts_done: all, quiz_best: 100, quiz_history: [83, 100], quiz_skills: sk(1, 1, 1, 1, 2), mistakes: { slope_flip: 2, plot_swapped: 1 }, certificate_code: 'SAMPLE' },
+        { id: 's5', student_name: 'Sample Student E', class_period: 5, track: 'cp', score: 10, first_try: 100, questions: 6, trials: 1, minutes: 3, parts_done: all, quiz_best: 100, quiz_history: [100], quiz_skills: sk(1, 1, 1, 1, 2),
+          studioState: { v: 1, parts: parts(true), pg: {}, table: [{ set: 2, v: 2, F: 3 }], graph: {}, quiz: { best: 100, attempts: [{ pct: 100, correct: 6, total: 6, at: 1 }], last: null } } },
+        { id: 's4', student_name: 'Sample Student D', class_period: 0, track: 'honors', score: 9.2, first_try: 79, questions: 44, trials: 6, minutes: 51, parts_done: all, quiz_best: 83, quiz_history: [83], quiz_skills: sk(1, 1, 1, 1, 1), mistakes: { axis_rootv: 1, ten_laps: 2, mass_divide: 1 } }
+      ];
+      render();
+    }
+
+    $('period').addEventListener('change', render);
+    $('course').addEventListener('change', render);
+    $('onlyFlagged').addEventListener('change', render);
+    const isLocal = ['localhost', '127.0.0.1'].includes(location.hostname);
+    if (isLocal && new URLSearchParams(location.search).has('demo')) demo();
+    else {
+      $('btnSignIn').addEventListener('click', () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        firebase.auth().signInWithPopup(provider).catch(e => {
+          if (e.code === 'auth/popup-blocked') firebase.auth().signInWithRedirect(provider);
+          else if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') $('gateErr').textContent = e.message;
+        });
+      });
+      $('btnSignOut').addEventListener('click', () => firebase.auth().signOut());
+      firebase.auth().getRedirectResult().catch(e => { $('gateErr').textContent = e.message; });
+      firebase.auth().onAuthStateChanged(user => {
+        const email = user && (user.email || '').toLowerCase();
+        if (user && TEACHER_EMAILS.includes(email)) start();
+        else if (user) {
+          firebase.auth().signOut();
+          showGate('Teacher sign-in required.', 'This page is for the teacher only.');
+        } else if (!$('gateErr').textContent) showGate('Teacher sign-in required.');
+      });
+    }
+  </script>
+</body>
+</html>
