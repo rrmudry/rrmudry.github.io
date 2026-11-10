@@ -72,6 +72,20 @@
     return { text: 'Pick a motor level you have not tried yet.', ok: fresh, why: 'That level is already in your table. Pick a new one.' };
   }
 
+  // Simulated trial table for teacher/preview inspection of Part 3 (Graph It) without manually running all trials
+  const SAMPLE_SETS = { conceptual: [2, 4, 6, 3, 5], cp: [2, 6, 3, 4, 5], honors: [1, 8, 2, 4, 5, 6] };
+  function sampleTable(tier, rig) {
+    return (SAMPLE_SETS[tier] || SAMPLE_SETS.cp).map(set => {
+      const vTrue = speedOf(tier, rig, set);
+      const t = tenLaps(rig, vTrue);
+      const v = tier === 'honors' ? round((10 * 2 * Math.PI * rig.r) / t, 2) : vTrue;
+      const F = Math.round(force(rig.m, vTrue, rig.r) * 2) / 2;
+      if (tier === 'conceptual') return { set, v, F };
+      if (tier === 'cp') return { set, v, F, a: round((v * v) / rig.r, 1) };
+      return { set, t10: t, v, F };
+    });
+  }
+
   // The dial reading the student typed, against the simulation. Never says the value or which way to go.
   function checkReading(raw, F, v) {
     const x = parseNum(raw);
@@ -172,5 +186,5 @@
     return { ok: false, mistake: hit ? hit[0] : 'other', msg: (hit ? hit[1] : 'Not quite.') + worked };
   }
 
-  window.FLcore = { pick, shuffle, round, fmt, near, parseNum, force, DIAL, TEST_SPEED, SPEEDS, LEVELS, TRIALS, RIGS, newRig, levelSpeed, tenLaps, speedOf, speedRule, checkReading, BOX, AXES, Y_AXIS, graphSpec, toPx, fromPx, rowXY, PLOT_TOL, checkPlot, farApart, straightness, workProblem, stack, grade };
+  window.FLcore = { pick, shuffle, round, fmt, near, parseNum, force, DIAL, TEST_SPEED, SPEEDS, LEVELS, TRIALS, RIGS, newRig, levelSpeed, tenLaps, speedOf, speedRule, sampleTable, checkReading, BOX, AXES, Y_AXIS, graphSpec, toPx, fromPx, rowXY, PLOT_TOL, checkPlot, farApart, straightness, workProblem, stack, grade };
 })();

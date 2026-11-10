@@ -59,6 +59,11 @@ describe('collecting data', () => {
 
   test('a full table can always be collected', () => {
     TIERS.forEach(tier => expect(fullTable(tier, { m: 0.25, r: 0.5, base: 1.8 })).toHaveLength(FL.TRIALS[tier]));
+    TIERS.forEach(tier => {
+      const st = FL.sampleTable(tier, { m: 0.25, r: 0.5, base: 1.8 });
+      expect(st).toHaveLength(FL.TRIALS[tier]);
+      st.forEach((row, idx) => expect(FL.speedRule(tier, idx + 1, st.slice(0, idx)).ok(row.set)).toBe(true));
+    });
   });
 
   test('a dial reading has to match the dial, and a miss never gives the value away', () => {

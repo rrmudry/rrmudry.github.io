@@ -3,6 +3,15 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-10 — Centripetal Force Lab: Teacher & Preview Simulated Data + Step Jumper
+**Patterns Updated**: `centripetal-force-lab.md`.
+**Files Updated**: `Unit_2/centripetal_force_lab/src.html`, `Unit_2/centripetal_force_lab/js/physics.js`, `Unit_2/centripetal_force_lab/js/app-core.js`, `Unit_2/centripetal_force_lab/js/app-shell.js`, `Unit_2/centripetal_force_lab/js/app.js`, `Unit_2/centripetal_force_lab/css/style.css`, `Unit_2/centripetal_force_lab/index.html`, `tests/centripetalForceLab.test.js`.
+
+**Changes**:
+- Added `FL.sampleTable(tier, rig)` in `physics.js` and `A.fillSampleData(opts)` in `app-core.js` so teacher and preview sessions (`prof.teacher || prof.preview`) can populate realistic simulated trial data across all three tiers (`conceptual`, `cp`, `honors`) without manually running all 5–6 trials.
+- Added a `🧪 Simulated Data` button in the header and a step-jump dropdown (`#stepJump`) in the task card header for teacher/preview mode, plus automatic population of `A.state.table` when clicking directly into `Graph It` with an empty table.
+- Clicking `🧪 Simulated Data` fills the table, marks all trial points as plotted on the graph, and jumps directly to the first analysis step after plotting (`Straighten the curve` in Honors, `Find the slope` in CP, `Twice as fast` in Conceptual).
+
 ## 2026-11-09 — Centripetal Force Lab (Day 52)
 **Patterns Added**: `centripetal-force-lab.md`. **Patterns Updated**: `student-app-standards.md` (reference apps).
 **Files Added**: `Unit_2/centripetal_force_lab/` (src.html, js/, css/, built index.html), `admin/centripetal_force_lab_monitor.src.html` + built page, `tests/centripetalForceLab.test.js`. **Updated**: `admin/index.html` (monitor card), `admin/sprint_progress_3d.html` (new activity in the list), `Unit_2/outline.md` (Day 52).

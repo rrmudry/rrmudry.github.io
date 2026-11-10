@@ -111,6 +111,25 @@
       $('viewWrap').hidden = false;
       $('viewSelect').value = prof.previewView || 'teacher';
       $('viewSelect').addEventListener('change', e => { location.search = e.target.value === 'teacher' ? '' : `?preview&view=${e.target.value}`; });
+      const btnSample = $('btnSampleData');
+      if (btnSample) {
+        btnSample.hidden = false;
+        btnSample.addEventListener('click', () => {
+          A.fillSampleData({ force: true, plotAll: true, linearize: false });
+          A.state.parts.measure.done = true;
+          A.state.parts.measure.far = FL.TRIALS[A.tier];
+          if (A.state.current !== 'graph') A.state.current = 'graph';
+          A.state.parts.graph.i = FL.TRIALS[A.tier];
+          A.state.parts.graph.far = Math.max(A.state.parts.graph.far || 0, FL.TRIALS[A.tier]);
+          if (A.tier === 'honors') {
+            delete A.d('g_straight').ok;
+            delete A.state.graph.xKey;
+          }
+          A.enter();
+          A.save();
+          A.render();
+        });
+      }
     }
     if (prof.teacher) $('btnMonitor').hidden = false;
     A.enter();

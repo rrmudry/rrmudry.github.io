@@ -51,6 +51,7 @@ Periods 1–6 never see a class label. The first hint is already open for Period
 `node scripts/inline-studio.js Unit_2/centripetal_force_lab` turns `src.html` into `index.html` with every local script and stylesheet inlined. The monitor builds with `node scripts/inline-studio.js admin/centripetal_force_lab_monitor.src.html`. Rebuild after every edit to `js/` or `css/`.
 
 Preview without saving: `index.html?preview&view=conceptual` (or `cp`, `honors`).
+- **Teacher / Preview Simulated Data (`🧪 Simulated Data` & Step Jumper):** In teacher or preview mode (`prof.teacher || prof.preview`), a `🧪 Simulated Data` button appears in the header alongside `View as`, and a step-jump dropdown (`#stepJump`) appears in the task card header. Clicking `Graph It` or `🧪 Simulated Data` automatically populates a realistic sample trial table (`FL.sampleTable(tier, rig)`) and plotted points so the teacher can inspect any step of `Graph It` (such as Period 0's `Straighten the curve` linearization, slope calculation, mass from slope, or breaking speed) without manually running all 5–6 trials first.
 
 ## Teacher-only monitor
 Same lock as the other monitors: `firestore.rules` lets only `isAdmin()` list `student_results/*/students` and `roster`. It shows each student's grade, first-try accuracy, trials recorded, minutes, parts done and Mastery Check attempts, and is linked from `admin/index.html` and the 3D Sprint Progress page. `?demo` sample data runs only on localhost. No rules change was needed.

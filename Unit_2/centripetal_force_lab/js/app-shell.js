@@ -103,6 +103,25 @@
     A.on('btnHint', () => { A.ui.hints++; A.renderTask(); });
     A.on('btnRead', A.readAloud);
     A.on('btnReview', () => { A.part().i = 0; A.enter(); A.save(); A.render(); });
+    const jump = $('stepJump');
+    if (jump) {
+      jump.addEventListener('change', e => {
+        const idx = Number(e.target.value);
+        if (A.state.current === 'graph') {
+          const nTrials = FL.TRIALS[A.tier];
+          if (!A.state.table || A.state.table.length < nTrials) A.fillSampleData();
+          if (idx >= nTrials) {
+            const pg = A.pages()[idx];
+            const needLin = A.tier === 'honors' && pg && pg.id !== 'g_straight';
+            A.fillSampleData({ plotAll: true, linearize: needLin });
+          } else {
+            for (let n = 1; n <= idx; n++) A.d(`pl${n}`).ok = true;
+            A.state.graph.n = Math.max(A.state.graph.n || 0, idx);
+          }
+        }
+        A.goTo(idx);
+      });
+    }
     document.querySelectorAll('#taskCard [data-part]').forEach(b => b.addEventListener('click', () => A.openPart(b.dataset.part)));
     const input = $('answer');
     if (input && !input.readOnly) {

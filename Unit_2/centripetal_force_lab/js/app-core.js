@@ -84,6 +84,39 @@
     return idx === 0 || !!(A.state.parts[list[idx - 1].id] && A.state.parts[list[idx - 1].id].done);
   };
 
+  // Teacher / preview helper: populate simulated trial data (and optionally mark points plotted) so Graph It can be inspected immediately
+  A.fillSampleData = (opts = {}) => {
+    if (!unlockedAll()) return;
+    const st = A.state, tier = A.tier, rig = st.rig || (st.rig = FL.newRig(tier));
+    const nTrials = FL.TRIALS[tier];
+    if (!st.table || st.table.length < nTrials || opts.force) {
+      st.table = FL.sampleTable(tier, rig);
+    }
+    for (let n = 1; n <= nTrials; n++) {
+      const row = st.table[n - 1], td = A.d(`t${n}`);
+      td.set = row.set; td.step = 'done'; td.q = { ok: true, val: tier === 'honors' ? row.v : row.a };
+    }
+    if (opts.plotAll) {
+      for (let n = 1; n <= nTrials; n++) A.d(`pl${n}`).ok = true;
+      st.graph.n = nTrials;
+      if (tier === 'honors' && opts.linearize) {
+        A.d('g_straight').ok = true;
+        st.graph.xKey = 'v2';
+      }
+      const key = tier === 'cp' ? 'a' : (tier === 'honors' ? 'v2' : 'v');
+      if (tier !== 'conceptual' && !st.graph.slope) {
+        const pts = st.table.map(r => FL.rowXY(r, key));
+        const p = pts[0], q = pts[1];
+        st.graph.pts = [0, 1];
+        st.graph.slope = FL.round((q.y - p.y) / (q.x - p.x), 3);
+        if (tier === 'honors' && !st.graph.mass) st.graph.mass = FL.round(st.graph.slope * rig.r, 3);
+      }
+      if (tier === 'conceptual' && !st.predF) st.predF = st.table[1].F * 4;
+      if (tier === 'cp' && !st.predF) st.predF = FL.force(rig.m, FL.TEST_SPEED, rig.r);
+      if (tier === 'honors' && !st.predV) st.predV = FL.round(Math.sqrt((FL.DIAL.limit * rig.r) / rig.m), 2);
+    }
+  };
+
   A.fresh = () => {
     A.ui = { fb: null, draft: '', work: null, hints: A.tier === 'conceptual' ? 1 : 0 };   // first hint open; never labeled
     if (A.resetSim) A.resetSim();
@@ -115,12 +148,19 @@
   A.openPart = id => {
     if (!id || !A.isUnlocked(id)) return;
     A.state.current = id;
+    if (id === 'graph' && unlockedAll() && (!A.state.table || A.state.table.length < FL.TRIALS[A.tier])) {
+      A.fillSampleData();
+    }
     A.enter(); A.save(); A.render();
   };
 
   // ---------- The task card ----------
   const READ = '<button type="button" class="btn-read" id="btnRead" title="Read this page out loud">🔊 Read to me</button>';
-  A.top = label => `<div class="task-top"><span class="task-count">${label}</span>${READ}</div>`;
+  A.top = label => {
+    const canJump = unlockedAll() && A.state.current !== 'quiz' && A.pages().length > 1;
+    const stepSelect = canJump ? `<select id="stepJump" class="step-jump" aria-label="Teacher: jump to step">${A.pages().map((pg, idx) => `<option value="${idx}" ${idx === A.part().i ? 'selected' : ''}>Step ${idx + 1}: ${esc(pg.title)}</option>`).join('')}</select>` : '';
+    return `<div class="task-top"><span class="task-count">${label}</span><div class="task-top-tools">${stepSelect}${READ}</div></div>`;
+  };
   A.header = () => A.top(`${A.partName(A.state.current)} · Step ${A.part().i + 1} of ${A.pages().length}`);
   A.backBtn = () => (A.canBack() ? '<button type="button" class="btn-secondary" id="btnBack">◀ Back</button>' : '');
   A.nextBtn = (label = 'Next ▶') => `<button type="button" class="btn-primary" id="btnNext">${label}</button>`;
