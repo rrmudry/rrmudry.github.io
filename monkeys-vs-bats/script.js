@@ -117,12 +117,34 @@ document.addEventListener('DOMContentLoaded', () => {
         </svg>
     `;
 
+    const BEAR_MARKER_SVG = `
+        <svg class="marker-svg bear-marker" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <radialGradient id="bPawGrad" cx="50%" cy="40%" r="55%">
+                    <stop offset="0%" stop-color="#ffffff"/>
+                    <stop offset="60%" stop-color="#7dd3fc"/>
+                    <stop offset="100%" stop-color="#0284c7"/>
+                </radialGradient>
+            </defs>
+            <!-- Big Polar Bear Paw Pad -->
+            <ellipse cx="32" cy="38" rx="16" ry="13" fill="url(#bPawGrad)"/>
+            <!-- 4 Toe Pads -->
+            <ellipse cx="16" cy="22" rx="4.8" ry="6.2" transform="rotate(-20 16 22)" fill="url(#bPawGrad)"/>
+            <ellipse cx="27" cy="16" rx="4.8" ry="6.8" transform="rotate(-6 27 16)" fill="url(#bPawGrad)"/>
+            <ellipse cx="37" cy="16" rx="4.8" ry="6.8" transform="rotate(6 37 16)" fill="url(#bPawGrad)"/>
+            <ellipse cx="48" cy="22" rx="4.8" ry="6.2" transform="rotate(20 48 22)" fill="url(#bPawGrad)"/>
+            <!-- Frost Snowflake Core Accent -->
+            <path d="M32 30 L32 46 M24 38 L40 38 M26 32 L38 44 M26 44 L38 32" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="32" cy="38" r="2.8" fill="#38bdf8"/>
+        </svg>
+    `;
+
     // --- State Variables ---
-    let boardState = Array(9).fill(null); // 'MONKEY', 'BAT', 'FROG', or null
-    let currentPlayer = 'MONKEY';          // 'MONKEY', 'BAT', or 'FROG'
-    let gameMode = 'ai';                  // 'ai', '2p', or '3p'
+    let boardState = Array(9).fill(null); // 'MONKEY', 'BAT', 'FROG', 'BEAR', or null
+    let currentPlayer = 'MONKEY';          // 'MONKEY', 'BAT', 'FROG', or 'BEAR'
+    let gameMode = 'ai';                  // 'ai', '2p', '3p', or '4p'
     let aiDifficulty = 'medium';          // 'easy', 'medium', 'hard'
-    let humanSide = 'MONKEY';             // In AI mode: 'MONKEY', 'BAT', or 'FROG'
+    let humanSide = 'MONKEY';             // In AI mode: 'MONKEY', 'BAT', 'FROG', or 'BEAR'
     let isGameOver = false;
     let isAiThinking = false;
     let focusedCellIndex = 0;
@@ -131,6 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
         MONKEY: 0,
         BAT: 0,
         FROG: 0,
+        BEAR: 0,
         STREAK: 0
     };
 
@@ -144,18 +167,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const monkeyScoreEl = document.getElementById('monkeyScore');
     const batScoreEl = document.getElementById('batScore');
     const frogScoreEl = document.getElementById('frogScore');
+    const bearScoreEl = document.getElementById('bearScore');
     const teamMonkeyCard = document.getElementById('teamMonkeyCard');
     const teamBatCard = document.getElementById('teamBatCard');
     const teamFrogCard = document.getElementById('teamFrogCard');
+    const teamBearCard = document.getElementById('teamBearCard');
     const modeAiBtn = document.getElementById('modeAiBtn');
     const mode2pBtn = document.getElementById('mode2pBtn');
     const mode3pBtn = document.getElementById('mode3pBtn');
+    const mode4pBtn = document.getElementById('mode4pBtn');
     const difficultyGroup = document.getElementById('aiDifficultyGroup');
     const difficultySelect = document.getElementById('difficultySelect');
     const playerChoiceContainer = document.getElementById('playerChoiceContainer');
     const chooseMonkeyBtn = document.getElementById('chooseMonkeyBtn');
     const chooseBatBtn = document.getElementById('chooseBatBtn');
     const chooseFrogBtn = document.getElementById('chooseFrogBtn');
+    const chooseBearBtn = document.getElementById('chooseBearBtn');
     const muteBtn = document.getElementById('muteBtn');
     const soundIcon = document.getElementById('soundIcon');
     const restartBtn = document.getElementById('restartBtn');
@@ -277,6 +304,54 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Polar Bear Move: Deep arctic growl / rumble with frosty ice crackle!
+    function playBearSound() {
+        if (isMuted) return;
+        try {
+            const ctx = getAudioContext();
+            const now = ctx.currentTime;
+
+            // Deep low-frequency sub-bass rumble
+            const osc = ctx.createOscillator();
+            const filter = ctx.createBiquadFilter();
+            const gain = ctx.createGain();
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(80, now);
+            osc.frequency.exponentialRampToValueAtTime(45, now + 0.24);
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(320, now);
+            filter.frequency.exponentialRampToValueAtTime(140, now + 0.24);
+            filter.Q.value = 5;
+
+            gain.gain.setValueAtTime(0.38, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.26);
+
+            // Shimmering high ice crystal chime
+            const iceOsc = ctx.createOscillator();
+            const iceGain = ctx.createGain();
+            iceOsc.type = 'sine';
+            iceOsc.frequency.setValueAtTime(1046.50, now); // C6
+            iceOsc.frequency.exponentialRampToValueAtTime(1318.51, now + 0.08); // E6
+            iceGain.gain.setValueAtTime(0.12, now);
+            iceGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+            iceOsc.connect(iceGain);
+            iceGain.connect(ctx.destination);
+            iceOsc.start(now);
+            iceOsc.stop(now + 0.13);
+        } catch (e) {
+            console.warn('Audio play error:', e);
+        }
+    }
+
     // Victory Fanfare
     function playVictorySound(winner) {
         if (isMuted) return;
@@ -293,6 +368,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (winner === 'FROG') {
                 notes = [220.00, 277.18, 329.63, 440.00, 554.37]; // Frog (A major bouncy)
                 waveType = 'sawtooth';
+            } else if (winner === 'BEAR') {
+                notes = [130.81, 261.63, 329.63, 392.00, 523.25, 659.25]; // Bear (C major majestic sub-bass glacier fanfare)
+                waveType = 'triangle';
             }
 
             notes.forEach((freq, index) => {
@@ -400,6 +478,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (winner === 'FROG') {
             emojis = ['🐸', '🪷', '💧', '🍃', '✨'];
             colors = ['#22c55e', '#14b8a6', '#4ade80', '#38bdf8', '#86efac'];
+        } else if (winner === 'BEAR') {
+            emojis = ['🐻‍❄️', '❄️', '🧊', '🐟', '🐾', '✨'];
+            colors = ['#38bdf8', '#0284c7', '#e0f2fe', '#bae6fd', '#ffffff'];
         }
 
         for (let i = 0; i < count; i++) {
@@ -483,8 +564,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Active Animals in Match ---
     function getActiveAnimals() {
+        if (gameMode === '4p') return ['MONKEY', 'BAT', 'FROG', 'BEAR'];
         if (gameMode === '3p') return ['MONKEY', 'BAT', 'FROG'];
-        // In 2-animal modes (ai or 2p), if human is Frog, rival is Bat (or Monkey); otherwise Monkey vs Bat
+        // In 2-animal modes (ai or 2p), if human is Bear, rival is Monkey; if Frog, rival is Bat; etc.
+        if (humanSide === 'BEAR') return ['BEAR', 'MONKEY'];
         if (humanSide === 'FROG') return ['FROG', 'BAT'];
         if (humanSide === 'BAT') return ['BAT', 'MONKEY'];
         return ['MONKEY', 'BAT'];
@@ -496,17 +579,20 @@ document.addEventListener('DOMContentLoaded', () => {
             teamMonkeyCard.classList.remove('active-turn');
             teamBatCard.classList.remove('active-turn');
             teamFrogCard.classList.remove('active-turn');
+            teamBearCard.classList.remove('active-turn');
             return;
         }
 
         teamMonkeyCard.classList.toggle('active-turn', currentPlayer === 'MONKEY');
         teamBatCard.classList.toggle('active-turn', currentPlayer === 'BAT');
         teamFrogCard.classList.toggle('active-turn', currentPlayer === 'FROG');
+        teamBearCard.classList.toggle('active-turn', currentPlayer === 'BEAR');
 
         const animalLabels = {
             MONKEY: "Monkey 🐵",
             BAT: "Bat 🦇",
-            FROG: "Frog 🐸"
+            FROG: "Frog 🐸",
+            BEAR: "Polar Bear 🐻‍❄️"
         };
 
         if (gameMode === 'ai') {
@@ -516,8 +602,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 statusMsgEl.textContent = `AI Thinking… (${animalLabels[currentPlayer]})`;
             }
-        } else if (gameMode === '3p') {
-            statusMsgEl.textContent = `${animalLabels[currentPlayer]}'s Turn!`;
         } else {
             statusMsgEl.textContent = `${animalLabels[currentPlayer]}'s Turn!`;
         }
@@ -527,12 +611,14 @@ document.addEventListener('DOMContentLoaded', () => {
         monkeyScoreEl.textContent = scores.MONKEY;
         batScoreEl.textContent = scores.BAT;
         frogScoreEl.textContent = scores.FROG;
+        bearScoreEl.textContent = scores.BEAR;
 
-        // In 2-player/1v1 modes, hide the inactive team card to keep board clean; in 3p show all 3
+        // In 2-player/1v1 modes, hide the inactive team card to keep board clean; in 3p show 3, in 4p show all 4
         const activeAnimals = getActiveAnimals();
         teamMonkeyCard.style.display = activeAnimals.includes('MONKEY') ? 'flex' : 'none';
         teamBatCard.style.display = activeAnimals.includes('BAT') ? 'flex' : 'none';
         teamFrogCard.style.display = activeAnimals.includes('FROG') ? 'flex' : 'none';
+        teamBearCard.style.display = activeAnimals.includes('BEAR') ? 'flex' : 'none';
 
         if (gameMode === 'ai') {
             streakDisplayEl.style.display = 'block';
@@ -593,7 +679,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const cellEl = cells[index];
         const val = boardState[index];
 
-        cellEl.classList.remove('filled', 'monkey-cell', 'bat-cell', 'frog-cell', 'win-cell');
+        cellEl.classList.remove('filled', 'monkey-cell', 'bat-cell', 'frog-cell', 'bear-cell', 'win-cell');
 
         if (val === 'MONKEY') {
             cellEl.innerHTML = MONKEY_MARKER_SVG;
@@ -607,6 +693,10 @@ document.addEventListener('DOMContentLoaded', () => {
             cellEl.innerHTML = FROG_MARKER_SVG;
             cellEl.classList.add('filled', 'frog-cell');
             cellEl.setAttribute('aria-label', `Square ${index + 1}: Frog`);
+        } else if (val === 'BEAR') {
+            cellEl.innerHTML = BEAR_MARKER_SVG;
+            cellEl.classList.add('filled', 'bear-cell');
+            cellEl.setAttribute('aria-label', `Square ${index + 1}: Polar Bear`);
         } else {
             const hint = getCellKeyHint(index);
             cellEl.innerHTML = `<span class="cell-key-hint">${hint}</span>`;
@@ -624,6 +714,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let strokeColor = '#f59e0b';
         if (winner === 'BAT') strokeColor = '#a855f7';
         else if (winner === 'FROG') strokeColor = '#22c55e';
+        else if (winner === 'BEAR') strokeColor = '#38bdf8';
 
         winningLine.setAttribute('stroke', strokeColor);
         winningLineSvg.classList.add('visible');
@@ -654,6 +745,11 @@ document.addEventListener('DOMContentLoaded', () => {
             modalTitle.textContent = 'Team Frog Wins!';
             modalTitle.className = 'modal-title frog-win';
             modalSubtitle.textContent = 'Lilypad Dynasty! The Canopy Croakers leap to victory!';
+        } else if (winner === 'BEAR') {
+            modalIcon.textContent = '🐻‍❄️';
+            modalTitle.textContent = 'Team Polar Bear Wins!';
+            modalTitle.className = 'modal-title bear-win';
+            modalSubtitle.textContent = 'Glacial Dominion! The Arctic Clan freezes the competition!';
         }
 
         victoryModal.classList.remove('hidden');
@@ -684,7 +780,7 @@ document.addEventListener('DOMContentLoaded', () => {
             result.cells.forEach(idx => cells[idx].classList.add('win-cell'));
             drawWinningLine(result.combinationIndex, winner);
 
-            const names = { MONKEY: 'Team Monkey', BAT: 'Team Bat', FROG: 'Team Frog' };
+            const names = { MONKEY: 'Team Monkey', BAT: 'Team Bat', FROG: 'Team Frog', BEAR: 'Team Polar Bear' };
             statusMsgEl.textContent = `${names[winner]} Triumphs! 🏆`;
             playVictorySound(winner);
             launchCelebrationParticles(winner);
@@ -709,6 +805,8 @@ document.addEventListener('DOMContentLoaded', () => {
             playBatSound();
         } else if (currentPlayer === 'FROG') {
             playFrogSound();
+        } else if (currentPlayer === 'BEAR') {
+            playBearSound();
         }
 
         const gameResult = checkWinner(boardState);
@@ -883,6 +981,7 @@ document.addEventListener('DOMContentLoaded', () => {
         scores.MONKEY = 0;
         scores.BAT = 0;
         scores.FROG = 0;
+        scores.BEAR = 0;
         scores.STREAK = 0;
         updateScoreDisplay();
         resetRound();
@@ -909,6 +1008,10 @@ document.addEventListener('DOMContentLoaded', () => {
         mode2pBtn.setAttribute('aria-pressed', String(newMode === '2p'));
         mode3pBtn.classList.toggle('active', newMode === '3p');
         mode3pBtn.setAttribute('aria-pressed', String(newMode === '3p'));
+        if (mode4pBtn) {
+            mode4pBtn.classList.toggle('active', newMode === '4p');
+            mode4pBtn.setAttribute('aria-pressed', String(newMode === '4p'));
+        }
 
         difficultyGroup.style.display = (newMode === 'ai') ? 'flex' : 'none';
         playerChoiceContainer.style.display = (newMode === 'ai') ? 'flex' : 'none';
@@ -921,6 +1024,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modeAiBtn.addEventListener('click', () => setGameMode('ai'));
     mode2pBtn.addEventListener('click', () => setGameMode('2p'));
     mode3pBtn.addEventListener('click', () => setGameMode('3p'));
+    if (mode4pBtn) mode4pBtn.addEventListener('click', () => setGameMode('4p'));
 
     // AI Difficulty Select
     difficultySelect.addEventListener('change', (e) => {
@@ -938,6 +1042,10 @@ document.addEventListener('DOMContentLoaded', () => {
         chooseBatBtn.setAttribute('aria-pressed', String(side === 'BAT'));
         chooseFrogBtn.classList.toggle('active', side === 'FROG');
         chooseFrogBtn.setAttribute('aria-pressed', String(side === 'FROG'));
+        if (chooseBearBtn) {
+            chooseBearBtn.classList.toggle('active', side === 'BEAR');
+            chooseBearBtn.setAttribute('aria-pressed', String(side === 'BEAR'));
+        }
 
         scores.STREAK = 0;
         playClickSound();
@@ -947,6 +1055,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chooseMonkeyBtn.addEventListener('click', () => setHumanSide('MONKEY'));
     chooseBatBtn.addEventListener('click', () => setHumanSide('BAT'));
     chooseFrogBtn.addEventListener('click', () => setHumanSide('FROG'));
+    if (chooseBearBtn) chooseBearBtn.addEventListener('click', () => setHumanSide('BEAR'));
 
     // Action Buttons
     restartBtn.addEventListener('click', () => {
