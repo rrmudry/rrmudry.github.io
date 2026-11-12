@@ -2253,9 +2253,12 @@ window.NGSS_STANDARDS_DATA = window.NGSS_STANDARDS_DATA || [{
     let total;
     if (o.slipAt === null || o.slipAt === undefined) total = L0 + arc + exitLen();
     else total = L0 + rad(o.slipAt) * pathR() + Math.sqrt(railR() ** 2 - pathR() ** 2) - 2.2;
-    const real = total / Math.max(1, o.v);
-    const shown = Math.min(5.2, Math.max(2.8, real)) * (calm ? 1.6 : 1);
-    S.run = { o, s: 0, total, rate: total / shown, phase: 'entry', slip: null, t: 0, crashT: 0 };
+    // On-screen speed is the real speed sped up by the same factor every time, so twice as fast looks twice as fast.
+    // The factor grows with the curve's size, so a drive takes about as long on any student's off-ramp.
+    // Only very slow drives are capped (at 8 s) so nobody waits forever.
+    const speedUp = 2.4 * (S.r / 50) / (calm ? 1.6 : 1);
+    const rate = Math.max(Math.max(1, o.v) * speedUp, total / (8 * (calm ? 1.6 : 1)));
+    S.run = { o, s: 0, total, rate, phase: 'entry', slip: null, t: 0, crashT: 0 };
     S.skid = []; S.tangent = null; S.slipping = false; S.hazard = false; S.hop = 0;
     S.showV = true; S.showF = false;
     if (S.gl) S.gl.clearSkids();
