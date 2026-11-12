@@ -27,8 +27,9 @@
     car: { X: 50, Y: -30, psi: 90 }, showV: false, showF: false, slipping: false, hazard: false, hop: 0,
     run: null, skid: [], tangent: null, host: null, area: null, gl: null, flat: null, raf: 0, last: 0, dirty: true, visible: false
   };
-  const entryLen = () => S.r * 0.6;
-  const exitLen = () => S.r * 0.6;
+  // Lead-in and run-out: long enough to see the car on the straight, short enough that the 3D view can stay close on big curves
+  const entryLen = () => 12 + S.r * 0.25;
+  const exitLen = () => 12 + S.r * 0.25;
   // Two lanes, each ROAD_HALF wide. r is the radius of the outer lane, where the car normally drives (it keeps right,
   // and on a left-hand curve the right lane is the outer one). The road's center line is half a lane inside it.
   const LANE = ROAD_HALF;
@@ -361,6 +362,30 @@
     }
 
     // ---------- Cameras ----------
+    // 3D view: keep the camera's direction, then move it as close as it can go while the whole bend, the radius line,
+    // and where the car starts and stops still fit on screen (any curve size, any screen shape)
+    const fitV = new THREE.Vector3();
+    function fitPersp(c) {
+      const r = S.r, R = railR(), pts = [[0, 0], [pathR(), -entryLen()], [-exitLen(), pathR()]];
+      for (let a = 0; a <= 90; a += 10) pts.push([R * Math.cos(rad(a)), R * Math.sin(rad(a))]);
+      const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+      const lx = (Math.min(...xs) + Math.max(...xs)) / 2, ly = (Math.min(...ys) + Math.max(...ys)) / 2;
+      const dx = c.pos[0] - c.look[0], dy = c.pos[1] - c.look[1], dz = c.pos[2], n = Math.hypot(dx, dy, dz);
+      const place = d => {
+        persp.position.set(lx + (dx / n) * d, (dz / n) * d, -(ly + (dy / n) * d));
+        persp.lookAt(lx, 0, -ly); persp.updateProjectionMatrix(); persp.updateMatrixWorld();
+      };
+      const fits = d => {
+        place(d);
+        return pts.every(([X, Y]) => {
+          fitV.set(X, 0, -Y).project(persp);
+          return fitV.z < 1 && Math.abs(fitV.x) < 0.9 && fitV.y > -0.9 && fitV.y < 0.76;   // room at the top for the chips and camera buttons
+        });
+      };
+      let lo = r * 0.3, hi = r * 6;
+      for (let i = 0; i < 22; i++) { const mid = (lo + hi) / 2; if (fits(mid)) hi = mid; else lo = mid; }
+      place(hi);
+    }
     function aimCameras(w, h) {
       const r = S.r, asp = w / h;
       persp.aspect = asp;
@@ -369,11 +394,7 @@
         persp.position.set(c.X - Math.cos(a) * back, S.veh === 'truck' ? 8 : 6, -(c.Y - Math.sin(a) * back));
         persp.lookAt(c.X + Math.cos(a) * 12, 1.5, -(c.Y + Math.sin(a) * 12));
       } else {
-        const c = S.camView || { pos: [1.8, -1.1, 1.2], look: [0.42, 0.22] };
-        // Bigger curves: pull the camera in so the car does not shrink to a speck (the bend still fits)
-        const k = Math.pow(32 / r, 0.45), lx = r * c.look[0], ly = r * c.look[1];
-        persp.position.set(lx + (r * c.pos[0] - lx) * k, r * c.pos[2] * k, -(ly + (r * c.pos[1] - ly) * k));
-        persp.lookAt(lx, 0, -ly);
+        fitPersp(S.camView || { pos: [1.8, -1.1, 1.2], look: [0.42, 0.22] });
       }
       persp.updateProjectionMatrix();
       // Top-down: frame the curve, the straights and the barrier
@@ -391,6 +412,8 @@
       const onCurve = Math.hypot(c.X, c.Y) > roadC() - ROAD_HALF - 2 && c.Y > -0.5 && c.X > -0.5;
       v.position.set(c.X, Math.max(0, onCurve ? lift : 0) + S.hop, -c.Y);
       v.rotation.set(0, 0, 0); v.rotateY(a);
+      // Drawn a little bigger on the larger curves so it stays easy to see from the 3D and Top cameras (still inside its lane)
+      v.scale.setScalar(S.cam === 'chase' ? 1 : Math.min(1.45, Math.sqrt(S.r / 32)));
       if (S.bank && onCurve) v.rotateX(-rad(S.bank));
       hazards.forEach(h => h.material.color.setHex(S.hazard ? 0xfb923c : 0x7c2d12));
       // arrows
