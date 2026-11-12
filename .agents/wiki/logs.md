@@ -3,6 +3,17 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-11 — Highway Curve Lab (Day 54)
+**Patterns Added**: `highway-curve-lab.md`.
+**Files Added**: `Unit_2/highway_curve_lab/` (src.html, js/, css/, built index.html), `assets/vendor/three.min.js` (Three.js r160, deprecation warning line removed), `admin/highway_curve_lab_monitor.src.html` + built page, `tests/highwayCurveLab.test.js` (32 tests). **Updated**: `admin/index.html` (monitor card), `admin/sprint_progress_3d.html` (new activity).
+
+**Changes**:
+- 3D investigation built on the Centripetal Force Lab shell. Three.js off-ramp with dry, damp, wet, gravel, snow, icy and glare-ice roads (rain and snow particles), a car and a 4× heavier truck, velocity and friction arrows, skid marks, a tangent slide into a foam barrier, and 3D / Follow / Top cameras. A 2D canvas draws the same world from above when WebGL is missing.
+- Instruments are SVG over the 3D view: speedometer (m/s outside, mph inside) and a tire grip gauge in kN with a red grip-limit mark, SLIP! lamp and magnifier.
+- A fastest safe speed only enters the table with proof: a run that held and a run one step faster that slid.
+- Played through start to finish for all three classes by an automated headless-Chrome script with WebGL (SwiftShader), at 1366 × 768 and 1366 × 650, on `src.html` and the built `index.html`: 10/10, certificate, no console errors.
+- Not yet posted to Classroom or linked from Day 54; that waits for a confirmed due date, `deploy-assignment.js` and `npm run verify`.
+
 ## 2026-11-10 — Centripetal Force Lab: Teacher & Preview Simulated Data + Step Jumper
 **Patterns Updated**: `centripetal-force-lab.md`.
 **Files Updated**: `Unit_2/centripetal_force_lab/src.html`, `Unit_2/centripetal_force_lab/js/physics.js`, `Unit_2/centripetal_force_lab/js/app-core.js`, `Unit_2/centripetal_force_lab/js/app-shell.js`, `Unit_2/centripetal_force_lab/js/app.js`, `Unit_2/centripetal_force_lab/css/style.css`, `Unit_2/centripetal_force_lab/index.html`, `tests/centripetalForceLab.test.js`.

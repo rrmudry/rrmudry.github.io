@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Highway Curve Lab Class Progress</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/unit2-favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Source page. Edit this file, then run: node scripts/inline-studio.js admin/highway_curve_lab_monitor.src.html -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
+  <style>
+    :root {
+      --bg: #f1f5f9; --card: #ffffff; --line: #cbd5e1; --line-soft: #e2e8f0;
+      --text: #0f172a; --muted: #475569; --bar: #0284c7; --good: #15803d; --warn: #b45309; --bad: #be123c;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #070d19; --card: #0f172a; --line: #334155; --line-soft: #1e293b; --text: #f8fafc; --muted: #cbd5e1; --bar: #38bdf8; --good: #34d399; --warn: #fbbf24; --bad: #fb7185; }
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Outfit, system-ui, sans-serif; line-height: 1.4; }
+    header { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: var(--card); border-bottom: 1px solid var(--line); }
+    h1 { margin: 0; font-size: 1.25rem; font-weight: 800; }
+    h2 { margin: 0 0 0.6rem; font-size: 1rem; font-weight: 800; }
+    .sub { margin: 0; color: var(--muted); font-size: 0.85rem; }
+    main { padding: 1rem; max-width: 92rem; margin: 0 auto; display: grid; gap: 1rem; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 0.8rem; padding: 0.9rem; min-width: 0; }
+    select, button { font: inherit; font-weight: 700; color: var(--text); background: var(--card); border: 1px solid var(--line); border-radius: 0.5rem; padding: 0.3rem 0.6rem; }
+    button { cursor: pointer; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0.75rem; }
+    .tile strong { display: block; font-size: 1.8rem; font-variant-numeric: tabular-nums; }
+    .tile span { font-size: 0.85rem; color: var(--muted); }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr)); gap: 1rem; }
+    .bar-row { display: grid; grid-template-columns: 11rem 1fr 3.5rem; gap: 0.5rem; align-items: center; margin: 0.3rem 0; font-size: 0.9rem; }
+    .bar { height: 0.8rem; background: var(--line-soft); border-radius: 999px; overflow: hidden; }
+    .bar span { display: block; height: 100%; background: var(--bar); border-radius: 0 4px 4px 0; }
+    .val { font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+    .mistake { padding: 0.35rem 0; border-bottom: 1px solid var(--line-soft); font-size: 0.9rem; }
+    .mistake:last-child { border: 0; }
+    .mistake b { margin-right: 0.35rem; font-variant-numeric: tabular-nums; }
+    .mistake small { display: block; color: var(--muted); }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+    th { text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); padding: 0.35rem 0.5rem; border-bottom: 2px solid var(--line); white-space: nowrap; }
+    td { padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--line-soft); white-space: nowrap; }
+    td.name { font-weight: 700; }
+    td.num { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .pill { display: inline-block; min-width: 1.5rem; text-align: center; margin-right: 0.15rem; border: 1px solid var(--line); border-radius: 0.3rem; font-size: 0.72rem; font-weight: 700; color: var(--muted); padding: 0 0.25rem; }
+    .pill.on { border-color: var(--good); color: var(--good); }
+    .weak { color: var(--warn); font-size: 0.82rem; white-space: normal; min-width: 10rem; }
+    .none { color: var(--muted); }
+    td.low { color: var(--warn); }
+    .flag { color: var(--warn); font-size: 0.75rem; }
+    .filters { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .only-flagged { font-weight: 700; font-size: 0.9rem; }
+    .note { margin: 0 0 0.5rem; font-size: 0.85rem; color: var(--muted); }
+    .check { white-space: normal; min-width: 14rem; font-size: 0.82rem; color: var(--bad); font-weight: 600; }
+    .check div { margin: 0.1rem 0; }
+    tr.flagged td.name { color: var(--bad); }
+    .gate { text-align: center; padding: 3rem 1rem; }
+    .demo { background: var(--warn); color: #fff; font-weight: 700; text-align: center; padding: 0.25rem; }
+    .err { color: var(--bad); font-weight: 700; }
+    sub { font-size: 0.72em; }
+  </style>
+</head>
+<body>
+  <div id="demoBanner" class="demo" hidden>Sample data, not real students</div>
+  <header>
+    <div>
+      <h1>🛣️ Highway Curve Lab Class Progress</h1>
+      <p class="sub">Unit 2 · Day 54 · Updates live as students work</p>
+    </div>
+    <div class="filters" id="filters" hidden>
+      <label class="only-flagged"><input type="checkbox" id="onlyFlagged"> Only records to check</label>
+      <label>Class <select id="course"><option value="all">All classes</option><option value="honors">Honors</option><option value="cp">CP</option><option value="conceptual">Conceptual</option></select></label>
+      <label>Period <select id="period"><option value="all">All periods</option></select></label>
+      <a href="sprint_progress_3d.html?assignment=unit2_day54_highway_curve_lab" style="font:inherit;font-weight:700;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:0.5rem;padding:0.3rem 0.6rem;text-decoration:none;">🏟️ 3D 100m Dash</a>
+      <button id="btnSignOut" type="button">Sign out</button>
+    </div>
+  </header>
+
+  <section id="gate" class="gate">
+    <p id="gateMsg">Checking sign-in…</p>
+    <button id="btnSignIn" type="button" hidden>Sign in with Google</button>
+    <p id="gateErr" class="err"></p>
+  </section>
+
+  <main id="main" hidden>
+    <section class="tiles" id="tiles"></section>
+    <div class="two">
+      <section class="card">
+        <h2>Skills on each student's latest Mastery Check</h2>
+        <div id="skills"></div>
+      </section>
+      <section class="card">
+        <h2>Most common mistakes (reteach these first)</h2>
+        <div id="mistakes"></div>
+      </section>
+    </div>
+    <section class="card">
+      <h2>Students</h2>
+      <p class="note">⚠ means a record is worth a look. It is not proof of cheating, and a careful cheater may not be flagged. A short in-person check settles it.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Student</th><th>Per.</th><th>Class</th><th>Grade /10</th><th title="Questions answered correctly on the first try">First try</th><th title="Trials recorded in the data table">Trials</th><th>Min.</th><th>Parts</th><th>Check record</th><th>Mastery best</th><th>Attempts</th><th>Needs work</th><th>Last active</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="../Unit_2/vector_decomposition_studio/js/engine.js"></script>
+  <script src="../Unit_2/highway_curve_lab/js/physics.js"></script>
+  <script src="../Unit_2/highway_curve_lab/js/questions.js"></script>
+  <script src="../Unit_2/highway_curve_lab/js/concepts.js"></script>
+  <script src="../Unit_2/highway_curve_lab/js/lesson.js"></script>
+  <script src="../Unit_2/highway_curve_lab/js/integrity.js"></script>
+  <script>
+    // firestore-audit: teacher-only
+    // Access: Google OAuth through Firebase Auth. This page's check only decides what to draw. The real lock is
+    // firestore.rules: listing student_results/*/students and roster is allowed only for the isAdmin() emails,
+    // so nobody else gets class data even if they edit this page. Keep this list matching isAdmin().
+    const ASSIGNMENT_ID = 'unit2_day54_highway_curve_lab';
+    const TEACHER_IDS = ['rmudry', 'ryan.mudry', 'ryanmudry'];
+    const TEACHER_EMAILS = ['rmudry@orangeusd.org', 'ryan.mudry@gmail.com', 'ryanmudry@gmail.com'];
+    const PART_PILLS = [['skid', 'Skid'], ['measure', 'Measure'], ['graph', 'Graph'], ['weather', 'Weather'], ['engineer', 'Sign'], ['quiz', 'MC']];
+    const COURSE = { honors: 'Honors', cp: 'CP', conceptual: 'Conceptual' };
+    const courseForPeriod = p => (String(p) === '0' ? 'honors' : ['1', '2', '3'].includes(String(p)) ? 'conceptual' : 'cp');
+    const SKILLS = window.FL.QUIZ_SKILLS;
+    const MISTAKES = {
+      read_speed: ['Typed the speed where the friction goes', 'The friction is on the tire grip gauge. The speed is on the speedometer.'],
+      read_newtons: ['Typed newtons on a kilonewton gauge', 'The gauge is in kN: type the number the needle points to.'],
+      read_limit: ['Read the red grip-limit mark instead of the needle', 'The needle is the friction now. The red mark is the most the road can give.'],
+      read_needle: ['Read the needle when asked for the grip limit', 'The grip limit is the red mark on the gauge.'],
+      read_close: ['Read the gauge a mark or two off', 'Find the last numbered mark, then count small marks (0.5 kN on the car gauge).'],
+      read_far: ['Gauge reading far from the needle', 'Find the two numbers the needle is between first.'],
+      read_speedo: ['Recorded a speed the trial was not running at', 'Read the outer m/s scale of the speedometer.'],
+      read_mu: ['Recorded the wrong μ for the road', 'μ is on the road label in the corner of the 3D view.'],
+      mph_ms: ['Read m/s where mph was asked', 'mph is the inner orange scale of the speedometer.'],
+      mph_far: ['Misread the mph scale', 'Each small mark on the inner scale is 2 mph.'],
+      slid: ['Recorded a speed that slid off as safe', 'The fastest safe speed is the last one that held.'],
+      not_fastest: ['Stopped before the real limit', 'If it held one step faster, keep going.'],
+      not_tested: ['Recorded a speed they never drove', 'Every number in the table comes from a run.'],
+      plot_swapped: ['Switched the two numbers when plotting', 'The bottom axis first, then up the side.'],
+      plot_slot: ['Built the column in the wrong vehicle’s slot', 'Car on the left, truck on the right, in each road group.'],
+      plot_x: ['Plotted at the right height, wrong place sideways', 'Find the bottom-axis value first, then go up.'],
+      plot_y: ['Plotted above the right spot, wrong height', 'Go up until level with the value on the side axis.'],
+      plot_off: ['Plotted far from the point', 'Model one point: along the bottom, then straight up.'],
+      cross_curve: ['Clicked the curve, not where it meets the grip line', 'Follow the curve until it touches the dashed line.'],
+      cross_line: ['Clicked the grip line away from the curve', 'Slide along the line to where the curve meets it.'],
+      cross_off: ['Could not find the crossing on the graph', 'Find the dashed line for that road first.'],
+      no_square: ['Forgot that speed counts twice', 'Twice as fast needed 4 times the friction. Point to their own two gauge readings.'],
+      added_not_squared: ['Added instead of squaring', '3 × 3 = 9, not 3 + 3.'],
+      subtracted: ['Subtracted to compare', '"Times as big" asks what you multiply by.'],
+      factor_other: ['Could not find the pattern', 'Compare two readings and ask what you multiply by.'],
+      grip_not_speed: ['Thinks ice cuts the speed to a quarter', 'Ice has a quarter of the grip, but the speed only halves.'],
+      mass_ratio: ['Thinks the heavy truck can go faster', 'Look at the speeds in their table: car and truck match.'],
+      heavy_slower: ['Predicted the truck slower on ice', 'Their own table shows car and truck match on every road.'],
+      heavy_faster: ['Predicted the truck faster on ice', 'More grip, but also more friction needed: they cancel.'],
+      used_mass: ['Put the mass into v<sub>max</sub> = √(μ × g × r)', 'Mass cancels: it is on both sides.'],
+      no_g: ['Left g out of μ × g × r', 'g = 10 m/s².'],
+      no_root: ['Stopped at v<sub>max</sub>²', 'Take the square root.'],
+      slope_flip: ['Slope upside down (run ÷ rise)', 'The v<sub>max</sub>² numbers go on top.'],
+      slope_rise: ['Gave only the rise for the slope', 'Divide the rise by the run.'],
+      radius_times: ['Multiplied the slope by g', 'slope = g × r, so divide by 10.'],
+      no_atan: ['Gave tan θ as the bank angle', 'Use tan⁻¹ to turn it into an angle.'],
+      sign_too_fast: ['Posted a sign faster than the wet-road limit', 'Their test drive slid off. The sign must be at or below their wet speed.'],
+      sign_too_slow: ['Posted a sign far below the limit', 'Signs that are far too low get ignored.'],
+      cer: ['CER builder: picked the wrong evidence or reasoning', 'Evidence for a rainy-day sign is the wet-road number.'],
+      force_forward: ['Aimed friction along the motion', 'That is the velocity. A force that way speeds the car up.'],
+      force_outward: ['Aimed friction outward', 'Nothing pushes outward. The path bends toward the center.'],
+      force_backward: ['Aimed friction backward', 'A backward force only slows it down.'],
+      path_outward: ['Thinks a sliding car flies straight out from the center', 'No grip means a straight line along the tangent.'],
+      path_center: ['Thinks a sliding car heads for the center', 'With no grip, nothing pushes it in.'],
+      path_curve: ['Thinks a sliding car keeps curving', 'No sideways force means a straight line.'],
+      name_normal: ['Named the normal force as what turns the car', 'The normal force points up, off the road.'],
+      name_gravity: ['Named weight as what turns the car', 'Weight points down.'],
+      name_centrifugal: ['Named a "centrifugal force"', 'There is no outward push. Friction points in.'],
+      axis_vmax: ['Kept plain v<sub>max</sub> on the side axis', 'The points curve. Try the axis that makes them a line.'],
+      axis_rootv: ['Chose √v<sub>max</sub> to straighten the graph', 'The curve flattens, so the side axis has to grow faster: v<sub>max</sub>².']
+    };
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
+    let roster = new Map(), docs = [], unsubscribe = null;
+
+    function render() {
+      const period = $('period').value, course = $('course').value;
+      const merged = new Map();
+      roster.forEach((r, id) => merged.set(id, { id, name: r.name, period: r.period, started: false }));
+      docs.forEach(d => {
+        const r = roster.get(d.id);
+        merged.set(d.id, Object.assign({}, d, {
+          started: true,
+          name: (r && r.name) || d.student_name || d.id,
+          period: d.class_period !== null && d.class_period !== undefined ? String(d.class_period) : (r ? r.period : '?')
+        }));
+      });
+      const all = [...merged.values()].filter(s => !TEACHER_IDS.includes(s.id));
+      all.forEach(s => { s.course = s.track || courseForPeriod(s.period); });
+      const periods = [...new Set(all.map(s => s.period))].filter(p => p !== '' && p !== undefined).sort((a, b) => Number(a) - Number(b));
+      $('period').innerHTML = '<option value="all">All periods</option>' + periods.map(p => `<option value="${esc(p)}">Period ${esc(p)}</option>`).join('');
+      $('period').value = periods.includes(period) ? period : 'all';
+      // Sample rows without saved work stay unflagged so the demo shows only the example problem record
+      const isDemo = !$('demoBanner').hidden;
+      all.forEach(s => { s.flags = s.started && (!isDemo || s.studioState) ? Integrity.check(s) : []; });
+      const inView = all.filter(s => ($('period').value === 'all' || s.period === $('period').value) && (course === 'all' || s.course === course));
+      const list = inView
+        .filter(s => !$('onlyFlagged').checked || s.flags.length)
+        .sort((a, b) => Number(a.period) - Number(b.period) || String(a.name).localeCompare(String(b.name)));
+
+      const started = inView.filter(s => s.started);
+      const tookQuiz = started.filter(s => (s.quiz_history || []).length);
+      const avgOf = a => (a.length ? (a.reduce((t, x) => t + x, 0) / a.length) : null);
+      const avgGrade = avgOf(started.map(s => s.score || 0));
+      const avgFirst = avgOf(started.filter(s => typeof s.first_try === 'number').map(s => s.first_try));
+      const avgBest = avgOf(tookQuiz.map(s => s.quiz_best || 0));
+      $('tiles').innerHTML = [
+        [`${started.length}/${inView.length}`, 'students started'],
+        [avgGrade === null ? '—' : avgGrade.toFixed(1), 'average grade so far (of 10)'],
+        [avgFirst === null ? '—' : `${Math.round(avgFirst)}%`, 'right on the first try'],
+        [String(tookQuiz.length), 'took the Mastery Check'],
+        [avgBest === null ? '—' : `${Math.round(avgBest)}%`, 'average best Mastery score'],
+        [String(inView.filter(s => s.flags.length).length), 'records to check']
+      ].map(([n, l]) => `<div class="card tile"><strong>${n}</strong><span>${l}</span></div>`).join('');
+
+      const totals = {};
+      tookQuiz.forEach(s => Object.entries(s.quiz_skills || {}).forEach(([k, v]) => {
+        totals[k] = totals[k] || { right: 0, total: 0 };
+        totals[k].right += v.right; totals[k].total += v.total;
+      }));
+      const skillKeys = Object.keys(SKILLS).filter(k => totals[k]);
+      $('skills').innerHTML = skillKeys.length ? skillKeys.map(k => {
+        const p = Math.round(100 * totals[k].right / totals[k].total);
+        return `<div class="bar-row" title="${totals[k].right} of ${totals[k].total} correct"><span>${SKILLS[k]}</span><span class="bar"><span style="width:${p}%"></span></span><span class="val">${p}%</span></div>`;
+      }).join('') : '<p class="none">No Mastery Checks yet.</p>';
+
+      const counts = {};
+      started.forEach(s => Object.entries(s.mistakes || {}).forEach(([k, v]) => { if (MISTAKES[k]) counts[k] = (counts[k] || 0) + v; }));
+      const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+      $('mistakes').innerHTML = top.length
+        ? top.map(([k, v]) => `<div class="mistake"><b>${v}×</b>${MISTAKES[k][0]}<small>${MISTAKES[k][1]}</small></div>`).join('')
+        : '<p class="none">No mistakes recorded yet.</p>';
+
+      $('rows').innerHTML = list.map(s => {
+        const hist = s.quiz_history || [];
+        const pills = PART_PILLS.map(([k, label]) => {
+          const pct = (s.parts_progress || {})[k];
+          const partial = pct > 0 && pct < 100;
+          return `<span class="pill ${(s.parts_done || []).includes(k) ? 'on' : ''}">${label}${partial ? ` ${pct}%` : ''}</span>`;
+        }).join('');
+        const weak = Object.entries(s.quiz_skills || {}).filter(([, v]) => v.right < v.total).map(([k]) => SKILLS[k]).filter(Boolean).join(', ');
+        const when = s.timestamp && s.timestamp.toDate ? s.timestamp.toDate().toLocaleString([], { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+        return `<tr class="${s.flags.length ? 'flagged' : ''}"><td class="name">${esc(s.name)}${s.certificate_code ? ` <span title="Certificate ${esc(s.certificate_code)}">🎓</span>` : ''}${s.calc_unavailable ? ' <span class="flag" title="Desmos did not load for this student, so they could type answers">⚠ typed</span>' : ''}</td><td>${esc(s.period)}</td><td>${COURSE[s.course] || ''}</td><td class="num">${s.started ? Number(s.score || 0).toFixed(1) : '<span class="none">—</span>'}</td>
+          <td class="num ${typeof s.first_try === 'number' && s.first_try < 60 ? 'low' : ''}" title="${s.questions || 0} questions answered">${typeof s.first_try === 'number' ? `${s.first_try}%` : ''}</td><td class="num">${s.started ? (s.trials || 0) : ''}</td><td class="num">${s.minutes || ''}</td>
+          <td>${s.started ? pills : '<span class="none">Not started</span>'}</td>
+          <td class="check">${s.flags.map(f => `<div>⚠ ${esc(f)}</div>`).join('')}</td>
+          <td class="num">${hist.length ? `${s.quiz_best}%` : '<span class="none">—</span>'}</td>
+          <td class="num">${hist.length ? hist.map(p => `${p}%`).join(' → ') : ''}</td>
+          <td class="weak">${weak}</td><td>${esc(when)}</td></tr>`;
+      }).join('');
+    }
+
+    function showGate(msg, err) {
+      if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+      roster = new Map(); docs = [];
+      $('main').hidden = true;
+      $('filters').hidden = true;
+      $('rows').innerHTML = '';
+      $('gate').hidden = false;
+      $('gateMsg').textContent = msg;
+      $('gateErr').textContent = err || '';
+      $('btnSignIn').hidden = false;
+    }
+
+    function start() {
+      $('gate').hidden = true;
+      $('main').hidden = false;
+      $('filters').hidden = false;
+      const db = firebase.firestore();
+      db.collection('roster').get().then(snap => {
+        snap.forEach(doc => {
+          const d = doc.data();
+          roster.set(doc.id, {
+            name: d.name || d.full_name || `${d.first_name || ''} ${d.last_name || ''}`.trim() || doc.id,
+            period: String(d.class_period ?? d.period ?? '')
+          });
+        });
+        render();
+      }).catch(e => console.warn('Roster not loaded:', e));
+      unsubscribe = db.collection('student_results').doc(ASSIGNMENT_ID).collection('students').onSnapshot(snap => {
+        docs = snap.docs.map(d => Object.assign({ id: d.id }, d.data()));
+        render();
+      }, e => { $('tiles').innerHTML = `<p class="err">Could not load results: ${esc(e.message)}</p>`; });
+    }
+
+    // Sample data for working on this page. Local dev only, so the deployed page shows nothing without sign-in.
+    function demo() {
+      $('demoBanner').hidden = false;
+      $('gate').hidden = true;
+      $('main').hidden = false;
+      $('filters').hidden = false;
+      roster = new Map([['s9', { name: 'Sample Student I', period: '1' }]]);
+      const sk = (p, f, t, g, r) => ({ path: { right: p, total: 1 }, force: { right: f, total: 1 }, table: { right: t, total: 1 }, graph: { right: g, total: 1 }, recall: { right: r, total: 1 } });
+      const all = ['skid', 'measure', 'graph', 'weather', 'engineer', 'quiz'];
+      const parts = done => Object.fromEntries(['skid', 'measure', 'graph', 'weather', 'engineer'].map(p => [p, { i: 0, far: 12, done }]));
+      docs = [
+        { id: 's1', student_name: 'Sample Student A', class_period: 1, track: 'conceptual', score: 8.4, first_try: 58, questions: 44, trials: 5, minutes: 47, parts_done: all, quiz_best: 60, quiz_history: [40, 60], quiz_skills: sk(1, 1, 0, 1, 0), mistakes: { grip_not_speed: 3, path_outward: 2, not_fastest: 3 } },
+        { id: 's2', student_name: 'Sample Student B', class_period: 2, track: 'conceptual', score: 1.9, first_try: 71, questions: 9, trials: 2, minutes: 14, parts_done: ['skid'], parts_progress: { skid: 100, measure: 40 }, quiz_history: [], mistakes: { force_outward: 2, slid: 1 } },
+        { id: 's3', student_name: 'Sample Student C', class_period: 4, track: 'cp', score: 10, first_try: 86, questions: 40, trials: 5, minutes: 42, parts_done: all, quiz_best: 100, quiz_history: [80, 100], quiz_skills: sk(1, 1, 1, 1, 1), mistakes: { read_close: 2, cross_curve: 1 }, certificate_code: 'SAMPLE' },
+        { id: 's5', student_name: 'Sample Student E', class_period: 5, track: 'cp', score: 10, first_try: 100, questions: 6, trials: 1, minutes: 3, parts_done: all, quiz_best: 100, quiz_history: [100], quiz_skills: sk(1, 1, 1, 1, 1),
+          studioState: { v: 1, parts: parts(true), pg: {}, table: [{ v: 4, F: 0.5 }], limits: {}, graph: {}, found: {}, quiz: { best: 100, attempts: [{ pct: 100, score: 5, total: 5, at: 1 }], last: null } } },
+        { id: 's4', student_name: 'Sample Student D', class_period: 0, track: 'honors', score: 9.2, first_try: 79, questions: 47, trials: 5, minutes: 53, parts_done: all, quiz_best: 80, quiz_history: [80], quiz_skills: sk(1, 1, 1, 0, 1), mistakes: { axis_rootv: 1, no_root: 2, radius_times: 1 } }
+      ];
+      render();
+    }
+
+    $('period').addEventListener('change', render);
+    $('course').addEventListener('change', render);
+    $('onlyFlagged').addEventListener('change', render);
+    const isLocal = ['localhost', '127.0.0.1'].includes(location.hostname);
+    if (isLocal && new URLSearchParams(location.search).has('demo')) demo();
+    else {
+      $('btnSignIn').addEventListener('click', () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        firebase.auth().signInWithPopup(provider).catch(e => {
+          if (e.code === 'auth/popup-blocked') firebase.auth().signInWithRedirect(provider);
+          else if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') $('gateErr').textContent = e.message;
+        });
+      });
+      $('btnSignOut').addEventListener('click', () => firebase.auth().signOut());
+      firebase.auth().getRedirectResult().catch(e => { $('gateErr').textContent = e.message; });
+      firebase.auth().onAuthStateChanged(user => {
+        const email = user && (user.email || '').toLowerCase();
+        if (user && TEACHER_EMAILS.includes(email)) start();
+        else if (user) {
+          firebase.auth().signOut();
+          showGate('Teacher sign-in required.', 'This page is for the teacher only.');
+        } else if (!$('gateErr').textContent) showGate('Teacher sign-in required.');
+      });
+    }
+  </script>
+</body>
+</html>

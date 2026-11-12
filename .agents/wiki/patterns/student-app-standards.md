@@ -1,7 +1,7 @@
 # Student App Standards (How We Build for This Class)
 
 > **Tags**: `standards`, `pedagogy`, `differentiation`, `notation`, `desmos`, `firestore`, `checklist`, `investigation`, `data-table`, `graphing`
-> **Last Updated**: 2026-11-09
+> **Last Updated**: 2026-11-11
 
 The teaching standards every student-facing app, worksheet and lesson follows. These came from the teacher's reviews of real apps. To check a finished app against them, use the "Definition of Done" in `.agent/workflows/create-student-webapp.md`.
 
@@ -51,6 +51,7 @@ This repo is a public website, so keep this page about how we teach. Don't descr
 - **Answers are things the student does:** drag the arrow, click the point on the graph, set the apparatus, read the instrument. These have too many possible answers to guess. Multiple choice is the last resort, and never the main way a part is passed.
 - **Answers depend on the student's own data.** Each student's trials use different values, and questions ask about their table or their graph. No single screen should hold the whole answer.
 - **End with a short handwritten question** that uses the student's own numbers from the app, such as one row of their table and what it shows. Put it on the day's handout or exit card.
+- **No "write it in your notebook" pages inside an app.** The teacher doesn't collect them, and students don't know where to write. Any handwritten question goes on the day's handout or exit card, never as an app page that waits for a button.
 
 ## Investigate first: measure, record, graph
 Any activity that teaches how one quantity depends on another is built as an investigation, not as reading followed by questions. This applies to studios and workshops, not only labs.
