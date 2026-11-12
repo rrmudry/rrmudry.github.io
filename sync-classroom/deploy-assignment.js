@@ -29,6 +29,11 @@
  *   --topic        Google Classroom topic name (e.g. "Unit 2: Motion")
  *   --url          Activity URL to include as a material link
  *   --due          Due date/time in ISO 8601 format (e.g. "2026-09-21T18:00:00-07:00")
+ *   --schedule     Post later instead of now. Classroom keeps it as a draft and publishes it itself.
+ *                  One time for every period:   --schedule "2026-11-12T08:00:00-08:00"
+ *                  Or a time per period:         --schedule "0=2026-11-12T07:05:00-08:00,1=2026-11-12T08:00:00-08:00"
+ *                  (periods left out of the list are posted right away). In a --config file:
+ *                  "schedule": "<ISO time>" or "schedule": { "0": "<ISO time>", "1": "<ISO time>" }
  *   --config       Path to a JSON config file (overrides CLI args)
  *   --dry-run      Preview what would be created without actually creating
  *   --unit         Unit name for Firestore metadata (e.g. "Unit 2: Kinematics in 1D")
@@ -226,8 +231,29 @@ function parseConfig() {
     unit: getArg('unit') || null,
     standards: getArg('standards') ? getArg('standards').split(',').map(s => s.trim()) : [],
     periods: targetPeriods,
+    schedule: getArg('schedule') || null,
     isDryRun: isDryRun
   };
+}
+
+// --schedule: one ISO time for all periods, or "period=ISO" pairs. Returns period -> Date (or null = post now).
+function parseSchedule(schedule, courses, dueDate) {
+  const out = {};
+  courses.forEach(c => { out[c.period] = null; });
+  if (!schedule) return out;
+  let map = {};
+  if (typeof schedule === 'object') map = schedule;
+  else if (/^\s*\d+\s*=/.test(schedule)) String(schedule).split(',').forEach(pair => { const [p, t] = pair.split('='); map[p.trim()] = t.trim(); });
+  else courses.forEach(c => { map[c.period] = schedule; });
+  const due = dueDate ? new Date(dueDate) : null;
+  Object.entries(map).forEach(([p, t]) => {
+    const when = new Date(t);
+    if (isNaN(when)) { console.error(`ERROR: --schedule time for period ${p} is not a date: ${t}`); process.exit(1); }
+    if (when <= new Date()) { console.error(`ERROR: --schedule time for period ${p} is in the past: ${t}`); process.exit(1); }
+    if (due && when >= due) { console.error(`ERROR: --schedule time for period ${p} is after the due date.`); process.exit(1); }
+    if (Number(p) in out) out[Number(p)] = when;
+  });
+  return out;
 }
 
 // =====================================================================
@@ -238,6 +264,8 @@ async function deploy() {
   const { assignmentId, title, description, maxPoints, topic, activityUrl, dueDate, unit, standards, periods, isDryRun } = config;
 
   const coursesToDeploy = periods ? COURSES.filter(c => periods.includes(c.period)) : COURSES;
+  const scheduleFor = parseSchedule(config.schedule, coursesToDeploy, dueDate);
+  const showWhen = d => (d ? d.toLocaleString('en-US', { timeZone: 'America/Los_Angeles', weekday: 'short', month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' (scheduled)' : 'now');
   const { dueDate: parsedDueDate, dueTime: parsedDueTime } = parseDueDate(dueDate);
 
   console.log('\n' + '='.repeat(72));
@@ -257,7 +285,7 @@ async function deploy() {
 
   if (isDryRun) {
     console.log('🧪 DRY-RUN: Would create coursework in the following courses:');
-    coursesToDeploy.forEach(c => console.log(`   Period ${c.period}: ${c.name} (${c.courseId})`));
+    coursesToDeploy.forEach(c => console.log(`   Period ${c.period}: ${c.name} (${c.courseId}) — posts ${showWhen(scheduleFor[c.period])}`));
     console.log('\n🧪 DRY-RUN: Would write assignment_registry doc:', assignmentId);
     console.log('🧪 DRY-RUN complete. No changes made.\n');
     return;
@@ -301,9 +329,11 @@ async function deploy() {
         title: title,
         description: description || undefined,
         workType: 'ASSIGNMENT',
-        state: 'PUBLISHED',
+        state: scheduleFor[course.period] ? 'DRAFT' : 'PUBLISHED',
         maxPoints: maxPoints
       };
+      // Scheduled: Classroom holds it as a draft and publishes it at this time
+      if (scheduleFor[course.period]) requestBody.scheduledTime = scheduleFor[course.period].toISOString();
 
       // Add due date if provided
       if (parsedDueDate) {
@@ -324,7 +354,7 @@ async function deploy() {
 
       const cwId = createRes.data.id;
       courseworkMap[course.courseId] = cwId;
-      console.log(` ✓ Created (CW ID: ${cwId})`);
+      console.log(` ✓ Created (CW ID: ${cwId}) — posts ${showWhen(scheduleFor[course.period])}`);
 
       // Patch topic if specified
       if (topic) {
@@ -351,7 +381,7 @@ async function deploy() {
         courseId: course.courseId,
         courseName: course.name,
         courseworkId: cwId,
-        alternateLink: createRes.data.alternateLink,
+        alternateLink: createRes.data.alternateLink || null,   // a scheduled draft has no link until it posts
         success: true
       });
 

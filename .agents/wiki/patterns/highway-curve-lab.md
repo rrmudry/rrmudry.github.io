@@ -56,4 +56,6 @@ Same lock as the other monitors (`isAdmin()` in `firestore.rules`). Shows grade,
 ## Status (as of 2026-11-11)
 - Built. All three classes played through start to finish by an automated script in headless Chrome with WebGL (SwiftShader) at 1366 × 768: 10/10, certificate earned, no console errors. Unit tests pass (`npx jest tests/highwayCurveLab.test.js`).
 - The 2D fallback was checked in a browser with no WebGL.
-- Not done yet: posting to Classroom (`deploy-assignment.js`), `npm run verify`, and linking Day 54 in `assets/lessons-data.js` (only after verify passes). Not seen yet: a real Chromebook's WebGL frame rate, and the monitor with real class data.
+- **Scheduled in Classroom on 2026-11-11** in all 7 periods as "Highway Curve Lab: How Fast Is Too Fast?", 10 points, due Fri 11/13 at 6:00 PM PST, topic Unit 2: Motion. Each period's copy posts itself at that period's start on the Thursday PRIDE TIME bell schedule (P0 8:30, P1 9:20, P2 10:10, P3 11:10, P4 12:35, P5 1:55, P6 2:45), using the new `--schedule` option in `deploy-assignment.js`. `npm run verify` passed every check, then Day 54 was linked in `assets/lessons-data.js` and `Unit_2/outline.md`.
+- The first scheduled deploy stopped at Phase 3 because a scheduled draft has no `alternateLink` yet (Firestore rejects `undefined`). The script now saves `null` there; Phase 3 was finished by hand without re-running the deploy, which would have duplicated the coursework.
+- Not seen yet: a real Chromebook's WebGL frame rate, and the monitor with real class data.

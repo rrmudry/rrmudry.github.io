@@ -5544,8 +5544,19 @@ const lessonsData = [
       "explanation": "To turn, the tires need friction pointing toward the center of the curve. The faster the car goes, the more friction it needs. Wet or icy roads lower μ, so the most friction available drops. If the car needs more friction than the road can give, it slides off along a tangent line.",
       "defaultDuration": 3
     },
-    "links": {},
+    "links": {
+      "Highway Curve Lab": "Unit_2/highway_curve_lab/index.html"
+    },
     "assignments": [
+      {
+        "title": "Highway Curve Lab: How Fast Is Too Fast?",
+        "url": "Unit_2/highway_curve_lab/index.html",
+        "typeLabel": "Interactive 3D Lab & Mastery Check",
+        "submission": "Automatic Classroom Sync (10 pts)",
+        "actionLabel": "Launch Highway Curve Lab",
+        "description": "Drive a car around a highway off-ramp in 3D. Find the fastest safe speed on dry, wet and icy roads, record your data, graph it, and choose a curve speed sign. Progress saves automatically. Due Friday, Nov 13 at 6:00 PM.",
+        "status": "active"
+      },
       {
         "title": "Speed Limit Sign Challenge",
         "typeLabel": "Engineering Investigation",

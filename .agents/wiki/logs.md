@@ -12,7 +12,7 @@ Append-only log tracking pattern changes across recent sessions.
 - Instruments are SVG over the 3D view: speedometer (m/s outside, mph inside) and a tire grip gauge in kN with a red grip-limit mark, SLIP! lamp and magnifier.
 - A fastest safe speed only enters the table with proof: a run that held and a run one step faster that slid.
 - Played through start to finish for all three classes by an automated headless-Chrome script with WebGL (SwiftShader), at 1366 × 768 and 1366 × 650, on `src.html` and the built `index.html`: 10/10, certificate, no console errors.
-- Not yet posted to Classroom or linked from Day 54; that waits for a confirmed due date, `deploy-assignment.js` and `npm run verify`.
+- Scheduled in Classroom (all 7 periods, each posting at its own Thursday PRIDE TIME start; 10 points, due Fri 11/13 6:00 PM PST) with the new `deploy-assignment.js --schedule` option. `npm run verify` passed, then Day 54 was linked in `assets/lessons-data.js` and `Unit_2/outline.md`.
 
 ## 2026-11-10 — Centripetal Force Lab: Teacher & Preview Simulated Data + Step Jumper
 **Patterns Updated**: `centripetal-force-lab.md`.

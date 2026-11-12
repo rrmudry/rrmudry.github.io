@@ -503,7 +503,7 @@ This unit follows the classical and cognitive progression:
     *   *Differentiation:* Periods 1–3: read fastest safe speeds off a speed–friction chart (no square roots or division), then choose and defend the sign. Periods 4–6: calculate v<sub>max</sub> with stacked steps for each road condition. Period 0 (required): banked curve, tan θ = v² ÷ (r · g) for a 15 m/s design speed → θ ≈ 24°.
     *   *Essential Question:* How do engineers use friction and centripetal force to set safe speed limits on curves, and why do those limits change in rain or ice?
     *   *Standards:* `HS-PS2-1`, `HS-ETS1-2` | *DOK:* 3 | *Type:* Engineering Investigation / CER
-    *   *Links:* None yet (handout not built)
+    *   *Links:* [Highway Curve Lab](highway_curve_lab/index.html) (3D lab + Mastery Check, 10 pts, due Fri 11/13 6:00 PM). Speed Limit Sign Challenge handout not built.
 
 *   **Day 55 (2026-11-13): Spin Art Reward Day & Catch-Up Studio**
     *   *Bell-Ringer:* A paint drop slides off the edge of a spinning sheet. Sketch it from above: does the drop go straight out from the center, along a tangent, or in a curve?
