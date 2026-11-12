@@ -173,17 +173,47 @@ document.addEventListener('DOMContentLoaded', () => {
         </svg>
     `;
 
+    const JELLY_MARKER_SVG = `
+        <svg class="marker-svg jelly-marker" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <radialGradient id="jBellGrad" cx="50%" cy="35%" r="55%">
+                    <stop offset="0%" stop-color="#fdf2f8"/>
+                    <stop offset="50%" stop-color="#f472b6"/>
+                    <stop offset="100%" stop-color="#ec4899"/>
+                </radialGradient>
+                <linearGradient id="jTentGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#f472b6"/>
+                    <stop offset="60%" stop-color="#c084fc"/>
+                    <stop offset="100%" stop-color="#38bdf8"/>
+                </linearGradient>
+            </defs>
+            <!-- Glowing Bell Dome -->
+            <path d="M12 30 C12 14, 52 14, 52 30 C52 34, 48 36, 44 34 C40 32, 36 36, 32 34 C28 32, 24 36, 20 34 C16 36, 12 34, 12 30 Z" fill="url(#jBellGrad)"/>
+            <!-- Inner Light Points -->
+            <circle cx="28" cy="24" r="2" fill="#ffffff"/>
+            <circle cx="36" cy="24" r="2" fill="#ffffff"/>
+            <!-- Trailing Stinging Tentacles -->
+            <path d="M18 34 Q14 44 20 52 Q22 58 18 62" stroke="url(#jTentGrad)" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <path d="M26 35 Q22 46 28 54 Q30 60 26 64" stroke="url(#jTentGrad)" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+            <path d="M38 35 Q42 46 36 54 Q34 60 38 64" stroke="url(#jTentGrad)" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+            <path d="M46 34 Q50 44 44 52 Q42 58 46 62" stroke="url(#jTentGrad)" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <!-- Stinger Sparks -->
+            <circle cx="20" cy="58" r="1.5" fill="#38bdf8"/>
+            <circle cx="44" cy="58" r="1.5" fill="#38bdf8"/>
+        </svg>
+    `;
+
     // --- State Variables ---
-    let boardState = Array(9).fill(null); // 'MONKEY', 'BAT', 'FROG', 'BEAR', 'DRAGON', or null
-    let currentPlayer = 'MONKEY';          // 'MONKEY', 'BAT', 'FROG', 'BEAR', or 'DRAGON'
-    let gameMode = 'ai';                  // 'ai', '2p', '3p', '4p', or '5p'
+    let boardState = Array(9).fill(null); // 'MONKEY', 'BAT', 'FROG', 'BEAR', 'DRAGON', 'JELLY', or null
+    let currentPlayer = 'MONKEY';          // 'MONKEY', 'BAT', 'FROG', 'BEAR', 'DRAGON', or 'JELLY'
+    let gameMode = 'ai';                  // 'ai', '2p', '3p', '4p', '5p', or '6p'
     let aiDifficulty = 'medium';          // 'easy', 'medium', 'hard'
     let savedSide = 'MONKEY';
     try {
         const stored = localStorage.getItem('mvb_human_side');
-        if (['MONKEY', 'BAT', 'FROG', 'BEAR', 'DRAGON'].includes(stored)) savedSide = stored;
+        if (['MONKEY', 'BAT', 'FROG', 'BEAR', 'DRAGON', 'JELLY'].includes(stored)) savedSide = stored;
     } catch (e) {}
-    let humanSide = savedSide;            // Selected champion: 'MONKEY', 'BAT', 'FROG', 'BEAR', or 'DRAGON'
+    let humanSide = savedSide;            // Selected champion: 'MONKEY', 'BAT', 'FROG', 'BEAR', 'DRAGON', or 'JELLY'
     let isGameOver = false;
     let isAiThinking = false;
     let focusedCellIndex = 0;
@@ -194,6 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
         FROG: 0,
         BEAR: 0,
         DRAGON: 0,
+        JELLY: 0,
         STREAK: 0
     };
 
@@ -209,16 +240,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const frogScoreEl = document.getElementById('frogScore');
     const bearScoreEl = document.getElementById('bearScore');
     const dragonScoreEl = document.getElementById('dragonScore');
+    const jellyScoreEl = document.getElementById('jellyScore');
     const teamMonkeyCard = document.getElementById('teamMonkeyCard');
     const teamBatCard = document.getElementById('teamBatCard');
     const teamFrogCard = document.getElementById('teamFrogCard');
     const teamBearCard = document.getElementById('teamBearCard');
     const teamDragonCard = document.getElementById('teamDragonCard');
+    const teamJellyCard = document.getElementById('teamJellyCard');
     const modeAiBtn = document.getElementById('modeAiBtn');
     const mode2pBtn = document.getElementById('mode2pBtn');
     const mode3pBtn = document.getElementById('mode3pBtn');
     const mode4pBtn = document.getElementById('mode4pBtn');
     const mode5pBtn = document.getElementById('mode5pBtn');
+    const mode6pBtn = document.getElementById('mode6pBtn');
     const difficultyGroup = document.getElementById('aiDifficultyGroup');
     const difficultySelect = document.getElementById('difficultySelect');
     const playerChoiceContainer = document.getElementById('playerChoiceContainer');
@@ -227,6 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const chooseFrogBtn = document.getElementById('chooseFrogBtn');
     const chooseBearBtn = document.getElementById('chooseBearBtn');
     const chooseDragonBtn = document.getElementById('chooseDragonBtn');
+    const chooseJellyBtn = document.getElementById('chooseJellyBtn');
     const muteBtn = document.getElementById('muteBtn');
     const soundIcon = document.getElementById('soundIcon');
     const restartBtn = document.getElementById('restartBtn');
@@ -444,6 +479,54 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Jellyfish Move: Bioluminescent electric pulse zap & bubbling stinger pop!
+    function playJellySound() {
+        if (isMuted) return;
+        try {
+            const ctx = getAudioContext();
+            const now = ctx.currentTime;
+
+            // Electric shimmer / bioluminescent zing
+            const osc = ctx.createOscillator();
+            const filter = ctx.createBiquadFilter();
+            const gain = ctx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(587.33, now); // D5
+            osc.frequency.exponentialRampToValueAtTime(1174.66, now + 0.08); // D6
+            osc.frequency.exponentialRampToValueAtTime(440, now + 0.22); // A4
+
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(1200, now);
+            filter.Q.value = 6;
+
+            gain.gain.setValueAtTime(0.35, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.24);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.25);
+
+            // Water Bubble Pop
+            const popOsc = ctx.createOscillator();
+            const popGain = ctx.createGain();
+            popOsc.type = 'sine';
+            popOsc.frequency.setValueAtTime(260, now + 0.04);
+            popOsc.frequency.exponentialRampToValueAtTime(640, now + 0.11);
+            popGain.gain.setValueAtTime(0.2, now + 0.04);
+            popGain.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
+            popOsc.connect(popGain);
+            popGain.connect(ctx.destination);
+            popOsc.start(now + 0.04);
+            popOsc.stop(now + 0.14);
+        } catch (e) {
+            console.warn('Audio play error:', e);
+        }
+    }
+
     // Victory Fanfare
     function playVictorySound(winner) {
         if (isMuted) return;
@@ -466,6 +549,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (winner === 'DRAGON') {
                 notes = [146.83, 220.00, 293.66, 370.00, 440.00, 587.33]; // Dragon (D Dorian / Epic Fire Brass Fanfare)
                 waveType = 'sawtooth';
+            } else if (winner === 'JELLY') {
+                notes = [369.99, 440.00, 554.37, 659.25, 739.99, 880.00]; // Jellyfish (F# Lydian / Ethereal Neon Chimes)
+                waveType = 'sine';
             }
 
             notes.forEach((freq, index) => {
@@ -579,6 +665,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (winner === 'DRAGON') {
             emojis = ['🐉', '🔥', '🌋', '💥', '✨', '⚡'];
             colors = ['#ef4444', '#f97316', '#fbbf24', '#f59e0b', '#dc2626'];
+        } else if (winner === 'JELLY') {
+            emojis = ['🪼', '⚡', '🫧', '🌊', '✨', '💜'];
+            colors = ['#ec4899', '#f472b6', '#c084fc', '#38bdf8', '#fbcfe8'];
         }
 
         for (let i = 0; i < count; i++) {
@@ -662,19 +751,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Active Animals in Match ---
     function getActiveAnimals() {
-        if (gameMode === '5p') return ['MONKEY', 'BAT', 'FROG', 'BEAR', 'DRAGON'];
+        if (gameMode === '6p') return ['MONKEY', 'BAT', 'FROG', 'BEAR', 'DRAGON', 'JELLY'];
+        if (gameMode === '5p') {
+            if (humanSide === 'JELLY') return ['JELLY', 'MONKEY', 'BAT', 'BEAR', 'DRAGON'];
+            return ['MONKEY', 'BAT', 'FROG', 'BEAR', 'DRAGON'];
+        }
         if (gameMode === '4p') {
+            if (humanSide === 'JELLY') return ['JELLY', 'MONKEY', 'BAT', 'BEAR'];
             if (humanSide === 'DRAGON') return ['DRAGON', 'MONKEY', 'BAT', 'BEAR'];
             return ['MONKEY', 'BAT', 'FROG', 'BEAR'];
         }
         if (gameMode === '3p') {
+            if (humanSide === 'JELLY') return ['JELLY', 'DRAGON', 'BEAR'];
             if (humanSide === 'DRAGON') return ['DRAGON', 'BEAR', 'MONKEY'];
             if (humanSide === 'BEAR') return ['BEAR', 'MONKEY', 'BAT'];
             if (humanSide === 'FROG') return ['FROG', 'MONKEY', 'BAT'];
             return ['MONKEY', 'BAT', 'FROG'];
         }
-        // In 2-animal modes (ai or 2p), if human is Dragon, rival is Bear (Fire vs Ice!); if Bear, rival is Monkey; if Frog, rival is Bat; etc.
-        if (humanSide === 'DRAGON') return ['DRAGON', 'BEAR'];
+        // In 2-animal modes (ai or 2p):
+        if (humanSide === 'JELLY') return ['JELLY', 'DRAGON']; // Electric Abyss vs Fire Dragon!
+        if (humanSide === 'DRAGON') return ['DRAGON', 'BEAR'];  // Fire vs Ice!
         if (humanSide === 'BEAR') return ['BEAR', 'MONKEY'];
         if (humanSide === 'FROG') return ['FROG', 'BAT'];
         if (humanSide === 'BAT') return ['BAT', 'MONKEY'];
@@ -689,6 +785,7 @@ document.addEventListener('DOMContentLoaded', () => {
             teamFrogCard.classList.remove('active-turn');
             teamBearCard.classList.remove('active-turn');
             teamDragonCard.classList.remove('active-turn');
+            teamJellyCard.classList.remove('active-turn');
             return;
         }
 
@@ -697,13 +794,15 @@ document.addEventListener('DOMContentLoaded', () => {
         teamFrogCard.classList.toggle('active-turn', currentPlayer === 'FROG');
         teamBearCard.classList.toggle('active-turn', currentPlayer === 'BEAR');
         teamDragonCard.classList.toggle('active-turn', currentPlayer === 'DRAGON');
+        teamJellyCard.classList.toggle('active-turn', currentPlayer === 'JELLY');
 
         const animalLabels = {
             MONKEY: "Monkey 🐵",
             BAT: "Bat 🦇",
             FROG: "Frog 🐸",
             BEAR: "Polar Bear 🐻‍❄️",
-            DRAGON: "Dragon 🐉"
+            DRAGON: "Dragon 🐉",
+            JELLY: "Jellyfish 🪼"
         };
 
         if (gameMode === 'ai') {
@@ -724,6 +823,7 @@ document.addEventListener('DOMContentLoaded', () => {
         frogScoreEl.textContent = scores.FROG;
         bearScoreEl.textContent = scores.BEAR;
         dragonScoreEl.textContent = scores.DRAGON;
+        jellyScoreEl.textContent = scores.JELLY;
 
         // Dim benched animal cards rather than hiding completely, so players can click any animal to draft them
         const activeAnimals = getActiveAnimals();
@@ -732,12 +832,14 @@ document.addEventListener('DOMContentLoaded', () => {
         teamFrogCard.classList.toggle('bench', !activeAnimals.includes('FROG'));
         teamBearCard.classList.toggle('bench', !activeAnimals.includes('BEAR'));
         teamDragonCard.classList.toggle('bench', !activeAnimals.includes('DRAGON'));
+        teamJellyCard.classList.toggle('bench', !activeAnimals.includes('JELLY'));
 
         teamMonkeyCard.style.display = 'flex';
         teamBatCard.style.display = 'flex';
         teamFrogCard.style.display = 'flex';
         teamBearCard.style.display = 'flex';
         teamDragonCard.style.display = 'flex';
+        teamJellyCard.style.display = 'flex';
 
         if (gameMode === 'ai') {
             streakDisplayEl.style.display = 'block';
@@ -798,7 +900,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const cellEl = cells[index];
         const val = boardState[index];
 
-        cellEl.classList.remove('filled', 'monkey-cell', 'bat-cell', 'frog-cell', 'bear-cell', 'dragon-cell', 'win-cell');
+        cellEl.classList.remove('filled', 'monkey-cell', 'bat-cell', 'frog-cell', 'bear-cell', 'dragon-cell', 'jelly-cell', 'win-cell');
 
         if (val === 'MONKEY') {
             cellEl.innerHTML = MONKEY_MARKER_SVG;
@@ -820,6 +922,10 @@ document.addEventListener('DOMContentLoaded', () => {
             cellEl.innerHTML = DRAGON_MARKER_SVG;
             cellEl.classList.add('filled', 'dragon-cell');
             cellEl.setAttribute('aria-label', `Square ${index + 1}: Fire Dragon`);
+        } else if (val === 'JELLY') {
+            cellEl.innerHTML = JELLY_MARKER_SVG;
+            cellEl.classList.add('filled', 'jelly-cell');
+            cellEl.setAttribute('aria-label', `Square ${index + 1}: Neon Jellyfish`);
         } else {
             const hint = getCellKeyHint(index);
             cellEl.innerHTML = `<span class="cell-key-hint">${hint}</span>`;
@@ -839,6 +945,7 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (winner === 'FROG') strokeColor = '#22c55e';
         else if (winner === 'BEAR') strokeColor = '#38bdf8';
         else if (winner === 'DRAGON') strokeColor = '#ef4444';
+        else if (winner === 'JELLY') strokeColor = '#ec4899';
 
         winningLine.setAttribute('stroke', strokeColor);
         winningLineSvg.classList.add('visible');
@@ -879,6 +986,11 @@ document.addEventListener('DOMContentLoaded', () => {
             modalTitle.textContent = 'Team Dragon Wins!';
             modalTitle.className = 'modal-title dragon-win';
             modalSubtitle.textContent = 'Infernal Mastery! The Fire Brood scorches the grid!';
+        } else if (winner === 'JELLY') {
+            modalIcon.textContent = '🪼';
+            modalTitle.textContent = 'Team Jellyfish Wins!';
+            modalTitle.className = 'modal-title jelly-win';
+            modalSubtitle.textContent = 'Abyssal Luminescence! The Neon Jellyfish shocks the grid!';
         }
 
         victoryModal.classList.remove('hidden');
@@ -909,7 +1021,7 @@ document.addEventListener('DOMContentLoaded', () => {
             result.cells.forEach(idx => cells[idx].classList.add('win-cell'));
             drawWinningLine(result.combinationIndex, winner);
 
-            const names = { MONKEY: 'Team Monkey', BAT: 'Team Bat', FROG: 'Team Frog', BEAR: 'Team Polar Bear', DRAGON: 'Team Dragon' };
+            const names = { MONKEY: 'Team Monkey', BAT: 'Team Bat', FROG: 'Team Frog', BEAR: 'Team Polar Bear', DRAGON: 'Team Dragon', JELLY: 'Team Jellyfish' };
             statusMsgEl.textContent = `${names[winner]} Triumphs! 🏆`;
             playVictorySound(winner);
             launchCelebrationParticles(winner);
@@ -938,6 +1050,8 @@ document.addEventListener('DOMContentLoaded', () => {
             playBearSound();
         } else if (currentPlayer === 'DRAGON') {
             playDragonSound();
+        } else if (currentPlayer === 'JELLY') {
+            playJellySound();
         }
 
         const gameResult = checkWinner(boardState);
@@ -1114,6 +1228,7 @@ document.addEventListener('DOMContentLoaded', () => {
         scores.FROG = 0;
         scores.BEAR = 0;
         scores.DRAGON = 0;
+        scores.JELLY = 0;
         scores.STREAK = 0;
         updateScoreDisplay();
         resetRound();
@@ -1148,9 +1263,13 @@ document.addEventListener('DOMContentLoaded', () => {
             mode5pBtn.classList.toggle('active', newMode === '5p');
             mode5pBtn.setAttribute('aria-pressed', String(newMode === '5p'));
         }
+        if (mode6pBtn) {
+            mode6pBtn.classList.toggle('active', newMode === '6p');
+            mode6pBtn.setAttribute('aria-pressed', String(newMode === '6p'));
+        }
 
         difficultyGroup.style.display = (newMode === 'ai') ? 'flex' : 'none';
-        playerChoiceContainer.style.display = (newMode === '5p') ? 'none' : 'flex';
+        playerChoiceContainer.style.display = (newMode === '6p') ? 'none' : 'flex';
 
         updateScoreDisplay();
         resetRound();
@@ -1162,6 +1281,7 @@ document.addEventListener('DOMContentLoaded', () => {
     mode3pBtn.addEventListener('click', () => setGameMode('3p'));
     if (mode4pBtn) mode4pBtn.addEventListener('click', () => setGameMode('4p'));
     if (mode5pBtn) mode5pBtn.addEventListener('click', () => setGameMode('5p'));
+    if (mode6pBtn) mode6pBtn.addEventListener('click', () => setGameMode('6p'));
 
     // AI Difficulty Select
     difficultySelect.addEventListener('change', (e) => {
@@ -1172,7 +1292,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Player Animal Choice / Champion Selection
     function setHumanSide(side, playSound = true) {
-        if (!['MONKEY', 'BAT', 'FROG', 'BEAR', 'DRAGON'].includes(side)) return;
+        if (!['MONKEY', 'BAT', 'FROG', 'BEAR', 'DRAGON', 'JELLY'].includes(side)) return;
         humanSide = side;
         try { localStorage.setItem('mvb_human_side', side); } catch (e) {}
 
@@ -1190,6 +1310,10 @@ document.addEventListener('DOMContentLoaded', () => {
             chooseDragonBtn.classList.toggle('active', side === 'DRAGON');
             chooseDragonBtn.setAttribute('aria-pressed', String(side === 'DRAGON'));
         }
+        if (chooseJellyBtn) {
+            chooseJellyBtn.classList.toggle('active', side === 'JELLY');
+            chooseJellyBtn.setAttribute('aria-pressed', String(side === 'JELLY'));
+        }
 
         scores.STREAK = 0;
         if (playSound) playClickSound();
@@ -1201,6 +1325,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chooseFrogBtn.addEventListener('click', () => setHumanSide('FROG'));
     if (chooseBearBtn) chooseBearBtn.addEventListener('click', () => setHumanSide('BEAR'));
     if (chooseDragonBtn) chooseDragonBtn.addEventListener('click', () => setHumanSide('DRAGON'));
+    if (chooseJellyBtn) chooseJellyBtn.addEventListener('click', () => setHumanSide('JELLY'));
 
     // Team Card Quick-Select (Click avatar in scoreboard to pick champion)
     teamMonkeyCard.addEventListener('click', () => setHumanSide('MONKEY'));
@@ -1208,6 +1333,7 @@ document.addEventListener('DOMContentLoaded', () => {
     teamFrogCard.addEventListener('click', () => setHumanSide('FROG'));
     if (teamBearCard) teamBearCard.addEventListener('click', () => setHumanSide('BEAR'));
     if (teamDragonCard) teamDragonCard.addEventListener('click', () => setHumanSide('DRAGON'));
+    if (teamJellyCard) teamJellyCard.addEventListener('click', () => setHumanSide('JELLY'));
 
     // Action Buttons
     restartBtn.addEventListener('click', () => {

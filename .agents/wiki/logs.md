@@ -3,6 +3,17 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-12 — Jellyfish Added to Animal Tic-Tac-Toe Game & 6-Player Chaos Mode
+**Patterns Updated**: `monkeys-vs-bats-ttt.md`.
+**Files Updated**: `monkeys-vs-bats/index.html`, `monkeys-vs-bats/style.css`, `monkeys-vs-bats/script.js`, `partials/footer.html`.
+
+**Changes**:
+- Added 6th champion: Neon Jellyfish (Abyssal Stingers 🪼) with bioluminescent electric magenta/violet theming (`#ec4899`), high-detail SVG translucent bell dome avatar with glowing organs, undulating tentacles, oral arms, and electric spark accents.
+- Synthesized bioluminescent electric zap & underwater bubble pop sound using Web Audio API (sine pitch bend with high Q bandpass filter + resonant bubble pop) and an ethereal F# Lydian neon chime victory fanfare.
+- Added 6-Player Chaos Mode (`🪼 6 Players`), rotating turns across Monkeys 🐵, Bats 🦇, Frogs 🐸, Polar Bears 🐻‍❄️, Dragons 🐉, and Jellyfish 🪼.
+- Added Jellyfish to Solo mode (playing as 🪼 duels the Fire Dragon in an Electric Abyss vs. Inferno showdown) and multi-player modes, complete with neon ocean particle celebrations (`🪼`, `⚡`, `🫧`, `🌊`, `✨`).
+
+
 ## 2026-11-12 — Dragons Added to Animal Tic-Tac-Toe Game & 5-Player Battle Royale
 **Patterns Updated**: `monkeys-vs-bats-ttt.md`.
 **Files Updated**: `monkeys-vs-bats/index.html`, `monkeys-vs-bats/style.css`, `monkeys-vs-bats/script.js`, `partials/footer.html`.
