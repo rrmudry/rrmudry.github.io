@@ -370,8 +370,10 @@
         persp.lookAt(c.X + Math.cos(a) * 12, 1.5, -(c.Y + Math.sin(a) * 12));
       } else {
         const c = S.camView || { pos: [1.8, -1.1, 1.2], look: [0.42, 0.22] };
-        persp.position.set(r * c.pos[0], r * c.pos[2], -r * c.pos[1]);
-        persp.lookAt(r * c.look[0], 0, -r * c.look[1]);
+        // Bigger curves: pull the camera in so the car does not shrink to a speck (the bend still fits)
+        const k = Math.pow(32 / r, 0.45), lx = r * c.look[0], ly = r * c.look[1];
+        persp.position.set(lx + (r * c.pos[0] - lx) * k, r * c.pos[2] * k, -(ly + (r * c.pos[1] - ly) * k));
+        persp.lookAt(lx, 0, -ly);
       }
       persp.updateProjectionMatrix();
       // Top-down: frame the curve, the straights and the barrier
