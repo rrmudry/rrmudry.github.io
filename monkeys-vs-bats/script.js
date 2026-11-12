@@ -163,6 +163,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const winningLineSvg = document.getElementById('winningLineSvg');
     const winningLine = document.getElementById('winningLine');
     const particleCanvas = document.getElementById('particleCanvas');
+    const btnNumpadGrid = document.getElementById('btnNumpadGrid');
+    const btnNumpadPhone = document.getElementById('btnNumpadPhone');
+
+    let numpadMode = 'grid';
+    try {
+        numpadMode = localStorage.getItem('mvt_numpad_mode') || 'grid';
+    } catch (e) {}
 
     // Victory Modal Elements
     const victoryModal = document.getElementById('victoryModal');
@@ -550,6 +557,38 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     }
 
+    function getCellKeyHint(index) {
+        if (numpadMode === 'phone') {
+            return index + 1; // 1-9 reading order
+        } else {
+            // standard PC physical numpad: 7 8 9 top, 4 5 6 mid, 1 2 3 bot
+            const GRID_HINTS = [7, 8, 9, 4, 5, 6, 1, 2, 3];
+            return GRID_HINTS[index];
+        }
+    }
+
+    function setNumpadMode(mode) {
+        numpadMode = (mode === 'phone') ? 'phone' : 'grid';
+        try {
+            localStorage.setItem('mvt_numpad_mode', numpadMode);
+        } catch (e) {}
+
+        if (btnNumpadGrid) {
+            btnNumpadGrid.classList.toggle('active', numpadMode === 'grid');
+            btnNumpadGrid.setAttribute('aria-checked', String(numpadMode === 'grid'));
+        }
+        if (btnNumpadPhone) {
+            btnNumpadPhone.classList.toggle('active', numpadMode === 'phone');
+            btnNumpadPhone.setAttribute('aria-checked', String(numpadMode === 'phone'));
+        }
+
+        cells.forEach((_, idx) => {
+            if (boardState[idx] === null) {
+                renderCell(idx);
+            }
+        });
+    }
+
     function renderCell(index) {
         const cellEl = cells[index];
         const val = boardState[index];
@@ -569,8 +608,9 @@ document.addEventListener('DOMContentLoaded', () => {
             cellEl.classList.add('filled', 'frog-cell');
             cellEl.setAttribute('aria-label', `Square ${index + 1}: Frog`);
         } else {
-            cellEl.innerHTML = '';
-            cellEl.setAttribute('aria-label', `Square ${index + 1}: Empty`);
+            const hint = getCellKeyHint(index);
+            cellEl.innerHTML = `<span class="cell-key-hint">${hint}</span>`;
+            cellEl.setAttribute('aria-label', `Square ${index + 1}: Empty, Press ${hint}`);
         }
     }
 
@@ -860,32 +900,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Keyboard Navigation across the grid
-    boardEl.addEventListener('keydown', (e) => {
-        if (isGameOver) return;
-
-        let nextIndex = focusedCellIndex;
-        if (e.key === 'ArrowRight') nextIndex = (focusedCellIndex % 3 < 2) ? focusedCellIndex + 1 : focusedCellIndex - 2;
-        else if (e.key === 'ArrowLeft') nextIndex = (focusedCellIndex % 3 > 0) ? focusedCellIndex - 1 : focusedCellIndex + 2;
-        else if (e.key === 'ArrowDown') nextIndex = (focusedCellIndex + 3) % 9;
-        else if (e.key === 'ArrowUp') nextIndex = (focusedCellIndex + 6) % 9;
-        else if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            cells[focusedCellIndex].click();
-            return;
-        } else if (/^[1-9]$/.test(e.key)) {
-            const numIndex = parseInt(e.key, 10) - 1;
-            cells[numIndex].click();
-            return;
-        } else {
-            return;
-        }
-
-        e.preventDefault();
-        focusedCellIndex = nextIndex;
-        cells[focusedCellIndex].focus();
-    });
-
     // Mode Selector Buttons
     function setGameMode(newMode) {
         gameMode = newMode;
@@ -951,13 +965,155 @@ document.addEventListener('DOMContentLoaded', () => {
         resetRound();
     });
 
+    if (btnNumpadGrid) {
+        btnNumpadGrid.addEventListener('click', () => {
+            playClickSound();
+            setNumpadMode('grid');
+        });
+    }
+
+    if (btnNumpadPhone) {
+        btnNumpadPhone.addEventListener('click', () => {
+            playClickSound();
+            setNumpadMode('phone');
+        });
+    }
+
+    // Global Keyboard Navigation (Numpad, Arrow Keys, Digits, Enter, Rematch)
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !victoryModal.classList.contains('hidden')) {
+        // Ignore if user is inside an input or select
+        if (e.target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+
+        // Modal controls: Escape, Enter, Space, or NumpadEnter to close modal and play again
+        if (!victoryModal.classList.contains('hidden')) {
+            if (e.key === 'Escape' || e.key === 'Enter' || e.code === 'NumpadEnter' || e.key === ' ') {
+                e.preventDefault();
+                playClickSound();
+                resetRound();
+            }
+            return;
+        }
+
+        // Quick rematch / restart key: 'R'
+        if (e.key === 'r' || e.key === 'R') {
+            e.preventDefault();
+            playClickSound();
             resetRound();
+            return;
+        }
+
+        // If game is over, Enter / Space / NumpadEnter starts next round
+        if (isGameOver) {
+            if (e.key === 'Enter' || e.code === 'NumpadEnter' || e.key === ' ') {
+                e.preventDefault();
+                playClickSound();
+                resetRound();
+            }
+            return;
+        }
+
+        // Arrow keys to navigate cells
+        if (['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'].includes(e.key)) {
+            e.preventDefault();
+            let nextIndex = focusedCellIndex;
+            if (e.key === 'ArrowRight') nextIndex = (focusedCellIndex % 3 < 2) ? focusedCellIndex + 1 : focusedCellIndex - 2;
+            else if (e.key === 'ArrowLeft') nextIndex = (focusedCellIndex % 3 > 0) ? focusedCellIndex - 1 : focusedCellIndex + 2;
+            else if (e.key === 'ArrowDown') nextIndex = (focusedCellIndex + 3) % 9;
+            else if (e.key === 'ArrowUp') nextIndex = (focusedCellIndex + 6) % 9;
+            focusedCellIndex = nextIndex;
+            cells[focusedCellIndex].focus();
+            return;
+        }
+
+        // Enter or Space on currently focused cell
+        if (e.key === 'Enter' || e.key === ' ' || e.code === 'NumpadEnter') {
+            if (document.activeElement && document.activeElement !== document.body && !document.activeElement.classList.contains('cell')) {
+                return;
+            }
+            e.preventDefault();
+            if (!isAiThinking && (gameMode !== 'ai' || currentPlayer === humanSide)) {
+                cells[focusedCellIndex].click();
+            }
+            return;
+        }
+
+        // Direct Number / Numpad selection
+        let targetCellIndex = null;
+
+        // 1. Hardware Numpad key detection via e.code (works with NumLock ON and OFF)
+        if (e.code && e.code.startsWith('Numpad')) {
+            const NUMPAD_GRID_MAP = {
+                'Numpad7': 0, 'Numpad8': 1, 'Numpad9': 2,
+                'Numpad4': 3, 'Numpad5': 4, 'Numpad6': 5,
+                'Numpad1': 6, 'Numpad2': 7, 'Numpad3': 8
+            };
+            const NUMPAD_PHONE_MAP = {
+                'Numpad1': 0, 'Numpad2': 1, 'Numpad3': 2,
+                'Numpad4': 3, 'Numpad5': 4, 'Numpad6': 5,
+                'Numpad7': 6, 'Numpad8': 7, 'Numpad9': 8
+            };
+            const map = (numpadMode === 'phone') ? NUMPAD_PHONE_MAP : NUMPAD_GRID_MAP;
+            if (map[e.code] !== undefined) {
+                targetCellIndex = map[e.code];
+            }
+        }
+
+        // 2. Hardware Numpad with NumLock OFF via e.location === 3
+        if (targetCellIndex === null && e.location === 3) {
+            const NUMLOCK_OFF_GRID = {
+                'Home': 0, 'ArrowUp': 1, 'PageUp': 2,
+                'ArrowLeft': 3, 'Clear': 4, 'ArrowRight': 5,
+                'End': 6, 'ArrowDown': 7, 'PageDown': 8
+            };
+            const NUMLOCK_OFF_PHONE = {
+                'End': 0, 'ArrowDown': 1, 'PageDown': 2,
+                'ArrowLeft': 3, 'Clear': 4, 'ArrowRight': 5,
+                'Home': 6, 'ArrowUp': 7, 'PageUp': 8
+            };
+            const map = (numpadMode === 'phone') ? NUMLOCK_OFF_PHONE : NUMLOCK_OFF_GRID;
+            if (map[e.key] !== undefined) {
+                targetCellIndex = map[e.key];
+            }
+        }
+
+        // 3. Top-row number digits (Digit1 - Digit9)
+        if (targetCellIndex === null && e.code && e.code.startsWith('Digit')) {
+            const digit = parseInt(e.code.replace('Digit', ''), 10);
+            if (digit >= 1 && digit <= 9) {
+                if (numpadMode === 'phone') {
+                    targetCellIndex = digit - 1;
+                } else {
+                    const DIGIT_GRID_MAP = { 7: 0, 8: 1, 9: 2, 4: 3, 5: 4, 6: 5, 1: 6, 2: 7, 3: 8 };
+                    targetCellIndex = DIGIT_GRID_MAP[digit];
+                }
+            }
+        }
+
+        // 4. Fallback check on e.key if e.code was empty
+        if (targetCellIndex === null && /^[1-9]$/.test(e.key)) {
+            const num = parseInt(e.key, 10);
+            if (numpadMode === 'phone') {
+                targetCellIndex = num - 1;
+            } else {
+                const NUM_GRID_MAP = { 7: 0, 8: 1, 9: 2, 4: 3, 5: 4, 6: 5, 1: 6, 2: 7, 3: 8 };
+                targetCellIndex = NUM_GRID_MAP[num];
+            }
+        }
+
+        // Execute cell selection if mapped
+        if (targetCellIndex !== null && targetCellIndex >= 0 && targetCellIndex <= 8) {
+            e.preventDefault();
+            if (isGameOver || isAiThinking) return;
+            if (gameMode === 'ai' && currentPlayer !== humanSide) return;
+
+            focusedCellIndex = targetCellIndex;
+            cells[targetCellIndex].focus();
+            cells[targetCellIndex].click();
         }
     });
 
     // Initial Setup
+    setNumpadMode(numpadMode);
     updateScoreDisplay();
     updateTurnIndicators();
 });

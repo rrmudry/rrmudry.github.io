@@ -31,7 +31,7 @@
       if (!attempts.length || Math.max(...attempts.map(a => a.pct)) !== best) flags.push('Best Mastery Check score does not match any attempt.');
       const last = st.quiz.last;
       if (!last || !Array.isArray(last.items) || !Array.isArray(last.answers)) flags.push('Mastery Check score, but no saved questions.');
-      else checkLast(last, attempts[attempts.length - 1], flags);
+      else checkLast(last, attempts[attempts.length - 1], flags, tier);
     }
     // The graph part cannot be finished without a full data table.
     const need = window.FL.TRIALS[tier];
@@ -40,8 +40,8 @@
     return flags;
   }
 
-  function checkLast(last, attempt, flags) {
-    const graded = window.FL.gradeQuiz(last.items, last.answers);
+  function checkLast(last, attempt, flags, tier) {
+    const graded = window.FL.gradeQuiz(last.items, last.answers, tier);
     if (attempt && graded.percent !== attempt.pct) flags.push(`Latest Mastery Check says ${attempt.pct}%, but its saved answers grade to ${graded.percent}%.`);
     if (attempt && attempt.secs !== null && attempt.secs !== undefined && attempt.secs < FAST_SECONDS && attempt.pct >= 75) {
       flags.push(`Scored ${attempt.pct}% on the Mastery Check in ${attempt.secs} seconds.`);

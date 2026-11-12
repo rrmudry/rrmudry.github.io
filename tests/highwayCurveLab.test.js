@@ -334,8 +334,21 @@ describe('saved records', () => {
     v: 1, parts: Object.fromEntries(['skid', 'measure', 'graph', 'weather', 'engineer'].map(p => [p, { i: 0, far: 12, done }])),
     pg: {}, table: done ? fullTable('cp', { r: 50 }) : [], limits: {}, graph: {}, found: {}, quiz: { best: 0, attempts: [] }
   });
-  test('an honest record raises no flags', () => {
-    expect(Integrity.check({ score: 6, track: 'cp', studioState: state(true) })).toEqual([]);
+  test('an honest record raises no flags across all tiers including conceptual 100% mastery check', () => {
+    TIERS.forEach(tier => {
+      const items = FL.buildQuiz(tier);
+      const answers = items.map(it => (it.type === 'path' || it.type === 'force')
+        ? { angle: it.phi + it.rot + (it.type === 'path' ? 90 : 180) }
+        : { value: String(FL.quizQuestion(it, tier).target) });
+      const graded = FL.gradeQuiz(items, answers, tier);
+      expect(graded.percent).toBe(100);
+      const st = {
+        v: 1, parts: Object.fromEntries(['skid', 'measure', 'graph', 'weather', 'engineer'].map(p => [p, { i: 0, far: 12, done: true }])),
+        pg: {}, table: fullTable(tier, { r: 50 }), limits: {}, graph: {}, found: {},
+        quiz: { best: 100, attempts: [{ pct: 100, score: 5, total: 5, secs: 120 }], last: { items, answers } }
+      };
+      expect(Integrity.check({ score: 10, track: tier, studioState: st })).toEqual([]);
+    });
   });
   test('a score the saved work cannot support is flagged', () => {
     expect(Integrity.check({ score: 9, track: 'cp', studioState: state(false) }).join(' ')).toMatch(/higher than the saved work/);

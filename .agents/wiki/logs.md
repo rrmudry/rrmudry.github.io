@@ -3,6 +3,14 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-12 — Fix: Integrity Regrader Tier Bug & Numpad Global Keyboard Controls
+**Patterns Updated**: `highway-curve-lab.md`, `monkeys-vs-bats-ttt.md`.
+**Files Updated**: `Unit_2/highway_curve_lab/js/integrity.js`, `admin/highway_curve_lab_monitor.html`, `admin/highway_curve_lab_monitor.src.html`, `Unit_2/highway_curve_lab/index.html`, `tests/highwayCurveLab.test.js`, `monkeys-vs-bats/script.js`, `monkeys-vs-bats/index.html`, `monkeys-vs-bats/style.css`, `partials/footer.html`.
+
+**Changes**:
+- **Integrity Regrader Bug Fix**: Fixed false-positive integrity flag on teacher monitor (`"Latest Mastery Check says 100%, but its saved answers grade to 80%"`). In `integrity.js`, `checkLast` called `FL.gradeQuiz(last.items, last.answers)` without passing `tier`. For Conceptual students, omitting `tier` defaulted question 5 to the CP/Honors version (`recallNew`, expecting 6000 N) instead of `recallFactor` (expecting 4), marking legitimate 100% scores as 80%. Now passes `tier` to `FL.gradeQuiz(last.items, last.answers, tier)`. Added full regression test for all tiers.
+- **Monkeys vs Bats Numpad Controls**: Replaced dead-code `boardEl.addEventListener('keydown')` with global `document.addEventListener('keydown')`. Added support for physical PC Numpad (7 8 9 top row matching keyboard grid) and Phone/Reading layout (1 2 3 top row), NumLock ON/OFF detection via `e.code` and `e.location`, subtle corner key badges on empty cells, quick rematch shortcut (`R`), and Escape/Enter modal dismissal.
+
 ## 2026-11-12 — Highway Curve Lab: Early Finisher Game Reward Link
 **Patterns Updated**: `highway-curve-lab.md`.
 **Files Updated**: `Unit_2/highway_curve_lab/src.html`, `Unit_2/highway_curve_lab/css/style.css`, `Unit_2/highway_curve_lab/js/app-quiz.js`, `Unit_2/highway_curve_lab/js/app-shell.js`, `Unit_2/highway_curve_lab/index.html`, `partials/footer.html`.
