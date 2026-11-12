@@ -3,6 +3,17 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-12 — Monkeys vs. Bats Tic-Tac-Toe Game
+**Patterns Added**: `monkeys-vs-bats-ttt.md`.
+**Files Added**: `monkeys-vs-bats/index.html`, `monkeys-vs-bats/style.css`, `monkeys-vs-bats/script.js`. **Files Updated**: `games.html`, `.agents/wiki/index.md`, `partials/footer.html`.
+
+**Changes**:
+- Built Monkeys vs. Bats Tic-Tac-Toe webapp with native Vanilla JavaScript (zero `unpkg.com`, zero in-browser Babel, zero external audio dependencies).
+- Integrated Web Audio API sound synthesizer with custom waveforms: playful monkey chortles/whoops, high-frequency bat sonar chirps, victory fanfare arpeggios, and draw chimes.
+- Built a 3-tier Minimax AI engine: Chimp / Fruit Bat (Easy), Clever Primate (Medium), and Jungle King (Hard / Unbeatable Minimax).
+- Added SVG vector avatars & markers, animated winning strike-through lines, full-screen canvas celebration particles (bananas, leaves, stars, bats), win streak tracking, and keyboard accessibility.
+- Linked the game on `games.html` under the Game Library and refreshed the footer deployment timestamp.
+
 ## 2026-11-11 — Highway Curve Lab (Day 54)
 **Patterns Added**: `highway-curve-lab.md`.
 **Files Added**: `Unit_2/highway_curve_lab/` (src.html, js/, css/, built index.html), `assets/vendor/three.min.js` (Three.js r160, deprecation warning line removed), `admin/highway_curve_lab_monitor.src.html` + built page, `tests/highwayCurveLab.test.js` (32 tests). **Updated**: `admin/index.html` (monitor card), `admin/sprint_progress_3d.html` (new activity).
