@@ -126,10 +126,19 @@
     const g = q.last ? FL.gradeQuiz(q.last.items, q.last.answers, A.tier) : null;
     const right = g ? g.results.filter(r => r.ok).map(r => FL.QUIZ_SKILLS[r.skill]) : [];
     const misses = g ? g.results.filter(r => !r.ok).map(r => `<li><strong>${FL.QUIZ_SKILLS[r.skill]}.</strong> ${r.msg}</li>`).join('') : '';
+    const gameRewardHTML = `<div class="game-reward-card">
+        <div class="game-reward-info">
+          <span class="game-reward-badge">🎮 Finished Early?</span>
+          <span class="game-reward-title">Play Monkeys vs. Bats vs. Frogs!</span>
+          <span class="game-reward-desc">Challenge the AI or a classmate to 3-way Tic-Tac-Toe.</span>
+        </div>
+        <a href="https://rrmudry.github.io/monkeys-vs-bats/" target="_blank" rel="noopener" class="btn-game-reward">Play Game ➔</a>
+      </div>`;
     return `${A.top('Mastery Check · Results')}<h2 class="task-title">Mastery Check results</h2>
       <div class="score-big"><strong>${last.pct}%</strong><span>this try · best ${q.best}%</span></div>
       <p class="grade-line">Your grade so far: <strong class="nowrap">${s.points.toFixed(1)} / 10</strong></p>
       ${certHTML()}
+      ${gameRewardHTML}
       <div class="task-body" id="readable">${right.length ? `<p><strong>✓ You showed:</strong> ${right.join(' · ')}</p>` : ''}
       ${misses ? `<p><strong>Read these before you try again:</strong></p><ul class="misses">${misses}</ul>` : ''}</div>
       ${A.actions(A.btn('btnStartQuiz', 'Retake with new situations ▶', A.certStatus().ready ? 'btn-secondary' : 'btn-primary', q.lockUntil))}`;

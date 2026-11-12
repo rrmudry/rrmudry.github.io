@@ -21,6 +21,8 @@
     const el = $('scoreChip');
     if (el && A.state) el.textContent = `${(A.state.bestPoints || 0).toFixed(1)} / 10`;
     if (A.certStatus) $('btnCert').hidden = !(A.certStatus().ready && (!A.profile.guest || A.profile.preview));
+    const btnGame = $('btnGameReward');
+    if (btnGame) btnGame.hidden = !(A.certStatus && (A.certStatus().ready || (A.state && A.state.quiz && A.state.quiz.attempts && A.state.quiz.attempts.length > 0)));
   };
 
   // ---------- The data table: one column per trial ----------

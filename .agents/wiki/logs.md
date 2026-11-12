@@ -3,6 +3,15 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-12 — Highway Curve Lab: Early Finisher Game Reward Link
+**Patterns Updated**: `highway-curve-lab.md`.
+**Files Updated**: `Unit_2/highway_curve_lab/src.html`, `Unit_2/highway_curve_lab/css/style.css`, `Unit_2/highway_curve_lab/js/app-quiz.js`, `Unit_2/highway_curve_lab/js/app-shell.js`, `Unit_2/highway_curve_lab/index.html`, `partials/footer.html`.
+
+**Changes**:
+- Added an early finisher reward card to `resultsHTML()` in `app-quiz.js`, linking students who finish their Mastery Check to the Monkeys vs. Bats vs. Frogs game (`https://rrmudry.github.io/monkeys-vs-bats/`).
+- Added a header `🎮 Play Game` chip in `src.html` and unhidden in `app-shell.js` upon completing a Mastery Check attempt or earning the completion certificate.
+- Inlined into `Unit_2/highway_curve_lab/index.html` via `scripts/inline-studio.js`. Tests pass 100% (`tests/highwayCurveLab.test.js`).
+
 ## 2026-11-12 — Monkeys vs. Bats vs. Frogs Tic-Tac-Toe Game
 **Patterns Updated**: `monkeys-vs-bats-ttt.md`.
 **Files Updated**: `monkeys-vs-bats/index.html`, `monkeys-vs-bats/style.css`, `monkeys-vs-bats/script.js`, `games.html`, `.agents/wiki/index.md`, `partials/footer.html`.

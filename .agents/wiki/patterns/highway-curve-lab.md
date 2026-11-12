@@ -46,6 +46,7 @@ On a flat curve, friction from the road is the only force that turns the car, an
 - **Every finished drive can be watched again** (↻ buttons, or a free-drive slider on finished trials). Replays never change the table.
 - **The calculator's use-answer button lives in the title bar** so the keypad leaves room for the typed line. When the window is 37.5rem tall or less (a Chromebook at 125% display size), the calculator docks over the picture instead of the question.
 - **The road runs far past the view** into the haze, so it never ends in mid-air.
+- **Finished Early Reward Link:** Upon completing the Mastery Check results or unlocking the certificate, students are presented with a card and header chip linking to the Monkeys vs. Bats vs. Frogs game (`https://rrmudry.github.io/monkeys-vs-bats/`), giving early finishers an engaging activity without navigating away or disturbing the class.
 
 ## Inline build
 `node scripts/inline-studio.js Unit_2/highway_curve_lab` and `node scripts/inline-studio.js admin/highway_curve_lab_monitor.src.html`. Rebuild after every edit. Preview without saving: `index.html?preview&view=conceptual` (or `cp`, `honors`). Teacher and preview get `View as`, `🧪 Simulated Data` and the step jumper, the same as the Centripetal Force Lab.
