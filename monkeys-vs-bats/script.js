@@ -1,7 +1,8 @@
 /**
- * Monkeys vs Bats Tic-Tac-Toe
+ * Monkeys vs Bats vs Frogs Tic-Tac-Toe
  * Pure Native Vanilla JavaScript Game Engine
- * Features: Web Audio API sound synthesizer, Minimax AI, Particle celebration, and SVG graphics
+ * Features: 3 Animals (Monkey 🐵, Bat 🦇, Frog 🐸), Web Audio API sound synthesizer,
+ * 3-Tier Minimax AI, 3-Player Battle Royale mode, Particle celebrations, and SVG graphics.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -37,25 +38,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     <stop offset="100%" stop-color="#fba863"/>
                 </radialGradient>
             </defs>
-            <!-- Ears -->
             <circle cx="12" cy="30" r="9" fill="url(#mFur)"/>
             <circle cx="12" cy="30" r="5" fill="#fca5a5"/>
             <circle cx="52" cy="30" r="9" fill="url(#mFur)"/>
             <circle cx="52" cy="30" r="5" fill="#fca5a5"/>
-            <!-- Head -->
             <circle cx="32" cy="32" r="22" fill="url(#mFur)"/>
-            <!-- Face Heart/Mask -->
             <ellipse cx="25" cy="27" rx="9" ry="11" fill="url(#mSkin)"/>
             <ellipse cx="39" cy="27" rx="9" ry="11" fill="url(#mSkin)"/>
             <ellipse cx="32" cy="37" rx="14" ry="11" fill="url(#mSkin)"/>
-            <!-- Eyes -->
             <ellipse cx="26" cy="25" rx="3" ry="4.2" fill="#1e1b4b"/>
             <circle cx="27" cy="23.5" r="1.3" fill="#ffffff"/>
             <ellipse cx="38" cy="25" rx="3" ry="4.2" fill="#1e1b4b"/>
             <circle cx="39" cy="23.5" r="1.3" fill="#ffffff"/>
-            <!-- Cute Mouth -->
             <path d="M27 39 Q32 44 37 39" stroke="#92400e" stroke-width="2" stroke-linecap="round" fill="none"/>
-            <!-- Banana Garnish -->
             <path d="M29 9 C35 6, 44 11, 46 17 C41 15, 33 14, 29 9 Z" fill="#facc15"/>
         </svg>
     `;
@@ -68,33 +63,66 @@ document.addEventListener('DOMContentLoaded', () => {
                     <stop offset="100%" stop-color="#6366f1"/>
                 </linearGradient>
             </defs>
-            <!-- Outstretched Scalloped Wings -->
             <path d="M8 26 C14 14, 24 18, 32 26 C40 18, 50 14, 56 26 C52 34, 46 44, 38 41 C35 48, 29 48, 26 41 C18 44, 12 34, 8 26 Z" fill="url(#bWing)"/>
-            <!-- Wing Spine Highlights -->
             <path d="M12 28 C20 22, 28 26, 32 30" stroke="#c084fc" stroke-width="1.4" stroke-linecap="round" fill="none"/>
             <path d="M52 28 C44 22, 36 26, 32 30" stroke="#c084fc" stroke-width="1.4" stroke-linecap="round" fill="none"/>
-            <!-- Bat Ears -->
             <polygon points="25,27 28,14 31,25" fill="#312e81"/>
             <polygon points="39,27 36,14 33,25" fill="#312e81"/>
-            <!-- Bat Head & Body -->
             <ellipse cx="32" cy="33" rx="7.5" ry="9" fill="#1e1b4b"/>
-            <!-- Glowing Eyes -->
             <ellipse cx="29" cy="31" rx="2.2" ry="2.5" fill="#06b6d4"/>
             <circle cx="29.5" cy="30.2" r="0.8" fill="#ffffff"/>
             <ellipse cx="35" cy="31" rx="2.2" ry="2.5" fill="#06b6d4"/>
             <circle cx="35.5" cy="30.2" r="0.8" fill="#ffffff"/>
-            <!-- Little Fangs -->
             <polygon points="30,37 31,37 30.5,39.5" fill="#ffffff"/>
             <polygon points="33,37 34,37 33.5,39.5" fill="#ffffff"/>
         </svg>
     `;
 
+    const FROG_MARKER_SVG = `
+        <svg class="marker-svg frog-marker" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <radialGradient id="fSkin" cx="50%" cy="40%" r="50%">
+                    <stop offset="0%" stop-color="#4ade80"/>
+                    <stop offset="100%" stop-color="#15803d"/>
+                </radialGradient>
+                <radialGradient id="fBelly" cx="50%" cy="60%" r="50%">
+                    <stop offset="0%" stop-color="#fef9c3"/>
+                    <stop offset="100%" stop-color="#86efac"/>
+                </radialGradient>
+                <radialGradient id="fEye" cx="40%" cy="40%" r="60%">
+                    <stop offset="0%" stop-color="#fde047"/>
+                    <stop offset="100%" stop-color="#ea580c"/>
+                </radialGradient>
+            </defs>
+            <!-- Water Ripple Base -->
+            <ellipse cx="32" cy="46" rx="24" ry="12" fill="#047857" opacity="0.35"/>
+            <!-- Bulging Eyes Base -->
+            <circle cx="21" cy="23" r="10.5" fill="url(#fSkin)"/>
+            <circle cx="43" cy="23" r="10.5" fill="url(#fSkin)"/>
+            <!-- Head / Body -->
+            <ellipse cx="32" cy="36" rx="20" ry="16" fill="url(#fSkin)"/>
+            <ellipse cx="32" cy="42" rx="12" ry="9" fill="url(#fBelly)"/>
+            <!-- Big Golden Eyes -->
+            <circle cx="21" cy="23" r="7.5" fill="url(#fEye)"/>
+            <ellipse cx="21" cy="23" rx="2.2" ry="5.5" fill="#0f172a"/>
+            <circle cx="22.5" cy="20.5" r="1.4" fill="#ffffff"/>
+            <circle cx="43" cy="23" r="7.5" fill="url(#fEye)"/>
+            <ellipse cx="43" cy="23" rx="2.2" ry="5.5" fill="#0f172a"/>
+            <circle cx="44.5" cy="20.5" r="1.4" fill="#ffffff"/>
+            <!-- Wide Frog Smile -->
+            <path d="M19 40 Q32 49 45 40" stroke="#14532d" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <!-- Cute Rosy Cheek Spots -->
+            <circle cx="16" cy="36" r="2.8" fill="#f43f5e" opacity="0.45"/>
+            <circle cx="48" cy="36" r="2.8" fill="#f43f5e" opacity="0.45"/>
+        </svg>
+    `;
+
     // --- State Variables ---
-    let boardState = Array(9).fill(null); // 'MONKEY', 'BAT', or null
-    let currentPlayer = 'MONKEY';          // 'MONKEY' or 'BAT'
-    let gameMode = 'ai';                  // 'ai' or '2p'
+    let boardState = Array(9).fill(null); // 'MONKEY', 'BAT', 'FROG', or null
+    let currentPlayer = 'MONKEY';          // 'MONKEY', 'BAT', or 'FROG'
+    let gameMode = 'ai';                  // 'ai', '2p', or '3p'
     let aiDifficulty = 'medium';          // 'easy', 'medium', 'hard'
-    let humanSide = 'MONKEY';             // In AI mode: 'MONKEY' or 'BAT'
+    let humanSide = 'MONKEY';             // In AI mode: 'MONKEY', 'BAT', or 'FROG'
     let isGameOver = false;
     let isAiThinking = false;
     let focusedCellIndex = 0;
@@ -102,6 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let scores = {
         MONKEY: 0,
         BAT: 0,
+        FROG: 0,
         STREAK: 0
     };
 
@@ -114,15 +143,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const streakDisplayEl = document.getElementById('streakDisplay');
     const monkeyScoreEl = document.getElementById('monkeyScore');
     const batScoreEl = document.getElementById('batScore');
+    const frogScoreEl = document.getElementById('frogScore');
     const teamMonkeyCard = document.getElementById('teamMonkeyCard');
     const teamBatCard = document.getElementById('teamBatCard');
+    const teamFrogCard = document.getElementById('teamFrogCard');
     const modeAiBtn = document.getElementById('modeAiBtn');
     const mode2pBtn = document.getElementById('mode2pBtn');
+    const mode3pBtn = document.getElementById('mode3pBtn');
     const difficultyGroup = document.getElementById('aiDifficultyGroup');
     const difficultySelect = document.getElementById('difficultySelect');
     const playerChoiceContainer = document.getElementById('playerChoiceContainer');
     const chooseMonkeyBtn = document.getElementById('chooseMonkeyBtn');
     const chooseBatBtn = document.getElementById('chooseBatBtn');
+    const chooseFrogBtn = document.getElementById('chooseFrogBtn');
     const muteBtn = document.getElementById('muteBtn');
     const soundIcon = document.getElementById('soundIcon');
     const restartBtn = document.getElementById('restartBtn');
@@ -163,7 +196,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const gain = ctx.createGain();
 
             osc.type = 'triangle';
-            // Playful upward bounce
             osc.frequency.setValueAtTime(260, now);
             osc.frequency.exponentialRampToValueAtTime(520, now + 0.08);
             osc.frequency.exponentialRampToValueAtTime(320, now + 0.16);
@@ -192,7 +224,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const gain = ctx.createGain();
 
             osc.type = 'sine';
-            // High frequency quick sweep with sonar resonance
             osc.frequency.setValueAtTime(800, now);
             osc.frequency.exponentialRampToValueAtTime(1400, now + 0.06);
             osc.frequency.exponentialRampToValueAtTime(900, now + 0.18);
@@ -210,24 +241,63 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Victory Fanfare
-    function playVictorySound(isMonkey) {
+    // Frog Move: Deep resonant bubbling ribbit / croak!
+    function playFrogSound() {
         if (isMuted) return;
         try {
             const ctx = getAudioContext();
             const now = ctx.currentTime;
-            const notes = isMonkey ? [261.63, 329.63, 392.00, 523.25, 659.25] : [293.66, 349.23, 440.00, 587.33, 698.46];
+
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.type = 'sawtooth';
+            // Low resonant double-pulsed pitch slide simulating a throat-sac croak
+            osc.frequency.setValueAtTime(130, now);
+            osc.frequency.exponentialRampToValueAtTime(280, now + 0.07);
+            osc.frequency.exponentialRampToValueAtTime(140, now + 0.18);
+
+            gain.gain.setValueAtTime(0.32, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.20);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.21);
+        } catch (e) {
+            console.warn('Audio play error:', e);
+        }
+    }
+
+    // Victory Fanfare
+    function playVictorySound(winner) {
+        if (isMuted) return;
+        try {
+            const ctx = getAudioContext();
+            const now = ctx.currentTime;
+            
+            let notes = [261.63, 329.63, 392.00, 523.25, 659.25]; // Monkey (C major)
+            let waveType = 'triangle';
+
+            if (winner === 'BAT') {
+                notes = [293.66, 349.23, 440.00, 587.33, 698.46]; // Bat (D minor / modal)
+                waveType = 'sine';
+            } else if (winner === 'FROG') {
+                notes = [220.00, 277.18, 329.63, 440.00, 554.37]; // Frog (A major bouncy)
+                waveType = 'sawtooth';
+            }
 
             notes.forEach((freq, index) => {
                 const noteTime = now + (index * 0.1);
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
 
-                osc.type = isMonkey ? 'triangle' : 'sine';
+                osc.type = waveType;
                 osc.frequency.setValueAtTime(freq, noteTime);
 
                 const duration = (index === notes.length - 1) ? 0.45 : 0.14;
-                gain.gain.setValueAtTime(0.28, noteTime);
+                gain.gain.setValueAtTime(0.26, noteTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, noteTime + duration);
 
                 osc.connect(gain);
@@ -271,7 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Subtle Button Click Sound
+    // Button Click Sound
     function playClickSound() {
         if (isMuted) return;
         try {
@@ -312,13 +382,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function launchCelebrationParticles(winner) {
         resizeParticleCanvas();
         particles = [];
-        const count = 75;
-        const emojis = winner === 'MONKEY' 
-            ? ['🍌', '🌴', '⭐', '✨', '🐵'] 
-            : ['🦇', '🌙', '💜', '⚡', '🌌'];
-        const colors = winner === 'MONKEY'
-            ? ['#f59e0b', '#10b981', '#facc15', '#34d399', '#fbbf24']
-            : ['#a855f7', '#06b6d4', '#c084fc', '#38bdf8', '#f43f5e'];
+        const count = 80;
+
+        let emojis = ['🍌', '🌴', '⭐', '✨', '🐵'];
+        let colors = ['#f59e0b', '#10b981', '#facc15', '#34d399', '#fbbf24'];
+
+        if (winner === 'BAT') {
+            emojis = ['🦇', '🌙', '💜', '⚡', '🌌'];
+            colors = ['#a855f7', '#06b6d4', '#c084fc', '#38bdf8', '#f43f5e'];
+        } else if (winner === 'FROG') {
+            emojis = ['🐸', '🪷', '💧', '🍃', '✨'];
+            colors = ['#22c55e', '#14b8a6', '#4ade80', '#38bdf8', '#86efac'];
+        }
 
         for (let i = 0; i < count; i++) {
             particles.push({
@@ -399,33 +474,58 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isMuted) playClickSound();
     });
 
+    // --- Active Animals in Match ---
+    function getActiveAnimals() {
+        if (gameMode === '3p') return ['MONKEY', 'BAT', 'FROG'];
+        // In 2-animal modes (ai or 2p), if human is Frog, rival is Bat (or Monkey); otherwise Monkey vs Bat
+        if (humanSide === 'FROG') return ['FROG', 'BAT'];
+        if (humanSide === 'BAT') return ['BAT', 'MONKEY'];
+        return ['MONKEY', 'BAT'];
+    }
+
     // --- UI Update Functions ---
     function updateTurnIndicators() {
         if (isGameOver) {
             teamMonkeyCard.classList.remove('active-turn');
             teamBatCard.classList.remove('active-turn');
+            teamFrogCard.classList.remove('active-turn');
             return;
         }
 
-        const isMonkey = currentPlayer === 'MONKEY';
-        teamMonkeyCard.classList.toggle('active-turn', isMonkey);
-        teamBatCard.classList.toggle('active-turn', !isMonkey);
+        teamMonkeyCard.classList.toggle('active-turn', currentPlayer === 'MONKEY');
+        teamBatCard.classList.toggle('active-turn', currentPlayer === 'BAT');
+        teamFrogCard.classList.toggle('active-turn', currentPlayer === 'FROG');
+
+        const animalLabels = {
+            MONKEY: "Monkey 🐵",
+            BAT: "Bat 🦇",
+            FROG: "Frog 🐸"
+        };
 
         if (gameMode === 'ai') {
             const isHumanTurn = currentPlayer === humanSide;
             if (isHumanTurn) {
-                statusMsgEl.textContent = `Your Turn (${isMonkey ? 'Monkeys 🐵' : 'Bats 🦇'})`;
+                statusMsgEl.textContent = `Your Turn (${animalLabels[currentPlayer]})`;
             } else {
-                statusMsgEl.textContent = `AI Thinking… (${isMonkey ? 'Monkeys 🐵' : 'Bats 🦇'})`;
+                statusMsgEl.textContent = `AI Thinking… (${animalLabels[currentPlayer]})`;
             }
+        } else if (gameMode === '3p') {
+            statusMsgEl.textContent = `${animalLabels[currentPlayer]}'s Turn!`;
         } else {
-            statusMsgEl.textContent = isMonkey ? "Team Monkey's Turn! 🐵" : "Team Bat's Turn! 🦇";
+            statusMsgEl.textContent = `${animalLabels[currentPlayer]}'s Turn!`;
         }
     }
 
     function updateScoreDisplay() {
         monkeyScoreEl.textContent = scores.MONKEY;
         batScoreEl.textContent = scores.BAT;
+        frogScoreEl.textContent = scores.FROG;
+
+        // In 2-player/1v1 modes, hide the inactive team card to keep board clean; in 3p show all 3
+        const activeAnimals = getActiveAnimals();
+        teamMonkeyCard.style.display = activeAnimals.includes('MONKEY') ? 'flex' : 'none';
+        teamBatCard.style.display = activeAnimals.includes('BAT') ? 'flex' : 'none';
+        teamFrogCard.style.display = activeAnimals.includes('FROG') ? 'flex' : 'none';
 
         if (gameMode === 'ai') {
             streakDisplayEl.style.display = 'block';
@@ -454,19 +554,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const cellEl = cells[index];
         const val = boardState[index];
 
+        cellEl.classList.remove('filled', 'monkey-cell', 'bat-cell', 'frog-cell', 'win-cell');
+
         if (val === 'MONKEY') {
             cellEl.innerHTML = MONKEY_MARKER_SVG;
             cellEl.classList.add('filled', 'monkey-cell');
-            cellEl.classList.remove('bat-cell');
             cellEl.setAttribute('aria-label', `Square ${index + 1}: Monkey`);
         } else if (val === 'BAT') {
             cellEl.innerHTML = BAT_MARKER_SVG;
             cellEl.classList.add('filled', 'bat-cell');
-            cellEl.classList.remove('monkey-cell');
             cellEl.setAttribute('aria-label', `Square ${index + 1}: Bat`);
+        } else if (val === 'FROG') {
+            cellEl.innerHTML = FROG_MARKER_SVG;
+            cellEl.classList.add('filled', 'frog-cell');
+            cellEl.setAttribute('aria-label', `Square ${index + 1}: Frog`);
         } else {
             cellEl.innerHTML = '';
-            cellEl.classList.remove('filled', 'monkey-cell', 'bat-cell', 'win-cell');
             cellEl.setAttribute('aria-label', `Square ${index + 1}: Empty`);
         }
     }
@@ -478,9 +581,11 @@ document.addEventListener('DOMContentLoaded', () => {
         winningLine.setAttribute('x2', coords.x2);
         winningLine.setAttribute('y2', coords.y2);
 
-        const strokeColor = winner === 'MONKEY' ? '#f59e0b' : '#a855f7';
-        winningLine.setAttribute('stroke', strokeColor);
+        let strokeColor = '#f59e0b';
+        if (winner === 'BAT') strokeColor = '#a855f7';
+        else if (winner === 'FROG') strokeColor = '#22c55e';
 
+        winningLine.setAttribute('stroke', strokeColor);
         winningLineSvg.classList.add('visible');
     }
 
@@ -493,17 +598,22 @@ document.addEventListener('DOMContentLoaded', () => {
             modalIcon.textContent = '🌴';
             modalTitle.textContent = 'Canopy Stalemate!';
             modalTitle.className = 'modal-title draw-win';
-            modalSubtitle.textContent = 'Tangled in the vines — perfect defense on both sides!';
+            modalSubtitle.textContent = 'Tangled in the vines — perfect defense on all sides!';
         } else if (winner === 'MONKEY') {
             modalIcon.textContent = '🍌';
             modalTitle.textContent = 'Team Monkey Wins!';
             modalTitle.className = 'modal-title monkey-win';
             modalSubtitle.textContent = 'Banana Bonanza! The Jungle Troop rules the canopy!';
-        } else {
+        } else if (winner === 'BAT') {
             modalIcon.textContent = '🦇';
             modalTitle.textContent = 'Team Bat Wins!';
             modalTitle.className = 'modal-title bat-win';
             modalSubtitle.textContent = 'Midnight Sovereignty! The Bat Colony takes the night!';
+        } else if (winner === 'FROG') {
+            modalIcon.textContent = '🐸';
+            modalTitle.textContent = 'Team Frog Wins!';
+            modalTitle.className = 'modal-title frog-win';
+            modalSubtitle.textContent = 'Lilypad Dynasty! The Canopy Croakers leap to victory!';
         }
 
         victoryModal.classList.remove('hidden');
@@ -531,12 +641,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Highlight winning cells
             result.cells.forEach(idx => cells[idx].classList.add('win-cell'));
             drawWinningLine(result.combinationIndex, winner);
 
-            statusMsgEl.textContent = `${winner === 'MONKEY' ? 'Team Monkey' : 'Team Bat'} Triumphs! 🏆`;
-            playVictorySound(winner === 'MONKEY');
+            const names = { MONKEY: 'Team Monkey', BAT: 'Team Bat', FROG: 'Team Frog' };
+            statusMsgEl.textContent = `${names[winner]} Triumphs! 🏆`;
+            playVictorySound(winner);
             launchCelebrationParticles(winner);
 
             setTimeout(() => {
@@ -555,8 +665,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (currentPlayer === 'MONKEY') {
             playMonkeySound();
-        } else {
+        } else if (currentPlayer === 'BAT') {
             playBatSound();
+        } else if (currentPlayer === 'FROG') {
+            playFrogSound();
         }
 
         const gameResult = checkWinner(boardState);
@@ -565,8 +677,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return true;
         }
 
-        // Toggle Player
-        currentPlayer = (currentPlayer === 'MONKEY') ? 'BAT' : 'MONKEY';
+        // Toggle Player according to active animals
+        const active = getActiveAnimals();
+        const currentIdx = active.indexOf(currentPlayer);
+        currentPlayer = active[(currentIdx + 1) % active.length];
         updateTurnIndicators();
 
         // Trigger AI if in AI mode and it's AI's turn
@@ -632,13 +746,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function chooseAiMove() {
-        const aiMark = (humanSide === 'MONKEY') ? 'BAT' : 'MONKEY';
+        const active = getActiveAnimals();
+        const aiMark = active.find(a => a !== humanSide) || (humanSide === 'MONKEY' ? 'BAT' : 'MONKEY');
         const humanMark = humanSide;
         const available = getAvailableMoves(boardState);
 
         if (available.length === 0) return null;
 
-        // Easy Level: 80% Random, 20% simple block
+        // Easy Level: 75% Random, 25% simple block
         if (aiDifficulty === 'easy') {
             if (Math.random() < 0.25) {
                 const blockMove = findWinningMove(boardState, humanMark);
@@ -647,7 +762,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return available[Math.floor(Math.random() * available.length)];
         }
 
-        // Medium Level: Always win if possible, always block immediate loss, 40% optimal play
+        // Medium Level: Always win if possible, always block immediate loss, 45% strategic
         if (aiDifficulty === 'medium') {
             const winMove = findWinningMove(boardState, aiMark);
             if (winMove !== null) return winMove;
@@ -655,9 +770,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const blockMove = findWinningMove(boardState, humanMark);
             if (blockMove !== null) return blockMove;
 
-            if (Math.random() < 0.45) {
-                // Pick optimal center or corner
-                if (boardState[4] === null) return 4;
+            if (Math.random() < 0.45 && boardState[4] === null) {
+                return 4;
             }
 
             return available[Math.floor(Math.random() * available.length)];
@@ -667,7 +781,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let bestScore = -Infinity;
         let bestMove = available[0];
 
-        // Randomize moves of equal score so the AI doesn't play identically every game
         const shuffled = available.slice().sort(() => Math.random() - 0.5);
 
         for (let i = 0; i < shuffled.length; i++) {
@@ -687,7 +800,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function triggerAiMove() {
         isAiThinking = true;
-        const delay = 350 + Math.random() * 250; // realistic organic response delay
+        const delay = 350 + Math.random() * 250;
 
         setTimeout(() => {
             if (isGameOver) {
@@ -709,16 +822,19 @@ document.addEventListener('DOMContentLoaded', () => {
         boardState = Array(9).fill(null);
         isGameOver = false;
         isAiThinking = false;
-        currentPlayer = 'MONKEY'; // Monkeys always open the board
+
+        const active = getActiveAnimals();
+        currentPlayer = active[0]; // First animal in the active match starts
 
         hideWinningLine();
         victoryModal.classList.add('hidden');
 
         cells.forEach((_, idx) => renderCell(idx));
+        updateScoreDisplay();
         updateTurnIndicators();
 
-        // If in AI mode and human chose Bats, AI Monkey plays first!
-        if (gameMode === 'ai' && humanSide === 'BAT') {
+        // If in AI mode and human isn't the first active animal, AI starts
+        if (gameMode === 'ai' && humanSide !== currentPlayer) {
             triggerAiMove();
         }
     }
@@ -726,6 +842,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetAllScores() {
         scores.MONKEY = 0;
         scores.BAT = 0;
+        scores.FROG = 0;
         scores.STREAK = 0;
         updateScoreDisplay();
         resetRound();
@@ -740,13 +857,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isGameOver || isAiThinking) return;
             if (gameMode === 'ai' && currentPlayer !== humanSide) return;
             makeMove(idx);
-        });
-
-        // Hover effect helper for preview
-        cell.addEventListener('mouseenter', () => {
-            if (boardState[idx] === null && !isGameOver && !isAiThinking) {
-                cell.style.setProperty('--hover-color', currentPlayer === 'MONKEY' ? 'var(--monkey-color)' : 'var(--bat-color)');
-            }
         });
     });
 
@@ -764,7 +874,6 @@ document.addEventListener('DOMContentLoaded', () => {
             cells[focusedCellIndex].click();
             return;
         } else if (/^[1-9]$/.test(e.key)) {
-            // Numpad key mapping (top-left 1 through bottom-right 9)
             const numIndex = parseInt(e.key, 10) - 1;
             cells[numIndex].click();
             return;
@@ -778,35 +887,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Mode Selector Buttons
-    modeAiBtn.addEventListener('click', () => {
-        if (gameMode === 'ai') return;
-        gameMode = 'ai';
-        modeAiBtn.classList.add('active');
-        modeAiBtn.setAttribute('aria-pressed', 'true');
-        mode2pBtn.classList.remove('active');
-        mode2pBtn.setAttribute('aria-pressed', 'false');
+    function setGameMode(newMode) {
+        gameMode = newMode;
+        modeAiBtn.classList.toggle('active', newMode === 'ai');
+        modeAiBtn.setAttribute('aria-pressed', String(newMode === 'ai'));
+        mode2pBtn.classList.toggle('active', newMode === '2p');
+        mode2pBtn.setAttribute('aria-pressed', String(newMode === '2p'));
+        mode3pBtn.classList.toggle('active', newMode === '3p');
+        mode3pBtn.setAttribute('aria-pressed', String(newMode === '3p'));
 
-        difficultyGroup.style.display = 'flex';
-        playerChoiceContainer.style.display = 'flex';
+        difficultyGroup.style.display = (newMode === 'ai') ? 'flex' : 'none';
+        playerChoiceContainer.style.display = (newMode === 'ai') ? 'flex' : 'none';
+
         updateScoreDisplay();
         resetRound();
         playClickSound();
-    });
+    }
 
-    mode2pBtn.addEventListener('click', () => {
-        if (gameMode === '2p') return;
-        gameMode = '2p';
-        mode2pBtn.classList.add('active');
-        mode2pBtn.setAttribute('aria-pressed', 'true');
-        modeAiBtn.classList.remove('active');
-        modeAiBtn.setAttribute('aria-pressed', 'false');
-
-        difficultyGroup.style.display = 'none';
-        playerChoiceContainer.style.display = 'none';
-        updateScoreDisplay();
-        resetRound();
-        playClickSound();
-    });
+    modeAiBtn.addEventListener('click', () => setGameMode('ai'));
+    mode2pBtn.addEventListener('click', () => setGameMode('2p'));
+    mode3pBtn.addEventListener('click', () => setGameMode('3p'));
 
     // AI Difficulty Select
     difficultySelect.addEventListener('change', (e) => {
@@ -815,30 +915,24 @@ document.addEventListener('DOMContentLoaded', () => {
         resetRound();
     });
 
-    // Player Side Choice (Solo Mode)
-    chooseMonkeyBtn.addEventListener('click', () => {
-        if (humanSide === 'MONKEY') return;
-        humanSide = 'MONKEY';
-        chooseMonkeyBtn.classList.add('active');
-        chooseMonkeyBtn.setAttribute('aria-pressed', 'true');
-        chooseBatBtn.classList.remove('active');
-        chooseBatBtn.setAttribute('aria-pressed', 'false');
-        scores.STREAK = 0;
-        playClickSound();
-        resetRound();
-    });
+    // Player Animal Choice (Solo Mode)
+    function setHumanSide(side) {
+        humanSide = side;
+        chooseMonkeyBtn.classList.toggle('active', side === 'MONKEY');
+        chooseMonkeyBtn.setAttribute('aria-pressed', String(side === 'MONKEY'));
+        chooseBatBtn.classList.toggle('active', side === 'BAT');
+        chooseBatBtn.setAttribute('aria-pressed', String(side === 'BAT'));
+        chooseFrogBtn.classList.toggle('active', side === 'FROG');
+        chooseFrogBtn.setAttribute('aria-pressed', String(side === 'FROG'));
 
-    chooseBatBtn.addEventListener('click', () => {
-        if (humanSide === 'BAT') return;
-        humanSide = 'BAT';
-        chooseBatBtn.classList.add('active');
-        chooseBatBtn.setAttribute('aria-pressed', 'true');
-        chooseMonkeyBtn.classList.remove('active');
-        chooseMonkeyBtn.setAttribute('aria-pressed', 'false');
         scores.STREAK = 0;
         playClickSound();
         resetRound();
-    });
+    }
+
+    chooseMonkeyBtn.addEventListener('click', () => setHumanSide('MONKEY'));
+    chooseBatBtn.addEventListener('click', () => setHumanSide('BAT'));
+    chooseFrogBtn.addEventListener('click', () => setHumanSide('FROG'));
 
     // Action Buttons
     restartBtn.addEventListener('click', () => {
@@ -857,7 +951,6 @@ document.addEventListener('DOMContentLoaded', () => {
         resetRound();
     });
 
-    // Close victory modal on escape key
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && !victoryModal.classList.contains('hidden')) {
             resetRound();
