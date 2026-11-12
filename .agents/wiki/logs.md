@@ -3,6 +3,17 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-12 — Dragons Added to Animal Tic-Tac-Toe Game & 5-Player Battle Royale
+**Patterns Updated**: `monkeys-vs-bats-ttt.md`.
+**Files Updated**: `monkeys-vs-bats/index.html`, `monkeys-vs-bats/style.css`, `monkeys-vs-bats/script.js`, `partials/footer.html`.
+
+**Changes**:
+- Added 5th champion: Fire Dragons (Flame Brood 🐉) with fiery crimson/inferno theming (`#f43f5e`, `#ef4444`), high-detail SVG dragon avatar with horns, fiery slit eyes, flared nostrils, and flaming crest marker.
+- Synthesized Draconic flame roar sound using Web Audio API (sawtooth pitch sweep 140 Hz to 50 Hz through 450 Hz to 160 Hz resonant bandpass filter, with a sizzle spark burst) and an epic Dorian fire brass victory fanfare.
+- Added 5-Player Battle Royale Mode (`🔥 5 Players`), supporting turn rotation across Monkeys, Bats, Frogs, Bears, and Dragons.
+- Added Dragon to Solo mode (playing as 🐉 duels the Polar Bear in a Fire vs. Ice showdown) and multi-player modes, complete with blazing particle effects (`🐉`, `🔥`, `🌋`, `💥`).
+
+
 ## 2026-11-12 — Polar Bears Added to Animal Tic-Tac-Toe Game
 **Patterns Updated**: `monkeys-vs-bats-ttt.md`.
 **Files Updated**: `monkeys-vs-bats/index.html`, `monkeys-vs-bats/style.css`, `monkeys-vs-bats/script.js`, `games.html`, `partials/footer.html`.
