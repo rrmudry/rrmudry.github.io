@@ -144,7 +144,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPlayer = 'MONKEY';          // 'MONKEY', 'BAT', 'FROG', or 'BEAR'
     let gameMode = 'ai';                  // 'ai', '2p', '3p', or '4p'
     let aiDifficulty = 'medium';          // 'easy', 'medium', 'hard'
-    let humanSide = 'MONKEY';             // In AI mode: 'MONKEY', 'BAT', 'FROG', or 'BEAR'
+    let savedSide = 'MONKEY';
+    try {
+        const stored = localStorage.getItem('mvb_human_side');
+        if (['MONKEY', 'BAT', 'FROG', 'BEAR'].includes(stored)) savedSide = stored;
+    } catch (e) {}
+    let humanSide = savedSide;            // Selected champion: 'MONKEY', 'BAT', 'FROG', or 'BEAR'
     let isGameOver = false;
     let isAiThinking = false;
     let focusedCellIndex = 0;
@@ -565,7 +570,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Active Animals in Match ---
     function getActiveAnimals() {
         if (gameMode === '4p') return ['MONKEY', 'BAT', 'FROG', 'BEAR'];
-        if (gameMode === '3p') return ['MONKEY', 'BAT', 'FROG'];
+        if (gameMode === '3p') {
+            if (humanSide === 'BEAR') return ['BEAR', 'MONKEY', 'BAT'];
+            if (humanSide === 'FROG') return ['FROG', 'MONKEY', 'BAT'];
+            return ['MONKEY', 'BAT', 'FROG'];
+        }
         // In 2-animal modes (ai or 2p), if human is Bear, rival is Monkey; if Frog, rival is Bat; etc.
         if (humanSide === 'BEAR') return ['BEAR', 'MONKEY'];
         if (humanSide === 'FROG') return ['FROG', 'BAT'];
@@ -613,12 +622,17 @@ document.addEventListener('DOMContentLoaded', () => {
         frogScoreEl.textContent = scores.FROG;
         bearScoreEl.textContent = scores.BEAR;
 
-        // In 2-player/1v1 modes, hide the inactive team card to keep board clean; in 3p show 3, in 4p show all 4
+        // Dim benched animal cards rather than hiding completely, so players can click any animal to draft them
         const activeAnimals = getActiveAnimals();
-        teamMonkeyCard.style.display = activeAnimals.includes('MONKEY') ? 'flex' : 'none';
-        teamBatCard.style.display = activeAnimals.includes('BAT') ? 'flex' : 'none';
-        teamFrogCard.style.display = activeAnimals.includes('FROG') ? 'flex' : 'none';
-        teamBearCard.style.display = activeAnimals.includes('BEAR') ? 'flex' : 'none';
+        teamMonkeyCard.classList.toggle('bench', !activeAnimals.includes('MONKEY'));
+        teamBatCard.classList.toggle('bench', !activeAnimals.includes('BAT'));
+        teamFrogCard.classList.toggle('bench', !activeAnimals.includes('FROG'));
+        teamBearCard.classList.toggle('bench', !activeAnimals.includes('BEAR'));
+
+        teamMonkeyCard.style.display = 'flex';
+        teamBatCard.style.display = 'flex';
+        teamFrogCard.style.display = 'flex';
+        teamBearCard.style.display = 'flex';
 
         if (gameMode === 'ai') {
             streakDisplayEl.style.display = 'block';
@@ -1014,7 +1028,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         difficultyGroup.style.display = (newMode === 'ai') ? 'flex' : 'none';
-        playerChoiceContainer.style.display = (newMode === 'ai') ? 'flex' : 'none';
+        playerChoiceContainer.style.display = (newMode === '4p') ? 'none' : 'flex';
 
         updateScoreDisplay();
         resetRound();
@@ -1033,9 +1047,12 @@ document.addEventListener('DOMContentLoaded', () => {
         resetRound();
     });
 
-    // Player Animal Choice (Solo Mode)
-    function setHumanSide(side) {
+    // Player Animal Choice / Champion Selection
+    function setHumanSide(side, playSound = true) {
+        if (!['MONKEY', 'BAT', 'FROG', 'BEAR'].includes(side)) return;
         humanSide = side;
+        try { localStorage.setItem('mvb_human_side', side); } catch (e) {}
+
         chooseMonkeyBtn.classList.toggle('active', side === 'MONKEY');
         chooseMonkeyBtn.setAttribute('aria-pressed', String(side === 'MONKEY'));
         chooseBatBtn.classList.toggle('active', side === 'BAT');
@@ -1048,7 +1065,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         scores.STREAK = 0;
-        playClickSound();
+        if (playSound) playClickSound();
         resetRound();
     }
 
@@ -1056,6 +1073,12 @@ document.addEventListener('DOMContentLoaded', () => {
     chooseBatBtn.addEventListener('click', () => setHumanSide('BAT'));
     chooseFrogBtn.addEventListener('click', () => setHumanSide('FROG'));
     if (chooseBearBtn) chooseBearBtn.addEventListener('click', () => setHumanSide('BEAR'));
+
+    // Team Card Quick-Select (Click avatar in scoreboard to pick champion)
+    teamMonkeyCard.addEventListener('click', () => setHumanSide('MONKEY'));
+    teamBatCard.addEventListener('click', () => setHumanSide('BAT'));
+    teamFrogCard.addEventListener('click', () => setHumanSide('FROG'));
+    if (teamBearCard) teamBearCard.addEventListener('click', () => setHumanSide('BEAR'));
 
     // Action Buttons
     restartBtn.addEventListener('click', () => {
@@ -1223,6 +1246,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial Setup
     setNumpadMode(numpadMode);
+    setHumanSide(humanSide, false);
     updateScoreDisplay();
     updateTurnIndicators();
 });
