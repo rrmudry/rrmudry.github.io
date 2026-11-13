@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- firestore-audit: teacher-only -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>🎨 Week 11 Progress &amp; Spin Art Reward Console | Mr. Mudry</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/unit2-favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
+
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --card-muted: #f1f5f9;
+      --line: #cbd5e1;
+      --line-soft: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --accent-cyan: #0284c7;
+      --accent-purple: #7c3aed;
+      --good-bg: #dcfce7;
+      --good-border: #16a34a;
+      --good-text: #15803d;
+      --good-glow: rgba(22, 163, 74, 0.25);
+      --warn-bg: #fef3c7;
+      --warn-border: #d97706;
+      --warn-text: #b45309;
+      --bad-bg: #fee2e2;
+      --bad-border: #dc2626;
+      --bad-text: #b91c1c;
+      --spin-gold: #f59e0b;
+      --spin-glow: rgba(245, 158, 11, 0.35);
+      --font-scale: 1rem;
+    }
+
+    body.dark {
+      --bg: #070d19;
+      --card: #0f172a;
+      --card-muted: #1e293b;
+      --line: #334155;
+      --line-soft: #1e293b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-cyan: #38bdf8;
+      --accent-purple: #a855f7;
+      --good-bg: rgba(34, 197, 94, 0.16);
+      --good-border: #22c55e;
+      --good-text: #4ade80;
+      --good-glow: rgba(34, 197, 94, 0.3);
+      --warn-bg: rgba(245, 158, 11, 0.16);
+      --warn-border: #f59e0b;
+      --warn-text: #fcd34d;
+      --bad-bg: rgba(239, 68, 68, 0.16);
+      --bad-border: #ef4444;
+      --bad-text: #f87171;
+      --spin-gold: #fbbf24;
+      --spin-glow: rgba(251, 191, 36, 0.4);
+    }
+
+    body.projector {
+      --font-scale: 1.25rem;
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+      font-size: var(--font-scale);
+      line-height: 1.4;
+      min-height: 100vh;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* Top Navigation Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--card);
+      border-bottom: 2px solid var(--line);
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-icon {
+      font-size: 2rem;
+      line-height: 1;
+      filter: drop-shadow(0 2px 4px var(--spin-glow));
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.35rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .sub {
+      margin: 0.15rem 0 0;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    button, select, input[type="text"] {
+      font: inherit;
+      color: var(--text);
+      background: var(--card);
+      border: 1.5px solid var(--line);
+      border-radius: 0.6rem;
+      padding: 0.45rem 0.8rem;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+
+    button {
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    button:hover {
+      border-color: var(--accent-cyan);
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      color: #ffffff;
+      border: none;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+    }
+    body.dark .btn-primary {
+      background: linear-gradient(135deg, #38bdf8, #0284c7);
+      color: #070d19;
+      font-weight: 800;
+    }
+
+    /* Main Container */
+    main {
+      max-width: 98rem;
+      margin: 0 auto;
+      padding: 1.25rem;
+      display: grid;
+      gap: 1.25rem;
+    }
+
+    /* Stat Cards Runway */
+    .tiles {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+      gap: 0.85rem;
+    }
+
+    .tile {
+      background: var(--card);
+      border: 1.5px solid var(--line);
+      border-radius: 1rem;
+      padding: 1rem 1.15rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .tile strong {
+      font-size: 2.2rem;
+      font-weight: 900;
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tile span {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-top: 0.25rem;
+    }
+
+    .tile-ready {
+      border-color: var(--good-border);
+      background: var(--good-bg);
+    }
+    .tile-ready strong { color: var(--good-text); }
+
+    .tile-paper {
+      border-color: var(--spin-gold);
+      background: rgba(245, 158, 11, 0.1);
+    }
+    .tile-paper strong { color: var(--spin-gold); }
+
+    .tile-catchup {
+      border-color: var(--warn-border);
+      background: var(--warn-bg);
+    }
+    .tile-catchup strong { color: var(--warn-text); }
+
+    /* Control Filters Bar */
+    .filter-panel {
+      background: var(--card);
+      border: 1.5px solid var(--line);
+      border-radius: 1rem;
+      padding: 0.9rem 1.15rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .filter-chip {
+      background: var(--card-muted);
+      border: 1.5px solid var(--line);
+      border-radius: 2rem;
+      padding: 0.35rem 0.85rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      user-select: none;
+    }
+
+    .filter-chip:hover {
+      border-color: var(--accent-cyan);
+      color: var(--text);
+    }
+
+    .filter-chip.active {
+      background: var(--text);
+      color: var(--bg);
+      border-color: var(--text);
+    }
+    body.dark .filter-chip.active {
+      background: #f8fafc;
+      color: #020617;
+      border-color: #f8fafc;
+    }
+
+    .filter-chip.active-ready {
+      background: var(--good-text);
+      color: #ffffff;
+      border-color: var(--good-border);
+    }
+
+    .filter-chip.active-paper {
+      background: var(--spin-gold);
+      color: #0f172a;
+      border-color: var(--spin-gold);
+    }
+
+    .badge-count {
+      background: rgba(0,0,0,0.12);
+      border-radius: 999px;
+      padding: 0.1rem 0.45rem;
+      font-size: 0.75rem;
+    }
+    body.dark .badge-count {
+      background: rgba(255,255,255,0.18);
+    }
+
+    .search-box {
+      min-width: 15rem;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding-left: 2rem;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.65rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    /* Table & Container */
+    .table-card {
+      background: var(--card);
+      border: 1.5px solid var(--line);
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      max-height: calc(100vh - 22rem);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.92rem;
+      text-align: left;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--card-muted);
+      color: var(--text-muted);
+      font-size: 0.76rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.75rem 0.9rem;
+      border-bottom: 2px solid var(--line);
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      transition: background 0.1s ease;
+    }
+
+    tbody tr:hover {
+      background: var(--card-muted);
+    }
+
+    tbody tr.row-ready {
+      background: rgba(34, 197, 94, 0.03);
+    }
+
+    tbody tr.row-paper-given {
+      background: rgba(245, 158, 11, 0.04);
+    }
+
+    tbody td {
+      padding: 0.65rem 0.9rem;
+      border-bottom: 1px solid var(--line-soft);
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    /* Student Name & Meta */
+    .student-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .student-name {
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--text);
+    }
+
+    .student-meta {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .period-tag {
+      font-weight: 800;
+      padding: 0.15rem 0.45rem;
+      border-radius: 0.35rem;
+      font-size: 0.72rem;
+      background: var(--card-muted);
+      border: 1px solid var(--line);
+    }
+
+    .period-tag.honors {
+      background: rgba(124, 58, 237, 0.12);
+      border-color: #8b5cf6;
+      color: #7c3aed;
+    }
+    body.dark .period-tag.honors {
+      color: #c084fc;
+    }
+
+    /* Spin Art Paper Checkbox Button */
+    .paper-btn {
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 800;
+      padding: 0.45rem 0.85rem;
+      border-radius: 0.65rem;
+      border: 2px solid var(--line);
+      background: var(--card);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .paper-btn:hover {
+      border-color: var(--spin-gold);
+      color: var(--text);
+      transform: scale(1.02);
+    }
+
+    .paper-btn.checked {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      border-color: #d97706;
+      color: #ffffff;
+      font-weight: 900;
+      box-shadow: 0 2px 10px var(--spin-glow);
+    }
+    body.dark .paper-btn.checked {
+      background: linear-gradient(135deg, #fbbf24, #d97706);
+      border-color: #fbbf24;
+      color: #0f172a;
+    }
+
+    .paper-btn.ready-to-give {
+      border-color: var(--good-border);
+      background: var(--good-bg);
+      color: var(--good-text);
+      animation: pulse-ready 2.5s infinite;
+    }
+
+    @keyframes pulse-ready {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+      50% { box-shadow: 0 0 0 4px var(--good-glow); }
+    }
+
+    /* Overall Status Pill */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 2rem;
+      font-weight: 800;
+      font-size: 0.82rem;
+      letter-spacing: 0.02em;
+    }
+
+    .status-badge.all-done {
+      background: var(--good-bg);
+      border: 1.5px solid var(--good-border);
+      color: var(--good-text);
+      box-shadow: 0 0 10px var(--good-glow);
+    }
+
+    .status-badge.catch-up {
+      background: var(--warn-bg);
+      border: 1.5px solid var(--warn-border);
+      color: var(--warn-text);
+    }
+
+    /* Assignment Grade / Completion Pills */
+    .assign-pill {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 6.2rem;
+      padding: 0.35rem 0.55rem;
+      border-radius: 0.6rem;
+      font-size: 0.82rem;
+      border: 1.5px solid var(--line-soft);
+      background: var(--card-muted);
+      color: var(--text-muted);
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    /* Strict instruction: Make the finished ones green! */
+    .assign-pill.done {
+      background: var(--good-bg) !important;
+      border-color: var(--good-border) !important;
+      color: var(--good-text) !important;
+      font-weight: 800;
+      box-shadow: 0 2px 8px var(--good-glow);
+    }
+
+    .assign-pill.partial {
+      background: var(--warn-bg);
+      border-color: var(--warn-border);
+      color: var(--warn-text);
+    }
+
+    .assign-pill.not-started {
+      background: transparent;
+      border-style: dashed;
+      color: var(--text-muted);
+      opacity: 0.65;
+    }
+
+    .assign-pill small {
+      font-size: 0.7rem;
+      opacity: 0.85;
+      font-weight: 600;
+    }
+
+    /* Gate / Login Modal */
+    .gate-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 1.5rem;
+    }
+
+    .gate-card {
+      background: var(--card);
+      border: 2px solid var(--line);
+      border-radius: 1.5rem;
+      padding: 2.5rem;
+      max-width: 28rem;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .gate-card h2 {
+      margin: 0.5rem 0 0.5rem;
+      font-size: 1.5rem;
+      font-weight: 900;
+    }
+
+    .gate-card p {
+      color: var(--text-muted);
+      margin: 0 0 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    /* Toast Notification */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 0.75rem 1.25rem;
+      border-radius: 0.85rem;
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4);
+      font-weight: 700;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      z-index: 999;
+      transform: translateY(150%);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+    #toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Quick Live Indicator */
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      display: inline-block;
+      box-shadow: 0 0 8px #22c55e;
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.6; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="demoBanner" style="background: var(--warn-border); color: #fff; font-weight: 800; text-align: center; padding: 0.35rem; font-size: 0.85rem;" hidden>
+    ⚠️ DEMO MODE: Showing sample synthetic records for local preview
+  </div>
+
+  <!-- Gate / Login Section -->
+  <div id="gate" class="gate-overlay">
+    <div class="gate-card">
+      <div style="font-size: 3.5rem; margin-bottom: 0.5rem;">🎨</div>
+      <h2>Week 11 Spin Art Console</h2>
+      <p id="gateMsg">Checking instructor authorization…</p>
+      <button id="btnSignIn" type="button" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.75rem 1rem; font-size: 1rem;" hidden>
+        Sign in with Google
+      </button>
+      <p id="gateErr" style="color: var(--bad-border); font-weight: 700; margin-top: 1rem;"></p>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="brand-wrap">
+      <div class="brand-icon">🎨</div>
+      <div>
+        <h1>
+          Week 11 Progress &amp; Spin Art Console
+          <span style="font-size: 0.7rem; font-weight: 700; background: var(--good-bg); color: var(--good-text); border: 1px solid var(--good-border); padding: 0.15rem 0.5rem; border-radius: 999px; display: inline-flex; align-items: center; gap: 0.3rem;">
+            <span class="live-dot"></span> LIVE
+          </span>
+        </h1>
+        <p class="sub">Day 55 · Unit 2 Spin Art Reward &amp; Catch-Up Studio · Centripetal Motion Week</p>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button id="btnThemeToggle" type="button" title="Toggle Light/Dark Theme">🌙 Theme</button>
+      <button id="btnProjectorToggle" type="button" title="Large Screen Projector Scaling">🖥️ Projector</button>
+      <button id="btnExportCSV" type="button" title="Export current student view to CSV">📊 Export CSV</button>
+      <a href="index.html" style="text-decoration: none;">
+        <button type="button">⚙️ Command Center</button>
+      </a>
+      <button id="btnSignOut" type="button" style="color: var(--bad-border);">Sign Out</button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="mainApp" hidden>
+    
+    <!-- KPI Summary Tiles -->
+    <section class="tiles">
+      <div class="tile">
+        <strong id="statTotalStudents">0</strong>
+        <span>Students in View</span>
+      </div>
+      <div class="tile tile-ready">
+        <strong id="statReadyCount">0</strong>
+        <span>🎉 Ready for Spin Art (All 4 Done)</span>
+      </div>
+      <div class="tile tile-paper">
+        <strong id="statPapersGiven">0</strong>
+        <span>🎨 Spin Art Papers Distributed</span>
+      </div>
+      <div class="tile tile-catchup">
+        <strong id="statCatchUpCount">0</strong>
+        <span>⏳ Need Catch-Up Studio</span>
+      </div>
+    </section>
+
+    <!-- Filter & Control Panel -->
+    <section class="filter-panel">
+      <!-- Period Selector -->
+      <div class="filter-group">
+        <label for="selectPeriod" style="font-size: 0.85rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Class Period:</label>
+        <select id="selectPeriod">
+          <option value="all">All Periods (P0–P6)</option>
+          <option value="0">Period 0 (Honors)</option>
+          <option value="1">Period 1 (Conceptual)</option>
+          <option value="2">Period 2 (Conceptual)</option>
+          <option value="3">Period 3 (Conceptual)</option>
+          <option value="4">Period 4 (CP Physics)</option>
+          <option value="5">Period 5 (CP Physics)</option>
+          <option value="6">Period 6 (CP Physics)</option>
+        </select>
+      </div>
+
+      <!-- Quick Filter Chips -->
+      <div class="filter-group">
+        <div class="filter-chip active" data-filter="all">
+          All <span class="badge-count" id="countAll">0</span>
+        </div>
+        <div class="filter-chip" data-filter="ready">
+          🎉 Spin Art Ready <span class="badge-count" id="countReady">0</span>
+        </div>
+        <div class="filter-chip" data-filter="ready_need_paper">
+          🎟️ Ready &amp; Needs Paper <span class="badge-count" id="countNeedPaper">0</span>
+        </div>
+        <div class="filter-chip" data-filter="paper_given">
+          ✅ Paper Given <span class="badge-count" id="countPaperGiven">0</span>
+        </div>
+        <div class="filter-chip" data-filter="catchup">
+          ⏳ In Catch-Up <span class="badge-count" id="countCatchup">0</span>
+        </div>
+      </div>
+
+      <!-- Search Input -->
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search student name or ID…" autocomplete="off">
+      </div>
+    </section>
+
+    <!-- Student Weekly Matrix Table -->
+    <section class="table-card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 14rem;">Spin Art Paper Status</th>
+              <th style="min-width: 13rem;">Student</th>
+              <th style="width: 11rem;">Reward Status</th>
+              <th style="width: 8.5rem; text-align: center;">Day 51: Workshop<br><small style="font-weight: 500; text-transform: none;">Centripetal Accel (10 pts)</small></th>
+              <th style="width: 8.5rem; text-align: center;">Day 52: Force Lab<br><small style="font-weight: 500; text-transform: none;">Turntable Physics (10 pts)</small></th>
+              <th style="width: 8.5rem; text-align: center;">Day 54: Curve Lab<br><small style="font-weight: 500; text-transform: none;">Highway Curves (10 pts)</small></th>
+              <th style="width: 8.5rem; text-align: center;">Bell Ringers<br><small style="font-weight: 500; text-transform: none;">Week 11 (≥3 Days)</small></th>
+              <th style="width: 6rem; text-align: right;">Progress</th>
+            </tr>
+          </thead>
+          <tbody id="studentTableBody">
+            <tr>
+              <td colspan="8" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                Connecting to live classroom telemetry…
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast Notification Feedback -->
+  <div id="toast">
+    <span id="toastIcon">🎨</span>
+    <span id="toastMsg">Updated!</span>
+  </div>
+
+  <script>
+    // Teacher Access Security
+    const TEACHER_EMAILS = [
+      'rmudry@orangeusd.org',
+      'ryan.mudry@gmail.com',
+      'ryanmudry@gmail.com'
+    ];
+
+    // Core Collections
+    const COLL_D51 = 'student_results/unit2_day51_centripetal_workshop/students';
+    const COLL_D52 = 'student_results/unit2_day52_centripetal_force_lab/students';
+    const COLL_D54 = 'student_results/unit2_day54_highway_curve_lab/students';
+    const COLL_BR11 = 'student_results/bell_ringer_week_11/students';
+    const CONFIG_SPIN_ART = 'system_config/spin_art_week11';
+
+    // State
+    let currentUser = null;
+    let rosterMap = new Map(); // studentId -> { id, name, period, track }
+    let d51Map = new Map();    // studentId -> data
+    let d52Map = new Map();    // studentId -> data
+    let d54Map = new Map();    // studentId -> data
+    let br11Map = new Map();   // studentId -> data
+    let paperState = {};       // studentId -> { given: true, timestamp, updatedBy }
+
+    let activePeriod = 'all';
+    let activeFilter = 'all';
+    let searchQuery = '';
+    let unsubscribers = [];
+
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+
+    // Toast alert helper
+    function showToast(msg, icon = '🎨') {
+      const t = $('toast');
+      $('toastMsg').textContent = msg;
+      $('toastIcon').textContent = icon;
+      t.classList.add('show');
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    // Audio Chime on Paper Given
+    function playChime(isGiven) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        if (isGiven) {
+          osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+          osc.frequency.setValueAtTime(880, ctx.currentTime + 0.08); // A5
+          gain.gain.setValueAtTime(0.12, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+          osc.start(ctx.currentTime);
+          osc.stop(ctx.currentTime + 0.35);
+        } else {
+          osc.frequency.setValueAtTime(440, ctx.currentTime);
+          osc.frequency.setValueAtTime(330, ctx.currentTime + 0.08);
+          gain.gain.setValueAtTime(0.08, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+          osc.start(ctx.currentTime);
+          osc.stop(ctx.currentTime + 0.25);
+        }
+      } catch (e) {}
+    }
+
+    // Check if an assignment is completed
+    function checkLabComplete(data) {
+      if (!data) return { done: false, score: 0, text: 'Not started', raw: null };
+      const score = Number(data.score ?? data.points ?? 0);
+      const isCert = !!data.certificate_code;
+      const isFlag = data.isCompleted === true || data.completed === true;
+      const done = isCert || isFlag || score >= 10;
+      const text = done ? (score >= 10 ? '10 / 10' : 'Complete') : (score > 0 ? `${score.toFixed(1)} / 10` : '0 / 10');
+      return { done, score, text, raw: data };
+    }
+
+    function checkBellRingerComplete(data) {
+      if (!data) return { done: false, score: 0, count: 0, text: 'Not started', raw: null };
+      const genuine = Number(data.genuineCount ?? data.daysCount ?? 0);
+      const score = Number(data.score ?? 0);
+      const pct = Number(data.percent ?? 0);
+      const isFlag = data.isCompleted === true || data.completed === true;
+      // Week 11 had 4 school days (Mon, Tue, Thu, Fri; Wed was Veterans Day). Target genuine days >= 3 or score >= 15 or pct >= 75
+      const done = isFlag || genuine >= 3 || score >= 15 || pct >= 75;
+      const text = done 
+        ? (genuine > 0 ? `${genuine} Days (${score} pts)` : `${score} pts`)
+        : (score > 0 ? `${score} pts (${genuine}d)` : '0 pts');
+      return { done, score, count: genuine, text, raw: data };
+    }
+
+    // Toggle Paper Given State
+    window.togglePaper = async function(studentId, studentName) {
+      const current = !!(paperState[studentId] && paperState[studentId].given);
+      const next = !current;
+
+      // Optimistic UI update
+      paperState[studentId] = {
+        given: next,
+        timestamp: Date.now(),
+        updatedBy: currentUser ? currentUser.email : 'local'
+      };
+      localStorage.setItem('spin_art_paper_local', JSON.stringify(paperState));
+      render();
+      playChime(next);
+      showToast(next ? `🎨 Paper given to ${studentName}!` : `Undid paper for ${studentName}`, next ? '✅' : '↩️');
+
+      // Persist to Firestore
+      try {
+        const db = firebase.firestore();
+        await db.collection('system_config').doc('spin_art_week11').set({
+          [studentId]: {
+            given: next,
+            timestamp: Date.now(),
+            updatedBy: currentUser ? currentUser.email : 'anonymous'
+          }
+        }, { merge: true });
+      } catch (err) {
+        console.error('Firestore paper update error:', err);
+        showToast('Saved locally (network error to cloud)', '⚠️');
+      }
+    };
+
+    // Calculate all student records
+    function getProcessedStudents() {
+      const list = [];
+
+      rosterMap.forEach((r, id) => {
+        // Exclude teacher records
+        if (id.toLowerCase().includes('mudry') || id === 'teacher') return;
+
+        const d51 = checkLabComplete(d51Map.get(id));
+        const d52 = checkLabComplete(d52Map.get(id));
+        const d54 = checkLabComplete(d54Map.get(id));
+        const br = checkBellRingerComplete(br11Map.get(id));
+
+        const completedCount = (d51.done ? 1 : 0) + (d52.done ? 1 : 0) + (d54.done ? 1 : 0) + (br.done ? 1 : 0);
+        const isAllDone = completedCount === 4;
+        const hasPaper = !!(paperState[id] && paperState[id].given);
+
+        let courseTrack = 'CP';
+        if (String(r.period) === '0') courseTrack = 'Honors';
+        else if (['1', '2', '3'].includes(String(r.period))) courseTrack = 'Conceptual';
+
+        list.push({
+          id,
+          name: r.name,
+          period: String(r.period),
+          courseTrack,
+          d51,
+          d52,
+          d54,
+          br,
+          completedCount,
+          isAllDone,
+          hasPaper
+        });
+      });
+
+      return list;
+    }
+
+    // Render table & metrics
+    function render() {
+      const allStudents = getProcessedStudents();
+
+      // Period filtering
+      let periodFiltered = allStudents;
+      if (activePeriod !== 'all') {
+        periodFiltered = allStudents.filter(s => s.period === activePeriod);
+      }
+
+      // Counts for badges
+      const countAll = periodFiltered.length;
+      const countReady = periodFiltered.filter(s => s.isAllDone).length;
+      const countNeedPaper = periodFiltered.filter(s => s.isAllDone && !s.hasPaper).length;
+      const countPaperGiven = periodFiltered.filter(s => s.hasPaper).length;
+      const countCatchup = periodFiltered.filter(s => !s.isAllDone).length;
+
+      $('countAll').textContent = countAll;
+      $('countReady').textContent = countReady;
+      $('countNeedPaper').textContent = countNeedPaper;
+      $('countPaperGiven').textContent = countPaperGiven;
+      $('countCatchup').textContent = countCatchup;
+
+      // Update KPI Top Tiles
+      $('statTotalStudents').textContent = countAll;
+      $('statReadyCount').textContent = countReady;
+      $('statPapersGiven').textContent = countPaperGiven;
+      $('statCatchUpCount').textContent = countCatchup;
+
+      // Quick filter
+      let filtered = periodFiltered;
+      if (activeFilter === 'ready') {
+        filtered = filtered.filter(s => s.isAllDone);
+      } else if (activeFilter === 'ready_need_paper') {
+        filtered = filtered.filter(s => s.isAllDone && !s.hasPaper);
+      } else if (activeFilter === 'paper_given') {
+        filtered = filtered.filter(s => s.hasPaper);
+      } else if (activeFilter === 'catchup') {
+        filtered = filtered.filter(s => !s.isAllDone);
+      }
+
+      // Search Query filter
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        filtered = filtered.filter(s => s.name.toLowerCase().includes(q) || s.id.toLowerCase().includes(q));
+      }
+
+      // Sort: Period asc, then Ready but needs paper first, then name
+      filtered.sort((a, b) => {
+        if (a.period !== b.period) return Number(a.period) - Number(b.period);
+        // Put ready & need paper at top of the period
+        const aPriority = a.isAllDone && !a.hasPaper ? 1 : 0;
+        const bPriority = b.isAllDone && !b.hasPaper ? 1 : 0;
+        if (aPriority !== bPriority) return bPriority - aPriority;
+        return a.name.localeCompare(b.name);
+      });
+
+      // Render Rows
+      if (!filtered.length) {
+        $('studentTableBody').innerHTML = `
+          <tr>
+            <td colspan="8" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+              No students match the selected period and filter.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      const rowsHtml = filtered.map(s => {
+        // Paper Checkbox button state
+        let paperBtnClass = 'paper-btn';
+        let paperBtnText = '⬜ Hand Out Paper';
+        if (s.hasPaper) {
+          paperBtnClass += ' checked';
+          paperBtnText = '🎨 Paper Given ✅';
+        } else if (s.isAllDone) {
+          paperBtnClass += ' ready-to-give';
+          paperBtnText = '🎟️ Ready for Paper!';
+        }
+
+        // Reward Badge
+        let statusBadge = '';
+        if (s.isAllDone) {
+          statusBadge = `<span class="status-badge all-done">🎉 SPIN ART READY</span>`;
+        } else {
+          statusBadge = `<span class="status-badge catch-up">⏳ Catch-Up (${s.completedCount}/4)</span>`;
+        }
+
+        // Assignment Pills - finished ones MUST BE GREEN!
+        const renderPill = (res, title) => {
+          if (res.done) {
+            return `
+              <div class="assign-pill done" title="${title}: Complete!">
+                <span>✅ ${esc(res.text)}</span>
+              </div>
+            `;
+          }
+          if (res.score > 0) {
+            return `
+              <div class="assign-pill partial" title="${title}: Incomplete (${res.text})">
+                <span>${esc(res.text)}</span>
+                <small>Incomplete</small>
+              </div>
+            `;
+          }
+          return `
+            <div class="assign-pill not-started" title="${title}: Not started">
+              <span>—</span>
+              <small>Missing</small>
+            </div>
+          `;
+        };
+
+        const d51Pill = renderPill(s.d51, 'Day 51 Workshop');
+        const d52Pill = renderPill(s.d52, 'Day 52 Force Lab');
+        const d54Pill = renderPill(s.d54, 'Day 54 Highway Curve Lab');
+        const brPill = renderPill(s.br, 'Week 11 Bell Ringers');
+
+        const isHonors = s.period === '0';
+        let rowClass = '';
+        if (s.hasPaper) rowClass = 'row-paper-given';
+        else if (s.isAllDone) rowClass = 'row-ready';
+
+        return `
+          <tr class="${rowClass}">
+            <td>
+              <button 
+                type="button" 
+                class="${paperBtnClass}" 
+                onclick="togglePaper('${esc(s.id)}', '${esc(s.name)}')"
+                title="Click to toggle paper distribution for ${esc(s.name)}"
+              >
+                ${paperBtnText}
+              </button>
+            </td>
+            <td>
+              <div class="student-cell">
+                <span class="student-name">${esc(s.name)}</span>
+                <div class="student-meta">
+                  <span class="period-tag ${isHonors ? 'honors' : ''}">P${esc(s.period)} ${esc(s.courseTrack)}</span>
+                  <span class="mono">${esc(s.id)}</span>
+                </div>
+              </div>
+            </td>
+            <td>${statusBadge}</td>
+            <td style="text-align: center;">${d51Pill}</td>
+            <td style="text-align: center;">${d52Pill}</td>
+            <td style="text-align: center;">${d54Pill}</td>
+            <td style="text-align: center;">${brPill}</td>
+            <td style="text-align: right; font-weight: 800; font-size: 0.95rem; font-variant-numeric: tabular-nums;">
+              <span style="color: ${s.isAllDone ? 'var(--good-text)' : 'var(--warn-text)'}">
+                ${s.completedCount} / 4
+              </span>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      $('studentTableBody').innerHTML = rowsHtml;
+    }
+
+    // Start Live Subscriptions
+    function startSubscriptions() {
+      const db = firebase.firestore();
+
+      // 1. Fetch Roster
+      db.collection('roster').get().then(snap => {
+        rosterMap.clear();
+        snap.forEach(doc => {
+          const d = doc.data();
+          const p = String(d.class_period ?? d.period ?? '');
+          const name = d.full_name || `${d.first_name || ''} ${d.last_name || ''}`.trim() || d.name || doc.id;
+          rosterMap.set(doc.id, {
+            id: doc.id,
+            name,
+            period: p,
+            track: d.track || ''
+          });
+        });
+        render();
+      }).catch(err => {
+        console.error('Error fetching roster:', err);
+      });
+
+      // 2. Day 51 Centripetal Workshop
+      const unsub51 = db.collection(COLL_D51).onSnapshot(snap => {
+        d51Map.clear();
+        snap.forEach(doc => d51Map.set(doc.id, doc.data()));
+        render();
+      }, err => console.warn('D51 listener err:', err));
+      unsubscribers.push(unsub51);
+
+      // 3. Day 52 Centripetal Force Lab
+      const unsub52 = db.collection(COLL_D52).onSnapshot(snap => {
+        d52Map.clear();
+        snap.forEach(doc => d52Map.set(doc.id, doc.data()));
+        render();
+      }, err => console.warn('D52 listener err:', err));
+      unsubscribers.push(unsub52);
+
+      // 4. Day 54 Highway Curve Lab
+      const unsub54 = db.collection(COLL_D54).onSnapshot(snap => {
+        d54Map.clear();
+        snap.forEach(doc => d54Map.set(doc.id, doc.data()));
+        render();
+      }, err => console.warn('D54 listener err:', err));
+      unsubscribers.push(unsub54);
+
+      // 5. Week 11 Bell Ringers
+      const unsubBR = db.collection(COLL_BR11).onSnapshot(snap => {
+        br11Map.clear();
+        snap.forEach(doc => br11Map.set(doc.id, doc.data()));
+        render();
+      }, err => console.warn('BR11 listener err:', err));
+      unsubscribers.push(unsubBR);
+
+      // 6. Spin Art Paper State from Firestore
+      const unsubPaper = db.collection('system_config').doc('spin_art_week11').onSnapshot(doc => {
+        if (doc.exists) {
+          paperState = Object.assign({}, paperState, doc.data());
+          localStorage.setItem('spin_art_paper_local', JSON.stringify(paperState));
+        }
+        render();
+      }, err => {
+        console.warn('Paper listener err:', err);
+        // Fallback to local storage if firestore doc read fails
+        try {
+          const cached = localStorage.getItem('spin_art_paper_local');
+          if (cached) paperState = JSON.parse(cached);
+          render();
+        } catch(e) {}
+      });
+      unsubscribers.push(unsubPaper);
+    }
+
+    // Sample demo data for local layout verification
+    function loadDemoData() {
+      $('demoBanner').removeAttribute('hidden');
+      $('gate').setAttribute('hidden', '');
+      $('mainApp').removeAttribute('hidden');
+
+      const mockStudents = [
+        { id: '383842', name: 'Dylan Nguyen', period: '0', track: 'Honors', d51: 10, d52: 10, d54: 10, br: 20, paper: true },
+        { id: '385874', name: 'Miguel Cruz', period: '0', track: 'Honors', d51: 10, d52: 10, d54: 10, br: 20, paper: false },
+        { id: '385835', name: 'Airan Morales', period: '1', track: 'Conceptual', d51: 8, d52: 4.3, d54: 4.5, br: 10, paper: false },
+        { id: '385836', name: 'Brianna Lozada', period: '1', track: 'Conceptual', d51: 10, d52: 10, d54: 10, br: 20, paper: true },
+        { id: '385837', name: 'Daniel Sanchez', period: '1', track: 'Conceptual', d51: 0, d52: 0, d54: 0, br: 0, paper: false },
+        { id: '385840', name: 'Alondra Jimenez', period: '2', track: 'Conceptual', d51: 10, d52: 10, d54: 10, br: 20, paper: false },
+        { id: '385841', name: 'Carlos Ramos', period: '2', track: 'Conceptual', d51: 10, d52: 9.5, d54: 10, br: 15, paper: false },
+        { id: '385838', name: 'Samantha Torres', period: '4', track: 'CP', d51: 10, d52: 10, d54: 10, br: 20, paper: false },
+        { id: '385839', name: 'Antonio Herrera', period: '4', track: 'CP', d51: 10, d52: 7, d54: 0, br: 15, paper: false },
+        { id: '385842', name: 'Ethan Miller', period: '5', track: 'CP', d51: 10, d52: 10, d54: 10, br: 20, paper: true },
+        { id: '385843', name: 'Sofia Rodriguez', period: '5', track: 'CP', d51: 10, d52: 10, d54: 6.5, br: 20, paper: false },
+        { id: '385844', name: 'Jayden Patel', period: '6', track: 'CP', d51: 10, d52: 10, d54: 10, br: 20, paper: false },
+        { id: '385845', name: 'Mia Washington', period: '6', track: 'CP', d51: 5, d52: 0, d54: 0, br: 5, paper: false }
+      ];
+
+      mockStudents.forEach(s => {
+        rosterMap.set(s.id, { id: s.id, name: s.name, period: s.period, track: s.track });
+        if (s.d51 > 0) d51Map.set(s.id, { score: s.d51, maxScore: 10, isCompleted: s.d51 >= 10 });
+        if (s.d52 > 0) d52Map.set(s.id, { score: s.d52, maxScore: 10, isCompleted: s.d52 >= 10 });
+        if (s.d54 > 0) d54Map.set(s.id, { score: s.d54, maxScore: 10, isCompleted: s.d54 >= 10 });
+        if (s.br > 0) br11Map.set(s.id, { score: s.br, maxScore: 20, genuineCount: s.br >= 15 ? 3 : 1 });
+        if (s.paper) paperState[s.id] = { given: true, timestamp: Date.now(), updatedBy: 'demo' };
+      });
+
+      render();
+    }
+
+    // Auth gate check
+    function initAuth() {
+      const isLocal = ['localhost', '127.0.0.1', ''].includes(location.hostname);
+      if (isLocal && new URLSearchParams(location.search).has('demo')) {
+        loadDemoData();
+        return;
+      }
+      // Load any offline paper cache immediately
+      try {
+        const cached = localStorage.getItem('spin_art_paper_local');
+        if (cached) paperState = JSON.parse(cached);
+      } catch (e) {}
+
+      firebase.auth().onAuthStateChanged(user => {
+        if (user && TEACHER_EMAILS.includes(user.email.toLowerCase())) {
+          currentUser = user;
+          $('gate').setAttribute('hidden', '');
+          $('mainApp').removeAttribute('hidden');
+          startSubscriptions();
+        } else if (user) {
+          $('gate').removeAttribute('hidden');
+          $('mainApp').setAttribute('hidden', '');
+          $('gateMsg').textContent = `Signed in as ${user.email}, but this console is restricted to teacher accounts.`;
+          $('gateErr').textContent = 'Unauthorized access.';
+          $('btnSignIn').removeAttribute('hidden');
+        } else {
+          $('gate').removeAttribute('hidden');
+          $('mainApp').setAttribute('hidden', '');
+          $('gateMsg').textContent = 'Please sign in with your district Google account to access student reward records.';
+          $('btnSignIn').removeAttribute('hidden');
+        }
+      });
+
+      $('btnSignIn').addEventListener('click', () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().signInWithPopup(provider).catch(err => {
+          console.warn('Popup failed, trying redirect:', err);
+          firebase.auth().signInWithRedirect(provider);
+        });
+      });
+
+      $('btnSignOut').addEventListener('click', () => {
+        unsubscribers.forEach(u => u && u());
+        unsubscribers = [];
+        firebase.auth().signOut().then(() => location.reload());
+      });
+    }
+
+    // UI Event Listeners
+    window.addEventListener('DOMContentLoaded', () => {
+      initAuth();
+
+      // Period filter
+      $('selectPeriod').addEventListener('change', e => {
+        activePeriod = e.target.value;
+        render();
+      });
+
+      // Filter chips
+      document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active', 'active-ready', 'active-paper'));
+          activeFilter = chip.dataset.filter;
+          if (activeFilter === 'ready') chip.classList.add('active-ready');
+          else if (activeFilter === 'paper_given') chip.classList.add('active-paper');
+          else chip.classList.add('active');
+          render();
+        });
+      });
+
+      // Search
+      $('searchInput').addEventListener('input', e => {
+        searchQuery = e.target.value;
+        render();
+      });
+
+      // Theme toggle
+      const savedTheme = localStorage.getItem('theme_preference') || 'light';
+      if (savedTheme === 'dark') document.body.classList.add('dark');
+      $('btnThemeToggle').addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        const isDark = document.body.classList.contains('dark');
+        localStorage.setItem('theme_preference', isDark ? 'dark' : 'light');
+        $('btnThemeToggle').textContent = isDark ? '☀️ Light' : '🌙 Theme';
+      });
+      $('btnThemeToggle').textContent = document.body.classList.contains('dark') ? '☀️ Light' : '🌙 Theme';
+
+      // Projector toggle
+      $('btnProjectorToggle').addEventListener('click', () => {
+        document.body.classList.toggle('projector');
+        const isProj = document.body.classList.contains('projector');
+        $('btnProjectorToggle').textContent = isProj ? '🖥️ Projector ON' : '🖥️ Projector';
+        showToast(isProj ? 'Projector font scaling enabled' : 'Normal font scaling restored', '🖥️');
+      });
+
+      // Export CSV
+      $('btnExportCSV').addEventListener('click', () => {
+        const students = getProcessedStudents();
+        let exportList = activePeriod === 'all' ? students : students.filter(s => s.period === activePeriod);
+        if (!exportList.length) {
+          alert('No student records to export.');
+          return;
+        }
+
+        const headers = ['Student ID', 'Name', 'Period', 'Track', 'Paper Given', 'All 4 Complete', 'Day 51 Workshop', 'Day 52 Force Lab', 'Day 54 Curve Lab', 'Week 11 Bell Ringers'];
+        const csvRows = [headers.join(',')];
+
+        exportList.forEach(s => {
+          const row = [
+            `"${s.id}"`,
+            `"${s.name.replace(/"/g, '""')}"`,
+            `"${s.period}"`,
+            `"${s.courseTrack}"`,
+            s.hasPaper ? 'YES' : 'NO',
+            s.isAllDone ? 'YES' : 'NO',
+            `"${s.d51.text}"`,
+            `"${s.d52.text}"`,
+            `"${s.d54.text}"`,
+            `"${s.br.text}"`
+          ];
+          csvRows.push(row.join(','));
+        });
+
+        const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `Spin_Art_Week11_Period_${activePeriod}_${new Date().toISOString().slice(0,10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast('CSV downloaded successfully!', '📊');
+      });
+    });
+  </script>
+</body>
+</html>
