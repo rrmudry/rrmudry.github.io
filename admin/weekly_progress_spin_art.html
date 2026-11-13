@@ -417,6 +417,22 @@
       font-weight: 800;
       font-size: 1rem;
       color: var(--text);
+      transition: color 0.15s ease;
+    }
+
+    .clickable-name-cell {
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+
+    .clickable-name-cell:hover .student-name {
+      color: var(--accent-cyan);
+      text-decoration: underline;
+    }
+
+    .clickable-name-cell:active {
+      transform: scale(0.99);
     }
 
     .student-meta {
@@ -969,7 +985,10 @@
     }
 
     // Toggle Paper Given State
-    window.togglePaper = async function(studentId, studentName) {
+    window.togglePaper = async function(studentId, explicitName) {
+      if (!studentId) return;
+      const r = rosterMap.get(studentId);
+      const studentName = explicitName || (r ? r.name : studentId);
       const current = !!(paperState[studentId] && paperState[studentId].given);
       const next = !current;
 
@@ -1180,13 +1199,19 @@
               <button 
                 type="button" 
                 class="${paperBtnClass}" 
-                onclick="togglePaper('${esc(s.id)}', '${esc(s.name)}')"
+                data-action="toggle-paper"
+                data-id="${esc(s.id)}"
                 title="Click to toggle paper distribution for ${esc(s.name)}"
               >
                 ${paperBtnText}
               </button>
             </td>
-            <td>
+            <td 
+              class="clickable-name-cell"
+              data-action="toggle-paper"
+              data-id="${esc(s.id)}"
+              title="Click name to give supplies / paper to ${esc(s.name)}"
+            >
               <div class="student-cell">
                 <span class="student-name">${esc(s.name)}</span>
                 <div class="student-meta">
@@ -1418,6 +1443,15 @@
       $('searchInput').addEventListener('input', e => {
         searchQuery = e.target.value;
         render();
+      });
+
+      // Event delegation for toggling paper/supplies on table click (both button and student name cell)
+      $('studentTableBody').addEventListener('click', e => {
+        const target = e.target.closest('[data-action="toggle-paper"]');
+        if (!target) return;
+        const studentId = target.dataset.id;
+        if (!studentId) return;
+        togglePaper(studentId);
       });
 
       // Theme toggle

@@ -9,8 +9,11 @@ Append-only log tracking pattern changes across recent sessions.
 
 **Changes**:
 - Created teacher command console `admin/weekly_progress_spin_art.html` for Day 55 Spin Art Reward Day & Catch-Up Studio.
+- Fixed click bug on student supplies:
+  - Eliminated inline `onclick="togglePaper('id', 'name')"` string interpolation bug where names containing apostrophes (such as `Carley O'Connor`) unescaped `&#39;` to single quotes and threw an `Uncaught SyntaxError: missing ) after argument list`.
+  - Switched to event delegation (`data-action="toggle-paper" data-id="..."`) passing only clean student IDs and resolving names via `rosterMap`.
+  - Made the entire Student Name cell (`.clickable-name-cell`) an interactive click target with cursor pointer and hover effects, so clicking either the button OR the student's name toggles supplies distribution.
 - Adjusted completion criteria to accommodate non-perfect finished scores:
-  - Previously required strict 10/10 or certificate codes, falsely marking students who finished all studio stages and took the final Mastery Check (e.g. 9.2, 8.4, 7.6) as incomplete.
   - Added dynamic `Lab Criteria` selector dropdown: `Finished Studio (All Parts / Took Quiz / ≥6.0 pts)` [Default], `Passing Score (≥6.0 pts / 60%)`, `Proficient (≥7.0 pts / 70% or Certificate)`, `Lenient (≥5.0 pts or Core Done)`, and `Mastery Only (10/10 Perfect Score)`.
   - Added dynamic `Bell Ringers` requirement selector: `≥2 Days (≥10 pts)` [Default], `≥3 Days (≥15 pts)`, `All 4 Days (20 pts)`, and `Not Required (Labs Only)`.
   - All qualifying completed scores render in vibrant bold green (`✅ 9.2 / 10 Finished`, `✅ 8.4 / 10 Finished`) and update overall status to `🎉 SPIN ART READY`.
