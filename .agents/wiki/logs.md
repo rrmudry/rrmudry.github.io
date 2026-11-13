@@ -9,12 +9,11 @@ Append-only log tracking pattern changes across recent sessions.
 
 **Changes**:
 - Created teacher command console `admin/weekly_progress_spin_art.html` for Day 55 Spin Art Reward Day & Catch-Up Studio.
-- Displays live weekly assignment status across the 4 core assignments of Week 11:
-  - Day 51: Centripetal Acceleration Workshop (`unit2_day51_centripetal_workshop`, 10 pts)
-  - Day 52: Centripetal Force Lab (`unit2_day52_centripetal_force_lab`, 10 pts)
-  - Day 54: Highway Curve Lab (`unit2_day54_highway_curve_lab`, 10 pts)
-  - Week 11 Bell Ringers (`bell_ringer_week_11`, ≥3 Genuine Days / 20 pts)
-- Strict visual requirement met: all completed assignments render in bold high-contrast green (`#15803d` / `#22c55e`). Incomplete items show partial score or missing indicator in warm amber/slate.
+- Adjusted completion criteria to accommodate non-perfect finished scores:
+  - Previously required strict 10/10 or certificate codes, falsely marking students who finished all studio stages and took the final Mastery Check (e.g. 9.2, 8.4, 7.6) as incomplete.
+  - Added dynamic `Lab Criteria` selector dropdown: `Finished Studio (All Parts / Took Quiz / ≥6.0 pts)` [Default], `Passing Score (≥6.0 pts / 60%)`, `Proficient (≥7.0 pts / 70% or Certificate)`, `Lenient (≥5.0 pts or Core Done)`, and `Mastery Only (10/10 Perfect Score)`.
+  - Added dynamic `Bell Ringers` requirement selector: `≥2 Days (≥10 pts)` [Default], `≥3 Days (≥15 pts)`, `All 4 Days (20 pts)`, and `Not Required (Labs Only)`.
+  - All qualifying completed scores render in vibrant bold green (`✅ 9.2 / 10 Finished`, `✅ 8.4 / 10 Finished`) and update overall status to `🎉 SPIN ART READY`.
 - Interactive Spin Art Paper Checkbox: Tablet-touch friendly button to document which students received a square spin art paper. State persists in real time to Firestore (`system_config/spin_art_week11`) with local storage backup, audio chime, and toast feedback.
 - Real-time Firestore snapshot listeners on all 4 subcollections plus paper config.
 - Filtering by class period (P0 Honors, P1, P2, P3, P4, P5, P6), status chips (All, Spin Art Ready, Ready & Needs Paper, Paper Given, In Catch-Up), real-time name/ID search, CSV data export, and high-contrast Light/Dark mode with Projector scaling.

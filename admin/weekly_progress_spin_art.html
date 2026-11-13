@@ -715,7 +715,7 @@
     <section class="filter-panel">
       <!-- Period Selector -->
       <div class="filter-group">
-        <label for="selectPeriod" style="font-size: 0.85rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Class Period:</label>
+        <label for="selectPeriod" style="font-size: 0.82rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Class Period:</label>
         <select id="selectPeriod">
           <option value="all">All Periods (P0–P6)</option>
           <option value="0">Period 0 (Honors)</option>
@@ -725,6 +725,29 @@
           <option value="4">Period 4 (CP Physics)</option>
           <option value="5">Period 5 (CP Physics)</option>
           <option value="6">Period 6 (CP Physics)</option>
+        </select>
+      </div>
+
+      <!-- Lab Completion Criteria Selector -->
+      <div class="filter-group">
+        <label for="selectCriteria" style="font-size: 0.82rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Lab Criteria:</label>
+        <select id="selectCriteria" title="Select what marks an assignment as finished">
+          <option value="finished" selected>Finished Studio (All Parts / Took Quiz / ≥6 pts)</option>
+          <option value="passing">Passing Score (≥6.0 pts / 60%)</option>
+          <option value="proficient">Proficient (≥7.0 pts / 70% or Certificate)</option>
+          <option value="lenient">Lenient (≥5.0 pts or Core Done)</option>
+          <option value="perfect">Mastery Only (10/10 Perfect Score)</option>
+        </select>
+      </div>
+
+      <!-- Bell Ringer Criteria Selector -->
+      <div class="filter-group">
+        <label for="selectBRCriteria" style="font-size: 0.82rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Bell Ringers:</label>
+        <select id="selectBRCriteria" title="Select minimum Bell Ringer requirement">
+          <option value="2days" selected>≥2 Days (≥10 pts)</option>
+          <option value="3days">≥3 Days (≥15 pts)</option>
+          <option value="4days">All 4 Days (20 pts)</option>
+          <option value="exempt">Not Required (Labs Only)</option>
         </select>
       </div>
 
@@ -766,7 +789,7 @@
               <th style="width: 8.5rem; text-align: center;">Day 51: Workshop<br><small style="font-weight: 500; text-transform: none;">Centripetal Accel (10 pts)</small></th>
               <th style="width: 8.5rem; text-align: center;">Day 52: Force Lab<br><small style="font-weight: 500; text-transform: none;">Turntable Physics (10 pts)</small></th>
               <th style="width: 8.5rem; text-align: center;">Day 54: Curve Lab<br><small style="font-weight: 500; text-transform: none;">Highway Curves (10 pts)</small></th>
-              <th style="width: 8.5rem; text-align: center;">Bell Ringers<br><small style="font-weight: 500; text-transform: none;">Week 11 (≥3 Days)</small></th>
+              <th id="thBellRingers" style="width: 8.5rem; text-align: center;">Bell Ringers<br><small style="font-weight: 500; text-transform: none;">Week 11 (≥2 Days)</small></th>
               <th style="width: 6rem; text-align: right;">Progress</th>
             </tr>
           </thead>
@@ -804,6 +827,13 @@
     const COLL_BR11 = 'student_results/bell_ringer_week_11/students';
     const CONFIG_SPIN_ART = 'system_config/spin_art_week11';
 
+    // Required activity parts per lab
+    const REQUIRED_PARTS = {
+      d51: ['turn', 'letgo', 'center', 'size'],
+      d52: ['pull', 'measure', 'graph', 'who', 'much'],
+      d54: ['skid', 'measure', 'graph', 'weather', 'engineer']
+    };
+
     // State
     let currentUser = null;
     let rosterMap = new Map(); // studentId -> { id, name, period, track }
@@ -815,6 +845,8 @@
 
     let activePeriod = 'all';
     let activeFilter = 'all';
+    let activeCriteria = localStorage.getItem('spin_art_criteria') || 'finished';
+    let activeBRCriteria = localStorage.getItem('spin_art_br_criteria') || '2days';
     let searchQuery = '';
     let unsubscribers = [];
 
@@ -857,29 +889,83 @@
       } catch (e) {}
     }
 
-    // Check if an assignment is completed
-    function checkLabComplete(data) {
-      if (!data) return { done: false, score: 0, text: 'Not started', raw: null };
+    // Check if an assignment is completed based on current criteria
+    function checkLabComplete(data, labKey) {
+      if (!data) return { done: false, score: 0, text: '—', sub: 'Missing', raw: null };
       const score = Number(data.score ?? data.points ?? 0);
       const isCert = !!data.certificate_code;
       const isFlag = data.isCompleted === true || data.completed === true;
-      const done = isCert || isFlag || score >= 10;
-      const text = done ? (score >= 10 ? '10 / 10' : 'Complete') : (score > 0 ? `${score.toFixed(1)} / 10` : '0 / 10');
-      return { done, score, text, raw: data };
+      const tookQuiz = (data.quiz_history || []).length > 0 || (data.parts_done || []).includes('quiz');
+      const partsDone = data.parts_done || [];
+      const reqParts = REQUIRED_PARTS[labKey] || [];
+      const allPartsDone = reqParts.length > 0 && reqParts.every(p => partsDone.includes(p));
+      const partsCount = partsDone.length;
+
+      let done = false;
+      let sub = 'Incomplete';
+
+      if (activeCriteria === 'perfect') {
+        done = isCert || score >= 10;
+        sub = done ? (isCert ? 'Certified' : '10 / 10') : 'Incomplete';
+      } else if (activeCriteria === 'proficient') {
+        done = isCert || isFlag || score >= 7.0 || (tookQuiz && score >= 6.0);
+        sub = done ? (isCert ? 'Certified' : (tookQuiz ? 'Took Quiz' : 'Proficient')) : 'Incomplete';
+      } else if (activeCriteria === 'lenient') {
+        done = isCert || isFlag || score >= 5.0 || tookQuiz || allPartsDone || partsCount >= 4;
+        sub = done ? (tookQuiz ? 'Took Quiz' : (allPartsDone ? 'Stages Done' : 'Passing')) : 'Incomplete';
+      } else if (activeCriteria === 'passing') {
+        done = isCert || isFlag || score >= 6.0;
+        sub = done ? (isCert ? 'Certified' : 'Passing') : 'Incomplete';
+      } else {
+        // default: 'finished'
+        // Includes anyone who completed the studio stages, took the mastery check, earned certificate, or score >= 6.0
+        done = isCert || isFlag || score >= 6.0 || tookQuiz || allPartsDone;
+        sub = done ? (isCert ? 'Certified' : (score >= 10 ? '10 / 10' : (tookQuiz ? 'Finished' : 'Stages Done'))) : 'Incomplete';
+      }
+
+      let text = '—';
+      if (done) {
+        text = score >= 10 ? '10 / 10' : (score > 0 ? `${score.toFixed(1)} / 10` : 'Complete');
+      } else if (score > 0) {
+        text = `${score.toFixed(1)} / 10`;
+      }
+
+      return { done, score, text, sub, tookQuiz, allPartsDone, raw: data };
     }
 
     function checkBellRingerComplete(data) {
-      if (!data) return { done: false, score: 0, count: 0, text: 'Not started', raw: null };
+      if (!data) return { done: false, score: 0, count: 0, text: '—', sub: 'Missing', raw: null };
       const genuine = Number(data.genuineCount ?? data.daysCount ?? 0);
       const score = Number(data.score ?? 0);
       const pct = Number(data.percent ?? 0);
       const isFlag = data.isCompleted === true || data.completed === true;
-      // Week 11 had 4 school days (Mon, Tue, Thu, Fri; Wed was Veterans Day). Target genuine days >= 3 or score >= 15 or pct >= 75
-      const done = isFlag || genuine >= 3 || score >= 15 || pct >= 75;
-      const text = done 
-        ? (genuine > 0 ? `${genuine} Days (${score} pts)` : `${score} pts`)
-        : (score > 0 ? `${score} pts (${genuine}d)` : '0 pts');
-      return { done, score, count: genuine, text, raw: data };
+
+      let done = false;
+      let sub = 'Incomplete';
+
+      if (activeBRCriteria === 'exempt') {
+        done = true;
+        sub = 'Exempt';
+      } else if (activeBRCriteria === '4days') {
+        done = isFlag || genuine >= 4 || score >= 20 || pct >= 95;
+        sub = done ? '4 Days (20 pts)' : 'Incomplete';
+      } else if (activeBRCriteria === '3days') {
+        done = isFlag || genuine >= 3 || score >= 15 || pct >= 75;
+        sub = done ? '≥3 Days' : 'Incomplete';
+      } else {
+        // default: '2days'
+        done = isFlag || genuine >= 2 || score >= 10 || pct >= 50;
+        sub = done ? (genuine >= 3 ? '≥3 Days' : '2 Days') : 'Incomplete';
+      }
+
+      let text = '—';
+      if (done) {
+        text = genuine > 0 ? `${genuine}d (${score}p)` : `${score} pts`;
+      } else if (score > 0) {
+        text = `${score} pts (${genuine}d)`;
+      }
+
+      return { done, score, count: genuine, text, sub, raw: data };
     }
 
     // Toggle Paper Given State
@@ -917,18 +1003,20 @@
     // Calculate all student records
     function getProcessedStudents() {
       const list = [];
+      const isBRExempt = activeBRCriteria === 'exempt';
+      const maxCount = isBRExempt ? 3 : 4;
 
       rosterMap.forEach((r, id) => {
         // Exclude teacher records
         if (id.toLowerCase().includes('mudry') || id === 'teacher') return;
 
-        const d51 = checkLabComplete(d51Map.get(id));
-        const d52 = checkLabComplete(d52Map.get(id));
-        const d54 = checkLabComplete(d54Map.get(id));
+        const d51 = checkLabComplete(d51Map.get(id), 'd51');
+        const d52 = checkLabComplete(d52Map.get(id), 'd52');
+        const d54 = checkLabComplete(d54Map.get(id), 'd54');
         const br = checkBellRingerComplete(br11Map.get(id));
 
-        const completedCount = (d51.done ? 1 : 0) + (d52.done ? 1 : 0) + (d54.done ? 1 : 0) + (br.done ? 1 : 0);
-        const isAllDone = completedCount === 4;
+        const completedCount = (d51.done ? 1 : 0) + (d52.done ? 1 : 0) + (d54.done ? 1 : 0) + (isBRExempt ? 0 : (br.done ? 1 : 0));
+        const isAllDone = completedCount >= maxCount;
         const hasPaper = !!(paperState[id] && paperState[id].given);
 
         let courseTrack = 'CP';
@@ -945,6 +1033,7 @@
           d54,
           br,
           completedCount,
+          maxCount,
           isAllDone,
           hasPaper
         });
@@ -981,6 +1070,13 @@
       $('statReadyCount').textContent = countReady;
       $('statPapersGiven').textContent = countPaperGiven;
       $('statCatchUpCount').textContent = countCatchup;
+
+      // Update Bell Ringers column header if present
+      if ($('thBellRingers')) {
+        $('thBellRingers').innerHTML = activeBRCriteria === 'exempt'
+          ? `Bell Ringers<br><small style="font-weight: 500; text-transform: none; color: var(--text-muted);">(Exempt / Labs Only)</small>`
+          : `Bell Ringers<br><small style="font-weight: 500; text-transform: none;">Week 11 (${activeBRCriteria === '4days' ? 'All 4 Days' : (activeBRCriteria === '3days' ? '≥3 Days' : '≥2 Days')})</small>`;
+      }
 
       // Quick filter
       let filtered = periodFiltered;
@@ -1039,15 +1135,16 @@
         if (s.isAllDone) {
           statusBadge = `<span class="status-badge all-done">🎉 SPIN ART READY</span>`;
         } else {
-          statusBadge = `<span class="status-badge catch-up">⏳ Catch-Up (${s.completedCount}/4)</span>`;
+          statusBadge = `<span class="status-badge catch-up">⏳ Catch-Up (${s.completedCount}/${s.maxCount})</span>`;
         }
 
         // Assignment Pills - finished ones MUST BE GREEN!
         const renderPill = (res, title) => {
           if (res.done) {
             return `
-              <div class="assign-pill done" title="${title}: Complete!">
+              <div class="assign-pill done" title="${title}: ${res.sub} (${res.text})">
                 <span>✅ ${esc(res.text)}</span>
+                <small>${esc(res.sub)}</small>
               </div>
             `;
           }
@@ -1105,7 +1202,7 @@
             <td style="text-align: center;">${brPill}</td>
             <td style="text-align: right; font-weight: 800; font-size: 0.95rem; font-variant-numeric: tabular-nums;">
               <span style="color: ${s.isAllDone ? 'var(--good-text)' : 'var(--warn-text)'}">
-                ${s.completedCount} / 4
+                ${s.completedCount} / ${s.maxCount}
               </span>
             </td>
           </tr>
@@ -1196,27 +1293,29 @@
       $('mainApp').removeAttribute('hidden');
 
       const mockStudents = [
-        { id: '383842', name: 'Dylan Nguyen', period: '0', track: 'Honors', d51: 10, d52: 10, d54: 10, br: 20, paper: true },
-        { id: '385874', name: 'Miguel Cruz', period: '0', track: 'Honors', d51: 10, d52: 10, d54: 10, br: 20, paper: false },
-        { id: '385835', name: 'Airan Morales', period: '1', track: 'Conceptual', d51: 8, d52: 4.3, d54: 4.5, br: 10, paper: false },
-        { id: '385836', name: 'Brianna Lozada', period: '1', track: 'Conceptual', d51: 10, d52: 10, d54: 10, br: 20, paper: true },
-        { id: '385837', name: 'Daniel Sanchez', period: '1', track: 'Conceptual', d51: 0, d52: 0, d54: 0, br: 0, paper: false },
-        { id: '385840', name: 'Alondra Jimenez', period: '2', track: 'Conceptual', d51: 10, d52: 10, d54: 10, br: 20, paper: false },
-        { id: '385841', name: 'Carlos Ramos', period: '2', track: 'Conceptual', d51: 10, d52: 9.5, d54: 10, br: 15, paper: false },
-        { id: '385838', name: 'Samantha Torres', period: '4', track: 'CP', d51: 10, d52: 10, d54: 10, br: 20, paper: false },
-        { id: '385839', name: 'Antonio Herrera', period: '4', track: 'CP', d51: 10, d52: 7, d54: 0, br: 15, paper: false },
-        { id: '385842', name: 'Ethan Miller', period: '5', track: 'CP', d51: 10, d52: 10, d54: 10, br: 20, paper: true },
-        { id: '385843', name: 'Sofia Rodriguez', period: '5', track: 'CP', d51: 10, d52: 10, d54: 6.5, br: 20, paper: false },
-        { id: '385844', name: 'Jayden Patel', period: '6', track: 'CP', d51: 10, d52: 10, d54: 10, br: 20, paper: false },
-        { id: '385845', name: 'Mia Washington', period: '6', track: 'CP', d51: 5, d52: 0, d54: 0, br: 5, paper: false }
+        { id: '383842', name: 'Dylan Nguyen', period: '0', track: 'Honors', d51: 10, d52: 10, d54: 10, br: 20, paper: true, tookQuiz: true },
+        { id: '385874', name: 'Miguel Cruz', period: '0', track: 'Honors', d51: 9.2, d52: 8.4, d54: 7.6, br: 20, paper: false, tookQuiz: true },
+        { id: '385890', name: 'Rachel Duyen Nguyen', period: '0', track: 'Honors', d51: 9.2, d52: 9.2, d54: 8.4, br: 20, paper: false, tookQuiz: true },
+        { id: '385835', name: 'Airan Morales', period: '1', track: 'Conceptual', d51: 8, d52: 4.3, d54: 4.5, br: 10, paper: false, tookQuiz: false },
+        { id: '385836', name: 'Brianna Lozada', period: '1', track: 'Conceptual', d51: 10, d52: 10, d54: 10, br: 20, paper: true, tookQuiz: true },
+        { id: '385848', name: 'Steven Barrientos', period: '1', track: 'Conceptual', d51: 10, d52: 8.4, d54: 9.2, br: 15, paper: false, tookQuiz: true },
+        { id: '385837', name: 'Daniel Sanchez', period: '1', track: 'Conceptual', d51: 0, d52: 0, d54: 0, br: 0, paper: false, tookQuiz: false },
+        { id: '385840', name: 'Alondra Jimenez', period: '2', track: 'Conceptual', d51: 10, d52: 10, d54: 10, br: 20, paper: false, tookQuiz: true },
+        { id: '385841', name: 'Carlos Ramos', period: '2', track: 'Conceptual', d51: 10, d52: 9.2, d54: 8.4, br: 15, paper: false, tookQuiz: true },
+        { id: '385838', name: 'Samantha Torres', period: '4', track: 'CP', d51: 10, d52: 10, d54: 8.4, br: 15, paper: false, tookQuiz: true },
+        { id: '385839', name: 'Antonio Herrera', period: '4', track: 'CP', d51: 10, d52: 7, d54: 0, br: 15, paper: false, tookQuiz: false },
+        { id: '385842', name: 'Ethan Miller', period: '5', track: 'CP', d51: 10, d52: 10, d54: 10, br: 20, paper: true, tookQuiz: true },
+        { id: '385843', name: 'Sofia Rodriguez', period: '5', track: 'CP', d51: 10, d52: 8.4, d54: 6.8, br: 20, paper: false, tookQuiz: true },
+        { id: '385844', name: 'Jayden Patel', period: '6', track: 'CP', d51: 10, d52: 9.2, d54: 8.4, br: 15, paper: false, tookQuiz: true },
+        { id: '385845', name: 'Mia Washington', period: '6', track: 'CP', d51: 5, d52: 0, d54: 0, br: 5, paper: false, tookQuiz: false }
       ];
 
       mockStudents.forEach(s => {
         rosterMap.set(s.id, { id: s.id, name: s.name, period: s.period, track: s.track });
-        if (s.d51 > 0) d51Map.set(s.id, { score: s.d51, maxScore: 10, isCompleted: s.d51 >= 10 });
-        if (s.d52 > 0) d52Map.set(s.id, { score: s.d52, maxScore: 10, isCompleted: s.d52 >= 10 });
-        if (s.d54 > 0) d54Map.set(s.id, { score: s.d54, maxScore: 10, isCompleted: s.d54 >= 10 });
-        if (s.br > 0) br11Map.set(s.id, { score: s.br, maxScore: 20, genuineCount: s.br >= 15 ? 3 : 1 });
+        if (s.d51 > 0) d51Map.set(s.id, { score: s.d51, maxScore: 10, quiz_history: s.tookQuiz ? [80] : [], parts_done: s.tookQuiz ? ['turn', 'letgo', 'center', 'size', 'quiz'] : ['turn'] });
+        if (s.d52 > 0) d52Map.set(s.id, { score: s.d52, maxScore: 10, quiz_history: s.tookQuiz ? [80] : [], parts_done: s.tookQuiz ? ['pull', 'measure', 'graph', 'who', 'much', 'quiz'] : ['pull'] });
+        if (s.d54 > 0) d54Map.set(s.id, { score: s.d54, maxScore: 10, quiz_history: s.tookQuiz ? [80] : [], parts_done: s.tookQuiz ? ['skid', 'measure', 'graph', 'weather', 'engineer', 'quiz'] : ['skid'] });
+        if (s.br > 0) br11Map.set(s.id, { score: s.br, maxScore: 20, genuineCount: s.br >= 15 ? 3 : (s.br >= 10 ? 2 : 1) });
         if (s.paper) paperState[s.id] = { given: true, timestamp: Date.now(), updatedBy: 'demo' };
       });
 
@@ -1280,6 +1379,28 @@
         activePeriod = e.target.value;
         render();
       });
+
+      // Lab criteria selector
+      if ($('selectCriteria')) {
+        $('selectCriteria').value = activeCriteria;
+        $('selectCriteria').addEventListener('change', e => {
+          activeCriteria = e.target.value;
+          localStorage.setItem('spin_art_criteria', activeCriteria);
+          render();
+          showToast(`Rule: ${e.target.options[e.target.selectedIndex].text}`, '⚖️');
+        });
+      }
+
+      // Bell Ringer criteria selector
+      if ($('selectBRCriteria')) {
+        $('selectBRCriteria').value = activeBRCriteria;
+        $('selectBRCriteria').addEventListener('change', e => {
+          activeBRCriteria = e.target.value;
+          localStorage.setItem('spin_art_br_criteria', activeBRCriteria);
+          render();
+          showToast(`Bell Ringers: ${e.target.options[e.target.selectedIndex].text}`, '🔔');
+        });
+      }
 
       // Filter chips
       document.querySelectorAll('.filter-chip').forEach(chip => {
