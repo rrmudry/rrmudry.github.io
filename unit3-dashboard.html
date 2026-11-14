@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="en" class="dark-theme">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unit 3 Dashboard: Energy, Work &amp; Conservation</title>
+  <link rel="icon" type="image/svg+xml" href="assets/unit3-favicon.svg">
+  <link rel="stylesheet" href="assets/theme.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+  <style>
+    :root {
+      --bg-page: #080602;
+      --bg-card: rgba(20, 15, 7, 0.78);
+      --bg-card-solid: #140f07;
+      --bg-nav: rgba(12, 9, 4, 0.92);
+      --bg-subtle: rgba(255, 255, 255, 0.04);
+      --border-card: rgba(251, 191, 36, 0.2);
+      --border-subtle: rgba(148, 163, 184, 0.18);
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --accent-amber: #fbbf24;
+      --accent-cyan: #38bdf8;
+      --accent-emerald: #34d399;
+      --accent-rose: #fb7185;
+      --grid-line: rgba(251, 191, 36, 0.05);
+      --glow-1: rgba(245, 158, 11, 0.14);
+      --glow-2: rgba(56, 189, 248, 0.12);
+    }
+
+    html.light-theme {
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-card-solid: #ffffff;
+      --bg-nav: rgba(255, 255, 255, 0.96);
+      --bg-subtle: #f1f5f9;
+      --border-card: #cbd5e1;
+      --border-subtle: #cbd5e1;
+      --text-primary: #0f172a;
+      --text-secondary: #1e293b;
+      --text-muted: #334155;
+      --accent-amber: #b45309;
+      --accent-cyan: #0369a1;
+      --accent-emerald: #047857;
+      --accent-rose: #be123c;
+      --grid-line: rgba(15, 23, 42, 0.04);
+      --glow-1: rgba(245, 158, 11, 0.06);
+      --glow-2: rgba(2, 132, 199, 0.06);
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    .font-orbitron {
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .font-space {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    /* Fixed Atmospheric Energy Grid */
+    .energy-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background-color: var(--bg-page);
+      background-image:
+        radial-gradient(circle at 15% 18%, var(--glow-1), transparent 42%),
+        radial-gradient(circle at 85% 75%, var(--glow-2), transparent 45%),
+        linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 44px 44px, 44px 44px;
+    }
+
+    .glass-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-card);
+      border-radius: 1.25rem;
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    html.light-theme .glass-card {
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+    }
+
+    .glass-card.interactive-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent-amber);
+    }
+
+    .sticky-unit-nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: var(--bg-nav);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-card);
+    }
+
+    .nav-btn {
+      position: relative;
+      padding: 0.75rem 0.65rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-radius: 0.65rem;
+      transition: color 0.2s ease, background-color 0.2s ease;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .nav-btn:hover {
+      color: var(--text-primary);
+      background: var(--bg-subtle);
+    }
+
+    .nav-btn.active {
+      color: var(--accent-amber);
+      background: rgba(251, 191, 36, 0.12);
+    }
+
+    html.light-theme .nav-btn.active {
+      color: #92400e;
+      background: #fef3c7;
+      box-shadow: inset 0 -2px 0 #b45309;
+    }
+
+    .content-section {
+      scroll-margin-top: 84px;
+    }
+
+    /* Fix transparent clip clipping on sub/sup elements */
+    .bg-clip-text sub,
+    .bg-clip-text sup {
+      -webkit-text-fill-color: initial;
+      color: var(--accent-amber);
+    }
+
+    /* Stacked physics fraction notation (no LaTeX) */
+    .frac {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      vertical-align: middle;
+      line-height: 1.05;
+      margin: 0 0.2rem;
+    }
+
+    .frac .num {
+      padding: 0 0.35rem 0.15rem;
+      border-bottom: 2px solid currentColor;
+      font-weight: 700;
+    }
+
+    .frac .den {
+      padding: 0.15rem 0.35rem 0;
+      font-weight: 700;
+    }
+
+    /* Native Modal Dialog Styling (per Modern Web Guidance) */
+    dialog {
+      padding: 0;
+      border: none;
+      background: transparent;
+      max-width: min(56rem, calc(100vw - 1.5rem));
+      max-height: calc(100vh - 2rem);
+      margin: auto;
+      color: var(--text-primary);
+    }
+
+    dialog#planned-notice-modal {
+      max-width: min(34rem, calc(100vw - 1.5rem));
+    }
+
+    dialog:modal {
+      overscroll-behavior: contain;
+    }
+
+    dialog::backdrop {
+      background: rgba(2, 6, 23, 0.78);
+      backdrop-filter: blur(6px);
+      overflow: hidden;
+      overscroll-behavior: contain;
+    }
+
+    .dialog-shell {
+      background: var(--bg-card-solid);
+      border: 1px solid var(--border-card);
+      border-radius: 1.25rem;
+      color: var(--text-primary);
+      max-height: calc(100vh - 2.5rem);
+      overflow-y: auto;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55);
+    }
+
+    html.light-theme .dialog-shell {
+      background: #ffffff;
+      border: 2px solid #94a3b8;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.22);
+    }
+
+    /* High-Contrast Light Mode Overrides for Classroom Projectors */
+    html.light-theme .text-white {
+      color: #0f172a !important;
+    }
+
+    html.light-theme .btn-preserve-white,
+    html.light-theme .btn-preserve-white * {
+      color: #ffffff !important;
+    }
+
+    html.light-theme .btn-preserve-dark,
+    html.light-theme .btn-preserve-dark * {
+      color: #0f172a !important;
+    }
+
+    html.light-theme .text-slate-200,
+    html.light-theme .text-slate-300,
+    html.light-theme .text-slate-400 {
+      color: #1e293b !important;
+    }
+
+    html.light-theme .text-amber-200,
+    html.light-theme .text-amber-300,
+    html.light-theme .text-amber-400 {
+      color: #92400e !important;
+    }
+
+    html.light-theme .text-sky-300,
+    html.light-theme .text-sky-400 {
+      color: #0369a1 !important;
+    }
+
+    html.light-theme .text-emerald-300,
+    html.light-theme .text-emerald-400 {
+      color: #047857 !important;
+    }
+
+    html.light-theme .text-rose-300,
+    html.light-theme .text-rose-400 {
+      color: #be123c !important;
+    }
+
+    html.light-theme .bg-slate-800,
+    html.light-theme .bg-slate-800\/80,
+    html.light-theme .bg-slate-900,
+    html.light-theme .bg-slate-900\/70,
+    html.light-theme .bg-slate-900\/75,
+    html.light-theme .bg-slate-900\/80,
+    html.light-theme .bg-slate-900\/90,
+    html.light-theme .bg-slate-950\/60,
+    html.light-theme .bg-black\/30,
+    html.light-theme .bg-black\/40 {
+      background-color: #f1f5f9 !important;
+      border-color: #cbd5e1 !important;
+    }
+
+    html.light-theme .border-white\/10,
+    html.light-theme .border-slate-700,
+    html.light-theme .border-amber-500\/20 {
+      border-color: #cbd5e1 !important;
+    }
+
+    html.light-theme input[type="range"] {
+      accent-color: #b45309;
+    }
+
+    input[type="range"] {
+      accent-color: #fbbf24;
+    }
+
+    canvas {
+      max-width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="energy-backdrop" aria-hidden="true"></div>
+
+  <!-- Global Site Header -->
+  <div data-include="header"></div>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-16">
+    <!-- Hero & Classroom Readability Controls -->
+    <section class="glass-card p-6 sm:p-8 mb-6">
+      <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+        <div class="space-y-3 max-w-3xl">
+          <div class="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-wider">
+            <span class="px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-300">Unit 3 • Semester 1 Capstone</span>
+            <span class="px-3 py-1 rounded-full bg-sky-500/15 border border-sky-400/40 text-sky-300">20 Days • Nov 16 – Dec 18, 2026</span>
+            <span class="px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/40 text-emerald-300">g = 10 m/s²</span>
+          </div>
+          <h1 class="font-orbitron text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
+            ⚡ Unit 3: <span class="text-amber-400">Energy</span>, Work &amp; Conservation
+          </h1>
+          <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+            Master Mechanical Work (<strong class="text-amber-300">W = F · d</strong>), Power (<strong class="text-sky-300">P = W / t</strong>), Gravitational &amp; Elastic Potential Energy (<strong class="text-amber-300">PE<sub>g</sub></strong> &amp; <strong class="text-amber-300">PE<sub>s</sub></strong>), Kinetic Energy (<strong class="text-sky-300">KE = ½ · m · v²</strong>), and Roller Coaster Conservation.
+            <span class="block mt-1 text-xs text-slate-400">Note: Thanksgiving Break is Nov 23–27; HS Minimum Days are Dec 17–18. Thermal energy &amp; thermodynamics are saved for Unit 5.</span>
+          </p>
+        </div>
+
+        <!-- Classroom Projection & Theme Toolbar -->
+        <div class="flex flex-col gap-3 sm:min-w-[270px]">
+          <div class="bg-slate-900/70 border border-white/10 rounded-xl p-3 space-y-2.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Classroom View</span>
+              <button id="btn-theme-toggle" type="button"
+                class="px-3 py-1.5 rounded-lg text-xs font-bold border border-amber-400/40 bg-amber-500/15 text-amber-300 hover:bg-amber-500/25 transition">
+                ☀️ High-Contrast Light
+              </button>
+            </div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-semibold text-slate-400">Text Size:</span>
+              <div class="grid grid-cols-3 gap-1 flex-1" role="group" aria-label="Text Size">
+                <button type="button" data-font-size="16px" class="font-size-btn px-2 py-1 rounded text-xs font-bold border border-amber-400/50 bg-amber-500/20 text-amber-300">Normal</button>
+                <button type="button" data-font-size="20px" class="font-size-btn px-2 py-1 rounded text-xs font-bold border border-white/10 text-slate-300 hover:border-amber-400/40">Large</button>
+                <button type="button" data-font-size="25px" class="font-size-btn px-2 py-1 rounded text-xs font-bold border border-white/10 text-slate-300 hover:border-amber-400/40">Projector</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dynamic Unit Pacing Progress -->
+          <div class="bg-slate-900/70 border border-white/10 rounded-xl p-3">
+            <div class="flex items-center justify-between text-xs font-semibold mb-1.5">
+              <span class="text-slate-300">Unit 3 Pacing Progress</span>
+              <span id="unit-progress-label" class="text-amber-300 font-bold">0 / 20 Days</span>
+            </div>
+            <div class="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden">
+              <div id="unit-progress-bar" class="h-full rounded-full bg-gradient-to-r from-amber-400 via-sky-400 to-emerald-400 transition-all duration-500" style="width: 0%;"></div>
+            </div>
+            <div id="unit-progress-sub" class="text-[11px] text-slate-400 mt-1">Starts Mon, Nov 16 • Ends Fri, Dec 18, 2026</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sticky Zero-Scroll Tab Navigation -->
+    <nav class="sticky-unit-nav rounded-2xl mb-8 px-2 py-1.5 shadow-lg" aria-label="Unit 3 Dashboard Sections">
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5">
+        <button type="button" class="nav-btn active" data-tab="overview">🧭 Overview &amp; Scope</button>
+        <button type="button" class="nav-btn" data-tab="pacing">📅 Weekly Pacing (20d)</button>
+        <button type="button" class="nav-btn" data-tab="simulator">🎢 Energy Visualizer</button>
+        <button type="button" class="nav-btn" data-tab="matrix">📐 Formula Matrix</button>
+        <button type="button" class="nav-btn" data-tab="assessments">🧪 Labs &amp; Quizzes</button>
+      </div>
+    </nav>
+
+    <!-- TAB 1: OVERVIEW -->
+    <section id="overview" class="tab-panel content-section space-y-6">
+      <!-- NGSS Interactive Banner -->
+      <div id="unit3-ngss-banner"></div>
+      <div class="sr-only" data-ngss="HS-PS3-1,HS-PS3-2,HS-ETS1-2,HS-ETS1-3"></div>
+
+      <!-- Featured Mission & Valley Energy Scope Canvas -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-7 glass-card p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-3 mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-sky-400">Live Conservation Preview</span>
+              <span class="text-xs font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-400/30">Ideal Coaster Valley (W<sub>f</sub> = 0 J)</span>
+            </div>
+            <h2 class="font-orbitron text-xl font-bold text-white mb-2">Energy Accounting in Action: PE<sub>g</sub> ↔ KE</h2>
+            <p class="text-sm text-slate-300 mb-4">
+              Notice how Gravitational Potential Energy (<strong class="text-amber-300">PE<sub>g</sub> = m·g·h</strong>) and Kinetic Energy (<strong class="text-sky-300">KE = ½·m·v²</strong>) continuously trade places as the coaster rides the valley, while Total Mechanical Energy (<strong class="text-emerald-300">E<sub>total</sub></strong>) remains rock steady!
+            </p>
+          </div>
+          <div class="bg-slate-900/80 border border-white/10 rounded-xl p-3">
+            <canvas id="scopeCanvas" width="640" height="270" class="w-full h-auto block rounded-lg"></canvas>
+          </div>
+          <div class="grid grid-cols-4 gap-2 mt-3 text-center text-xs">
+            <div class="bg-slate-900/70 rounded-lg p-2 border border-white/10">
+              <div class="text-slate-400">Height h</div>
+              <div id="scope-h" class="font-bold text-amber-300 font-mono">0.0 m</div>
+            </div>
+            <div class="bg-slate-900/70 rounded-lg p-2 border border-white/10">
+              <div class="text-slate-400">Speed v</div>
+              <div id="scope-v" class="font-bold text-sky-300 font-mono">0.0 m/s</div>
+            </div>
+            <div class="bg-slate-900/70 rounded-lg p-2 border border-white/10">
+              <div class="text-slate-400">PE<sub>g</sub> / KE</div>
+              <div id="scope-peke" class="font-bold text-white font-mono">0 / 0 J</div>
+            </div>
+            <div class="bg-slate-900/70 rounded-lg p-2 border border-white/10">
+              <div class="text-slate-400">Total E</div>
+              <div id="scope-etot" class="font-bold text-emerald-300 font-mono">200 J</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DOK Distribution Chart + Stats -->
+        <div class="lg:col-span-5 glass-card p-6 flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Cognitive Rigor Profile</span>
+            <h2 class="font-orbitron text-xl font-bold text-white mt-1 mb-2">Depth of Knowledge (DOK) Balance</h2>
+            <p class="text-xs text-slate-300 mb-4">Unit 3 builds cleanly from core definitions and graph reading (DOK 2) up to spring/photogate lab analysis (DOK 3) and roller coaster engineering constraints (DOK 4).</p>
+          </div>
+          <div class="relative h-56 w-full flex items-center justify-center">
+            <canvas id="dokChart"></canvas>
+          </div>
+          <div id="dok-stats-row" class="grid grid-cols-4 gap-2 mt-4 text-center text-xs"></div>
+        </div>
+      </div>
+
+      <!-- Essential Questions & Differentiation Tiers -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="glass-card p-6 space-y-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Unit Driving Inquiry</span>
+            <h2 class="font-orbitron text-xl font-bold text-white mt-1">Four Essential Questions</h2>
+          </div>
+          <div class="space-y-3 text-sm">
+            <div class="p-3.5 rounded-xl bg-slate-900/70 border border-white/10">
+              <div class="font-bold text-amber-300 mb-1">EQ1 • Work &amp; Power (Week 1)</div>
+              <p class="text-slate-300">Why does carrying a heavy backpack across a flat hallway require stamina yet count as zero mechanical work in physics, while running up stairs takes the same work yet demands more power?</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-slate-900/70 border border-white/10">
+              <div class="font-bold text-sky-300 mb-1">EQ2 • Stored Energy (Week 2)</div>
+              <p class="text-slate-300">How do vertical height, spring stiffness (k), and stretch distance store measurable capacity to launch objects or cause motion?</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-slate-900/70 border border-white/10">
+              <div class="font-bold text-rose-300 mb-1">EQ3 • Speed &amp; Braking Distance (Week 3)</div>
+              <p class="text-slate-300">Why does doubling a car's speed require four times the braking distance instead of twice the braking distance?</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-slate-900/70 border border-white/10">
+              <div class="font-bold text-emerald-300 mb-1">EQ4 • Conservation Accounting (Week 4)</div>
+              <p class="text-slate-300">How can an energy ledger (PE<sub>i</sub> + KE<sub>i</sub> + W<sub>ext</sub> = PE<sub>f</sub> + KE<sub>f</sub>) predict speeds and maximum hill heights on any coaster without tracking curve forces?</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card p-6 space-y-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Class Period Differentiation</span>
+            <h2 class="font-orbitron text-xl font-bold text-white mt-1">Scaffolded Pathways &amp; WICOR Strategy</h2>
+          </div>
+          <div class="space-y-3 text-sm">
+            <div class="p-3.5 rounded-xl bg-slate-900/70 border border-emerald-500/25">
+              <div class="font-bold text-emerald-300">Periods 1–3 (Conceptual Physics)</div>
+              <p class="text-slate-300 text-xs mt-1">LOL energy bar charts, grid-square graph areas, proportional tables (2x speed → 4x energy), and visual ramp measurements with g = 10 m/s² (no square-root algebra or trigonometry).</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-slate-900/70 border border-sky-500/25">
+              <div class="font-bold text-sky-300">Periods 4–6 (CP Physics)</div>
+              <p class="text-slate-300 text-xs mt-1">Stacked one-step energy calculations (W = F·d, PE<sub>g</sub> = m·g·h, PE<sub>s</sub> = ½·k·x², KE = ½·m·v²), photogate timing, and graph slopes with explicit SI units.</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-slate-900/70 border border-amber-500/25">
+              <div class="font-bold text-amber-300">Period 0 (Honors Physics)</div>
+              <p class="text-slate-300 text-xs mt-1">Angled pulls (W = F·d·cos θ), experimental linearization (KE vs. v², PE<sub>s</sub> vs. x²), speed derivations v = √(2·g·Δh), and non-conservative friction work (W<sub>f</sub> = -F<sub>f</sub>·d).</p>
+            </div>
+          </div>
+          <div class="p-3.5 rounded-xl bg-slate-900/70 border border-white/10">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">WICOR Inquiry Footprint</div>
+            <div id="wicor-badges" class="flex flex-wrap gap-2 text-xs"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: WEEKLY PACING -->
+    <section id="pacing" class="tab-panel content-section hidden space-y-6">
+      <div class="glass-card p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h2 class="font-orbitron text-xl font-bold text-white">20-Day Curriculum Schedule</h2>
+          <p class="text-xs text-slate-300 mt-1">Click any day card to view Bell-Ringer prompts, WICOR strategies, NGSS alignment, and differentiation details.</p>
+        </div>
+        <div class="flex flex-wrap gap-2" role="group" aria-label="Filter by week">
+          <button type="button" class="week-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold border border-amber-400 bg-amber-500/20 text-amber-300" data-week="all">All (Days 1–20)</button>
+          <button type="button" class="week-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold border border-white/10 text-slate-300 hover:border-amber-400/50" data-week="1">Wk 1: Work &amp; Power</button>
+          <button type="button" class="week-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold border border-white/10 text-slate-300 hover:border-amber-400/50" data-week="2">Wk 2: Potential Energy</button>
+          <button type="button" class="week-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold border border-white/10 text-slate-300 hover:border-amber-400/50" data-week="3">Wk 3: Kinetic &amp; W-E</button>
+          <button type="button" class="week-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold border border-white/10 text-slate-300 hover:border-amber-400/50" data-week="4">Wk 4: Conservation</button>
+        </div>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-400/30 text-xs text-amber-200 flex items-center gap-3">
+        <span class="text-lg">🦃</span>
+        <span><strong>District Calendar Reminder:</strong> Thanksgiving Break runs <strong>Nov 23 – Nov 27, 2026</strong> between Week 1 (Day 5) and Week 2 (Day 6). Days 19–20 (<strong>Dec 17–18, 2026</strong>) are High School Minimum Days closing Semester 1.</span>
+      </div>
+
+      <div id="pacing-cards-container" class="space-y-6"></div>
+    </section>
+
+    <!-- TAB 3: INTERACTIVE ENERGY VISUALIZER -->
+    <section id="simulator" class="tab-panel content-section hidden space-y-6">
+      <div class="glass-card p-6 space-y-5">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-sky-400">Interactive Simulation Sandbox</span>
+            <h2 class="font-orbitron text-2xl font-bold text-white mt-1">🎢 Coaster Track &amp; Mechanical Energy Visualizer</h2>
+            <p class="text-sm text-slate-300 mt-1">Adjust drop height, cart mass, and track friction coefficient (μ). Watch how negative friction work (<strong class="text-rose-300">W<sub>f</sub> = -F<sub>f</sub>·d</strong>) lowers the maximum rebound hill without touching thermodynamics.</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" id="preset-ideal" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/15 border border-emerald-400/40 text-emerald-300 hover:bg-emerald-500/25">Ideal Coaster (μ = 0)</button>
+            <button type="button" id="preset-realistic" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500/15 border border-amber-400/40 text-amber-300 hover:bg-amber-500/25">Light Friction (μ = 0.08)</button>
+            <button type="button" id="preset-brake" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-500/15 border border-rose-400/40 text-rose-300 hover:bg-rose-500/25">Heavy Brake (μ = 0.18)</button>
+          </div>
+        </div>
+
+        <!-- Sliders & Playback Controls -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-900/70 border border-white/10 rounded-xl p-4">
+          <div>
+            <div class="flex justify-between text-xs font-semibold mb-1">
+              <label for="sim-height" class="text-slate-300">Start Height h₀</label>
+              <span id="sim-height-val" class="text-amber-300 font-mono">35 m</span>
+            </div>
+            <input id="sim-height" type="range" min="10" max="50" step="1" value="35" class="w-full">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs font-semibold mb-1">
+              <label for="sim-mass" class="text-slate-300">Cart Mass m</label>
+              <span id="sim-mass-val" class="text-sky-300 font-mono">500 kg</span>
+            </div>
+            <input id="sim-mass" type="range" min="100" max="1000" step="50" value="500" class="w-full">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs font-semibold mb-1">
+              <label for="sim-mu" class="text-slate-300">Friction μ</label>
+              <span id="sim-mu-val" class="text-rose-300 font-mono">0.00</span>
+            </div>
+            <input id="sim-mu" type="range" min="0" max="0.20" step="0.01" value="0" class="w-full">
+          </div>
+          <div class="flex items-end gap-2">
+            <button id="sim-toggle-play" type="button" class="flex-1 py-2 px-3 rounded-lg text-xs font-bold bg-amber-400 text-slate-950 hover:bg-amber-300 transition btn-preserve-dark">⏸ Pause</button>
+            <button id="sim-reset" type="button" class="py-2 px-3 rounded-lg text-xs font-bold border border-white/20 text-slate-200 hover:border-amber-400 transition">↺ Reset</button>
+          </div>
+        </div>
+
+        <!-- Dual Canvas Output -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          <div class="lg:col-span-7 bg-slate-900/80 border border-white/10 rounded-xl p-3">
+            <div class="flex items-center justify-between text-xs font-semibold text-slate-400 px-1 mb-2">
+              <span>Roller Coaster Profile (g = 10 m/s²)</span>
+              <span id="sim-status-badge" class="text-emerald-300 font-mono">Riding Track</span>
+            </div>
+            <canvas id="trackCanvas" width="680" height="320" class="w-full h-auto block rounded-lg"></canvas>
+            <div class="mt-3 px-1">
+              <div class="flex justify-between text-xs text-slate-400 mb-1">
+                <label for="sim-scrub">Track Position Scrubber (0% – 100%)</label>
+                <span id="sim-scrub-val" class="font-mono text-amber-300">0%</span>
+              </div>
+              <input id="sim-scrub" type="range" min="0" max="100" step="0.5" value="0" class="w-full">
+            </div>
+          </div>
+
+          <div class="lg:col-span-5 bg-slate-900/80 border border-white/10 rounded-xl p-3 flex flex-col justify-between">
+            <div class="flex items-center justify-between text-xs font-semibold text-slate-400 px-1 mb-2">
+              <span>LOL Mechanical Energy Bars &amp; Curve</span>
+              <span class="font-mono text-amber-300">PE<sub>g</sub> + KE - |W<sub>f</sub>|</span>
+            </div>
+            <canvas id="simCanvas" width="460" height="320" class="w-full h-auto block rounded-lg"></canvas>
+            <div id="sim-readout-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 text-center text-xs">
+              <div class="p-2 rounded-lg bg-slate-950/60 border border-white/10">
+                <div class="text-slate-400">Height</div>
+                <div id="readout-h" class="font-bold font-mono text-amber-300">35.0 m</div>
+              </div>
+              <div class="p-2 rounded-lg bg-slate-950/60 border border-white/10">
+                <div class="text-slate-400">Speed</div>
+                <div id="readout-v" class="font-bold font-mono text-sky-300">0.0 m/s</div>
+              </div>
+              <div class="p-2 rounded-lg bg-slate-950/60 border border-white/10">
+                <div class="text-slate-400">PE<sub>g</sub> / KE</div>
+                <div id="readout-peke" class="font-bold font-mono text-white">175 / 0 kJ</div>
+              </div>
+              <div class="p-2 rounded-lg bg-slate-950/60 border border-white/10">
+                <div class="text-slate-400">|W<sub>f</sub>| Work Lost</div>
+                <div id="readout-wf" class="font-bold font-mono text-rose-300">0.0 kJ</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: FORMULA MATRIX & TOOLS -->
+    <section id="matrix" class="tab-panel content-section hidden space-y-6">
+      <div class="glass-card p-6 space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Reference Standards • g = 10 m/s²</span>
+            <h2 class="font-orbitron text-2xl font-bold text-white mt-1">Energy &amp; Work Formula Matrix</h2>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <a href="coaster-physics/index.html" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-sky-500/15 border border-sky-400/40 text-sky-300 hover:bg-sky-500/25 transition">🎢 Coaster Physics App ↗</a>
+            <a href="pulley-work/index.html" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-500/15 border border-emerald-400/40 text-emerald-300 hover:bg-emerald-500/25 transition">⚙️ Pulley &amp; Work App ↗</a>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="p-4 rounded-xl bg-slate-900/75 border border-white/10 space-y-2">
+            <div class="text-xs font-bold uppercase tracking-wider text-amber-300">1. Mechanical Work</div>
+            <div class="text-lg font-mono font-bold text-white">W = F · d &nbsp;(or Area under F–d graph)</div>
+            <p class="text-xs text-slate-300">Units: <strong>Joules (J = N·m)</strong>. Zero when F ⟂ d. Negative when friction or braking opposes motion (Honors: W = F·d·cos θ).</p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-900/75 border border-white/10 space-y-2">
+            <div class="text-xs font-bold uppercase tracking-wider text-sky-300">2. Mechanical Power</div>
+            <div class="text-lg font-mono font-bold text-white">
+              P = <span class="frac"><span class="num">W</span><span class="den">t</span></span> &nbsp; (or P = F · v)
+            </div>
+            <p class="text-xs text-slate-300">Units: <strong>Watts (W = J/s)</strong>. Rate of energy transfer per second (746 W = 1 hp).</p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-900/75 border border-white/10 space-y-2">
+            <div class="text-xs font-bold uppercase tracking-wider text-amber-300">3. Gravitational Potential Energy</div>
+            <div class="text-lg font-mono font-bold text-white">PE<sub>g</sub> = m · g · h</div>
+            <p class="text-xs text-slate-300">Units: <strong>Joules (J)</strong>. Always use <strong>g = 10 m/s²</strong>. Only height change Δh changes ΔPE<sub>g</sub>.</p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-900/75 border border-white/10 space-y-2">
+            <div class="text-xs font-bold uppercase tracking-wider text-emerald-300">4. Hooke's Law &amp; Spring Energy</div>
+            <div class="text-lg font-mono font-bold text-white">
+              F<sub>s</sub> = k · x &nbsp;|&nbsp; PE<sub>s</sub> = <span class="frac"><span class="num">1</span><span class="den">2</span></span> · k · x²
+            </div>
+            <p class="text-xs text-slate-300">Units: k in <strong>N/m</strong>, x = L - L<sub>0</sub> in <strong>m</strong>. Doubling spring stretch x quadruples stored energy!</p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-900/75 border border-white/10 space-y-2">
+            <div class="text-xs font-bold uppercase tracking-wider text-sky-300">5. Kinetic Energy &amp; Speed</div>
+            <div class="text-lg font-mono font-bold text-white">
+              KE = <span class="frac"><span class="num">1</span><span class="den">2</span></span> · m · v²
+            </div>
+            <p class="text-xs text-slate-300">Units: <strong>Joules (J)</strong>. Doubling speed quadruples KE and braking distance.</p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-900/75 border border-white/10 space-y-2">
+            <div class="text-xs font-bold uppercase tracking-wider text-rose-300">6. Work–Energy &amp; Conservation</div>
+            <div class="text-base font-mono font-bold text-white">
+              W<sub>net</sub> = KE<sub>f</sub> - KE<sub>i</sub><br>
+              PE<sub>i</sub> + KE<sub>i</sub> + W<sub>f</sub> = PE<sub>f</sub> + KE<sub>f</sub>
+            </div>
+            <p class="text-xs text-slate-300">Friction does negative mechanical work W<sub>f</sub> = -F<sub>f</sub>·d removing system mechanical energy.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Formula Checker + Desmos Drawer -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-6 glass-card p-6 space-y-4">
+          <h3 class="font-orbitron text-lg font-bold text-white">Quick Unit 3 Calculator (g = 10 m/s²)</h3>
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <label for="calc-mode" class="block font-semibold text-slate-300 mb-1">Choose Formula</label>
+              <select id="calc-mode" class="w-full rounded-lg bg-slate-900 border border-white/15 px-3 py-2 text-white">
+                <option value="peg">PE_g = m · g · h</option>
+                <option value="ke">KE = ½ · m · v²</option>
+                <option value="pes">PE_s = ½ · k · x²</option>
+                <option value="power">Power P = W ÷ t</option>
+                <option value="drop">Ideal Drop Speed v = √(2 · g · h)</option>
+              </select>
+            </div>
+            <div class="flex items-end">
+              <div class="w-full rounded-lg bg-amber-500/15 border border-amber-400/35 px-3 py-2 text-amber-300 font-mono font-bold text-center" id="calc-result">Result: 500.0 J</div>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <label id="calc-a-label" for="calc-a" class="block font-semibold text-slate-300 mb-1">Mass m (kg)</label>
+              <input id="calc-a" type="number" step="any" value="5" class="w-full rounded-lg bg-slate-900 border border-white/15 px-3 py-2 text-white font-mono">
+            </div>
+            <div id="calc-b-wrap">
+              <label id="calc-b-label" for="calc-b" class="block font-semibold text-slate-300 mb-1">Height h (m)</label>
+              <input id="calc-b" type="number" step="any" value="10" class="w-full rounded-lg bg-slate-900 border border-white/15 px-3 py-2 text-white font-mono">
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-400">Always show given values, formula, stacked substitutions, and SI units on handwritten work!</p>
+        </div>
+
+        <div class="lg:col-span-6 glass-card p-6 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-orbitron text-lg font-bold text-white">Desmos Scientific Calculator</h3>
+            <button id="toggle-desmos" type="button" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-500/15 border border-sky-400/40 text-sky-300 hover:bg-sky-500/25">Show / Load Calculator</button>
+          </div>
+          <div id="desmos-wrap" class="hidden rounded-xl overflow-hidden border border-white/15 bg-white">
+            <div id="desmos-calculator" style="width: 100%; height: 270px;"></div>
+          </div>
+          <p id="desmos-status" class="text-xs text-slate-400">Click above to initialize the embedded Desmos scientific keypad anytime while working on Unit 3 calculations.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: LABS & ASSESSMENTS -->
+    <section id="assessments" class="tab-panel content-section hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="glass-card p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="font-orbitron text-xl font-bold text-amber-300">🧪 Unit 3 Hands-On Labs</h2>
+            <span class="text-xs text-slate-400">Click any lab for full plan</span>
+          </div>
+          <div id="labs-list" class="space-y-3"></div>
+        </div>
+        <div class="glass-card p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="font-orbitron text-xl font-bold text-sky-300">📝 Checkpoints &amp; Summative</h2>
+            <span class="text-xs text-slate-400">Click any check for rubric</span>
+          </div>
+          <div id="assessments-list" class="space-y-3"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Native Lesson Detail Modal -->
+  <dialog id="modal" closedby="any" aria-labelledby="modal-title">
+    <div class="dialog-shell p-6 sm:p-8 space-y-5">
+      <div class="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
+        <div class="space-y-1.5">
+          <div id="modal-badges" class="flex flex-wrap gap-2 text-xs font-bold"></div>
+          <h2 id="modal-title" class="font-orbitron text-xl sm:text-2xl font-bold text-white">Lesson Title</h2>
+          <p id="modal-topic" class="text-sm text-amber-300 font-semibold"></p>
+        </div>
+        <form method="dialog">
+          <button type="submit" aria-label="Close lesson details"
+            class="px-3 py-1.5 rounded-lg text-xs font-bold border border-white/20 text-slate-300 hover:border-amber-400 hover:text-amber-300 transition">✕ Close</button>
+        </form>
+      </div>
+
+      <div id="modal-eq" class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-400/25 text-sm"></div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div class="p-4 rounded-xl bg-slate-900/75 border border-white/10 space-y-2">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-sky-300">Lesson Concept Summary</h3>
+          <p id="modal-summary" class="text-slate-300 leading-relaxed"></p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-900/75 border border-white/10 space-y-2">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-300">Activity &amp; Deliverable</h3>
+          <p id="modal-activity" class="text-slate-300 leading-relaxed"></p>
+        </div>
+      </div>
+
+      <div id="modal-bellringer" class="p-4 rounded-xl bg-slate-900/75 border border-white/10 space-y-2 text-sm"></div>
+
+      <div class="p-4 rounded-xl bg-slate-900/75 border border-white/10 space-y-2">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-amber-300">WICOR Inquiry Breakdown</h3>
+        <div id="modal-wicor" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-300"></div>
+      </div>
+
+      <div class="space-y-2">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">NGSS Alignment (Click pill for 3D Details)</h3>
+        <div id="modal-standards" class="flex flex-wrap gap-2"></div>
+      </div>
+
+      <div class="space-y-2 pt-2 border-t border-white/10">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Links &amp; Assignments</h3>
+        <div id="modal-links" class="space-y-2"></div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Native Planned Activity Notice Modal -->
+  <dialog id="planned-notice-modal" closedby="any" aria-labelledby="planned-modal-title">
+    <div class="dialog-shell p-6 space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <h2 id="planned-modal-title" class="font-orbitron text-lg font-bold text-amber-300">🚧 Activity Planned / Not Posted Yet</h2>
+        <form method="dialog">
+          <button type="submit" aria-label="Close notice" class="px-2.5 py-1 rounded-lg text-xs font-bold border border-white/20 text-slate-300">✕</button>
+        </form>
+      </div>
+      <p id="planned-modal-body" class="text-sm text-slate-300 leading-relaxed">
+        This Unit 3 activity is scheduled in the curriculum outline and will be linked here once Mr. Mudry finalizes the handout or interactive studio.
+      </p>
+      <div class="flex justify-end">
+        <form method="dialog">
+          <button type="submit" autofocus class="px-4 py-2 rounded-lg text-xs font-bold bg-amber-400 text-slate-950 hover:bg-amber-300 btn-preserve-dark">Got It</button>
+        </form>
+      </div>
+    </div>
+  </dialog>
+
+  <div data-include="footer"></div>
+
+  <script src="assets/partials.js"></script>
+  <script src="assets/lessons-data.js"></script>
+  <script src="ngss-explorer/standards-data.js"></script>
+  <script src="assets/ngss-helper.js"></script>
+
+  <script>
+    (function () {
+      const G = 10; // Standard site-wide gravity constant (10 m/s²)
+      const unit3Lessons = (typeof lessonsData !== 'undefined' ? lessonsData : [])
+        .filter(item => item && item.unit === 3)
+        .sort((a, b) => (a.day || 0) - (b.day || 0));
+
+      let isLightTheme = localStorage.getItem('u3_theme') === 'light';
+      let dokChartInstance = null;
+      let desmosInstance = null;
+
+      // Light-dismiss polyfill for Safari (dialog[closedby="any"])
+      if (!('closedBy' in HTMLDialogElement.prototype)) {
+        const outside = (e, dlg) => {
+          const r = dlg.getBoundingClientRect();
+          return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+        };
+        for (const dlg of document.querySelectorAll('dialog[closedby="any"]')) {
+          let pressedOutside = false;
+          dlg.addEventListener('pointerdown', (e) => { pressedOutside = outside(e, dlg); });
+          dlg.addEventListener('pointerup', (e) => { if (pressedOutside && outside(e, dlg)) dlg.close(); });
+        }
+      }
+
+      // Theme & Projector Font Size Management
+      const htmlEl = document.documentElement;
+      const themeBtn = document.getElementById('btn-theme-toggle');
+
+      function applyTheme(light) {
+        isLightTheme = light;
+        htmlEl.classList.toggle('light-theme', light);
+        htmlEl.classList.toggle('dark-theme', !light);
+        themeBtn.textContent = light ? '🌙 Dark Cyber Mode' : '☀️ High-Contrast Light';
+        localStorage.setItem('u3_theme', light ? 'light' : 'dark');
+        renderDokChart();
+        drawScopeCanvas();
+        drawSimFrame();
+      }
+
+      themeBtn.addEventListener('click', () => applyTheme(!isLightTheme));
+
+      document.querySelectorAll('.font-size-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const size = btn.dataset.fontSize;
+          htmlEl.style.fontSize = size;
+          localStorage.setItem('u3_font_size', size);
+          document.querySelectorAll('.font-size-btn').forEach(b => {
+            const active = b === btn;
+            b.classList.toggle('border-amber-400/50', active);
+            b.classList.toggle('bg-amber-500/20', active);
+            b.classList.toggle('text-amber-300', active);
+            b.classList.toggle('border-white/10', !active);
+            b.classList.toggle('text-slate-300', !active);
+          });
+        });
+      });
+
+      // Restore saved font size & theme
+      const savedSize = localStorage.getItem('u3_font_size');
+      if (savedSize) {
+        const matchBtn = document.querySelector(`.font-size-btn[data-font-size="${savedSize}"]`);
+        if (matchBtn) matchBtn.click();
+      }
+
+      // Unit Pacing Progress Bar
+      function updateProgressBar() {
+        const now = new Date();
+        const todayIso = now.toISOString().slice(0, 10);
+        let completed = unit3Lessons.filter(l => l.date && l.date <= todayIso).length;
+        completed = Math.min(unit3Lessons.length, Math.max(0, completed));
+        const pct = unit3Lessons.length ? Math.round((completed / unit3Lessons.length) * 100) : 0;
+        const label = document.getElementById('unit-progress-label');
+        const bar = document.getElementById('unit-progress-bar');
+        const sub = document.getElementById('unit-progress-sub');
+        if (label) label.textContent = `${completed} / ${unit3Lessons.length} Days`;
+        if (bar) bar.style.width = `${pct}%`;
+        if (sub && unit3Lessons.length) {
+          if (todayIso < unit3Lessons[0].date) {
+            sub.textContent = `Pre-Launch • Starts Mon, Nov 16, 2026`;
+          } else if (todayIso > unit3Lessons[unit3Lessons.length - 1].date) {
+            sub.textContent = `Unit 3 Complete • Semester 1 Wrapped`;
+          } else {
+            sub.textContent = `In Progress (${pct}% through Unit 3 pacing)`;
+          }
+        }
+      }
+
+      // Tab Switching
+      const navBtns = document.querySelectorAll('.nav-btn');
+      const tabPanels = document.querySelectorAll('.tab-panel');
+      navBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.dataset.tab;
+          navBtns.forEach(b => b.classList.toggle('active', b === btn));
+          tabPanels.forEach(p => p.classList.toggle('hidden', p.id !== target));
+          if (target === 'simulator') drawSimFrame();
+        });
+      });
+
+      // NGSS Banner Init
+      if (window.NGSSHelper) {
+        NGSSHelper.renderStandardsBanner(['HS-PS3-1', 'HS-PS3-2', 'HS-ETS1-2', 'HS-ETS1-3'], 'unit3-ngss-banner');
+        NGSSHelper.autoInit();
+      }
+
+      // WICOR Footprint Badges
+      function renderWicorSummary() {
+        const container = document.getElementById('wicor-badges');
+        if (!container) return;
+        const dims = ['Writing', 'Inquiry', 'Collaboration', 'Organization', 'Reading'];
+        container.innerHTML = dims.map(dim => {
+          const count = unit3Lessons.filter(l => l.wicor && l.wicor[dim] && l.wicor[dim] !== 'N/A').length;
+          return `<span class="px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-300 font-semibold">${dim}: ${count}/${unit3Lessons.length}d</span>`;
+        }).join('');
+      }
+
+      // DOK Chart
+      function renderDokChart() {
+        const ctx = document.getElementById('dokChart');
+        if (!ctx || typeof Chart === 'undefined') return;
+        const counts = [1, 2, 3, 4].map(level => unit3Lessons.filter(l => Number(l.dok) === level).length);
+        const statsRow = document.getElementById('dok-stats-row');
+        if (statsRow) {
+          const labels = ['DOK 1', 'DOK 2', 'DOK 3', 'DOK 4'];
+          const colors = ['text-slate-300', 'text-sky-300', 'text-amber-300', 'text-emerald-300'];
+          statsRow.innerHTML = counts.map((c, idx) => `
+            <div class="p-2 rounded-lg bg-slate-900/70 border border-white/10">
+              <div class="text-slate-400">${labels[idx]}</div>
+              <div class="font-bold font-mono ${colors[idx]}">${c} days</div>
+            </div>
+          `).join('');
+        }
+        if (dokChartInstance) dokChartInstance.destroy();
+        dokChartInstance = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: ['DOK 1 Recall', 'DOK 2 Skill', 'DOK 3 Strategic', 'DOK 4 Extended'],
+            datasets: [{
+              data: counts,
+              backgroundColor: ['#64748b', '#38bdf8', '#fbbf24', '#34d399'],
+              borderColor: isLightTheme ? '#ffffff' : '#140f07',
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'right',
+                labels: {
+                  color: isLightTheme ? '#0f172a' : '#e2e8f0',
+                  boxWidth: 12,
+                  font: { size: 11, weight: '600' }
+                }
+              }
+            }
+          }
+        });
+      }
+
+      // Categorized Link Helpers & Planned Modal Notice
+      function openPlannedNotice(title) {
+        const dlg = document.getElementById('planned-notice-modal');
+        const body = document.getElementById('planned-modal-body');
+        if (body) {
+          body.textContent = `"${title}" is scheduled in the Unit 3 curriculum blueprint and will become interactive here once Mr. Mudry publishes the assignment link.`;
+        }
+        if (dlg && typeof dlg.showModal === 'function') dlg.showModal();
+      }
+
+      function renderDayActionBadges(lesson) {
+        const items = [];
+        const linkEntries = Object.entries(lesson.links || {});
+        for (const [label, url] of linkEntries) {
+          items.push(`<a href="${url}" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 hover:bg-emerald-500/30">${label} ↗</a>`);
+        }
+        for (const asgn of (lesson.assignments || [])) {
+          if (asgn.url && asgn.status !== 'planned') {
+            items.push(`<a href="${asgn.url}" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-sky-500/20 border border-sky-400/40 text-sky-300 hover:bg-sky-500/30">${asgn.title} ↗</a>`);
+          } else {
+            items.push(`<button type="button" class="planned-btn inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-500/15 border border-amber-400/30 text-amber-300 hover:bg-amber-500/25" data-planned-title="${asgn.title.replace(/"/g, '&quot;')}">🚧 ${asgn.title}</button>`);
+          }
+        }
+        return items.join(' ');
+      }
+
+      function formatNiceDate(iso) {
+        if (!iso) return '';
+        const [y, m, d] = iso.split('-').map(Number);
+        const dt = new Date(y, m - 1, d);
+        return dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+      }
+
+      function getWeekNumber(day) {
+        return Math.ceil(day / 5);
+      }
+
+      const weekTitles = {
+        1: 'Week 1: Mechanical Work & Power (Nov 16 – Nov 20)',
+        2: 'Week 2: Gravitational & Elastic Potential Energy (Nov 30 – Dec 4)',
+        3: 'Week 3: Kinetic Energy & Work–Energy Theorem (Dec 7 – Dec 11)',
+        4: 'Week 4: Mechanical Energy Conservation & Coasters (Dec 14 – Dec 18)'
+      };
+
+      function renderPacingCards(filterWeek = 'all') {
+        const container = document.getElementById('pacing-cards-container');
+        if (!container) return;
+        const weeks = [1, 2, 3, 4].filter(w => filterWeek === 'all' || Number(filterWeek) === w);
+
+        container.innerHTML = weeks.map(w => {
+          const days = unit3Lessons.filter(l => getWeekNumber(l.day) === w);
+          const cardsHtml = days.map(lesson => {
+            const minDayBadge = (lesson.date === '2026-12-17' || lesson.date === '2026-12-18')
+              ? '<span class="px-2 py-0.5 rounded bg-rose-500/20 border border-rose-400/40 text-rose-300 text-[11px] font-bold">HS Min Day</span>'
+              : '';
+            const stdPills = (lesson.standards || []).map(code =>
+              `<span data-ngss-code="${code}" class="px-2 py-0.5 rounded bg-sky-500/15 border border-sky-400/35 text-sky-300 text-[11px] font-bold cursor-pointer">${code}</span>`
+            ).join('');
+
+            return `
+              <article class="glass-card interactive-card p-5 flex flex-col justify-between gap-3">
+                <div class="space-y-2.5">
+                  <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <div class="flex flex-wrap items-center gap-1.5">
+                      <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 font-bold">Day ${lesson.day}</span>
+                      <span class="text-slate-400 font-semibold">${formatNiceDate(lesson.date)}</span>
+                      ${minDayBadge}
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                      <span class="px-2 py-0.5 rounded bg-slate-800/80 text-slate-300 font-mono text-[11px]">DOK ${lesson.dok}</span>
+                      <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 text-[11px] font-semibold">${lesson.type}</span>
+                    </div>
+                  </div>
+                  <h3 class="font-orbitron text-base font-bold text-white leading-snug">${lesson.title}</h3>
+                  <p class="text-xs font-semibold text-amber-300">${lesson.topic}</p>
+                  <p class="text-xs text-slate-300 line-clamp-3 leading-relaxed">${lesson.summary}</p>
+                </div>
+                <div class="space-y-2 pt-2 border-t border-white/10">
+                  <div class="flex flex-wrap gap-1.5">${stdPills}</div>
+                  <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+                    <div class="flex flex-wrap gap-1.5">${renderDayActionBadges(lesson)}</div>
+                    <button type="button" data-open-day="${lesson.day}" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-400 text-slate-950 hover:bg-amber-300 transition btn-preserve-dark">Full Plan →</button>
+                  </div>
+                </div>
+              </article>
+            `;
+          }).join('');
+
+          const breakBanner = w === 2 && filterWeek === 'all'
+            ? `<div class="p-3 rounded-xl bg-amber-500/10 border border-amber-400/30 text-xs text-amber-200 mb-3">🍂 Thanksgiving Break: Nov 23 – Nov 27, 2026 (No School)</div>`
+            : '';
+
+          return `
+            <div class="space-y-3">
+              ${breakBanner}
+              <h3 class="font-orbitron text-lg font-bold text-amber-300 border-l-4 border-amber-400 pl-3">${weekTitles[w]}</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">${cardsHtml}</div>
+            </div>
+          `;
+        }).join('');
+
+        container.querySelectorAll('[data-open-day]').forEach(btn => {
+          btn.addEventListener('click', () => openLessonModal(Number(btn.dataset.openDay)));
+        });
+        container.querySelectorAll('.planned-btn').forEach(btn => {
+          btn.addEventListener('click', () => openPlannedNotice(btn.dataset.plannedTitle));
+        });
+        if (window.NGSSHelper) NGSSHelper.autoInit();
+      }
+
+      document.querySelectorAll('.week-filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.week-filter-btn').forEach(b => {
+            const on = b === btn;
+            b.classList.toggle('border-amber-400', on);
+            b.classList.toggle('bg-amber-500/20', on);
+            b.classList.toggle('text-amber-300', on);
+            b.classList.toggle('border-white/10', !on);
+            b.classList.toggle('text-slate-300', !on);
+          });
+          renderPacingCards(btn.dataset.week);
+        });
+      });
+
+      // Labs & Assessments Lists
+      function renderLabsAndAssessments() {
+        const labsList = document.getElementById('labs-list');
+        const assessList = document.getElementById('assessments-list');
+        if (!labsList || !assessList) return;
+
+        const labs = unit3Lessons.filter(l => /Lab|Engineering/i.test(l.type || ''));
+        const checks = unit3Lessons.filter(l => /Quiz|Assessment|Capstone/i.test(l.type || ''));
+
+        const buildRow = (lesson, accent) => `
+          <div class="p-3.5 rounded-xl bg-slate-900/75 border border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <div class="text-xs font-bold ${accent}">Day ${lesson.day} • ${formatNiceDate(lesson.date)} • ${lesson.type}</div>
+              <div class="font-bold text-sm text-white">${lesson.title}</div>
+              <div class="text-xs text-slate-400 mt-0.5">${lesson.topic}</div>
+            </div>
+            <button type="button" data-open-day="${lesson.day}" class="self-start sm:self-center px-3 py-1.5 rounded-lg text-xs font-bold border border-white/20 text-slate-200 hover:border-amber-400 transition">Inspect →</button>
+          </div>
+        `;
+
+        labsList.innerHTML = labs.map(l => buildRow(l, 'text-amber-300')).join('');
+        assessList.innerHTML = checks.map(l => buildRow(l, 'text-sky-300')).join('');
+
+        [labsList, assessList].forEach(el => {
+          el.querySelectorAll('[data-open-day]').forEach(btn => {
+            btn.addEventListener('click', () => openLessonModal(Number(btn.dataset.openDay)));
+          });
+        });
+      }
+
+      // Lesson Detail Modal
+      function openLessonModal(dayNum) {
+        const lesson = unit3Lessons.find(l => l.day === dayNum);
+        if (!lesson) return;
+        const dlg = document.getElementById('modal');
+        document.getElementById('modal-badges').innerHTML = `
+          <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300">Unit 3 • Day ${lesson.day}</span>
+          <span class="px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300">${formatNiceDate(lesson.date)}</span>
+          <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300">${lesson.type}</span>
+          <span class="px-2.5 py-0.5 rounded-full bg-sky-500/15 text-sky-300">DOK ${lesson.dok}</span>
+        `;
+        document.getElementById('modal-title').textContent = lesson.title;
+        document.getElementById('modal-topic').textContent = lesson.topic;
+        document.getElementById('modal-eq').innerHTML = `<strong class="text-amber-300">Essential Question:</strong> <span class="text-slate-200">${lesson.essentialQuestion || ''}</span>`;
+        document.getElementById('modal-summary').textContent = lesson.summary || '';
+        document.getElementById('modal-activity').textContent = lesson.activity || '';
+
+        const br = lesson.bellRinger;
+        const brEl = document.getElementById('modal-bellringer');
+        if (br) {
+          const extra = br.type === 'concept_chat'
+            ? `<div class="text-xs text-sky-300 font-semibold mt-1">💬 SMS Concept Chat Mentor Prompt (${br.defaultDuration || 4} min)</div>`
+            : `<div class="text-xs text-emerald-300 mt-2"><strong>Expected Answer:</strong> <span class="text-slate-300">${br.explanation || ''}</span></div>`;
+          brEl.innerHTML = `<div class="text-xs font-bold uppercase tracking-wider text-amber-300">Bell-Ringer Prompt</div><p class="text-slate-200 mt-1">${br.promptQuestion || ''}</p>${extra}`;
+          brEl.classList.remove('hidden');
+        } else {
+          brEl.classList.add('hidden');
+        }
+
+        const wicorEl = document.getElementById('modal-wicor');
+        wicorEl.innerHTML = Object.entries(lesson.wicor || {}).map(([k, v]) =>
+          `<div class="p-2 rounded-lg bg-slate-950/60 border border-white/10"><strong class="text-amber-300">${k}:</strong> ${v}</div>`
+        ).join('');
+
+        const stdEl = document.getElementById('modal-standards');
+        stdEl.innerHTML = (lesson.standards || []).map(code =>
+          `<span data-ngss-code="${code}" class="px-2.5 py-1 rounded-lg bg-sky-500/15 border border-sky-400/35 text-sky-300 text-xs font-bold cursor-pointer">${code}</span>`
+        ).join('');
+
+        const linksEl = document.getElementById('modal-links');
+        const actionsHtml = renderDayActionBadges(lesson);
+        linksEl.innerHTML = actionsHtml || '<p class="text-xs text-slate-400">No external links assigned for this day yet.</p>';
+        linksEl.querySelectorAll('.planned-btn').forEach(btn => {
+          btn.addEventListener('click', () => openPlannedNotice(btn.dataset.plannedTitle));
+        });
+
+        if (window.NGSSHelper) NGSSHelper.autoInit();
+        if (dlg && typeof dlg.showModal === 'function') dlg.showModal();
+      }
+
+      // 1) Overview Conservation Preview Canvas (#scopeCanvas)
+      let scopePhase = 0;
+      function drawScopeCanvas() {
+        const canvas = document.getElementById('scopeCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width;
+        const H = canvas.height;
+        ctx.clearRect(0, 0, W, H);
+
+        const bg = isLightTheme ? '#f8fafc' : '#0b0e14';
+        const trackStroke = isLightTheme ? '#334155' : '#64748b';
+        const textMain = isLightTheme ? '#0f172a' : '#f8fafc';
+        const peColor = isLightTheme ? '#b45309' : '#fbbf24';
+        const keColor = isLightTheme ? '#0369a1' : '#38bdf8';
+        const etotColor = isLightTheme ? '#047857' : '#34d399';
+
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, W, H);
+
+        // Valley parabola on left (x from 40 to 390), LOL Bar Chart on right (x from 420 to 615)
+        const minX = 45, maxX = 385, midX = (minX + maxX) / 2;
+        const halfSpan = (maxX - minX) / 2;
+        const baseY = 225, peakLift = 155; // 10 m max height for 2 kg cart -> Total E = 200 J
+        const normPos = Math.cos(scopePhase); // -1 to 1
+        const cartX = midX + normPos * halfSpan;
+        const hNorm = normPos * normPos; // 0 at valley bottom, 1 at ends
+        const cartY = baseY - hNorm * peakLift;
+
+        // Track curve
+        ctx.beginPath();
+        for (let px = minX; px <= maxX; px += 4) {
+          const t = (px - midX) / halfSpan;
+          const py = baseY - (t * t) * peakLift;
+          if (px === minX) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.strokeStyle = trackStroke;
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        // Datum line (h = 0)
+        ctx.strokeStyle = isLightTheme ? '#cbd5e1' : 'rgba(148,163,184,0.3)';
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(30, baseY);
+        ctx.lineTo(400, baseY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Cart
+        ctx.fillStyle = peColor;
+        ctx.beginPath();
+        ctx.arc(cartX, cartY - 10, 11, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = textMain;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Physics numbers (m = 2 kg, h_max = 10 m, g = 10 -> Total E = 200 J)
+        const hMeters = hNorm * 10;
+        const peJ = 2 * G * hMeters;
+        const keJ = Math.max(0, 200 - peJ);
+        const speed = Math.sqrt((2 * keJ) / 2);
+
+        // Bars on right
+        const barsX = 435;
+        const barW = 42;
+        const maxBarH = 160;
+        const bars = [
+          { label: 'PEg', val: peJ, color: peColor },
+          { label: 'KE', val: keJ, color: keColor },
+          { label: 'Total', val: 200, color: etotColor }
+        ];
+        ctx.font = 'bold 12px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        bars.forEach((b, idx) => {
+          const bx = barsX + idx * 58;
+          const bh = (b.val / 200) * maxBarH;
+          ctx.fillStyle = isLightTheme ? '#e2e8f0' : 'rgba(255,255,255,0.08)';
+          ctx.fillRect(bx, baseY - maxBarH, barW, maxBarH);
+          ctx.fillStyle = b.color;
+          ctx.fillRect(bx, baseY - bh, barW, bh);
+          ctx.fillStyle = textMain;
+          ctx.fillText(b.label, bx + barW / 2, baseY + 18);
+          ctx.fillText(`${Math.round(b.val)}J`, bx + barW / 2, baseY - bh - 6);
+        });
+
+        const sh = document.getElementById('scope-h');
+        const sv = document.getElementById('scope-v');
+        const sp = document.getElementById('scope-peke');
+        if (sh) sh.textContent = `${hMeters.toFixed(1)} m`;
+        if (sv) sv.textContent = `${speed.toFixed(1)} m/s`;
+        if (sp) sp.textContent = `${Math.round(peJ)} / ${Math.round(keJ)} J`;
+      }
+
+      // 2) Full Interactive Roller Coaster Simulator (#trackCanvas + #simCanvas)
+      const simState = {
+        h0: 35,
+        m: 500,
+        mu: 0,
+        s: 0, // progress 0 to 1
+        playing: true
+      };
+
+      function getCoasterHeightAt(s, h0) {
+        // Profile: starts at h0 (s=0), plunges to valley h=2m (s=0.35), rises to Hill #2 max 0.8*h0 (s=0.68), ends flat h=6m (s=1)
+        if (s <= 0.35) {
+          const u = s / 0.35;
+          return 2 + (h0 - 2) * (0.5 * (1 + Math.cos(Math.PI * u)));
+        }
+        if (s <= 0.68) {
+          const u = (s - 0.35) / 0.33;
+          const hill2 = 0.8 * h0;
+          return 2 + (hill2 - 2) * (0.5 * (1 - Math.cos(Math.PI * u)));
+        }
+        const u = (s - 0.68) / 0.32;
+        const hill2 = 0.8 * h0;
+        return 6 + (hill2 - 6) * (0.5 * (1 + Math.cos(Math.PI * u)));
+      }
+
+      function computeCoasterPhysics(s) {
+        const h = getCoasterHeightAt(s, simState.h0);
+        const totalE = simState.m * G * simState.h0; // J
+        // Track horizontal span ~ 180 m scaled cleanly
+        const distTraveled = s * 160;
+        const wfRemoved = Math.min(totalE, simState.mu * simState.m * G * distTraveled * 0.72);
+        const eMech = Math.max(0, totalE - wfRemoved);
+        const pegNeeded = simState.m * G * h;
+        let ke = eMech - pegNeeded;
+        let stalled = false;
+        if (ke < 0) {
+          ke = 0;
+          stalled = true;
+        }
+        const v = Math.sqrt((2 * ke) / simState.m);
+        return { h, v, peg: Math.min(eMech, pegNeeded), ke, wfRemoved, totalE, eMech, stalled };
+      }
+
+      function drawSimFrame() {
+        const trackC = document.getElementById('trackCanvas');
+        const barC = document.getElementById('simCanvas');
+        if (!trackC || !barC) return;
+
+        const tCtx = trackC.getContext('2d');
+        const bCtx = barC.getContext('2d');
+        const TW = trackC.width, TH = trackC.height;
+        const BW = barC.width, BH = barC.height;
+
+        const bg = isLightTheme ? '#ffffff' : '#0a0f1a';
+        const gridColor = isLightTheme ? '#e2e8f0' : 'rgba(148,163,184,0.12)';
+        const axisText = isLightTheme ? '#1e293b' : '#94a3b8';
+        const peColor = isLightTheme ? '#b45309' : '#fbbf24';
+        const keColor = isLightTheme ? '#0369a1' : '#38bdf8';
+        const wfColor = isLightTheme ? '#be123c' : '#fb7185';
+        const totColor = isLightTheme ? '#047857' : '#34d399';
+
+        // Track Canvas
+        tCtx.fillStyle = bg;
+        tCtx.fillRect(0, 0, TW, TH);
+
+        const padL = 48, padR = 24, padT = 26, padB = 34;
+        const plotW = TW - padL - padR;
+        const plotH = TH - padT - padB;
+        const maxHScale = 55;
+
+        // Horizontal ruler gridlines (0m to 50m)
+        tCtx.font = '11px Inter, sans-serif';
+        tCtx.textAlign = 'right';
+        for (let mh = 0; mh <= 50; mh += 10) {
+          const py = padT + plotH - (mh / maxHScale) * plotH;
+          tCtx.strokeStyle = gridColor;
+          tCtx.lineWidth = 1;
+          tCtx.beginPath();
+          tCtx.moveTo(padL, py);
+          tCtx.lineTo(TW - padR, py);
+          tCtx.stroke();
+          tCtx.fillStyle = axisText;
+          tCtx.fillText(`${mh}m`, padL - 6, py + 4);
+        }
+
+        // Draw coaster track curve
+        tCtx.beginPath();
+        for (let i = 0; i <= 100; i++) {
+          const ss = i / 100;
+          const hh = getCoasterHeightAt(ss, simState.h0);
+          const px = padL + ss * plotW;
+          const py = padT + plotH - (hh / maxHScale) * plotH;
+          if (i === 0) tCtx.moveTo(px, py);
+          else tCtx.lineTo(px, py);
+        }
+        tCtx.strokeStyle = isLightTheme ? '#0f172a' : '#e2e8f0';
+        tCtx.lineWidth = 4;
+        tCtx.stroke();
+
+        // Physics state
+        const phys = computeCoasterPhysics(simState.s);
+        const cx = padL + simState.s * plotW;
+        const cy = padT + plotH - (phys.h / maxHScale) * plotH;
+
+        // Height drop line
+        tCtx.strokeStyle = peColor;
+        tCtx.setLineDash([4, 4]);
+        tCtx.beginPath();
+        tCtx.moveTo(cx, cy);
+        tCtx.lineTo(cx, padT + plotH);
+        tCtx.stroke();
+        tCtx.setLineDash([]);
+
+        // Cart
+        tCtx.fillStyle = phys.stalled ? wfColor : peColor;
+        tCtx.beginPath();
+        tCtx.arc(cx, cy - 8, 9, 0, Math.PI * 2);
+        tCtx.fill();
+        tCtx.strokeStyle = bg;
+        tCtx.lineWidth = 2;
+        tCtx.stroke();
+
+        // Speed vector arrow
+        if (phys.v > 0.5) {
+          const arrowLen = Math.min(70, phys.v * 2.1);
+          tCtx.strokeStyle = keColor;
+          tCtx.lineWidth = 3;
+          tCtx.beginPath();
+          tCtx.moveTo(cx, cy - 8);
+          tCtx.lineTo(cx + arrowLen, cy - 8);
+          tCtx.stroke();
+        }
+
+        const badge = document.getElementById('sim-status-badge');
+        if (badge) {
+          badge.textContent = phys.stalled ? 'Stalled on Hill! (KE = 0 J)' : 'Coasting Track';
+          badge.className = phys.stalled ? 'text-rose-300 font-mono font-bold' : 'text-emerald-300 font-mono font-bold';
+        }
+
+        // LOL Bar Canvas
+        bCtx.fillStyle = bg;
+        bCtx.fillRect(0, 0, BW, BH);
+
+        const bBaseY = BH - 44;
+        const bMaxH = BH - 80;
+        const labels = [
+          { name: 'PEg', val: phys.peg, color: peColor },
+          { name: 'KE', val: phys.ke, color: keColor },
+          { name: '|Wf|', val: phys.wfRemoved, color: wfColor },
+          { name: 'Total E', val: phys.totalE, color: totColor }
+        ];
+
+        bCtx.textAlign = 'center';
+        bCtx.font = 'bold 12px Inter, sans-serif';
+        labels.forEach((b, idx) => {
+          const bx = 42 + idx * 96;
+          const bw = 54;
+          const bh = phys.totalE > 0 ? (b.val / phys.totalE) * bMaxH : 0;
+          bCtx.fillStyle = isLightTheme ? '#f1f5f9' : 'rgba(255,255,255,0.06)';
+          bCtx.fillRect(bx, bBaseY - bMaxH, bw, bMaxH);
+          bCtx.fillStyle = b.color;
+          bCtx.fillRect(bx, bBaseY - bh, bw, bh);
+          bCtx.fillStyle = axisText;
+          bCtx.fillText(b.name, bx + bw / 2, bBaseY + 18);
+          bCtx.fillText(`${(b.val / 1000).toFixed(1)}kJ`, bx + bw / 2, bBaseY - bh - 7);
+        });
+
+        // Update readouts
+        document.getElementById('readout-h').textContent = `${phys.h.toFixed(1)} m`;
+        document.getElementById('readout-v').textContent = `${phys.v.toFixed(1)} m/s`;
+        document.getElementById('readout-peke').textContent = `${(phys.peg / 1000).toFixed(1)} / ${(phys.ke / 1000).toFixed(1)} kJ`;
+        document.getElementById('readout-wf').textContent = `${(phys.wfRemoved / 1000).toFixed(1)} kJ`;
+        document.getElementById('sim-scrub').value = (simState.s * 100).toFixed(1);
+        document.getElementById('sim-scrub-val').textContent = `${Math.round(simState.s * 100)}%`;
+      }
+
+      // Simulator Input Events
+      const bindSimSlider = (id, labelId, key, suffix, fmt) => {
+        const el = document.getElementById(id);
+        const lbl = document.getElementById(labelId);
+        if (!el) return;
+        el.addEventListener('input', () => {
+          simState[key] = Number(el.value);
+          if (lbl) lbl.textContent = (fmt ? fmt(simState[key]) : simState[key]) + suffix;
+          drawSimFrame();
+        });
+      };
+      bindSimSlider('sim-height', 'sim-height-val', 'h0', ' m');
+      bindSimSlider('sim-mass', 'sim-mass-val', 'm', ' kg');
+      bindSimSlider('sim-mu', 'sim-mu-val', 'mu', '', v => v.toFixed(2));
+
+      document.getElementById('sim-scrub').addEventListener('input', (e) => {
+        simState.playing = false;
+        document.getElementById('sim-toggle-play').textContent = '▶ Play';
+        simState.s = Number(e.target.value) / 100;
+        drawSimFrame();
+      });
+
+      document.getElementById('sim-toggle-play').addEventListener('click', (e) => {
+        simState.playing = !simState.playing;
+        e.target.textContent = simState.playing ? '⏸ Pause' : '▶ Play';
+      });
+
+      document.getElementById('sim-reset').addEventListener('click', () => {
+        simState.s = 0;
+        simState.playing = true;
+        document.getElementById('sim-toggle-play').textContent = '⏸ Pause';
+        drawSimFrame();
+      });
+
+      const setMuPreset = (muVal) => {
+        simState.mu = muVal;
+        simState.s = 0;
+        simState.playing = true;
+        document.getElementById('sim-mu').value = muVal;
+        document.getElementById('sim-mu-val').textContent = muVal.toFixed(2);
+        document.getElementById('sim-toggle-play').textContent = '⏸ Pause';
+        drawSimFrame();
+      };
+      document.getElementById('preset-ideal').addEventListener('click', () => setMuPreset(0));
+      document.getElementById('preset-realistic').addEventListener('click', () => setMuPreset(0.08));
+      document.getElementById('preset-brake').addEventListener('click', () => setMuPreset(0.18));
+
+      // Animation Loop (smooth ~60fps)
+      function tick() {
+        scopePhase += 0.025;
+        drawScopeCanvas();
+
+        const simPanel = document.getElementById('simulator');
+        if (simState.playing && simPanel && !simPanel.classList.contains('hidden')) {
+          const phys = computeCoasterPhysics(simState.s);
+          if (!phys.stalled) {
+            const step = Math.max(0.0022, 0.0018 + phys.v * 0.00018);
+            simState.s += step;
+            if (simState.s > 1) simState.s = 0;
+          }
+          drawSimFrame();
+        }
+        requestAnimationFrame(tick);
+      }
+
+      // 3) Quick Formula Calculator (Matrix Tab)
+      const calcMode = document.getElementById('calc-mode');
+      const calcA = document.getElementById('calc-a');
+      const calcB = document.getElementById('calc-b');
+      const calcALabel = document.getElementById('calc-a-label');
+      const calcBLabel = document.getElementById('calc-b-label');
+      const calcBWrap = document.getElementById('calc-b-wrap');
+      const calcResult = document.getElementById('calc-result');
+
+      function updateQuickCalc() {
+        const m = calcMode.value;
+        const a = Number(calcA.value) || 0;
+        const b = Number(calcB.value) || 0;
+        calcBWrap.classList.toggle('hidden', m === 'drop');
+        if (m === 'peg') {
+          calcALabel.textContent = 'Mass m (kg)';
+          calcBLabel.textContent = 'Height h (m)';
+          calcResult.textContent = `PE_g = ${(a * G * b).toFixed(1)} J`;
+        } else if (m === 'ke') {
+          calcALabel.textContent = 'Mass m (kg)';
+          calcBLabel.textContent = 'Speed v (m/s)';
+          calcResult.textContent = `KE = ${(0.5 * a * b * b).toFixed(1)} J`;
+        } else if (m === 'pes') {
+          calcALabel.textContent = 'Spring k (N/m)';
+          calcBLabel.textContent = 'Stretch x (m)';
+          calcResult.textContent = `PE_s = ${(0.5 * a * b * b).toFixed(2)} J`;
+        } else if (m === 'power') {
+          calcALabel.textContent = 'Work W (J)';
+          calcBLabel.textContent = 'Time t (s)';
+          calcResult.textContent = b > 0 ? `P = ${(a / b).toFixed(1)} W` : 'Time must be > 0';
+        } else if (m === 'drop') {
+          calcALabel.textContent = 'Drop Height h (m)';
+          calcResult.textContent = `v = ${Math.sqrt(Math.max(0, 2 * G * a)).toFixed(2)} m/s`;
+        }
+      }
+      [calcMode, calcA, calcB].forEach(el => el.addEventListener('input', updateQuickCalc));
+
+      // Desmos Toggle (with CDN filter guard)
+      document.getElementById('toggle-desmos').addEventListener('click', () => {
+        const wrap = document.getElementById('desmos-wrap');
+        const status = document.getElementById('desmos-status');
+        wrap.classList.toggle('hidden');
+        if (!wrap.classList.contains('hidden') && !desmosInstance) {
+          if (typeof Desmos !== 'undefined' && Desmos.ScientificCalculator) {
+            desmosInstance = Desmos.ScientificCalculator(document.getElementById('desmos-calculator'), {
+              fontSize: Desmos.FontSizes.SMALL,
+              keypad: true,
+              settingsMenu: false
+            });
+            status.textContent = 'Desmos Scientific Calculator ready.';
+          } else {
+            wrap.classList.add('hidden');
+            status.textContent = 'Desmos is unavailable offline or filtered on this network. Use the Quick Calculator on the left!';
+          }
+        }
+      });
+
+      // Boot sequence
+      updateProgressBar();
+      renderWicorSummary();
+      renderPacingCards('all');
+      renderLabsAndAssessments();
+      updateQuickCalc();
+      applyTheme(isLightTheme);
+      requestAnimationFrame(tick);
+    })();
+  </script>
+</body>
+</html>

@@ -38,6 +38,7 @@ Each dashboard customizes CSS variables in a `:root` or `<style>` block to give 
 |------|-------|---------------|------------|
 | Unit 1 (Intro) | Emerald/Science | `--accent`: emerald-500 | #020617 |
 | Unit 2 (Kinematics) | Volt Lime/Speed | `--accent-volt: #ccff00` | #040804 |
+| Unit 3 (Energy) | Amber Gold/Sky Cyan | `--accent-amber: #fbbf24`, `--accent-cyan: #38bdf8` | #080602 |
 | Unit 4 (Momentum) | Orange/Impact | orange-500 tones | #020617 |
 | Unit 5 (Thermo) | Red/Heat | `--accent-flame` reds | Dark charcoal |
 | Unit 6 (Waves) | Indigo/Cyan | cyan/indigo gradient | #020617 |
@@ -151,6 +152,7 @@ Clicking a lesson card opens a detail drawer/modal containing expanded details, 
 - **Decorative backgrounds**: Each unit has a unique fixed background (dot grids, speed lines, breadboard patterns). These use `position: fixed; z-index: -1` and MUST include a gradient overlay `::after` to fade the bottom.
 
 ## Evidence
-- Patterns extracted from all 6 existing dashboards (unit1 through unit7, no unit3)
+- Patterns extracted across all 7 unit dashboards (`unit1-dashboard.html` through `unit7-dashboard.html`)
+- Native `<dialog closedby="any">` modals with progressive-enhancement pointer light-dismiss adopted on `unit3-dashboard.html`
 - Glass card pattern confirmed consistent across all dashboards
 - Navigation tab pattern consistent across all dashboards

@@ -5620,6 +5620,875 @@ const lessonsData = [
     ]
   },
   {
+    "day": 1,
+    "date": "2026-11-16",
+    "unit": 3,
+    "title": "What Counts as Work? Force, Displacement & Direction",
+    "topic": "Mechanical Work (W = F · d), Joules & Perpendicular Forces",
+    "dok": 2,
+    "type": "Concept Intro",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "In everyday language, carrying a heavy backpack feels like hard work. In physics, mechanical work only happens when a force pushes or pulls along the direction an object moves (W = F · d). When you push forward, work is positive; when friction pulls backward, work is negative; and when your arms hold weight straight up while walking flat, vertical force is perpendicular to sideways motion so mechanical work equals zero.",
+    "activity": "Work or No Work? Force-Displacement Card Sort & Measurement Check: Analyze 8 everyday motion scenarios (pushing a stalled car, holding dumbbells still, sliding down a slide, carrying lunch flat across the quad) and test 4 tabletop spring-scale pulls on a dynamics cart. Compare same-direction (+W), opposite-direction (-W), and sideways (0 J) forces. Complete 10 of 12 verified cards and submit your summary ticket to log Day 1 mastery. Honors extension: compute angled sled pulls using W = F · d · cos(θ).",
+    "essentialQuestion": "Why does carrying a heavy backpack across a flat hallway require stamina yet count as zero mechanical work in physics?",
+    "standards": [
+      "HS-PS3-1"
+    ],
+    "wicor": {
+      "Writing": "Explaining the difference between everyday effort and physics work (W = F · d) using direction arrows.",
+      "Inquiry": "Testing how the angle between a spring-scale pull and cart motion changes measured work.",
+      "Collaboration": "Lab pairs sort 8 motion scenarios and defend zero-work cases with force arrows.",
+      "Organization": "Sorting systems into +Work, -Work, and 0 Work columns in a structured card chart.",
+      "Reading": "Interpreting force and displacement vector diagrams."
+    },
+    "bellRinger": {
+      "type": "concept_chat",
+      "promptQuestion": "Imagine holding a heavy 10 kg crate completely still over your head for 60 seconds vs. lifting that crate 1 meter straight onto a shelf. Which one does more mechanical work in physics, and why?",
+      "chatSystemInstruction": "You are a warm, adaptive, and relatable physics mentor chatting with a student over SMS/text. Your goal is to explore a physics concept together without being overly formal or using forced slang.\n\nCRITICAL RULES:\n1. NO FISHING / PIVOT TO TEACHING: Never try to \"force\" or repeatedly nudge a student toward a specific technical answer or physics term. If you ask a conceptual question and the student guesses wrong, focuses on a different variable (like friction/roughness), or says \"I don't know,\" DO NOT ask a follow-up question trying to correct their guess. Instead, pivot immediately to teaching: validate their logic, briefly explain the physics concept directly using a relatable analogy, and move on.\n2. NO SOCRATIC TRAPS: Do not get stuck in a loop asking the student to explain the same thing over and over. If they answer correctly, understand a concept, or say \"yes\"/\"obvious\", validate it briefly and immediately MOVE FORWARD to a new dimension or a real-world application.\n3. MOVE DYNAMICALLY: Keep the conversation fluid. Once a basic idea is established, introduce a fun twist, a new scenario, or a practical question (e.g., \"What happens if we try this in space?\" or \"How does that affect a rollercoaster?\"). \n4. CHAT TONE & LENGTH: Keep replies highly conversational and natural—like a text message from a knowledgeable peer. Limit replies to 1–3 short sentences max. Never send multiple distinct thoughts, lists, or bullet points in one message.\n5. CONTINUING THE CONVERSATION: Never end the conversation abruptly or push the student to stop chatting. Even after the student demonstrates understanding or has engaged in multiple turns, keep the conversation flowing naturally by offering intriguing follow-up thoughts, fun scenario twists, or real-world applications. You may let them know they can click the Finish Session button whenever they are ready to submit, but always leave the door open for them to continue chatting.",
+      "defaultDuration": 4
+    },
+    "links": {},
+    "assignments": [
+      {
+        "title": "Work or No Work? Card Sort & Table Measurement",
+        "typeLabel": "In-Class Inquiry & Check",
+        "submission": "Complete 10/12 Verified Cards + Summary Ticket",
+        "actionLabel": "Planned Activity",
+        "description": "Sort 8 physical scenarios by force vs. motion angle and measure 4 spring-scale pulls on a tabletop cart.",
+        "status": "planned"
+      }
+    ],
+    "resources": []
+  },
+  {
+    "day": 2,
+    "date": "2026-11-17",
+    "unit": 3,
+    "title": "Positive vs. Negative Work & Force–Distance Graphs",
+    "topic": "Net Work & Area Under Force–Distance Graphs (W = Area)",
+    "dok": 2,
+    "type": "Guided Practice",
+    "semester": 1,
+    "isFeatured": false,
+    "summary": "Real pushes and pulls rarely stay constant for an entire trip. Just like velocity-time graphs reveal distance through area, a Force vs. Distance graph reveals mechanical work through the shaded area between the curve and the horizontal axis. Positive areas add energy to an object, while negative areas (friction or braking forces) remove mechanical energy.",
+    "activity": "Force–Distance Area Challenge: Plot stepped and ramp-shaped force graphs from three sample pulls, count or calculate rectangular and triangular areas to find Joules of work, and combine forward engine work with backward friction work to find W_net. Score at least 5/6 on the Exit Area Checkpoint to unlock completion.",
+    "essentialQuestion": "How can a Force vs. Distance graph show mechanical work when a push grows stronger or weaker along a path?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2"
+    ],
+    "wicor": {
+      "Writing": "Explaining what negative shaded area on a Force–Distance graph represents.",
+      "Inquiry": "Comparing area-under-curve calculations against W = F · d for constant and varying forces.",
+      "Collaboration": "Pairs cross-check shaded positive and negative blocks on whiteboards.",
+      "Organization": "Logging positive work, negative friction work, and W_net in a three-column balance table.",
+      "Reading": "Reading axes, units (N vs. m), and slope changes on stepped Force–Distance graphs."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "A student pushes a heavy box 4 m east with 20 N while floor friction pulls 5 N west. Which force does positive work, which does negative work, and what is the net work done?",
+      "explanation": "The 20 N push points in the direction of motion, doing +80 J of positive work. Friction points opposite motion, doing -20 J of negative work. Net work is W_net = +80 J - 20 J = +60 J.",
+      "defaultDuration": 3
+    },
+    "links": {},
+    "assignments": [
+      {
+        "title": "Force–Distance Area Challenge (6-Problem Check)",
+        "typeLabel": "Guided Practice",
+        "submission": "Earn >= 5/6 on Mastery Checkpoint",
+        "actionLabel": "Planned Activity",
+        "description": "Determine mechanical work from rectangular and triangular Force vs. Distance graphs, including negative friction sections.",
+        "status": "planned"
+      }
+    ],
+    "resources": []
+  },
+  {
+    "day": 3,
+    "date": "2026-11-18",
+    "unit": 3,
+    "title": "Work Done Against Gravity: Lifting & Ramps",
+    "topic": "Vertical Lifting Work (W = m · g · h) & Inclined Planes",
+    "dok": 3,
+    "type": "Lab Activity",
+    "semester": 1,
+    "isFeatured": false,
+    "summary": "Why do moving trucks use long ramps instead of lifting refrigerators straight up from the sidewalk? A gentle ramp cuts the force you have to pull in half—at the cost of pulling twice as far along the board. Ignoring friction, the total work W = F · d equals m · g · h regardless of which path takes the load to the top.",
+    "activity": "Inclined Plane Work Lab: Pull a 0.5 kg dynamics cart up a low-friction ramp set at three different angles to the same 0.40 m shelf height. Read the spring scale force (N) and track distance (m) for each angle, calculate W = F · d using stacked steps, and compare all three trials against vertical lifting work (m · g · h with g = 10 m/s²). Submit your verified 3-trial data table and conclusion.",
+    "essentialQuestion": "Why does using a gentle ramp feel much easier even though the total ideal mechanical work stays the same?",
+    "standards": [
+      "HS-PS3-1"
+    ],
+    "wicor": {
+      "Writing": "Writing an evidence statement showing why trading force for distance preserves ideal work.",
+      "Inquiry": "Measuring pulling force and track length across three ramp angles to test work conservation.",
+      "Collaboration": "Three-person lab roles: scale reader, ramp holder, and calculator/recorder.",
+      "Organization": "Recording Angle, Force (N), Distance (m), W_ramp (J), and W_lift (J) side by side.",
+      "Reading": "Reading spring-scale ticks accurately to the nearest 0.1 N."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "Lifting a 2 kg backpack 0.5 m straight up requires 20 N of force (using g = 10 m/s²). Pushing it up a smooth 1.0 m ramp only takes 10 N. Does the ramp save work, or reduce force?",
+      "explanation": "The ramp cuts required force in half (10 N instead of 20 N), but doubles the distance (1.0 m instead of 0.5 m). Total work is 20 N · 0.5 m = 10 J vs. 10 N · 1.0 m = 10 J — ideal work stays equal.",
+      "defaultDuration": 3
+    },
+    "links": {},
+    "assignments": [
+      {
+        "title": "Inclined Plane Work Investigation Lab Sheet",
+        "typeLabel": "Hands-On Lab",
+        "submission": "3 Verified Ramp Trials + W vs. mgh Comparison",
+        "actionLabel": "Planned Activity",
+        "description": "Pull a 0.5 kg cart up three ramp angles, measure force and distance, and verify W_in matches m · g · h.",
+        "status": "planned"
+      }
+    ],
+    "resources": []
+  },
+  {
+    "day": 4,
+    "date": "2026-11-19",
+    "unit": 3,
+    "title": "Mechanical Power Lab: Speeding Up the Stairs",
+    "topic": "Power as Rate of Work (P = W ÷ t) in Watts & Horsepower",
+    "dok": 3,
+    "type": "Lab Activity",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Walking slowly up a flight of stairs and sprinting up those same stairs accomplish the exact same vertical work (W = m · g · h). What changes dramatically is Power—how many Joules of work you transfer every single second (P = W ÷ t, measured in Watts). Faster times demand higher Wattage.",
+    "activity": "Stairmaster Power Challenge: Partners measure total vertical staircase elevation (or step-up platform height) with a meterstick, record three timed ascents at safe slow, medium, and brisk paces, compute lifting work (W = m · g · h using g = 10 m/s²), and calculate mechanical power in both Watts and horsepower (1 hp = 746 W). Turn in your verified multi-trial power lab sheet before leaving class.",
+    "essentialQuestion": "How can two students do identical amounts of work on the same staircase yet produce very different amounts of mechanical power?",
+    "standards": [
+      "HS-PS3-1"
+    ],
+    "wicor": {
+      "Writing": "Comparing slow vs. fast ascent trials to justify why time sits in the denominator of power.",
+      "Inquiry": "Measuring personal vertical height and climb duration to quantify human Wattage output.",
+      "Collaboration": "Partners act as timer and measurer during safe staircase or step-platform trials.",
+      "Organization": "Using a two-step calculation table: first W = m · g · h (J), then P = W ÷ t (W and hp).",
+      "Reading": "Comparing engine and appliance ratings in Watts and horsepower."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "Two 60 kg students climb the exact same 3.0 m staircase. Student A takes 6 seconds while Student B takes 3 seconds. Who did more work, and who generated more power?",
+      "explanation": "Both students weigh 600 N and lift themselves 3.0 m, so both do identical work (W = 1,800 J). Student B finishes in half the time, generating twice the power (600 W vs. 300 W).",
+      "defaultDuration": 3
+    },
+    "links": {},
+    "assignments": [
+      {
+        "title": "Stairmaster Mechanical Power Lab",
+        "typeLabel": "Hands-On Lab",
+        "submission": "3 Timed Trials + Watts & Horsepower Calculations",
+        "actionLabel": "Planned Activity",
+        "description": "Measure vertical elevation and climb times to compare mechanical work (J) and power output (W and hp).",
+        "status": "planned"
+      }
+    ],
+    "resources": []
+  },
+  {
+    "day": 5,
+    "date": "2026-11-20",
+    "unit": 3,
+    "title": "Work & Power Mastery Relay + Week 1 Check",
+    "topic": "Synthesis of Work (W = F · d), Lifting Work & Power (P = W ÷ t)",
+    "dok": 2,
+    "type": "Formative Assessment",
+    "semester": 1,
+    "isFeatured": false,
+    "summary": "Before heading into Thanksgiving Break, lock in all of Week 1's tools: spotting when work is positive, negative, or zero; finding work from F–d graphs; computing lifting work with g = 10 m/s²; and converting Joules per second into Watts.",
+    "activity": "Energy Relay Showdown + Week 1 Mastery Checkpoint: Teams race through 4 problem stations—each station must check green before unlocking the next envelope—then complete a 6-question individual checkpoint (target >= 5/6) covering work, negative friction work, and power.",
+    "essentialQuestion": "How do force direction, displacement, vertical weight, and time work together to define mechanical work and power?",
+    "standards": [
+      "HS-PS3-1"
+    ],
+    "wicor": {
+      "Writing": "Explaining step-by-step unit substitutions (N · m = J, J ÷ s = W).",
+      "Inquiry": "Diagnosing tricky zero-work and opposite-force problems across relay stations.",
+      "Collaboration": "Pairs solve and verify each relay station together before advancing.",
+      "Organization": "Building a quick-reference formula triangle/stack card before the individual quiz.",
+      "Reading": "Extracting given force, mass, height, distance, and time values from word scenarios."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "A crane motor lifts a 500 kg steel beam 10 m straight up in 25 s (use g = 10 m/s²). How much lifting work did the crane do, and what was its average power output?",
+      "explanation": "Weight = m · g = 500 · 10 = 5,000 N. Work = 5,000 N · 10 m = 50,000 J. Power = 50,000 J ÷ 25 s = 2,000 W.",
+      "defaultDuration": 3
+    },
+    "links": {},
+    "assignments": [
+      {
+        "title": "Work & Power Week 1 Mastery Checkpoint",
+        "typeLabel": "Formative Quiz",
+        "submission": "Relay Pass + 6-Question Individual Quiz (>= 5/6)",
+        "actionLabel": "Planned Activity",
+        "description": "Four-station team relay followed by an individual quiz on W = F · d, lifting work, and P = W ÷ t.",
+        "status": "planned"
+      }
+    ],
+    "resources": []
+  },
+  {
+    "day": 6,
+    "date": "2026-11-30",
+    "unit": 3,
+    "title": "Gravitational Potential Energy & Reference Heights",
+    "topic": "Gravitational Potential Energy (PE_g = m · g · h) & Datum Choice",
+    "dok": 2,
+    "type": "Concept Intro",
+    "semester": 1,
+    "isFeatured": false,
+    "summary": "Welcome back from Thanksgiving Break! Lifting an object stores energy in the Earth–object gravitational field: PE_g = m · g · h (g = 10 m/s²). Because height h depends on where you place your zero line (floor, table, or basement), absolute PE_g depends on your chosen reference frame—while the change ΔPE_g between two heights stays identical for everyone.",
+    "activity": "Reference Frame Mystery Stations: Calculate the PE_g of classroom masses relative to three different zero-height baselines (floor, lab bench, ceiling drop line), prove mathematically that ΔPE_g stays identical across all three reference points, and finish the 6-row invariant ledger check.",
+    "essentialQuestion": "If two students pick different floors as h = 0, why do they still agree on how much gravitational potential energy changes during a drop?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2"
+    ],
+    "wicor": {
+      "Writing": "Explaining why Δh determines usable energy changes even when reference levels differ.",
+      "Inquiry": "Comparing calculated PE_g vs. ΔPE_g across floor, table, and ceiling coordinate frames.",
+      "Collaboration": "Partners compare differing h = 0 tables to verify identical ΔPE_g answers.",
+      "Organization": "Completing a multi-reference height and energy ledger with explicit units.",
+      "Reading": "Reading elevation profiles for hydroelectric dams and playground slides."
+    },
+    "bellRinger": {
+      "type": "concept_chat",
+      "promptQuestion": "A 2 kg textbook sits on a shelf 1 meter above your desk, and your desk is 1 meter above the classroom floor. Does the book have 20 J of gravitational potential energy or 40 J—or does it depend?",
+      "chatSystemInstruction": "You are a warm, adaptive, and relatable physics mentor chatting with a student over SMS/text. Your goal is to explore a physics concept together without being overly formal or using forced slang.\n\nCRITICAL RULES:\n1. NO FISHING / PIVOT TO TEACHING: Never try to \"force\" or repeatedly nudge a student toward a specific technical answer or physics term. If you ask a conceptual question and the student guesses wrong, focuses on a different variable (like friction/roughness), or says \"I don't know,\" DO NOT ask a follow-up question trying to correct their guess. Instead, pivot immediately to teaching: validate their logic, briefly explain the physics concept directly using a relatable analogy, and move on.\n2. NO SOCRATIC TRAPS: Do not get stuck in a loop asking the student to explain the same thing over and over. If they answer correctly, understand a concept, or say \"yes\"/\"obvious\", validate it briefly and immediately MOVE FORWARD to a new dimension or a real-world application.\n3. MOVE DYNAMICALLY: Keep the conversation fluid. Once a basic idea is established, introduce a fun twist, a new scenario, or a practical question (e.g., \"What happens if we try this in space?\" or \"How does that affect a rollercoaster?\"). \n4. CHAT TONE & LENGTH: Keep replies highly conversational and natural—like a text message from a knowledgeable peer. Limit replies to 1–3 short sentences max. Never send multiple distinct thoughts, lists, or bullet points in one message.\n5. CONTINUING THE CONVERSATION: Never end the conversation abruptly or push the student to stop chatting. Even after the student demonstrates understanding or has engaged in multiple turns, keep the conversation flowing naturally by offering intriguing follow-up thoughts, fun scenario twists, or real-world applications. You may let them know they can click the Finish Session button whenever they are ready to submit, but always leave the door open for them to continue chatting.",
+      "defaultDuration": 4
+    },
+    "links": {},
+    "assignments": [
+      {
+        "title": "Reference Frame Mystery Stations Ledger",
+        "typeLabel": "Guided Inquiry",
+        "submission": "Complete 6-Row Reference Comparison Check",
+        "actionLabel": "Planned Activity",
+        "description": "Compute PE_g and ΔPE_g from floor, bench, and ceiling zero lines to prove elevation change stays invariant.",
+        "status": "planned"
+      }
+    ],
+    "resources": []
+  },
+  {
+    "day": 7,
+    "date": "2026-12-01",
+    "unit": 3,
+    "title": "Hooke's Law: Measuring Spring Stiffness (k)",
+    "topic": "Spring Force & Stretch Distance (F_s = k · x) from Lab Graphs",
+    "dok": 3,
+    "type": "Lab Activity",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Unlike gravity near Earth's surface, a stretched spring does not pull with a constant force—the farther you stretch it from its resting length L_0, the harder it pulls back. Measuring stretch Δx against hanging weight F = m · g lets you determine a spring's unique stiffness constant k (N/m) directly from the slope of an F vs. x graph.",
+    "activity": "Spring Calibration Lab: Hang calibrated masses (100 g to 500 g, weight calculated via g = 10 m/s²) from two color-coded springs, read extension length Δx cleanly to the nearest millimeter without parallax, convert centimeters to meters, plot Force (N) vs. Stretch (m), and calculate each spring's stiffness constant k within ±10% tolerance.",
+    "essentialQuestion": "How can we measure and graph the stiffness constant (k) that distinguishes a soft pen spring from a heavy car shock coil?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2"
+    ],
+    "wicor": {
+      "Writing": "Explaining why subtracting resting length L_0 gives stretch x rather than total length.",
+      "Inquiry": "Collecting hanging-mass stretch data across five loads to uncover a linear Force–Stretch law.",
+      "Collaboration": "Partners verify zero-parallax meterstick alignment before recording every trial.",
+      "Organization": "Logging grams → kg → Newtons and cm → m cleanly in a calibration data table.",
+      "Reading": "Reading slope (rise over run = N/m) off a Force vs. Stretch scatter plot."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "A spring rests at 12 cm long with no weight. When you hang a 0.4 kg mass (weight = 4 N), it stretches to 20 cm long. What is x (stretch in meters), and what is k?",
+      "explanation": "Stretch is Δx = 20 cm - 12 cm = 8 cm = 0.08 m. Spring constant k = F ÷ x = 4 N ÷ 0.08 m = 50 N/m.",
+      "defaultDuration": 3
+    },
+    "links": {},
+    "assignments": [
+      {
+        "title": "Hooke's Law Spring Calibration Lab",
+        "typeLabel": "Quantitative Lab",
+        "submission": "2 Graphed Springs + Verified k (N/m) Within ±10%",
+        "actionLabel": "Planned Activity",
+        "description": "Hang 100–500 g masses on two springs, measure stretch in meters, plot F vs. x, and find spring stiffness k.",
+        "status": "planned"
+      }
+    ],
+    "resources": []
+  },
+  {
+    "day": 8,
+    "date": "2026-12-02",
+    "unit": 3,
+    "title": "Elastic Potential Energy (PE_s = ½ · k · x²)",
+    "topic": "Elastic Energy Storage from Force–Stretch Area & Squared Scaling",
+    "dok": 3,
+    "type": "Lab Activity",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Because spring force starts at 0 N and grows linearly to k · x, its Force vs. Stretch graph forms a right triangle. The work done stretching the spring—equal to its stored Elastic Potential Energy—equals the triangle's area: ½ · base · height = ½ · x · (k · x) = ½ · k · x². Doubling stretch distance stores four times the energy!",
+    "activity": "Slingshot Stretch Scaling Lab: Using yesterday's calibrated springs, launch a level cart from stretch distances x, 2x, and 3x, measure output performance, verify the 1x, 4x, 9x squared scaling pattern from F–x triangle areas, and complete the 6-item Elastic Energy mastery gate (>= 5/6 required; Honors extension linearizes PE_s vs. x²).",
+    "essentialQuestion": "Why does pulling a bowstring or spring twice as far back store four times as much elastic energy instead of twice as much?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2"
+    ],
+    "wicor": {
+      "Writing": "Deriving in plain words why Area = ½ · x · (kx) forces energy to scale with x².",
+      "Inquiry": "Testing 1x, 2x, and 3x spring stretches to verify the 1:4:9 stored energy pattern.",
+      "Collaboration": "Groups compare triangle area predictions against measured glider range trials.",
+      "Organization": "Comparing linear stretch columns (1x, 2x, 3x) next to energy columns (1x, 4x, 9x).",
+      "Reading": "Shading right-triangle areas under F = k · x lab plots."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "Look at your Day 7 Hooke's Law triangle graph for k = 100 N/m stretched 0.20 m (peak force = 20 N). What is the area of that triangle, and what energy is stored?",
+      "explanation": "Triangle area = ½ · base · height = ½ · (0.20 m) · (20 N) = 2.0 J. Using PE_s = ½ · k · x² = ½ · 100 · (0.20)² also gives 2.0 J.",
+      "defaultDuration": 3
+    },
+    "links": {},
+    "assignments": [
+      {
+        "title": "Slingshot Stretch Scaling Lab & Checkpoint",
+        "typeLabel": "Lab & Check",
+        "submission": "Scaling Data Table + >= 5/6 Mastery Gate",
+        "actionLabel": "Planned Activity",
+        "description": "Connect triangle area on Hooke's Law plots to PE_s = ½ · k · x² and verify 1x, 4x, 9x scaling experimentally.",
+        "status": "planned"
+      }
+    ],
+    "resources": []
+  },
+  {
+    "day": 9,
+    "date": "2026-12-03",
+    "unit": 3,
+    "title": "Energy Transfer Showdown: Spring Launch & Vertical Height",
+    "topic": "Coupled Energy Models (PE_s → PE_g) & LOL Energy Bar Charts",
+    "dok": 3,
+    "type": "Engineering Lab",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Energy accounting shines when energy changes forms. When a compressed spring launches a marble or popper vertically upward, initial Elastic Potential Energy (PE_s) converts into Gravitational Potential Energy (PE_g) at the peak. LOL bar charts keep track of where energy sits before and after launch.",
+    "activity": "Target Shelf Launcher Challenge: Teams receive an assigned target shelf height h and mass m, build a before/after LOL bar diagram setting PE_s = PE_g (with g = 10 m/s²), predict the exact stretch or compression notch BEFORE testing, and launch two official trials to score within target height tolerance and record percent error.",
+    "essentialQuestion": "How can an LOL energy bar chart predict the exact height a spring launcher reaches before we ever pull the trigger?",
+    "standards": [
+      "HS-PS3-2",
+      "HS-ETS1-2"
+    ],
+    "wicor": {
+      "Writing": "Justifying predicted stretch distance using before/after LOL bar totals and percent error.",
+      "Inquiry": "Predicting launch compression quantitatively before firing an actual spring target trial.",
+      "Collaboration": "Engineering teams calibrate, predict, and record official two-trial launcher tests.",
+      "Organization": "Drawing matched L-O-L charts (Initial Bars — System Circle — Final Bars).",
+      "Reading": "Checking unit consistency between k (N/m), x (m), m (kg), and h (m)."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "A 0.02 kg spring popper stores 0.40 J of elastic potential energy when pressed flat. Using g = 10 m/s², what ideal maximum height could it reach?",
+      "explanation": "Set PE_g = PE_s → m · g · h = 0.40 J → (0.02 kg)(10 m/s²) · h = 0.40 J → 0.2 · h = 0.40 → h = 2.0 m.",
+      "defaultDuration": 3
+    },
+    "links": {},
+    "assignments": [
+      {
+        "title": "Target Shelf Spring Launcher Engineering Log",
+        "typeLabel": "Engineering Challenge",
+        "submission": "Pre-Launch LOL Prediction + 2 Official Trials",
+        "actionLabel": "Planned Activity",
+        "description": "Use PE_s → PE_g energy conservation to predict spring compression for a target shelf before launching.",
+        "status": "planned"
+      }
+    ],
+    "resources": []
+  },
+  {
+    "day": 10,
+    "date": "2026-12-04",
+    "unit": 3,
+    "title": "Week 2 Potential Energy Quiz & LOL Chart Mastery",
+    "topic": "Assessment: PE_g, Hooke's Law, PE_s & LOL Accounting",
+    "dok": 3,
+    "type": "Quiz",
+    "semester": 1,
+    "isFeatured": false,
+    "summary": "Mid-unit assessment checking fluency across Week 2 concepts: choosing reference heights for PE_g, extracting spring stiffness k from Force–Stretch slopes, computing elastic potential energy PE_s = ½ · k · x², and representing transfers cleanly with LOL energy bar diagrams.",
+    "activity": "Mid-Unit Potential Energy Assessment: Complete the individual quiz featuring LOL bar chart construction, Hooke's Law graph interpretation, and PE_g / PE_s problem solving with g = 10 m/s² (tiered scaffolds by class level).",
+    "essentialQuestion": "How accurately can you quantify and model stored gravitational and elastic energy before motion begins?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2"
+    ],
+    "wicor": {
+      "Writing": "Explaining energy bar transfers in complete scientific sentences.",
+      "Inquiry": "Deducing spring stiffness and stored energy from empirical lab plot slopes.",
+      "Collaboration": "Individual summative check preceded by a 3-minute partner flash-review.",
+      "Organization": "Presenting stacked formulas with explicit SI units on every solution.",
+      "Reading": "Interpreting multi-spring Force vs. Stretch graphs."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "Quick unit warmup: Which expression does NOT equal Joules (J)? (A) N · m  (B) kg · m² / s²  (C) N / m · m²  (D) N / s",
+      "explanation": "(D) N / s does not equal Joules. Meanwhile N · m = J, and (N/m) · m² simplifies to N · m = J (used in ½ · k · x²).",
+      "defaultDuration": 3
+    },
+    "links": {},
+    "assignments": [
+      {
+        "title": "Week 2 Potential Energy & Hooke's Law Quiz",
+        "typeLabel": "Mid-Unit Quiz",
+        "submission": "Submitted in Class Before Period End",
+        "actionLabel": "Planned Activity",
+        "description": "Covers PE_g = m · g · h, Hooke's Law k from F–x slopes, PE_s = ½ · k · x², and LOL energy bar charts.",
+        "status": "planned"
+      }
+    ],
+    "resources": []
+  },
+  {
+    "day": 11,
+    "date": "2026-12-07",
+    "unit": 3,
+    "title": "Kinetic Energy (KE = ½ · m · v²) & Why Speed Dominates",
+    "topic": "Kinetic Energy, Quadratic Speed Scaling & Crash Risk",
+    "dok": 2,
+    "type": "Concept Intro",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Moving objects store energy of motion called Kinetic Energy: KE = ½ · m · v². Because velocity is squared while mass is linear, doubling a car's mass merely doubles its kinetic energy—but doubling its speed quadruples its kinetic energy! Speed is the dominant factor in high-energy impacts.",
+    "activity": "Speed vs. Mass Energy Sort & Scaling Challenge: Rank 8 moving systems from lowest to highest kinetic energy, build ratio scaling tables showing 2x mass (2x KE) vs. 2x and 3x speed (4x and 9x KE), and reach >= 10/12 verified predictions on the KE Checkpoint.",
+    "essentialQuestion": "Why does speeding up from 30 mph to 60 mph pack four times the kinetic energy instead of twice as much?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2"
+    ],
+    "wicor": {
+      "Writing": "Explaining with proportional ratios why speed matters more than mass for KE.",
+      "Inquiry": "Comparing linear mass multipliers against quadratic velocity multipliers across test cases.",
+      "Collaboration": "Partners rank 8 real-world motion cards before calculating exact Joules.",
+      "Organization": "Using ratio factor columns (m-factor, v-factor, v²-factor, total KE-factor).",
+      "Reading": "Reading highway safety and kinetic energy data tables."
+    },
+    "bellRinger": {
+      "type": "concept_chat",
+      "promptQuestion": "Two vehicles enter an intersection: a heavy 2,000 kg SUV going 10 m/s, and a lighter 1,000 kg sedan going twice as fast at 20 m/s. Which vehicle carries more kinetic energy, and why?",
+      "chatSystemInstruction": "You are a warm, adaptive, and relatable physics mentor chatting with a student over SMS/text. Your goal is to explore a physics concept together without being overly formal or using forced slang.\n\nCRITICAL RULES:\n1. NO FISHING / PIVOT TO TEACHING: Never try to \"force\" or repeatedly nudge a student toward a specific technical answer or physics term. If you ask a conceptual question and the student guesses wrong, focuses on a different variable (like friction/roughness), or says \"I don't know,\" DO NOT ask a follow-up question trying to correct their guess. Instead, pivot immediately to teaching: validate their logic, briefly explain the physics concept directly using a relatable analogy, and move on.\n2. NO SOCRATIC TRAPS: Do not get stuck in a loop asking the student to explain the same thing over and over. If they answer correctly, understand a concept, or say \"yes\"/\"obvious\", validate it briefly and immediately MOVE FORWARD to a new dimension or a real-world application.\n3. MOVE DYNAMICALLY: Keep the conversation fluid. Once a basic idea is established, introduce a fun twist, a new scenario, or a practical question (e.g., \"What happens if we try this in space?\" or \"How does that affect a rollercoaster?\"). \n4. CHAT TONE & LENGTH: Keep replies highly conversational and natural—like a text message from a knowledgeable peer. Limit replies to 1–3 short sentences max. Never send multiple distinct thoughts, lists, or bullet points in one message.\n5. CONTINUING THE CONVERSATION: Never end the conversation abruptly or push the student to stop chatting. Even after the student demonstrates understanding or has engaged in multiple turns, keep the conversation flowing naturally by offering intriguing follow-up thoughts, fun scenario twists, or real-world applications. You may let them know they can click the Finish Session button whenever they are ready to submit, but always leave the door open for them to continue chatting.",
+      "defaultDuration": 4
+    },
+    "links": {},
+    "assignments": [
+      {
+        "title": "Speed vs. Mass Kinetic Energy Scaling Challenge",
+        "typeLabel": "Guided Inquiry",
+        "submission": "8-Card Rank + >= 10/12 Ratio Table Check",
+        "actionLabel": "Planned Activity",
+        "description": "Compare linear mass changes against quadratic speed changes using KE = ½ · m · v².",
+        "status": "planned"
+      }
+    ],
+    "resources": []
+  },
+  {
+    "day": 12,
+    "date": "2026-12-08",
+    "unit": 3,
+    "title": "Photogate Speed & Kinetic Energy Measurement Lab",
+    "topic": "Measuring Velocity via Photogates (v = d ÷ Δt) & Testing PE → KE",
+    "dok": 3,
+    "type": "Lab Activity",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "To measure kinetic energy in the lab without guessing, you need accurate speed at the bottom of a ramp. Using a photogate timer and a narrow flag on a rolling cart, v = flag width ÷ blocked time Δt turns raw milliseconds into exact bottom speed and KE = ½ · m · v² to compare against starting height energy PE_g = m · g · h.",
+    "activity": "Height-to-Speed Photogate Lab: Release a rolling dynamics cart from 4 distinct vertical drop heights h, record 3 photogate transit times Δt per height, calculate mean v and KE_bottom, plot KE against drop height h (Honors: linearize KE vs. v² to extract slope = ½ · m), and submit your verified 4-height comparison table.",
+    "essentialQuestion": "How closely does the kinetic energy measured by a photogate at the bottom of a ramp match the gravitational potential energy at release?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2"
+    ],
+    "wicor": {
+      "Writing": "Explaining small gaps between release PE_g and bottom KE via rolling/track friction work.",
+      "Inquiry": "Testing four ramp elevations to establish an empirical relationship between height and kinetic energy.",
+      "Collaboration": "Teams coordinate release markers, photogate resets, and trial averaging.",
+      "Organization": "Logging Height (m), Flag Width (m), Δt (s), v (m/s), PE_g (J), and KE (J) systematically.",
+      "Reading": "Comparing linear KE vs. h plots against curved KE vs. v plots."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "A 0.50 kg cart carries a 0.05 m flag that blocks a photogate beam for 0.025 s. What is the cart's speed, and how much kinetic energy does it have?",
+      "explanation": "Speed v = 0.05 m ÷ 0.025 s = 2.0 m/s. Kinetic energy KE = ½ · (0.50 kg) · (2.0 m/s)² = 1.0 J.",
+      "defaultDuration": 3
+    },
+    "links": {},
+    "assignments": [
+      {
+        "title": "Height-to-Speed Photogate KE Lab",
+        "typeLabel": "Photogate Lab",
+        "submission": "4 Drop Heights (3 Trials Each) + KE Graph",
+        "actionLabel": "Planned Activity",
+        "description": "Use photogates to measure cart speed from 4 release heights and compare bottom KE against release PE_g.",
+        "status": "planned"
+      }
+    ],
+    "resources": []
+  },
+  {
+    "day": 13,
+    "date": "2026-12-09",
+    "unit": 3,
+    "title": "The Work–Energy Theorem (W_net = ΔKE)",
+    "topic": "Connecting Mechanical Work Directly to Change in Kinetic Energy",
+    "dok": 3,
+    "type": "Guided Practice",
+    "semester": 1,
+    "isFeatured": false,
+    "summary": "Week 1's mechanical work and Week 3's kinetic energy are two sides of the exact same coin: Net Work equals Change in Kinetic Energy (W_net = F_net · d = KE_f - KE_i). Positive net work speeds objects up by adding energy; negative braking or friction work slows objects down by removing mechanical energy.",
+    "activity": "Work–Energy Balance Sheet Practice: Construct before/after LOL bar charts featuring an external +W or -W arrow crossing the system boundary, solve 6 structured acceleration and braking problems equating F_net · d = ΔKE, and achieve >= 5/6 on the exit check.",
+    "essentialQuestion": "How does mechanical work explain both how engines speed cars up and how brakes bring them to a stop?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2"
+    ],
+    "wicor": {
+      "Writing": "Explaining whether positive or negative work occurred solely by checking if speed increased or decreased.",
+      "Inquiry": "Tracing energy inflows (+W) and outflows (-W) across system boundaries on LOL diagrams.",
+      "Collaboration": "Whiteboard pairs check bar arithmetic (KE_i + W_net = KE_f) before algebraic steps.",
+      "Organization": "Separating Initial KE, Net Work Added/Removed, and Final KE in an accounting box.",
+      "Reading": "Parsing force, distance, and speed changes in multi-stage motion stories."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "A 1,000 kg car starts from rest (KE_i = 0 J) and reaches 20 m/s (KE_f = 200,000 J) over 50 m. How much net work was done, and what average net force pushed the car?",
+      "explanation": "W_net = KE_f - KE_i = 200,000 J. Dividing by distance: F_net = W_net ÷ d = 200,000 J ÷ 50 m = 4,000 N.",
+      "defaultDuration": 3
+    },
+    "links": {},
+    "assignments": [
+      {
+        "title": "Work–Energy Theorem Accounting Practice",
+        "typeLabel": "Guided Practice",
+        "submission": "6-Problem Accounting Set (>= 5/6)",
+        "actionLabel": "Planned Activity",
+        "description": "Use W_net = F_net · d = KE_f - KE_i and LOL boundary arrows to solve speedup and braking problems.",
+        "status": "planned"
+      }
+    ],
+    "resources": []
+  },
+  {
+    "day": 14,
+    "date": "2026-12-10",
+    "unit": 3,
+    "title": "Braking Distance Lab: Friction Work vs. Speed²",
+    "topic": "Stopping Distance Scaling (F_f · d = ½ · m · v²) & Road Safety",
+    "dok": 3,
+    "type": "Engineering Investigation / CER",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Why do highway safety manuals warn that doubling your speed requires four times as much room to stop? Because brakes apply a nearly fixed maximum friction force F_f, stopping an object requires negative friction work W_f = -F_f · d equal to -KE. Since kinetic energy grows with v², minimum skid distance d also grows with v²!",
+    "activity": "Sliding Block Skid-Distance Investigation: Launch a felt-bottom block from a ramp at 1x, 1.5x, and 2x entry speeds along a tabletop meterstick, record stopping distance d for each speed, confirm the ~4x skid distance jump when entry speed doubles, calculate average friction force F_f = KE ÷ d, and write a brief school-zone speed limit CER.",
+    "essentialQuestion": "Why does doubling a vehicle's speed quadruple its emergency stopping distance under identical tire friction?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-ETS1-3"
+    ],
+    "wicor": {
+      "Writing": "Drafting a traffic-safety Claim-Evidence-Reasoning argument backed by skid-distance lab data.",
+      "Inquiry": "Investigating how launch speed affects mechanical stopping distance under constant friction.",
+      "Collaboration": "Lab teams measure skid distances cleanly and pool data to check the d vs. v² ratio.",
+      "Organization": "Structuring Launch Height/Speed, Kinetic Energy (J), Skid Distance (m), and F_f (N) tables.",
+      "Reading": "Analyzing real driver stopping-distance charts against the Work–Energy Theorem."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "Suppose maximum tire friction stops a car moving 10 m/s in a 10 m skid. If that same car enters the street going 20 m/s (twice as fast), how long will the skid distance be?",
+      "explanation": "Twice the speed means 4x the kinetic energy (½mv²). With the same friction force doing negative work W_f = -F_f · d, the car needs 4x the distance: 40 m!",
+      "defaultDuration": 3
+    },
+    "links": {},
+    "assignments": [
+      {
+        "title": "Braking Skid-Distance Lab & Safety CER",
+        "typeLabel": "Engineering Lab",
+        "submission": "3-Speed Skid Table + Traffic Safety CER",
+        "actionLabel": "Planned Activity",
+        "description": "Measure stopping distance vs. launch speed for a sliding block, find F_f from W_f = -ΔKE, and defend a speed limit.",
+        "status": "planned"
+      }
+    ],
+    "resources": []
+  },
+  {
+    "day": 15,
+    "date": "2026-12-11",
+    "unit": 3,
+    "title": "Work–Energy Theorem Mastery Check & Misconception Fix",
+    "topic": "Consolidating KE = ½ · m · v² and W_net = ΔKE",
+    "dok": 3,
+    "type": "Formative Assessment",
+    "semester": 1,
+    "isFeatured": false,
+    "summary": "A focused synthesis checkpoint before entering Week 4's roller coaster conservation unit. Students diagnose common misconceptions about braking distance and speed, check algebraic vs. visual accounting mastery, and verify lab logs are complete.",
+    "activity": "Work–Energy Diagnostic Relay + 6-Question Checkpoint: Critique a flawed claim ('going twice as fast only takes twice as far to stop') in a crisp rebuttal paragraph, then complete the 6-item Work–Energy quiz (tiered by class level).",
+    "essentialQuestion": "How does accounting for mechanical work let us predict speed and stopping distance without knowing acceleration over time?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2"
+    ],
+    "wicor": {
+      "Writing": "Refuting a linear stopping-distance misconception using W_f = -F_f · d = -ΔKE.",
+      "Inquiry": "Auditing flawed physics work to pinpoint quadratic vs. linear reasoning errors.",
+      "Collaboration": "Partners peer-review each other's rebuttal claim and evidence numbers.",
+      "Organization": "Checking off missing Week 3 lab tables ahead of Week 4 coaster builds.",
+      "Reading": "Diagnosing worked student examples for unit and squared-velocity mistakes."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "A 2 kg skateboard rolls at 4 m/s. A constant braking force removes 12 J of mechanical work. What is its final kinetic energy?",
+      "explanation": "Initial KE = ½ · 2 · 4² = 16 J. Removing 12 J leaves KE_f = 16 J - 12 J = 4 J (corresponding to v_f = 2 m/s).",
+      "defaultDuration": 3
+    },
+    "links": {},
+    "assignments": [
+      {
+        "title": "Work–Energy Mastery Check & Rebuttal",
+        "typeLabel": "Formative Quiz",
+        "submission": "Misconception Rebuttal + 6-Question Check",
+        "actionLabel": "Planned Activity",
+        "description": "Correct a braking-distance misconception and pass a 6-item check on KE and W_net = ΔKE.",
+        "status": "planned"
+      }
+    ],
+    "resources": []
+  },
+  {
+    "day": 16,
+    "date": "2026-12-14",
+    "unit": 3,
+    "title": "Conservation of Mechanical Energy (PE + KE = Constant)",
+    "topic": "Total Mechanical Energy Conservation Across Ramps & Coasters",
+    "dok": 3,
+    "type": "Concept Intro",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "When no outside pushes or friction act on a closed system (W_ext = 0), Mechanical Energy stays constant everywhere along a ride: PE_g + PE_s + KE = Total E. At hilltops, energy sits in height (PE_g); in valleys, it rushes into speed (KE)—and the sum never changes, regardless of how curvy the track is!",
+    "activity": "4-Point Coaster Energy Ledger Challenge: Trace a cart through four track points (Top Hill, Bottom Valley, Second Hill, Exit), fill every blank PE_g, KE, and E_total box using bar accounting and g = 10 m/s², find valley speed (CP/Honors), and verify with a partner check.",
+    "essentialQuestion": "How can an energy ledger predict speed at the bottom of any roller coaster hill without tracking forces along curves?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2"
+    ],
+    "wicor": {
+      "Writing": "Explaining why total mechanical energy stays fixed even though track angle constantly varies.",
+      "Inquiry": "Tracing energy swaps between height (PE_g) and motion (KE) at four track stations.",
+      "Collaboration": "Partners verify that PE + KE sums match E_total in every column of the coaster ledger.",
+      "Organization": "Using a 4-column track table (Elevation, PE_g, KE, E_total, Speed) to eliminate sign errors.",
+      "Reading": "Reading roller coaster track elevation schematics alongside LOL bar stacks."
+    },
+    "bellRinger": {
+      "type": "concept_chat",
+      "promptQuestion": "A 500 kg roller coaster starts from rest at the top of a 20 m hill with 100,000 J of gravitational potential energy. Halfway down at 10 m high, how much PE_g and how much KE does it have (assuming negligible friction)?",
+      "chatSystemInstruction": "You are a warm, adaptive, and relatable physics mentor chatting with a student over SMS/text. Your goal is to explore a physics concept together without being overly formal or using forced slang.\n\nCRITICAL RULES:\n1. NO FISHING / PIVOT TO TEACHING: Never try to \"force\" or repeatedly nudge a student toward a specific technical answer or physics term. If you ask a conceptual question and the student guesses wrong, focuses on a different variable (like friction/roughness), or says \"I don't know,\" DO NOT ask a follow-up question trying to correct their guess. Instead, pivot immediately to teaching: validate their logic, briefly explain the physics concept directly using a relatable analogy, and move on.\n2. NO SOCRATIC TRAPS: Do not get stuck in a loop asking the student to explain the same thing over and over. If they answer correctly, understand a concept, or say \"yes\"/\"obvious\", validate it briefly and immediately MOVE FORWARD to a new dimension or a real-world application.\n3. MOVE DYNAMICALLY: Keep the conversation fluid. Once a basic idea is established, introduce a fun twist, a new scenario, or a practical question (e.g., \"What happens if we try this in space?\" or \"How does that affect a rollercoaster?\"). \n4. CHAT TONE & LENGTH: Keep replies highly conversational and natural—like a text message from a knowledgeable peer. Limit replies to 1–3 short sentences max. Never send multiple distinct thoughts, lists, or bullet points in one message.\n5. CONTINUING THE CONVERSATION: Never end the conversation abruptly or push the student to stop chatting. Even after the student demonstrates understanding or has engaged in multiple turns, keep the conversation flowing naturally by offering intriguing follow-up thoughts, fun scenario twists, or real-world applications. You may let them know they can click the Finish Session button whenever they are ready to submit, but always leave the door open for them to continue chatting.",
+      "defaultDuration": 4
+    },
+    "links": {},
+    "assignments": [
+      {
+        "title": "4-Point Roller Coaster Energy Ledger",
+        "typeLabel": "Guided Practice",
+        "submission": "All 4 Track Columns Balanced + Partner Sign-Off",
+        "actionLabel": "Planned Activity",
+        "description": "Track PE_g, KE, and Total Mechanical Energy across four elevations of an ideal roller coaster.",
+        "status": "planned"
+      }
+    ],
+    "resources": []
+  },
+  {
+    "day": 17,
+    "date": "2026-12-15",
+    "unit": 3,
+    "title": "Roller Coaster Engineering Lab: Energy Design Constraints",
+    "topic": "Designing Hills & Loops Within Mechanical Energy Constraints",
+    "dok": 4,
+    "type": "Engineering Lab",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "Real coaster engineers never make the second hill taller than the first lift hill because conservation of energy sets a strict ceiling: without a motorized boost, a cart can never rise higher than its release height h_0—and negative friction work lowers that ceiling even further.",
+    "activity": "Foam-Pipe Marble Coaster Build & Test: Break the design problem into track subsystems (Drop Hill, Loop/Second Hill, Finish Catch), build a foam-pipe track from a measured drop height h_0, run 5 test trials recording success rate and max rebound height h_final, and quantify negative friction work W_f = m · g · (h_final - h_0).",
+    "essentialQuestion": "How do energy conservation limits and track friction constrain the height of every hill and loop after the first drop?",
+    "standards": [
+      "HS-PS3-2",
+      "HS-ETS1-2",
+      "HS-ETS1-3"
+    ],
+    "wicor": {
+      "Writing": "Explaining design revisions made when marble kinetic energy fell short at Hill #2 or Loop Top.",
+      "Inquiry": "Testing minimum drop height needed to clear a vertical loop despite rolling friction.",
+      "Collaboration": "Engineering crews divide build tasks (start support, loop bracing, elevation measurement).",
+      "Organization": "Logging drop height h_0, loop/hill height, 5 trial outcomes, and measured h_final.",
+      "Reading": "Applying HS-ETS1-2 subsystem design constraints to physical track geometry."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "Why is the first lift hill on every gravity roller coaster always the tallest hill on the ride? What happens to a cart aimed at a taller second hill?",
+      "explanation": "Starting energy is limited to PE_g at Hill #1 (plus any tiny push). Reaching a taller Hill #2 would require more energy than the cart has, so it slows to a stop partway up and rolls backward.",
+      "defaultDuration": 3
+    },
+    "links": {},
+    "assignments": [
+      {
+        "title": "Foam-Pipe Marble Coaster Build & Test Log",
+        "typeLabel": "Engineering Lab",
+        "submission": "5-Trial Track Test + Friction Work Calculation",
+        "actionLabel": "Planned Activity",
+        "description": "Design and test a foam-pipe marble coaster, compare release height to final climb height, and calculate W_f.",
+        "status": "planned"
+      }
+    ],
+    "resources": []
+  },
+  {
+    "day": 18,
+    "date": "2026-12-16",
+    "unit": 3,
+    "title": "Real-World Systems with Negative Friction Work (E_i + W_f = E_f)",
+    "topic": "Non-Conservative Mechanical Accounting & Unit 3 Synthesis",
+    "dok": 3,
+    "type": "Review & Problem Solving",
+    "semester": 1,
+    "isFeatured": false,
+    "summary": "Unite the full energy equation: Initial Mechanical Energy + External Mechanical Work = Final Mechanical Energy (PE_i + KE_i + W_ext = PE_f + KE_f). Using negative mechanical work W_f = -F_f · d explains why yesterday's real coaster stopped slightly lower than its starting drop—and ties together all 4 weeks ahead of tomorrow's Minimum Day exam.",
+    "activity": "Coaster Audit & Unit 3 Study Matrix: Audit two coaster blueprints to find where negative friction work prevents loop clearance, then rotate through a 4-station Unit 3 Review Matrix (Work/Power, PE_g/PE_s, KE/W-E, Conservation with g = 10 m/s²) to prepare for tomorrow's exam.",
+    "essentialQuestion": "How does including external work (+W or -W_f) unite ideal conservation with real-world mechanical systems?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-ETS1-3"
+    ],
+    "wicor": {
+      "Writing": "Explaining step-by-step how negative friction work reduces final height and speed on a coaster.",
+      "Inquiry": "Auditing two competing track blueprints to identify which clears a loop safely.",
+      "Collaboration": "Teams solve one review station at a time and check solutions before rotating.",
+      "Organization": "Consolidating every Unit 3 formula and SI unit onto a four-quadrant study matrix.",
+      "Reading": "Reading blueprint height, track length, and friction specs carefully."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "A 0.01 kg marble starts 0.80 m high (PE_i = 0.080 J) and coasts up Hill #2 to only 0.60 m high (PE_f = 0.060 J). How much negative work did friction do along the track?",
+      "explanation": "Using E_i + W_f = E_f: 0.080 J + W_f = 0.060 J → W_f = -0.020 J of negative mechanical work.",
+      "defaultDuration": 3
+    },
+    "links": {},
+    "assignments": [
+      {
+        "title": "Coaster Blueprint Audit & 4-Station Study Matrix",
+        "typeLabel": "Exam Prep",
+        "submission": "All 4 Review Quadrants Completed",
+        "actionLabel": "Planned Activity",
+        "description": "Diagnose negative friction work in coaster designs and synthesize Work, Power, PE, KE, and Conservation.",
+        "status": "planned"
+      }
+    ],
+    "resources": []
+  },
+  {
+    "day": 19,
+    "date": "2026-12-17",
+    "unit": 3,
+    "title": "Unit 3 Summative Assessment: Energy, Work & Conservation",
+    "topic": "Semester 1 Capstone Exam — Work, Power, PE_g, PE_s, KE & Coasters",
+    "dok": 4,
+    "type": "Summative Assessment",
+    "semester": 1,
+    "isFeatured": true,
+    "summary": "High School Minimum Day (End of Q2 / Semester 1). Today's streamlined summative assessment measures individual mastery of mechanical work, power, gravitational and elastic potential energy, kinetic energy, the Work–Energy Theorem, and roller coaster energy conservation using g = 10 m/s².",
+    "activity": "Unit 3 Summative Exam (Minimum-Day Paced): Complete the individual assessment covering LOL bar accounting, F–d and F–x graph reading, Work/Power calculations, PE_g/PE_s/KE problems, braking distance ratios, and coaster energy conservation.",
+    "essentialQuestion": "How can energy accounting equations and visual bar charts explain and predict mechanical motion across real-world systems?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-PS3-2",
+      "HS-ETS1-2",
+      "HS-ETS1-3"
+    ],
+    "wicor": {
+      "Writing": "Defending predictions about stopping distance and coaster loop clearance with energy reasoning.",
+      "Inquiry": "Synthesizing Work–Energy and Conservation models to analyze multi-stage motion.",
+      "Collaboration": "Brief pre-test 2-minute formula verification check followed by individual testing.",
+      "Organization": "Showing clean given values, formulas, stacked substitutions, and SI units.",
+      "Reading": "Interpreting Force–Stretch graphs, track schematics, and LOL diagrams accurately."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "Final pre-exam unit check: Name the SI unit for Work, Energy, Power, and Spring Constant k.",
+      "explanation": "Work and all forms of Energy are measured in Joules (J); Power is in Watts (W = J/s); Spring Constant k is in Newtons per meter (N/m).",
+      "defaultDuration": 2
+    },
+    "links": {},
+    "assignments": [
+      {
+        "title": "Unit 3 Summative Exam (Work, PE, KE & Conservation)",
+        "typeLabel": "Summative Exam",
+        "submission": "Submitted in Class (Minimum-Day Schedule)",
+        "actionLabel": "Planned Assessment",
+        "description": "Streamlined Semester 1 capstone exam covering Work, Power, PE_g, PE_s, KE, Work–Energy Theorem, and Coasters.",
+        "status": "planned"
+      }
+    ],
+    "resources": []
+  },
+  {
+    "day": 20,
+    "date": "2026-12-18",
+    "unit": 3,
+    "title": "Semester 1 Energy Portfolio Wrap-Up & Coaster Showdown",
+    "topic": "Grade Sign-Off, Exam Corrections & Coaster Prediction Finale",
+    "dok": 3,
+    "type": "Capstone & Closure",
+    "semester": 1,
+    "isFeatured": false,
+    "summary": "Final High School Minimum Day before Winter Break! Lock in Semester 1 grades by verifying every Unit 3 lab and assignment in the Missing Work Portal, polishing quick exam error corrections, and competing in one last celebratory Marble Coaster Target Showdown.",
+    "activity": "Coaster Prediction Showdown & Semester 1 Sign-Off: Check missing-work.html to ensure zero unsubmitted Q2/Unit 3 assignments before Semester 1 locks, complete quick exam feedback corrections, and run one team marble track drop predicting exact cup landing or rebound height.",
+    "essentialQuestion": "How well do your mechanical energy predictions hold up in one final live track test before Winter Break?",
+    "standards": [
+      "HS-PS3-1",
+      "HS-ETS1-3"
+    ],
+    "wicor": {
+      "Writing": "Reflecting on one key correction from yesterday's summative assessment.",
+      "Inquiry": "Testing final height-to-speed accuracy in a live marble coaster cup challenge.",
+      "Collaboration": "Teams calibrate and run one official prediction shot before break.",
+      "Organization": "Verifying all Unit 3 and Q2 work is logged in the Missing Work & Grade Portal.",
+      "Reading": "Reviewing personal grade audit status and Semester 1 rubric feedback."
+    },
+    "bellRinger": {
+      "type": "free_response",
+      "promptQuestion": "Open the Missing Work & Grade Portal and list any open Unit 3 lab or assignment you need to finish today before Semester 1 grades finalize.",
+      "explanation": "Checking missing-work.html before Semester 1 ends prevents missing lab zeroes from dragging down your winter report card.",
+      "defaultDuration": 3
+    },
+    "links": {
+      "Missing Work & Grade Portal": "missing-work.html"
+    },
+    "assignments": [
+      {
+        "title": "Coaster Target Showdown & Exam Audit",
+        "typeLabel": "Semester Wrap-Up",
+        "submission": "Check missing-work.html + Quick Exam Correction",
+        "actionLabel": "Planned Activity",
+        "description": "Verify all Semester 1 work is submitted, review exam feedback, and compete in a live marble prediction trial.",
+        "status": "planned"
+      }
+    ],
+    "resources": [
+      {
+        "title": "Missing Work & Grade Portal",
+        "url": "missing-work.html",
+        "typeLabel": "Grade Portal",
+        "description": "Confirm every Unit 3 lab, bell-ringer, and Q2 assignment is submitted before Winter Break."
+      }
+    ]
+  },
+  {
     "date": "2026-01-12",
     "day": 1,
     "unit": 4,

@@ -3,6 +3,11 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-14 — Unit 3 Dashboard, 20-Day Curriculum & Energy Outline
+**Patterns Updated**: `dashboard-layout.md` (added Unit 3 Amber Gold/Sky Cyan/Emerald `#080602` palette, native `<dialog closedby="any">` modals with high-contrast classroom Light Mode & projector font scaling).
+**Files Added**: `Unit_3/outline.md` (20 instructional days, Nov 16 – Dec 18, 2026, excluding Thanksgiving Break Nov 23–27 and noting HS Minimum Days Dec 17–18; mechanical Work, Power, PE_g, PE_s, KE, Work–Energy Theorem, Conservation of Mechanical Energy; thermal energy & thermodynamics explicitly reserved for Unit 5), `unit3-dashboard.html`, `assets/unit3-favicon.svg`.
+**Files Updated**: `assets/lessons-data.js` (20 Unit 3 day objects inserted between Unit 2 Day 55 and Unit 4 Day 1), `lesson-plans.html` (unlocked `#card-unit3`), `lessons.html` (added Unit 3 card), `index.html` (added Unit 3 Dashboard CTA button), `partials/footer.html` (via `update-timestamp.js`).
+
 ## 2026-11-13 — Week 11 Spin Art Reward & Progress Dashboard
 **Patterns Updated**: `student-app-standards.md`, `classroom-projection-and-high-contrast-theming.md`.
 **Files Created/Updated**: `admin/weekly_progress_spin_art.html`, `admin/index.html`, `partials/footer.html`.
