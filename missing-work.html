@@ -308,8 +308,9 @@
             // Reference global lessonsData from assets/lessons-data.js
             const sourceLessons = (typeof lessonsData !== 'undefined' && Array.isArray(lessonsData)) ? lessonsData : [];
             
-            // Filter lessons matching date window and unit
+            // Filter lessons matching date window and unit (Unit 3 temporarily paused)
             const filteredLessons = sourceLessons.filter(lesson => {
+                if (lesson.unit === 3) return false;
                 const matchesDate = lesson.date >= startDate && lesson.date <= endDate;
                 const matchesUnit = !selectedUnit || String(lesson.unit) === String(selectedUnit);
                 return matchesDate && matchesUnit;
