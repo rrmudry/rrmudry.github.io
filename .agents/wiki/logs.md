@@ -3,6 +3,22 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-15 — Classroomscreen Live Participation & Momentum Widget
+**Patterns Updated**: `classroom-projection-and-high-contrast-theming.md`.
+**Files Created**: `admin/classroomscreen_widget.html`.
+**Files Updated**: `admin/index.html`, `.agents/wiki/index.md`, `.agents/wiki/patterns/classroom-projection-and-high-contrast-theming.md`.
+**Notes**:
+- Built `admin/classroomscreen_widget.html`, a zero-scroll, `<iframe>`-optimized dual-mode participation display for Classroomscreen.com tracking Bell-Ringers (`bellringers`, `system_config/bellringer_timer`) and active assignments (`student_results/{assignmentId}/students`).
+- Implemented truthful cohort obfuscation & 3-Zone "Never Too Late" framing (`Step-1 Quick-Start Open Now`, `Main Active Pack`, `Mastery & Retakes Open`), strictly anonymous 24-slot emblem tiles (zero names, IDs, or period numbers), WCAG AAA Light/Dark contrast themes, compact `?compact=1` iframe corner pill mode, and a 1-click `<iframe allow="popups">` Embed Code modal.
+
+## 2026-11-15 — Bell-Ringer Weeks 12 & 13 Sync & Grade-Impact Printout Telemetry Analysis
+**Patterns Updated**: `bell-ringer-config.md`.
+**Files Updated**: `sync-classroom/sync-bellringers.js`, `.agents/wiki/patterns/bell-ringer-config.md`, `.agents/wiki/index.md`.
+**Notes**:
+- Updated `evaluateSubmission()` in `sync-classroom/sync-bellringers.js` to unwrap object-wrapped Gemini `effortScore` payloads (`{ effortScore, followUpQuestion }`) and allow concise `>= 2`-character numeric answers containing a digit (e.g., `"60"`, `"3s"`) when not zero-scored.
+- Added Week 12 (`2026-11-02..2026-11-06`, 4-day week) and Week 13 (`2026-11-09..2026-11-13`, 4-day week) to `WEEK_CALENDAR` with 4-day fairness cushion (`target: 3`, Period 1 `target: 2`), updated default `--weekly` target to Week 13, and synced `bell_ringer_week_12` (123 grades pushed) and `bell_ringer_week_13` (133 grades pushed) across Firestore and all 7 Google Classroom courses.
+- Verified pre- vs. post-printout participation shift between identical 4-day Weeks 12 and 13 following the Nov 8 Bell-Ringer Grade Impact slips: genuine daily average rose from 87.3/day to 93.3/day (highest unexcused rate of the semester), active students increased from 123 to 133, zero-day students dropped from 49 to 39, and 16 of 49 prior non-participants re-engaged—concentrated in students whose slips projected >= +8% grade gains.
+
 ## 2026-11-15 — Unit 3 Week 1 Detail Expansion & 5 Printable Student Worksheets
 **Patterns Followed**: `low-stress-worksheet-skill.md`, `printable-graphing-worksheets.md`, `student-app-standards.md`, `cast-aligned-webapp-design.md`.
 **Files Added**: `Unit_3/worksheets/Day1_Work_vs_Effort_AVID_Reading.{html,pdf}`, `Unit_3/worksheets/Day2_Work_Calculation_Practice.{html,pdf}`, `Unit_3/worksheets/Day3_Ramp_and_Pulley_Work_Lab.{html,pdf}`, `Unit_3/worksheets/Day4_Force_Distance_Data_Analysis_CER.{html,pdf}`, `Unit_3/worksheets/Day5_Staircase_Power_Lab_and_Check.{html,pdf}`.

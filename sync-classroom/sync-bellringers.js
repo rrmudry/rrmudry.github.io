@@ -120,6 +120,10 @@ function evaluateSubmission(sub) {
     (sub.totalSteps ? 'cast_challenge' : 
     (sub.chatMessages ? 'concept_chat' : 'free_response')));
 
+  const rawEffort = (typeof sub.effortScore === 'object' && sub.effortScore !== null)
+    ? sub.effortScore.effortScore
+    : sub.effortScore;
+
   if (type === 'cast_challenge') {
     const pct = sub.percentComplete !== undefined ? sub.percentComplete : 
       (sub.totalSteps && sub.completedSteps !== undefined ? (sub.completedSteps / sub.totalSteps) * 100 : 0);
@@ -139,8 +143,8 @@ function evaluateSubmission(sub) {
       return { isGenuine: false, type, reason: 'chat_0_user_turns (no responses entered)' };
     }
 
-    const effort = sub.effortScore !== undefined ? parseInt(sub.effortScore, 10) : null;
-    if (effort !== null && effort < 70) {
+    const effort = rawEffort !== undefined && rawEffort !== null ? parseInt(rawEffort, 10) : null;
+    if (effort !== null && !isNaN(effort) && effort < 70) {
       return { isGenuine: false, type, reason: `chat_low_score (${effort}%)` };
     }
 
@@ -164,8 +168,9 @@ function evaluateSubmission(sub) {
   const resp = (sub.studentResponse || '').trim();
   const lower = resp.toLowerCase();
   const optOuts = ['idk', "i don't know", "i dont know", "i'm not sure", 'im not sure', "i'm not sore", 'not sure', 'none', 'nothing', 'no', 'n/a', 'na', 'pass', 'asdf', 'qwerty'];
-  const isZeroScore = sub.effortScore === '0' || sub.effortScore === 0;
-  if (resp.length < 3 || optOuts.includes(lower) || isZeroScore) {
+  const isZeroScore = rawEffort === '0' || rawEffort === 0;
+  const isNumericShort = /\d/.test(resp) && resp.length >= 2;
+  if ((resp.length < 3 && !isNumericShort) || optOuts.includes(lower) || isZeroScore) {
     return { isGenuine: false, type, reason: `free_response_low_effort ("${resp.substring(0, 25)}")` };
   }
   return { isGenuine: true, type, reason: 'free_response_genuine' };
@@ -237,7 +242,9 @@ Flags:
     8: { start: '2026-10-05', end: '2026-10-09' },
     9: { start: '2026-10-12', end: '2026-10-16' },
     10: { start: '2026-10-19', end: '2026-10-23', target: 2, periodTargets: { 0: 2, 1: 2, 2: 3, 3: 3, 4: 2, 5: 2, 6: 2 } },
-    11: { start: '2026-10-26', end: '2026-10-30', target: 3, periodTargets: { 0: 3, 1: 2, 2: 3, 3: 3, 4: 3, 5: 3, 6: 3 } }
+    11: { start: '2026-10-26', end: '2026-10-30', target: 3, periodTargets: { 0: 3, 1: 2, 2: 3, 3: 3, 4: 3, 5: 3, 6: 3 } },
+    12: { start: '2026-11-02', end: '2026-11-06', target: 3, periodTargets: { 0: 3, 1: 2, 2: 3, 3: 3, 4: 3, 5: 3, 6: 3 } },
+    13: { start: '2026-11-09', end: '2026-11-13', target: 3, periodTargets: { 0: 3, 1: 2, 2: 3, 3: 3, 4: 3, 5: 3, 6: 3 } }
   };
 
   // Set defaults based on mode
@@ -264,7 +271,7 @@ Moving forward, Bell-Ringers will be graded weekly at 4 points per day (20 point
   } else {
     // Weekly mode
     if (!options.weekNumber) {
-      options.weekNumber = 11;
+      options.weekNumber = 13;
     }
     const weekCfg = WEEK_CALENDAR[options.weekNumber];
     if (weekCfg) {
@@ -274,8 +281,8 @@ Moving forward, Bell-Ringers will be graded weekly at 4 points per day (20 point
       if (weekCfg.periodTargets) options.periodTargets = weekCfg.periodTargets;
     }
     if (!options.startDate || !options.endDate) {
-      options.startDate = '2026-10-26';
-      options.endDate = '2026-10-30';
+      options.startDate = '2026-11-09';
+      options.endDate = '2026-11-13';
     }
     if (!options.maxPoints) options.maxPoints = 20;
     if (!options.targetGenuine) options.targetGenuine = 5;

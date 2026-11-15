@@ -113,3 +113,11 @@ For whole-classroom visibility, provide a font toggle group:
 ### 5. Sticky Navigation & Zero Horizontal Scrollbar
 - Step navigation menus must be docked inside the sticky header (`position: sticky; top: 0; z-index: 100`) so buttons never scroll out of view when switching steps or scrolling down long pages.
 - Navigation buttons must use responsive CSS Grid (`grid-template-columns: repeat(N, minmax(0, 1fr))`) without `overflow-x: auto` so a horizontal scrollbar is never generated, even in Projector mode.
+
+### 6. Embedded Classroomscreen `<iframe>` Momentum Display Pattern (`admin/classroomscreen_widget.html`)
+When displaying live participation momentum inside an embedded `<iframe>` (e.g., on Classroomscreen.com at `~720x420` or resizable tiles):
+- **Viewport Budget (`100vh` Zero-Scroll Grid)**: Use `height: 100vh; overflow: hidden` with a 3-row CSS grid (`auto minmax(0, 1fr) auto`) so top cards, anonymous workbench tiles, and the momentum ticker fit inside compact embed frames without scrollbars. Support `?compact=1` to collapse the toolbar into a corner `⚙️ Controls` pill.
+- **Strictly Anonymous Display (Zero PII)**: Hash student identifiers deterministically into non-identifying cosmic emblems (`⚡`, `🚀`, `🔬`, etc.) and neutral bay slots (`#01`–`#24`). Never render student names, initials, IDs, or specific class periods on the projected widget.
+- **Truthful Positive Cohort Obfuscation & 3-Zone Framing**: Compute real aggregate rates across active cohorts (e.g., Step-1 quick-start launch rate, Bell-Ringer good-faith verification rate, total logged physics actions) and present progress in 3 encouraging zones (`Quick-Start Open Now` → `Main Pack Working Here` → `Mastery & Retakes Open`) so reluctant learners never feel behind or locked out.
+- **Iframe Auth Resilience**: Support `signInWithPopup` (via `allow="popups"` in the generated `<iframe>` tag) with a non-blocking Preview Flow fallback so an unauthenticated widget frame never renders a dead blank wall on the classroom board.
+

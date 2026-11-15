@@ -114,7 +114,7 @@ To ensure students who cut corners do not receive participation credit, each sub
 |---|---|---|
 | **CAST Challenge** | `percentComplete >= 50%` or `completedSteps >= 2` | 0% completed, blank fields, or 0 steps answered |
 | **Concept Chat** | >= 1 genuine good-faith user turn (score >= 70%) | 0 user turns (no response), explicit opt-outs (`"idk"`, `"pass"`), or score < 70% |
-| **Free Response** | Genuine attempt >= 15 chars (scientific vocabulary or formula) | Blank, `< 15` chars, explicit opt-out (`"idk"`), or Gemini effortScore 0 |
+| **Free Response** | Genuine attempt >= 3 chars, or >= 2 chars containing a digit (e.g. `"60"`, `"3s"`), unless explicit opt-out or zero effortScore | Blank, `< 3` non-numeric chars, explicit opt-out (`"idk"`), or Gemini effortScore 0 |
 | **Connections** | At least 1 category solved | 0 categories solved with no real attempt |
 
 ### Concept Chat Participation Scoring Tiers
@@ -129,7 +129,8 @@ To prevent inverted grading incentives (where 0 responses scored higher than an 
 ### Fairness Cushion Pattern
 Due to block schedules (e.g. Thu/Fri alternate periods) and excused absences, different periods have different total possible sessions.
 - **Retroactive Cumulative Model**: 10 genuine bell-ringers = 100% full credit (80/80 pts across Weeks 1–5). This builds in 3–5 free drop days per student.
-- **Weekly Model**: 4 points per day = 20 points per week.
+- **Weekly Model**: 4 points per day = 20 points per week (5-day weeks), or 4-day holiday/block weeks via `WEEK_CALENDAR` `periodTargets` (`target: 3`, Period 1 `target: 2`: 3+ days = 20/20, 2 days = 15/20, 1 day = 10/20; Period 1: 2+ days = 20/20, 1 day = 14/20).
+  - Configured calendar includes Weeks 6–13 (`week_12`: `2026-11-02..2026-11-06`, `week_13`: `2026-11-09..2026-11-13`, both 4-day holiday weeks).
 
 ### CLI Sync Commands
 ```bash
@@ -159,6 +160,7 @@ npm run bellringer:weekly
 - **Firestore Nested Array Restriction**: Cloud Firestore rejects nested arrays (arrays inside objects that are elements of arrays, such as `summary.stepResults[i].state.chatMessages` or `chatMessages[i].parts`). Always run `sanitizeForFirestore()` to convert nested arrays into maps (`{ item_0: ... }`) and keep message items flat (`{ sender, role, text }`).
 - **Unsupported field value: undefined**: Passing `undefined` to `db.collection().set()` throws an immediate exception and halts document creation. Ensure all optional fields default to `null` or are omitted.
 - **Timer Expiry Auto-Submit**: CAST 3D tasks require explicit auto-submission hooks (`activeCastEngine.submitAll()`) on countdown timer expiration so students' partially completed work is automatically saved if the timer runs out.
+- **Structured `effortScore` Object & Short Numeric Answers**: The Gemini evaluator can return `effortScore` as a nested object (`{ effortScore: 1, followUpQuestion: "..." }`) instead of a scalar, and valid quantitative prompts (e.g., `"60"`, `"3s"`) produce 2-character responses. `evaluateSubmission()` in `sync-classroom/sync-bellringers.js` unwraps `effortScore?.effortScore` and permits `>= 2`-char responses containing a digit (`/\d/`) when `rawEffort !== 0`.
 
 ## Teacher Student-Simulation Mode
 Teachers can log in to `Bell-Ringer/index.html` with authorized accounts (`rmudry@orangeusd.org`, `ryan.mudry@orangeusd.org`, `ryan.mudry@gmail.com`, `ryanmudry@gmail.com`) and complete the activity as a student for any period:

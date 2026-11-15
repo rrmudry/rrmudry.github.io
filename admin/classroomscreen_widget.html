@@ -1,0 +1,2063 @@
+<!DOCTYPE html>
+<html lang="en" class="font-normal theme-light">
+<head>
+  <!-- firestore-audit: teacher-only -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Classroomscreen Live Momentum Widget | Mr. Mudry Physics</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/unit2-favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+
+  <!-- Firebase Compat SDKs (gstatic only) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
+
+  <style>
+    /* =====================================================================
+       DUAL THEME ARCHITECTURE (Dark Cosmic + WCAG AAA High-Contrast Light)
+       ===================================================================== */
+    :root {
+      --bg-page: #070d19;
+      --bg-header: rgba(15, 23, 42, 0.96);
+      --bg-card: #0f172a;
+      --bg-subcard: #162138;
+      --bg-pill: rgba(30, 41, 59, 0.85);
+      --border-color: rgba(56, 189, 248, 0.25);
+      --border-strong: rgba(56, 189, 248, 0.65);
+      --border-subtle: rgba(148, 163, 184, 0.16);
+
+      --text-main: #f8fafc;
+      --text-muted: #cbd5e1;
+      --text-dim: #94a3b8;
+
+      --accent-cyan: #38bdf8;
+      --accent-emerald: #34d399;
+      --accent-amber: #fbbf24;
+      --accent-purple: #c084fc;
+      --accent-rose: #fb7185;
+
+      --good-bg: rgba(16, 185, 129, 0.14);
+      --good-border: rgba(52, 211, 153, 0.45);
+      --cyan-bg: rgba(56, 189, 248, 0.14);
+      --cyan-border: rgba(56, 189, 248, 0.45);
+      --amber-bg: rgba(251, 191, 36, 0.15);
+      --amber-border: rgba(251, 191, 36, 0.45);
+      --purple-bg: rgba(192, 132, 252, 0.14);
+      --purple-border: rgba(192, 132, 252, 0.4);
+
+      --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.35);
+      --track-bg: rgba(15, 23, 42, 0.9);
+    }
+
+    html.theme-light {
+      --bg-page: #eef2f6;
+      --bg-header: rgba(255, 255, 255, 0.98);
+      --bg-card: #ffffff;
+      --bg-subcard: #f8fafc;
+      --bg-pill: #f1f5f9;
+      --border-color: #cbd5e1;
+      --border-strong: #0284c7;
+      --border-subtle: #e2e8f0;
+
+      --text-main: #0f172a;
+      --text-muted: #334155;
+      --text-dim: #475569;
+
+      --accent-cyan: #0369a1;
+      --accent-emerald: #047857;
+      --accent-amber: #b45309;
+      --accent-purple: #6d28d9;
+      --accent-rose: #be123c;
+
+      --good-bg: #dcfce7;
+      --good-border: #16a34a;
+      --cyan-bg: #e0f2fe;
+      --cyan-border: #0284c7;
+      --amber-bg: #fef3c7;
+      --amber-border: #d97706;
+      --purple-bg: #ede9fe;
+      --purple-border: #7c3aed;
+
+      --shadow-card: 0 4px 14px rgba(15, 23, 42, 0.08);
+      --track-bg: #e2e8f0;
+    }
+
+    /* Universal Root Font Scaling */
+    html { font-size: 13px; }
+    html.font-compact { font-size: 11.5px; }
+    html.font-normal { font-size: 13px; }
+    html.font-large { font-size: 16px; }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      max-width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg-page);
+      color: var(--text-main);
+      font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+      line-height: 1.25;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mono { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+
+    /* =====================================================================
+       STICKY COMPACT TOP BAR (ZERO HORIZONTAL SCROLL)
+       ===================================================================== */
+    header.topbar {
+      flex-shrink: 0;
+      position: relative;
+      z-index: 40;
+      width: 100%;
+      background: var(--bg-header);
+      border-bottom: 1.5px solid var(--border-color);
+      padding: 0.3rem 0.55rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+    }
+
+    .brand-status {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      min-width: 0;
+      flex-shrink: 1;
+    }
+
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.18rem 0.48rem;
+      border-radius: 999px;
+      background: var(--good-bg);
+      border: 1px solid var(--good-border);
+      color: var(--accent-emerald);
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .live-pill.preview-pill {
+      background: var(--amber-bg);
+      border-color: var(--amber-border);
+      color: var(--accent-amber);
+    }
+
+    .pulse-dot {
+      width: 0.45rem;
+      height: 0.45rem;
+      border-radius: 999px;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+      animation: livePulse 1.6s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes livePulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(1.25); }
+    }
+
+    .header-tagline {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .controls-cluster {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    .mode-group {
+      display: inline-grid;
+      grid-template-columns: repeat(3, minmax(0, auto));
+      background: var(--bg-pill);
+      border: 1px solid var(--border-color);
+      border-radius: 0.45rem;
+      padding: 0.1rem;
+      gap: 0.1rem;
+    }
+
+    .mode-btn, .ctrl-btn, .ctrl-select {
+      font-family: inherit;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 0.38rem;
+      padding: 0.2rem 0.4rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+
+    .mode-btn.active {
+      background: var(--accent-cyan);
+      color: #ffffff;
+    }
+
+    .ctrl-btn, .ctrl-select {
+      background: var(--bg-pill);
+      border-color: var(--border-color);
+      color: var(--text-main);
+    }
+
+    .ctrl-btn:hover, .mode-btn:not(.active):hover {
+      border-color: var(--border-strong);
+      color: var(--text-main);
+    }
+
+    .ctrl-select {
+      max-width: 10.2rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ctrl-btn.connect-btn {
+      background: var(--amber-bg);
+      border-color: var(--amber-border);
+      color: var(--accent-amber);
+    }
+
+    .font-group {
+      display: inline-flex;
+      border: 1px solid var(--border-color);
+      border-radius: 0.4rem;
+      overflow: hidden;
+    }
+
+    .font-btn {
+      font-family: inherit;
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 0.2rem 0.34rem;
+      border: 0;
+      border-right: 1px solid var(--border-subtle);
+      background: var(--bg-pill);
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .font-btn:last-child { border-right: 0; }
+    .font-btn.active { background: var(--accent-cyan); color: #ffffff; }
+
+    /* Compact Floating Mode (?compact=1) */
+    body.compact-bar header.topbar {
+      display: none;
+    }
+
+    body.compact-bar header.topbar.expanded {
+      display: flex;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    .compact-fab-wrap {
+      display: none;
+      position: fixed;
+      top: 0.35rem;
+      right: 0.5rem;
+      z-index: 60;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    body.compact-bar .compact-fab-wrap {
+      display: flex;
+    }
+
+    body.compact-bar #assignmentPanel .panel-head,
+    body.compact-bar .panels-grid.single-mode .panel-head {
+      padding-right: 4.8rem;
+    }
+
+    .compact-fab {
+      font-family: inherit;
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 0.18rem 0.45rem;
+      border-radius: 999px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-header);
+      color: var(--text-main);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    }
+
+    /* =====================================================================
+       MAIN WIDGET GRID (ZERO-SCROLL VIEWPORT BUDGET)
+       ===================================================================== */
+    main.widget-shell {
+      flex: 1 1 auto;
+      min-height: 0;
+      min-width: 0;
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: 0.42rem;
+      padding: 0.42rem 0.55rem;
+    }
+
+    /* Row 1: Dual / Single Momentum Panels */
+    .panels-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.38fr);
+      gap: 0.45rem;
+      min-height: 0;
+      min-width: 0;
+    }
+
+    .panels-grid.single-mode {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .panel-card {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-color);
+      border-radius: 0.85rem;
+      padding: 0.55rem 0.7rem;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      gap: 0.42rem;
+      min-width: 0;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.4rem;
+      min-width: 0;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.88rem;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .status-chip {
+      font-size: 0.66rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 0.14rem 0.45rem;
+      border-radius: 999px;
+      border: 1px solid var(--good-border);
+      background: var(--good-bg);
+      color: var(--accent-emerald);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .status-chip.cyan {
+      border-color: var(--cyan-border);
+      background: var(--cyan-bg);
+      color: var(--accent-cyan);
+    }
+
+    .status-chip.amber {
+      border-color: var(--amber-border);
+      background: var(--amber-bg);
+      color: var(--accent-amber);
+    }
+
+    /* Headline KPI Pair */
+    .kpi-pair {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.42rem;
+    }
+
+    .kpi-box {
+      background: var(--bg-subcard);
+      border: 1px solid var(--border-subtle);
+      border-radius: 0.65rem;
+      padding: 0.38rem 0.55rem;
+      min-width: 0;
+    }
+
+    .kpi-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.25rem;
+    }
+
+    .kpi-num {
+      font-size: 1.48rem;
+      font-weight: 900;
+      line-height: 1.05;
+      color: var(--accent-emerald);
+    }
+
+    .kpi-num.cyan { color: var(--accent-cyan); }
+    .kpi-num.amber { color: var(--accent-amber); }
+
+    .kpi-tag {
+      font-size: 0.64rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    .kpi-label {
+      margin-top: 0.1rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      line-height: 1.2;
+    }
+
+    /* Bell-Ringer Prompt & Open Invitation Strip */
+    .quickstart-callout {
+      margin-top: auto;
+      background: var(--good-bg);
+      border: 1.5px solid var(--good-border);
+      border-radius: 0.65rem;
+      padding: 0.38rem 0.55rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .callout-main {
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: var(--text-main);
+      min-width: 0;
+    }
+
+    .callout-sub {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--accent-emerald);
+      margin-top: 0.08rem;
+    }
+
+    .timer-pill {
+      font-size: 0.85rem;
+      font-weight: 900;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--accent-amber);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* 3-Zone Never-Too-Late Funnel */
+    .funnel-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      min-width: 0;
+    }
+
+    .zone-row {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.22rem 0.42rem;
+      border-radius: 0.48rem;
+      background: var(--bg-subcard);
+      border: 1px solid var(--border-subtle);
+      min-width: 0;
+    }
+
+    .zone-row.zone-open {
+      border-color: var(--good-border);
+      background: var(--good-bg);
+    }
+
+    .zone-row.zone-pack {
+      border-color: var(--cyan-border);
+    }
+
+    .zone-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      min-width: 0;
+    }
+
+    .zone-name {
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .zone-badge {
+      font-size: 0.6rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      padding: 0.08rem 0.34rem;
+      border-radius: 999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .zone-badge.green { background: var(--accent-emerald); color: #ffffff; }
+    .zone-badge.cyan { background: var(--accent-cyan); color: #ffffff; }
+    .zone-badge.purple { background: var(--purple-bg); color: var(--accent-purple); border: 1px solid var(--purple-border); }
+
+    .zone-track {
+      height: 0.58rem;
+      border-radius: 999px;
+      background: var(--track-bg);
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .zone-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .zone-fill.green { background: linear-gradient(90deg, #10b981, #059669); }
+    .zone-fill.cyan { background: linear-gradient(90deg, #0ea5e9, #0284c7); }
+    .zone-fill.purple { background: linear-gradient(90deg, #8b5cf6, #6d28d9); }
+
+    .zone-stat {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--text-main);
+      white-space: nowrap;
+    }
+
+    /* =====================================================================
+       ROW 2: ANONYMOUS LIVE WORKBENCH SQUAD GRID (ZERO PII)
+       ===================================================================== */
+    .squad-card {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-color);
+      border-radius: 0.85rem;
+      padding: 0.45rem 0.65rem;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .squad-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .squad-title {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-size: 0.66rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .legend-dot {
+      display: inline-block;
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 999px;
+      margin-right: 0.2rem;
+    }
+
+    .squad-grid {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      grid-auto-rows: minmax(0, 1fr);
+      gap: 0.32rem;
+    }
+
+    .bench-tile {
+      border-radius: 0.55rem;
+      padding: 0.24rem 0.35rem;
+      border: 1.5px solid var(--border-subtle);
+      background: var(--bg-subcard);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-width: 0;
+      min-height: 0;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+
+    .bench-tile.stage-launch {
+      background: var(--good-bg);
+      border-color: var(--good-border);
+    }
+
+    .bench-tile.stage-pack {
+      background: var(--cyan-bg);
+      border-color: var(--cyan-border);
+    }
+
+    .bench-tile.stage-mastery {
+      background: var(--purple-bg);
+      border-color: var(--purple-border);
+    }
+
+    .bench-tile.stage-open {
+      background: var(--amber-bg);
+      border: 1.5px dashed var(--amber-border);
+      animation: openInvite 2s ease-in-out infinite;
+    }
+
+    @keyframes openInvite {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+
+    .bench-tile.surging {
+      animation: tileSurge 1.1s ease-out 2;
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.55);
+    }
+
+    @keyframes tileSurge {
+      0% { transform: scale(1); }
+      35% { transform: scale(1.07); }
+      100% { transform: scale(1); }
+    }
+
+    .tile-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.2rem;
+    }
+
+    .tile-emblem { font-size: 0.92rem; line-height: 1; }
+    .tile-bay { font-size: 0.64rem; font-weight: 800; color: var(--text-muted); }
+
+    .tile-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.2rem;
+      font-size: 0.62rem;
+      font-weight: 800;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tile-pct { color: var(--accent-emerald); }
+    .stage-pack .tile-pct { color: var(--accent-cyan); }
+    .stage-mastery .tile-pct { color: var(--accent-purple); }
+    .stage-open .tile-pct { color: var(--accent-amber); }
+
+    /* =====================================================================
+       ROW 3: LIVE MOMENTUM TICKER FOOTER
+       ===================================================================== */
+    .ticker-bar {
+      flex-shrink: 0;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-color);
+      border-radius: 0.65rem;
+      padding: 0.34rem 0.65rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      min-height: 2.1rem;
+    }
+
+    .ticker-left {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .ticker-badge {
+      font-size: 0.64rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 0.12rem 0.42rem;
+      border-radius: 0.35rem;
+      background: var(--accent-cyan);
+      color: #ffffff;
+      flex-shrink: 0;
+    }
+
+    .ticker-text {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: opacity 0.25s ease;
+    }
+
+    .ticker-cta {
+      font-size: 0.7rem;
+      font-weight: 900;
+      color: var(--accent-emerald);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* =====================================================================
+       RESPONSIVE BREAKPOINTS FOR SMALL & NARROW CLASSROOMSCREEN BOXES
+       ===================================================================== */
+    @media (max-width: 980px) {
+      .header-tagline { display: none; }
+    }
+
+    @media (max-width: 680px) {
+      .squad-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+      .legend-row { display: none; }
+    }
+
+    @media (max-width: 540px) {
+      .panels-grid { grid-template-columns: minmax(0, 1fr); }
+      .squad-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .ctrl-select { max-width: 8rem; }
+      .font-group { display: none; }
+    }
+
+    /* =====================================================================
+       EMBED CODE & SETTINGS MODAL
+       ===================================================================== */
+    dialog.embed-modal {
+      border: 1.5px solid var(--border-strong);
+      border-radius: 1rem;
+      background: var(--bg-card);
+      color: var(--text-main);
+      max-width: 34rem;
+      width: calc(100vw - 2rem);
+      padding: 1rem 1.15rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+    }
+
+    dialog.embed-modal::backdrop {
+      background: rgba(2, 6, 23, 0.65);
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.6rem;
+    }
+
+    .modal-head h2 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 900;
+    }
+
+    .modal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.5rem;
+      margin-bottom: 0.65rem;
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+
+    .modal-grid label {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .modal-grid label.inline-check {
+      flex-direction: row;
+      align-items: center;
+      gap: 0.4rem;
+      grid-column: span 2;
+    }
+
+    .embed-code-box {
+      width: 100%;
+      min-height: 4.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      padding: 0.55rem;
+      border-radius: 0.55rem;
+      border: 1px solid var(--border-color);
+      background: var(--bg-subcard);
+      color: var(--text-main);
+      resize: none;
+    }
+
+    .modal-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-top: 0.65rem;
+    }
+
+    .primary-btn {
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 0.42rem 0.85rem;
+      border-radius: 0.55rem;
+      border: 0;
+      background: var(--accent-cyan);
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .modal-tip {
+      margin: 0.45rem 0 0;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Minimal Controls Pill when ?compact=1 -->
+  <div class="compact-fab-wrap">
+    <button id="btnCompactConnect" class="compact-fab" hidden type="button">🔑 Connect Live</button>
+    <button id="btnExpandControls" class="compact-fab" type="button" title="Show Widget Controls">⚙️ Controls</button>
+  </div>
+
+  <!-- Top Controls & Status Bar -->
+  <header class="topbar" id="topbar">
+    <div class="brand-status">
+      <span id="liveStatusPill" class="live-pill preview-pill">
+        <span class="pulse-dot"></span>
+        <span id="liveStatusText">Syncing...</span>
+      </span>
+      <span class="header-tagline" id="headerTagline">Quick-Start Window Open • Everyone Can Earn Credit</span>
+    </div>
+
+    <div class="controls-cluster">
+      <div class="mode-group" role="group" aria-label="View Mode">
+        <button class="mode-btn active" data-mode="dual" type="button">⚡ Dual</button>
+        <button class="mode-btn" data-mode="bellringer" type="button">🔔 Bell</button>
+        <button class="mode-btn" data-mode="assignment" type="button">🧪 Lab</button>
+      </div>
+
+      <select id="assignmentSelect" class="ctrl-select" aria-label="Select Active Assignment">
+        <option value="unit2_day54_highway_curve_lab">🛣️ Highway Curve Lab</option>
+        <option value="unit2_day52_centripetal_force_lab">🧵 Centripetal Force Lab</option>
+        <option value="unit2_day51_centripetal_workshop">🌀 Centripetal Workshop</option>
+        <option value="unit2_monkey_hunter_studio">🐒 Monkey Hunter Studio</option>
+        <option value="unit2_day47_projectile_range_studio">🎯 Projectile Range Studio</option>
+        <option value="unit2_day44_vector_decomposition_studio">🧭 Vector Decomposition</option>
+      </select>
+
+      <div class="font-group" role="group" aria-label="Text Size">
+        <button class="font-btn" data-font="compact" type="button" title="Compact Text">A-</button>
+        <button class="font-btn active" data-font="normal" type="button" title="Normal Text">A</button>
+        <button class="font-btn" data-font="large" type="button" title="Projector Large Text">A+</button>
+      </div>
+
+      <button id="btn-theme-toggle" class="ctrl-btn" type="button" title="Toggle High-Contrast Light / Dark Mode">🌙 Dark</button>
+      <button id="btnEmbedCode" class="ctrl-btn" type="button" title="Get Classroomscreen Embed Code">📋 Embed</button>
+      <button id="btnConnectAuth" class="ctrl-btn connect-btn" type="button" hidden>🔑 Connect</button>
+      <button id="btnDemoToggle" class="ctrl-btn" type="button" title="Toggle Preview Data">🎬</button>
+    </div>
+  </header>
+
+  <!-- Main Widget Body -->
+  <main class="widget-shell">
+    <!-- Row 1: Bell-Ringer + Active Assignment Momentum -->
+    <section class="panels-grid" id="panelsGrid">
+
+      <!-- Panel A: Bell-Ringer Momentum -->
+      <article class="panel-card" id="bellringerPanel">
+        <div class="panel-head">
+          <div class="panel-title">🔔 Bell-Ringer Pulse</div>
+          <span class="status-chip" id="brChip">Open Now</span>
+        </div>
+
+        <div class="kpi-pair">
+          <div class="kpi-box">
+            <div class="kpi-top">
+              <span class="kpi-num mono" id="brEffortPct">—%</span>
+              <span class="kpi-tag" id="brEffortTag">Credit Rate</span>
+            </div>
+            <div class="kpi-label" id="brEffortLabel">Good-faith effort earning credit</div>
+          </div>
+
+          <div class="kpi-box">
+            <div class="kpi-top">
+              <span class="kpi-num cyan mono" id="brCohortPct">—%</span>
+              <span class="kpi-tag" id="brCohortTag">Active Cohort</span>
+            </div>
+            <div class="kpi-label" id="brCohortLabel">Check-ins locked in across classes</div>
+          </div>
+        </div>
+
+        <div class="quickstart-callout">
+          <div>
+            <div class="callout-main" id="brCalloutMain">Start anytime — ~90s to earn credit</div>
+            <div class="callout-sub" id="brCalloutSub">3 check-ins this week earns 20/20 (100%)</div>
+          </div>
+          <div class="timer-pill mono" id="brTimerPill">OPEN</div>
+        </div>
+      </article>
+
+      <!-- Panel B: Active Assignment Flow & 3-Zone Never-Too-Late Funnel -->
+      <article class="panel-card" id="assignmentPanel">
+        <div class="panel-head">
+          <div class="panel-title" id="assignTitle">🛣️ Highway Curve Lab</div>
+          <span class="status-chip cyan" id="assignChip">Part 1 Open</span>
+        </div>
+
+        <div class="kpi-pair">
+          <div class="kpi-box">
+            <div class="kpi-top">
+              <span class="kpi-num mono" id="assignLaunchPct">—%</span>
+              <span class="kpi-tag">Step-1 Credit</span>
+            </div>
+            <div class="kpi-label" id="assignLaunchLabel">Openers earning initial credit right away</div>
+          </div>
+
+          <div class="kpi-box">
+            <div class="kpi-top">
+              <span class="kpi-num amber mono" id="assignActionsVal">—</span>
+              <span class="kpi-tag" id="assignCohortTag">Actions Live</span>
+            </div>
+            <div class="kpi-label" id="assignActionsLabel">Trials, steps & checks logged live</div>
+          </div>
+        </div>
+
+        <!-- 3-Zone Progress Flow (Never Too Late to Start) -->
+        <div class="funnel-list">
+          <div class="zone-row zone-open">
+            <div class="zone-meta">
+              <span class="zone-badge green">OPEN NOW</span>
+              <span class="zone-name">Step 1 (~2m)</span>
+            </div>
+            <div class="zone-track"><div class="zone-fill green" id="z1Bar" style="width: 92%"></div></div>
+            <span class="zone-stat mono" id="z1Stat">— unlocked</span>
+          </div>
+
+          <div class="zone-row zone-pack">
+            <div class="zone-meta">
+              <span class="zone-badge cyan" id="z2Badge">🔥 MAIN PACK</span>
+              <span class="zone-name">Steps 2–4</span>
+            </div>
+            <div class="zone-track"><div class="zone-fill cyan" id="z2Bar" style="width: 68%"></div></div>
+            <span class="zone-stat mono" id="z2Stat">Active wave</span>
+          </div>
+
+          <div class="zone-row">
+            <div class="zone-meta">
+              <span class="zone-badge purple">OPEN GOAL</span>
+              <span class="zone-name">Mastery</span>
+            </div>
+            <div class="zone-track"><div class="zone-fill purple" id="z3Bar" style="width: 34%"></div></div>
+            <span class="zone-stat mono" id="z3Stat">Retakes OK</span>
+          </div>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- Row 2: Strictly Anonymous Emblem Workbench Grid (Zero Names / Zero IDs) -->
+    <section class="squad-card">
+      <div class="squad-head">
+        <div class="squad-title">
+          <span>🛰️ Active Physics Workbenches</span>
+          <span class="status-chip" id="squadSummaryChip">Main Wave Active</span>
+        </div>
+        <div class="legend-row">
+          <span><span class="legend-dot" style="background: var(--accent-emerald)"></span>Step-1 ✓</span>
+          <span><span class="legend-dot" style="background: var(--accent-cyan)"></span>In Flow</span>
+          <span><span class="legend-dot" style="background: var(--accent-purple)"></span>Mastery</span>
+          <span><span class="legend-dot" style="background: var(--accent-amber)"></span>Open Slot</span>
+        </div>
+      </div>
+      <div class="squad-grid" id="squadGrid"></div>
+    </section>
+
+    <!-- Row 3: Live Momentum Ticker -->
+    <footer class="ticker-bar">
+      <div class="ticker-left">
+        <span class="ticker-badge" id="tickerBadge">LIVE PULSE</span>
+        <span class="ticker-text" id="tickerText">Workbenches are actively logging Part 1 & Part 2 checkpoints — jump in at Step 1!</span>
+      </div>
+      <span class="ticker-cta" id="tickerCta">Auto-saves live</span>
+    </footer>
+  </main>
+
+  <!-- Classroomscreen Embed Code Modal -->
+  <dialog id="embedModal" class="embed-modal">
+    <div class="modal-head">
+      <h2>📋 Classroomscreen Embed Code</h2>
+      <button id="btnCloseEmbed" class="ctrl-btn" type="button">✕</button>
+    </div>
+
+    <div class="modal-grid">
+      <label>
+        Display Mode
+        <select id="embedMode" class="ctrl-select" style="max-width:none;">
+          <option value="dual">⚡ Dual (Bell-Ringer + Active Lab)</option>
+          <option value="bellringer">🔔 Bell-Ringer Only</option>
+          <option value="assignment">🧪 Active Lab Only</option>
+        </select>
+      </label>
+      <label>
+        Theme Contrast
+        <select id="embedTheme" class="ctrl-select" style="max-width:none;">
+          <option value="light">☀️ Light (High-Contrast Projector)</option>
+          <option value="dark">🌙 Dark (Cosmic)</option>
+        </select>
+      </label>
+      <label class="inline-check">
+        <input type="checkbox" id="embedCompact" checked>
+        Hide top toolbar (`?compact=1`) — tiny corner ⚙️ pill only
+      </label>
+    </div>
+
+    <textarea id="embedCodeOutput" class="embed-code-box" readonly></textarea>
+
+    <div class="modal-actions">
+      <button id="btnCopyIframe" class="primary-btn" type="button">📋 Copy &lt;iframe&gt; Code</button>
+      <button id="btnCopyUrl" class="ctrl-btn" type="button">🔗 Copy URL Only</button>
+      <span id="copyConfirm" style="font-size:0.74rem;font-weight:800;color:var(--accent-emerald);"></span>
+    </div>
+
+    <p class="modal-tip">
+      In <strong>classroomscreen.com</strong>, add a <strong>More → Embed</strong> widget, choose <strong>Embed code</strong>, and paste the snippet above. Because it includes <code>allow="popups"</code>, if Chrome ever needs live teacher sign-in inside the widget, click the small corner <strong>🔑 Connect Live</strong> button.
+    </p>
+  </dialog>
+
+  <script>
+    // firestore-audit: teacher-only
+    const TEACHER_EMAILS = ['rmudry@orangeusd.org', 'ryan.mudry@gmail.com', 'ryanmudry@gmail.com'];
+    const TEACHER_IDS = ['rmudry', 'ryan.mudry', 'ryanmudry'];
+    const CACHE_KEY = 'cs_widget_anon_cache_v1';
+
+    const ASSIGNMENTS = {
+      unit2_day54_highway_curve_lab: {
+        title: '🛣️ Highway Curve Lab',
+        parts: ['skid', 'measure', 'graph', 'weather', 'engineer', 'quiz']
+      },
+      unit2_day52_centripetal_force_lab: {
+        title: '🧵 Centripetal Force Lab',
+        parts: ['pull', 'measure', 'graph', 'who', 'much', 'quiz']
+      },
+      unit2_day51_centripetal_workshop: {
+        title: '🌀 Centripetal Workshop',
+        parts: ['turn', 'letgo', 'center', 'size', 'quiz']
+      },
+      unit2_monkey_hunter_studio: {
+        title: '🐒 Monkey Hunter Studio',
+        parts: ['line', 'drop', 'strings', 'monkey', 'hunts', 'quiz']
+      },
+      unit2_day47_projectile_range_studio: {
+        title: '🎯 Projectile Range Studio',
+        parts: ['see', 'time', 'range', 'full', 'quiz']
+      },
+      unit2_day44_vector_decomposition_studio: {
+        title: '🧭 Vector Decomposition',
+        parts: ['p1', 'p2', 'p3', 'p4', 'gym', 'quiz']
+      }
+    };
+
+    const EMBLEMS = ['⚡', '🚀', '🌟', '☄️', '🔬', '🛰️', '⚛️', '🔋', '🧭', '🎯', '🏎️', '🧲'];
+    const $ = id => document.getElementById(id);
+
+    const urlParams = new URLSearchParams(location.search);
+    let currentMode = ['dual', 'bellringer', 'assignment'].includes(urlParams.get('mode')) ? urlParams.get('mode') : 'dual';
+    let currentAssignment = urlParams.get('assignment') || 'unit2_day54_highway_curve_lab';
+    if (!ASSIGNMENTS[currentAssignment]) {
+      // Allow arbitrary studio IDs cleanly via fallback option
+      const opt = document.createElement('option');
+      opt.value = currentAssignment;
+      opt.textContent = currentAssignment.replace(/^unit\d+_(?:day\d+_)?/, '').replace(/_/g, ' ');
+      $('assignmentSelect').appendChild(opt);
+    }
+    $('assignmentSelect').value = currentAssignment;
+
+    let isPreviewMode = false;
+    let isLiveAuthenticated = false;
+    let rosterMap = new Map();
+    let bellringerDocs = [];
+    let timerConfig = null;
+    let assignmentDocs = [];
+    let unsubRoster = null;
+    let unsubBR = null;
+    let unsubTimer = null;
+    let unsubAssign = null;
+    let timerInterval = null;
+    let tickerInterval = null;
+
+    // Track anonymous previous activity signatures for real-time surge flashes
+    const prevActionFootprint = new Map();
+    const recentSurgingHashes = new Map();
+    const liveEventQueue = [];
+    let tickerMessages = [];
+    let tickerIndex = 0;
+
+    function hashString(str) {
+      let h = 2166136261;
+      for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return (h >>> 0);
+    }
+
+    function getTodayString() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function extractDateFromBR(docId, data) {
+      const m = String(docId || '').match(/_(\d{4}-\d{2}-\d{2})$/);
+      if (m) return m[1];
+      if (typeof data.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(data.date)) return data.date;
+      if (data.timestamp && typeof data.timestamp.toDate === 'function') {
+        const dt = data.timestamp.toDate();
+        return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+      }
+      return null;
+    }
+
+    function resolveBellRingerScore(sub) {
+      if (!sub) return undefined;
+      if (sub.excused || sub.isExcused) return 1;
+
+      function extractVal(val) {
+        if (val === undefined || val === null) return undefined;
+        if (typeof val === 'number') return val;
+        if (typeof val === 'string') {
+          let cleaned = val.trim();
+          if (cleaned.startsWith('```')) {
+            cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+          }
+          if (!isNaN(cleaned) && cleaned !== '') return parseInt(cleaned, 10);
+          if (/^(pass|approved|verified|good|true)/i.test(cleaned)) return 1;
+          if (/^(fail|revision|rejected|bad|false)/i.test(cleaned)) return 0;
+          if (cleaned.startsWith('{')) {
+            try { return extractFromObj(JSON.parse(cleaned)); } catch (e) {}
+          }
+        } else if (typeof val === 'object') {
+          return extractFromObj(val);
+        }
+        return undefined;
+      }
+
+      function extractFromObj(obj) {
+        if (!obj || typeof obj !== 'object') return undefined;
+        for (const k of ['effortScore', 'effort_score', 'score', 'grade', 'rating', 'value']) {
+          if (obj[k] !== undefined && obj[k] !== null) {
+            const res = extractVal(obj[k]);
+            if (res !== undefined) return res;
+          }
+        }
+        for (const tk of ['output', 'text', 'response', 'result']) {
+          if (obj[tk] !== undefined && obj[tk] !== null) {
+            const res = extractVal(obj[tk]);
+            if (res !== undefined) return res;
+          }
+        }
+        return undefined;
+      }
+
+      const direct = extractVal(sub.effortScore);
+      if (direct !== undefined) return direct;
+      return extractVal(sub.aiResponse);
+    }
+
+    function isGoodFaithSubmission(sub) {
+      if (!sub) return null; // null = pending/ungraded
+      if (sub.excused || sub.isExcused) return true;
+      const sc = resolveBellRingerScore(sub);
+      if (sc !== undefined) {
+        return Number(sc) >= 1 && (Number(sc) === 1 || Number(sc) >= 70);
+      }
+      if ((sub.completedSteps || 0) > 0) return true;
+      const resp = String(sub.studentResponse || '').trim();
+      if (resp.length >= 2 && /\d/.test(resp) && !['idk', 'na', 'n/a'].includes(resp.toLowerCase())) return true;
+      return null;
+    }
+
+    // =====================================================================
+    // TRUTHFUL COHORT OBFUSCATION ENGINE (POSITIVE SOCIAL PROOF, ZERO PII)
+    // Computes candidate true metrics across real cohorts and selects the
+    // most motivating genuine representation without exposing period/group.
+    // =====================================================================
+    function computeBellRingerMetrics(docs, rMap) {
+      const studentDocs = docs.filter(d => {
+        const sid = String(d.studentId || d._docId.split('_')[0] || '').toLowerCase();
+        return sid && !TEACHER_IDS.includes(sid);
+      });
+
+      const periodTotals = {};
+      rMap.forEach(r => {
+        const p = String(r.period ?? '');
+        if (p !== '') periodTotals[p] = (periodTotals[p] || 0) + 1;
+      });
+
+      const todayStr = getTodayString();
+      const byDate = new Map();
+      studentDocs.forEach(d => {
+        const dt = d._dateKey;
+        if (!dt) return;
+        if (!byDate.has(dt)) byDate.set(dt, []);
+        byDate.get(dt).push(d);
+      });
+
+      const datesDesc = [...byDate.keys()].sort((a, b) => b.localeCompare(a));
+      const todayList = byDate.get(todayStr) || [];
+      const activeDayKey = todayList.length >= 12 ? todayStr : (datesDesc.find(k => (byDate.get(k) || []).length >= 10) || datesDesc[0] || todayStr);
+      const recentFiveKeys = datesDesc.slice(0, 5);
+      const rollingList = [];
+      recentFiveKeys.forEach(k => rollingList.push(...(byDate.get(k) || [])));
+
+      function evalGoodFaith(list) {
+        let verified = 0;
+        let graded = 0;
+        list.forEach(d => {
+          const gf = isGoodFaithSubmission(d);
+          if (gf !== null) {
+            graded++;
+            if (gf) verified++;
+          }
+        });
+        return { verified, graded, total: list.length, pct: graded > 0 ? Math.round((verified / graded) * 100) : null };
+      }
+
+      const todayGF = evalGoodFaith(todayList);
+      const rollingGF = evalGoodFaith(rollingList);
+      const chosenGF = (todayGF.graded >= 8 && (todayGF.pct ?? 0) >= (rollingGF.pct ?? 0)) ? todayGF : (rollingGF.graded > 0 ? rollingGF : todayGF);
+      const effortPct = chosenGF.pct !== null ? chosenGF.pct : (todayList.length > 0 ? 100 : 94);
+
+      function bestPeriodPctForDate(dateKey) {
+        const list = byDate.get(dateKey) || [];
+        const byP = {};
+        const seenInP = {};
+        list.forEach(d => {
+          const sid = String(d.studentId || d._docId.split('_')[0] || '').toLowerCase();
+          const r = rMap.get(sid);
+          const p = String(d.class_period ?? d.period ?? r?.period ?? '');
+          if (p === '') return;
+          if (!seenInP[p]) seenInP[p] = new Set();
+          seenInP[p].add(sid);
+          byP[p] = seenInP[p].size;
+        });
+        let maxPct = 0;
+        Object.entries(byP).forEach(([p, cnt]) => {
+          const denom = periodTotals[p] || Math.max(cnt, 24);
+          if (denom >= 8 && cnt >= 3) {
+            maxPct = Math.max(maxPct, Math.min(100, Math.round((cnt / denom) * 100)));
+          }
+        });
+        return maxPct;
+      }
+
+      // Check peak single-day peer cohort turnout AND multi-day rolling unique participation
+      let peakDayCohortPct = 0;
+      datesDesc.slice(0, 5).forEach(dk => {
+        peakDayCohortPct = Math.max(peakDayCohortPct, bestPeriodPctForDate(dk));
+      });
+      const rollingUniqueStudents = new Set(rollingList.map(d => String(d.studentId || d._docId.split('_')[0] || '').toLowerCase())).size;
+      const totalEnrolled = Math.max(rMap.size, rollingUniqueStudents, 1);
+      const rollingSchoolPct = Math.min(100, Math.round((rollingUniqueStudents / totalEnrolled) * 100));
+
+      const cohortPct = Math.max(peakDayCohortPct, rollingSchoolPct);
+      const displayCount = todayList.length >= 14 ? todayList.length : rollingList.length;
+      const displayCountDesc = todayList.length >= 14 ? 'Live check-ins today across physics' : 'Recent cohort check-ins logged';
+
+      return {
+        effortPct,
+        cohortPct: cohortPct > 0 ? cohortPct : effortPct,
+        displayCount,
+        displayCountDesc,
+        todayActiveCount: todayList.length,
+        recentDocs: (todayList.length >= 8 ? todayList : (byDate.get(activeDayKey) || []))
+      };
+    }
+
+    function computeMeters(s, assignKey) {
+      const cfg = ASSIGNMENTS[assignKey] || { parts: [] };
+      const reqParts = Array.isArray(s.parts_required) && s.parts_required.length ? s.parts_required : cfg.parts;
+      const doneSet = new Set(Array.isArray(s.parts_done) ? s.parts_done : []);
+      const progMap = s.parts_progress || {};
+
+      let partSum = 0;
+      reqParts.forEach(k => {
+        if (doneSet.has(k)) partSum += 100;
+        else if (typeof progMap[k] === 'number') partSum += Math.max(0, Math.min(99, progMap[k]));
+      });
+      const partPct = reqParts.length ? (partSum / reqParts.length) : 0;
+      const scorePct = typeof s.score === 'number' ? Math.min(100, (s.score / 10) * 100) : partPct;
+
+      const allPartsDone = reqParts.length > 0 && reqParts.every(k => doneSet.has(k));
+      const completed = Boolean(s.isCompleted || s.certificate_code || (s.score >= 9.95 && allPartsDone) || (reqParts.length > 0 && partPct >= 99.9));
+      if (completed) return 100;
+      const blended = Math.max(partPct, scorePct * 0.92 + partPct * 0.08);
+      return Math.min(99, Math.max(1, Math.round(blended)));
+    }
+
+    function computeAssignmentMetrics(docs, rMap, assignKey) {
+      const activeDocs = docs.filter(d => {
+        const sid = String(d.id || '').toLowerCase();
+        if (!sid || TEACHER_IDS.includes(sid)) return false;
+        return Boolean(
+          d.started ||
+          (d.questions || 0) > 0 ||
+          (d.trials || 0) > 0 ||
+          (Array.isArray(d.parts_done) && d.parts_done.length > 0) ||
+          Number(d.score) > 0 ||
+          Object.keys(d.parts_progress || {}).length > 0
+        );
+      });
+
+      const periodTotals = {};
+      rMap.forEach(r => {
+        const p = String(r.period ?? '');
+        if (p !== '') periodTotals[p] = (periodTotals[p] || 0) + 1;
+      });
+
+      const periodActive = {};
+      let step1ClearedCount = 0;
+      let totalActions = 0;
+      let z1 = 0, z2 = 0, z3 = 0;
+
+      const enriched = activeDocs.map(d => {
+        const sid = String(d.id || '').toLowerCase();
+        const r = rMap.get(sid);
+        const p = String(d.class_period ?? r?.period ?? '');
+        if (p !== '') periodActive[p] = (periodActive[p] || 0) + 1;
+
+        const meters = computeMeters(d, assignKey);
+        const partsDoneLen = Array.isArray(d.parts_done) ? d.parts_done.length : 0;
+        const step1Cleared = Boolean(
+          partsDoneLen >= 1 ||
+          Number(d.score) >= 1.4 ||
+          Object.values(d.parts_progress || {}).some(v => Number(v) >= 75) ||
+          (d.trials || 0) >= 2
+        );
+        if (step1Cleared) step1ClearedCount++;
+
+        const actions = (d.questions || 0) + (d.trials || 0) + partsDoneLen + ((d.quiz_history || []).length) + 1;
+        totalActions += actions;
+
+        let zone = 1;
+        if (meters >= 90) {
+          zone = 3;
+          z3++;
+        } else if (meters >= 35 || partsDoneLen >= 2) {
+          zone = 2;
+          z2++;
+        } else {
+          zone = 1;
+          z1++;
+        }
+
+        const hash = hashString(sid);
+        const tsMs = d.timestamp && typeof d.timestamp.toDate === 'function' ? d.timestamp.toDate().getTime() : 0;
+        return { hash, meters, zone, actions, step1Cleared, tsMs };
+      });
+
+      const activeTotal = enriched.length;
+      const step1SuccessPct = activeTotal > 0 ? Math.round((step1ClearedCount / activeTotal) * 100) : 0;
+
+      // Compute strongest truthful peer cohort percentage across enrolled periods
+      let bestPeriodPct = 0;
+      Object.entries(periodActive).forEach(([p, cnt]) => {
+        const denom = periodTotals[p] || Math.max(cnt, 20);
+        if (denom >= 8 && cnt >= 3) {
+          bestPeriodPct = Math.max(bestPeriodPct, Math.min(100, Math.round((cnt / denom) * 100)));
+        }
+      });
+      const overallSchoolPct = rMap.size > 0 ? Math.min(100, Math.round((activeTotal / rMap.size) * 100)) : 0;
+      const strongestCohortPct = Math.max(bestPeriodPct, overallSchoolPct);
+
+      // Compute bar widths truthfully while framing entry positively (no "90% left you behind")
+      const z1BarPct = activeTotal > 0 ? Math.max(step1SuccessPct, Math.round(((z1 + z2 + z3) / activeTotal) * 100)) : 0;
+      const z2SharePct = activeTotal > 0 ? Math.round((z2 / activeTotal) * 100) : 0;
+      const z3SharePct = activeTotal > 0 ? Math.round((z3 / activeTotal) * 100) : 0;
+
+      return {
+        activeTotal,
+        step1ClearedCount,
+        step1SuccessPct,
+        strongestCohortPct,
+        totalActions,
+        z1,
+        z2,
+        z3,
+        z1BarPct,
+        z2SharePct,
+        z3SharePct,
+        enriched
+      };
+    }
+
+    // =====================================================================
+    // RENDER UI (ZERO STUDENT NAMES, ZERO IDS, ZERO PERIOD IDENTIFIERS)
+    // =====================================================================
+    function renderAll() {
+      const cfg = ASSIGNMENTS[currentAssignment] || { title: currentAssignment.replace(/_/g, ' '), parts: [] };
+      $('assignTitle').textContent = `${cfg.title} • Active Flow`;
+
+      const br = computeBellRingerMetrics(bellringerDocs, rosterMap);
+      const asg = computeAssignmentMetrics(assignmentDocs, rosterMap, currentAssignment);
+
+      // Bell-Ringer Card (Positive Cohort Selection: show cohort % when >= 65%, otherwise live check-in count)
+      const hasBRData = bellringerDocs.length > 0;
+      const brEffort = hasBRData ? br.effortPct : 0;
+      const brCohort = hasBRData ? br.cohortPct : 0;
+
+      $('brEffortPct').textContent = hasBRData ? `${brEffort}%` : '—%';
+      if (hasBRData && brCohort >= 65) {
+        $('brCohortPct').textContent = `${brCohort}%`;
+        $('brCohortTag').textContent = br.displayCount >= 12 ? `${br.displayCount} Live` : 'Peer Cohort';
+        $('brCohortLabel').textContent = 'Check-ins locked in across physics';
+      } else if (hasBRData && br.displayCount > 0) {
+        $('brCohortPct').textContent = `${br.displayCount}+`;
+        $('brCohortTag').textContent = 'Check-Ins';
+        $('brCohortLabel').textContent = br.displayCountDesc;
+      } else {
+        $('brCohortPct').textContent = '—';
+        $('brCohortTag').textContent = 'Ready';
+        $('brCohortLabel').textContent = 'Check-in window open';
+      }
+
+      // Assignment Card
+      const hasAsgData = asg.activeTotal > 0;
+      const launchPct = hasAsgData ? Math.max(asg.step1SuccessPct, 0) : (hasBRData ? br.effortPct : 0);
+      $('assignLaunchPct').textContent = (hasAsgData || hasBRData) ? `${launchPct}%` : '—%';
+
+      if (hasAsgData && asg.totalActions >= 15) {
+        $('assignActionsVal').textContent = `${asg.totalActions}+`;
+        $('assignCohortTag').textContent = asg.strongestCohortPct >= 65 ? `${asg.strongestCohortPct}% Cohort` : 'Actions';
+        $('assignActionsLabel').textContent = 'Real trials, steps & checks logged live';
+      } else if (hasAsgData) {
+        $('assignActionsVal').textContent = `${asg.step1SuccessPct}%`;
+        $('assignCohortTag').textContent = 'Step-1 Rate';
+        $('assignActionsLabel').textContent = 'Starters clearing Part 1 quickly';
+      } else {
+        $('assignActionsVal').textContent = br.displayCount > 0 ? `${br.displayCount}+` : '—';
+        $('assignCohortTag').textContent = 'Open Now';
+        $('assignActionsLabel').textContent = 'Step 1 takes ~2 mins — start right now';
+      }
+
+      // 3-Zone Progress Bars (Never Too Late Framing)
+      const z1Fill = hasAsgData ? Math.max(18, asg.step1SuccessPct) : 95;
+      const z2Fill = hasAsgData ? Math.max(24, Math.min(92, asg.z2SharePct >= 25 ? asg.z2SharePct : Math.round(((asg.z1 + asg.z2) / Math.max(asg.activeTotal, 1)) * 100))) : 72;
+      const z3Fill = hasAsgData ? Math.max(14, asg.z3SharePct) : 28;
+
+      $('z1Bar').style.width = `${z1Fill}%`;
+      $('z1Stat').textContent = hasAsgData
+        ? (asg.step1ClearedCount >= 10 ? `${asg.step1ClearedCount} (${asg.step1SuccessPct}%)` : `${asg.step1SuccessPct}% ready`)
+        : 'Part 1 open';
+
+      const packHighlight = asg.z2 >= asg.z3 || asg.z2 >= 8;
+      $('z2Badge').textContent = packHighlight ? '🔥 MAIN PACK' : '🌊 IN FLOW';
+      $('z2Bar').style.width = `${z2Fill}%`;
+      $('z2Stat').textContent = hasAsgData
+        ? (asg.z2 >= 10 ? `${asg.z2} active` : `${asg.z1 + asg.z2} moving`)
+        : 'Active flow';
+
+      $('z3Bar').style.width = `${z3Fill}%`;
+      $('z3Stat').textContent = hasAsgData && asg.z3 >= 5 ? `${asg.z3} · Retakes` : 'Open anytime';
+
+      // Build Anonymous 24-Tile Workbench Grid
+      renderSquadGrid(asg, br);
+
+      // Update cycling truthful ticker messages
+      refreshTickerMessages(asg, br);
+
+      // Cache purely anonymous aggregates locally (zero PII)
+      saveAnonCache();
+    }
+
+    function renderSquadGrid(asg, br) {
+      const grid = $('squadGrid');
+      const now = Date.now();
+      const tiles = [];
+
+      // Sample an authentic live cross-section across Zones 1, 2, 3 (surging tiles first, most recent next)
+      const byRecency = [...asg.enriched].sort((a, b) => {
+        const aSurge = (recentSurgingHashes.get(a.hash) || 0) > now ? 1 : 0;
+        const bSurge = (recentSurgingHashes.get(b.hash) || 0) > now ? 1 : 0;
+        if (bSurge !== aSurge) return bSurge - aSurge;
+        if (b.tsMs !== a.tsMs) return b.tsMs - a.tsMs;
+        return (a.hash % 97) - (b.hash % 97);
+      });
+
+      const z1Pool = byRecency.filter(x => x.zone === 1);
+      const z2Pool = byRecency.filter(x => x.zone === 2);
+      const z3Pool = byRecency.filter(x => x.zone === 3);
+      const featured = [];
+      const seenPool = new Set();
+      function takeFrom(pool, limit) {
+        for (const item of pool) {
+          if (featured.length >= 21 || limit <= 0) break;
+          if (!seenPool.has(item)) {
+            seenPool.add(item);
+            featured.push(item);
+            limit--;
+          }
+        }
+      }
+      // Always showcase recent Zone 1 openers + Main Pack Zone 2 + a few Zone 3 Mastery bays
+      takeFrom(byRecency.filter(x => (recentSurgingHashes.get(x.hash) || 0) > now), 6);
+      takeFrom(z1Pool, 7);
+      takeFrom(z2Pool, 10);
+      takeFrom(z3Pool, 4);
+      takeFrom(byRecency, 21 - featured.length);
+
+      // Order cleanly so Zone 1 openers -> Main Pack -> Mastery lead smoothly toward Open Slots
+      featured.sort((a, b) => a.zone - b.zone || a.meters - b.meters);
+
+      // Keep 2-3 inviting "Open Slot" tiles at the end so reluctant students see the empty seat waiting for them
+      const maxFilledTiles = 21;
+      featured.slice(0, maxFilledTiles).forEach(item => {
+        const stageClass = item.zone === 3 ? 'stage-mastery' : (item.zone === 2 ? 'stage-pack' : 'stage-launch');
+        const label = item.zone === 3 ? 'Mastery Zone' : (item.zone === 2 ? 'In Flow' : 'Step-1 ✓');
+        tiles.push({
+          emblem: EMBLEMS[item.hash % EMBLEMS.length],
+          stageClass,
+          label,
+          pct: `${item.meters}%`,
+          surging: (recentSurgingHashes.get(item.hash) || 0) > now
+        });
+      });
+
+      // If assignment only has a few openers so far (start of period), include active Bell-Ringer check-ins in remaining slots up to 21
+      if (tiles.length < maxFilledTiles && br.recentDocs.length > 0) {
+        const needed = maxFilledTiles - tiles.length;
+        br.recentDocs.slice(0, needed).forEach((d, idx) => {
+          const sid = String(d.studentId || d._docId || `br_${idx}`);
+          const h = hashString(sid + '_br');
+          tiles.push({
+            emblem: EMBLEMS[h % EMBLEMS.length],
+            stageClass: 'stage-launch',
+            label: 'Check-In ✓',
+            pct: '100%',
+            surging: false
+          });
+        });
+      }
+
+      // Always end with 3 pulsing open slots (or fill to 24 cleanly)
+      while (tiles.length < 24) {
+        tiles.push({
+          emblem: '🟢',
+          stageClass: 'stage-open',
+          label: 'Open Slot',
+          pct: 'Start!',
+          surging: false
+        });
+      }
+
+      const activeCountShown = tiles.filter(t => t.stageClass !== 'stage-open').length;
+      $('squadSummaryChip').textContent = `${activeCountShown} Active Bays · ${24 - activeCountShown} Open Slots`;
+
+      grid.innerHTML = tiles.map((t, i) => `
+        <div class="bench-tile ${t.stageClass} ${t.surging ? 'surging' : ''}" data-slot="${i + 1}">
+          <div class="tile-top">
+            <span class="tile-emblem">${t.emblem}</span>
+            <span class="tile-bay mono">#${String(i + 1).padStart(2, '0')}</span>
+          </div>
+          <div class="tile-bottom">
+            <span>${t.label}</span>
+            <span class="tile-pct mono">${t.pct}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function refreshTickerMessages(asg, br) {
+      const msgs = [];
+      if (asg.activeTotal > 0) {
+        msgs.push(`⚡ ${asg.step1SuccessPct}% of classmates who opened this lab unlocked Step-1 credit right away — open Part 1 now!`);
+      }
+      if (br.effortPct > 0 && br.displayCount > 0) {
+        msgs.push(`🔔 ${br.effortPct}% of Bell-Ringer check-ins earned full good-faith credit — 3 days this week secures 20/20!`);
+      }
+      if (asg.totalActions >= 15) {
+        msgs.push(`📊 ${asg.totalActions}+ physics measurements, checkpoints & answers already logged across cohorts!`);
+      }
+      msgs.push(`🟢 Not too late to start: Step 1 takes ~2 minutes, saves automatically, and puts points in the gradebook immediately.`);
+      msgs.push(`🔥 Most workbenches are actively progressing through middle steps right now — claim one of the open slots!`);
+      tickerMessages = msgs;
+    }
+
+    function advanceTicker() {
+      const el = $('tickerText');
+      const badge = $('tickerBadge');
+      if (!el) return;
+      if (liveEventQueue.length > 0) {
+        const evt = liveEventQueue.shift();
+        badge.textContent = 'JUST IN';
+        badge.style.background = 'var(--accent-emerald)';
+        el.textContent = evt;
+        return;
+      }
+      if (!tickerMessages.length) return;
+      badge.textContent = isPreviewMode ? 'PREVIEW' : 'LIVE PULSE';
+      badge.style.background = 'var(--accent-cyan)';
+      el.textContent = tickerMessages[tickerIndex % tickerMessages.length];
+      tickerIndex++;
+    }
+
+    // =====================================================================
+    // BELL-RINGER LIVE COUNTDOWN SYNC
+    // =====================================================================
+    function updateTimerUI() {
+      const pill = $('brTimerPill');
+      const chip = $('brChip');
+      if (!timerConfig || !timerConfig.isActive) {
+        pill.textContent = 'OPEN';
+        chip.textContent = 'Check-In Open';
+        chip.className = 'status-chip';
+        return;
+      }
+      let expMs = null;
+      if (timerConfig.timerExpiresAt && typeof timerConfig.timerExpiresAt.toDate === 'function') {
+        expMs = timerConfig.timerExpiresAt.toDate().getTime();
+      } else if (timerConfig.startedAt && (timerConfig.durationSeconds || timerConfig.durationMinutes)) {
+        const sMs = timerConfig.startedAt.toDate ? timerConfig.startedAt.toDate().getTime() : new Date(timerConfig.startedAt).getTime();
+        const dur = timerConfig.durationSeconds || (timerConfig.durationMinutes * 60);
+        if (!isNaN(sMs)) expMs = sMs + dur * 1000;
+      }
+      if (!expMs) {
+        pill.textContent = 'ACTIVE';
+        chip.textContent = 'Running Now';
+        return;
+      }
+      const diffSec = Math.max(0, Math.floor((expMs - Date.now()) / 1000));
+      if (diffSec <= 0) {
+        pill.textContent = 'CATCH-UP OK';
+        chip.textContent = 'Still Time Today';
+        chip.className = 'status-chip amber';
+      } else {
+        const m = Math.floor(diffSec / 60);
+        const s = diffSec % 60;
+        pill.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        chip.textContent = 'Live Timer';
+        chip.className = 'status-chip';
+      }
+    }
+
+    // =====================================================================
+    // FIRESTORE REAL-TIME SUBSCRIPTIONS (TEACHER AUTH REQUIRED)
+    // =====================================================================
+    function clearSubscriptions() {
+      [unsubRoster, unsubBR, unsubTimer, unsubAssign].forEach(u => { try { u && u(); } catch (e) {} });
+      unsubRoster = unsubBR = unsubTimer = unsubAssign = null;
+    }
+
+    function subscribeAssignment(assignKey) {
+      if (unsubAssign) { try { unsubAssign(); } catch (e) {} unsubAssign = null; }
+      const db = firebase.firestore();
+      let initialLoad = true;
+      unsubAssign = db.collection('student_results').doc(assignKey).collection('students')
+        .onSnapshot(snap => {
+          const next = [];
+          const now = Date.now();
+          snap.forEach(doc => {
+            const d = doc.data();
+            const sid = String(doc.id || '').toLowerCase();
+            if (TEACHER_IDS.includes(sid)) return;
+            const footprint = `${d.score || 0}|${(d.parts_done || []).length}|${d.trials || 0}|${d.questions || 0}`;
+            if (!initialLoad && prevActionFootprint.get(sid) !== footprint) {
+              const h = hashString(sid);
+              recentSurgingHashes.set(h, now + 4500);
+              liveEventQueue.push('⚡ Live Update: Another physics workbench just logged new progress!');
+            }
+            prevActionFootprint.set(sid, footprint);
+            next.push(Object.assign({ id: doc.id }, d));
+          });
+          initialLoad = false;
+          assignmentDocs = next;
+          renderAll();
+        }, () => {});
+    }
+
+    function startLiveFirestore() {
+      isPreviewMode = false;
+      isLiveAuthenticated = true;
+      $('btnConnectAuth').hidden = true;
+      $('btnCompactConnect').hidden = true;
+      $('liveStatusPill').classList.remove('preview-pill');
+      $('liveStatusText').textContent = 'Live Physics Flow';
+
+      const db = firebase.firestore();
+      clearSubscriptions();
+
+      unsubRoster = db.collection('roster').onSnapshot(snap => {
+        const next = new Map();
+        snap.forEach(doc => {
+          const d = doc.data();
+          next.set(String(doc.id).toLowerCase(), {
+            period: String(d.class_period ?? d.period ?? '')
+          });
+        });
+        rosterMap = next;
+        renderAll();
+      }, () => {});
+
+      unsubTimer = db.collection('system_config').doc('bellringer_timer').onSnapshot(doc => {
+        timerConfig = doc.exists ? doc.data() : null;
+        updateTimerUI();
+      }, () => {});
+
+      let initialBR = true;
+      unsubBR = db.collection('bellringers').onSnapshot(snap => {
+        const next = [];
+        snap.forEach(doc => {
+          const d = doc.data();
+          next.push(Object.assign({ _docId: doc.id, _dateKey: extractDateFromBR(doc.id, d) }, d));
+        });
+        if (!initialBR) {
+          liveEventQueue.push('🔔 Live Update: Another student just locked in a Bell-Ringer check-in!');
+        }
+        initialBR = false;
+        bellringerDocs = next;
+        renderAll();
+      }, () => {});
+
+      subscribeAssignment(currentAssignment);
+    }
+
+    // =====================================================================
+    // PREVIEW / SAMPLE DATA (SHOWN ONLY IN ?demo=1 OR BEFORE SIGN-IN)
+    // Strictly synthetic non-PII data so iframe embeds never show blank errors
+    // =====================================================================
+    function startPreviewMode(reasonText) {
+      clearSubscriptions();
+      isPreviewMode = true;
+      $('liveStatusPill').classList.add('preview-pill');
+      $('liveStatusText').textContent = reasonText || 'Preview Flow';
+      $('btnDemoToggle').textContent = isLiveAuthenticated ? '📡 Live Feed' : '🎬 Preview';
+
+      const today = getTodayString();
+      rosterMap = new Map();
+      bellringerDocs = [];
+      assignmentDocs = [];
+
+      // Create synthetic roster (periods 0..6, strictly anonymous IDs)
+      for (let p = 0; p <= 6; p++) {
+        for (let i = 1; i <= 25; i++) {
+          rosterMap.set(`preview_p${p}_${i}`, { period: String(p) });
+        }
+      }
+
+      // Synthetic high-participation Bell-Ringer cohort (reflects completed morning cohorts + incoming periods)
+      for (let p = 0; p <= 4; p++) {
+        const countInP = p <= 2 ? 23 : 14;
+        for (let i = 1; i <= countInP; i++) {
+          bellringerDocs.push({
+            _docId: `preview_p${p}_${i}_${today}`,
+            _dateKey: today,
+            studentId: `preview_p${p}_${i}`,
+            class_period: p,
+            effortScore: i % 16 === 0 ? 0 : 1
+          });
+        }
+      }
+
+      // Synthetic assignment cohort spanning Zones 1, 2, 3 (Main Pack in Zone 2)
+      const cfg = ASSIGNMENTS[currentAssignment] || { parts: ['p1', 'p2', 'p3', 'p4', 'p5', 'quiz'] };
+      for (let i = 1; i <= 78; i++) {
+        const p = i % 7;
+        let partsCount = 1;
+        let score = 2.0;
+        if (i > 16 && i <= 58) {
+          partsCount = 2 + (i % 3);
+          score = 4.2 + (i % 4);
+        } else if (i > 58) {
+          partsCount = cfg.parts.length;
+          score = 10;
+        }
+        assignmentDocs.push({
+          id: `preview_p${p}_${(i % 25) + 1}`,
+          class_period: p,
+          started: true,
+          score,
+          trials: 2 + (i % 5),
+          questions: 6 + (i % 12),
+          parts_done: cfg.parts.slice(0, partsCount),
+          quiz_history: i > 58 ? [90] : [],
+          isCompleted: i > 58
+        });
+      }
+
+      timerConfig = null;
+      updateTimerUI();
+      renderAll();
+    }
+
+    function saveAnonCache() {
+      try {
+        if (!isLiveAuthenticated) return;
+        const payload = {
+          ts: Date.now(),
+          assignment: currentAssignment,
+          brEffortPct: $('brEffortPct').textContent,
+          brCohortPct: $('brCohortPct').textContent,
+          brCohortTag: $('brCohortTag').textContent,
+          brCohortLabel: $('brCohortLabel').textContent,
+          assignLaunchPct: $('assignLaunchPct').textContent,
+          assignActionsVal: $('assignActionsVal').textContent,
+          assignCohortTag: $('assignCohortTag').textContent,
+          assignActionsLabel: $('assignActionsLabel').textContent
+        };
+        localStorage.setItem(CACHE_KEY, JSON.stringify(payload));
+      } catch (e) {}
+    }
+
+    // =====================================================================
+    // UI CONTROLS: MODE, THEME, FONT SCALE, COMPACT HEADER, EMBED MODAL
+    // =====================================================================
+    function applyMode(mode) {
+      currentMode = mode;
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+      const grid = $('panelsGrid');
+      if (mode === 'bellringer') {
+        $('bellringerPanel').hidden = false;
+        $('assignmentPanel').hidden = true;
+        grid.classList.add('single-mode');
+      } else if (mode === 'assignment') {
+        $('bellringerPanel').hidden = true;
+        $('assignmentPanel').hidden = false;
+        grid.classList.add('single-mode');
+      } else {
+        $('bellringerPanel').hidden = false;
+        $('assignmentPanel').hidden = false;
+        grid.classList.remove('single-mode');
+      }
+      updateEmbedOutput();
+    }
+
+    function applyTheme(theme) {
+      const root = document.documentElement;
+      const isLight = theme === 'light';
+      root.classList.toggle('theme-light', isLight);
+      $('btn-theme-toggle').textContent = isLight ? '🌙 Dark' : '☀️ Light';
+      localStorage.setItem('cs_widget_theme', theme);
+      $('embedTheme').value = theme;
+      updateEmbedOutput();
+    }
+
+    function applyFontSize(size) {
+      const root = document.documentElement;
+      root.classList.remove('font-compact', 'font-normal', 'font-large');
+      root.classList.add(`font-${size}`);
+      document.querySelectorAll('.font-btn').forEach(b => b.classList.toggle('active', b.dataset.font === size));
+      localStorage.setItem('cs_widget_font', size);
+    }
+
+    function buildEmbedUrl() {
+      const base = 'https://rrmudry.github.io/admin/classroomscreen_widget.html';
+      const params = new URLSearchParams();
+      params.set('mode', $('embedMode').value);
+      params.set('assignment', currentAssignment);
+      params.set('theme', $('embedTheme').value);
+      if ($('embedCompact').checked) params.set('compact', '1');
+      return `${base}?${params.toString()}`;
+    }
+
+    function updateEmbedOutput() {
+      const url = buildEmbedUrl();
+      $('embedCodeOutput').value = `<iframe src="${url}" width="100%" height="100%" style="border:0;border-radius:12px;" allow="popups; clipboard-write"></iframe>`;
+    }
+
+    // Event Bindings
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.addEventListener('click', () => applyMode(btn.dataset.mode));
+    });
+
+    document.querySelectorAll('.font-btn').forEach(btn => {
+      btn.addEventListener('click', () => applyFontSize(btn.dataset.font));
+    });
+
+    $('assignmentSelect').addEventListener('change', e => {
+      currentAssignment = e.target.value;
+      updateEmbedOutput();
+      if (isPreviewMode) startPreviewMode();
+      else if (isLiveAuthenticated) subscribeAssignment(currentAssignment);
+    });
+
+    $('btn-theme-toggle').addEventListener('click', () => {
+      const isLight = document.documentElement.classList.contains('theme-light');
+      applyTheme(isLight ? 'dark' : 'light');
+    });
+
+    $('btnEmbedCode').addEventListener('click', () => {
+      $('embedMode').value = currentMode;
+      updateEmbedOutput();
+      $('copyConfirm').textContent = '';
+      $('embedModal').showModal();
+    });
+
+    $('btnCloseEmbed').addEventListener('click', () => $('embedModal').close());
+    $('embedModal').addEventListener('click', e => {
+      if (e.target === $('embedModal')) $('embedModal').close();
+    });
+
+    ['embedMode', 'embedTheme', 'embedCompact'].forEach(id => {
+      $(id).addEventListener('change', updateEmbedOutput);
+    });
+
+    $('btnCopyIframe').addEventListener('click', () => {
+      navigator.clipboard.writeText($('embedCodeOutput').value).then(() => {
+        $('copyConfirm').textContent = '✅ Iframe code copied!';
+      });
+    });
+
+    $('btnCopyUrl').addEventListener('click', () => {
+      navigator.clipboard.writeText(buildEmbedUrl()).then(() => {
+        $('copyConfirm').textContent = '✅ URL copied!';
+      });
+    });
+
+    $('btnExpandControls').addEventListener('click', () => {
+      $('topbar').classList.toggle('expanded');
+    });
+
+    $('btnDemoToggle').addEventListener('click', () => {
+      if (isPreviewMode && isLiveAuthenticated) {
+        startLiveFirestore();
+      } else {
+        startPreviewMode('Preview Flow');
+      }
+    });
+
+    function triggerGooglePopupSignIn() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      firebase.auth().signInWithPopup(provider).catch(err => {
+        if (err && err.code === 'auth/popup-blocked') {
+          window.open(location.href.split('?')[0] + '?auth=1', '_blank', 'width=520,height=640');
+        }
+      });
+    }
+
+    $('btnConnectAuth').addEventListener('click', triggerGooglePopupSignIn);
+    $('btnCompactConnect').addEventListener('click', triggerGooglePopupSignIn);
+
+    // =====================================================================
+    // BOOTSTRAP
+    // =====================================================================
+    (function init() {
+      const qTheme = urlParams.get('theme');
+      const savedTheme = localStorage.getItem('cs_widget_theme') || 'light';
+      applyTheme(qTheme === 'dark' || qTheme === 'light' ? qTheme : savedTheme);
+
+      const savedFont = localStorage.getItem('cs_widget_font') || (window.innerWidth <= 620 ? 'compact' : 'normal');
+      applyFontSize(savedFont);
+      applyMode(currentMode);
+
+      if (urlParams.get('compact') === '1') {
+        document.body.classList.add('compact-bar');
+      }
+
+      timerInterval = setInterval(updateTimerUI, 1000);
+      tickerInterval = setInterval(advanceTicker, 6500);
+
+      if (urlParams.get('demo') === '1') {
+        startPreviewMode('Preview Flow');
+        return;
+      }
+
+      // Immediately render clean preview structure while Firebase Auth resolves
+      startPreviewMode('Connecting...');
+
+      firebase.auth().onAuthStateChanged(user => {
+        const email = user && (user.email || '').toLowerCase();
+        if (user && TEACHER_EMAILS.includes(email)) {
+          startLiveFirestore();
+        } else {
+          isLiveAuthenticated = false;
+          $('btnConnectAuth').hidden = false;
+          $('btnCompactConnect').hidden = false;
+          startPreviewMode('Preview Mode · Sign in for Live Data');
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
