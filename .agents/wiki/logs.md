@@ -3,6 +3,11 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-15 — Unit 3 Week 1 Detail Expansion & 5 Printable Student Worksheets
+**Patterns Followed**: `low-stress-worksheet-skill.md`, `printable-graphing-worksheets.md`, `student-app-standards.md`, `cast-aligned-webapp-design.md`.
+**Files Added**: `Unit_3/worksheets/Day1_Work_vs_Effort_AVID_Reading.{html,pdf}`, `Unit_3/worksheets/Day2_Work_Calculation_Practice.{html,pdf}`, `Unit_3/worksheets/Day3_Ramp_and_Pulley_Work_Lab.{html,pdf}`, `Unit_3/worksheets/Day4_Force_Distance_Data_Analysis_CER.{html,pdf}`, `Unit_3/worksheets/Day5_Staircase_Power_Lab_and_Check.{html,pdf}`.
+**Notes**: Expanded Week 1 (Nov 16–20, 2026) with 5 strictly 2-page US Letter handouts featuring clean HTML/SVG subscripts (no raw underscores), slashed-zero suppression (`"zero" 0`), consistent `g = 10 m/s²`, negative mechanical work modeling for friction, unpacked 3-zone CERs, and direct dashboard/outline links across `Unit_3/outline.md` and `assets/lessons-data.js`.
+
 ## 2026-11-14 — Unit 3 Dashboard, 20-Day Curriculum & Energy Outline
 **Patterns Updated**: `dashboard-layout.md` (added Unit 3 Amber Gold/Sky Cyan/Emerald `#080602` palette, native `<dialog closedby="any">` modals with high-contrast classroom Light Mode & projector font scaling).
 **Files Added**: `Unit_3/outline.md` (20 instructional days, Nov 16 – Dec 18, 2026, excluding Thanksgiving Break Nov 23–27 and noting HS Minimum Days Dec 17–18; mechanical Work, Power, PE_g, PE_s, KE, Work–Energy Theorem, Conservation of Mechanical Energy; thermal energy & thermodynamics explicitly reserved for Unit 5), `unit3-dashboard.html`, `assets/unit3-favicon.svg`.

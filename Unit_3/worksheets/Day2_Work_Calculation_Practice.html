@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Unit 3 Day 2: Mechanical Work Calculation Practice Workshop</title>
+  <style>
+    @page {
+      size: letter portrait;
+      margin: 0.30in 0.40in;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      color: #0f172a;
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+      line-height: 1.25;
+      font-size: 8.8pt;
+      font-variant-numeric: normal;
+      font-feature-settings: "zero" 0;
+    }
+
+    @media screen {
+      body {
+        background: #cbd5e1;
+        padding: 18px 0;
+      }
+      .worksheet-page {
+        background: #ffffff;
+        width: 8.5in;
+        height: 10.92in;
+        max-height: 10.92in;
+        margin: 0 auto 20px auto;
+        padding: 0.30in 0.40in;
+        box-shadow: 0 8px 25px rgba(15, 23, 42, 0.22);
+      }
+      .print-toolbar {
+        max-width: 8.5in;
+        margin: 0 auto 12px auto;
+        display: flex;
+        justify-content: flex-end;
+      }
+      .print-btn {
+        background: #0f172a;
+        color: #ffffff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: 800;
+        font-size: 9.5pt;
+        cursor: pointer;
+      }
+    }
+    @media print {
+      .print-toolbar {
+        display: none !important;
+      }
+      .worksheet-page {
+        width: 100%;
+        height: 10.32in;
+        max-height: 10.32in;
+        padding: 0;
+        margin: 0;
+      }
+    }
+
+    .worksheet-page {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      page-break-after: always;
+      position: relative;
+    }
+    .worksheet-page:last-child {
+      page-break-after: avoid;
+    }
+
+    .mvar {
+      font-family: Georgia, "Times New Roman", serif;
+      font-style: italic;
+      font-weight: 700;
+    }
+    sub, sup {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      font-style: normal;
+      font-weight: 700;
+      font-size: 0.74em;
+      line-height: 0;
+    }
+
+    .sheet-header {
+      border-bottom: 2.2px solid #0f172a;
+      padding-bottom: 5px;
+      margin-bottom: 6px;
+    }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 5px;
+    }
+    .header-title {
+      font-size: 13.5pt;
+      font-weight: 900;
+      color: #0f172a;
+      margin: 0;
+    }
+    .header-sub {
+      font-size: 8pt;
+      font-weight: 800;
+      color: #334155;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-top: 2px;
+    }
+    .ngss-pill {
+      font-size: 8pt;
+      font-weight: 800;
+      border: 1.5px solid #0f172a;
+      background: #f8fafc;
+      padding: 2px 8px;
+      border-radius: 5px;
+      white-space: nowrap;
+    }
+    .student-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      font-size: 9pt;
+      font-weight: 700;
+    }
+    .meta-item {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+    }
+    .write-line {
+      display: inline-block;
+      border-bottom: 1.5px solid #0f172a;
+      height: 15px;
+      vertical-align: baseline;
+    }
+
+    .running-header {
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 4px;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 8.5pt;
+      font-weight: 800;
+    }
+
+    .formula-bar {
+      border: 1.6px solid #0f172a;
+      background: #f1f5f9;
+      border-radius: 6px;
+      padding: 5px 10px;
+      margin-bottom: 7px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 8.5pt;
+      font-weight: 800;
+    }
+    .fchip {
+      background: #ffffff;
+      border: 1.2px solid #475569;
+      border-radius: 4px;
+      padding: 2px 7px;
+      white-space: nowrap;
+    }
+
+    .section-bar {
+      background: #0f172a;
+      color: #ffffff;
+      border-radius: 5px;
+      padding: 3.5px 10px;
+      font-size: 8.6pt;
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .prob-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      margin-bottom: 7px;
+    }
+    .prob-card {
+      border: 1.5px solid #0f172a;
+      border-radius: 6px;
+      background: #ffffff;
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .prob-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .prob-prompt {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 8.6pt;
+      line-height: 1.28;
+    }
+    .prompt-badge-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+    .step-pill {
+      background: #0f172a;
+      color: #ffffff;
+      font-size: 7.5pt;
+      font-weight: 900;
+      padding: 1.5px 5.5px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .tier-pill {
+      border: 1.1px solid #334155;
+      background: #f1f5f9;
+      color: #0f172a;
+      font-size: 7pt;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 99px;
+      white-space: nowrap;
+    }
+    .prompt-body {
+      flex: 1 1 auto;
+    }
+
+    .math-stack-box {
+      border: 1.2px solid #475569;
+      border-radius: 5px;
+      background: #f8fafc;
+      padding: 7px 9px;
+      font-size: 8.3pt;
+      font-weight: 700;
+      line-height: 1.72;
+    }
+    .answer-row {
+      margin-top: 5px;
+      border-top: 1px dashed #94a3b8;
+      padding-top: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 6px;
+      font-weight: 800;
+      font-size: 8.4pt;
+    }
+    .ans-final {
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .blank {
+      display: inline-block;
+      border-bottom: 1.5px solid #0f172a;
+      min-width: 0.48in;
+      height: 14px;
+      vertical-align: baseline;
+    }
+
+    .check-footer {
+      border: 1.5px solid #0f172a;
+      border-radius: 5px;
+      background: #f0f9ff;
+      padding: 5px 9px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 8pt;
+      font-weight: 800;
+      gap: 8px;
+    }
+
+    .page-footer {
+      border-top: 1.3px solid #cbd5e1;
+      padding-top: 3px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 7.8pt;
+      font-weight: 700;
+      color: #475569;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="print-toolbar">
+    <button class="print-btn" onclick="window.print()">🖨️ Print Day 2 Work Calculation Workshop (2 Pages)</button>
+  </div>
+
+  <!-- =====================================================================
+       PAGE 1: REFERENCE BAR + PART A (#1-4) + PART B START (#5-6)
+       ===================================================================== -->
+  <div class="worksheet-page">
+    <div>
+      <header class="sheet-header">
+        <div class="header-top">
+          <div>
+            <h1 class="header-title">Unit 3, Day 2: Mechanical Work Calculation Workshop</h1>
+            <div class="header-sub">Stacked GUESS Practice · Horizontal, Vertical Lifting &amp; Net Work · Nov 17, 2026</div>
+          </div>
+          <div class="ngss-pill">HS-PS3-1 · DOK 2 · Tiered Practice</div>
+        </div>
+        <div class="student-meta">
+          <div class="meta-item">Name: <span class="write-line" style="width: 2.55in;"></span></div>
+          <div class="meta-item">Date: <span class="write-line" style="width: 1.25in;"></span></div>
+          <div class="meta-item">Period: <span class="write-line" style="width: 0.70in;"></span></div>
+        </div>
+      </header>
+
+      <div class="formula-bar">
+        <span class="fchip"><span class="mvar">W</span> = <span class="mvar">F · d</span></span>
+        <span class="fchip"><span class="mvar">F</span><sub>g</sub> = <span class="mvar">m · g</span> &nbsp;(<span class="mvar">g</span> = 10 m/s²)</span>
+        <span class="fchip"><span class="mvar">W</span><sub>lift</sub> = <span class="mvar">m · g · h</span></span>
+        <span class="fchip"><span class="mvar">W</span><sub>net</sub> = <span class="mvar">F</span><sub>net</sub> · <span class="mvar">d</span></span>
+        <span class="fchip">1 J = 1 N · m</span>
+      </div>
+
+      <!-- PART A -->
+      <div class="section-bar">
+        <span>Part A: Horizontal Forces &amp; Zero-Work Direction Traps (Problems 1–4)</span>
+        <span>All Periods Complete #1–#4</span>
+      </div>
+
+      <div class="prob-grid">
+        <!-- #1 -->
+        <div class="prob-card">
+          <div class="prob-prompt">
+            <span class="prompt-badge-group"><span class="step-pill">#1</span><span class="tier-pill">FADED EXAMPLE</span></span>
+            <span class="prompt-body">A student pushes a lab cart forward across a flat table with a horizontal force of <strong>45 N</strong> over a displacement of <strong>6.0 m</strong>. Calculate the mechanical work done.</span>
+          </div>
+          <div class="math-stack-box" style="margin-top: 5px;">
+            <div><strong>Given:</strong> <span class="mvar">F</span> = 45 N &nbsp;&nbsp;|&nbsp;&nbsp; <span class="mvar">d</span> = 6.0 m &nbsp;&nbsp;|&nbsp;&nbsp; Unknown: <span class="mvar">W</span> = ? (J)</div>
+            <div><strong>Equation:</strong> <span class="mvar">W</span> = <span class="mvar">F</span> · <span class="mvar">d</span></div>
+            <div><strong>Substitute:</strong> <span class="mvar">W</span> = ( 45 N ) · ( <span class="blank" style="min-width: 0.55in;"></span> m )</div>
+            <div class="answer-row">
+              <span>Same direction → (+ / − / 0)</span>
+              <span class="ans-final"><strong><span class="mvar">W</span> =</strong> <span class="blank"></span> <strong>J</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- #2 -->
+        <div class="prob-card">
+          <div class="prob-prompt">
+            <span class="prompt-badge-group"><span class="step-pill">#2</span><span class="tier-pill">REVERSE SOLVE</span></span>
+            <span class="prompt-body">A warehouse forklift applies a steady <strong>120 N</strong> horizontal push and transfers <strong>600 J</strong> of mechanical work to a crate. How far did the crate move?</span>
+          </div>
+          <div class="math-stack-box" style="margin-top: 5px;">
+            <div><strong>Given:</strong> <span class="mvar">W</span> = _________ &nbsp;&nbsp;|&nbsp;&nbsp; <span class="mvar">F</span> = _________</div>
+            <div><strong>Equation:</strong> <span class="mvar">d</span> = <span class="mvar">W</span> ÷ <span class="mvar">F</span></div>
+            <div><strong>Substitute:</strong> <span class="mvar">d</span> = ( _______ J ) ÷ ( _______ N )</div>
+            <div class="answer-row">
+              <span>Show division clearly</span>
+              <span class="ans-final"><strong><span class="mvar">d</span> =</strong> <span class="blank"></span> <strong>m</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- #3 -->
+        <div class="prob-card">
+          <div class="prob-prompt">
+            <span class="prompt-badge-group"><span class="step-pill">#3</span><span class="tier-pill">OPPOSING FORCE</span></span>
+            <span class="prompt-body">Bicycle brakes apply a constant <strong>400 N</strong> backward force opposing forward motion while skidding <strong>8.0 m</strong> to a stop. Find the braking work (include sign!).</span>
+          </div>
+          <div class="math-stack-box" style="margin-top: 5px;">
+            <div><strong>Given:</strong> <span class="mvar">F</span> = −400 N (opposes motion) &nbsp;|&nbsp; <span class="mvar">d</span> = 8.0 m</div>
+            <div><strong>Equation:</strong> <span class="mvar">W</span> = <span class="mvar">F</span> · <span class="mvar">d</span></div>
+            <div><strong>Substitute:</strong> <span class="mvar">W</span> = ( ________ ) · ( ________ )</div>
+            <div class="answer-row">
+              <span>Adds or removes? ________</span>
+              <span class="ans-final"><strong><span class="mvar">W</span> =</strong> <span class="blank"></span> <strong>J</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- #4 -->
+        <div class="prob-card">
+          <div class="prob-prompt">
+            <span class="prompt-badge-group"><span class="step-pill">#4</span><span class="tier-pill">DIRECTION TRAP</span></span>
+            <span class="prompt-body">A student carries a <strong>15 kg</strong> instrument case (<span class="mvar">F</span><sub>g</sub> = 150 N upward carry force) at constant height across a flat <strong>20 m</strong> hallway. Find the work done by the carry force.</span>
+          </div>
+          <div class="math-stack-box" style="margin-top: 5px;">
+            <div><strong>Force Dir:</strong> _______ &nbsp;|&nbsp; <strong>Motion Dir:</strong> _______</div>
+            <div><strong>Angle Between <span class="mvar">F</span> and <span class="mvar">d</span>:</strong> ______ °</div>
+            <div><strong>Reason:</strong> ____________________________________</div>
+            <div class="answer-row">
+              <span>Careful: 150 N × 20 m is a trap!</span>
+              <span class="ans-final"><strong><span class="mvar">W</span> =</strong> <span class="blank"></span> <strong>J</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PART B START -->
+      <div class="section-bar">
+        <span>Part B: Vertical Lifting Work Against Gravity · W = m · g · h (Problems 5–8)</span>
+        <span>Use g = 10 m/s² Always</span>
+      </div>
+
+      <div class="prob-grid" style="margin-bottom: 0;">
+        <!-- #5 -->
+        <div class="prob-card">
+          <div class="prob-prompt">
+            <span class="prompt-badge-group"><span class="step-pill">#5</span><span class="tier-pill">BENCH LIFT</span></span>
+            <span class="prompt-body">A student lifts a <strong>4.0 kg</strong> medicine ball straight up onto a <strong>1.5 m</strong> shelf at steady speed. First find its weight <span class="mvar">F</span><sub>g</sub>, then find the lifting work <span class="mvar">W</span>.</span>
+          </div>
+          <div class="math-stack-box" style="margin-top: 5px;">
+            <div><strong>Weight:</strong> <span class="mvar">F</span><sub>g</sub> = ( ____ kg )( 10 m/s² ) = ______ N</div>
+            <div><strong>Equation:</strong> <span class="mvar">W</span> = <span class="mvar">F</span><sub>g</sub> · <span class="mvar">h</span></div>
+            <div><strong>Substitute:</strong> <span class="mvar">W</span> = ( _______ N ) · ( _______ m )</div>
+            <div class="answer-row">
+              <span>Check: <span class="mvar">m · g · h</span> match?</span>
+              <span class="ans-final"><strong><span class="mvar">W</span> =</strong> <span class="blank"></span> <strong>J</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- #6 -->
+        <div class="prob-card">
+          <div class="prob-prompt">
+            <span class="prompt-badge-group"><span class="step-pill">#6</span><span class="tier-pill">WAREHOUSE HOIST</span></span>
+            <span class="prompt-body">An electric ceiling hoist lifts a heavy <strong>250 kg</strong> supply pallet straight upward by <strong>3.0 m</strong> at constant velocity. Calculate the required upward weight force and lifting work.</span>
+          </div>
+          <div class="math-stack-box" style="margin-top: 5px;">
+            <div><strong>Weight:</strong> <span class="mvar">F</span><sub>g</sub> = ( _____ kg )( 10 m/s² ) = ______ N</div>
+            <div><strong>Equation:</strong> <span class="mvar">W</span> = <span class="mvar">F</span><sub>g</sub> · <span class="mvar">h</span></div>
+            <div><strong>Substitute:</strong> <span class="mvar">W</span> = ( _______ N ) · ( _______ m )</div>
+            <div class="answer-row">
+              <span>1 kilojoule = 1,000 J</span>
+              <span class="ans-final"><strong><span class="mvar">W</span> =</strong> <span class="blank"></span> <strong>J</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-footer">
+      <span>Physics · Unit 3: Energy &amp; Work · Page 1 of 2</span>
+      <span>P1–3 Target: #1–#8 · P4–6 Target: #1–#10 · P0 Honors Target: #1–#12</span>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       PAGE 2: PART B CONT. (#7-8) + PART C NET WORK & CHALLENGES (#9-12)
+       ===================================================================== -->
+  <div class="worksheet-page">
+    <div>
+      <div class="running-header">
+        <span>Unit 3, Day 2: Mechanical Work Calculation Workshop (Continued)</span>
+        <span>Name: ____________________________ &nbsp; Per: ____</span>
+      </div>
+
+      <!-- #7 and #8 -->
+      <div class="prob-grid" style="margin-bottom: 6px;">
+        <!-- #7 -->
+        <div class="prob-card">
+          <div class="prob-prompt">
+            <span class="prompt-badge-group"><span class="step-pill">#7</span><span class="tier-pill">REVERSE HEIGHT</span></span>
+            <span class="prompt-body">A <strong>60 kg</strong> rock climber performs <strong>12,000 J</strong> of vertical lifting work climbing a cliff wall (<span class="mvar">g</span> = 10 m/s²). How high did the climber ascend?</span>
+          </div>
+          <div class="math-stack-box" style="margin-top: 5px;">
+            <div><strong>Step 1 — Weight:</strong> <span class="mvar">F</span><sub>g</sub> = 60 kg · 10 m/s² = __________ N</div>
+            <div><strong>Step 2 — Height:</strong> <span class="mvar">h</span> = <span class="mvar">W</span> ÷ <span class="mvar">F</span><sub>g</sub></div>
+            <div><strong>Substitute:</strong> <span class="mvar">h</span> = ( 12,000 J ) ÷ ( _________ N )</div>
+            <div class="answer-row">
+              <span>Check: <span class="mvar">F</span><sub>g</sub> · <span class="mvar">h</span> = 12,000 J?</span>
+              <span class="ans-final"><strong><span class="mvar">h</span> =</strong> <span class="blank"></span> <strong>m</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- #8 -->
+        <div class="prob-card">
+          <div class="prob-prompt">
+            <span class="prompt-badge-group"><span class="step-pill">#8</span><span class="tier-pill">3-STAGE PATH</span></span>
+            <span class="prompt-body">A worker carries a <strong>10 kg</strong> box (<span class="mvar">F</span><sub>g</sub> = 100 N) in three stages: <strong>(a)</strong> lifts it straight up <strong>1.2 m</strong>, <strong>(b)</strong> walks <strong>8.0 m</strong> across a flat floor, then <strong>(c)</strong> lifts it another <strong>0.80 m</strong> onto a shelf.</span>
+          </div>
+          <div class="math-stack-box" style="margin-top: 5px;">
+            <div><strong>(a) Lift:</strong> <span class="mvar">W</span><sub>a</sub> = _____ N · _____ m = _______ J</div>
+            <div><strong>(b) Walk:</strong> <span class="mvar">W</span><sub>b</sub> = ______ J (Why: ______________)</div>
+            <div><strong>(c) Lift:</strong> <span class="mvar">W</span><sub>c</sub> = _____ N · _____ m = _______ J</div>
+            <div class="answer-row">
+              <span><span class="mvar">W</span><sub>total</sub> = <span class="mvar">W</span><sub>a</sub> + <span class="mvar">W</span><sub>b</sub> + <span class="mvar">W</span><sub>c</sub></span>
+              <span class="ans-final"><strong><span class="mvar">W</span><sub>total</sub> =</strong> <span class="blank"></span> <strong>J</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PART C -->
+      <div class="section-bar">
+        <span>Part C: Net Work, Multi-Force Systems &amp; Challenges (Problems 9–12)</span>
+        <span>Watch Opposing Signs</span>
+      </div>
+
+      <div class="prob-grid" style="margin-bottom: 6px;">
+        <!-- #9 -->
+        <div class="prob-card">
+          <div class="prob-prompt">
+            <span class="prompt-badge-group"><span class="step-pill">#9</span><span class="tier-pill">NET WORK</span></span>
+            <span class="prompt-body">Two students push a heavy sled <strong>10 m east</strong> with <span class="mvar">F</span><sub>push</sub> = <strong>120 N</strong> east while snow friction opposes with <span class="mvar">F</span><sub>f</sub> = <strong>40 N</strong> west. Find <span class="mvar">W</span><sub>push</sub>, <span class="mvar">W</span><sub>f</sub>, and <span class="mvar">W</span><sub>net</sub>.</span>
+          </div>
+          <div class="math-stack-box" style="margin-top: 5px;">
+            <div><strong>Push:</strong> <span class="mvar">W</span><sub>push</sub> = ( +120 N ) · ( 10 m ) = ________ J</div>
+            <div><strong>Friction:</strong> <span class="mvar">W</span><sub>f</sub> = ( −40 N ) · ( 10 m ) = ________ J</div>
+            <div><strong>Net Force:</strong> <span class="mvar">F</span><sub>net</sub> = 120 − 40 = ______ N</div>
+            <div class="answer-row">
+              <span><span class="mvar">W</span><sub>net</sub> = <span class="mvar">W</span><sub>push</sub> + <span class="mvar">W</span><sub>f</sub> = <span class="mvar">F</span><sub>net</sub> · <span class="mvar">d</span></span>
+              <span class="ans-final"><strong><span class="mvar">W</span><sub>net</sub> =</strong> <span class="blank"></span> <strong>J</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- #10 -->
+        <div class="prob-card">
+          <div class="prob-prompt">
+            <span class="prompt-badge-group"><span class="step-pill">#10</span><span class="tier-pill">CP BONUS / P0 REQ.</span></span>
+            <span class="prompt-body">You pull a rolling suitcase <strong>15 m</strong> horizontally across an airport concourse using a <strong>40 N</strong> strap angled <strong>60°</strong> above the floor (<span class="mvar">F</span><sub>x</sub> = <span class="mvar">F</span> · cos 60°, where cos 60° = 0.50).</span>
+          </div>
+          <div class="math-stack-box" style="margin-top: 5px;">
+            <div><strong>Step 1 — Forward Component:</strong></div>
+            <div><span class="mvar">F</span><sub>x</sub> = ( 40 N ) · ( 0.50 ) = __________ N</div>
+            <div><strong>Step 2 — Work:</strong> <span class="mvar">W</span> = <span class="mvar">F</span><sub>x</sub> · <span class="mvar">d</span> = ( _____ N ) · ( 15 m )</div>
+            <div class="answer-row">
+              <span>Only parallel component does work!</span>
+              <span class="ans-final"><strong><span class="mvar">W</span> =</strong> <span class="blank"></span> <strong>J</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- #11 -->
+        <div class="prob-card">
+          <div class="prob-prompt">
+            <span class="prompt-badge-group"><span class="step-pill">#11</span><span class="tier-pill">HONORS / DETECTIVE</span></span>
+            <span class="prompt-body">A worker pushes a crate forward with <span class="mvar">F</span><sub>push</sub> = <strong>90 N</strong> over <strong>10 m</strong>, but the measured net work on the crate is only <strong><span class="mvar">W</span><sub>net</sub> = +650 J</strong>. Find the friction work <span class="mvar">W</span><sub>f</sub> and friction force <span class="mvar">F</span><sub>f</sub>.</span>
+          </div>
+          <div class="math-stack-box" style="margin-top: 5px;">
+            <div><strong>1. Push:</strong> <span class="mvar">W</span><sub>push</sub> = ( 90 N )( 10 m ) = ________ J</div>
+            <div><strong>2. Friction:</strong> <span class="mvar">W</span><sub>f</sub> = <span class="mvar">W</span><sub>net</sub> − <span class="mvar">W</span><sub>push</sub> = ________ J</div>
+            <div><strong>3. Force:</strong> <span class="mvar">F</span><sub>f</sub> = |<span class="mvar">W</span><sub>f</sub>| ÷ <span class="mvar">d</span> = ________ ÷ 10 m</div>
+            <div class="answer-row">
+              <span class="ans-final"><strong><span class="mvar">W</span><sub>f</sub> =</strong> ______ <strong>J</strong></span>
+              <span class="ans-final"><strong><span class="mvar">F</span><sub>f</sub> =</strong> <span class="blank"></span> <strong>N</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- #12 -->
+        <div class="prob-card">
+          <div class="prob-prompt">
+            <span class="prompt-badge-group"><span class="step-pill">#12</span><span class="tier-pill">PATH COMPARISON</span></span>
+            <span class="prompt-body">Compare moving a <strong>20 kg</strong> crate (<span class="mvar">g</span> = 10 m/s²) two ways: <strong>Path 1:</strong> lift straight up <strong>4.0 m</strong>; <strong>Path 2:</strong> push steadily <strong>4.0 m</strong> flat against floor friction (<span class="mvar">F</span><sub>f</sub> = 50 N). Which takes more work?</span>
+          </div>
+          <div class="math-stack-box" style="margin-top: 5px;">
+            <div><strong>Path 1:</strong> <span class="mvar">F</span><sub>g</sub> = ____ N → <span class="mvar">W</span><sub>1</sub> = ____ · 4.0 = _____ J</div>
+            <div><strong>Path 2:</strong> <span class="mvar">F</span><sub>push</sub> = 50 N → <span class="mvar">W</span><sub>2</sub> = 50 · 4.0 = _____ J</div>
+            <div><strong>Ratio:</strong> Vertical lift requires ____× more work!</div>
+            <div class="answer-row">
+              <span>Larger path: ________</span>
+              <span class="ans-final"><strong>Δ<span class="mvar">W</span> =</strong> <span class="blank"></span> <strong>J</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SELF-CHECK STRIP -->
+      <div class="check-footer">
+        <span>☐ 1. Joules (J) on every <span class="mvar">W</span> answer</span>
+        <span>☐ 2. <span class="mvar">g</span> = 10 m/s² used for kg → N</span>
+        <span>☐ 3. Minus sign (−) kept on braking/friction</span>
+        <span>☐ 4. 0 J verified for perpendicular carries</span>
+      </div>
+    </div>
+
+    <div class="page-footer">
+      <span>Physics · Unit 3: Energy &amp; Work · Page 2 of 2</span>
+      <span>Stacked GUESS Mastery: Given · Unknown · Equation · Substitute · Solve w/ Units</span>
+    </div>
+  </div>
+
+</body>
+</html>

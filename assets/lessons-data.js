@@ -5623,24 +5623,24 @@ const lessonsData = [
     "day": 1,
     "date": "2026-11-16",
     "unit": 3,
-    "title": "What Counts as Work? Force, Displacement & Direction",
-    "topic": "Mechanical Work (W = F · d), Joules & Perpendicular Forces",
+    "title": "Work vs. Effort: Concept Intro & AVID Close Reading",
+    "topic": "Mechanical Work (W = F · d), Joules & Force–Displacement Direction",
     "dok": 2,
     "type": "Concept Intro",
     "semester": 1,
     "isFeatured": true,
-    "summary": "In everyday language, carrying a heavy backpack feels like hard work. In physics, mechanical work only happens when a force pushes or pulls along the direction an object moves (W = F · d). When you push forward, work is positive; when friction pulls backward, work is negative; and when your arms hold weight straight up while walking flat, vertical force is perpendicular to sideways motion so mechanical work equals zero.",
-    "activity": "Work or No Work? Force-Displacement Card Sort & Measurement Check: Analyze 8 everyday motion scenarios (pushing a stalled car, holding dumbbells still, sliding down a slide, carrying lunch flat across the quad) and test 4 tabletop spring-scale pulls on a dynamics cart. Compare same-direction (+W), opposite-direction (-W), and sideways (0 J) forces. Complete 10 of 12 verified cards and submit your summary ticket to log Day 1 mastery. Honors extension: compute angled sled pulls using W = F · d · cos(θ).",
+    "summary": "Holding a heavy backpack still makes your muscles tired, yet physics records zero mechanical work when nothing moves (d = 0 m) or when force points sideways to travel (F ⟂ d at 90°). Today we unpack the 5-paragraph close reading comparing biological effort against W = F · d (1 J = 1 N · m), map positive (+W), negative (-W), and zero (0 J) direction rules, and introduce vertical lifting work (W = m · g · h with g = 10 m/s²).",
+    "activity": "AVID 5-Step Close Reading & 8-Scenario Direction Sort: Read the 5-paragraph text 'Why Effort Isn't Always Work' covering: (1) Everyday Effort vs. Zero Displacement, (2) W = F · d & the Joule (0.1 kg apple lifted 1 m = 1 J), (3) +W parallel push vs. -W braking/friction vs. 0 J perpendicular carry, (4) Vertical Lift Work W = m · g · h, and (5) Simple Machine Force–Distance Trade-Offs. Complete all 5 AVID annotation steps (number paragraphs, circle vocabulary, underline rules, 3–4 word left-margin gists, 2 Costa's Level 2/3 questions) plus the 8-scenario vector classification table (>= 7/8 verified).",
     "essentialQuestion": "Why does carrying a heavy backpack across a flat hallway require stamina yet count as zero mechanical work in physics?",
     "standards": [
       "HS-PS3-1"
     ],
     "wicor": {
-      "Writing": "Explaining the difference between everyday effort and physics work (W = F · d) using direction arrows.",
-      "Inquiry": "Testing how the angle between a spring-scale pull and cart motion changes measured work.",
-      "Collaboration": "Lab pairs sort 8 motion scenarios and defend zero-work cases with force arrows.",
-      "Organization": "Sorting systems into +Work, -Work, and 0 Work columns in a structured card chart.",
-      "Reading": "Interpreting force and displacement vector diagrams."
+      "Writing": "Composing 3–4 word paragraph gists and an FNT reflection contrasting biological stamina with physics work.",
+      "Inquiry": "Formulating Costa's Level 2/3 questions about circular motion and zero perpendicular work.",
+      "Collaboration": "Partners compare vector arrow sketches (F and d) across 8 motion scenarios before final sign-off.",
+      "Organization": "Annotating Paragraphs 1–5 systematically and sorting scenarios into +Work, -Work, and 0 Work columns.",
+      "Reading": "AVID 5-step close reading of informational science text on mechanical work, Joules, and lifting."
     },
     "bellRinger": {
       "type": "concept_chat",
@@ -5648,187 +5648,249 @@ const lessonsData = [
       "chatSystemInstruction": "You are a warm, adaptive, and relatable physics mentor chatting with a student over SMS/text. Your goal is to explore a physics concept together without being overly formal or using forced slang.\n\nCRITICAL RULES:\n1. NO FISHING / PIVOT TO TEACHING: Never try to \"force\" or repeatedly nudge a student toward a specific technical answer or physics term. If you ask a conceptual question and the student guesses wrong, focuses on a different variable (like friction/roughness), or says \"I don't know,\" DO NOT ask a follow-up question trying to correct their guess. Instead, pivot immediately to teaching: validate their logic, briefly explain the physics concept directly using a relatable analogy, and move on.\n2. NO SOCRATIC TRAPS: Do not get stuck in a loop asking the student to explain the same thing over and over. If they answer correctly, understand a concept, or say \"yes\"/\"obvious\", validate it briefly and immediately MOVE FORWARD to a new dimension or a real-world application.\n3. MOVE DYNAMICALLY: Keep the conversation fluid. Once a basic idea is established, introduce a fun twist, a new scenario, or a practical question (e.g., \"What happens if we try this in space?\" or \"How does that affect a rollercoaster?\"). \n4. CHAT TONE & LENGTH: Keep replies highly conversational and natural—like a text message from a knowledgeable peer. Limit replies to 1–3 short sentences max. Never send multiple distinct thoughts, lists, or bullet points in one message.\n5. CONTINUING THE CONVERSATION: Never end the conversation abruptly or push the student to stop chatting. Even after the student demonstrates understanding or has engaged in multiple turns, keep the conversation flowing naturally by offering intriguing follow-up thoughts, fun scenario twists, or real-world applications. You may let them know they can click the Finish Session button whenever they are ready to submit, but always leave the door open for them to continue chatting.",
       "defaultDuration": 4
     },
-    "links": {},
+    "links": {
+      "Day 1 AVID Reading & Direction Sort (PDF)": "Unit_3/worksheets/Day1_Work_vs_Effort_AVID_Reading.pdf",
+      "Day 1 Print View (HTML)": "Unit_3/worksheets/Day1_Work_vs_Effort_AVID_Reading.html"
+    },
     "assignments": [
       {
-        "title": "Work or No Work? Card Sort & Table Measurement",
-        "typeLabel": "In-Class Inquiry & Check",
-        "submission": "Complete 10/12 Verified Cards + Summary Ticket",
-        "actionLabel": "Planned Activity",
-        "description": "Sort 8 physical scenarios by force vs. motion angle and measure 4 spring-scale pulls on a tabletop cart.",
-        "status": "planned"
+        "title": "Why Effort Isn't Always Work: AVID Reading & 8-Scenario Sort",
+        "url": "Unit_3/worksheets/Day1_Work_vs_Effort_AVID_Reading.pdf",
+        "typeLabel": "AVID Close Reading",
+        "submission": "5 Annotated Paragraphs + >= 7/8 Direction Classifications",
+        "actionLabel": "Open PDF Worksheet",
+        "description": "Annotate the 5-paragraph close reading on W = F · d, classify 8 motion scenarios (+W, -W, 0 J), and answer EQ1.",
+        "status": "active"
       }
     ],
-    "resources": []
+    "resources": [
+      {
+        "title": "Why Effort Isn't Always Work — 2-Page Student Handout (PDF)",
+        "url": "Unit_3/worksheets/Day1_Work_vs_Effort_AVID_Reading.pdf",
+        "typeLabel": "Printable Worksheet",
+        "description": "2-page AVID 5-step close reading with left-margin Gist and right-margin Costa's columns plus 8-scenario direction table and FNT reflection."
+      }
+    ]
   },
   {
     "day": 2,
     "date": "2026-11-17",
     "unit": 3,
-    "title": "Positive vs. Negative Work & Force–Distance Graphs",
-    "topic": "Net Work & Area Under Force–Distance Graphs (W = Area)",
+    "title": "Work Calculation Practice: Horizontal, Vertical Lifting & Net Work",
+    "topic": "Stacked GUESS Problems (W = F · d, W = m · g · h, W_net = F_net · d)",
     "dok": 2,
-    "type": "Guided Practice",
+    "type": "Calculation Practice",
     "semester": 1,
     "isFeatured": false,
-    "summary": "Real pushes and pulls rarely stay constant for an entire trip. Just like velocity-time graphs reveal distance through area, a Force vs. Distance graph reveals mechanical work through the shaded area between the curve and the horizontal axis. Positive areas add energy to an object, while negative areas (friction or braking forces) remove mechanical energy.",
-    "activity": "Force–Distance Area Challenge: Plot stepped and ramp-shaped force graphs from three sample pulls, count or calculate rectangular and triangular areas to find Joules of work, and combine forward engine work with backward friction work to find W_net. Score at least 5/6 on the Exit Area Checkpoint to unlock completion.",
-    "essentialQuestion": "How can a Force vs. Distance graph show mechanical work when a push grows stronger or weaker along a path?",
+    "summary": "Build quantitative fluency using stacked GUESS steps (Given, Unknown, Equation, Stacked Substitution, Solution with SI units) across three work calculation families: direct horizontal pushes and zero-work traps (W = F · d), lifting weights against gravity (W = m · g · h with g = 10 m/s²), and net work combining forward engine/push forces with backward friction work.",
+    "activity": "12-Problem Scaffolded Work Calculation Workshop (g = 10 m/s²): Solve Part A horizontal & zero-work drills (e.g., 45 N × 6.0 m = 270 J; -400 N × 8.0 m = -3,200 J; carrying 15 kg horizontally 20 m = 0 J), Part B vertical lifts (4.0 kg lifted 1.5 m = 60 J; 250 kg pallet up 3.0 m = 7,500 J; 3-stage warehouse lift/carry/lift = 200 J total), and Part C net work & angled pulls (120 N east vs. 40 N west over 10 m = +800 J; Honors 40 N at 60° over 15 m = 300 J). Pass >= 3/4 on the Exit Calculation Check with units shown.",
+    "essentialQuestion": "How do stacked substitutions distinguish horizontal work, vertical lifting work against gravity, and net work when multiple forces act?",
     "standards": [
-      "HS-PS3-1",
-      "HS-PS3-2"
+      "HS-PS3-1"
     ],
     "wicor": {
-      "Writing": "Explaining what negative shaded area on a Force–Distance graph represents.",
-      "Inquiry": "Comparing area-under-curve calculations against W = F · d for constant and varying forces.",
-      "Collaboration": "Pairs cross-check shaded positive and negative blocks on whiteboards.",
-      "Organization": "Logging positive work, negative friction work, and W_net in a three-column balance table.",
-      "Reading": "Reading axes, units (N vs. m), and slope changes on stepped Force–Distance graphs."
+      "Writing": "Explaining zero-work multi-stage path segments (lift + horizontal walk + lift) using force-direction rules.",
+      "Inquiry": "Diagnosing why sliding a crate horizontally against friction takes 4× less work than lifting it vertically.",
+      "Collaboration": "Pairs alternate whiteboard turns solving and unit-checking odd/even practice sets.",
+      "Organization": "Structuring every problem with stacked Given, Formula, Substitution, and SI Unit boxes.",
+      "Reading": "Extracting mass (kg), weight (N = m · 10), displacement (m), and force angles from word scenarios."
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "A student pushes a heavy box 4 m east with 20 N while floor friction pulls 5 N west. Which force does positive work, which does negative work, and what is the net work done?",
-      "explanation": "The 20 N push points in the direction of motion, doing +80 J of positive work. Friction points opposite motion, doing -20 J of negative work. Net work is W_net = +80 J - 20 J = +60 J.",
+      "promptQuestion": "A student pushes a heavy box 4 m east with 20 N while floor friction pulls 5 N west. What is the push work, friction work, and net work done?",
+      "explanation": "The 20 N push aligns with motion: +80 J. Friction opposes motion: -20 J. Net work is W_net = +80 J - 20 J = +60 J (or F_net = 15 N × 4 m = 60 J).",
       "defaultDuration": 3
     },
-    "links": {},
+    "links": {
+      "Day 2 Work Calculation Workshop (PDF)": "Unit_3/worksheets/Day2_Work_Calculation_Practice.pdf",
+      "Day 2 Print View (HTML)": "Unit_3/worksheets/Day2_Work_Calculation_Practice.html"
+    },
     "assignments": [
       {
-        "title": "Force–Distance Area Challenge (6-Problem Check)",
-        "typeLabel": "Guided Practice",
-        "submission": "Earn >= 5/6 on Mastery Checkpoint",
-        "actionLabel": "Planned Activity",
-        "description": "Determine mechanical work from rectangular and triangular Force vs. Distance graphs, including negative friction sections.",
-        "status": "planned"
+        "title": "Work Calculation Workshop (12-Problem Packet & Exit Check)",
+        "url": "Unit_3/worksheets/Day2_Work_Calculation_Practice.pdf",
+        "typeLabel": "Calculation Practice",
+        "submission": "Tiered Problem Set + >= 3/4 Stacked GUESS Exit Check",
+        "actionLabel": "Open PDF Worksheet",
+        "description": "Practice W = F · d, W = m · g · h (g = 10 m/s²), zero-work traps, and W_net across 12 tiered scenarios.",
+        "status": "active"
       }
     ],
-    "resources": []
+    "resources": [
+      {
+        "title": "Mechanical Work Calculation Workshop — 2-Page Handout (PDF)",
+        "url": "Unit_3/worksheets/Day2_Work_Calculation_Practice.pdf",
+        "typeLabel": "Printable Worksheet",
+        "description": "12 tiered calculation problems with faded scaffold, stacked GUESS workspaces, and self-check strip (g = 10 m/s²)."
+      }
+    ]
   },
   {
     "day": 3,
     "date": "2026-11-18",
     "unit": 3,
-    "title": "Work Done Against Gravity: Lifting & Ramps",
-    "topic": "Vertical Lifting Work (W = m · g · h) & Inclined Planes",
+    "title": "Work Done Against Gravity: Ramp & Pulley Trade-Off Lab",
+    "topic": "Vertical Lifting Work (W = m · g · h) vs. Inclined Planes & Pulleys",
     "dok": 3,
     "type": "Lab Activity",
     "semester": 1,
-    "isFeatured": false,
-    "summary": "Why do moving trucks use long ramps instead of lifting refrigerators straight up from the sidewalk? A gentle ramp cuts the force you have to pull in half—at the cost of pulling twice as far along the board. Ignoring friction, the total work W = F · d equals m · g · h regardless of which path takes the load to the top.",
-    "activity": "Inclined Plane Work Lab: Pull a 0.5 kg dynamics cart up a low-friction ramp set at three different angles to the same 0.40 m shelf height. Read the spring scale force (N) and track distance (m) for each angle, calculate W = F · d using stacked steps, and compare all three trials against vertical lifting work (m · g · h with g = 10 m/s²). Submit your verified 3-trial data table and conclusion.",
-    "essentialQuestion": "Why does using a gentle ramp feel much easier even though the total ideal mechanical work stays the same?",
+    "isFeatured": true,
+    "summary": "Why do moving trucks use long ramps and mechanics use pulley blocks instead of hoisting heavy gear straight up? Ramps and multi-strand pulleys lower the required pull force in exact proportion to how much extra rope or ramp distance you pull—leaving ideal mechanical work (F · d ≈ m · g · h = 1.50 J) unchanged!",
+    "activity": "Ramp & Pulley Force–Distance Lab (m = 0.50 kg cart, F_g = 5.0 N, h = 0.30 m): First lift the 0.50 kg cart straight up 0.30 m (W_out = 1.50 J). Next pull the cart slowly up four track lengths to the same 0.30 m elevation (d = 0.50 m, 0.60 m, 1.00 m, 1.20 m), recording spring-scale pull force F_pull, calculating W_in = F_pull · d and IMA = d ÷ h, and verifying that cutting force in half doubles distance (0.60 m) while cutting force to 1/4 quadruples distance (1.20 m). Finish by cross-checking 1-, 2-, and 4-rope systems in the Ideal Pulley System Lab.",
+    "essentialQuestion": "Why does pulling a cart up a gentle 4× longer ramp cut pull force to one-fourth while keeping ideal mechanical work equal to a straight lift?",
     "standards": [
       "HS-PS3-1"
     ],
     "wicor": {
-      "Writing": "Writing an evidence statement showing why trading force for distance preserves ideal work.",
-      "Inquiry": "Measuring pulling force and track length across three ramp angles to test work conservation.",
-      "Collaboration": "Three-person lab roles: scale reader, ramp holder, and calculator/recorder.",
-      "Organization": "Recording Angle, Force (N), Distance (m), W_ramp (J), and W_lift (J) side by side.",
-      "Reading": "Reading spring-scale ticks accurately to the nearest 0.1 N."
+      "Writing": "Comparing measured W_in against W_out = 1.50 J and attributing small excess work to track friction.",
+      "Inquiry": "Testing four ramp lengths and multi-strand pulleys to discover the inverse F ∝ 1/d relationship.",
+      "Collaboration": "Three-person lab crews rotate roles as spring-scale reader, track/elevation setter, and recorder.",
+      "Organization": "Completing a 5-row lab table (Length d, Ideal F, Measured F_pull, W_in, W_out, IMA = d ÷ h).",
+      "Reading": "Reading analog spring scales cleanly at constant tow speed without acceleration spikes."
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "Lifting a 2 kg backpack 0.5 m straight up requires 20 N of force (using g = 10 m/s²). Pushing it up a smooth 1.0 m ramp only takes 10 N. Does the ramp save work, or reduce force?",
-      "explanation": "The ramp cuts required force in half (10 N instead of 20 N), but doubles the distance (1.0 m instead of 0.5 m). Total work is 20 N · 0.5 m = 10 J vs. 10 N · 1.0 m = 10 J — ideal work stays equal.",
+      "promptQuestion": "Lifting a 2.0 kg backpack 0.50 m straight up requires 20 N (using g = 10 m/s²). Sliding it up a smooth 1.0 m ramp takes only 10 N. Which path does less work?",
+      "explanation": "Neither saves ideal work! Vertical lift: 20 N × 0.50 m = 10 J. Smooth ramp: 10 N × 1.0 m = 10 J. Ramps trade less force for more distance.",
       "defaultDuration": 3
     },
-    "links": {},
+    "links": {
+      "Ideal Pulley System Lab": "pulley-work/index.html",
+      "Day 3 Ramp & Pulley Lab Sheet (PDF)": "Unit_3/worksheets/Day3_Ramp_and_Pulley_Work_Lab.pdf",
+      "Day 3 Lab Print View (HTML)": "Unit_3/worksheets/Day3_Ramp_and_Pulley_Work_Lab.html"
+    },
     "assignments": [
       {
-        "title": "Inclined Plane Work Investigation Lab Sheet",
+        "title": "Ramp & Pulley Force–Distance Lab Sheet",
+        "url": "Unit_3/worksheets/Day3_Ramp_and_Pulley_Work_Lab.pdf",
         "typeLabel": "Hands-On Lab",
-        "submission": "3 Verified Ramp Trials + W vs. mgh Comparison",
-        "actionLabel": "Planned Activity",
-        "description": "Pull a 0.5 kg cart up three ramp angles, measure force and distance, and verify W_in matches m · g · h.",
-        "status": "planned"
+        "submission": "5 Ramp Trials + 3 Pulley Checks Logged",
+        "actionLabel": "Open PDF Lab Sheet",
+        "description": "Measure pull forces for a 0.50 kg cart across four ramp lengths to h = 0.30 m and cross-check pulleys in pulley-work/index.html.",
+        "status": "active"
       }
     ],
-    "resources": []
+    "resources": [
+      {
+        "title": "Ideal Pulley System Lab",
+        "url": "pulley-work/index.html",
+        "typeLabel": "Interactive Simulation",
+        "description": "Compare 1-rope, 2-rope, and 4-rope pulley setups to verify F · d = m · g · h."
+      },
+      {
+        "title": "Ramp & Pulley Force–Distance Lab Handout (PDF)",
+        "url": "Unit_3/worksheets/Day3_Ramp_and_Pulley_Work_Lab.pdf",
+        "typeLabel": "Printable Lab Sheet",
+        "description": "2-page lab packet with inclined plane diagram, 5-trial ramp table, 3-trial digital pulley table, stacked calculations, and conclusion prompts."
+      }
+    ]
   },
   {
     "day": 4,
     "date": "2026-11-19",
     "unit": 3,
-    "title": "Mechanical Power Lab: Speeding Up the Stairs",
-    "topic": "Power as Rate of Work (P = W ÷ t) in Watts & Horsepower",
+    "title": "Force–Distance Data Analysis & Ramp Trade-Off CER",
+    "topic": "Work as Graph Area (W = Area), Negative Regions & CAST Argumentation",
     "dok": 3,
-    "type": "Lab Activity",
+    "type": "Data Analysis / CER",
     "semester": 1,
-    "isFeatured": true,
-    "summary": "Walking slowly up a flight of stairs and sprinting up those same stairs accomplish the exact same vertical work (W = m · g · h). What changes dramatically is Power—how many Joules of work you transfer every single second (P = W ÷ t, measured in Watts). Faster times demand higher Wattage.",
-    "activity": "Stairmaster Power Challenge: Partners measure total vertical staircase elevation (or step-up platform height) with a meterstick, record three timed ascents at safe slow, medium, and brisk paces, compute lifting work (W = m · g · h using g = 10 m/s²), and calculate mechanical power in both Watts and horsepower (1 hp = 746 W). Turn in your verified multi-trial power lab sheet before leaving class.",
-    "essentialQuestion": "How can two students do identical amounts of work on the same staircase yet produce very different amounts of mechanical power?",
+    "isFeatured": false,
+    "summary": "Real machines and human pushes rarely maintain one constant force from start to finish. Just as area under a velocity–time graph reveals distance, the shaded area under a Force vs. Distance graph equals mechanical work—turning Day 3's tall/narrow lift rectangle (0.30 m × 5.0 N) and wide/short ramp rectangle (1.20 m × 1.25 N) into a visual proof of equal 1.50 J areas.",
+    "activity": "CAST Data Analysis & Ramp Trade-Off CER: (1) Plot Day 3 (d, F_pull) points on a 0–1.50 m by 0–6.0 N grid and compare the Direct Lift rectangle vs. Ramp D (1.20 m) rectangle areas (both 1.50 J ideal). (2) Solve 4 CAST F–d Area tasks covering a constant push rectangle (60 J), increasing triangle force (40 J), trapezoidal push (+80 J), and forward push + negative braking area below axis (+40 J - 20 J = +20 J). (3) Write a formal CER refuting the claim that '4× longer ramps cut work to one-fourth' (Honors extension: extract average friction force F_f = 0.24 J ÷ 1.20 m = 0.20 N from excess area).",
+    "essentialQuestion": "How do shaded areas on Force–Distance graphs prove conservation of ideal work and quantify friction work?",
     "standards": [
-      "HS-PS3-1"
+      "HS-PS3-1",
+      "HS-PS3-2"
     ],
     "wicor": {
-      "Writing": "Comparing slow vs. fast ascent trials to justify why time sits in the denominator of power.",
-      "Inquiry": "Measuring personal vertical height and climb duration to quantify human Wattage output.",
-      "Collaboration": "Partners act as timer and measurer during safe staircase or step-platform trials.",
-      "Organization": "Using a two-step calculation table: first W = m · g · h (J), then P = W ÷ t (W and hp).",
-      "Reading": "Comparing engine and appliance ratings in Watts and horsepower."
+      "Writing": "Drafting a 3-part Claim–Evidence–Reasoning rebuttal citing measured Day 3 Forces, Distances, and Graph Areas.",
+      "Inquiry": "Comparing excess input work area (W_in - W_out) across ramp lengths to isolate track friction force.",
+      "Collaboration": "Partners verify rectangular/triangular area partitions and peer-check CER quantitative evidence.",
+      "Organization": "Logging positive (+) and negative (-) graph region areas before summing W_net.",
+      "Reading": "Extracting non-constant and piecewise force data from CAST-style Force vs. Distance curves."
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "Two 60 kg students climb the exact same 3.0 m staircase. Student A takes 6 seconds while Student B takes 3 seconds. Who did more work, and who generated more power?",
-      "explanation": "Both students weigh 600 N and lift themselves 3.0 m, so both do identical work (W = 1,800 J). Student B finishes in half the time, generating twice the power (600 W vs. 300 W).",
+      "promptQuestion": "On a Force vs. Distance graph, a robot pushes with a steady 15 N from 0 m to 4 m, then eases off linearly from 15 N to 0 N between 4 m and 6 m. What is the total work done?",
+      "explanation": "Rectangle area (0–4 m): 15 N × 4 m = 60 J. Triangle area (4–6 m): ½ × 2 m × 15 N = 15 J. Total work = 60 J + 15 J = 75 J.",
       "defaultDuration": 3
     },
-    "links": {},
+    "links": {
+      "Day 4 CAST Data Analysis & CER (PDF)": "Unit_3/worksheets/Day4_Force_Distance_Data_Analysis_CER.pdf",
+      "Day 4 Print View (HTML)": "Unit_3/worksheets/Day4_Force_Distance_Data_Analysis_CER.html"
+    },
     "assignments": [
       {
-        "title": "Stairmaster Mechanical Power Lab",
-        "typeLabel": "Hands-On Lab",
-        "submission": "3 Timed Trials + Watts & Horsepower Calculations",
-        "actionLabel": "Planned Activity",
-        "description": "Measure vertical elevation and climb times to compare mechanical work (J) and power output (W and hp).",
-        "status": "planned"
+        "title": "Force–Distance Data Analysis & Ramp Trade-Off CER",
+        "url": "Unit_3/worksheets/Day4_Force_Distance_Data_Analysis_CER.pdf",
+        "typeLabel": "CAST Data Analysis",
+        "submission": "Plotted Ramp Graph + >= 3/4 Area Tasks + CER",
+        "actionLabel": "Open PDF Worksheet",
+        "description": "Overlay Day 3 lift vs. ramp areas, evaluate 4 CAST F–d graph problems, and write a CER on simple-machine work.",
+        "status": "active"
       }
     ],
-    "resources": []
+    "resources": [
+      {
+        "title": "Force–Distance Data Analysis & Ramp CER — 2-Page Handout (PDF)",
+        "url": "Unit_3/worksheets/Day4_Force_Distance_Data_Analysis_CER.pdf",
+        "typeLabel": "Printable Worksheet",
+        "description": "Calibrated Force–Distance plotting grid, 4 CAST area-under-curve tasks (rectangle, triangle, trapezoid, braking), Honors friction extraction, and 3-zone CER."
+      }
+    ]
   },
   {
     "day": 5,
     "date": "2026-11-20",
     "unit": 3,
-    "title": "Work & Power Mastery Relay + Week 1 Check",
-    "topic": "Synthesis of Work (W = F · d), Lifting Work & Power (P = W ÷ t)",
-    "dok": 2,
-    "type": "Formative Assessment",
+    "title": "Staircase Power Lab (P = W ÷ t) & Week 1 Mastery Check",
+    "topic": "Mechanical Power in Watts & Horsepower + Week 1 Checkpoint",
+    "dok": 3,
+    "type": "Lab & Assessment",
     "semester": 1,
-    "isFeatured": false,
-    "summary": "Before heading into Thanksgiving Break, lock in all of Week 1's tools: spotting when work is positive, negative, or zero; finding work from F–d graphs; computing lifting work with g = 10 m/s²; and converting Joules per second into Watts.",
-    "activity": "Energy Relay Showdown + Week 1 Mastery Checkpoint: Teams race through 4 problem stations—each station must check green before unlocking the next envelope—then complete a 6-question individual checkpoint (target >= 5/6) covering work, negative friction work, and power.",
-    "essentialQuestion": "How do force direction, displacement, vertical weight, and time work together to define mechanical work and power?",
+    "isFeatured": true,
+    "summary": "Walking slowly up a flight of stairs and climbing briskly accomplish the exact same vertical lifting work (W = m · g · h). What skyrockets as climb time shrinks is Mechanical Power—Joules transferred per second (P = W ÷ t, measured in Watts and horsepower where 1 hp = 746 W).",
+    "activity": "Staircase / Step-Up Mechanical Power Lab + Week 1 Mastery Check: Measure step riser height h_step × step count (e.g., 3.00 m stairwell, or 5 reps onto a 0.40 m indoor platform = 2.00 m), compute lifting weight (m · 10; 60 kg reference card optional) and vertical work W = F_g · h, time 3 safe trials (Slow, Normal Brisk, Fast Climb), calculate Watts and horsepower (reference: 60 kg, 3.00 m → 1,800 J in 9 s/6 s/4 s yields 200 W/300 W/450 W), compare against a 60 W bulb & 1,500 W dryer, then finish the 6-item Week 1 Mastery Quiz (>= 5/6 target) before Thanksgiving Break.",
+    "essentialQuestion": "Why does climbing the same staircase in half the time double your mechanical power output while leaving total work unchanged?",
     "standards": [
       "HS-PS3-1"
     ],
     "wicor": {
-      "Writing": "Explaining step-by-step unit substitutions (N · m = J, J ÷ s = W).",
-      "Inquiry": "Diagnosing tricky zero-work and opposite-force problems across relay stations.",
-      "Collaboration": "Pairs solve and verify each relay station together before advancing.",
-      "Organization": "Building a quick-reference formula triangle/stack card before the individual quiz.",
-      "Reading": "Extracting given force, mass, height, distance, and time values from word scenarios."
+      "Writing": "Explaining why cutting climb time in half doubles Wattage using W_slow = W_fast evidence.",
+      "Inquiry": "Testing how self-selected climb pace alters human Wattage output relative to household appliances.",
+      "Collaboration": "Partners measure stair geometry together and run stopwatch trials safely with handrail guidance.",
+      "Organization": "Completing a 3-trial calculation table (Weight, Height, Work in J, Time in s, Power in W & hp).",
+      "Reading": "Converting standard pound/kg weight cues and appliance Wattage ratings in quiz items."
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "A crane motor lifts a 500 kg steel beam 10 m straight up in 25 s (use g = 10 m/s²). How much lifting work did the crane do, and what was its average power output?",
-      "explanation": "Weight = m · g = 500 · 10 = 5,000 N. Work = 5,000 N · 10 m = 50,000 J. Power = 50,000 J ÷ 25 s = 2,000 W.",
+      "promptQuestion": "Two 60 kg students climb the exact same 3.0 m staircase. Student A takes 6.0 s while Student B takes 3.0 s. Compare their vertical work (J) and power (W).",
+      "explanation": "Both weigh 600 N and rise 3.0 m, so both do identical work (1,800 J). Student B finishes in half the time, producing twice the power (600 W vs. 300 W).",
       "defaultDuration": 3
     },
-    "links": {},
+    "links": {
+      "Day 5 Power Lab & Week 1 Checkpoint (PDF)": "Unit_3/worksheets/Day5_Staircase_Power_Lab_and_Check.pdf",
+      "Day 5 Print View (HTML)": "Unit_3/worksheets/Day5_Staircase_Power_Lab_and_Check.html"
+    },
     "assignments": [
       {
-        "title": "Work & Power Week 1 Mastery Checkpoint",
-        "typeLabel": "Formative Quiz",
-        "submission": "Relay Pass + 6-Question Individual Quiz (>= 5/6)",
-        "actionLabel": "Planned Activity",
-        "description": "Four-station team relay followed by an individual quiz on W = F · d, lifting work, and P = W ÷ t.",
-        "status": "planned"
+        "title": "Staircase Mechanical Power Lab & Week 1 Checkpoint",
+        "url": "Unit_3/worksheets/Day5_Staircase_Power_Lab_and_Check.pdf",
+        "typeLabel": "Hands-On Lab & Quiz",
+        "submission": "3 Timed Power Trials + >= 5/6 Week 1 Quiz",
+        "actionLabel": "Open PDF Lab & Quiz",
+        "description": "Measure stair elevation, time 3 climbs in Watts & hp, and complete the 6-item Week 1 checkpoint before break.",
+        "status": "active"
       }
     ],
-    "resources": []
+    "resources": [
+      {
+        "title": "Staircase Power Lab & Week 1 Mastery Check — 2-Page Handout (PDF)",
+        "url": "Unit_3/worksheets/Day5_Staircase_Power_Lab_and_Check.pdf",
+        "typeLabel": "Printable Lab & Quiz",
+        "description": "Page 1: Staircase Power Lab (P = W ÷ t in Watts & hp) with appliance benchmarks. Page 2: 6-item 10-point Week 1 Mastery Checkpoint."
+      }
+    ]
   },
   {
     "day": 6,

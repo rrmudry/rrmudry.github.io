@@ -29,82 +29,136 @@ Students transition from forces and kinematics into an energy-accounting framewo
 
 ## 📅 Weekly Curriculum Blueprint
 
-### Week 1: Mechanical Work, Angles & Power (Nov 16 – Nov 20, 2026)
+### Week 1: Mechanical Work, Calculations, Simple Machines, Data Analysis & Power (Nov 16 – Nov 20, 2026)
 
 #### Day 1 — Mon, Nov 16, 2026
-- **Title:** What Counts as Work? Force, Displacement & Direction
-- **Type:** Concept Intro / Inquiry Demo
-- **DOK:** DOK 1–2
+- **Title:** Work vs. Effort: Concept Intro & AVID Close Reading
+- **Type:** Concept Intro / AVID 5-Step Close Reading
+- **DOK:** DOK 2
 - **Standards:** HS-PS3-1
 - **Essential Question:** EQ1
-- **Bell-Ringer:** Prompt asks students to predict whether holding a 10 kg crate stationary overhead for 60 seconds does more physics work than lifting it 1 m straight up, followed by an SMS-style conceptual mentor check-in.
-- **Lesson Focus:** Define mechanical work (`W = F · d`), introduce the Joule (`1 J = 1 N · m`), and demonstrate why force perpendicular to motion (`F ⟂ d`, like carrying horizontally) does zero mechanical work.
-- **Activity & Completion Requirement:** Students complete the *Work or No Work? Force-Displacement Card Sort & Measurement Check* (8 physical scenarios plus 4 tabletop spring-scale horizontal drag measurements; must reach 10/12 verified responses and submit summary ticket).
+- **Bell-Ringer:** Interactive SMS `concept_chat` — predict whether holding a 10 kg crate completely still overhead for 60 s or lifting it 1 m onto a shelf does more mechanical work in physics, and explain why everyday muscle tiredness differs from `W = F · d`.
+- **Lesson Focus:** Contrast biological fatigue (`d = 0 m` or `F ⟂ d`) against mechanical work (`W = F · d`, measured in Joules `1 J = 1 N · m`); establish the directional rules (`+W` parallel, `-W` opposing, `0 J` perpendicular or stationary) and vertical lifting work (`W = m · g · h` with `g = 10 m/s²`).
+- **Reading Selection — 5-Paragraph Blueprint (*Why Effort Isn't Always Work*):**
+  1. **Paragraph 1 (The Everyday Effort Trap):** Why holding a 10 kg weight still makes arms shake while physics records `d = 0 m` → `W = 0 J`.
+  2. **Paragraph 2 (The Mathematical Law & The Joule):** Introducing `W = F · d` (`1 J = 1 N · m`); benchmark feel: lifting a `0.1 kg` apple (`1 N`) up `1 m` equals `1 J`.
+  3. **Paragraph 3 (Direction Rules: `+W`, `-W`, and `0 J`):** Forward push does positive work, friction/brakes opposing motion do negative mechanical work, and carrying a backpack across a level floor (`90°` between upward arm force and sideways displacement) does `0 J` mechanical work.
+  4. **Paragraph 4 (Work Against Gravity):** At steady upward speed, lifting force matches gravitational weight (`F_lift = F_g = m · g`), giving `W_lift = m · g · h` (`g = 10 m/s²`).
+  5. **Paragraph 5 (Simple Machines Preview):** Inclined planes and pulleys conserve ideal work (`F_in · d_in = F_out · d_out`), trading smaller force for longer pulling distance.
+- **Activity & Completion Requirement:** *AVID 5-Step Text Annotation & 8-Scenario Direction Sort* — students (1) number Paragraphs 1–5, (2) circle academic terms (`Mechanical Work`, `Displacement`, `Joule`, `Perpendicular`, `Net Work`), (3) underline core equations/rules, (4) write 3–4 word left-margin gist statements per paragraph, and (5) write 2 Costa's Level 2/3 questions in the right margin before classifying 8 physical scenarios (`+W`, `-W`, `0 J`) with sketched `F` and `d` arrows (`≥ 7/8` verified classifications required for sign-off).
 - **Differentiation:**
-  - *P1–3:* Focus on 3 clear cases (same direction = +, opposite = -, perpendicular = 0) using directional arrows and spring scales.
-  - *P4–6:* Calculate `W = F · d` for parallel and opposite forces using measured Newtons and meters.
-  - *P0:* Analyze angled sled pulls (`W = F · d · cos(θ)`) and explain zero work when `θ = 90°`.
-- **Links:** None yet
+  - *P1–3:* Visual arrow-pair key (`↑↑ = +W`, `↑↓ = -W`, `↑→ = 0 J`) plus chunked bilingual vocabulary cards; focuses on classifying arrow direction without trigonometry.
+  - *P4–6:* Complete AVID 5-step close reading annotation, FNT summary reflection answering EQ1, and 8-scenario arrow classification table.
+  - *P0:* Adds trigonometric projection `W = F · d · cos(θ)` across `0°` (`cos 0° = 1`), `60°` (`cos 60° = 0.50`), `90°` (`cos 90° = 0`), and `180°` (`cos 180° = -1`).
+- **Links:** [Day 1 Reading & Direction Sort (PDF)](worksheets/Day1_Work_vs_Effort_AVID_Reading.pdf) · [Print View (HTML)](worksheets/Day1_Work_vs_Effort_AVID_Reading.html)
 
 #### Day 2 — Tue, Nov 17, 2026
-- **Title:** Positive vs. Negative Work & Force–Distance Graphs
-- **Type:** Guided Practice / Data Graphing
+- **Title:** Work Calculation Practice: Horizontal, Vertical Lifting & Net Work
+- **Type:** Calculation Practice Workshop
 - **DOK:** DOK 2
-- **Standards:** HS-PS3-1, HS-PS3-2
+- **Standards:** HS-PS3-1
 - **Essential Question:** EQ1
-- **Bell-Ringer:** Given a 20 N force pushing a cart 4 m east while friction pulls 5 N west, identify which force does positive work and which does negative work.
-- **Lesson Focus:** Interpret net work (`W_net = F_net · d`) and show that the area under a Force vs. Distance graph equals total mechanical work (`W = Area`).
-- **Activity & Completion Requirement:** *Force–Distance Area Challenge* — students plot stepped and triangular force profiles from lab data, shade positive vs. negative area blocks, and pass a 6-problem mastery checkpoint (`≥ 5/6` to log completion).
+- **Bell-Ringer:** A student pushes a heavy box `4 m` east with `20 N` while floor friction pulls `5 N` west. Identify the positive work (`+80 J`), negative friction work (`-20 J`), and net work (`+60 J`).
+- **Lesson Focus:** Build fluent stacked GUESS problem solving (Given, Unknown, Equation, Stacked Substitution, Solution with SI units) across horizontal work (`W = F · d`), vertical lifting work (`W = m · g · h`, `g = 10 m/s²`), zero-work traps, and opposing-force net work (`W_net = F_net · d`).
+- **Calculation Practice Set (12 Scaffolded Problems, `g = 10 m/s²`):**
+  - **Part A — Direct Horizontal & Zero-Work Cases (Problems 1–4):**
+    1. Forward sled push: `F = 45 N` over `d = 6.0 m` → `W = 270 J`.
+    2. Reverse force solve: `W = 600 J` over `d = 12 m` → `F = 50 N`.
+    3. Braking friction work: `F_f = 400 N` backward over `8.0 m` → `W_f = -3,200 J`.
+    4. Hallway carrying check: `15 kg` crate carried horizontally `20 m` at constant height → `0 J` (`F ⟂ d`).
+  - **Part B — Vertical Lifting Against Gravity `W = m · g · h` (Problems 5–8):**
+    5. Bench lift: `4.0 kg` toolbox lifted `1.5 m` → `F_g = 40 N`, `W = 60 J`.
+    6. Warehouse forklift: `250 kg` pallet lifted `3.0 m` → `F_g = 2,500 N`, `W = 7,500 J`.
+    7. Reverse elevation solve: `60 kg` rock climber (`F_g = 600 N`) does `12,000 J` of lifting work → `h = 20 m`.
+    8. Multi-stage warehouse path: lift `10 kg` up `1.2 m` (`+120 J`), walk `8.0 m` flat (`0 J`), lift `0.8 m` onto top shelf (`+80 J`) → Total `200 J`.
+  - **Part C — Net Work & Angled Forces (Problems 9–12):**
+    9. Opposing push and friction: `120 N` east push vs. `40 N` west friction across `10 m` → `W_net = +800 J`.
+    10. Angled luggage strap: `40 N` pulled at `60°` (`cos 60° = 0.50`) over `15 m` → `W = 300 J`.
+    11. Unknown braking force solve: `90 N` push over `10 m` (`+900 J`) yields measured `W_net = +650 J` → `W_f = -250 J`, `F_f = 25 N`.
+    12. Lift vs. slide comparison: `20 kg` crate (`F_g = 200 N`, `μ_k = 0.25` → `F_f = 50 N`) moved `4.0 m` flat against friction (`200 J`) vs. lifted `4.0 m` vertically (`800 J` — `4×` more work).
+- **Activity & Completion Requirement:** *Tiered Work Calculation Check & Partner Whiteboards* — pairs alternate solving and unit-checking odds/evens, complete assigned problems (Conceptual: #1–8; CP: #1–10; Honors: #1–12), and pass a 4-item exit calculation check (`≥ 3/4` stacked GUESS work shown).
 - **Differentiation:**
-  - *P1–3:* Count grid squares (`1 square = 2 J`) under constant horizontal force bars to determine total work without triangle formulas.
-  - *P4–6:* Compute rectangular and triangular areas (`½ · base · height`) under constant and linearly changing force graphs.
-  - *P0:* Evaluate composite piecewise F–d graphs containing negative friction regions to compute `W_net`.
-- **Links:** None yet
+  - *P1–3:* Problems 1–8 with pre-boxed two-line step (`Step 1: Weight = m · 10`, `Step 2: W = Weight · h`) and unit bank; zero trigonometry.
+  - *P4–6:* Problems 1–10 using full stacked GUESS templates with SI unit checks (`N`, `m`, `J`).
+  - *P0:* All 12 problems including angled `W = F · d · cos(θ)` projections and reverse algebraic solves for resistive force `F_f`.
+- **Links:** [Day 2 Work Calculation Workshop (PDF)](worksheets/Day2_Work_Calculation_Practice.pdf) · [Print View (HTML)](worksheets/Day2_Work_Calculation_Practice.html)
 
 #### Day 3 — Wed, Nov 18, 2026
-- **Title:** Work Done Against Gravity: Lifting & Ramps
-- **Type:** Lab Activity / Comparison Investigation
-- **DOK:** DOK 2–3
+- **Title:** Work Done Against Gravity: Ramp & Pulley Trade-Off Lab
+- **Type:** Lab Activity (Hands-On + Digital Simulation)
+- **DOK:** DOK 3
 - **Standards:** HS-PS3-1
 - **Essential Question:** EQ1
-- **Bell-Ringer:** Compare lifting a 2 kg mass 0.5 m straight up (`F = 20 N`) vs. sliding it up a smooth 1.0 m ramp (`F = 10 N`): which path changes the total work done?
-- **Lesson Focus:** Show how inclined planes and simple machines reduce required input force by spreading the lift over a longer distance while conserving ideal mechanical work (`W_in = F · d = m · g · h` with g = 10 m/s²).
-- **Activity & Completion Requirement:** *Inclined Plane Work Lab* — lab teams pull a 0.5 kg dynamics cart up a low-friction ramp at 3 angles, record force (`N`) and ramp length (`m`) alongside vertical rise (`h`), and submit a completed 3-trial evidence table showing why `F · d` stays near `m · g · h`.
+- **Bell-Ringer:** Lifting a `2.0 kg` mass `0.50 m` straight up requires `20 N` (`g = 10 m/s²`), while sliding it up a smooth `1.0 m` ramp requires `10 N`. Which method changes the total mechanical work done?
+- **Lesson Focus:** Experimentally test mechanical advantage and ideal work conservation (`W_in = F_pull · d ≈ W_out = m · g · h`) by raising a `0.50 kg` cart (`F_g = 5.0 N`) to a fixed `0.30 m` shelf across steep and gentle ramps, then cross-checking against pulley strand ratios in the [Ideal Pulley System Lab](pulley-work/index.html).
+- **Lab Protocol & Reference Data Table (`m = 0.50 kg`, `F_g = 5.0 N`, Fixed `h = 0.30 m`, `W_out = 1.50 J`):**
+  1. **Zero & Calibrate:** Zero the `0–10 N` spring scale horizontally/vertically, measure vertical shelf elevation `h = 0.30 m`, and verify `0.50 kg` cart weight (`F_g = 5.0 N`).
+  2. **Part 1 — Direct Lift & 4 Ramp Angles:** Pull the cart up the track at a steady slow crawl along 4 lengths (`0.50 m`, `0.60 m`, `1.00 m`, `1.20 m`) all terminating at `h = 0.30 m`. Average 2 pulls per length.
+  3. **Part 2 — Ideal Pulley Cross-Check:** Run 1-rope, 2-rope, and 4-rope lifts inside `pulley-work/index.html` to verify `F_in · d_in = F_out · d_out`.
+
+| Trial Setup | Distance `d` (m) | Ideal Force `F_ideal` (N) | Measured `F_pull` (N) | Work Input `W_in = F_pull · d` (J) | Work Output `m · g · h` (J) | `IMA = d ÷ h` |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Direct Vertical Lift** | `0.30` | `5.00` | `5.00` | `1.50` | `1.50` | `1.0` |
+| **Ramp A (Steep)** | `0.50` | `3.00` | `3.20` | `1.60` | `1.50` | `1.7` |
+| **Ramp B (2× Length)** | `0.60` | `2.50` | `2.75` | `1.65` | `1.50` | `2.0` |
+| **Ramp C (Moderate)** | `1.00` | `1.50` | `1.70` | `1.70` | `1.50` | `3.3` |
+| **Ramp D (Gentle 4×)** | `1.20` | `1.25` | `1.45` | `1.74` | `1.50` | `4.0` |
+
+- **Activity & Completion Requirement:** *Inclined Plane & Pulley Evidence Table* — lab groups log all 5 elevation trials (`d`, `F_pull`, `W_in`, `W_out`) plus 3 virtual pulley trials and submit a signed data sheet before tear-down.
 - **Differentiation:**
-  - *P1–3:* Use fixed 0.40 m vertical shelf height and compare direct lift vs. long ramp using visual bar heights and force scale readings.
-  - *P4–6:* Calculate `W = F · d` across 3 ramp lengths and compare against `m · g · h` (`g = 10 m/s²`).
-  - *P0:* Compare actual ramp work (`F_meas · d`) vs. ideal work (`m · g · h`) to quantify negative friction work `W_f = -F_f · d` without mentioning heat.
-- **Links:** None yet
+  - *P1–3:* Run clean `1×`, `2×`, and `4×` distances (`0.30 m`, `0.60 m`, `1.20 m`) to observe how doubling ramp distance halves ideal pull force while keeping work near `1.50 J`.
+  - *P4–6:* Complete all 5 physical trials, calculate `W_in = F_pull · d` and `IMA = d ÷ h`, and compare against `m · g · h = 1.50 J`.
+  - *P0:* Compute mechanical efficiency (`Eff = W_out ÷ W_in`) and negative friction work (`W_f = -(W_in - W_out)`, e.g. `-0.24 J` on Ramp D) along each track length.
+- **Links:** [Ideal Pulley System Lab](../pulley-work/index.html) · [Day 3 Ramp & Pulley Lab (PDF)](worksheets/Day3_Ramp_and_Pulley_Work_Lab.pdf) · [Print View (HTML)](worksheets/Day3_Ramp_and_Pulley_Work_Lab.html)
 
 #### Day 4 — Thu, Nov 19, 2026
-- **Title:** Mechanical Power Lab: Speeding Up the Stairs
-- **Type:** Lab Activity (Physical Measurement)
-- **DOK:** DOK 2–3
-- **Standards:** HS-PS3-1
+- **Title:** Force–Distance Data Analysis & Ramp Trade-Off CER
+- **Type:** CAST Data Analysis & Argumentation (CER)
+- **DOK:** DOK 3
+- **Standards:** HS-PS3-1, HS-PS3-2
 - **Essential Question:** EQ1
-- **Bell-Ringer:** Two students of equal weight climb the same 3.0 m staircase; Student A takes 6 s and Student B takes 3 s. Did Student B do more work, or generate more power?
-- **Lesson Focus:** Define mechanical power (`P = W / t`) in Watts (`1 W = 1 J/s`) and contrast doing the same work slowly vs. rapidly.
-- **Activity & Completion Requirement:** *Stairmaster Power Challenge* — pairs time safe walking vs. brisk stepping up measured stadium/stairwell steps (or step-up platform alternative with weighted pack), calculate vertical work (`m · g · h`) and power output in Watts and horsepower (`746 W = 1 hp`), and submit the verified lab sheet.
+- **Bell-Ringer:** A robot pushes a crate with `15 N` for `4 m`, then eases its push linearly from `15 N` down to `0 N` over the next `2 m`. Find the total work done by reading the rectangular (`60 J`) and triangular (`15 J`) graph areas (`75 J` total).
+- **Lesson Focus:** Interpret real Force vs. Distance graphs (`W = Area` between curve and axis) using yesterday's lab measurements, diagnose multi-shape `F–d` curves (rectangles, triangles, trapezoids, negative braking sections), and construct a quantitative Claim–Evidence–Reasoning (CER) argument refuting simple-machine work myths.
+- **Data Analysis & CAST Problems:**
+  1. **Graphing Day 3 Data:** Plot `(d, F_pull)` across `0.00–1.50 m` (x-axis) and `0.0–6.0 N` (y-axis), draw the smooth inverse curve (`F ∝ 1/d`), and shade the Direct Lift rectangle (`0.30 m × 5.00 N = 1.50 J`) vs. Ramp D rectangle (`1.20 m × 1.25 N = 1.50 J`) to prove visually why equal areas yield equal ideal work.
+  2. **4 CAST Graph Area Tasks:**
+     - *(Task 1)* Constant `12 N` push from `0–5 m` → rectangle area `+60 J`.
+     - *(Task 2)* Linearly increasing spring/pull force `0 N → 20 N` from `0–4 m` → triangle area `½ · 4 · 20 = +40 J`.
+     - *(Task 3)* Two-stage trapezoidal push (`0–2 m` ramping `0 → 20 N` = `+20 J`; `2–5 m` steady `20 N` = `+60 J`) → `+80 J`.
+     - *(Task 4)* Piecewise push & braking (`0–2 m` forward `+20 N` = `+40 J`; `2–4 m` negative braking `-10 N` below axis = `-20 J`) → `W_net = +20 J`.
+  3. **CAST CER Prompt:** A classmate claims *"Using Ramp D (`1.20 m`) cuts the total work in one-fourth compared to lifting straight up (`0.30 m`)."* Write a Claim–Evidence–Reasoning rebuttal citing measured Force, Distance, Work (`J`), and Graph Area.
+- **Activity & Completion Requirement:** *Ramp Graph Overlay + 4 CAST Area Tasks + Formal CER* — students complete the shaded area comparison, pass `≥ 3/4` CAST area tasks, and submit a complete 3-part CER citing at least two Day 3 measurements.
 - **Differentiation:**
-  - *P1–3:* Provided pre-measured step height (`h = 2.0 m`) and mass-to-weight conversion table (`Weight = m · 10`); focus on comparing slow vs. fast trial time impact on Watts.
-  - *P4–6:* Full two-step measurement (`W = m · g · h`, then `P = W / t`) using `g = 10 m/s²` across 3 timed trials.
-  - *P0:* Derive `P = F · v` for constant-speed climbs and calculate minimum motor rating required to lift a 400 kg elevator at `2.5 m/s`.
-- **Links:** None yet
+  - *P1–3:* Pre-scaled coordinate grid where each grid block equals `0.25 J` (`0.10 m × 2.5 N` or labeled square count), plus structured CER sentence frames.
+  - *P4–6:* Plot measured `F_pull` points alongside ideal curve, calculate rectangle/triangle areas algebraically, and write a quantitative CER.
+  - *P0:* Compute excess area `(W_in - W_out)` on Ramp D (`1.74 J - 1.50 J = 0.24 J`) to extract average rolling/slide friction force (`F_f = 0.24 J ÷ 1.20 m = 0.20 N`, matching `1.45 N - 1.25 N = 0.20 N`).
+- **Links:** [Day 4 Force–Distance Data Analysis & CER (PDF)](worksheets/Day4_Force_Distance_Data_Analysis_CER.pdf) · [Print View (HTML)](worksheets/Day4_Force_Distance_Data_Analysis_CER.html)
 
 #### Day 5 — Fri, Nov 20, 2026
-- **Title:** Work & Power Mastery Relay + Week 1 Check
-- **Type:** Formative Assessment / Team Relay
-- **DOK:** DOK 2
+- **Title:** Staircase Power Lab (`P = W ÷ t`) & Week 1 Mastery Check
+- **Type:** Lab Activity & Formative Assessment
+- **DOK:** DOK 3
 - **Standards:** HS-PS3-1
 - **Essential Question:** EQ1
-- **Bell-Ringer:** Quick 2-minute unit conversion warmup: match `J`, `W`, `N`, `m`, and `s` to their physical quantities.
-- **Lesson Focus:** Consolidate `W = F · d`, vertical work (`m · g · h`), negative friction work, and `P = W / t` before Thanksgiving Break.
-- **Activity & Completion Requirement:** *Energy Relay Showdown + Individual 6-Item Checkpoint* — pairs race through 4 relay stations checking each answer before unlocking the next, then complete an individual mastery quiz (`≥ 5/6` target score) so nothing carries over unassessed across the break.
+- **Bell-Ringer:** Two `60 kg` students (`Weight = 600 N`) climb a `3.0 m` staircase; Student A takes `6.0 s` and Student B takes `3.0 s`. Compare their total vertical work (`1,800 J` each) and mechanical power (`300 W` vs. `600 W`).
+- **Lesson Focus:** Measure real mechanical Power (`P = W ÷ t`) in Watts (`1 W = 1 J/s`) and horsepower (`746 W = 1 hp`), observe the inverse relationship between climb time and power (`P ∝ 1/t`), and verify Week 1 mastery before Thanksgiving Break.
+- **Lab Protocol & Reference Table:**
+  1. **Measure Vertical Elevation:** Measure single riser height `h_step` (m) × total stairs climbed (`N`) = `h_total` (e.g., `0.15 m × 20 steps = 3.00 m`; indoor alternative: `5` step-ups onto a calibrated `0.40 m` platform = `2.00 m`).
+  2. **Compute Lifting Weight & Work:** Convert body mass (`lb ÷ 2.2 = kg`, or use standard `60.0 kg` pack/reference option for student comfort), compute `F_g = m · 10` (`N`), and calculate vertical work `W = F_g · h_total` (`J`).
+  3. **Run 3 Safe Timed Paces:** Time **Slow Walk**, **Normal Brisk Walk**, and **Fast Climb** (no skipping steps; hand near rail), compute `P = W ÷ t` (`W`) and `hp = P ÷ 746`, and benchmark against a `60 W` lamp, `746 W` (`1 hp`) horse/motor, and `1,500 W` hair dryer.
+
+| Trial Pace (`60 kg`, `h = 3.00 m`, `W = 1,800 J`) | Time `t` (s) | Mechanical Work `W` (J) | Power Output `P = W ÷ t` (W) | Horsepower (`P ÷ 746`) |
+| :--- | :---: | :---: | :---: | :---: |
+| **Trial 1: Slow Walk** | `9.0` | `1,800` | `200 W` | `0.27 hp` |
+| **Trial 2: Normal Brisk** | `6.0` | `1,800` | `300 W` | `0.40 hp` |
+| **Trial 3: Fast Climb** | `4.0` | `1,800` | `450 W` | `0.60 hp` |
+
+- **Activity & Completion Requirement:** *Staircase Power Lab Sheet + 6-Item Week 1 Mastery Checkpoint* — partners log 3 safe timed trials, finish Watts/hp comparisons, and complete the individual 6-item quiz (`≥ 5/6` target covering `W = F · d`, `W = m · g · h`, `F–d` graph area, and `P = W ÷ t`) before leaving for Thanksgiving Break.
 - **Differentiation:**
-  - *P1–3:* Formula bank with unit cues and calculator checklist; 5 focused word-and-diagram scenarios.
-  - *P4–6:* Standard multi-step Work & Power word problems (`g = 10 m/s²`).
-  - *P0:* Reverse-engineering problems (solve for unknown time, angle, or resistive force given target Wattage).
-- **Links:** None yet
+  - *P1–3:* Option to use `60 kg` reference card (`F_g = 600 N`) with pre-computed `W = 1,800 J` box so focus stays on `P = W ÷ t` inverse time trends + formula/unit bank on the 6-item check.
+  - *P4–6:* Full step-riser height measurement, unit conversion, Watts + horsepower calculations, and standard 6-item Week 1 checkpoint (`g = 10 m/s²`).
+  - *P0:* Derives `P = (F · d) ÷ t = F · v_y` for steady vertical climbs, sketches `P` vs. `t` curve from lab data, and solves a `400 kg` elevator cable tension + constant speed (`2.5 m/s` → `10,000 W`) problem on the check.
+- **Links:** [Day 5 Staircase Power Lab & Week 1 Check (PDF)](worksheets/Day5_Staircase_Power_Lab_and_Check.pdf) · [Print View (HTML)](worksheets/Day5_Staircase_Power_Lab_and_Check.html)
 
 ---
 
@@ -353,8 +407,8 @@ Students transition from forces and kinematics into an energy-accounting framewo
 
 | Lab / Activity | Day(s) | Required Classroom Materials (Per Group of 3–4) |
 | :--- | :--- | :--- |
-| **Work & Inclined Plane Lab** | Days 1, 3 | 0.5 kg dynamics cart, adjustable low-friction track/board, 0–10 N spring scale, meterstick, stacked textbooks/ring stand |
-| **Stairmaster Power Challenge** | Day 4 | Digital stopwatch, meterstick / tape measure, classroom stairwell or 0.40 m sturdy step-up platform, bathroom scale (`kg`) |
+| **Ramp & Pulley Work Lab** | Day 3 | `0.50 kg` dynamics cart, adjustable low-friction track/board (`0.50–1.20 m`), `0–10 N` spring scale, meterstick, `0.30 m` stacked shelf support, Chromebooks (`pulley-work/index.html`) |
+| **Staircase Mechanical Power Lab** | Day 5 | Digital stopwatch, meterstick / tape measure, classroom stairwell (`3.0 m`) or `0.40 m` sturdy step-up platform, bathroom scale (`lb` / `kg`) |
 | **Spring Calibration & Slingshot** | Days 7–9 | 2 color-coded coiled springs (`k₁ ≈ 20 N/m`, `k₂ ≈ 50 N/m`), ring stand, hooked masses (`100–500 g`), meterstick, pop-up launcher or spring track bumper |
 | **Photogate Speed & KE Lab** | Day 12 | PASCO/DIY Photogate timer, `0.05 m` cardboard flag mounted on rolling cart, inclined aluminum track, digital balance |
 | **Braking Skid Distance Lab** | Day 14 | Wooden block with felt base, launch ramp, meterstick, spring scale (to verify friction baseline), masking tape markers |

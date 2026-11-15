@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Unit 3 Day 5: Staircase Mechanical Power Lab &amp; Week 1 Mastery Check</title>
+  <style>
+    @page {
+      size: letter portrait;
+      margin: 0.30in 0.40in;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      color: #0f172a;
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+      line-height: 1.24;
+      font-size: 8.7pt;
+      font-variant-numeric: normal;
+      font-feature-settings: "zero" 0;
+    }
+
+    @media screen {
+      body {
+        background: #cbd5e1;
+        padding: 18px 0;
+      }
+      .worksheet-page {
+        background: #ffffff;
+        width: 8.5in;
+        height: 10.92in;
+        max-height: 10.92in;
+        margin: 0 auto 20px auto;
+        padding: 0.30in 0.40in;
+        box-shadow: 0 8px 25px rgba(15, 23, 42, 0.22);
+      }
+      .print-toolbar {
+        max-width: 8.5in;
+        margin: 0 auto 12px auto;
+        display: flex;
+        justify-content: flex-end;
+      }
+      .print-btn {
+        background: #0f172a;
+        color: #ffffff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: 800;
+        font-size: 9.5pt;
+        cursor: pointer;
+      }
+    }
+    @media print {
+      .print-toolbar {
+        display: none !important;
+      }
+      .worksheet-page {
+        width: 100%;
+        height: 10.32in;
+        max-height: 10.32in;
+        padding: 0;
+        margin: 0;
+      }
+    }
+
+    .worksheet-page {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      page-break-after: always;
+      position: relative;
+    }
+    .worksheet-page:last-child {
+      page-break-after: avoid;
+    }
+
+    .mvar {
+      font-family: Georgia, "Times New Roman", serif;
+      font-style: italic;
+      font-weight: 700;
+    }
+    sub, sup {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      font-style: normal;
+      font-weight: 700;
+      font-size: 0.74em;
+      line-height: 0;
+    }
+
+    .sheet-header {
+      border-bottom: 2.2px solid #0f172a;
+      padding-bottom: 5px;
+      margin-bottom: 6px;
+    }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 4px;
+    }
+    .header-title {
+      font-size: 13.5pt;
+      font-weight: 900;
+      color: #0f172a;
+      margin: 0;
+    }
+    .header-sub {
+      font-size: 8pt;
+      font-weight: 800;
+      color: #334155;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-top: 2px;
+    }
+    .ngss-pill {
+      font-size: 8pt;
+      font-weight: 800;
+      border: 1.5px solid #0f172a;
+      background: #f8fafc;
+      padding: 2px 8px;
+      border-radius: 5px;
+      white-space: nowrap;
+    }
+    .student-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      font-size: 9pt;
+      font-weight: 700;
+    }
+    .meta-item {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+    }
+    .write-line {
+      display: inline-block;
+      border-bottom: 1.5px solid #0f172a;
+      height: 15px;
+      vertical-align: baseline;
+    }
+
+    .running-header {
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 4px;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 8.5pt;
+      font-weight: 800;
+    }
+
+    .card {
+      border: 1.6px solid #0f172a;
+      border-radius: 7px;
+      background: #ffffff;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+    .card-header {
+      background: #f1f5f9;
+      border-bottom: 1.4px solid #0f172a;
+      padding: 3.5px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-title {
+      font-size: 9pt;
+      font-weight: 900;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    .card-tag {
+      font-size: 7.7pt;
+      font-weight: 800;
+      color: #334155;
+      background: #ffffff;
+      border: 1.2px solid #475569;
+      padding: 1px 7px;
+      border-radius: 99px;
+      white-space: nowrap;
+    }
+    .card-body {
+      padding: 6px 9px;
+    }
+
+    .setup-grid {
+      display: grid;
+      grid-template-columns: 3.0in 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+    .bench-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+      margin-top: 6px;
+    }
+    .bench-box {
+      border: 1.3px solid #334155;
+      background: #fefce8;
+      border-radius: 5px;
+      padding: 4px 5px;
+      text-align: center;
+      font-size: 7.7pt;
+      font-weight: 700;
+    }
+    .bench-box strong {
+      display: block;
+      font-size: 8.6pt;
+      color: #0f172a;
+    }
+
+    .measure-6grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .measure-cell {
+      border: 1.3px solid #334155;
+      border-radius: 5px;
+      background: #f8fafc;
+      padding: 5px 8px;
+      font-size: 8pt;
+      font-weight: 700;
+    }
+    .measure-val {
+      border-bottom: 1.5px solid #0f172a;
+      height: 18px;
+      margin-top: 3px;
+    }
+
+    table.cast-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.1pt;
+      text-align: center;
+    }
+    table.cast-table th {
+      background: #e2e8f0;
+      border: 1.3px solid #0f172a;
+      padding: 4px 5px;
+      font-weight: 900;
+      line-height: 1.15;
+    }
+    table.cast-table td {
+      border: 1.2px solid #334155;
+      padding: 6px 5px;
+      font-weight: 700;
+    }
+    table.cast-table tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    .prompt-line {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      margin-bottom: 5px;
+      font-size: 8.5pt;
+    }
+    .prompt-badge-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+    .step-pill {
+      background: #0f172a;
+      color: #ffffff;
+      font-size: 7.4pt;
+      font-weight: 900;
+      padding: 1.5px 5.5px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .pts-pill {
+      border: 1.1px solid #334155;
+      background: #f1f5f9;
+      color: #0f172a;
+      font-size: 7pt;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 99px;
+      white-space: nowrap;
+    }
+    .prompt-body {
+      flex: 1 1 auto;
+      line-height: 1.28;
+    }
+    .ruled-line {
+      border-bottom: 1.3px solid #64748b;
+      height: 19px;
+      width: 100%;
+    }
+
+    /* Page 2 Mastery Quiz Grid */
+    .quiz-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      margin-bottom: 6px;
+    }
+    .quiz-card {
+      border: 1.5px solid #0f172a;
+      border-radius: 6px;
+      padding: 6px 8px;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .work-area {
+      border: 1.2px solid #475569;
+      background: #f8fafc;
+      border-radius: 4px;
+      padding: 5px 7px;
+      margin-top: 4px;
+      font-size: 8.1pt;
+      font-weight: 700;
+    }
+    .ans-bar {
+      margin-top: 5px;
+      padding-top: 3px;
+      border-top: 1px dashed #94a3b8;
+      display: flex;
+      justify-content: flex-end;
+      align-items: baseline;
+      gap: 4px;
+      font-weight: 900;
+      font-size: 8.4pt;
+    }
+    .blank {
+      display: inline-block;
+      border-bottom: 1.5px solid #0f172a;
+      min-width: 0.65in;
+      height: 13px;
+      vertical-align: baseline;
+    }
+
+    .score-banner {
+      border: 1.6px solid #0f172a;
+      background: #f1f5f9;
+      border-radius: 6px;
+      padding: 5px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 8.5pt;
+      font-weight: 800;
+    }
+
+    .page-footer {
+      border-top: 1.3px solid #cbd5e1;
+      padding-top: 3px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 7.8pt;
+      font-weight: 700;
+      color: #475569;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="print-toolbar">
+    <button class="print-btn" onclick="window.print()">🖨️ Print Day 5 Power Lab &amp; Week 1 Checkpoint (2 Pages)</button>
+  </div>
+
+  <!-- =====================================================================
+       PAGE 1: STAIRCASE POWER LAB (MEASUREMENTS, TABLE 1 & ANALYSIS)
+       ===================================================================== -->
+  <div class="worksheet-page">
+    <div>
+      <header class="sheet-header">
+        <div class="header-top">
+          <div>
+            <h1 class="header-title">Unit 3, Day 5: Human Mechanical Power Lab &amp; Week 1 Check</h1>
+            <div class="header-sub">Staircase / Step-Up Investigation (P = W ÷ t) · Page 2 Mastery Quiz · Nov 20, 2026</div>
+          </div>
+          <div class="ngss-pill">HS-PS3-1 · DOK 3 · g = 10 m/s²</div>
+        </div>
+        <div class="student-meta">
+          <div class="meta-item">Name: <span class="write-line" style="width: 2.35in;"></span></div>
+          <div class="meta-item">Timer Partner: <span class="write-line" style="width: 1.75in;"></span></div>
+          <div class="meta-item">Per: <span class="write-line" style="width: 0.60in;"></span></div>
+        </div>
+      </header>
+
+      <!-- DIAGRAM & BENCHMARKS -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Staircase Geometry, Safety Rules &amp; Wattage Benchmarks</div>
+          <div class="card-tag">1 Watt (W) = 1 J/s · 1 Horsepower (hp) = 746 W</div>
+        </div>
+        <div class="card-body">
+          <div class="setup-grid">
+            <!-- SVG Staircase Geometry -->
+            <svg viewBox="0 0 296 122" width="100%" height="114" style="border: 1.2px solid #cbd5e1; border-radius: 5px; background: #f8fafc;">
+              <!-- Steps -->
+              <polyline points="18,104 64,104 64,84 110,84 110,64 156,64 156,44 202,44 202,24 236,24" fill="none" stroke="#0f172a" stroke-width="2.4"/>
+              <line x1="18" y1="104" x2="270" y2="104" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3,2"/>
+              <line x1="258" y1="24" x2="258" y2="104" stroke="#0284c7" stroke-width="2" stroke-dasharray="4,2"/>
+              <polygon points="258,24 254,31 262,31" fill="#0284c7"/>
+              <polygon points="258,104 254,97 262,97" fill="#0284c7"/>
+              <!-- Single Riser Label -->
+              <line x1="55" y1="84" x2="55" y2="104" stroke="#dc2626" stroke-width="1.6"/>
+              <text x="50" y="96" text-anchor="end" font-size="8.2" font-weight="900" fill="#dc2626">
+                h<tspan dy="2" font-size="75%">step</tspan>
+              </text>
+              <!-- Tread Label centered cleanly above step 2 -->
+              <text x="87" y="79" text-anchor="middle" font-size="7" font-weight="800" fill="#475569">0 J tread</text>
+              <!-- Total Height -->
+              <text x="252" y="16" text-anchor="end" font-size="8.6" font-weight="900" fill="#0284c7">
+                h<tspan dy="2" font-size="75%">total</tspan><tspan dy="-2"> = N · h</tspan><tspan dy="2" font-size="75%">step</tspan>
+              </text>
+              <!-- Weight arrow -->
+              <line x1="179" y1="48" x2="179" y2="82" stroke="#059669" stroke-width="2"/>
+              <polygon points="179,86 175,78 183,78" fill="#059669"/>
+              <text x="186" y="70" text-anchor="start" font-size="8.4" font-weight="900" fill="#059669">
+                F<tspan dy="2" font-size="75%">g</tspan><tspan dy="-2"> = m · g</tspan>
+              </text>
+            </svg>
+
+            <div style="font-size: 8.4pt; line-height: 1.32;">
+              <strong>Safety &amp; Method Rules:</strong>
+              <ul style="margin: 3px 0 4px 0; padding-left: 16px;">
+                <li><strong>One step at a time:</strong> Never skip steps; keep one hand near the handrail during brisk climbs.</li>
+                <li><strong>Privacy Choice:</strong> Use your actual mass (pounds ÷ 2.2 = kg) OR adopt the standard <strong>60.0 kg</strong> class reference card (<span class="mvar">F</span><sub>g</sub> = 600 N).</li>
+                <li><strong>Only Vertical Rises Count:</strong> Gravity pulls vertically, so horizontal stair tread depth adds 0 J to gravitational lifting work.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="bench-grid">
+            <div class="bench-box">LED Classroom Bulb<strong>10 W</strong></div>
+            <div class="bench-box">Kitchen Blender<strong>300 W</strong></div>
+            <div class="bench-box">Draft Horse (1 hp)<strong>746 W = 1.0 hp</strong></div>
+            <div class="bench-box">Hair Dryer (High)<strong>1,500 W</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PART 1: MEASUREMENTS -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Part 1: Pre-Climb Measurements &amp; Vertical Lifting Work</div>
+          <div class="card-tag">Record Before Running Timed Trials</div>
+        </div>
+        <div class="card-body" style="padding: 5px 8px;">
+          <div class="measure-6grid">
+            <div class="measure-cell">1. Mass <span class="mvar">m</span> (kg) <em>(or 60.0 kg)</em><div class="measure-val"></div></div>
+            <div class="measure-cell">2. Weight <span class="mvar">F</span><sub>g</sub> = <span class="mvar">m</span> · 10 (N)<div class="measure-val"></div></div>
+            <div class="measure-cell">3. 1 Step Riser <span class="mvar">h</span><sub>step</sub> (m)<div class="measure-val"></div></div>
+            <div class="measure-cell">4. Steps Climbed (<span class="mvar">N</span>)<div class="measure-val"></div></div>
+            <div class="measure-cell">5. Total Height <span class="mvar">h</span><sub>total</sub> = <span class="mvar">N · h</span><sub>step</sub> (m)<div class="measure-val"></div></div>
+            <div class="measure-cell">6. Vertical Work <span class="mvar">W</span> = <span class="mvar">F</span><sub>g</sub> · <span class="mvar">h</span><sub>total</sub> (J)<div class="measure-val"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLE 1: POWER LOG -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Table 1: 3-Trial Staircase / Step-Up Mechanical Power Data Log</div>
+          <div class="card-tag">Power P = W ÷ t · Horsepower = P ÷ 746</div>
+        </div>
+        <div class="card-body" style="padding: 5px 8px;">
+          <table class="cast-table">
+            <thead>
+              <tr>
+                <th style="width: 26%;">Climb Pace Trial</th>
+                <th style="width: 19%;">Vertical Work <span class="mvar">W</span> (J)</th>
+                <th style="width: 17%;">Climb Time <span class="mvar">t</span> (s)</th>
+                <th style="width: 20%;">Power <span class="mvar">P</span> = <span class="mvar">W</span> ÷ <span class="mvar">t</span> (W)</th>
+                <th style="width: 18%;">Horsepower (hp)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td style="text-align:left;"><strong>Trial 1: Slow Steady Walk</strong></td><td></td><td></td><td></td><td></td></tr>
+              <tr><td style="text-align:left;"><strong>Trial 2: Normal Brisk Climb</strong></td><td></td><td></td><td></td><td></td></tr>
+              <tr><td style="text-align:left;"><strong>Trial 3: Fast Safe Climb</strong></td><td></td><td></td><td></td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PART 2: LAB ANALYSIS -->
+      <div class="card" style="margin-bottom: 0;">
+        <div class="card-header">
+          <div class="card-title">Part 2: Power Lab Analysis Prompts</div>
+          <div class="card-tag">Use Trial 1 vs. Trial 3 Data</div>
+        </div>
+        <div class="card-body" style="padding: 5px 8px;">
+          <div class="prompt-line">
+            <span class="prompt-badge-group"><span class="step-pill">1. COMPARE</span></span>
+            <span class="prompt-body">
+              Compare your <strong>Total Work (J)</strong> and <strong>Mechanical Power (W)</strong> between Slow Walk (Trial 1) and Fast Climb (Trial 3). Explain why one changed dramatically while the other stayed constant:
+              <div class="ruled-line"></div>
+              <div class="ruled-line"></div>
+            </span>
+          </div>
+          <div class="prompt-line" style="margin-bottom: 0;">
+            <span class="prompt-badge-group"><span class="step-pill">2. BENCHMARK &amp; P0</span></span>
+            <span class="prompt-body">
+              How many 10 W LED bulbs equal your Trial 3 power? <em>(Honors Extension: Calculate vertical climb speed <span class="mvar">v</span><sub>y</sub> = <span class="mvar">h</span><sub>total</sub> ÷ <span class="mvar">t</span> in Trial 3 and verify <span class="mvar">P</span> = <span class="mvar">F</span><sub>g</sub> · <span class="mvar">v</span><sub>y</sub>):</em>
+              <div class="ruled-line"></div>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-footer">
+      <span>Physics · Unit 3: Energy &amp; Work · Page 1 of 2</span>
+      <span>Complete Page 1 Lab BEFORE turning over for Individual Week 1 Checkpoint</span>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       PAGE 2: PART 3 — WEEK 1 MASTERY CHECKPOINT (6 ITEMS, 10 POINTS)
+       ===================================================================== -->
+  <div class="worksheet-page">
+    <div>
+      <div class="running-header">
+        <span>Unit 3, Day 5: Week 1 Mastery Checkpoint (Work, Lifting, Graph Area &amp; Power)</span>
+        <span>Name: ____________________________ &nbsp; Per: ____</span>
+      </div>
+
+      <div class="score-banner" style="margin-bottom: 7px;">
+        <span><strong>Individual Mastery Check · 6 Items (10 Pts Total)</strong> · Mastery: ≥ 8.0/10</span>
+        <span style="white-space: nowrap;">Given: <span class="mvar">g</span> = 10 m/s² · 1 hp = 746 W · Score: ____ / 10</span>
+      </div>
+
+      <div class="quiz-grid">
+        <!-- Q1 -->
+        <div class="quiz-card">
+          <div class="prompt-line" style="margin-bottom: 3px;">
+            <span class="prompt-badge-group"><span class="step-pill">Q1</span><span class="pts-pill">2 PTS</span></span>
+            <span class="prompt-body">Classify the mechanical work sign as <strong>+W</strong>, <strong>−W</strong>, or <strong>0 J</strong> for the bolded force:</span>
+          </div>
+          <div class="work-area" style="line-height: 1.55;">
+            <div>(a) Carrying a 100 N cafeteria tray flat across a level room (<strong>arm upward force</strong>): &nbsp;Sign: ______</div>
+            <div style="margin-top: 3px;">(b) <strong>Sliding friction</strong> acting on a baseball player sliding forward into 2nd base: &nbsp;Sign: ______</div>
+            <div style="margin-top: 3px;">(c) <strong>Cable tension</strong> hoisting a 200 N crate straight upward: &nbsp;Sign: ______</div>
+          </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-card">
+          <div class="prompt-line" style="margin-bottom: 3px;">
+            <span class="prompt-badge-group"><span class="step-pill">Q2</span><span class="pts-pill">1.5 PTS</span></span>
+            <span class="prompt-body">A harbor tugboat pulls a cargo barge forward <strong><span class="mvar">d</span> = 25 m</strong> with a constant horizontal cable force of <strong>4,000 N</strong>. Calculate the mechanical work done.</span>
+          </div>
+          <div class="work-area">
+            <div>Formula &amp; Substitution:</div>
+            <div class="ruled-line" style="height: 22px;"></div>
+            <div class="ruled-line" style="height: 22px;"></div>
+            <div class="ans-bar"><span><span class="mvar">W</span> =</span><span class="blank"></span><span>J</span></div>
+          </div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-card">
+          <div class="prompt-line" style="margin-bottom: 3px;">
+            <span class="prompt-badge-group"><span class="step-pill">Q3</span><span class="pts-pill">1.5 PTS</span></span>
+            <span class="prompt-body">An elevator motor lifts a <strong>500 kg</strong> cab straight up <strong>12 m</strong> at constant velocity (<span class="mvar">g</span> = 10 m/s²). Find <strong>(a)</strong> weight <span class="mvar">F</span><sub>g</sub> and <strong>(b)</strong> lifting work.</span>
+          </div>
+          <div class="work-area">
+            <div>(a) <span class="mvar">F</span><sub>g</sub> = <span class="mvar">m · g</span> = _____________________ N</div>
+            <div style="margin-top: 4px;">(b) <span class="mvar">W</span> = <span class="mvar">F</span><sub>g</sub> · <span class="mvar">h</span> =</div>
+            <div class="ruled-line" style="height: 22px;"></div>
+            <div class="ans-bar"><span><span class="mvar">W</span> =</span><span class="blank"></span><span>J</span></div>
+          </div>
+        </div>
+
+        <!-- Q4 with mini F-d SVG -->
+        <div class="quiz-card">
+          <div class="prompt-line" style="margin-bottom: 3px;">
+            <span class="prompt-badge-group"><span class="step-pill">Q4</span><span class="pts-pill">2 PTS</span></span>
+            <span class="prompt-body">Calculate the total mechanical work done over the full <strong>6.0 m</strong> shown on the Force vs. Distance graph below.</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 1.85in 1fr; gap: 6px; align-items: center; margin-top: 2px;">
+            <svg viewBox="0 0 210 106" width="100%" height="96" style="border: 1.1px solid #cbd5e1; border-radius: 4px; background: #ffffff;">
+              <line x1="34" y1="12" x2="34" y2="82" stroke="#0f172a" stroke-width="1.5"/>
+              <line x1="34" y1="82" x2="196" y2="82" stroke="#0f172a" stroke-width="1.5"/>
+              <!-- gridlines: x step = 25px (0,1,2,3,4,5,6 -> 34..184), y step = 22px (0,10,20,30 -> 82,60,38,16) -->
+              <line x1="34" y1="60" x2="184" y2="60" stroke="#e2e8f0" stroke-width="0.9"/>
+              <line x1="34" y1="38" x2="184" y2="38" stroke="#e2e8f0" stroke-width="0.9"/>
+              <line x1="34" y1="16" x2="184" y2="16" stroke="#e2e8f0" stroke-width="0.9"/>
+              <line x1="84" y1="16" x2="84" y2="82" stroke="#e2e8f0" stroke-width="0.9"/>
+              <line x1="134" y1="16" x2="134" y2="82" stroke="#cbd5e1" stroke-dasharray="3,2" stroke-width="1.1"/>
+              <polygon points="34,82 34,16 134,16 184,82" fill="#bae6fd" opacity="0.6"/>
+              <polyline points="34,16 134,16 184,82" fill="none" stroke="#0284c7" stroke-width="2.4"/>
+              <g font-size="8" font-weight="800" fill="#0f172a" text-anchor="end">
+                <text x="29" y="85">0</text><text x="29" y="63">10</text><text x="29" y="41">20</text><text x="29" y="19">30</text>
+              </g>
+              <g font-size="8" font-weight="800" fill="#0f172a" text-anchor="middle">
+                <text x="34" y="94">0</text><text x="84" y="94">2</text><text x="134" y="94">4</text><text x="184" y="94">6 m</text>
+              </g>
+              <text x="11" y="50" text-anchor="middle" font-size="8" font-weight="900" transform="rotate(-90 11 50)">F (N)</text>
+            </svg>
+            <div class="work-area" style="margin-top: 0;">
+              <div>Rect (0–4 m):</div>
+              <div style="border-bottom: 1px solid #94a3b8; height: 17px;"></div>
+              <div style="margin-top: 3px;">Tri (4–6 m):</div>
+              <div style="border-bottom: 1px solid #94a3b8; height: 17px;"></div>
+              <div class="ans-bar"><span><span class="mvar">W</span> =</span><span class="blank" style="min-width: 0.45in;"></span><span>J</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="quiz-card">
+          <div class="prompt-line" style="margin-bottom: 3px;">
+            <span class="prompt-badge-group"><span class="step-pill">Q5</span><span class="pts-pill">1.5 PTS</span></span>
+            <span class="prompt-body">Lifting a cart straight onto a <strong>0.40 m</strong> stage takes <strong>200 N</strong> (<span class="mvar">W</span> = 80 J). If pushed up a smooth <strong>2.0 m</strong> ramp to the same stage, find required pull force and total work.</span>
+          </div>
+          <div class="work-area">
+            <div>Ideal Ramp Equation (<span class="mvar">F</span><sub>in</sub> · <span class="mvar">d</span><sub>in</sub> = <span class="mvar">W</span><sub>out</sub>):</div>
+            <div class="ruled-line" style="height: 22px;"></div>
+            <div class="ruled-line" style="height: 22px;"></div>
+            <div class="ans-bar" style="justify-content: space-between;">
+              <span><span class="mvar">F</span><sub>pull</sub> = _______ N</span>
+              <span><span class="mvar">W</span><sub>ramp</sub> = _______ J</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="quiz-card">
+          <div class="prompt-line" style="margin-bottom: 3px;">
+            <span class="prompt-badge-group"><span class="step-pill">Q6</span><span class="pts-pill">1.5 PTS</span></span>
+            <span class="prompt-body">Athlete A (<strong>60 kg</strong>) climbs a <strong>5.0 m</strong> gym rope in <strong>6.0 s</strong>. Athlete B (<strong>60 kg</strong>) climbs the exact same 5.0 m rope in <strong>10.0 s</strong>. Find the Work and Power for each.</span>
+          </div>
+          <div class="work-area">
+            <div>Weight <span class="mvar">F</span><sub>g</sub> = _____ N &nbsp;|&nbsp; Work <span class="mvar">W</span> = _____ J (Each)</div>
+            <div style="margin-top: 3px;">Athlete A Power: <span class="mvar">P</span><sub>A</sub> = _______ ÷ 6.0 s = ________ W</div>
+            <div style="margin-top: 3px;">Athlete B Power: <span class="mvar">P</span><sub>B</sub> = _______ ÷ 10.0 s = _______ W</div>
+            <div class="ans-bar" style="justify-content: flex-start; font-size: 7.8pt;">
+              <span>Honors Check: What is Athlete A's vertical speed <span class="mvar">v</span><sub>y</sub>? _______ m/s</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="score-banner" style="background: #f0f9ff; border-color: #0284c7;">
+        <span><strong>Before Leaving for Break:</strong> Check that SI Units (N, m, J, W, m/s) appear on EVERY answer box!</span>
+        <span>Have a Great Thanksgiving Break!</span>
+      </div>
+    </div>
+
+    <div class="page-footer">
+      <span>Physics · Unit 3: Energy &amp; Work · Page 2 of 2</span>
+      <span>Formula Reference: W = F · d · W<sub>lift</sub> = m · g · h · P = W ÷ t · 1 W = 1 J/s</span>
+    </div>
+  </div>
+
+</body>
+</html>
