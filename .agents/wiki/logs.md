@@ -3,13 +3,13 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
-## 2026-11-15 — Classroomscreen Live Participation & Momentum Widget
+## 2026-11-15 — Classroomscreen Live Participation & Positive Statement Billboard
 **Patterns Updated**: `classroom-projection-and-high-contrast-theming.md`.
 **Files Created**: `admin/classroomscreen_widget.html`.
 **Files Updated**: `admin/index.html`, `.agents/wiki/index.md`, `.agents/wiki/patterns/classroom-projection-and-high-contrast-theming.md`.
 **Notes**:
-- Built `admin/classroomscreen_widget.html`, a zero-scroll, `<iframe>`-optimized dual-mode participation display for Classroomscreen.com tracking Bell-Ringers (`bellringers`, `system_config/bellringer_timer`) and active assignments (`student_results/{assignmentId}/students`).
-- Implemented truthful cohort obfuscation & 3-Zone "Never Too Late" framing (`Step-1 Quick-Start Open Now`, `Main Active Pack`, `Mastery & Retakes Open`), strictly anonymous 24-slot emblem tiles (zero names, IDs, or period numbers), WCAG AAA Light/Dark contrast themes, compact `?compact=1` iframe corner pill mode, and a 1-click `<iframe allow="popups">` Embed Code modal.
+- Built & refined `admin/classroomscreen_widget.html` into a large-text **Rotating Positive Statement & Hero Stat Billboard** for Classroomscreen.com `<iframe>` embeds (`student_results/{assignmentId}/students`, `bellringers`, `system_config/bellringer_timer`).
+- Displays rotating oversized statements and strictly positive truthful statistics (Step-1 quick-start credit rate, total trials/checks logged, active point earners, multi-step momentum, peak cohort participation, mastery & unlimited retries) above a 3-stat positive footer strip with manual/pause controls, WCAG AAA Light/Dark contrast toggle, Universal Root Font Scaling (`16px` / `20px` / `25px`), `?compact=1` corner pill mode, and 1-click `<iframe allow="popups">` export.
 
 ## 2026-11-15 — Bell-Ringer Weeks 12 & 13 Sync & Grade-Impact Printout Telemetry Analysis
 **Patterns Updated**: `bell-ringer-config.md`.
