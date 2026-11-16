@@ -291,11 +291,14 @@ function toRecord(d) {
 }
 const liveDocs = new Map(); // document path -> record
 let lastSeen = 0, pollTimer = null, polling = false;
-// One query per save-time field, merged by document path.
-async function fetchSince(since) {
+// Time fields whose query failed (for example, an index still building). Retried on each check
+// with the full lookback window until they work.
+let skippedFields = [];
+// One query per save-time field, merged by document path. Returns the fields that failed.
+async function fetchSince(since, fields = cfg.fields.timestamps) {
   const { fs, db } = await loadFirebase();
   const problems = [];
-  for (const field of cfg.fields.timestamps) {
+  for (const field of fields) {
     try {
       const q = fs.query(fs.collectionGroup(db, cfg.progressCollection), fs.where(field, ">=", new Date(since)));
       const snap = await fs.getDocs(q);
@@ -307,34 +310,48 @@ async function fetchSince(since) {
         lastSeen = Math.max(lastSeen, r.t);
       }
     } catch (e) {
-      problems.push(`${field}: ${e.code || e.message}`);
+      problems.push({ field, why: e.code || e.message });
     }
   }
   return problems;
 }
+const skippedNote = () => skippedFields.length
+  ? ` (Skipped ${skippedFields.map(p => `${p.field}: ${p.why}`).join(", ")}; retrying each check.)` : "";
 function stopLive() {
   if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
 }
 async function startLive() {
   stopLive();
   liveDocs.clear(); lastSeen = 0;
-  const problems = await fetchSince(Date.now() - cfg.lookbackDays * 864e5);
-  if (problems.length === cfg.fields.timestamps.length) throw new Error(problems.join("; "));
+  const lookback = () => Date.now() - cfg.lookbackDays * 864e5;
+  skippedFields = await fetchSince(lookback());
+  if (skippedFields.length === cfg.fields.timestamps.length) throw new Error(skippedFields.map(p => `${p.field}: ${p.why}`).join("; "));
   records = [...liveDocs.values()];
   rememberDays(records);
   const c = process(true);
-  alertStatus(`Watching live: ${c.length} recognitions from ${records.length} records. Checking every ${cfg.pollSeconds} s.` +
-    (problems.length ? ` (Skipped ${problems.join(", ")})` : ""));
+  alertStatus(`Watching live: ${c.length} recognitions from ${records.length} records. Checking every ${cfg.pollSeconds} s.` + skippedNote());
   pollTimer = setInterval(async () => {
     if (polling) return; polling = true;
     try {
-      const before = lastSeen;
-      await fetchSince(before || Date.now());
-      if (lastSeen !== before) {
+      // 1. Load the whole lookback window for any field whose query has started working (for
+      //    example, an index finished building). Old records are treated like the first load,
+      //    so they never trigger auto-print.
+      let recovered = false;
+      const retry = skippedFields.map(p => p.field);
+      if (retry.length) {
+        skippedFields = await fetchSince(lookback(), retry);
+        recovered = skippedFields.length < retry.length;
+        if (recovered) { records = [...liveDocs.values()]; rememberDays(records); process(true); }
+      }
+      // 2. Read only what was saved since the last check, on the fields that work.
+      const before = lastSeen, countBefore = liveDocs.size;
+      const working = cfg.fields.timestamps.filter(f => !skippedFields.some(p => p.field === f));
+      await fetchSince(before || Date.now(), working);
+      if (lastSeen !== before || liveDocs.size !== countBefore || recovered) {
         records = [...liveDocs.values()];
         rememberDays(records);
         const c = process(false);
-        if (!$("#auto").checked) alertStatus(`Watching live: ${c.length} recognitions from ${records.length} records.`);
+        if (!$("#auto").checked || recovered) alertStatus(`Watching live: ${c.length} recognitions from ${records.length} records.` + skippedNote());
       }
     } catch (e) {
       alertStatus("Live connection problem: " + e.message);
@@ -347,10 +364,27 @@ const mean = a => a.reduce((s, x) => s + x, 0) / (a.length || 1);
 const sd = a => { const m = mean(a); return Math.sqrt(mean(a.map(x => (x - m) ** 2))); };
 const dayKey = t => new Date(t).toDateString();
 const first = n => String(n).split(" ")[0];
+// School days are Monday to Friday, so a weekend never breaks a streak or makes Friday's work "old".
+const startOfDay = t => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); };
+const isSchoolDay = t => { const w = new Date(t).getDay(); return w !== 0 && w !== 6; };
+const addDays = (t, n) => { const d = new Date(t); d.setDate(d.getDate() + n); return d.getTime(); };
+// Number of school days after day a, up to and including day b.
+function schoolDaysBetween(a, b) {
+  let n = 0;
+  for (let d = addDays(startOfDay(a), 1); d <= startOfDay(b); d = addDays(d, 1)) if (isSchoolDay(d)) n++;
+  return n;
+}
+// Start of the Nth most recent school day, counting today if it is one.
+function schoolDaysBack(n) {
+  let d = startOfDay(Date.now()), cut = d, count = 0;
+  for (let i = 0; i < 30 && count < n; i++, d = addDays(d, -1)) if (isSchoolDay(d)) { count++; cut = d; }
+  return cut;
+}
 
 function detect(recs) {
-  const T = cfg.thresholds; const out = []; const today = dayKey(Date.now());
-  const recentCut = Date.now() - 2 * 864e5;
+  const T = cfg.thresholds; const out = [];
+  // "Recent" means the last 2 school days, so Monday still sees Friday's work.
+  const recentCut = schoolDaysBack(2);
   const live = $("#source").value === "live";
   const byStudent = {}; recs.forEach(r => (byStudent[r.studentId] ||= []).push(r));
   // Class comparisons use finished work only, so a classmate who is halfway through doesn't drag the average down.
@@ -380,8 +414,8 @@ function detect(recs) {
     const dayset = new Set(rs.map(r => dayKey(r.t)));
     if (live) (seenDays[sid] || []).forEach(k => dayset.add(k));
     const days = [...dayset].map(d => new Date(d).getTime()).sort((a, b) => b - a);
-    let streak = 0, cursor = new Date(today).getTime();
-    for (const d of days) { const gap = Math.round((cursor - d) / 864e5); if (gap <= 1 || (gap <= 3 && new Date(cursor).getDay() === 1)) { streak++; cursor = d; } else break; }
+    let streak = 0, cursor = startOfDay(Date.now());
+    for (const d of days) { if (schoolDaysBetween(d, cursor) <= 1) { streak++; cursor = d; } else break; }
     if (streak >= T.streakDays) add("Streak", `${streak}-day learning streak!`, `Worked ${streak} days in a row`, "streak" + Math.floor(streak / T.streakDays));
     // Big improvement: across finished activities, or across Mastery Check retakes on one activity
     const nR = T.improveRecent, nB = T.improveBefore;
