@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rec-IGNITION</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2032%2032%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20aria-hidden%3D%22true%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22fl%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23ffc531%22/%3E%3Cstop%20offset%3D%22.55%22%20stop-color%3D%22%23ff7a18%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23e02d0f%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%228%22%20fill%3D%22%231d1d1f%22/%3E%3Cg%20transform%3D%22translate%2816%2016%29%20scale%28.82%29%20translate%28-16%20-15%29%22%3E%3Cpath%20fill%3D%22url%28%23fl%29%22%20d%3D%22M17%202C17.5%207%2024%2010%2024%2018.5A8%208%200%200%201%208%2018.5C8%2015%209.5%2012.5%2011.5%2010.5C11.8%2013%2012.8%2014.2%2014%2014.8C13.2%2010%2014%205.5%2017%202Z%22/%3E%3Cpath%20class%3D%22core%22%20fill%3D%22%23ffe9a8%22%20d%3D%22M16%2027a4.2%204.2%200%200%201-4.2-4.2c0-2.6%202.2-3.6%203.4-6.3c2.6%201.8%205%203.6%205%206.3A4.2 4.2 0 0 1 16 27Z%22/%3E%3C/g%3E%3C/svg%3E">
+<style>
+  :root { --bg:#f6f4ef; --card:#fff; --ink:#1d1d1f; --muted:#6b6b70; --accent:#e8590c; --ok:#2b8a3e; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",sans-serif; background:var(--bg); color:var(--ink); }
+  header { padding:16px 20px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; }
+  h1 { margin:0; font-size:26px; font-weight:800; letter-spacing:-.03em; display:flex; align-items:center; gap:10px; }
+  h1 svg { width:40px; height:40px; flex:none; border-radius:10px; box-shadow:0 4px 12px rgba(232,89,12,.35); }
+  h1 .ig { background:linear-gradient(100deg,#ffb020 0%,#ff6a13 45%,#e02d0f 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  h1 .core { transform-origin:16px 27px; animation:flicker 2.4s ease-in-out infinite; }
+  @keyframes flicker { 0%,100% { transform:scale(1); } 40% { transform:scale(.9,1.08); } 70% { transform:scale(1.05,.94); } }
+  @media (prefers-reduced-motion: reduce) { h1 .core { animation:none; } }
+  .bar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  button, select { font:inherit; padding:8px 12px; border-radius:8px; border:1px solid #ccc; background:#fff; cursor:pointer; }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  main { padding:0 20px 40px; display:grid; gap:12px; }
+  .status { color:var(--muted); font-size:14px; }
+  .card { background:var(--card); border-radius:12px; padding:14px 16px; display:flex; gap:14px; align-items:center; flex-wrap:wrap; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+  .card.printed { opacity:.5; }
+  .who { flex:1 1 220px; }
+  .who b { font-size:17px; }
+  .tag { display:inline-block; font-size:12px; padding:2px 8px; border-radius:99px; background:#fff1e6; color:var(--accent); margin-right:6px; }
+  .why { color:var(--muted); font-size:13px; margin-top:4px; }
+  /* On-screen label preview: 29mm tall continuous strip, ~90mm long */
+  .label { width:340px; height:110px; border:1px dashed #bbb; background:#fff; display:flex; align-items:center; padding:6px 10px; gap:8px; }
+  .label .star { font-size:40px; line-height:1; }
+  .label .t1 { font-weight:800; font-size:20px; line-height:1.1; }
+  .label .t2 { font-size:14px; line-height:1.2; }
+  .label .t3 { font-size:10px; color:#444; margin-top:2px; }
+  details { background:#fff; border-radius:12px; padding:12px 16px; }
+  textarea { width:100%; min-height:220px; font-family:ui-monospace,monospace; font-size:12px; }
+  #printArea { display:none; }
+  [hidden] { display:none !important; }
+  .gate { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
+  .gate-card { background:var(--card); border-radius:16px; padding:32px 28px; max-width:420px; width:100%; text-align:center; box-shadow:0 8px 30px rgba(0,0,0,.08); }
+  .gate-card h1 { justify-content:center; margin-bottom:10px; }
+  .gate-card p { color:var(--muted); font-size:14px; line-height:1.5; margin:0 0 20px; }
+  .gate-err { color:#c92a2a; font-size:13px; font-weight:600; min-height:18px; margin-bottom:14px; }
+  .user-pill { font-size:12px; color:var(--muted); background:#fff; border:1px solid #ddd; padding:6px 10px; border-radius:99px; }
+  @media print {
+    @page { size: 90mm 29mm; margin: 0; }
+    body { background:#fff; }
+    header, main, details, #authGate { display:none !important; }
+    #printArea { display:block; }
+    #printArea .label { width:90mm; height:29mm; border:none; padding:1.5mm 3mm; gap:2mm; }
+    #printArea .star { font-size:14mm; }
+    #printArea .t1 { font-size:5.5mm; }
+    #printArea .t2 { font-size:3.6mm; }
+    #printArea .t3 { font-size:2.6mm; }
+  }
+</style>
+</head>
+<body>
+<div id="authGate" class="gate">
+  <div class="gate-card">
+    <h1 aria-label="Rec-IGNITION"><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="fl-gate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc531"/><stop offset=".55" stop-color="#ff7a18"/><stop offset="1" stop-color="#e02d0f"/></linearGradient></defs><rect width="32" height="32" rx="8" fill="#1d1d1f"/><g transform="translate(16 16) scale(.82) translate(-16 -15)"><path fill="url(#fl-gate)" d="M17 2C17.5 7 24 10 24 18.5A8 8 0 0 1 8 18.5C8 15 9.5 12.5 11.5 10.5C11.8 13 12.8 14.2 14 14.8C13.2 10 14 5.5 17 2Z"/><path class="core" fill="#ffe9a8" d="M16 27a4.2 4.2 0 0 1-4.2-4.2c0-2.6 2.2-3.6 3.4-6.3c2.6 1.8 5 3.6 5 6.3A4.2 4.2 0 0 1 16 27Z"/></g></svg><span>Rec-<span class="ig">IGNITION</span></span></h1>
+    <p id="gateMsg">Checking teacher authorization…</p>
+    <div id="gateErr" class="gate-err"></div>
+    <button id="gateSignIn" class="primary" hidden>Sign in with Google</button>
+  </div>
+</div>
+
+<div id="appShell" hidden>
+<header>
+  <h1 aria-label="Rec-IGNITION"><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="fl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc531"/><stop offset=".55" stop-color="#ff7a18"/><stop offset="1" stop-color="#e02d0f"/></linearGradient></defs><rect width="32" height="32" rx="8" fill="#1d1d1f"/><g transform="translate(16 16) scale(.82) translate(-16 -15)"><path fill="url(#fl)" d="M17 2C17.5 7 24 10 24 18.5A8 8 0 0 1 8 18.5C8 15 9.5 12.5 11.5 10.5C11.8 13 12.8 14.2 14 14.8C13.2 10 14 5.5 17 2Z"/><path class="core" fill="#ffe9a8" d="M16 27a4.2 4.2 0 0 1-4.2-4.2c0-2.6 2.2-3.6 3.4-6.3c2.6 1.8 5 3.6 5 6.3A4.2 4.2 0 0 1 16 27Z"/></g></svg><span>Rec-<span class="ig">IGNITION</span></span></h1>
+  <div class="bar">
+    <select id="source">
+      <option value="demo">Sample data</option>
+      <option value="live">Live Firestore</option>
+    </select>
+    <button id="refresh" class="primary">Find stand-outs</button>
+    <label><input type="checkbox" id="auto"> Auto-print new stand-outs</label>
+    <button id="simulate">Simulate new activity</button>
+    <span id="userBadge" class="user-pill" hidden></span>
+    <button id="signout" hidden>Sign out</button>
+  </div>
+</header>
+<main>
+  <div class="status" id="status">Using sample data.</div>
+  <div id="list"></div>
+</main>
+<details>
+  <summary>Settings (Firebase project & field names)</summary>
+  <p class="status">Fill these in once your Firestore layout is confirmed. Saved in this browser only.</p>
+  <textarea id="cfg"></textarea>
+  <button id="saveCfg">Save settings</button>
+</details>
+</div>
+<div id="printArea"></div>
+
+<script type="module">
+// ---------- Settings ----------
+const DEFAULT_CFG = {
+  firebase: {
+    projectId: "site-6e500",
+    appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+    storageBucket: "site-6e500.firebasestorage.app",
+    apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+    authDomain: "site-6e500.firebaseapp.com",
+    messagingSenderId: "591530758858"
+  },
+  allowedEmails: ["rmudry@orangeusd.org", "ryan.mudry@gmail.com", "ryanmudry@gmail.com"],
+  // Name of the student subcollection queried as a collection group across student_results/{assignmentId}/students/{studentId}.
+  progressCollection: "students",
+  lookbackDays: 30,
+  // Scores are out of 10 (6 for the preparation steps + 4 for the mastery check).
+  // Used when a record has no max-score field of its own, and for how scores are shown.
+  defaultMaxScore: 10,
+  fields: {
+    studentId: "studentId", studentName: "studentName", classId: "class_period",
+    activity: "activityId", score: "score", maxScore: "maxScore",
+    attempts: "attempts", timestamp: "timestamp"
+  },
+  thresholds: {
+    classZ: 1.5,          // stands out: this many std devs above class on an activity
+    personalJumpPct: 15,  // personal best: at least this many percentage points above own average (15 = 1.5 out of 10)
+    streakDays: 5,        // streak: consecutive school days with work
+    improvePct: 20,       // big improvement: recent avg vs earlier avg, in percentage points (20 = 2 out of 10)
+    persistAttempts: 4,   // persistence: many tries, then success
+    persistScore: 80      // percent (80 = 8 out of 10)
+  },
+  // One label per student per day. When several triggers fire at once, the first one in this list wins.
+  labelPriority: ["Personal best", "Big improvement", "Persistence", "Class standout", "Streak"],
+  autoPrint: {
+    maxPerHour: 8,        // safety cap so a data glitch can't empty the roll
+    secondsBetween: 10,   // gap between labels in the queue
+    schoolHours: [7, 16]  // only auto-print between 7:00 and 16:00
+  }
+};
+let cfg = DEFAULT_CFG;
+try {
+  const saved = JSON.parse(localStorage.getItem("recig-cfg") || "{}");
+  cfg = { ...DEFAULT_CFG, ...saved };
+  if (!cfg.firebase?.apiKey) cfg.firebase = DEFAULT_CFG.firebase;
+  if (!Array.isArray(cfg.allowedEmails) || !cfg.allowedEmails.length) cfg.allowedEmails = DEFAULT_CFG.allowedEmails;
+  if (cfg.progressCollection === "progress") cfg.progressCollection = DEFAULT_CFG.progressCollection;
+} catch {}
+const $ = s => document.querySelector(s);
+$("#cfg").value = JSON.stringify(cfg, null, 2);
+$("#saveCfg").onclick = () => {
+  try { cfg = JSON.parse($("#cfg").value); localStorage.setItem("recig-cfg", JSON.stringify(cfg)); alertStatus("Settings saved."); }
+  catch (e) { alertStatus("Settings aren't valid JSON: " + e.message); }
+};
+const alertStatus = m => $("#status").textContent = m;
+// Scores are kept internally as percentages; these show them on the real scale (e.g. 9/10).
+const maxScore = () => Number(cfg.defaultMaxScore) || 10;
+const pts = p => +(p * maxScore() / 100).toFixed(1);
+const outOf = p => `${pts(p)}/${maxScore()}`;
+
+let printed = {};
+try { printed = JSON.parse(localStorage.getItem("recig-printed") || "{}"); } catch {}
+const savePrinted = () => { try { localStorage.setItem("recig-printed", JSON.stringify(printed)); } catch {} };
+
+// ---------- Sample data ----------
+function demoRecords() {
+  const names = ["Ava M.","Liam R.","Sofia G.","Noah T.","Mia L.","Ethan K.","Isabella P.","Lucas D.","Amelia W.","Mateo S.","Harper B.","Elijah C.","Camila V.","James H.","Luna F.","Benjamin O.","Aria N.","Daniel Q.","Zoe J.","Henry A."];
+  const acts = ["Fractions Quest","Ratio Run","Equation Escape","Geometry Gym"];
+  const recs = []; const now = Date.now(); const day = 864e5;
+  names.forEach((n, i) => {
+    const base = 55 + (i * 7) % 30;
+    for (let d = 20; d >= 0; d--) {
+      if (Math.random() < 0.35 && !(i === 2 && d < 7)) continue; // Sofia gets a streak
+      const act = acts[(d + i) % acts.length];
+      let s = base + (Math.random() * 16 - 8);
+      if (i === 5 && d < 4) s += 28;          // Ethan: big improvement
+      if (i === 9 && d === 0) s = 99;          // Mateo: stands out + personal best
+      const attempts = (i === 14 && d === 0) ? 6 : 1 + Math.floor(Math.random() * 2);
+      if (i === 14 && d === 0) s = 88;         // Luna: persistence
+      // Whole-number score on the real scale, like the class apps save.
+      const score = Math.max(0, Math.min(maxScore(), Math.round(s * maxScore() / 100)));
+      recs.push({ studentId:"s"+i, studentName:n, classId:"P3", activity:act,
+        pct: Math.round(100 * score / maxScore()), attempts, t: now - d*day - Math.random()*3e7 });
+    }
+  });
+  return recs;
+}
+
+// ---------- Live Firestore & OAuth Gate ----------
+let fb = null;
+const isTeacher = user => !!user?.email && (cfg.allowedEmails || DEFAULT_CFG.allowedEmails).map(e => e.toLowerCase()).includes(user.email.toLowerCase());
+
+async function loadFirebase() {
+  if (fb) return fb;
+  const v = "10.12.2";
+  const app = await import(`https://www.gstatic.com/firebasejs/${v}/firebase-app.js`);
+  const auth = await import(`https://www.gstatic.com/firebasejs/${v}/firebase-auth.js`);
+  const fs = await import(`https://www.gstatic.com/firebasejs/${v}/firebase-firestore.js`);
+  const a = app.getApps().length ? app.getApp() : app.initializeApp(cfg.firebase);
+  fb = { auth, fs, authI: auth.getAuth(a), db: fs.getFirestore(a) };
+  return fb;
+}
+$("#source").onchange = () => {
+  const live = $("#source").value === "live";
+  alertStatus(live ? "Press Find stand-outs to watch live Firestore." : "Using sample data.");
+};
+async function signInTeacher() {
+  try {
+    $("#gateErr").textContent = "";
+    const { auth, authI } = await loadFirebase();
+    const p = new auth.GoogleAuthProvider();
+    p.setCustomParameters({ prompt: "select_account" });
+    await auth.signInWithPopup(authI, p);
+  } catch (e) {
+    if (e.code === "auth/popup-blocked") {
+      const { auth, authI } = await loadFirebase();
+      const p = new auth.GoogleAuthProvider();
+      p.setCustomParameters({ prompt: "select_account" });
+      await auth.signInWithRedirect(authI, p);
+    } else if (e.code !== "auth/popup-closed-by-user" && e.code !== "auth/cancelled-popup-request") {
+      $("#gateErr").textContent = e.message;
+    }
+  }
+}
+$("#gateSignIn").onclick = signInTeacher;
+$("#signout").onclick = async () => {
+  if (unsub) { unsub(); unsub = null; }
+  const { auth, authI } = await loadFirebase();
+  await auth.signOut(authI);
+};
+async function liveRecords() {
+  const { fs, db } = await loadFirebase(); const F = cfg.fields;
+  const since = new Date(Date.now() - cfg.lookbackDays * 864e5);
+  const q = fs.query(fs.collectionGroup(db, cfg.progressCollection), fs.where(F.timestamp, ">=", since));
+  const snap = await fs.getDocs(q);
+  return snap.docs.map(toRecord);
+}
+function toRecord(d) {
+  const F = cfg.fields;
+  const x = d.data();
+  const ts = x[F.timestamp] ?? x.updatedAt ?? x.updated_at;
+  const rawScore = Number(x[F.score] ?? x.percentage ?? x.percent ?? 0);
+  const max = Number(x[F.maxScore] ?? x.maxPoints) || maxScore();
+  const pct = (rawScore > max && rawScore <= 100) ? Math.round(rawScore) : Math.round(100 * rawScore / max);
+  return {
+    studentId: x[F.studentId] ?? x.student_id ?? d.id,
+    studentName: x[F.studentName] ?? x.student_name ?? x.displayName ?? "Student",
+    classId: x[F.classId] ?? x.period ?? "",
+    activity: x[F.activity] ?? x.assignmentTitle ?? d.ref.parent.parent?.id ?? "Activity",
+    pct,
+    attempts: Number(x[F.attempts] || 1),
+    t: ts?.toMillis ? ts.toMillis() : (ts ? new Date(ts).getTime() : Date.now())
+  };
+}
+
+// ---------- Detection ----------
+const mean = a => a.reduce((s, x) => s + x, 0) / (a.length || 1);
+const sd = a => { const m = mean(a); return Math.sqrt(mean(a.map(x => (x - m) ** 2))); };
+const dayKey = t => new Date(t).toDateString();
+const first = n => n.split(" ")[0];
+
+function detect(recs) {
+  const T = cfg.thresholds; const out = []; const today = dayKey(Date.now());
+  const recentCut = Date.now() - 2 * 864e5;
+  const byStudent = {}; recs.forEach(r => (byStudent[r.studentId] ||= []).push(r));
+  const byAct = {}; recs.forEach(r => (byAct[r.activity] ||= []).push(r.pct));
+
+  for (const [sid, rs] of Object.entries(byStudent)) {
+    rs.sort((a, b) => a.t - b.t);
+    const name = rs[0].studentName; const latest = rs[rs.length - 1];
+    const recent = rs.filter(r => r.t >= recentCut);
+    const add = (type, line, detail, key) => out.push({ sid, name, type, line, detail, key: sid + "|" + type + "|" + key });
+
+    // Stands out from class
+    for (const r of recent) {
+      const pool = byAct[r.activity]; if (pool.length < 5) continue;
+      const z = (r.pct - mean(pool)) / (sd(pool) || 1);
+      if (z >= T.classZ) { add("Class standout", `Shining star in ${r.activity}!`, `${outOf(r.pct)} vs class avg ${outOf(mean(pool))}`, r.activity + dayKey(r.t)); break; }
+    }
+    // Personal best
+    const prior = rs.filter(r => r !== latest).map(r => r.pct);
+    if (latest.t >= recentCut && prior.length >= 4 && latest.pct > Math.max(...prior) && latest.pct - mean(prior) >= T.personalJumpPct)
+      add("Personal best", `New personal best in ${latest.activity}!`, `${outOf(latest.pct)} (your avg ${outOf(mean(prior))})`, dayKey(latest.t));
+    // Streak
+    const days = [...new Set(rs.map(r => dayKey(r.t)))].map(d => new Date(d).getTime()).sort((a, b) => b - a);
+    let streak = 0, cursor = new Date(today).getTime();
+    for (const d of days) { const gap = Math.round((cursor - d) / 864e5); if (gap <= 1 || (gap <= 3 && new Date(cursor).getDay() === 1)) { streak++; cursor = d; } else break; }
+    if (streak >= T.streakDays) add("Streak", `${streak}-day learning streak!`, `Worked ${streak} days in a row`, "streak" + Math.floor(streak / T.streakDays));
+    // Big improvement
+    if (rs.length >= 8) {
+      const a = mean(rs.slice(-3).map(r => r.pct)), b = mean(rs.slice(-8, -3).map(r => r.pct));
+      if (latest.t >= recentCut && a - b >= T.improvePct) add("Big improvement", `Huge leap forward — up ${pts(a - b)} points!`, `Recent avg ${outOf(a)} vs ${outOf(b)} before`, dayKey(latest.t));
+    }
+    // Persistence
+    const p = recent.find(r => r.attempts >= T.persistAttempts && r.pct >= T.persistScore);
+    if (p) add("Persistence", `Never gave up on ${p.activity}!`, `${p.attempts} tries → ${outOf(p.pct)}`, p.activity + dayKey(p.t));
+  }
+  return out;
+}
+
+// ---------- UI + printing ----------
+const STARS = { "Class standout":"🌟", "Personal best":"🏆", "Streak":"🔥", "Big improvement":"🚀", "Persistence":"💪" };
+const labelHTML = c => `<div class="label"><div class="star">${STARS[c.type]}</div><div>
+  <div class="t1">Way to go, ${first(c.name)}!</div><div class="t2">${c.line}</div>
+  <div class="t3">${new Date().toLocaleDateString()}</div></div></div>`;
+
+// ---------- Auto-print ----------
+let records = [], knownKeys = new Set(), unsub = null, lastCands = [];
+const queue = []; let printing = false; const printLog = [];
+function printLabel(c) {
+  $("#printArea").innerHTML = labelHTML(c); window.print();
+  printed[c.key] = Date.now(); printed["day|" + c.sid] = Date.now(); savePrinted();
+}
+const isToday = t => !!t && dayKey(t) === dayKey(Date.now());
+const gotLabelToday = sid => isToday(printed["day|" + sid]);
+// Keep one recognition per student: the one printed today if there is one,
+// otherwise the highest-priority one that hasn't been printed yet.
+function onePerStudent(cands) {
+  const order = cfg.labelPriority || DEFAULT_CFG.labelPriority;
+  const rank = c => { const i = order.indexOf(c.type); return i < 0 ? order.length : i; };
+  const score = c => (isToday(printed[c.key]) ? 0 : printed[c.key] ? 200 : 100) + rank(c);
+  const best = new Map();
+  for (const c of cands) { const b = best.get(c.sid); if (!b || score(c) < score(b)) best.set(c.sid, c); }
+  return [...best.values()];
+}
+function inSchoolHours() { const h = new Date().getHours(), [a, b] = (cfg.autoPrint || DEFAULT_CFG.autoPrint).schoolHours; return h >= a && h < b; }
+async function drainQueue() {
+  if (printing) return; printing = true;
+  const A = cfg.autoPrint || DEFAULT_CFG.autoPrint;
+  while (queue.length) {
+    const hourAgo = Date.now() - 36e5;
+    while (printLog.length && printLog[0] < hourAgo) printLog.shift();
+    if (printLog.length >= A.maxPerHour) { alertStatus(`Hourly cap reached (${A.maxPerHour}). ${queue.length} waiting — print them by hand below.`); break; }
+    const c = queue.shift();
+    if (!printed[c.key] && !gotLabelToday(c.sid)) { printLabel(c); printLog.push(Date.now()); render(lastCands); alertStatus(`Auto-printed: ${c.name} — ${c.type}`); }
+    await new Promise(r => setTimeout(r, A.secondsBetween * 1000));
+  }
+  printing = false;
+}
+// Re-run detection; anything not seen before is "new". First pass only records what exists (no burst on start-up).
+function process(firstPass) {
+  const all = detect(records);
+  const cands = onePerStudent(all).sort((a, b) => !!printed[a.key] - !!printed[b.key]);
+  const fresh = cands.filter(c => !knownKeys.has(c.key));
+  all.forEach(c => knownKeys.add(c.key));
+  lastCands = cands; render(cands);
+  if (!firstPass && $("#auto").checked && inSchoolHours()) {
+    fresh.filter(c => !printed[c.key] && !gotLabelToday(c.sid)).forEach(c => queue.push(c)); drainQueue();
+  }
+  return cands;
+}
+async function startLive() {
+  const { fs, db } = await loadFirebase(); const F = cfg.fields;
+  const since = new Date(Date.now() - cfg.lookbackDays * 864e5);
+  const q = fs.query(fs.collectionGroup(db, cfg.progressCollection), fs.where(F.timestamp, ">=", since));
+  if (unsub) unsub();
+  let first = true;
+  unsub = fs.onSnapshot(q, snap => {
+    records = snap.docs.map(d => toRecord(d));
+    const c = process(first); first = false;
+    if ($("#status").textContent.startsWith("Looking") || !$("#auto").checked) alertStatus(`Watching live: ${c.length} recognitions from ${records.length} records.`);
+  }, e => alertStatus("Live connection problem: " + e.message));
+}
+$("#simulate").onclick = () => {
+  if ($("#source").value !== "demo") return alertStatus("Simulate only works with sample data.");
+  const s = records[Math.floor(Math.random() * records.length)];
+  records.push({ ...s, pct: 100, attempts: 5, t: Date.now() });
+  process(false);
+};
+
+function render(cands) {
+  $("#list").innerHTML = cands.length ? "" : `<p class="status">No stand-outs right now. Check back after the next activity!</p>`;
+  cands.forEach(c => {
+    const el = document.createElement("div"); el.className = "card" + (printed[c.key] ? " printed" : "");
+    el.innerHTML = `<div class="who"><span class="tag">${c.type}</span><b>${c.name}</b><div class="why">${c.detail}</div></div>${labelHTML(c)}<button class="primary">${printed[c.key] ? "Print again" : "Print label"}</button>`;
+    el.querySelector("button").onclick = () => {
+      printLabel(c); el.classList.add("printed"); el.querySelector("button").textContent = "Print again";
+    };
+    $("#list").appendChild(el);
+  });
+}
+$("#refresh").onclick = async () => {
+  try {
+    alertStatus("Looking for stand-outs…"); knownKeys = new Set();
+    if ($("#source").value === "live") return startLive();
+    if (unsub) { unsub(); unsub = null; }
+    records = demoRecords();
+    const c = process(true);
+    alertStatus(`${c.length} recognition${c.length === 1 ? "" : "s"} found from ${records.length} activity records.`);
+  } catch (e) { alertStatus("Couldn't load data: " + e.message); }
+};
+async function initAuth() {
+  const isLocal = ["localhost", "127.0.0.1"].includes(location.hostname);
+  if (isLocal && new URLSearchParams(location.search).has("demo")) {
+    $("#authGate").hidden = true;
+    $("#appShell").hidden = false;
+    $("#refresh").click();
+    return;
+  }
+  try {
+    const { auth, authI } = await loadFirebase();
+    auth.onAuthStateChanged(authI, user => {
+      if (user && isTeacher(user)) {
+        $("#authGate").hidden = true;
+        $("#appShell").hidden = false;
+        $("#userBadge").textContent = user.email;
+        $("#userBadge").hidden = false;
+        $("#signout").hidden = false;
+        $("#refresh").click();
+      } else if (user) {
+        if (unsub) { unsub(); unsub = null; }
+        $("#appShell").hidden = true;
+        $("#authGate").hidden = false;
+        $("#gateMsg").textContent = `Signed in as ${user.email}, which is not authorized for this tool.`;
+        $("#gateErr").textContent = "Teacher OAuth account required.";
+        $("#gateSignIn").textContent = "Switch Google account";
+        $("#gateSignIn").hidden = false;
+      } else {
+        if (unsub) { unsub(); unsub = null; }
+        $("#appShell").hidden = true;
+        $("#authGate").hidden = false;
+        $("#gateMsg").textContent = "Sign in with your teacher Google account to open Rec-IGNITION.";
+        $("#gateErr").textContent = "";
+        $("#gateSignIn").textContent = "Sign in with Google";
+        $("#gateSignIn").hidden = false;
+      }
+    });
+  } catch (e) {
+    $("#gateMsg").textContent = "Authentication could not initialize.";
+    $("#gateErr").textContent = e.message;
+    $("#gateSignIn").hidden = false;
+  }
+}
+initAuth();
+</script>
+</body>
+</html>
