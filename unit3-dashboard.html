@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
   <style>
     :root {
@@ -324,18 +324,18 @@
         </div>
 
         <!-- Classroom Projection & Theme Toolbar -->
-        <div class="flex flex-col gap-3 sm:min-w-[270px]">
+        <div class="flex flex-col gap-3 w-full lg:w-[19rem] lg:shrink-0">
           <div class="bg-slate-900/70 border border-white/10 rounded-xl p-3 space-y-2.5">
-            <div class="flex items-center justify-between gap-2">
+            <div class="flex flex-wrap items-center justify-between gap-2">
               <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Classroom View</span>
               <button id="btn-theme-toggle" type="button"
                 class="px-3 py-1.5 rounded-lg text-xs font-bold border border-amber-400/40 bg-amber-500/15 text-amber-300 hover:bg-amber-500/25 transition">
                 ☀️ High-Contrast Light
               </button>
             </div>
-            <div class="flex items-center justify-between gap-2">
+            <div class="flex flex-wrap items-center justify-between gap-2">
               <span class="text-xs font-semibold text-slate-400">Text Size:</span>
-              <div class="grid grid-cols-3 gap-1 flex-1" role="group" aria-label="Text Size">
+              <div class="flex flex-wrap gap-1 flex-1 justify-end" role="group" aria-label="Text Size">
                 <button type="button" data-font-size="16px" class="font-size-btn px-2 py-1 rounded text-xs font-bold border border-amber-400/50 bg-amber-500/20 text-amber-300">Normal</button>
                 <button type="button" data-font-size="20px" class="font-size-btn px-2 py-1 rounded text-xs font-bold border border-white/10 text-slate-300 hover:border-amber-400/40">Large</button>
                 <button type="button" data-font-size="25px" class="font-size-btn px-2 py-1 rounded text-xs font-bold border border-white/10 text-slate-300 hover:border-amber-400/40">Projector</button>
@@ -345,7 +345,7 @@
 
           <!-- Dynamic Unit Pacing Progress -->
           <div class="bg-slate-900/70 border border-white/10 rounded-xl p-3">
-            <div class="flex items-center justify-between text-xs font-semibold mb-1.5">
+            <div class="flex flex-wrap items-center justify-between gap-x-2 text-xs font-semibold mb-1.5">
               <span class="text-slate-300">Unit 3 Pacing Progress</span>
               <span id="unit-progress-label" class="text-amber-300 font-bold">0 / 20 Days</span>
             </div>
@@ -454,27 +454,16 @@
 
         <div class="glass-card p-6 space-y-4">
           <div>
-            <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Class Period Differentiation</span>
-            <h2 class="font-orbitron text-xl font-bold text-white mt-1">Scaffolded Pathways &amp; WICOR Strategy</h2>
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">By the End of Unit 3</span>
+            <h2 class="font-orbitron text-xl font-bold text-white mt-1">What You Will Be Able to Do</h2>
           </div>
-          <div class="space-y-3 text-sm">
-            <div class="p-3.5 rounded-xl bg-slate-900/70 border border-emerald-500/25">
-              <div class="font-bold text-emerald-300">Periods 1–3 (Conceptual Physics)</div>
-              <p class="text-slate-300 text-xs mt-1">LOL energy bar charts, grid-square graph areas, proportional tables (2x speed → 4x energy), and visual ramp measurements with g = 10 m/s² (no square-root algebra or trigonometry).</p>
-            </div>
-            <div class="p-3.5 rounded-xl bg-slate-900/70 border border-sky-500/25">
-              <div class="font-bold text-sky-300">Periods 4–6 (CP Physics)</div>
-              <p class="text-slate-300 text-xs mt-1">Stacked one-step energy calculations (W = F·d, PE<sub>g</sub> = m·g·h, PE<sub>s</sub> = ½·k·x², KE = ½·m·v²), photogate timing, and graph slopes with explicit SI units.</p>
-            </div>
-            <div class="p-3.5 rounded-xl bg-slate-900/70 border border-amber-500/25">
-              <div class="font-bold text-amber-300">Period 0 (Honors Physics)</div>
-              <p class="text-slate-300 text-xs mt-1">Angled pulls (W = F·d·cos θ), experimental linearization (KE vs. v², PE<sub>s</sub> vs. x²), speed derivations v = √(2·g·Δh), and non-conservative friction work (W<sub>f</sub> = -F<sub>f</sub>·d).</p>
-            </div>
-          </div>
-          <div class="p-3.5 rounded-xl bg-slate-900/70 border border-white/10">
-            <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">WICOR Inquiry Footprint</div>
-            <div id="wicor-badges" class="flex flex-wrap gap-2 text-xs"></div>
-          </div>
+          <ul class="space-y-3 text-sm">
+            <li class="p-3.5 rounded-xl bg-slate-900/70 border border-white/10 text-slate-300"><strong class="text-amber-300">Work:</strong> Tell when a force does work, and find the work from a force and a distance.</li>
+            <li class="p-3.5 rounded-xl bg-slate-900/70 border border-white/10 text-slate-300"><strong class="text-sky-300">Power:</strong> Measure your own power climbing stairs, in watts.</li>
+            <li class="p-3.5 rounded-xl bg-slate-900/70 border border-white/10 text-slate-300"><strong class="text-emerald-300">Stored energy:</strong> Measure how a spring stretches and how height stores energy.</li>
+            <li class="p-3.5 rounded-xl bg-slate-900/70 border border-white/10 text-slate-300"><strong class="text-rose-300">Speed and energy:</strong> Use a photogate (a light beam that times an object passing through it) to find how energy changes with speed.</li>
+            <li class="p-3.5 rounded-xl bg-slate-900/70 border border-white/10 text-slate-300"><strong class="text-amber-300">Energy bar charts:</strong> Track energy from the top of a coaster hill to the bottom, and design a marble coaster that works.</li>
+          </ul>
         </div>
       </div>
     </section>
@@ -510,12 +499,12 @@
           <div>
             <span class="text-xs font-bold uppercase tracking-wider text-sky-400">Interactive Simulation Sandbox</span>
             <h2 class="font-orbitron text-2xl font-bold text-white mt-1">🎢 Coaster Track &amp; Mechanical Energy Visualizer</h2>
-            <p class="text-sm text-slate-300 mt-1">Adjust drop height, cart mass, and track friction coefficient (μ). Watch how negative friction work (<strong class="text-rose-300">W<sub>f</sub> = -F<sub>f</sub>·d</strong>) lowers the maximum rebound hill without touching thermodynamics.</p>
+            <p class="text-sm text-slate-300 mt-1">Adjust drop height, cart mass, and track friction coefficient (μ). Watch how friction does negative work (<strong class="text-rose-300">W<sub>f</sub> = −F<sub>f</sub> · d</strong>) and lowers the dashed line: the highest point the cart can still reach.</p>
           </div>
           <div class="flex flex-wrap gap-2">
             <button type="button" id="preset-ideal" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/15 border border-emerald-400/40 text-emerald-300 hover:bg-emerald-500/25">Ideal Coaster (μ = 0)</button>
-            <button type="button" id="preset-realistic" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500/15 border border-amber-400/40 text-amber-300 hover:bg-amber-500/25">Light Friction (μ = 0.08)</button>
-            <button type="button" id="preset-brake" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-500/15 border border-rose-400/40 text-rose-300 hover:bg-rose-500/25">Heavy Brake (μ = 0.18)</button>
+            <button type="button" id="preset-realistic" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500/15 border border-amber-400/40 text-amber-300 hover:bg-amber-500/25">Light Friction (μ = 0.04)</button>
+            <button type="button" id="preset-brake" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-500/15 border border-rose-400/40 text-rose-300 hover:bg-rose-500/25">Heavy Brake (μ = 0.08)</button>
           </div>
         </div>
 
@@ -540,7 +529,7 @@
               <label for="sim-mu" class="text-slate-300">Friction μ</label>
               <span id="sim-mu-val" class="text-rose-300 font-mono">0.00</span>
             </div>
-            <input id="sim-mu" type="range" min="0" max="0.20" step="0.01" value="0" class="w-full">
+            <input id="sim-mu" type="range" min="0" max="0.15" step="0.01" value="0" class="w-full">
           </div>
           <div class="flex items-end gap-2">
             <button id="sim-toggle-play" type="button" class="flex-1 py-2 px-3 rounded-lg text-xs font-bold bg-amber-400 text-slate-950 hover:bg-amber-300 transition btn-preserve-dark">⏸ Pause</button>
@@ -568,25 +557,33 @@
           <div class="lg:col-span-5 bg-slate-900/80 border border-white/10 rounded-xl p-3 flex flex-col justify-between">
             <div class="flex items-center justify-between text-xs font-semibold text-slate-400 px-1 mb-2">
               <span>LOL Mechanical Energy Bars &amp; Curve</span>
-              <span class="font-mono text-amber-300">PE<sub>g</sub> + KE - |W<sub>f</sub>|</span>
+              <span class="font-mono text-amber-300">PE<sub>g</sub> + KE + |W<sub>f</sub>| = Total E</span>
             </div>
             <canvas id="simCanvas" width="460" height="320" class="w-full h-auto block rounded-lg"></canvas>
-            <div id="sim-readout-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 text-center text-xs">
+            <div id="sim-readout-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-3 text-center text-xs">
               <div class="p-2 rounded-lg bg-slate-950/60 border border-white/10">
                 <div class="text-slate-400">Height</div>
-                <div id="readout-h" class="font-bold font-mono text-amber-300">35.0 m</div>
+                <div id="readout-h" class="font-bold font-mono text-amber-300 whitespace-nowrap">35.0 m</div>
               </div>
               <div class="p-2 rounded-lg bg-slate-950/60 border border-white/10">
                 <div class="text-slate-400">Speed</div>
-                <div id="readout-v" class="font-bold font-mono text-sky-300">0.0 m/s</div>
+                <div id="readout-v" class="font-bold font-mono text-sky-300 whitespace-nowrap">3.0 m/s</div>
               </div>
               <div class="p-2 rounded-lg bg-slate-950/60 border border-white/10">
-                <div class="text-slate-400">PE<sub>g</sub> / KE</div>
-                <div id="readout-peke" class="font-bold font-mono text-white">175 / 0 kJ</div>
+                <div class="text-slate-400">Total E</div>
+                <div id="readout-etot" class="font-bold font-mono text-emerald-300 whitespace-nowrap">177.3 kJ</div>
+              </div>
+              <div class="p-2 rounded-lg bg-slate-950/60 border border-white/10">
+                <div class="text-slate-400">PE<sub>g</sub></div>
+                <div id="readout-peg" class="font-bold font-mono text-amber-300 whitespace-nowrap">175.0 kJ</div>
+              </div>
+              <div class="p-2 rounded-lg bg-slate-950/60 border border-white/10">
+                <div class="text-slate-400">KE</div>
+                <div id="readout-ke" class="font-bold font-mono text-sky-300 whitespace-nowrap">2.3 kJ</div>
               </div>
               <div class="p-2 rounded-lg bg-slate-950/60 border border-white/10">
                 <div class="text-slate-400">|W<sub>f</sub>| Work Lost</div>
-                <div id="readout-wf" class="font-bold font-mono text-rose-300">0.0 kJ</div>
+                <div id="readout-wf" class="font-bold font-mono text-rose-300 whitespace-nowrap">0.0 kJ</div>
               </div>
             </div>
           </div>
@@ -612,7 +609,7 @@
           <div class="p-4 rounded-xl bg-slate-900/75 border border-white/10 space-y-2">
             <div class="text-xs font-bold uppercase tracking-wider text-amber-300">1. Mechanical Work</div>
             <div class="text-lg font-mono font-bold text-white">W = F · d &nbsp;(or Area under F–d graph)</div>
-            <p class="text-xs text-slate-300">Units: <strong>Joules (J = N·m)</strong>. Zero when F ⟂ d. Negative when friction or braking opposes motion (Honors: W = F·d·cos θ).</p>
+            <p class="text-xs text-slate-300">Units: <strong>Joules (J = N·m)</strong>. Zero when F ⟂ d. Negative when friction or braking opposes motion. Angled pull: W = F · d · cos θ.</p>
           </div>
           <div class="p-4 rounded-xl bg-slate-900/75 border border-white/10 space-y-2">
             <div class="text-xs font-bold uppercase tracking-wider text-sky-300">2. Mechanical Power</div>
@@ -631,7 +628,7 @@
             <div class="text-lg font-mono font-bold text-white">
               F<sub>s</sub> = k · x &nbsp;|&nbsp; PE<sub>s</sub> = <span class="frac"><span class="num">1</span><span class="den">2</span></span> · k · x²
             </div>
-            <p class="text-xs text-slate-300">Units: k in <strong>N/m</strong>, x = L - L<sub>0</sub> in <strong>m</strong>. Doubling spring stretch x quadruples stored energy!</p>
+            <p class="text-xs text-slate-300">Units: k in <strong>N/m</strong>, x = L − L<sub>0</sub> in <strong>m</strong>. Doubling spring stretch x quadruples stored energy!</p>
           </div>
           <div class="p-4 rounded-xl bg-slate-900/75 border border-white/10 space-y-2">
             <div class="text-xs font-bold uppercase tracking-wider text-sky-300">5. Kinetic Energy &amp; Speed</div>
@@ -643,47 +640,17 @@
           <div class="p-4 rounded-xl bg-slate-900/75 border border-white/10 space-y-2">
             <div class="text-xs font-bold uppercase tracking-wider text-rose-300">6. Work–Energy &amp; Conservation</div>
             <div class="text-base font-mono font-bold text-white">
-              W<sub>net</sub> = KE<sub>f</sub> - KE<sub>i</sub><br>
+              W<sub>net</sub> = KE<sub>f</sub> − KE<sub>i</sub><br>
               PE<sub>i</sub> + KE<sub>i</sub> + W<sub>f</sub> = PE<sub>f</sub> + KE<sub>f</sub>
             </div>
-            <p class="text-xs text-slate-300">Friction does negative mechanical work W<sub>f</sub> = -F<sub>f</sub>·d removing system mechanical energy.</p>
+            <p class="text-xs text-slate-300">Friction does negative work, W<sub>f</sub> = −F<sub>f</sub> · d, which removes mechanical energy.</p>
           </div>
         </div>
       </div>
 
-      <!-- Quick Formula Checker + Desmos Drawer -->
+      <!-- Desmos Drawer -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div class="lg:col-span-6 glass-card p-6 space-y-4">
-          <h3 class="font-orbitron text-lg font-bold text-white">Quick Unit 3 Calculator (g = 10 m/s²)</h3>
-          <div class="grid grid-cols-2 gap-3 text-xs">
-            <div>
-              <label for="calc-mode" class="block font-semibold text-slate-300 mb-1">Choose Formula</label>
-              <select id="calc-mode" class="w-full rounded-lg bg-slate-900 border border-white/15 px-3 py-2 text-white">
-                <option value="peg">PE_g = m · g · h</option>
-                <option value="ke">KE = ½ · m · v²</option>
-                <option value="pes">PE_s = ½ · k · x²</option>
-                <option value="power">Power P = W ÷ t</option>
-                <option value="drop">Ideal Drop Speed v = √(2 · g · h)</option>
-              </select>
-            </div>
-            <div class="flex items-end">
-              <div class="w-full rounded-lg bg-amber-500/15 border border-amber-400/35 px-3 py-2 text-amber-300 font-mono font-bold text-center" id="calc-result">Result: 500.0 J</div>
-            </div>
-          </div>
-          <div class="grid grid-cols-2 gap-3 text-xs">
-            <div>
-              <label id="calc-a-label" for="calc-a" class="block font-semibold text-slate-300 mb-1">Mass m (kg)</label>
-              <input id="calc-a" type="number" step="any" value="5" class="w-full rounded-lg bg-slate-900 border border-white/15 px-3 py-2 text-white font-mono">
-            </div>
-            <div id="calc-b-wrap">
-              <label id="calc-b-label" for="calc-b" class="block font-semibold text-slate-300 mb-1">Height h (m)</label>
-              <input id="calc-b" type="number" step="any" value="10" class="w-full rounded-lg bg-slate-900 border border-white/15 px-3 py-2 text-white font-mono">
-            </div>
-          </div>
-          <p class="text-[11px] text-slate-400">Always show given values, formula, stacked substitutions, and SI units on handwritten work!</p>
-        </div>
-
-        <div class="lg:col-span-6 glass-card p-6 space-y-3">
+        <div class="lg:col-span-12 glass-card p-6 space-y-3">
           <div class="flex items-center justify-between">
             <h3 class="font-orbitron text-lg font-bold text-white">Desmos Scientific Calculator</h3>
             <button id="toggle-desmos" type="button" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-500/15 border border-sky-400/40 text-sky-300 hover:bg-sky-500/25">Show / Load Calculator</button>
@@ -691,7 +658,7 @@
           <div id="desmos-wrap" class="hidden rounded-xl overflow-hidden border border-white/15 bg-white">
             <div id="desmos-calculator" style="width: 100%; height: 270px;"></div>
           </div>
-          <p id="desmos-status" class="text-xs text-slate-400">Click above to initialize the embedded Desmos scientific keypad anytime while working on Unit 3 calculations.</p>
+          <p id="desmos-status" class="text-xs text-slate-400">Open the Desmos scientific calculator for Unit 3 calculations. Write every step on paper: formula, numbers with units, answer.</p>
         </div>
       </div>
     </section>
@@ -757,6 +724,14 @@
         <div id="modal-standards" class="flex flex-wrap gap-2"></div>
       </div>
 
+      <div id="modal-preview" class="hidden space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Preview</h3>
+          <a id="modal-preview-open" href="#" target="_blank" rel="noopener" class="text-xs font-bold text-sky-300 hover:underline">Open in new tab ↗</a>
+        </div>
+        <iframe id="modal-preview-frame" title="Lesson material preview" class="w-full rounded-xl border border-white/15 bg-white" style="height: 26rem;" loading="lazy"></iframe>
+      </div>
+
       <div class="space-y-2 pt-2 border-t border-white/10">
         <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Links &amp; Assignments</h3>
         <div id="modal-links" class="space-y-2"></div>
@@ -797,6 +772,12 @@
       const unit3Lessons = (typeof lessonsData !== 'undefined' ? lessonsData : [])
         .filter(item => item && item.unit === 3)
         .sort((a, b) => (a.day || 0) - (b.day || 0));
+
+      // Lesson text is trusted site data that uses <sub> tags. Bell-ringer prompts stay plain text
+      // (they also go to Google Classroom), so turn any PE_s style notation into real subscripts.
+      function fmt(text) {
+        return String(text || '').replace(/\b([A-Za-zΔ]+)_([A-Za-z0-9]+)\b/g, '$1<sub>$2</sub>');
+      }
 
       let isLightTheme = localStorage.getItem('u3_theme') === 'light';
       let dokChartInstance = null;
@@ -858,7 +839,7 @@
       // Unit Pacing Progress Bar
       function updateProgressBar() {
         const now = new Date();
-        const todayIso = now.toISOString().slice(0, 10);
+        const todayIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         let completed = unit3Lessons.filter(l => l.date && l.date <= todayIso).length;
         completed = Math.min(unit3Lessons.length, Math.max(0, completed));
         const pct = unit3Lessons.length ? Math.round((completed / unit3Lessons.length) * 100) : 0;
@@ -894,17 +875,6 @@
       if (window.NGSSHelper) {
         NGSSHelper.renderStandardsBanner(['HS-PS3-1', 'HS-PS3-2', 'HS-ETS1-2', 'HS-ETS1-3'], 'unit3-ngss-banner');
         NGSSHelper.autoInit();
-      }
-
-      // WICOR Footprint Badges
-      function renderWicorSummary() {
-        const container = document.getElementById('wicor-badges');
-        if (!container) return;
-        const dims = ['Writing', 'Inquiry', 'Collaboration', 'Organization', 'Reading'];
-        container.innerHTML = dims.map(dim => {
-          const count = unit3Lessons.filter(l => l.wicor && l.wicor[dim] && l.wicor[dim] !== 'N/A').length;
-          return `<span class="px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-300 font-semibold">${dim}: ${count}/${unit3Lessons.length}d</span>`;
-        }).join('');
       }
 
       // DOK Chart
@@ -972,7 +942,7 @@
           if (asgn.url && asgn.status !== 'planned') {
             items.push(`<a href="${asgn.url}" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-sky-500/20 border border-sky-400/40 text-sky-300 hover:bg-sky-500/30">${asgn.title} ↗</a>`);
           } else {
-            items.push(`<button type="button" class="planned-btn inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-500/15 border border-amber-400/30 text-amber-300 hover:bg-amber-500/25" data-planned-title="${asgn.title.replace(/"/g, '&quot;')}">🚧 ${asgn.title}</button>`);
+            items.push(`<button type="button" class="planned-btn inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-500/15 border border-amber-400/30 text-amber-300 hover:bg-amber-500/25" data-planned-title="${asgn.title.replace(/"/g, '&quot;')}">🚧 ${fmt(asgn.title)}</button>`);
           }
         }
         return items.join(' ');
@@ -1025,9 +995,9 @@
                       <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 text-[11px] font-semibold">${lesson.type}</span>
                     </div>
                   </div>
-                  <h3 class="font-orbitron text-base font-bold text-white leading-snug">${lesson.title}</h3>
-                  <p class="text-xs font-semibold text-amber-300">${lesson.topic}</p>
-                  <p class="text-xs text-slate-300 line-clamp-3 leading-relaxed">${lesson.summary}</p>
+                  <h3 class="font-orbitron text-base font-bold text-white leading-snug">${fmt(lesson.title)}</h3>
+                  <p class="text-xs font-semibold text-amber-300">${fmt(lesson.topic)}</p>
+                  <p class="text-xs text-slate-300 line-clamp-3 leading-relaxed">${fmt(lesson.summary)}</p>
                 </div>
                 <div class="space-y-2 pt-2 border-t border-white/10">
                   <div class="flex flex-wrap gap-1.5">${stdPills}</div>
@@ -1089,8 +1059,8 @@
           <div class="p-3.5 rounded-xl bg-slate-900/75 border border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
               <div class="text-xs font-bold ${accent}">Day ${lesson.day} • ${formatNiceDate(lesson.date)} • ${lesson.type}</div>
-              <div class="font-bold text-sm text-white">${lesson.title}</div>
-              <div class="text-xs text-slate-400 mt-0.5">${lesson.topic}</div>
+              <div class="font-bold text-sm text-white">${fmt(lesson.title)}</div>
+              <div class="text-xs text-slate-400 mt-0.5">${fmt(lesson.topic)}</div>
             </div>
             <button type="button" data-open-day="${lesson.day}" class="self-start sm:self-center px-3 py-1.5 rounded-lg text-xs font-bold border border-white/20 text-slate-200 hover:border-amber-400 transition">Inspect →</button>
           </div>
@@ -1117,19 +1087,20 @@
           <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300">${lesson.type}</span>
           <span class="px-2.5 py-0.5 rounded-full bg-sky-500/15 text-sky-300">DOK ${lesson.dok}</span>
         `;
-        document.getElementById('modal-title').textContent = lesson.title;
-        document.getElementById('modal-topic').textContent = lesson.topic;
-        document.getElementById('modal-eq').innerHTML = `<strong class="text-amber-300">Essential Question:</strong> <span class="text-slate-200">${lesson.essentialQuestion || ''}</span>`;
-        document.getElementById('modal-summary').textContent = lesson.summary || '';
-        document.getElementById('modal-activity').textContent = lesson.activity || '';
+        document.getElementById('modal-title').innerHTML = fmt(lesson.title);
+        document.getElementById('modal-topic').innerHTML = fmt(lesson.topic);
+        document.getElementById('modal-eq').innerHTML = `<strong class="text-amber-300">Essential Question:</strong> <span class="text-slate-200">${fmt(lesson.essentialQuestion)}</span>`;
+        document.getElementById('modal-summary').innerHTML = fmt(lesson.summary);
+        document.getElementById('modal-activity').innerHTML = fmt(lesson.activity);
 
         const br = lesson.bellRinger;
         const brEl = document.getElementById('modal-bellringer');
         if (br) {
+          // Answers stay off this public page; only the prompt is shown.
           const extra = br.type === 'concept_chat'
             ? `<div class="text-xs text-sky-300 font-semibold mt-1">💬 SMS Concept Chat Mentor Prompt (${br.defaultDuration || 4} min)</div>`
-            : `<div class="text-xs text-emerald-300 mt-2"><strong>Expected Answer:</strong> <span class="text-slate-300">${br.explanation || ''}</span></div>`;
-          brEl.innerHTML = `<div class="text-xs font-bold uppercase tracking-wider text-amber-300">Bell-Ringer Prompt</div><p class="text-slate-200 mt-1">${br.promptQuestion || ''}</p>${extra}`;
+            : '';
+          brEl.innerHTML = `<div class="text-xs font-bold uppercase tracking-wider text-amber-300">Bell-Ringer Prompt</div><p class="text-slate-200 mt-1">${fmt(br.promptQuestion)}</p>${extra}`;
           brEl.classList.remove('hidden');
         } else {
           brEl.classList.add('hidden');
@@ -1137,7 +1108,7 @@
 
         const wicorEl = document.getElementById('modal-wicor');
         wicorEl.innerHTML = Object.entries(lesson.wicor || {}).map(([k, v]) =>
-          `<div class="p-2 rounded-lg bg-slate-950/60 border border-white/10"><strong class="text-amber-300">${k}:</strong> ${v}</div>`
+          `<div class="p-2 rounded-lg bg-slate-950/60 border border-white/10"><strong class="text-amber-300">${k}:</strong> ${fmt(v)}</div>`
         ).join('');
 
         const stdEl = document.getElementById('modal-standards');
@@ -1151,6 +1122,19 @@
         linksEl.querySelectorAll('.planned-btn').forEach(btn => {
           btn.addEventListener('click', () => openPlannedNotice(btn.dataset.plannedTitle));
         });
+
+        // The first link is the day's main material; preview it in place.
+        const firstUrl = Object.values(lesson.links || {})[0];
+        const previewWrap = document.getElementById('modal-preview');
+        const previewFrame = document.getElementById('modal-preview-frame');
+        if (firstUrl) {
+          previewFrame.src = firstUrl;
+          document.getElementById('modal-preview-open').href = firstUrl;
+          previewWrap.classList.remove('hidden');
+        } else {
+          previewFrame.removeAttribute('src');
+          previewWrap.classList.add('hidden');
+        }
 
         if (window.NGSSHelper) NGSSHelper.autoInit();
         if (dlg && typeof dlg.showModal === 'function') dlg.showModal();
@@ -1226,9 +1210,9 @@
         const barW = 42;
         const maxBarH = 160;
         const bars = [
-          { label: 'PEg', val: peJ, color: peColor },
-          { label: 'KE', val: keJ, color: keColor },
-          { label: 'Total', val: 200, color: etotColor }
+          { label: [['PE'], ['g', true]], val: peJ, color: peColor },
+          { label: [['KE']], val: keJ, color: keColor },
+          { label: [['Total']], val: 200, color: etotColor }
         ];
         ctx.font = 'bold 12px Inter, sans-serif';
         ctx.textAlign = 'center';
@@ -1240,8 +1224,8 @@
           ctx.fillStyle = b.color;
           ctx.fillRect(bx, baseY - bh, barW, bh);
           ctx.fillStyle = textMain;
-          ctx.fillText(b.label, bx + barW / 2, baseY + 18);
-          ctx.fillText(`${Math.round(b.val)}J`, bx + barW / 2, baseY - bh - 6);
+          drawLabel(ctx, b.label, bx + barW / 2, baseY + 18);
+          ctx.fillText(`${Math.round(b.val)} J`, bx + barW / 2, baseY - bh - 6);
         });
 
         const sh = document.getElementById('scope-h');
@@ -1252,48 +1236,106 @@
         if (sp) sp.textContent = `${Math.round(peJ)} / ${Math.round(keJ)} J`;
       }
 
+      // Canvas text with a true lowered subscript. parts: [['PE'], ['g', true]]
+      function drawLabel(ctx, parts, cx, y) {
+        const baseFont = ctx.font;
+        const subFont = baseFont.replace(/(\d+)px/, (m, n) => `${Math.round(Number(n) * 0.75)}px`);
+        const widths = parts.map(([t, sub]) => { ctx.font = sub ? subFont : baseFont; return ctx.measureText(t).width; });
+        let x = cx - widths.reduce((sum, w) => sum + w, 0) / 2;
+        const align = ctx.textAlign;
+        ctx.textAlign = 'left';
+        parts.forEach(([t, sub], i) => {
+          ctx.font = sub ? subFont : baseFont;
+          ctx.fillText(t, x, sub ? y + 4 : y);
+          x += widths[i];
+        });
+        ctx.font = baseFont;
+        ctx.textAlign = align;
+      }
+
       // 2) Full Interactive Roller Coaster Simulator (#trackCanvas + #simCanvas)
-      const simState = {
-        h0: 35,
-        m: 500,
-        mu: 0,
-        s: 0, // progress 0 to 1
-        playing: true
-      };
+      // The cart leaves the lift hill at V0 and moves under gravity and kinetic friction.
+      // Friction F_f = μ·m·g·cosθ acts along the track (length Δx ÷ cosθ), so the work it
+      // removes is μ·m·g·Δx, where Δx is horizontal distance travelled.
+      const TRACK_LENGTH = 160; // m, horizontal
+      const V0 = 3;             // m/s, speed leaving the lift hill
+      const SIM_SPEED = 1.5;    // playback speed multiplier
+      const simState = { h0: 35, m: 500, mu: 0, x: 0, v: V0, wf: 0, playing: true, status: 'riding' };
 
       function getCoasterHeightAt(s, h0) {
         // Profile: starts at h0 (s=0), plunges to valley h=2m (s=0.35), rises to Hill #2 max 0.8*h0 (s=0.68), ends flat h=6m (s=1)
+        s = Math.min(1, Math.max(0, s));
         if (s <= 0.35) {
           const u = s / 0.35;
           return 2 + (h0 - 2) * (0.5 * (1 + Math.cos(Math.PI * u)));
         }
+        const hill2 = 0.8 * h0;
         if (s <= 0.68) {
           const u = (s - 0.35) / 0.33;
-          const hill2 = 0.8 * h0;
           return 2 + (hill2 - 2) * (0.5 * (1 - Math.cos(Math.PI * u)));
         }
         const u = (s - 0.68) / 0.32;
-        const hill2 = 0.8 * h0;
         return 6 + (hill2 - 6) * (0.5 * (1 + Math.cos(Math.PI * u)));
       }
 
-      function computeCoasterPhysics(s) {
-        const h = getCoasterHeightAt(s, simState.h0);
-        const totalE = simState.m * G * simState.h0; // J
-        // Track horizontal span ~ 180 m scaled cleanly
-        const distTraveled = s * 160;
-        const wfRemoved = Math.min(totalE, simState.mu * simState.m * G * distTraveled * 0.72);
-        const eMech = Math.max(0, totalE - wfRemoved);
-        const pegNeeded = simState.m * G * h;
-        let ke = eMech - pegNeeded;
-        let stalled = false;
-        if (ke < 0) {
-          ke = 0;
-          stalled = true;
-        }
-        const v = Math.sqrt((2 * ke) / simState.m);
-        return { h, v, peg: Math.min(eMech, pegNeeded), ke, wfRemoved, totalE, eMech, stalled };
+      const trackHeight = x => getCoasterHeightAt(x / TRACK_LENGTH, simState.h0);
+      const trackSlope = x => (trackHeight(x + 0.05) - trackHeight(x - 0.05)) / 0.1;
+      const totalEnergy = () => simState.m * G * simState.h0 + 0.5 * simState.m * V0 * V0;
+
+      function resetRide() {
+        simState.x = 0;
+        simState.v = V0;
+        simState.wf = 0;
+        simState.status = 'riding';
       }
+
+      function stepRide(dt) {
+        const { m, mu } = simState;
+        const k = trackSlope(simState.x);
+        const cos = 1 / Math.sqrt(1 + k * k);
+        const sin = k * cos;
+        let v = simState.v;
+        let a = -G * sin;
+        if (v !== 0) {
+          a -= Math.sign(v) * mu * G * cos;
+        } else if (Math.abs(k) <= mu) {
+          simState.status = 'stopped'; // friction is strong enough to hold the cart here
+          return;
+        } else {
+          a += Math.sign(sin) * mu * G * cos; // starts sliding downhill, friction opposes it
+        }
+        let vNew = v + a * dt;
+        if (v !== 0 && Math.sign(vNew) !== Math.sign(v)) vNew = 0; // turning point
+        const dx = ((v + vNew) / 2) * cos * dt;
+        simState.x += dx;
+        if (simState.x <= 0) { simState.x = 0; vNew = 0; }
+        if (simState.x >= TRACK_LENGTH) {
+          simState.x = TRACK_LENGTH;
+          simState.status = 'finished';
+        }
+        simState.wf += mu * m * G * Math.abs(dx);
+        // Keep the energy ledger exact: KE = E_total − |W_f| − PE_g
+        const keLeft = totalEnergy() - simState.wf - m * G * trackHeight(simState.x);
+        if (keLeft <= 0) vNew = 0;
+        else if (vNew !== 0) vNew = Math.sign(vNew) * Math.sqrt((2 * keLeft) / m);
+        simState.v = vNew;
+      }
+
+      function computeCoasterPhysics() {
+        const h = trackHeight(simState.x);
+        const totalE = totalEnergy();
+        const peg = simState.m * G * h;
+        const ke = simState.status === 'unreachable' ? 0 : 0.5 * simState.m * simState.v * simState.v;
+        const reach = (totalE - simState.wf) / (simState.m * G);
+        return { h, v: Math.abs(simState.v), peg, ke, wfRemoved: simState.wf, totalE, reach };
+      }
+
+      const statusText = {
+        riding: ['Coasting', 'text-emerald-300'],
+        stopped: ['Stopped: friction holds the cart (KE = 0 J)', 'text-rose-300'],
+        finished: ['Reached the station', 'text-sky-300'],
+        unreachable: ['The cart never gets this far', 'text-rose-300']
+      };
 
       function drawSimFrame() {
         const trackC = document.getElementById('trackCanvas');
@@ -1321,12 +1363,12 @@
         const plotW = TW - padL - padR;
         const plotH = TH - padT - padB;
         const maxHScale = 55;
+        const toPy = hh => padT + plotH - (Math.min(hh, maxHScale) / maxHScale) * plotH;
 
-        // Horizontal ruler gridlines (0m to 50m)
         tCtx.font = '11px Inter, sans-serif';
         tCtx.textAlign = 'right';
         for (let mh = 0; mh <= 50; mh += 10) {
-          const py = padT + plotH - (mh / maxHScale) * plotH;
+          const py = toPy(mh);
           tCtx.strokeStyle = gridColor;
           tCtx.lineWidth = 1;
           tCtx.beginPath();
@@ -1334,16 +1376,14 @@
           tCtx.lineTo(TW - padR, py);
           tCtx.stroke();
           tCtx.fillStyle = axisText;
-          tCtx.fillText(`${mh}m`, padL - 6, py + 4);
+          tCtx.fillText(`${mh} m`, padL - 6, py + 4);
         }
 
-        // Draw coaster track curve
         tCtx.beginPath();
-        for (let i = 0; i <= 100; i++) {
-          const ss = i / 100;
-          const hh = getCoasterHeightAt(ss, simState.h0);
-          const px = padL + ss * plotW;
-          const py = padT + plotH - (hh / maxHScale) * plotH;
+        for (let i = 0; i <= 160; i++) {
+          const xx = (i / 160) * TRACK_LENGTH;
+          const px = padL + (xx / TRACK_LENGTH) * plotW;
+          const py = toPy(trackHeight(xx));
           if (i === 0) tCtx.moveTo(px, py);
           else tCtx.lineTo(px, py);
         }
@@ -1351,12 +1391,26 @@
         tCtx.lineWidth = 4;
         tCtx.stroke();
 
-        // Physics state
-        const phys = computeCoasterPhysics(simState.s);
-        const cx = padL + simState.s * plotW;
-        const cy = padT + plotH - (phys.h / maxHScale) * plotH;
+        const phys = computeCoasterPhysics();
 
-        // Height drop line
+        // Highest point the cart can still reach with the energy it has left
+        const reachPy = toPy(phys.reach);
+        tCtx.strokeStyle = totColor;
+        tCtx.lineWidth = 2;
+        tCtx.setLineDash([8, 6]);
+        tCtx.beginPath();
+        tCtx.moveTo(padL, reachPy);
+        tCtx.lineTo(TW - padR, reachPy);
+        tCtx.stroke();
+        tCtx.setLineDash([]);
+        tCtx.fillStyle = totColor;
+        tCtx.textAlign = 'right';
+        tCtx.font = 'bold 12px Inter, sans-serif';
+        tCtx.fillText(`Highest point it can still reach: ${Math.max(0, phys.reach).toFixed(1)} m`, TW - padR - 4, Math.max(14, reachPy - 6));
+
+        const cx = padL + (simState.x / TRACK_LENGTH) * plotW;
+        const cy = toPy(phys.h);
+
         tCtx.strokeStyle = peColor;
         tCtx.setLineDash([4, 4]);
         tCtx.beginPath();
@@ -1365,8 +1419,8 @@
         tCtx.stroke();
         tCtx.setLineDash([]);
 
-        // Cart
-        tCtx.fillStyle = phys.stalled ? wfColor : peColor;
+        const badCart = simState.status === 'stopped' || simState.status === 'unreachable';
+        tCtx.fillStyle = badCart ? wfColor : peColor;
         tCtx.beginPath();
         tCtx.arc(cx, cy - 8, 9, 0, Math.PI * 2);
         tCtx.fill();
@@ -1374,21 +1428,28 @@
         tCtx.lineWidth = 2;
         tCtx.stroke();
 
-        // Speed vector arrow
         if (phys.v > 0.5) {
-          const arrowLen = Math.min(70, phys.v * 2.1);
+          const dir = Math.sign(simState.v) || 1;
+          const arrowLen = Math.min(70, phys.v * 2.1) * dir;
           tCtx.strokeStyle = keColor;
+          tCtx.fillStyle = keColor;
           tCtx.lineWidth = 3;
           tCtx.beginPath();
           tCtx.moveTo(cx, cy - 8);
           tCtx.lineTo(cx + arrowLen, cy - 8);
           tCtx.stroke();
+          tCtx.beginPath();
+          tCtx.moveTo(cx + arrowLen + 7 * dir, cy - 8);
+          tCtx.lineTo(cx + arrowLen, cy - 13);
+          tCtx.lineTo(cx + arrowLen, cy - 3);
+          tCtx.fill();
         }
 
         const badge = document.getElementById('sim-status-badge');
         if (badge) {
-          badge.textContent = phys.stalled ? 'Stalled on Hill! (KE = 0 J)' : 'Coasting Track';
-          badge.className = phys.stalled ? 'text-rose-300 font-mono font-bold' : 'text-emerald-300 font-mono font-bold';
+          const [txt, cls] = statusText[simState.status] || statusText.riding;
+          badge.textContent = txt;
+          badge.className = `${cls} font-mono font-bold`;
         }
 
         // LOL Bar Canvas
@@ -1397,38 +1458,48 @@
 
         const bBaseY = BH - 44;
         const bMaxH = BH - 80;
-        const labels = [
-          { name: 'PEg', val: phys.peg, color: peColor },
-          { name: 'KE', val: phys.ke, color: keColor },
-          { name: '|Wf|', val: phys.wfRemoved, color: wfColor },
-          { name: 'Total E', val: phys.totalE, color: totColor }
+        const bars = [
+          { name: [['PE'], ['g', true]], val: phys.peg, color: peColor },
+          { name: [['KE']], val: phys.ke, color: keColor },
+          { name: [['|W'], ['f', true], ['|']], val: phys.wfRemoved, color: wfColor },
+          { name: [['Total E']], val: phys.totalE, color: totColor }
         ];
 
         bCtx.textAlign = 'center';
         bCtx.font = 'bold 12px Inter, sans-serif';
-        labels.forEach((b, idx) => {
+        bars.forEach((b, idx) => {
           const bx = 42 + idx * 96;
           const bw = 54;
-          const bh = phys.totalE > 0 ? (b.val / phys.totalE) * bMaxH : 0;
+          const bh = phys.totalE > 0 ? Math.min(1, b.val / phys.totalE) * bMaxH : 0;
           bCtx.fillStyle = isLightTheme ? '#f1f5f9' : 'rgba(255,255,255,0.06)';
           bCtx.fillRect(bx, bBaseY - bMaxH, bw, bMaxH);
           bCtx.fillStyle = b.color;
           bCtx.fillRect(bx, bBaseY - bh, bw, bh);
           bCtx.fillStyle = axisText;
-          bCtx.fillText(b.name, bx + bw / 2, bBaseY + 18);
-          bCtx.fillText(`${(b.val / 1000).toFixed(1)}kJ`, bx + bw / 2, bBaseY - bh - 7);
+          drawLabel(bCtx, b.name, bx + bw / 2, bBaseY + 18);
+          bCtx.fillText(`${(b.val / 1000).toFixed(1)} kJ`, bx + bw / 2, bBaseY - bh - 7);
         });
 
-        // Update readouts
         document.getElementById('readout-h').textContent = `${phys.h.toFixed(1)} m`;
         document.getElementById('readout-v').textContent = `${phys.v.toFixed(1)} m/s`;
-        document.getElementById('readout-peke').textContent = `${(phys.peg / 1000).toFixed(1)} / ${(phys.ke / 1000).toFixed(1)} kJ`;
+        document.getElementById('readout-peg').textContent = `${(phys.peg / 1000).toFixed(1)} kJ`;
+        document.getElementById('readout-ke').textContent = `${(phys.ke / 1000).toFixed(1)} kJ`;
+        document.getElementById('readout-etot').textContent = `${(phys.totalE / 1000).toFixed(1)} kJ`;
         document.getElementById('readout-wf').textContent = `${(phys.wfRemoved / 1000).toFixed(1)} kJ`;
-        document.getElementById('sim-scrub').value = (simState.s * 100).toFixed(1);
-        document.getElementById('sim-scrub-val').textContent = `${Math.round(simState.s * 100)}%`;
+        const pct = (simState.x / TRACK_LENGTH) * 100;
+        document.getElementById('sim-scrub').value = pct.toFixed(1);
+        document.getElementById('sim-scrub-val').textContent = `${Math.round(pct)}%`;
       }
 
       // Simulator Input Events
+      const playBtn = document.getElementById('sim-toggle-play');
+      function restartRide() {
+        resetRide();
+        simState.playing = true;
+        playBtn.textContent = '⏸ Pause';
+        drawSimFrame();
+      }
+
       const bindSimSlider = (id, labelId, key, suffix, fmt) => {
         const el = document.getElementById(id);
         const lbl = document.getElementById(labelId);
@@ -1436,101 +1507,67 @@
         el.addEventListener('input', () => {
           simState[key] = Number(el.value);
           if (lbl) lbl.textContent = (fmt ? fmt(simState[key]) : simState[key]) + suffix;
-          drawSimFrame();
+          restartRide();
         });
       };
       bindSimSlider('sim-height', 'sim-height-val', 'h0', ' m');
       bindSimSlider('sim-mass', 'sim-mass-val', 'm', ' kg');
       bindSimSlider('sim-mu', 'sim-mu-val', 'mu', '', v => v.toFixed(2));
 
+      // Scrubbing shows the cart's first trip to that point along the track
       document.getElementById('sim-scrub').addEventListener('input', (e) => {
         simState.playing = false;
-        document.getElementById('sim-toggle-play').textContent = '▶ Play';
-        simState.s = Number(e.target.value) / 100;
+        playBtn.textContent = '▶ Play';
+        simState.x = (Number(e.target.value) / 100) * TRACK_LENGTH;
+        simState.wf = simState.mu * simState.m * G * simState.x;
+        const keLeft = totalEnergy() - simState.wf - simState.m * G * trackHeight(simState.x);
+        simState.v = keLeft > 0 ? Math.sqrt((2 * keLeft) / simState.m) : 0;
+        simState.status = keLeft > 0 ? (simState.x >= TRACK_LENGTH ? 'finished' : 'riding') : 'unreachable';
         drawSimFrame();
       });
 
-      document.getElementById('sim-toggle-play').addEventListener('click', (e) => {
+      playBtn.addEventListener('click', () => {
+        if (!simState.playing && simState.status !== 'riding') { restartRide(); return; }
         simState.playing = !simState.playing;
-        e.target.textContent = simState.playing ? '⏸ Pause' : '▶ Play';
+        playBtn.textContent = simState.playing ? '⏸ Pause' : '▶ Play';
       });
 
-      document.getElementById('sim-reset').addEventListener('click', () => {
-        simState.s = 0;
-        simState.playing = true;
-        document.getElementById('sim-toggle-play').textContent = '⏸ Pause';
-        drawSimFrame();
-      });
+      document.getElementById('sim-reset').addEventListener('click', restartRide);
 
       const setMuPreset = (muVal) => {
         simState.mu = muVal;
-        simState.s = 0;
-        simState.playing = true;
         document.getElementById('sim-mu').value = muVal;
         document.getElementById('sim-mu-val').textContent = muVal.toFixed(2);
-        document.getElementById('sim-toggle-play').textContent = '⏸ Pause';
-        drawSimFrame();
+        restartRide();
       };
       document.getElementById('preset-ideal').addEventListener('click', () => setMuPreset(0));
-      document.getElementById('preset-realistic').addEventListener('click', () => setMuPreset(0.08));
-      document.getElementById('preset-brake').addEventListener('click', () => setMuPreset(0.18));
+      document.getElementById('preset-realistic').addEventListener('click', () => setMuPreset(0.04));
+      document.getElementById('preset-brake').addEventListener('click', () => setMuPreset(0.08));
 
-      // Animation Loop (smooth ~60fps)
-      function tick() {
+      // Animation Loop
+      let lastTick = null;
+      function tick(now) {
+        const dtReal = lastTick === null ? 0 : Math.min(0.05, (now - lastTick) / 1000);
+        lastTick = now;
         scopePhase += 0.025;
         drawScopeCanvas();
 
         const simPanel = document.getElementById('simulator');
-        if (simState.playing && simPanel && !simPanel.classList.contains('hidden')) {
-          const phys = computeCoasterPhysics(simState.s);
-          if (!phys.stalled) {
-            const step = Math.max(0.0022, 0.0018 + phys.v * 0.00018);
-            simState.s += step;
-            if (simState.s > 1) simState.s = 0;
+        if (simPanel && !simPanel.classList.contains('hidden')) {
+          if (simState.playing && simState.status === 'riding') {
+            let remaining = dtReal * SIM_SPEED;
+            while (remaining > 0 && simState.status === 'riding') {
+              const dt = Math.min(0.002, remaining);
+              stepRide(dt);
+              remaining -= dt;
+            }
           }
           drawSimFrame();
         }
         requestAnimationFrame(tick);
       }
 
-      // 3) Quick Formula Calculator (Matrix Tab)
-      const calcMode = document.getElementById('calc-mode');
-      const calcA = document.getElementById('calc-a');
-      const calcB = document.getElementById('calc-b');
-      const calcALabel = document.getElementById('calc-a-label');
-      const calcBLabel = document.getElementById('calc-b-label');
-      const calcBWrap = document.getElementById('calc-b-wrap');
-      const calcResult = document.getElementById('calc-result');
-
-      function updateQuickCalc() {
-        const m = calcMode.value;
-        const a = Number(calcA.value) || 0;
-        const b = Number(calcB.value) || 0;
-        calcBWrap.classList.toggle('hidden', m === 'drop');
-        if (m === 'peg') {
-          calcALabel.textContent = 'Mass m (kg)';
-          calcBLabel.textContent = 'Height h (m)';
-          calcResult.textContent = `PE_g = ${(a * G * b).toFixed(1)} J`;
-        } else if (m === 'ke') {
-          calcALabel.textContent = 'Mass m (kg)';
-          calcBLabel.textContent = 'Speed v (m/s)';
-          calcResult.textContent = `KE = ${(0.5 * a * b * b).toFixed(1)} J`;
-        } else if (m === 'pes') {
-          calcALabel.textContent = 'Spring k (N/m)';
-          calcBLabel.textContent = 'Stretch x (m)';
-          calcResult.textContent = `PE_s = ${(0.5 * a * b * b).toFixed(2)} J`;
-        } else if (m === 'power') {
-          calcALabel.textContent = 'Work W (J)';
-          calcBLabel.textContent = 'Time t (s)';
-          calcResult.textContent = b > 0 ? `P = ${(a / b).toFixed(1)} W` : 'Time must be > 0';
-        } else if (m === 'drop') {
-          calcALabel.textContent = 'Drop Height h (m)';
-          calcResult.textContent = `v = ${Math.sqrt(Math.max(0, 2 * G * a)).toFixed(2)} m/s`;
-        }
-      }
-      [calcMode, calcA, calcB].forEach(el => el.addEventListener('input', updateQuickCalc));
-
-      // Desmos Toggle (with CDN filter guard)
+      // 3) Desmos Toggle (with CDN filter guard)
       document.getElementById('toggle-desmos').addEventListener('click', () => {
         const wrap = document.getElementById('desmos-wrap');
         const status = document.getElementById('desmos-status');
@@ -1545,17 +1582,15 @@
             status.textContent = 'Desmos Scientific Calculator ready.';
           } else {
             wrap.classList.add('hidden');
-            status.textContent = 'Desmos is unavailable offline or filtered on this network. Use the Quick Calculator on the left!';
+            status.textContent = 'Desmos is unavailable offline or filtered on this network. Use your handheld calculator and show every step on paper.';
           }
         }
       });
 
       // Boot sequence
       updateProgressBar();
-      renderWicorSummary();
       renderPacingCards('all');
       renderLabsAndAssessments();
-      updateQuickCalc();
       applyTheme(isLightTheme);
       requestAnimationFrame(tick);
     })();

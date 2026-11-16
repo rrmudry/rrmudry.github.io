@@ -299,6 +299,15 @@
                 .replace(/'/g, '&#039;');
         }
 
+        // Lesson text may carry <sub>/<sup> for physics notation. Keep those, drop any other tags.
+        function plainText(str) {
+            return String(str || '').replace(/<[^>]*>/g, '');
+        }
+        function escapeRich(str) {
+            const kept = String(str || '').replace(/<(?!\/?(sub|sup)>)[^>]*>/g, '');
+            return escapeHtml(kept).replace(/&lt;(\/?)(sub|sup)&gt;/g, '<$1$2>');
+        }
+
         // URL sanitizer
         function sanitizeUrl(url) {
             if (!url) return '#';
@@ -525,14 +534,14 @@
                         <!-- Content -->
                         <div class="flex-1">
                             <div class="flex items-center gap-3 mb-2 flex-wrap">
-                                <h3 class="text-lg font-bold text-white leading-tight">${escapeHtml(lesson.title)}</h3>
+                                <h3 class="text-lg font-bold text-white leading-tight">${escapeRich(lesson.title)}</h3>
                                 <span class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${badgeColor}">
                                     ${escapeHtml(badgeLabel)}
                                 </span>
                             </div>
                             
-                            <p class="text-slate-300 text-sm mb-4 leading-relaxed" title="${escapeHtml(lesson.details || lesson.summary || '')}">
-                                ${escapeHtml(lesson.summary || '')} 
+                            <p class="text-slate-300 text-sm mb-4 leading-relaxed" title="${escapeHtml(plainText(lesson.details || lesson.summary || ''))}">
+                                ${escapeRich(lesson.summary || '')} 
                             </p>
                             
                             ${materialsHtml}

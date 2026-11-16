@@ -5677,7 +5677,7 @@ const lessonsData = [
     "date": "2026-11-17",
     "unit": 3,
     "title": "Work Calculation Practice: Horizontal, Vertical Lifting & Net Work",
-    "topic": "Stacked GUESS Problems (W = F · d, W = m · g · h, W_net = F_net · d)",
+    "topic": "Stacked GUESS Problems (W = F · d, W = m · g · h, W<sub>net</sub> = F<sub>net</sub> · d)",
     "dok": 2,
     "type": "Calculation Practice",
     "semester": 1,
@@ -5712,7 +5712,7 @@ const lessonsData = [
         "typeLabel": "Calculation Practice",
         "submission": "Tiered Problem Set + >= 3/4 Stacked GUESS Exit Check",
         "actionLabel": "Open PDF Worksheet",
-        "description": "Practice W = F · d, W = m · g · h (g = 10 m/s²), zero-work traps, and W_net across 12 tiered scenarios.",
+        "description": "Practice W = F · d, W = m · g · h (g = 10 m/s²), zero-work traps, and W<sub>net</sub> across 12 tiered scenarios.",
         "status": "active"
       }
     ],
@@ -5736,16 +5736,16 @@ const lessonsData = [
     "semester": 1,
     "isFeatured": true,
     "summary": "Why do moving trucks use long ramps and mechanics use pulley blocks instead of hoisting heavy gear straight up? Ramps and multi-strand pulleys lower the required pull force in exact proportion to how much extra rope or ramp distance you pull—leaving ideal mechanical work (F · d ≈ m · g · h = 1.50 J) unchanged!",
-    "activity": "Ramp & Pulley Force–Distance Lab (m = 0.50 kg cart, F_g = 5.0 N, h = 0.30 m): First lift the 0.50 kg cart straight up 0.30 m (W_out = 1.50 J). Next pull the cart slowly up four track lengths to the same 0.30 m elevation (d = 0.50 m, 0.60 m, 1.00 m, 1.20 m), recording spring-scale pull force F_pull, calculating W_in = F_pull · d and IMA = d ÷ h, and verifying that cutting force in half doubles distance (0.60 m) while cutting force to 1/4 quadruples distance (1.20 m). Finish by cross-checking 1-, 2-, and 4-rope systems in the Ideal Pulley System Lab.",
+    "activity": "Ramp & Pulley Force–Distance Lab (m = 0.50 kg cart, F<sub>g</sub> = 5.0 N, h = 0.30 m): First lift the 0.50 kg cart straight up 0.30 m (W<sub>out</sub> = 1.50 J). Next pull the cart slowly up four track lengths to the same 0.30 m elevation (d = 0.50 m, 0.60 m, 1.00 m, 1.20 m), recording spring-scale pull force F<sub>pull</sub>, calculating W<sub>in</sub> = F<sub>pull</sub> · d and IMA = d ÷ h, and verifying that cutting force in half doubles distance (0.60 m) while cutting force to 1/4 quadruples distance (1.20 m). Finish by cross-checking 1-, 2-, and 4-rope systems in the Ideal Pulley System Lab.",
     "essentialQuestion": "Why does pulling a cart up a gentle 4× longer ramp cut pull force to one-fourth while keeping ideal mechanical work equal to a straight lift?",
     "standards": [
       "HS-PS3-1"
     ],
     "wicor": {
-      "Writing": "Comparing measured W_in against W_out = 1.50 J and attributing small excess work to track friction.",
+      "Writing": "Comparing measured W<sub>in</sub> against W<sub>out</sub> = 1.50 J and attributing small excess work to track friction.",
       "Inquiry": "Testing four ramp lengths and multi-strand pulleys to discover the inverse F ∝ 1/d relationship.",
       "Collaboration": "Three-person lab crews rotate roles as spring-scale reader, track/elevation setter, and recorder.",
-      "Organization": "Completing a 5-row lab table (Length d, Ideal F, Measured F_pull, W_in, W_out, IMA = d ÷ h).",
+      "Organization": "Completing a 5-row lab table (Length d, Ideal F, Measured F<sub>pull</sub>, W<sub>in</sub>, W<sub>out</sub>, IMA = d ÷ h).",
       "Reading": "Reading analog spring scales cleanly at constant tow speed without acceleration spikes."
     },
     "bellRinger": {
@@ -5796,7 +5796,7 @@ const lessonsData = [
     "semester": 1,
     "isFeatured": false,
     "summary": "Real machines and human pushes rarely maintain one constant force from start to finish. Just as area under a velocity–time graph reveals distance, the shaded area under a Force vs. Distance graph equals mechanical work—turning Day 3's tall/narrow lift rectangle (0.30 m × 5.0 N) and wide/short ramp rectangle (1.20 m × 1.25 N) into a visual proof of equal 1.50 J areas.",
-    "activity": "CAST Data Analysis & Ramp Trade-Off CER: (1) Plot Day 3 (d, F_pull) points on a 0–1.50 m by 0–6.0 N grid and compare the Direct Lift rectangle vs. Ramp D (1.20 m) rectangle areas (both 1.50 J ideal). (2) Solve 4 CAST F–d Area tasks covering a constant push rectangle (60 J), increasing triangle force (40 J), trapezoidal push (+80 J), and forward push + negative braking area below axis (+40 J - 20 J = +20 J). (3) Write a formal CER refuting the claim that '4× longer ramps cut work to one-fourth' (Honors extension: extract average friction force F_f = 0.24 J ÷ 1.20 m = 0.20 N from excess area).",
+    "activity": "CAST Data Analysis & Ramp Trade-Off CER: (1) Plot Day 3 (d, F<sub>pull</sub>) points on a 0–1.50 m by 0–6.0 N grid and compare the Direct Lift rectangle vs. Ramp D (1.20 m) rectangle areas (both 1.50 J ideal). (2) Solve 4 CAST F–d Area tasks covering a constant push rectangle (60 J), increasing triangle force (40 J), trapezoidal push (+80 J), and forward push + negative braking area below axis (+40 J - 20 J = +20 J). (3) Write a formal CER refuting the claim that '4× longer ramps cut work to one-fourth' (Honors extension: extract average friction force F<sub>f</sub> = 0.24 J ÷ 1.20 m = 0.20 N from excess area).",
     "essentialQuestion": "How do shaded areas on Force–Distance graphs prove conservation of ideal work and quantify friction work?",
     "standards": [
       "HS-PS3-1",
@@ -5804,9 +5804,9 @@ const lessonsData = [
     ],
     "wicor": {
       "Writing": "Drafting a 3-part Claim–Evidence–Reasoning rebuttal citing measured Day 3 Forces, Distances, and Graph Areas.",
-      "Inquiry": "Comparing excess input work area (W_in - W_out) across ramp lengths to isolate track friction force.",
+      "Inquiry": "Comparing excess input work area (W<sub>in</sub> - W<sub>out</sub>) across ramp lengths to isolate track friction force.",
       "Collaboration": "Partners verify rectangular/triangular area partitions and peer-check CER quantitative evidence.",
-      "Organization": "Logging positive (+) and negative (-) graph region areas before summing W_net.",
+      "Organization": "Logging positive (+) and negative (-) graph region areas before summing W<sub>net</sub>.",
       "Reading": "Extracting non-constant and piecewise force data from CAST-style Force vs. Distance curves."
     },
     "bellRinger": {
@@ -5850,13 +5850,13 @@ const lessonsData = [
     "semester": 1,
     "isFeatured": true,
     "summary": "Walking slowly up a flight of stairs and climbing briskly accomplish the exact same vertical lifting work (W = m · g · h). What skyrockets as climb time shrinks is Mechanical Power—Joules transferred per second (P = W ÷ t, measured in Watts and horsepower where 1 hp = 746 W).",
-    "activity": "Staircase / Step-Up Mechanical Power Lab + Week 1 Mastery Check: Measure step riser height h_step × step count (e.g., 3.00 m stairwell, or 5 reps onto a 0.40 m indoor platform = 2.00 m), compute lifting weight (m · 10; 60 kg reference card optional) and vertical work W = F_g · h, time 3 safe trials (Slow, Normal Brisk, Fast Climb), calculate Watts and horsepower (reference: 60 kg, 3.00 m → 1,800 J in 9 s/6 s/4 s yields 200 W/300 W/450 W), compare against a 60 W bulb & 1,500 W dryer, then finish the 6-item Week 1 Mastery Quiz (>= 5/6 target) before Thanksgiving Break.",
+    "activity": "Staircase / Step-Up Mechanical Power Lab + Week 1 Mastery Check: Measure step riser height h<sub>step</sub> × step count (e.g., 3.00 m stairwell, or 5 reps onto a 0.40 m indoor platform = 2.00 m), compute lifting weight (m · 10; 60 kg reference card optional) and vertical work W = F<sub>g</sub> · h, time 3 safe trials (Slow, Normal Brisk, Fast Climb), calculate Watts and horsepower (reference: 60 kg, 3.00 m → 1,800 J in 9 s/6 s/4 s yields 200 W/300 W/450 W), compare against a 60 W bulb & 1,500 W dryer, then finish the 6-item Week 1 Mastery Quiz (>= 5/6 target) before Thanksgiving Break.",
     "essentialQuestion": "Why does climbing the same staircase in half the time double your mechanical power output while leaving total work unchanged?",
     "standards": [
       "HS-PS3-1"
     ],
     "wicor": {
-      "Writing": "Explaining why cutting climb time in half doubles Wattage using W_slow = W_fast evidence.",
+      "Writing": "Explaining why cutting climb time in half doubles Wattage using W<sub>slow</sub> = W<sub>fast</sub> evidence.",
       "Inquiry": "Testing how self-selected climb pace alters human Wattage output relative to household appliances.",
       "Collaboration": "Partners measure stair geometry together and run stopwatch trials safely with handrail guidance.",
       "Organization": "Completing a 3-trial calculation table (Weight, Height, Work in J, Time in s, Power in W & hp).",
@@ -5897,13 +5897,13 @@ const lessonsData = [
     "date": "2026-11-30",
     "unit": 3,
     "title": "Gravitational Potential Energy & Reference Heights",
-    "topic": "Gravitational Potential Energy (PE_g = m · g · h) & Datum Choice",
+    "topic": "Gravitational Potential Energy (PE<sub>g</sub> = m · g · h) & Datum Choice",
     "dok": 2,
     "type": "Concept Intro",
     "semester": 1,
     "isFeatured": false,
-    "summary": "Welcome back from Thanksgiving Break! Lifting an object stores energy in the Earth–object gravitational field: PE_g = m · g · h (g = 10 m/s²). Because height h depends on where you place your zero line (floor, table, or basement), absolute PE_g depends on your chosen reference frame—while the change ΔPE_g between two heights stays identical for everyone.",
-    "activity": "Reference Frame Mystery Stations: Calculate the PE_g of classroom masses relative to three different zero-height baselines (floor, lab bench, ceiling drop line), prove mathematically that ΔPE_g stays identical across all three reference points, and finish the 6-row invariant ledger check.",
+    "summary": "Welcome back from Thanksgiving Break! Lifting an object stores energy in the Earth–object gravitational field: PE<sub>g</sub> = m · g · h (g = 10 m/s²). Because height h depends on where you place your zero line (floor, table, or basement), absolute PE<sub>g</sub> depends on your chosen reference frame—while the change ΔPE<sub>g</sub> between two heights stays identical for everyone.",
+    "activity": "Reference Frame Mystery Stations: Calculate the PE<sub>g</sub> of classroom masses relative to three different zero-height baselines (floor, lab bench, ceiling drop line), prove mathematically that ΔPE<sub>g</sub> stays identical across all three reference points, and finish the 6-row invariant ledger check.",
     "essentialQuestion": "If two students pick different floors as h = 0, why do they still agree on how much gravitational potential energy changes during a drop?",
     "standards": [
       "HS-PS3-1",
@@ -5911,8 +5911,8 @@ const lessonsData = [
     ],
     "wicor": {
       "Writing": "Explaining why Δh determines usable energy changes even when reference levels differ.",
-      "Inquiry": "Comparing calculated PE_g vs. ΔPE_g across floor, table, and ceiling coordinate frames.",
-      "Collaboration": "Partners compare differing h = 0 tables to verify identical ΔPE_g answers.",
+      "Inquiry": "Comparing calculated PE<sub>g</sub> vs. ΔPE<sub>g</sub> across floor, table, and ceiling coordinate frames.",
+      "Collaboration": "Partners compare differing h = 0 tables to verify identical ΔPE<sub>g</sub> answers.",
       "Organization": "Completing a multi-reference height and energy ledger with explicit units.",
       "Reading": "Reading elevation profiles for hydroelectric dams and playground slides."
     },
@@ -5929,7 +5929,7 @@ const lessonsData = [
         "typeLabel": "Guided Inquiry",
         "submission": "Complete 6-Row Reference Comparison Check",
         "actionLabel": "Planned Activity",
-        "description": "Compute PE_g and ΔPE_g from floor, bench, and ceiling zero lines to prove elevation change stays invariant.",
+        "description": "Compute PE<sub>g</sub> and ΔPE<sub>g</sub> from floor, bench, and ceiling zero lines to prove elevation change stays invariant.",
         "status": "planned"
       }
     ],
@@ -5940,12 +5940,12 @@ const lessonsData = [
     "date": "2026-12-01",
     "unit": 3,
     "title": "Hooke's Law: Measuring Spring Stiffness (k)",
-    "topic": "Spring Force & Stretch Distance (F_s = k · x) from Lab Graphs",
+    "topic": "Spring Force & Stretch Distance (F<sub>s</sub> = k · x) from Lab Graphs",
     "dok": 3,
     "type": "Lab Activity",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Unlike gravity near Earth's surface, a stretched spring does not pull with a constant force—the farther you stretch it from its resting length L_0, the harder it pulls back. Measuring stretch Δx against hanging weight F = m · g lets you determine a spring's unique stiffness constant k (N/m) directly from the slope of an F vs. x graph.",
+    "summary": "Unlike gravity near Earth's surface, a stretched spring does not pull with a constant force—the farther you stretch it from its resting length L<sub>0</sub>, the harder it pulls back. Measuring stretch Δx against hanging weight F = m · g lets you determine a spring's unique stiffness constant k (N/m) directly from the slope of an F vs. x graph.",
     "activity": "Spring Calibration Lab: Hang calibrated masses (100 g to 500 g, weight calculated via g = 10 m/s²) from two color-coded springs, read extension length Δx cleanly to the nearest millimeter without parallax, convert centimeters to meters, plot Force (N) vs. Stretch (m), and calculate each spring's stiffness constant k within ±10% tolerance.",
     "essentialQuestion": "How can we measure and graph the stiffness constant (k) that distinguishes a soft pen spring from a heavy car shock coil?",
     "standards": [
@@ -5953,7 +5953,7 @@ const lessonsData = [
       "HS-PS3-2"
     ],
     "wicor": {
-      "Writing": "Explaining why subtracting resting length L_0 gives stretch x rather than total length.",
+      "Writing": "Explaining why subtracting resting length L<sub>0</sub> gives stretch x rather than total length.",
       "Inquiry": "Collecting hanging-mass stretch data across five loads to uncover a linear Force–Stretch law.",
       "Collaboration": "Partners verify zero-parallax meterstick alignment before recording every trial.",
       "Organization": "Logging grams → kg → Newtons and cm → m cleanly in a calibration data table.",
@@ -5982,14 +5982,14 @@ const lessonsData = [
     "day": 8,
     "date": "2026-12-02",
     "unit": 3,
-    "title": "Elastic Potential Energy (PE_s = ½ · k · x²)",
+    "title": "Elastic Potential Energy (PE<sub>s</sub> = ½ · k · x²)",
     "topic": "Elastic Energy Storage from Force–Stretch Area & Squared Scaling",
     "dok": 3,
     "type": "Lab Activity",
     "semester": 1,
     "isFeatured": true,
     "summary": "Because spring force starts at 0 N and grows linearly to k · x, its Force vs. Stretch graph forms a right triangle. The work done stretching the spring—equal to its stored Elastic Potential Energy—equals the triangle's area: ½ · base · height = ½ · x · (k · x) = ½ · k · x². Doubling stretch distance stores four times the energy!",
-    "activity": "Slingshot Stretch Scaling Lab: Using yesterday's calibrated springs, launch a level cart from stretch distances x, 2x, and 3x, measure output performance, verify the 1x, 4x, 9x squared scaling pattern from F–x triangle areas, and complete the 6-item Elastic Energy mastery gate (>= 5/6 required; Honors extension linearizes PE_s vs. x²).",
+    "activity": "Slingshot Stretch Scaling Lab: Using yesterday's calibrated springs, launch a level cart from stretch distances x, 2x, and 3x, measure output performance, verify the 1x, 4x, 9x squared scaling pattern from F–x triangle areas, and complete the 6-item Elastic Energy mastery gate (>= 5/6 required; Honors extension linearizes PE<sub>s</sub> vs. x²).",
     "essentialQuestion": "Why does pulling a bowstring or spring twice as far back store four times as much elastic energy instead of twice as much?",
     "standards": [
       "HS-PS3-1",
@@ -6015,7 +6015,7 @@ const lessonsData = [
         "typeLabel": "Lab & Check",
         "submission": "Scaling Data Table + >= 5/6 Mastery Gate",
         "actionLabel": "Planned Activity",
-        "description": "Connect triangle area on Hooke's Law plots to PE_s = ½ · k · x² and verify 1x, 4x, 9x scaling experimentally.",
+        "description": "Connect triangle area on Hooke's Law plots to PE<sub>s</sub> = ½ · k · x² and verify 1x, 4x, 9x scaling experimentally.",
         "status": "planned"
       }
     ],
@@ -6026,13 +6026,13 @@ const lessonsData = [
     "date": "2026-12-03",
     "unit": 3,
     "title": "Energy Transfer Showdown: Spring Launch & Vertical Height",
-    "topic": "Coupled Energy Models (PE_s → PE_g) & LOL Energy Bar Charts",
+    "topic": "Coupled Energy Models (PE<sub>s</sub> → PE<sub>g</sub>) & LOL Energy Bar Charts",
     "dok": 3,
     "type": "Engineering Lab",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Energy accounting shines when energy changes forms. When a compressed spring launches a marble or popper vertically upward, initial Elastic Potential Energy (PE_s) converts into Gravitational Potential Energy (PE_g) at the peak. LOL bar charts keep track of where energy sits before and after launch.",
-    "activity": "Target Shelf Launcher Challenge: Teams receive an assigned target shelf height h and mass m, build a before/after LOL bar diagram setting PE_s = PE_g (with g = 10 m/s²), predict the exact stretch or compression notch BEFORE testing, and launch two official trials to score within target height tolerance and record percent error.",
+    "summary": "Energy accounting shines when energy changes forms. When a compressed spring launches a marble or popper vertically upward, initial Elastic Potential Energy (PE<sub>s</sub>) converts into Gravitational Potential Energy (PE<sub>g</sub>) at the peak. LOL bar charts keep track of where energy sits before and after launch.",
+    "activity": "Target Shelf Launcher Challenge: Teams receive an assigned target shelf height h and mass m, build a before/after LOL bar diagram setting PE<sub>s</sub> = PE<sub>g</sub> (with g = 10 m/s²), predict the exact stretch or compression notch BEFORE testing, and launch two official trials to score within target height tolerance and record percent error.",
     "essentialQuestion": "How can an LOL energy bar chart predict the exact height a spring launcher reaches before we ever pull the trigger?",
     "standards": [
       "HS-PS3-2",
@@ -6058,7 +6058,7 @@ const lessonsData = [
         "typeLabel": "Engineering Challenge",
         "submission": "Pre-Launch LOL Prediction + 2 Official Trials",
         "actionLabel": "Planned Activity",
-        "description": "Use PE_s → PE_g energy conservation to predict spring compression for a target shelf before launching.",
+        "description": "Use PE<sub>s</sub> → PE<sub>g</sub> energy conservation to predict spring compression for a target shelf before launching.",
         "status": "planned"
       }
     ],
@@ -6069,13 +6069,13 @@ const lessonsData = [
     "date": "2026-12-04",
     "unit": 3,
     "title": "Week 2 Potential Energy Quiz & LOL Chart Mastery",
-    "topic": "Assessment: PE_g, Hooke's Law, PE_s & LOL Accounting",
+    "topic": "Assessment: PE<sub>g</sub>, Hooke's Law, PE<sub>s</sub> & LOL Accounting",
     "dok": 3,
     "type": "Quiz",
     "semester": 1,
     "isFeatured": false,
-    "summary": "Mid-unit assessment checking fluency across Week 2 concepts: choosing reference heights for PE_g, extracting spring stiffness k from Force–Stretch slopes, computing elastic potential energy PE_s = ½ · k · x², and representing transfers cleanly with LOL energy bar diagrams.",
-    "activity": "Mid-Unit Potential Energy Assessment: Complete the individual quiz featuring LOL bar chart construction, Hooke's Law graph interpretation, and PE_g / PE_s problem solving with g = 10 m/s² (tiered scaffolds by class level).",
+    "summary": "Mid-unit assessment checking fluency across Week 2 concepts: choosing reference heights for PE<sub>g</sub>, extracting spring stiffness k from Force–Stretch slopes, computing elastic potential energy PE<sub>s</sub> = ½ · k · x², and representing transfers cleanly with LOL energy bar diagrams.",
+    "activity": "Mid-Unit Potential Energy Assessment: Complete the individual quiz featuring LOL bar chart construction, Hooke's Law graph interpretation, and PE<sub>g</sub> / PE<sub>s</sub> problem solving with g = 10 m/s² (tiered scaffolds by class level).",
     "essentialQuestion": "How accurately can you quantify and model stored gravitational and elastic energy before motion begins?",
     "standards": [
       "HS-PS3-1",
@@ -6101,7 +6101,7 @@ const lessonsData = [
         "typeLabel": "Mid-Unit Quiz",
         "submission": "Submitted in Class Before Period End",
         "actionLabel": "Planned Activity",
-        "description": "Covers PE_g = m · g · h, Hooke's Law k from F–x slopes, PE_s = ½ · k · x², and LOL energy bar charts.",
+        "description": "Covers PE<sub>g</sub> = m · g · h, Hooke's Law k from F–x slopes, PE<sub>s</sub> = ½ · k · x², and LOL energy bar charts.",
         "status": "planned"
       }
     ],
@@ -6160,18 +6160,18 @@ const lessonsData = [
     "type": "Lab Activity",
     "semester": 1,
     "isFeatured": true,
-    "summary": "To measure kinetic energy in the lab without guessing, you need accurate speed at the bottom of a ramp. Using a photogate timer and a narrow flag on a rolling cart, v = flag width ÷ blocked time Δt turns raw milliseconds into exact bottom speed and KE = ½ · m · v² to compare against starting height energy PE_g = m · g · h.",
-    "activity": "Height-to-Speed Photogate Lab: Release a rolling dynamics cart from 4 distinct vertical drop heights h, record 3 photogate transit times Δt per height, calculate mean v and KE_bottom, plot KE against drop height h (Honors: linearize KE vs. v² to extract slope = ½ · m), and submit your verified 4-height comparison table.",
+    "summary": "To measure kinetic energy in the lab without guessing, you need accurate speed at the bottom of a ramp. Using a photogate timer and a narrow flag on a rolling cart, v = flag width ÷ blocked time Δt turns raw milliseconds into exact bottom speed and KE = ½ · m · v² to compare against starting height energy PE<sub>g</sub> = m · g · h.",
+    "activity": "Height-to-Speed Photogate Lab: Release a rolling dynamics cart from 4 distinct vertical drop heights h, record 3 photogate transit times Δt per height, calculate mean v and KE<sub>bottom</sub>, plot KE against drop height h (Honors: linearize KE vs. v² to extract slope = ½ · m), and submit your verified 4-height comparison table.",
     "essentialQuestion": "How closely does the kinetic energy measured by a photogate at the bottom of a ramp match the gravitational potential energy at release?",
     "standards": [
       "HS-PS3-1",
       "HS-PS3-2"
     ],
     "wicor": {
-      "Writing": "Explaining small gaps between release PE_g and bottom KE via rolling/track friction work.",
+      "Writing": "Explaining small gaps between release PE<sub>g</sub> and bottom KE via rolling/track friction work.",
       "Inquiry": "Testing four ramp elevations to establish an empirical relationship between height and kinetic energy.",
       "Collaboration": "Teams coordinate release markers, photogate resets, and trial averaging.",
-      "Organization": "Logging Height (m), Flag Width (m), Δt (s), v (m/s), PE_g (J), and KE (J) systematically.",
+      "Organization": "Logging Height (m), Flag Width (m), Δt (s), v (m/s), PE<sub>g</sub> (J), and KE (J) systematically.",
       "Reading": "Comparing linear KE vs. h plots against curved KE vs. v plots."
     },
     "bellRinger": {
@@ -6187,7 +6187,7 @@ const lessonsData = [
         "typeLabel": "Photogate Lab",
         "submission": "4 Drop Heights (3 Trials Each) + KE Graph",
         "actionLabel": "Planned Activity",
-        "description": "Use photogates to measure cart speed from 4 release heights and compare bottom KE against release PE_g.",
+        "description": "Use photogates to measure cart speed from 4 release heights and compare bottom KE against release PE<sub>g</sub>.",
         "status": "planned"
       }
     ],
@@ -6197,14 +6197,14 @@ const lessonsData = [
     "day": 13,
     "date": "2026-12-09",
     "unit": 3,
-    "title": "The Work–Energy Theorem (W_net = ΔKE)",
+    "title": "The Work–Energy Theorem (W<sub>net</sub> = ΔKE)",
     "topic": "Connecting Mechanical Work Directly to Change in Kinetic Energy",
     "dok": 3,
     "type": "Guided Practice",
     "semester": 1,
     "isFeatured": false,
-    "summary": "Week 1's mechanical work and Week 3's kinetic energy are two sides of the exact same coin: Net Work equals Change in Kinetic Energy (W_net = F_net · d = KE_f - KE_i). Positive net work speeds objects up by adding energy; negative braking or friction work slows objects down by removing mechanical energy.",
-    "activity": "Work–Energy Balance Sheet Practice: Construct before/after LOL bar charts featuring an external +W or -W arrow crossing the system boundary, solve 6 structured acceleration and braking problems equating F_net · d = ΔKE, and achieve >= 5/6 on the exit check.",
+    "summary": "Week 1's mechanical work and Week 3's kinetic energy are two sides of the exact same coin: Net Work equals Change in Kinetic Energy (W<sub>net</sub> = F<sub>net</sub> · d = KE<sub>f</sub> - KE<sub>i</sub>). Positive net work speeds objects up by adding energy; negative braking or friction work slows objects down by removing mechanical energy.",
+    "activity": "Work–Energy Balance Sheet Practice: Construct before/after LOL bar charts featuring an external +W or -W arrow crossing the system boundary, solve 6 structured acceleration and braking problems equating F<sub>net</sub> · d = ΔKE, and achieve >= 5/6 on the exit check.",
     "essentialQuestion": "How does mechanical work explain both how engines speed cars up and how brakes bring them to a stop?",
     "standards": [
       "HS-PS3-1",
@@ -6213,7 +6213,7 @@ const lessonsData = [
     "wicor": {
       "Writing": "Explaining whether positive or negative work occurred solely by checking if speed increased or decreased.",
       "Inquiry": "Tracing energy inflows (+W) and outflows (-W) across system boundaries on LOL diagrams.",
-      "Collaboration": "Whiteboard pairs check bar arithmetic (KE_i + W_net = KE_f) before algebraic steps.",
+      "Collaboration": "Whiteboard pairs check bar arithmetic (KE<sub>i</sub> + W<sub>net</sub> = KE<sub>f</sub>) before algebraic steps.",
       "Organization": "Separating Initial KE, Net Work Added/Removed, and Final KE in an accounting box.",
       "Reading": "Parsing force, distance, and speed changes in multi-stage motion stories."
     },
@@ -6230,7 +6230,7 @@ const lessonsData = [
         "typeLabel": "Guided Practice",
         "submission": "6-Problem Accounting Set (>= 5/6)",
         "actionLabel": "Planned Activity",
-        "description": "Use W_net = F_net · d = KE_f - KE_i and LOL boundary arrows to solve speedup and braking problems.",
+        "description": "Use W<sub>net</sub> = F<sub>net</sub> · d = KE<sub>f</sub> - KE<sub>i</sub> and LOL boundary arrows to solve speedup and braking problems.",
         "status": "planned"
       }
     ],
@@ -6241,13 +6241,13 @@ const lessonsData = [
     "date": "2026-12-10",
     "unit": 3,
     "title": "Braking Distance Lab: Friction Work vs. Speed²",
-    "topic": "Stopping Distance Scaling (F_f · d = ½ · m · v²) & Road Safety",
+    "topic": "Stopping Distance Scaling (F<sub>f</sub> · d = ½ · m · v²) & Road Safety",
     "dok": 3,
     "type": "Engineering Investigation / CER",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Why do highway safety manuals warn that doubling your speed requires four times as much room to stop? Because brakes apply a nearly fixed maximum friction force F_f, stopping an object requires negative friction work W_f = -F_f · d equal to -KE. Since kinetic energy grows with v², minimum skid distance d also grows with v²!",
-    "activity": "Sliding Block Skid-Distance Investigation: Launch a felt-bottom block from a ramp at 1x, 1.5x, and 2x entry speeds along a tabletop meterstick, record stopping distance d for each speed, confirm the ~4x skid distance jump when entry speed doubles, calculate average friction force F_f = KE ÷ d, and write a brief school-zone speed limit CER.",
+    "summary": "Why do highway safety manuals warn that doubling your speed requires four times as much room to stop? Because brakes apply a nearly fixed maximum friction force F<sub>f</sub>, stopping an object requires negative friction work W<sub>f</sub> = -F<sub>f</sub> · d equal to -KE. Since kinetic energy grows with v², minimum skid distance d also grows with v²!",
+    "activity": "Sliding Block Skid-Distance Investigation: Launch a felt-bottom block from a ramp at 1x, 1.5x, and 2x entry speeds along a tabletop meterstick, record stopping distance d for each speed, confirm the ~4x skid distance jump when entry speed doubles, calculate average friction force F<sub>f</sub> = KE ÷ d, and write a brief school-zone speed limit CER.",
     "essentialQuestion": "Why does doubling a vehicle's speed quadruple its emergency stopping distance under identical tire friction?",
     "standards": [
       "HS-PS3-1",
@@ -6257,7 +6257,7 @@ const lessonsData = [
       "Writing": "Drafting a traffic-safety Claim-Evidence-Reasoning argument backed by skid-distance lab data.",
       "Inquiry": "Investigating how launch speed affects mechanical stopping distance under constant friction.",
       "Collaboration": "Lab teams measure skid distances cleanly and pool data to check the d vs. v² ratio.",
-      "Organization": "Structuring Launch Height/Speed, Kinetic Energy (J), Skid Distance (m), and F_f (N) tables.",
+      "Organization": "Structuring Launch Height/Speed, Kinetic Energy (J), Skid Distance (m), and F<sub>f</sub> (N) tables.",
       "Reading": "Analyzing real driver stopping-distance charts against the Work–Energy Theorem."
     },
     "bellRinger": {
@@ -6273,7 +6273,7 @@ const lessonsData = [
         "typeLabel": "Engineering Lab",
         "submission": "3-Speed Skid Table + Traffic Safety CER",
         "actionLabel": "Planned Activity",
-        "description": "Measure stopping distance vs. launch speed for a sliding block, find F_f from W_f = -ΔKE, and defend a speed limit.",
+        "description": "Measure stopping distance vs. launch speed for a sliding block, find F<sub>f</sub> from W<sub>f</sub> = -ΔKE, and defend a speed limit.",
         "status": "planned"
       }
     ],
@@ -6284,7 +6284,7 @@ const lessonsData = [
     "date": "2026-12-11",
     "unit": 3,
     "title": "Work–Energy Theorem Mastery Check & Misconception Fix",
-    "topic": "Consolidating KE = ½ · m · v² and W_net = ΔKE",
+    "topic": "Consolidating KE = ½ · m · v² and W<sub>net</sub> = ΔKE",
     "dok": 3,
     "type": "Formative Assessment",
     "semester": 1,
@@ -6297,7 +6297,7 @@ const lessonsData = [
       "HS-PS3-2"
     ],
     "wicor": {
-      "Writing": "Refuting a linear stopping-distance misconception using W_f = -F_f · d = -ΔKE.",
+      "Writing": "Refuting a linear stopping-distance misconception using W<sub>f</sub> = -F<sub>f</sub> · d = -ΔKE.",
       "Inquiry": "Auditing flawed physics work to pinpoint quadratic vs. linear reasoning errors.",
       "Collaboration": "Partners peer-review each other's rebuttal claim and evidence numbers.",
       "Organization": "Checking off missing Week 3 lab tables ahead of Week 4 coaster builds.",
@@ -6316,7 +6316,7 @@ const lessonsData = [
         "typeLabel": "Formative Quiz",
         "submission": "Misconception Rebuttal + 6-Question Check",
         "actionLabel": "Planned Activity",
-        "description": "Correct a braking-distance misconception and pass a 6-item check on KE and W_net = ΔKE.",
+        "description": "Correct a braking-distance misconception and pass a 6-item check on KE and W<sub>net</sub> = ΔKE.",
         "status": "planned"
       }
     ],
@@ -6332,8 +6332,8 @@ const lessonsData = [
     "type": "Concept Intro",
     "semester": 1,
     "isFeatured": true,
-    "summary": "When no outside pushes or friction act on a closed system (W_ext = 0), Mechanical Energy stays constant everywhere along a ride: PE_g + PE_s + KE = Total E. At hilltops, energy sits in height (PE_g); in valleys, it rushes into speed (KE)—and the sum never changes, regardless of how curvy the track is!",
-    "activity": "4-Point Coaster Energy Ledger Challenge: Trace a cart through four track points (Top Hill, Bottom Valley, Second Hill, Exit), fill every blank PE_g, KE, and E_total box using bar accounting and g = 10 m/s², find valley speed (CP/Honors), and verify with a partner check.",
+    "summary": "When no outside pushes or friction act on a closed system (W<sub>ext</sub> = 0), Mechanical Energy stays constant everywhere along a ride: PE<sub>g</sub> + PE<sub>s</sub> + KE = Total E. At hilltops, energy sits in height (PE<sub>g</sub>); in valleys, it rushes into speed (KE)—and the sum never changes, regardless of how curvy the track is!",
+    "activity": "4-Point Coaster Energy Ledger Challenge: Trace a cart through four track points (Top Hill, Bottom Valley, Second Hill, Exit), fill every blank PE<sub>g</sub>, KE, and E<sub>total</sub> box using bar accounting and g = 10 m/s², find valley speed (CP/Honors), and verify with a partner check.",
     "essentialQuestion": "How can an energy ledger predict speed at the bottom of any roller coaster hill without tracking forces along curves?",
     "standards": [
       "HS-PS3-1",
@@ -6341,9 +6341,9 @@ const lessonsData = [
     ],
     "wicor": {
       "Writing": "Explaining why total mechanical energy stays fixed even though track angle constantly varies.",
-      "Inquiry": "Tracing energy swaps between height (PE_g) and motion (KE) at four track stations.",
-      "Collaboration": "Partners verify that PE + KE sums match E_total in every column of the coaster ledger.",
-      "Organization": "Using a 4-column track table (Elevation, PE_g, KE, E_total, Speed) to eliminate sign errors.",
+      "Inquiry": "Tracing energy swaps between height (PE<sub>g</sub>) and motion (KE) at four track stations.",
+      "Collaboration": "Partners verify that PE + KE sums match E<sub>total</sub> in every column of the coaster ledger.",
+      "Organization": "Using a 4-column track table (Elevation, PE<sub>g</sub>, KE, E<sub>total</sub>, Speed) to eliminate sign errors.",
       "Reading": "Reading roller coaster track elevation schematics alongside LOL bar stacks."
     },
     "bellRinger": {
@@ -6359,7 +6359,7 @@ const lessonsData = [
         "typeLabel": "Guided Practice",
         "submission": "All 4 Track Columns Balanced + Partner Sign-Off",
         "actionLabel": "Planned Activity",
-        "description": "Track PE_g, KE, and Total Mechanical Energy across four elevations of an ideal roller coaster.",
+        "description": "Track PE<sub>g</sub>, KE, and Total Mechanical Energy across four elevations of an ideal roller coaster.",
         "status": "planned"
       }
     ],
@@ -6375,8 +6375,8 @@ const lessonsData = [
     "type": "Engineering Lab",
     "semester": 1,
     "isFeatured": true,
-    "summary": "Real coaster engineers never make the second hill taller than the first lift hill because conservation of energy sets a strict ceiling: without a motorized boost, a cart can never rise higher than its release height h_0—and negative friction work lowers that ceiling even further.",
-    "activity": "Foam-Pipe Marble Coaster Build & Test: Break the design problem into track subsystems (Drop Hill, Loop/Second Hill, Finish Catch), build a foam-pipe track from a measured drop height h_0, run 5 test trials recording success rate and max rebound height h_final, and quantify negative friction work W_f = m · g · (h_final - h_0).",
+    "summary": "Real coaster engineers never make the second hill taller than the first lift hill because conservation of energy sets a strict ceiling: without a motorized boost, a cart can never rise higher than its release height h<sub>0</sub>—and negative friction work lowers that ceiling even further.",
+    "activity": "Foam-Pipe Marble Coaster Build & Test: Break the design problem into track subsystems (Drop Hill, Loop/Second Hill, Finish Catch), build a foam-pipe track from a measured drop height h<sub>0</sub>, run 5 test trials recording success rate and max rebound height h<sub>final</sub>, and quantify negative friction work W<sub>f</sub> = m · g · (h<sub>final</sub> - h<sub>0</sub>).",
     "essentialQuestion": "How do energy conservation limits and track friction constrain the height of every hill and loop after the first drop?",
     "standards": [
       "HS-PS3-2",
@@ -6387,7 +6387,7 @@ const lessonsData = [
       "Writing": "Explaining design revisions made when marble kinetic energy fell short at Hill #2 or Loop Top.",
       "Inquiry": "Testing minimum drop height needed to clear a vertical loop despite rolling friction.",
       "Collaboration": "Engineering crews divide build tasks (start support, loop bracing, elevation measurement).",
-      "Organization": "Logging drop height h_0, loop/hill height, 5 trial outcomes, and measured h_final.",
+      "Organization": "Logging drop height h<sub>0</sub>, loop/hill height, 5 trial outcomes, and measured h<sub>final</sub>.",
       "Reading": "Applying HS-ETS1-2 subsystem design constraints to physical track geometry."
     },
     "bellRinger": {
@@ -6403,7 +6403,7 @@ const lessonsData = [
         "typeLabel": "Engineering Lab",
         "submission": "5-Trial Track Test + Friction Work Calculation",
         "actionLabel": "Planned Activity",
-        "description": "Design and test a foam-pipe marble coaster, compare release height to final climb height, and calculate W_f.",
+        "description": "Design and test a foam-pipe marble coaster, compare release height to final climb height, and calculate W<sub>f</sub>.",
         "status": "planned"
       }
     ],
@@ -6413,15 +6413,15 @@ const lessonsData = [
     "day": 18,
     "date": "2026-12-16",
     "unit": 3,
-    "title": "Real-World Systems with Negative Friction Work (E_i + W_f = E_f)",
+    "title": "Real-World Systems with Negative Friction Work (E<sub>i</sub> + W<sub>f</sub> = E<sub>f</sub>)",
     "topic": "Non-Conservative Mechanical Accounting & Unit 3 Synthesis",
     "dok": 3,
     "type": "Review & Problem Solving",
     "semester": 1,
     "isFeatured": false,
-    "summary": "Unite the full energy equation: Initial Mechanical Energy + External Mechanical Work = Final Mechanical Energy (PE_i + KE_i + W_ext = PE_f + KE_f). Using negative mechanical work W_f = -F_f · d explains why yesterday's real coaster stopped slightly lower than its starting drop—and ties together all 4 weeks ahead of tomorrow's Minimum Day exam.",
-    "activity": "Coaster Audit & Unit 3 Study Matrix: Audit two coaster blueprints to find where negative friction work prevents loop clearance, then rotate through a 4-station Unit 3 Review Matrix (Work/Power, PE_g/PE_s, KE/W-E, Conservation with g = 10 m/s²) to prepare for tomorrow's exam.",
-    "essentialQuestion": "How does including external work (+W or -W_f) unite ideal conservation with real-world mechanical systems?",
+    "summary": "Unite the full energy equation: Initial Mechanical Energy + External Mechanical Work = Final Mechanical Energy (PE<sub>i</sub> + KE<sub>i</sub> + W<sub>ext</sub> = PE<sub>f</sub> + KE<sub>f</sub>). Using negative mechanical work W<sub>f</sub> = -F<sub>f</sub> · d explains why yesterday's real coaster stopped slightly lower than its starting drop—and ties together all 4 weeks ahead of tomorrow's Minimum Day exam.",
+    "activity": "Coaster Audit & Unit 3 Study Matrix: Audit two coaster blueprints to find where negative friction work prevents loop clearance, then rotate through a 4-station Unit 3 Review Matrix (Work/Power, PE<sub>g</sub>/PE<sub>s</sub>, KE/W-E, Conservation with g = 10 m/s²) to prepare for tomorrow's exam.",
+    "essentialQuestion": "How does including external work (+W or -W<sub>f</sub>) unite ideal conservation with real-world mechanical systems?",
     "standards": [
       "HS-PS3-1",
       "HS-PS3-2",
@@ -6458,13 +6458,13 @@ const lessonsData = [
     "date": "2026-12-17",
     "unit": 3,
     "title": "Unit 3 Summative Assessment: Energy, Work & Conservation",
-    "topic": "Semester 1 Capstone Exam — Work, Power, PE_g, PE_s, KE & Coasters",
+    "topic": "Semester 1 Capstone Exam — Work, Power, PE<sub>g</sub>, PE<sub>s</sub>, KE & Coasters",
     "dok": 4,
     "type": "Summative Assessment",
     "semester": 1,
     "isFeatured": true,
     "summary": "High School Minimum Day (End of Q2 / Semester 1). Today's streamlined summative assessment measures individual mastery of mechanical work, power, gravitational and elastic potential energy, kinetic energy, the Work–Energy Theorem, and roller coaster energy conservation using g = 10 m/s².",
-    "activity": "Unit 3 Summative Exam (Minimum-Day Paced): Complete the individual assessment covering LOL bar accounting, F–d and F–x graph reading, Work/Power calculations, PE_g/PE_s/KE problems, braking distance ratios, and coaster energy conservation.",
+    "activity": "Unit 3 Summative Exam (Minimum-Day Paced): Complete the individual assessment covering LOL bar accounting, F–d and F–x graph reading, Work/Power calculations, PE<sub>g</sub>/PE<sub>s</sub>/KE problems, braking distance ratios, and coaster energy conservation.",
     "essentialQuestion": "How can energy accounting equations and visual bar charts explain and predict mechanical motion across real-world systems?",
     "standards": [
       "HS-PS3-1",
@@ -6492,7 +6492,7 @@ const lessonsData = [
         "typeLabel": "Summative Exam",
         "submission": "Submitted in Class (Minimum-Day Schedule)",
         "actionLabel": "Planned Assessment",
-        "description": "Streamlined Semester 1 capstone exam covering Work, Power, PE_g, PE_s, KE, Work–Energy Theorem, and Coasters.",
+        "description": "Streamlined Semester 1 capstone exam covering Work, Power, PE<sub>g</sub>, PE<sub>s</sub>, KE, Work–Energy Theorem, and Coasters.",
         "status": "planned"
       }
     ],
