@@ -8,8 +8,8 @@ Append-only log tracking pattern changes across recent sessions.
 **Files Created**: `admin/classroomscreen_widget.html`.
 **Files Updated**: `admin/index.html`, `.agents/wiki/index.md`, `.agents/wiki/patterns/classroom-projection-and-high-contrast-theming.md`.
 **Notes**:
-- Built & refined `admin/classroomscreen_widget.html` into a large-text **Rotating Positive Statement & Hero Stat Billboard** for Classroomscreen.com `<iframe>` embeds (`student_results/{assignmentId}/students`, `bellringers`, `system_config/bellringer_timer`).
-- Displays oversized statements and strictly positive truthful statistics in warm, student-friendly language (avoiding teacher/analytics jargon) above a 3-stat positive footer strip, refreshing live data and rotating highlights on a calm 1-minute (`60,000 ms`) cadence with manual/pause controls, WCAG AAA Light/Dark contrast toggle, Universal Root Font Scaling (`16px` / `20px` / `25px`), `?compact=1` corner pill mode, and 1-click `<iframe allow="popups">` export.
+- Built & refined `admin/classroomscreen_widget.html` into a large-text **Rotating Positive Statement & Hero Stat Billboard** for Classroomscreen.com `<iframe>` embeds focused exclusively on active student assignments (no Bell-Ringers, zero quota impact).
+- Displays oversized statements and strictly positive truthful statistics in warm, student-friendly language above a 3-stat positive footer strip, rotating highlights on a calm 1-minute (`60,000 ms`) cadence from live in-memory `onSnapshot` data with zero periodic reads, `sessionStorage` roster caching, WCAG AAA Light/Dark contrast toggle, Universal Root Font Scaling (`16px` / `20px` / `25px`), `?compact=1` corner pill mode, and 1-click `<iframe allow="popups">` export.
 
 ## 2026-11-15 — Bell-Ringer Weeks 12 & 13 Sync & Grade-Impact Printout Telemetry Analysis
 **Patterns Updated**: `bell-ringer-config.md`.

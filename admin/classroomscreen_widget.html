@@ -203,23 +203,13 @@
       justify-content: flex-end;
     }
 
-    .mode-group {
-      display: inline-grid;
-      grid-template-columns: repeat(3, minmax(0, auto));
-      background: var(--bg-pill);
-      border: 1px solid var(--border-color);
-      border-radius: 0.4rem;
-      padding: 2px;
-      gap: 2px;
-    }
-
-    .mode-btn, .ctrl-btn, .ctrl-select, .font-btn {
+    .ctrl-btn, .ctrl-select, .font-btn {
       font-family: inherit;
       font-size: clamp(9.5px, min(0.58rem, 1.35vw), 13px);
       font-weight: 800;
       color: var(--text-muted);
-      background: transparent;
-      border: 1px solid transparent;
+      background: var(--bg-pill);
+      border: 1px solid var(--border-color);
       border-radius: 0.34rem;
       padding: 2px 6px;
       cursor: pointer;
@@ -227,24 +217,19 @@
       transition: background 0.15s, color 0.15s, border-color 0.15s;
     }
 
-    .mode-btn.active, .font-btn.active {
+    .font-btn.active {
       background: var(--accent-cyan);
       color: #ffffff;
+      border-color: var(--accent-cyan);
     }
 
-    .ctrl-btn, .ctrl-select {
-      background: var(--bg-pill);
-      border-color: var(--border-color);
-      color: var(--text-main);
-    }
-
-    .ctrl-btn:hover, .mode-btn:not(.active):hover, .font-btn:not(.active):hover {
+    .ctrl-btn:hover, .font-btn:not(.active):hover {
       border-color: var(--border-strong);
       color: var(--text-main);
     }
 
     .ctrl-select {
-      max-width: min(8.2rem, 18vw);
+      max-width: min(10.5rem, 24vw);
       overflow: hidden;
       text-overflow: ellipsis;
     }
@@ -760,15 +745,6 @@
         <span class="pulse-dot"></span>
         <span id="liveStatusText">Syncing...</span>
       </span>
-    </div>
-
-    <div class="controls-cluster">
-      <div class="mode-group" role="group" aria-label="Spotlight Mode">
-        <button class="mode-btn active" data-mode="assignment" type="button">🧪 Assignment</button>
-        <button class="mode-btn" data-mode="dual" type="button">⚡ Mix (+ Bell)</button>
-        <button class="mode-btn" data-mode="bellringer" type="button">🔔 Bell-Ringer</button>
-      </div>
-
       <select id="assignmentSelect" class="ctrl-select" aria-label="Select Active Assignment">
         <option value="unit2_day54_highway_curve_lab">🛣️ Highway Curve Lab</option>
         <option value="unit2_day52_centripetal_force_lab">🧵 Centripetal Force Lab</option>
@@ -777,7 +753,9 @@
         <option value="unit2_day47_projectile_range_studio">🎯 Projectile Range Studio</option>
         <option value="unit2_day44_vector_decomposition_studio">🧭 Vector Decomposition</option>
       </select>
+    </div>
 
+    <div class="controls-cluster">
       <div class="font-group" role="group" aria-label="Text Size">
         <button class="font-btn active" data-font="normal" type="button" title="Normal Text (16px)">Normal</button>
         <button class="font-btn" data-font="large" type="button" title="Large Text (20px)">Large</button>
@@ -799,7 +777,7 @@
           <span class="category-pill" id="slideCategoryBadge">🛣️ HIGHWAY CURVE LAB • EASY FIRST POINTS</span>
         </div>
         <div class="eyebrow-right">
-          <span class="live-win-chip" id="liveWinBadge" hidden>⚡ A classmate just earned points!</span>
+          <span class="live-win-chip" id="liveWinBadge" hidden>⚡ A classmate just scored points!</span>
           <span class="context-chip mono" id="slideContextChip">🔄 Updates every 1 min</span>
         </div>
       </div>
@@ -852,14 +830,6 @@
 
     <div class="modal-grid">
       <label>
-        Display Mode
-        <select id="embedMode" class="ctrl-select" style="max-width:none;">
-          <option value="assignment">🧪 Assignment Highlights Only</option>
-          <option value="dual">⚡ Mix (Assignment + Bell-Ringer)</option>
-          <option value="bellringer">🔔 Bell-Ringer Highlights Only</option>
-        </select>
-      </label>
-      <label>
         Theme Contrast
         <select id="embedTheme" class="ctrl-select" style="max-width:none;">
           <option value="light">☀️ Light (High-Contrast Projector)</option>
@@ -889,7 +859,8 @@
     // firestore-audit: teacher-only
     const TEACHER_EMAILS = ['rmudry@orangeusd.org', 'ryan.mudry@gmail.com', 'ryanmudry@gmail.com'];
     const TEACHER_IDS = ['rmudry', 'ryan.mudry', 'ryanmudry'];
-    const CACHE_KEY = 'cs_widget_positive_cache_v2';
+    const CACHE_KEY = 'cs_widget_positive_cache_v3';
+    const ROSTER_CACHE_KEY = 'cs_widget_roster_cache_v1';
     const SLIDE_DURATION_MS = 60000;
 
     const ASSIGNMENTS = {
@@ -928,7 +899,6 @@
     const $ = id => document.getElementById(id);
 
     const urlParams = new URLSearchParams(location.search);
-    let currentMode = ['assignment', 'dual', 'bellringer'].includes(urlParams.get('mode')) ? urlParams.get('mode') : 'assignment';
     let currentAssignment = urlParams.get('assignment') || 'unit2_day54_highway_curve_lab';
     if (!ASSIGNMENTS[currentAssignment]) {
       const cleanFallback = currentAssignment.replace(/^unit\d+_(?:day\d+_)?/, '').replace(/_/g, ' ');
@@ -947,12 +917,7 @@
     let isPreviewMode = false;
     let isLiveAuthenticated = false;
     let rosterMap = new Map();
-    let bellringerDocs = [];
-    let timerConfig = null;
     let assignmentDocs = [];
-    let unsubRoster = null;
-    let unsubBR = null;
-    let unsubTimer = null;
     let unsubAssign = null;
 
     let slides = [];
@@ -963,174 +928,9 @@
     let liveWinHideTimer = null;
     const prevActionFootprint = new Map();
 
-    function getTodayString() {
-      const d = new Date();
-      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    }
-
-    function extractDateFromBR(docId, data) {
-      const m = String(docId || '').match(/_(\d{4}-\d{2}-\d{2})$/);
-      if (m) return m[1];
-      if (typeof data.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(data.date)) return data.date;
-      if (data.timestamp && typeof data.timestamp.toDate === 'function') {
-        const dt = data.timestamp.toDate();
-        return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
-      }
-      return null;
-    }
-
-    function resolveBellRingerScore(sub) {
-      if (!sub) return undefined;
-      if (sub.excused || sub.isExcused) return 1;
-
-      function extractVal(val) {
-        if (val === undefined || val === null) return undefined;
-        if (typeof val === 'number') return val;
-        if (typeof val === 'string') {
-          let cleaned = val.trim();
-          if (cleaned.startsWith('```')) {
-            cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
-          }
-          if (!isNaN(cleaned) && cleaned !== '') return parseInt(cleaned, 10);
-          if (/^(pass|approved|verified|good|true)/i.test(cleaned)) return 1;
-          if (/^(fail|revision|rejected|bad|false)/i.test(cleaned)) return 0;
-          if (cleaned.startsWith('{')) {
-            try { return extractFromObj(JSON.parse(cleaned)); } catch (e) {}
-          }
-        } else if (typeof val === 'object') {
-          return extractFromObj(val);
-        }
-        return undefined;
-      }
-
-      function extractFromObj(obj) {
-        if (!obj || typeof obj !== 'object') return undefined;
-        for (const k of ['effortScore', 'effort_score', 'score', 'grade', 'rating', 'value']) {
-          if (obj[k] !== undefined && obj[k] !== null) {
-            const res = extractVal(obj[k]);
-            if (res !== undefined) return res;
-          }
-        }
-        for (const tk of ['output', 'text', 'response', 'result']) {
-          if (obj[tk] !== undefined && obj[tk] !== null) {
-            const res = extractVal(obj[tk]);
-            if (res !== undefined) return res;
-          }
-        }
-        return undefined;
-      }
-
-      const direct = extractVal(sub.effortScore);
-      if (direct !== undefined) return direct;
-      return extractVal(sub.aiResponse);
-    }
-
-    function isGoodFaithSubmission(sub) {
-      if (!sub) return null;
-      if (sub.excused || sub.isExcused) return true;
-      const sc = resolveBellRingerScore(sub);
-      if (sc !== undefined) {
-        return Number(sc) >= 1 && (Number(sc) === 1 || Number(sc) >= 70);
-      }
-      if ((sub.completedSteps || 0) > 0) return true;
-      const resp = String(sub.studentResponse || '').trim();
-      if (resp.length >= 2 && /\d/.test(resp) && !['idk', 'na', 'n/a'].includes(resp.toLowerCase())) return true;
-      return null;
-    }
-
     // =====================================================================
     // TRUTHFUL POSITIVE METRICS (ZERO DEFICIT STATS, ZERO PII)
     // =====================================================================
-    function computeBellRingerMetrics(docs, rMap) {
-      const studentDocs = docs.filter(d => {
-        const sid = String(d.studentId || d._docId.split('_')[0] || '').toLowerCase();
-        return sid && !TEACHER_IDS.includes(sid);
-      });
-
-      const periodTotals = {};
-      rMap.forEach(r => {
-        const p = String(r.period ?? '');
-        if (p !== '') periodTotals[p] = (periodTotals[p] || 0) + 1;
-      });
-
-      const todayStr = getTodayString();
-      const byDate = new Map();
-      studentDocs.forEach(d => {
-        const dt = d._dateKey;
-        if (!dt) return;
-        if (!byDate.has(dt)) byDate.set(dt, []);
-        byDate.get(dt).push(d);
-      });
-
-      const datesDesc = [...byDate.keys()].sort((a, b) => b.localeCompare(a));
-      const todayList = byDate.get(todayStr) || [];
-      const recentFiveKeys = datesDesc.slice(0, 5);
-      const rollingList = [];
-      recentFiveKeys.forEach(k => rollingList.push(...(byDate.get(k) || [])));
-
-      function evalGoodFaith(list) {
-        let verified = 0;
-        let graded = 0;
-        list.forEach(d => {
-          const gf = isGoodFaithSubmission(d);
-          if (gf !== null) {
-            graded++;
-            if (gf) verified++;
-          }
-        });
-        return { verified, graded, total: list.length, pct: graded > 0 ? Math.round((verified / graded) * 100) : null };
-      }
-
-      const todayGF = evalGoodFaith(todayList);
-      const rollingGF = evalGoodFaith(rollingList);
-      const chosenGF = (todayGF.graded >= 8 && (todayGF.pct ?? 0) >= (rollingGF.pct ?? 0))
-        ? todayGF
-        : (rollingGF.graded > 0 ? rollingGF : todayGF);
-      const effortPct = chosenGF.pct !== null ? chosenGF.pct : (todayList.length > 0 ? 100 : 0);
-
-      function bestPeriodPctForDate(dateKey) {
-        const list = byDate.get(dateKey) || [];
-        const seenInP = {};
-        list.forEach(d => {
-          const sid = String(d.studentId || d._docId.split('_')[0] || '').toLowerCase();
-          const r = rMap.get(sid);
-          const p = String(d.class_period ?? d.period ?? r?.period ?? '');
-          if (p === '') return;
-          if (!seenInP[p]) seenInP[p] = new Set();
-          seenInP[p].add(sid);
-        });
-        let maxPct = 0;
-        Object.entries(seenInP).forEach(([p, set]) => {
-          const cnt = set.size;
-          const denom = periodTotals[p] || Math.max(cnt, 24);
-          if (denom >= 8 && cnt >= 3) {
-            maxPct = Math.max(maxPct, Math.min(100, Math.round((cnt / denom) * 100)));
-          }
-        });
-        return maxPct;
-      }
-
-      let peakDayCohortPct = 0;
-      datesDesc.slice(0, 5).forEach(dk => {
-        peakDayCohortPct = Math.max(peakDayCohortPct, bestPeriodPctForDate(dk));
-      });
-
-      const rollingUnique = new Set(rollingList.map(d => String(d.studentId || d._docId.split('_')[0] || '').toLowerCase())).size;
-      const totalEnrolled = Math.max(rMap.size, rollingUnique, 1);
-      const rollingSchoolPct = Math.min(100, Math.round((rollingUnique / totalEnrolled) * 100));
-
-      const cohortPct = Math.max(peakDayCohortPct, rollingSchoolPct);
-      const displayCount = todayList.length >= 12 ? todayList.length : rollingList.length;
-
-      return {
-        hasData: studentDocs.length > 0,
-        effortPct,
-        cohortPct,
-        displayCount,
-        todayCount: todayList.length
-      };
-    }
-
     function computeMeters(s, assignKey) {
       const cfg = ASSIGNMENTS[assignKey] || { parts: [] };
       const reqParts = Array.isArray(s.parts_required) && s.parts_required.length ? s.parts_required : cfg.parts;
@@ -1242,151 +1042,104 @@
     // =====================================================================
     // POSITIVE STATEMENT GENERATOR (TRUTHFUL STATS + INSPIRING FRAMING ONLY)
     // =====================================================================
-    function buildPositiveSlides(asg, br, cfg) {
+    function buildPositiveSlides(asg, cfg) {
       const generated = [];
       const labName = cfg.title;
       const labBadge = cfg.badge;
 
-      if (currentMode === 'assignment' || currentMode === 'dual') {
-        if (asg.activeTotal > 0) {
-          if (asg.step1SuccessPct >= 70) {
-            generated.push({
-              accent: 'emerald',
-              category: `${labBadge} • EASY FIRST POINTS`,
-              stat: `${asg.step1SuccessPct}%`,
-              unit: 'GOT PART 1 POINTS RIGHT AWAY',
-              headline: `${asg.step1SuccessPct}% of classmates who opened ${labName} scored points on Part 1 right away!`,
-              subtext: `Just open the assignment and try the first section — it takes about 2 minutes and saves automatically.`
-            });
-          } else {
-            generated.push({
-              accent: 'emerald',
-              category: `${labBadge} • EASY FIRST POINTS`,
-              stat: `~2m`,
-              unit: 'TO SCORE YOUR FIRST POINTS',
-              headline: `Opening Part 1 of ${labName} puts real points in the gradebook in about 2 minutes!`,
-              subtext: `Just open the assignment and try the first section — your progress saves automatically.`
-            });
-          }
-
-          if (asg.totalActions >= 10) {
-            generated.push({
-              accent: 'cyan',
-              category: `${labBadge} • CLASS PROGRESS`,
-              stat: `${asg.totalActions.toLocaleString()}+`,
-              unit: 'STEPS & TRIALS DONE',
-              headline: `Classmates have already completed over ${asg.totalActions.toLocaleString()} test runs and questions in ${labName}!`,
-              subtext: `Every single question you answer and trial you run adds to your score right away.`
-            });
-          }
-
-          if (asg.earningPointsPct >= 75) {
-            generated.push({
-              accent: 'emerald',
-              category: `${labBadge} • POINTS ADDING UP`,
-              stat: `${asg.earningPointsPct}%`,
-              unit: 'SCORING POINTS TODAY',
-              headline: `${asg.earningPointsPct}% of students working on ${labName} have already put points in the gradebook!`,
-              subtext: `You don't have to finish everything at once — every part you complete counts toward your grade.`
-            });
-          }
-
-          if (asg.multiPartCount >= 6 && asg.multiPartPct >= 55) {
-            generated.push({
-              accent: 'cyan',
-              category: `${labBadge} • KEEP GOING`,
-              stat: `${asg.multiPartPct}%`,
-              unit: 'ON SECTION 2 OR HIGHER',
-              headline: `${asg.multiPartPct}% of classmates who started are already rolling through the next sections!`,
-              subtext: `Getting started is the hardest part — once you finish Part 1, the rest goes fast.`
-            });
-          }
-
-          if (asg.strongestCohortPct >= 65) {
-            generated.push({
-              accent: 'amber',
-              category: `${labBadge} • JUMP RIGHT IN`,
-              stat: `${asg.strongestCohortPct}%`,
-              unit: 'OF CLASS STARTED',
-              headline: `Up to ${asg.strongestCohortPct}% of the class has already jumped in and started ${labName}!`,
-              subtext: `It's never too late to jump in — open Part 1 now and grab your first points.`
-            });
-          }
-
-          if (asg.masteryCount >= 3) {
-            generated.push({
-              accent: 'purple',
-              category: `${labBadge} • UNLIMITED RETRIES`,
-              stat: `${asg.masteryCount}+`,
-              unit: 'AT 100% FULL CREDIT',
-              headline: `${asg.masteryCount}+ classmates have already hit 100% full credit — and you get unlimited tries!`,
-              subtext: `No penalty for mistakes — use the built-in hints and retry until you get the score you want.`
-            });
-          }
+      if (asg.activeTotal > 0) {
+        if (asg.step1SuccessPct >= 70) {
+          generated.push({
+            accent: 'emerald',
+            category: `${labBadge} • EASY FIRST POINTS`,
+            stat: `${asg.step1SuccessPct}%`,
+            unit: 'GOT PART 1 POINTS RIGHT AWAY',
+            headline: `${asg.step1SuccessPct}% of classmates who opened ${labName} scored points on Part 1 right away!`,
+            subtext: `Just open the assignment and try the first section — it takes about 2 minutes and saves automatically.`
+          });
         } else {
-          // Brand-new assignment before first submissions arrive: strictly positive & encouraging
           generated.push({
             accent: 'emerald',
             category: `${labBadge} • EASY FIRST POINTS`,
             stat: `~2m`,
             unit: 'TO SCORE YOUR FIRST POINTS',
-            headline: `${labName} is open — trying Part 1 scores points right away in about 2 minutes!`,
-            subtext: `Open Part 1 now and your work saves automatically after every step.`
+            headline: `Opening Part 1 of ${labName} puts real points in the gradebook in about 2 minutes!`,
+            subtext: `Just open the assignment and try the first section — your progress saves automatically.`
           });
+        }
+
+        if (asg.totalActions >= 10) {
+          generated.push({
+            accent: 'cyan',
+            category: `${labBadge} • CLASS PROGRESS`,
+            stat: `${asg.totalActions.toLocaleString()}+`,
+            unit: 'STEPS & TRIALS DONE',
+            headline: `Classmates have already completed over ${asg.totalActions.toLocaleString()} test runs and questions in ${labName}!`,
+            subtext: `Every single question you answer and trial you run adds to your score right away.`
+          });
+        }
+
+        if (asg.earningPointsPct >= 75) {
+          generated.push({
+            accent: 'emerald',
+            category: `${labBadge} • POINTS ADDING UP`,
+            stat: `${asg.earningPointsPct}%`,
+            unit: 'SCORING POINTS TODAY',
+            headline: `${asg.earningPointsPct}% of students working on ${labName} have already put points in the gradebook!`,
+            subtext: `You don't have to finish everything at once — every part you complete counts toward your grade.`
+          });
+        }
+
+        if (asg.multiPartCount >= 6 && asg.multiPartPct >= 55) {
+          generated.push({
+            accent: 'cyan',
+            category: `${labBadge} • KEEP GOING`,
+            stat: `${asg.multiPartPct}%`,
+            unit: 'ON SECTION 2 OR HIGHER',
+            headline: `${asg.multiPartPct}% of classmates who started are already rolling through the next sections!`,
+            subtext: `Getting started is the hardest part — once you finish Part 1, the rest goes fast.`
+          });
+        }
+
+        if (asg.strongestCohortPct >= 65) {
+          generated.push({
+            accent: 'amber',
+            category: `${labBadge} • JUMP RIGHT IN`,
+            stat: `${asg.strongestCohortPct}%`,
+            unit: 'OF CLASS STARTED',
+            headline: `Up to ${asg.strongestCohortPct}% of the class has already jumped in and started ${labName}!`,
+            subtext: `It's never too late to jump in — open Part 1 now and grab your first points.`
+          });
+        }
+
+        if (asg.masteryCount >= 3) {
           generated.push({
             accent: 'purple',
             category: `${labBadge} • UNLIMITED RETRIES`,
-            stat: `100%`,
-            unit: 'UNLIMITED TRIES OPEN',
-            headline: `Built-in hints and unlimited tries help every classmate reach 100% full credit!`,
-            subtext: `No penalty for mistakes — every section you finish boosts your score right away.`
+            stat: `${asg.masteryCount}+`,
+            unit: 'AT 100% FULL CREDIT',
+            headline: `${asg.masteryCount}+ classmates have already hit 100% full credit — and you get unlimited tries!`,
+            subtext: `No penalty for mistakes — use the built-in hints and retry until you get the score you want.`
           });
         }
-      }
-
-      if (currentMode === 'bellringer' || currentMode === 'dual') {
-        if (br.hasData) {
-          if (br.effortPct >= 70) {
-            generated.push({
-              accent: 'emerald',
-              category: '🔔 DAILY BELL-RINGER • EASY GRADE BOOST',
-              stat: `${br.effortPct}%`,
-              unit: 'GOT FULL CREDIT',
-              headline: `${br.effortPct}% of classmates who did the Bell-Ringer got full credit just for sharing their thinking!`,
-              subtext: `Takes about 90 seconds — doing 3 Bell-Ringers this week gives you 20/20 (100%) in the gradebook.`
-            });
-          }
-          if (br.cohortPct >= 65) {
-            generated.push({
-              accent: 'cyan',
-              category: '🔔 DAILY BELL-RINGER • CLASS CHECK-IN',
-              stat: `${br.cohortPct}%`,
-              unit: 'OF CLASS CHECKED IN',
-              headline: `Up to ${br.cohortPct}% of the class has already locked in their Bell-Ringer points!`,
-              subtext: `Still time to submit today — Bell-Ringers are the fastest way to boost your physics grade.`
-            });
-          }
-          if (br.displayCount >= 10) {
-            generated.push({
-              accent: 'amber',
-              category: '🔔 DAILY BELL-RINGER • GREAT HABIT',
-              stat: `${br.displayCount}+`,
-              unit: 'CHECK-INS THIS WEEK',
-              headline: `Classmates have already turned in ${br.displayCount}+ Bell-Ringers — awesome daily habit!`,
-              subtext: `Even if you missed a day, 3 check-ins this week still earns 100% full credit.`
-            });
-          }
-        }
-        if (generated.length === 0) {
-          generated.push({
-            accent: 'emerald',
-            category: '🔔 DAILY BELL-RINGER • EASY GRADE BOOST',
-            stat: `3 / wk`,
-            unit: 'EARNS 20/20 (100%)',
-            headline: `Today's Bell-Ringer is open — ~90 seconds of sharing your thinking earns full daily credit!`,
-            subtext: `Doing 3 Bell-Ringers this week locks in 20/20 (100%) in the gradebook.`
-          });
-        }
+      } else {
+        // Brand-new assignment before first submissions arrive: strictly positive & encouraging
+        generated.push({
+          accent: 'emerald',
+          category: `${labBadge} • EASY FIRST POINTS`,
+          stat: `~2m`,
+          unit: 'TO SCORE YOUR FIRST POINTS',
+          headline: `${labName} is open — trying Part 1 scores points right away in about 2 minutes!`,
+          subtext: `Open Part 1 now and your work saves automatically after every step.`
+        });
+        generated.push({
+          accent: 'purple',
+          category: `${labBadge} • UNLIMITED RETRIES`,
+          stat: `100%`,
+          unit: 'UNLIMITED TRIES OPEN',
+          headline: `Built-in hints and unlimited tries help every classmate reach 100% full credit!`,
+          subtext: `No penalty for mistakes — every section you finish boosts your score right away.`
+        });
       }
 
       return generated;
@@ -1395,19 +1148,7 @@
     // =====================================================================
     // RENDER BILLBOARD & BOTTOM POSITIVE 3-STAT FOOTER
     // =====================================================================
-    function renderFooterStats(asg, br) {
-      if (currentMode === 'bellringer') {
-        $('statPill1Val').textContent = br.hasData && br.effortPct >= 70 ? `${br.effortPct}%` : '90s';
-        $('statPill1Label').textContent = br.hasData && br.effortPct >= 70 ? 'Got Full Credit' : 'Quick Check-In';
-
-        $('statPill2Val').textContent = br.displayCount > 0 ? `${br.displayCount}+` : 'Open';
-        $('statPill2Label').textContent = 'Checked In';
-
-        $('statPill3Val').textContent = br.cohortPct >= 65 ? `${br.cohortPct}%` : '3 Days';
-        $('statPill3Label').textContent = br.cohortPct >= 65 ? 'Class Checked In' : 'Gets 20/20 (100%)';
-        return;
-      }
-
+    function renderFooterStats(asg) {
       if (asg.activeTotal > 0) {
         $('statPill1Val').textContent = asg.step1SuccessPct >= 70 ? `${asg.step1SuccessPct}%` : '~2m';
         $('statPill1Label').textContent = asg.step1SuccessPct >= 70 ? 'Got Part 1 Points' : 'Quick Part 1';
@@ -1418,9 +1159,6 @@
         if (asg.earningPointsPct >= 75) {
           $('statPill3Val').textContent = `${asg.earningPointsPct}%`;
           $('statPill3Label').textContent = 'Scoring Points';
-        } else if (currentMode === 'dual' && br.effortPct >= 70) {
-          $('statPill3Val').textContent = `${br.effortPct}%`;
-          $('statPill3Label').textContent = 'Bell Full Credit';
         } else {
           $('statPill3Val').textContent = 'Open';
           $('statPill3Label').textContent = 'Unlimited Tries';
@@ -1489,13 +1227,12 @@
         badge: `🧪 ${currentAssignment.toUpperCase()}`,
         parts: ['p1', 'p2', 'p3', 'quiz']
       };
-      const br = computeBellRingerMetrics(bellringerDocs, rosterMap);
       const asg = computeAssignmentMetrics(assignmentDocs, rosterMap, currentAssignment);
 
-      slides = buildPositiveSlides(asg, br, cfg);
+      slides = buildPositiveSlides(asg, cfg);
       if (activeSlideIdx >= slides.length) activeSlideIdx = 0;
 
-      renderFooterStats(asg, br);
+      renderFooterStats(asg);
       paintSlide(activeSlideIdx, false);
       saveAnonCache();
     }
@@ -1509,109 +1246,38 @@
     }
 
     // =====================================================================
-    // BELL-RINGER LIVE COUNTDOWN CHIP
+    // ZERO-QUOTA ROTATION LOOP (ADVANCES USING IN-MEMORY DATA EVERY 60s)
     // =====================================================================
-    function updateTimerChip() {
-      const chip = $('slideContextChip');
-      if (timerConfig && timerConfig.isActive) {
-        let expMs = null;
-        if (timerConfig.timerExpiresAt && typeof timerConfig.timerExpiresAt.toDate === 'function') {
-          expMs = timerConfig.timerExpiresAt.toDate().getTime();
-        } else if (timerConfig.startedAt && (timerConfig.durationSeconds || timerConfig.durationMinutes)) {
-          const sMs = timerConfig.startedAt.toDate ? timerConfig.startedAt.toDate().getTime() : new Date(timerConfig.startedAt).getTime();
-          const dur = timerConfig.durationSeconds || (timerConfig.durationMinutes * 60);
-          if (!isNaN(sMs)) expMs = sMs + dur * 1000;
-        }
-        if (expMs) {
-          const diffSec = Math.max(0, Math.floor((expMs - Date.now()) / 1000));
-          if (diffSec > 0) {
-            const m = Math.floor(diffSec / 60);
-            const s = diffSec % 60;
-            chip.textContent = `⏱️ Bell-Ringer Open · ${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-            return;
-          }
-        }
-      }
-      chip.textContent = currentMode === 'bellringer'
-        ? '🔔 Updates every 1 min'
-        : '🔄 Updates every 1 min';
-    }
-
-    // =====================================================================
-    // 1-MINUTE DATA REFRESH & ROTATION SCHEDULER (60,000 ms)
-    // =====================================================================
-    async function refreshLiveDataEveryMinute() {
-      if (!isLiveAuthenticated || isPreviewMode || typeof firebase === 'undefined') {
-        refreshAll();
-        return;
-      }
-      try {
-        const db = firebase.firestore();
-        const [asgSnap, brSnap, timerDoc] = await Promise.all([
-          db.collection('student_results').doc(currentAssignment).collection('students').get(),
-          db.collection('bellringers').get(),
-          db.collection('system_config').doc('bellringer_timer').get()
-        ]);
-
-        const nextAsg = [];
-        asgSnap.forEach(doc => {
-          const d = doc.data();
-          const sid = String(doc.id || '').toLowerCase();
-          if (!TEACHER_IDS.includes(sid)) nextAsg.push(Object.assign({ id: doc.id }, d));
-        });
-        assignmentDocs = nextAsg;
-
-        const nextBR = [];
-        brSnap.forEach(doc => {
-          const d = doc.data();
-          nextBR.push(Object.assign({ _docId: doc.id, _dateKey: extractDateFromBR(doc.id, d) }, d));
-        });
-        bellringerDocs = nextBR;
-
-        timerConfig = timerDoc.exists ? timerDoc.data() : null;
-        updateTimerChip();
-        refreshAll();
-      } catch (e) {
-        refreshAll();
-      }
-    }
-
     function startRotationLoop() {
-      let pausedRefreshElapsed = 0;
       setInterval(() => {
         const now = performance.now();
         const dt = now - lastTickMs;
         lastTickMs = now;
-        if (isPaused) {
-          pausedRefreshElapsed += dt;
-          if (pausedRefreshElapsed >= SLIDE_DURATION_MS) {
-            pausedRefreshElapsed = 0;
-            refreshLiveDataEveryMinute();
+        if (!isPaused) {
+          slideElapsedMs += dt;
+          if (slideElapsedMs >= SLIDE_DURATION_MS) {
+            slideElapsedMs = 0;
+            activeSlideIdx = slides.length > 0 ? (activeSlideIdx + 1) % slides.length : 0;
+            paintSlide(activeSlideIdx, true);
           }
-          return;
+          const pct = Math.min(100, (slideElapsedMs / SLIDE_DURATION_MS) * 100);
+          $('rotationProgressBar').style.width = `${pct.toFixed(1)}%`;
         }
-        pausedRefreshElapsed = 0;
-        slideElapsedMs += dt;
-        if (slideElapsedMs >= SLIDE_DURATION_MS) {
-          slideElapsedMs = 0;
-          activeSlideIdx = slides.length > 0 ? (activeSlideIdx + 1) % slides.length : 0;
-          refreshLiveDataEveryMinute();
-        }
-        const pct = Math.min(100, (slideElapsedMs / SLIDE_DURATION_MS) * 100);
-        $('rotationProgressBar').style.width = `${pct.toFixed(1)}%`;
       }, 250);
     }
 
     // =====================================================================
-    // FIRESTORE REAL-TIME SUBSCRIPTIONS (TEACHER AUTH REQUIRED)
+    // FIRESTORE REAL-TIME SUBSCRIPTION (STRICTLY ASSIGNMENT DOCS ONLY)
     // =====================================================================
     function clearSubscriptions() {
-      [unsubRoster, unsubBR, unsubTimer, unsubAssign].forEach(u => { try { u && u(); } catch (e) {} });
-      unsubRoster = unsubBR = unsubTimer = unsubAssign = null;
+      if (unsubAssign) {
+        try { unsubAssign(); } catch (e) {}
+        unsubAssign = null;
+      }
     }
 
     function subscribeAssignment(assignKey) {
-      if (unsubAssign) { try { unsubAssign(); } catch (e) {} unsubAssign = null; }
+      clearSubscriptions();
       const db = firebase.firestore();
       let initialLoad = true;
       unsubAssign = db.collection('student_results').doc(assignKey).collection('students')
@@ -1634,7 +1300,33 @@
         }, () => {});
     }
 
-    function startLiveFirestore() {
+    async function loadRosterOnce() {
+      try {
+        const cached = sessionStorage.getItem(ROSTER_CACHE_KEY);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          rosterMap = new Map(Object.entries(parsed));
+          return;
+        }
+      } catch (e) {}
+
+      try {
+        const db = firebase.firestore();
+        const snap = await db.collection('roster').get();
+        const next = new Map();
+        const serialized = {};
+        snap.forEach(doc => {
+          const d = doc.data();
+          const p = String(d.class_period ?? d.period ?? '');
+          next.set(String(doc.id).toLowerCase(), { period: p });
+          serialized[String(doc.id).toLowerCase()] = { period: p };
+        });
+        rosterMap = next;
+        try { sessionStorage.setItem(ROSTER_CACHE_KEY, JSON.stringify(serialized)); } catch (e) {}
+      } catch (e) {}
+    }
+
+    async function startLiveFirestore() {
       isPreviewMode = false;
       isLiveAuthenticated = true;
       $('btnConnectAuth').hidden = true;
@@ -1643,41 +1335,7 @@
       $('liveStatusText').textContent = 'Live Stats';
       $('btnDemoToggle').textContent = '🎬';
 
-      const db = firebase.firestore();
-      clearSubscriptions();
-
-      unsubRoster = db.collection('roster').onSnapshot(snap => {
-        const next = new Map();
-        snap.forEach(doc => {
-          const d = doc.data();
-          next.set(String(doc.id).toLowerCase(), {
-            period: String(d.class_period ?? d.period ?? '')
-          });
-        });
-        rosterMap = next;
-        refreshAll();
-      }, () => {});
-
-      unsubTimer = db.collection('system_config').doc('bellringer_timer').onSnapshot(doc => {
-        timerConfig = doc.exists ? doc.data() : null;
-        updateTimerChip();
-      }, () => {});
-
-      let initialBR = true;
-      unsubBR = db.collection('bellringers').onSnapshot(snap => {
-        const next = [];
-        snap.forEach(doc => {
-          const d = doc.data();
-          next.push(Object.assign({ _docId: doc.id, _dateKey: extractDateFromBR(doc.id, d) }, d));
-        });
-        if (!initialBR) {
-          triggerLiveWinFlash('🔔 A classmate just checked in!');
-        }
-        initialBR = false;
-        bellringerDocs = next;
-        refreshAll();
-      }, () => {});
-
+      await loadRosterOnce();
       subscribeAssignment(currentAssignment);
     }
 
@@ -1691,27 +1349,12 @@
       $('liveStatusText').textContent = reasonText || 'Preview Mode';
       $('btnDemoToggle').textContent = isLiveAuthenticated ? '📡 Live' : '🎬';
 
-      const today = getTodayString();
       rosterMap = new Map();
-      bellringerDocs = [];
       assignmentDocs = [];
 
       for (let p = 0; p <= 6; p++) {
         for (let i = 1; i <= 25; i++) {
           rosterMap.set(`preview_p${p}_${i}`, { period: String(p) });
-        }
-      }
-
-      for (let p = 0; p <= 4; p++) {
-        const countInP = p <= 2 ? 23 : 15;
-        for (let i = 1; i <= countInP; i++) {
-          bellringerDocs.push({
-            _docId: `preview_p${p}_${i}_${today}`,
-            _dateKey: today,
-            studentId: `preview_p${p}_${i}`,
-            class_period: p,
-            effortScore: i % 20 === 0 ? 0 : 1
-          });
         }
       }
 
@@ -1740,8 +1383,6 @@
         });
       }
 
-      timerConfig = null;
-      updateTimerChip();
       refreshAll();
     }
 
@@ -1759,18 +1400,8 @@
     }
 
     // =====================================================================
-    // UI CONTROLS: MODE, THEME, FONT SCALE, COMPACT HEADER, EMBED MODAL
+    // UI CONTROLS: THEME, FONT SCALE, COMPACT HEADER, EMBED MODAL
     // =====================================================================
-    function applyMode(mode) {
-      currentMode = mode;
-      document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
-      slideElapsedMs = 0;
-      activeSlideIdx = 0;
-      refreshAll();
-      updateTimerChip();
-      updateEmbedOutput();
-    }
-
     function applyTheme(theme) {
       const root = document.documentElement;
       const isLight = theme === 'light';
@@ -1793,7 +1424,6 @@
     function buildEmbedUrl() {
       const base = 'https://rrmudry.github.io/admin/classroomscreen_widget.html';
       const params = new URLSearchParams();
-      params.set('mode', $('embedMode').value);
       params.set('assignment', currentAssignment);
       params.set('theme', $('embedTheme').value);
       if ($('embedCompact').checked) params.set('compact', '1');
@@ -1806,10 +1436,6 @@
     }
 
     // Bind Controls
-    document.querySelectorAll('.mode-btn').forEach(btn => {
-      btn.addEventListener('click', () => applyMode(btn.dataset.mode));
-    });
-
     document.querySelectorAll('.font-btn').forEach(btn => {
       btn.addEventListener('click', () => applyFontSize(btn.dataset.font));
     });
@@ -1838,7 +1464,6 @@
     });
 
     $('btnEmbedCode').addEventListener('click', () => {
-      $('embedMode').value = currentMode;
       updateEmbedOutput();
       $('copyConfirm').textContent = '';
       $('embedModal').showModal();
@@ -1849,7 +1474,7 @@
       if (e.target === $('embedModal')) $('embedModal').close();
     });
 
-    ['embedMode', 'embedTheme', 'embedCompact'].forEach(id => {
+    ['embedTheme', 'embedCompact'].forEach(id => {
       $(id).addEventListener('change', updateEmbedOutput);
     });
 
@@ -1900,13 +1525,11 @@
 
       const savedFont = localStorage.getItem('cs_widget_font') || 'normal';
       applyFontSize(savedFont);
-      applyMode(currentMode);
 
       if (urlParams.get('compact') === '1') {
         document.body.classList.add('compact-bar');
       }
 
-      setInterval(updateTimerChip, 1000);
       startRotationLoop();
 
       if (urlParams.get('demo') === '1') {
