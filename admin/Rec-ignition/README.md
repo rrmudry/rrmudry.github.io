@@ -10,13 +10,13 @@ Students who are doing well, improving, or simply not giving up often go unnotic
 
 ## Status
 
-Version 0.2. Working with built-in sample data; not yet connected to real class data.
+Version 0.3. Works with built-in sample data. Live mode is matched to the real class data but hasn't been run against it yet.
 
 | Area | State |
 | --- | --- |
 | Detection, list, label layout | Working, tested in a browser with sample data |
 | Manual print and auto-print queue | Tested with the print call intercepted; **not yet printed on the real printer** |
-| Live Firestore mode | Written but **untested**; field names in Settings are placeholders |
+| Live Firestore mode | Matched to the real schema and tested with stand-in data; **needs the Firestore rule and indexes deployed** |
 | Speed-of-progress trigger | Not built yet (see [To do](#to-do)) |
 
 ## How it works
@@ -24,8 +24,8 @@ Version 0.2. Working with built-in sample data; not yet connected to real class 
 Everything is in one file, [rec-ignition.html](rec-ignition.html): plain HTML and a JavaScript module, with the Firebase JS SDK 10.x loaded from gstatic. There is no build step and no server of its own.
 
 1. The teacher opens the page and chooses **Sample data** or **Live Firestore**.
-2. In live mode the teacher signs in with Google. Only `@orangeusd.org` accounts are accepted (enforced in the code).
-3. The page reads the last 30 days of progress records. All class webapps share one Firestore layout, so it queries a collection group (`progress` by default) across every class.
+2. The teacher signs in with Google. The page then tries a one-document read of class results; the Firestore rules only allow that for the teacher, so the rules decide who gets in.
+3. The page reads the last 30 days of results from `student_results/{assignment}/students/{student}`, then checks every 60 seconds for anything saved since. The class apps don't all use the same save-time field, so it reads `timestamp`, `updated_at`, `updatedAt` and `submittedAt`.
 4. It looks for recognitions (below) and shows one card per student with a preview of the label.
 5. The teacher prints a label by hand, or turns on **Auto-print new stand-outs**.
 
@@ -37,13 +37,15 @@ Scores are out of 10: 6 points for completing all preparation steps plus 4 for t
 
 All thresholds can be changed in Settings.
 
+Each class app keeps one record per student per assignment and updates it as they work. "Finished" means the app marked it complete or the Mastery Check has been taken.
+
 | Trigger | Rule |
 | --- | --- |
-| Class standout | At least 1.5 standard deviations above the class on the same activity |
-| Personal best | A new high that is at least 15 percentage points above the student's own average |
-| Streak | Work on 5 school days in a row (weekends don't break it) |
-| Big improvement | The last 3 scores average at least 20 percentage points above the 5 before them |
-| Persistence | At least 4 attempts ending in 80% or better |
+| Class standout | At least 1.5 standard deviations above classmates who finished the same activity |
+| Personal best | The latest finished activity is a new high, at least 15 percentage points above the student's own average (needs 4 earlier ones) |
+| Streak | Work on 5 school days in a row (weekends don't break it). The tool remembers the days it sees each student working, so streaks build up from when it starts running |
+| Big improvement | The last 2 finished activities average at least 20 points above the 3 before them, or a Mastery Check retake is at least 20 points above the first try |
+| Persistence | At least 3 Mastery Check attempts, ending at 80% or better |
 
 ### One label per student per day
 
@@ -82,12 +84,12 @@ Safeguards, so a data glitch can't empty the roll:
 The **Settings** panel at the bottom of the page holds a block of JSON, saved in that browser only:
 
 - `firebase`: the Firebase web config (`apiKey`, `authDomain`, `projectId`)
-- `allowedDomain`: sign-in domain, `orangeusd.org`
-- `progressCollection` and `fields`: where progress lives and what the fields are called
+- `progressCollection`, `resultsRoot` and `fields`: where results live and what the fields are called
+- `pollSeconds`: how often live mode checks for new work (60)
 - `defaultMaxScore`: 10
 - `thresholds`, `labelPriority`, `autoPrint`: the rules described above
 
-The Firebase web config is not a secret, but anyone can read it once it is in a repository. Student data is protected by the Firestore security rules, so those rules must limit reads to signed-in district staff.
+The Firebase web config is not a secret, but anyone can read it once it is in a repository. Student data is protected by the Firestore security rules: listing results, including the collection-group read this tool uses, is admin only. Changing Settings in the browser can't get around that. Student names are shown as plain text, never as HTML.
 
 ## Running it
 
@@ -103,10 +105,10 @@ Then open `http://localhost:8765/rec-ignition.html`.
 
 ## To do
 
-1. **Match live mode to the real data.** Needs a sample progress document with its collection path, and the Firebase web config.
+1. **Deploy the Firestore rule and indexes** (`firestore.rules`, `firestore.indexes.json`), then try live mode signed in as the teacher.
 2. **New trigger: speed of progress.** Reward students who got started and made good progress, even if they aren't done. The idea is a points-per-time slope compared with classmates on the same assignment, triggered once a student reaches about 60% (6/10, all preparation done).
 3. **Open question for that trigger:** does Firestore store each step with its own timestamp, or only the current score and a last-updated time? If only the current score, the page has to track changes itself while it is open.
-4. **Firestore quota.** Each live update costs one read. Check that the class apps don't save constantly (for example, on every keystroke).
+4. **Firestore quota.** Each check costs at least 4 reads, plus one for each record saved since the last check.
 5. **Real print test** on the QL-710W, then set up the auto-print Chrome profile.
 
 ## Files

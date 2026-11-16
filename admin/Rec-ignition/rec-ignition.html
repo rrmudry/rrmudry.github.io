@@ -105,25 +105,32 @@ const DEFAULT_CFG = {
     authDomain: "site-6e500.firebaseapp.com",
     messagingSenderId: "591530758858"
   },
-  allowedEmails: ["rmudry@orangeusd.org", "ryan.mudry@gmail.com", "ryanmudry@gmail.com"],
-  // Name of the student subcollection queried as a collection group across student_results/{assignmentId}/students/{studentId}.
+  // Who may open the tool is decided by the Firestore rules (admin-only list access), not by this page.
+  // Collection group: student_results/{assignmentId}/students/{studentId}. practice_results docs are skipped.
   progressCollection: "students",
+  resultsRoot: "student_results",
   lookbackDays: 30,
+  // How often live mode checks for new saves. Each check reads only documents saved since the last one.
+  pollSeconds: 60,
   // Scores are out of 10 (6 for the preparation steps + 4 for the mastery check).
   // Used when a record has no max-score field of its own, and for how scores are shown.
   defaultMaxScore: 10,
   fields: {
-    studentId: "studentId", studentName: "studentName", classId: "class_period",
-    activity: "activityId", score: "score", maxScore: "maxScore",
-    attempts: "attempts", timestamp: "timestamp"
+    studentId: "student_id", studentName: "student_name", classId: "class_period",
+    score: "score", maxScore: "maxScore", quizHistory: "quiz_history", completed: "isCompleted",
+    // The class apps don't agree on one save-time field, so all of these are read.
+    timestamps: ["timestamp", "updated_at", "updatedAt", "submittedAt"]
   },
   thresholds: {
-    classZ: 1.5,          // stands out: this many std devs above class on an activity
+    classZ: 1.5,          // class standout: this many std devs above classmates who finished the same activity
+    personalPrior: 4,     // personal best: needs at least this many earlier finished activities
     personalJumpPct: 15,  // personal best: at least this many percentage points above own average (15 = 1.5 out of 10)
-    streakDays: 5,        // streak: consecutive school days with work
-    improvePct: 20,       // big improvement: recent avg vs earlier avg, in percentage points (20 = 2 out of 10)
-    persistAttempts: 4,   // persistence: many tries, then success
-    persistScore: 80      // percent (80 = 8 out of 10)
+    streakDays: 5,        // streak: consecutive school days with saved work
+    improveRecent: 2,     // big improvement: average of the last N finished activities...
+    improveBefore: 3,     // ...compared with the N before them
+    improvePct: 20,       // big improvement: in percentage points (20 = 2 out of 10); also used for Mastery Check retakes
+    persistAttempts: 3,   // persistence: this many Mastery Check attempts...
+    persistScore: 80      // ...ending at this percent or better
   },
   // One label per student per day. When several triggers fire at once, the first one in this list wins.
   labelPriority: ["Personal best", "Big improvement", "Persistence", "Class standout", "Streak"],
@@ -136,10 +143,14 @@ const DEFAULT_CFG = {
 let cfg = DEFAULT_CFG;
 try {
   const saved = JSON.parse(localStorage.getItem("recig-cfg") || "{}");
-  cfg = { ...DEFAULT_CFG, ...saved };
+  delete saved.allowedEmails; delete saved.allowedDomain; // older versions gated on these
+  cfg = { ...DEFAULT_CFG, ...saved,
+    fields: { ...DEFAULT_CFG.fields, ...(saved.fields || {}) },
+    thresholds: { ...DEFAULT_CFG.thresholds, ...(saved.thresholds || {}) },
+    autoPrint: { ...DEFAULT_CFG.autoPrint, ...(saved.autoPrint || {}) } };
   if (!cfg.firebase?.apiKey) cfg.firebase = DEFAULT_CFG.firebase;
-  if (!Array.isArray(cfg.allowedEmails) || !cfg.allowedEmails.length) cfg.allowedEmails = DEFAULT_CFG.allowedEmails;
   if (cfg.progressCollection === "progress") cfg.progressCollection = DEFAULT_CFG.progressCollection;
+  if (!Array.isArray(cfg.fields.timestamps)) cfg.fields.timestamps = DEFAULT_CFG.fields.timestamps;
 } catch {}
 const $ = s => document.querySelector(s);
 $("#cfg").value = JSON.stringify(cfg, null, 2);
@@ -148,6 +159,8 @@ $("#saveCfg").onclick = () => {
   catch (e) { alertStatus("Settings aren't valid JSON: " + e.message); }
 };
 const alertStatus = m => $("#status").textContent = m;
+// Student names and activity names come from student-written documents: always insert them as text.
+const esc = v => String(v ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
 // Scores are kept internally as percentages; these show them on the real scale (e.g. 9/10).
 const maxScore = () => Number(cfg.defaultMaxScore) || 10;
 const pts = p => +(p * maxScore() / 100).toFixed(1);
@@ -156,6 +169,25 @@ const outOf = p => `${pts(p)}/${maxScore()}`;
 let printed = {};
 try { printed = JSON.parse(localStorage.getItem("recig-printed") || "{}"); } catch {}
 const savePrinted = () => { try { localStorage.setItem("recig-printed", JSON.stringify(printed)); } catch {} };
+
+// Each class app keeps one document per student per assignment and overwrites it, so the
+// document only knows its latest save time. Live mode remembers which days it has seen each
+// student save, so streaks build up from the day the tool starts running.
+let seenDays = {};
+try { seenDays = JSON.parse(localStorage.getItem("recig-days") || "{}"); } catch {}
+function rememberDays(recs) {
+  const cutoff = Date.now() - cfg.lookbackDays * 864e5;
+  for (const r of recs) {
+    const list = seenDays[r.studentId] ||= [];
+    const k = dayKey(r.t);
+    if (r.t >= cutoff && !list.includes(k)) list.push(k);
+  }
+  for (const [sid, list] of Object.entries(seenDays)) {
+    seenDays[sid] = list.filter(k => new Date(k).getTime() >= cutoff);
+    if (!seenDays[sid].length) delete seenDays[sid];
+  }
+  try { localStorage.setItem("recig-days", JSON.stringify(seenDays)); } catch {}
+}
 
 // ---------- Sample data ----------
 function demoRecords() {
@@ -170,21 +202,19 @@ function demoRecords() {
       let s = base + (Math.random() * 16 - 8);
       if (i === 5 && d < 4) s += 28;          // Ethan: big improvement
       if (i === 9 && d === 0) s = 99;          // Mateo: stands out + personal best
-      const attempts = (i === 14 && d === 0) ? 6 : 1 + Math.floor(Math.random() * 2);
-      if (i === 14 && d === 0) s = 88;         // Luna: persistence
+      let quizHistory = [Math.round(s)];
+      if (i === 14 && d === 0) { s = 88; quizHistory = [45, 60, 72, 90]; } // Luna: persistence
       // Whole-number score on the real scale, like the class apps save.
       const score = Math.max(0, Math.min(maxScore(), Math.round(s * maxScore() / 100)));
-      recs.push({ studentId:"s"+i, studentName:n, classId:"P3", activity:act,
-        pct: Math.round(100 * score / maxScore()), attempts, t: now - d*day - Math.random()*3e7 });
+      recs.push({ path: `demo/${i}/${d}`, studentId: "s" + i, studentName: n, classId: "P3", activity: act,
+        pct: Math.round(100 * score / maxScore()), settled: true, quizHistory, t: now - d * day - Math.random() * 3e7 });
     }
   });
   return recs;
 }
 
-// ---------- Live Firestore & OAuth Gate ----------
+// ---------- Firebase ----------
 let fb = null;
-const isTeacher = user => !!user?.email && (cfg.allowedEmails || DEFAULT_CFG.allowedEmails).map(e => e.toLowerCase()).includes(user.email.toLowerCase());
-
 async function loadFirebase() {
   if (fb) return fb;
   const v = "10.12.2";
@@ -195,9 +225,19 @@ async function loadFirebase() {
   fb = { auth, fs, authI: auth.getAuth(a), db: fs.getFirestore(a) };
   return fb;
 }
-$("#source").onchange = () => {
-  $("#refresh").click();
-};
+// The Firestore rules only let admins list student results, so a one-document test read
+// is the real authorization check.
+async function hasTeacherAccess() {
+  const { fs, db } = await loadFirebase();
+  try {
+    await fs.getDocs(fs.query(fs.collectionGroup(db, cfg.progressCollection), fs.limit(1)));
+    return true;
+  } catch (e) {
+    if (e.code === "permission-denied") return false;
+    throw e;
+  }
+}
+$("#source").onchange = () => { $("#refresh").click(); };
 async function signInTeacher() {
   try {
     $("#gateErr").textContent = "";
@@ -218,88 +258,157 @@ async function signInTeacher() {
 }
 $("#gateSignIn").onclick = signInTeacher;
 $("#signout").onclick = async () => {
-  if (unsub) { unsub(); unsub = null; }
+  stopLive();
   const { auth, authI } = await loadFirebase();
   await auth.signOut(authI);
 };
-async function liveRecords() {
-  const { fs, db } = await loadFirebase(); const F = cfg.fields;
-  const since = new Date(Date.now() - cfg.lookbackDays * 864e5);
-  const q = fs.query(fs.collectionGroup(db, cfg.progressCollection), fs.where(F.timestamp, ">=", since));
-  const snap = await fs.getDocs(q);
-  return snap.docs.map(toRecord);
-}
+
+// ---------- Live data ----------
+const toMillis = ts => ts?.toMillis ? ts.toMillis() : (ts ? new Date(ts).getTime() : 0);
+// Only student_results/{assignment}/students/{student}; the collection group also holds practice_results.
+const isResultDoc = d => d.ref.parent.parent?.parent?.id === cfg.resultsRoot;
 function toRecord(d) {
   const F = cfg.fields;
   const x = d.data();
-  const ts = x[F.timestamp] ?? x.updatedAt ?? x.updated_at;
+  const t = Math.max(0, ...F.timestamps.map(f => toMillis(x[f])).filter(Number.isFinite));
+  if (!t) return null;
   const rawScore = Number(x[F.score] ?? x.percentage ?? x.percent ?? 0);
   const max = Number(x[F.maxScore] ?? x.maxPoints) || maxScore();
   const pct = (rawScore > max && rawScore <= 100) ? Math.round(rawScore) : Math.round(100 * rawScore / max);
+  const quizHistory = Array.isArray(x[F.quizHistory]) ? x[F.quizHistory].map(Number).filter(Number.isFinite) : [];
+  const completed = x[F.completed];
+  // "Finished" work: completed, or the Mastery Check has been taken. Apps that save neither field
+  // only write when work is submitted, so their records count as finished.
+  const settled = completed === true || quizHistory.length > 0 || (completed === undefined && !Array.isArray(x[F.quizHistory]));
   return {
-    studentId: x[F.studentId] ?? x.student_id ?? d.id,
-    studentName: x[F.studentName] ?? x.student_name ?? x.displayName ?? "Student",
+    path: d.ref.path,
+    studentId: String(x[F.studentId] ?? x.studentId ?? d.id),
+    studentName: String(x[F.studentName] ?? x.studentName ?? x.displayName ?? "Student"),
     classId: x[F.classId] ?? x.period ?? "",
-    activity: x[F.activity] ?? x.assignmentTitle ?? d.ref.parent.parent?.id ?? "Activity",
-    pct,
-    attempts: Number(x[F.attempts] || 1),
-    t: ts?.toMillis ? ts.toMillis() : (ts ? new Date(ts).getTime() : Date.now())
+    activity: String(x.assignmentTitle ?? x.activityId ?? d.ref.parent.parent?.id ?? "Activity"),
+    pct, settled, quizHistory, t
   };
+}
+const liveDocs = new Map(); // document path -> record
+let lastSeen = 0, pollTimer = null, polling = false;
+// One query per save-time field, merged by document path.
+async function fetchSince(since) {
+  const { fs, db } = await loadFirebase();
+  const problems = [];
+  for (const field of cfg.fields.timestamps) {
+    try {
+      const q = fs.query(fs.collectionGroup(db, cfg.progressCollection), fs.where(field, ">=", new Date(since)));
+      const snap = await fs.getDocs(q);
+      for (const d of snap.docs) {
+        if (!isResultDoc(d)) continue;
+        const r = toRecord(d);
+        if (!r) continue;
+        liveDocs.set(r.path, r);
+        lastSeen = Math.max(lastSeen, r.t);
+      }
+    } catch (e) {
+      problems.push(`${field}: ${e.code || e.message}`);
+    }
+  }
+  return problems;
+}
+function stopLive() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+async function startLive() {
+  stopLive();
+  liveDocs.clear(); lastSeen = 0;
+  const problems = await fetchSince(Date.now() - cfg.lookbackDays * 864e5);
+  if (problems.length === cfg.fields.timestamps.length) throw new Error(problems.join("; "));
+  records = [...liveDocs.values()];
+  rememberDays(records);
+  const c = process(true);
+  alertStatus(`Watching live: ${c.length} recognitions from ${records.length} records. Checking every ${cfg.pollSeconds} s.` +
+    (problems.length ? ` (Skipped ${problems.join(", ")})` : ""));
+  pollTimer = setInterval(async () => {
+    if (polling) return; polling = true;
+    try {
+      const before = lastSeen;
+      await fetchSince(before || Date.now());
+      if (lastSeen !== before) {
+        records = [...liveDocs.values()];
+        rememberDays(records);
+        const c = process(false);
+        if (!$("#auto").checked) alertStatus(`Watching live: ${c.length} recognitions from ${records.length} records.`);
+      }
+    } catch (e) {
+      alertStatus("Live connection problem: " + e.message);
+    } finally { polling = false; }
+  }, Math.max(15, Number(cfg.pollSeconds) || 60) * 1000);
 }
 
 // ---------- Detection ----------
 const mean = a => a.reduce((s, x) => s + x, 0) / (a.length || 1);
 const sd = a => { const m = mean(a); return Math.sqrt(mean(a.map(x => (x - m) ** 2))); };
 const dayKey = t => new Date(t).toDateString();
-const first = n => n.split(" ")[0];
+const first = n => String(n).split(" ")[0];
 
 function detect(recs) {
   const T = cfg.thresholds; const out = []; const today = dayKey(Date.now());
   const recentCut = Date.now() - 2 * 864e5;
+  const live = $("#source").value === "live";
   const byStudent = {}; recs.forEach(r => (byStudent[r.studentId] ||= []).push(r));
-  const byAct = {}; recs.forEach(r => (byAct[r.activity] ||= []).push(r.pct));
+  // Class comparisons use finished work only, so a classmate who is halfway through doesn't drag the average down.
+  const byAct = {}; recs.filter(r => r.settled).forEach(r => (byAct[r.activity] ||= []).push(r.pct));
 
   for (const [sid, rs] of Object.entries(byStudent)) {
     rs.sort((a, b) => a.t - b.t);
-    const name = rs[0].studentName; const latest = rs[rs.length - 1];
-    const recent = rs.filter(r => r.t >= recentCut);
+    const name = rs[rs.length - 1].studentName;
+    const done = rs.filter(r => r.settled);
+    const latest = done[done.length - 1];
+    const recent = done.filter(r => r.t >= recentCut);
     const add = (type, line, detail, key) => out.push({ sid, name, type, line, detail, key: sid + "|" + type + "|" + key });
 
-    // Stands out from class
+    // Class standout
     for (const r of recent) {
       const pool = byAct[r.activity]; if (pool.length < 5) continue;
       const z = (r.pct - mean(pool)) / (sd(pool) || 1);
-      if (z >= T.classZ) { add("Class standout", `Shining star in ${r.activity}!`, `${outOf(r.pct)} vs class avg ${outOf(mean(pool))}`, r.activity + dayKey(r.t)); break; }
+      if (z >= T.classZ) { add("Class standout", `Shining star in ${r.activity}!`, `${outOf(r.pct)} vs finished-class avg ${outOf(mean(pool))}`, r.activity); break; }
     }
     // Personal best
-    const prior = rs.filter(r => r !== latest).map(r => r.pct);
-    if (latest.t >= recentCut && prior.length >= 4 && latest.pct > Math.max(...prior) && latest.pct - mean(prior) >= T.personalJumpPct)
-      add("Personal best", `New personal best in ${latest.activity}!`, `${outOf(latest.pct)} (your avg ${outOf(mean(prior))})`, dayKey(latest.t));
-    // Streak
-    const days = [...new Set(rs.map(r => dayKey(r.t)))].map(d => new Date(d).getTime()).sort((a, b) => b - a);
+    if (latest && latest.t >= recentCut) {
+      const prior = done.filter(r => r !== latest).map(r => r.pct);
+      if (prior.length >= T.personalPrior && latest.pct > Math.max(...prior) && latest.pct - mean(prior) >= T.personalJumpPct)
+        add("Personal best", `New personal best in ${latest.activity}!`, `${outOf(latest.pct)} (your avg ${outOf(mean(prior))})`, latest.activity);
+    }
+    // Streak: any saved work counts, finished or not
+    const dayset = new Set(rs.map(r => dayKey(r.t)));
+    if (live) (seenDays[sid] || []).forEach(k => dayset.add(k));
+    const days = [...dayset].map(d => new Date(d).getTime()).sort((a, b) => b - a);
     let streak = 0, cursor = new Date(today).getTime();
     for (const d of days) { const gap = Math.round((cursor - d) / 864e5); if (gap <= 1 || (gap <= 3 && new Date(cursor).getDay() === 1)) { streak++; cursor = d; } else break; }
     if (streak >= T.streakDays) add("Streak", `${streak}-day learning streak!`, `Worked ${streak} days in a row`, "streak" + Math.floor(streak / T.streakDays));
-    // Big improvement
-    if (rs.length >= 8) {
-      const a = mean(rs.slice(-3).map(r => r.pct)), b = mean(rs.slice(-8, -3).map(r => r.pct));
-      if (latest.t >= recentCut && a - b >= T.improvePct) add("Big improvement", `Huge leap forward — up ${pts(a - b)} points!`, `Recent avg ${outOf(a)} vs ${outOf(b)} before`, dayKey(latest.t));
+    // Big improvement: across finished activities, or across Mastery Check retakes on one activity
+    const nR = T.improveRecent, nB = T.improveBefore;
+    let improved = false;
+    if (latest && latest.t >= recentCut && done.length >= nR + nB) {
+      const a = mean(done.slice(-nR).map(r => r.pct)), b = mean(done.slice(-(nR + nB), -nR).map(r => r.pct));
+      if (a - b >= T.improvePct) { add("Big improvement", `Huge leap forward — up ${pts(a - b)} points!`, `Recent avg ${outOf(a)} vs ${outOf(b)} before`, latest.activity); improved = true; }
     }
-    // Persistence
-    const p = recent.find(r => r.attempts >= T.persistAttempts && r.pct >= T.persistScore);
-    if (p) add("Persistence", `Never gave up on ${p.activity}!`, `${p.attempts} tries → ${outOf(p.pct)}`, p.activity + dayKey(p.t));
+    if (!improved) {
+      const r = recent.find(r => r.quizHistory.length >= 2 && r.quizHistory[r.quizHistory.length - 1] - r.quizHistory[0] >= T.improvePct);
+      if (r) { const q = r.quizHistory; add("Big improvement", `Huge leap on the ${r.activity} Mastery Check!`, `Mastery Check ${q[0]}% → ${q[q.length - 1]}%`, r.activity + "|quiz"); }
+    }
+    // Persistence: several Mastery Check attempts, ending strong
+    const p = recent.find(r => r.quizHistory.length >= T.persistAttempts && r.quizHistory[r.quizHistory.length - 1] >= T.persistScore);
+    if (p) add("Persistence", `Never gave up on ${p.activity}!`, `${p.quizHistory.length} Mastery Check tries → ${p.quizHistory[p.quizHistory.length - 1]}%`, p.activity);
   }
   return out;
 }
 
 // ---------- UI + printing ----------
 const STARS = { "Class standout":"🌟", "Personal best":"🏆", "Streak":"🔥", "Big improvement":"🚀", "Persistence":"💪" };
-const labelHTML = c => `<div class="label"><div class="star">${STARS[c.type]}</div><div>
-  <div class="t1">Way to go, ${first(c.name)}!</div><div class="t2">${c.line}</div>
+const labelHTML = c => `<div class="label"><div class="star">${STARS[c.type] || "⭐"}</div><div>
+  <div class="t1">Way to go, ${esc(first(c.name))}!</div><div class="t2">${esc(c.line)}</div>
   <div class="t3">${new Date().toLocaleDateString()}</div></div></div>`;
 
 // ---------- Auto-print ----------
-let records = [], knownKeys = new Set(), unsub = null, lastCands = [];
+let records = [], knownKeys = new Set(), lastCands = [];
 const queue = []; let printing = false; const printLog = [];
 function printLabel(c) {
   $("#printArea").innerHTML = labelHTML(c); window.print();
@@ -343,22 +452,10 @@ function process(firstPass) {
   }
   return cands;
 }
-async function startLive() {
-  const { fs, db } = await loadFirebase(); const F = cfg.fields;
-  const since = new Date(Date.now() - cfg.lookbackDays * 864e5);
-  const q = fs.query(fs.collectionGroup(db, cfg.progressCollection), fs.where(F.timestamp, ">=", since));
-  if (unsub) unsub();
-  let first = true;
-  unsub = fs.onSnapshot(q, snap => {
-    records = snap.docs.map(d => toRecord(d));
-    const c = process(first); first = false;
-    if ($("#status").textContent.startsWith("Looking") || !$("#auto").checked) alertStatus(`Watching live: ${c.length} recognitions from ${records.length} records.`);
-  }, e => alertStatus("Live connection problem: " + e.message));
-}
 $("#simulate").onclick = () => {
   if ($("#source").value !== "demo") return alertStatus("Simulate only works with sample data.");
   const s = records[Math.floor(Math.random() * records.length)];
-  records.push({ ...s, pct: 100, attempts: 5, t: Date.now() });
+  records.push({ ...s, path: s.path + "|sim" + Date.now(), pct: 100, settled: true, quizHistory: [50, 70, 100], t: Date.now() });
   process(false);
 };
 
@@ -366,7 +463,7 @@ function render(cands) {
   $("#list").innerHTML = cands.length ? "" : `<p class="status">No stand-outs right now. Check back after the next activity!</p>`;
   cands.forEach(c => {
     const el = document.createElement("div"); el.className = "card" + (printed[c.key] ? " printed" : "");
-    el.innerHTML = `<div class="who"><span class="tag">${c.type}</span><b>${c.name}</b><div class="why">${c.detail}</div></div>${labelHTML(c)}<button class="primary">${printed[c.key] ? "Print again" : "Print label"}</button>`;
+    el.innerHTML = `<div class="who"><span class="tag">${esc(c.type)}</span><b>${esc(c.name)}</b><div class="why">${esc(c.detail)}</div></div>${labelHTML(c)}<button class="primary">${printed[c.key] ? "Print again" : "Print label"}</button>`;
     el.querySelector("button").onclick = () => {
       printLabel(c); el.classList.add("printed"); el.querySelector("button").textContent = "Print again";
     };
@@ -376,13 +473,22 @@ function render(cands) {
 $("#refresh").onclick = async () => {
   try {
     alertStatus("Looking for stand-outs…"); knownKeys = new Set();
-    if ($("#source").value === "live") return startLive();
-    if (unsub) { unsub(); unsub = null; }
+    if ($("#source").value === "live") return await startLive();
+    stopLive();
     records = demoRecords();
     const c = process(true);
     alertStatus(`${c.length} recognition${c.length === 1 ? "" : "s"} found from ${records.length} activity records.`);
   } catch (e) { alertStatus("Couldn't load data: " + e.message); }
 };
+function showGate(msg, err, buttonText) {
+  stopLive();
+  $("#appShell").hidden = true;
+  $("#authGate").hidden = false;
+  $("#gateMsg").textContent = msg;
+  $("#gateErr").textContent = err || "";
+  $("#gateSignIn").textContent = buttonText;
+  $("#gateSignIn").hidden = false;
+}
 async function initAuth() {
   const isLocal = ["localhost", "127.0.0.1"].includes(location.hostname);
   if (isLocal && new URLSearchParams(location.search).has("demo")) {
@@ -393,31 +499,20 @@ async function initAuth() {
   }
   try {
     const { auth, authI } = await loadFirebase();
-    auth.onAuthStateChanged(authI, user => {
-      if (user && isTeacher(user)) {
-        $("#authGate").hidden = true;
-        $("#appShell").hidden = false;
-        $("#userBadge").textContent = user.email;
-        $("#userBadge").hidden = false;
-        $("#signout").hidden = false;
-        $("#refresh").click();
-      } else if (user) {
-        if (unsub) { unsub(); unsub = null; }
-        $("#appShell").hidden = true;
-        $("#authGate").hidden = false;
-        $("#gateMsg").textContent = `Signed in as ${user.email}, which is not authorized for this tool.`;
-        $("#gateErr").textContent = "Teacher OAuth account required.";
-        $("#gateSignIn").textContent = "Switch Google account";
-        $("#gateSignIn").hidden = false;
-      } else {
-        if (unsub) { unsub(); unsub = null; }
-        $("#appShell").hidden = true;
-        $("#authGate").hidden = false;
-        $("#gateMsg").textContent = "Sign in with your teacher Google account to open Rec-IGNITION.";
-        $("#gateErr").textContent = "";
-        $("#gateSignIn").textContent = "Sign in with Google";
-        $("#gateSignIn").hidden = false;
-      }
+    auth.onAuthStateChanged(authI, async user => {
+      if (!user) return showGate("Sign in with your teacher Google account to open Rec-IGNITION.", "", "Sign in with Google");
+      $("#gateMsg").textContent = "Checking teacher access…";
+      $("#gateSignIn").hidden = true;
+      let ok = false;
+      try { ok = await hasTeacherAccess(); }
+      catch (e) { return showGate("Couldn't check access to class data.", e.message, "Try again"); }
+      if (!ok) return showGate(`Signed in as ${user.email}, which is not authorized for this tool.`, "Teacher account required.", "Switch Google account");
+      $("#authGate").hidden = true;
+      $("#appShell").hidden = false;
+      $("#userBadge").textContent = user.email;
+      $("#userBadge").hidden = false;
+      $("#signout").hidden = false;
+      $("#refresh").click();
     });
   } catch (e) {
     $("#gateMsg").textContent = "Authentication could not initialize.";

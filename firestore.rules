@@ -87,6 +87,12 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Collection-group reads across every "students" subcollection (used by the teacher
+    // recognition tool, admin/Rec-ignition). Admin only; covers student_results and practice_results.
+    match /{path=**}/students/{studentId} {
+      allow list: if isAdmin();
+    }
+
     // 5. Archived Flat Results (doc ID is "<studentId>_<assignment>")
     match /student_results_archive/{docId} {
       allow get, create, update: if ownsPrefixedDoc(docId);
