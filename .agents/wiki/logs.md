@@ -3,6 +3,12 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-15 — Eureka! Physics Videos Page Redesign
+**Patterns Followed**: `classroom-projection-and-high-contrast-theming.md`, `mobile-responsive.md`.
+**Files Updated**: `eureka-videos.html`, `partials/footer.html`.
+**Notes**:
+- Redesigned `eureka-videos.html` with a compact hero header, 16:9 theater stage with Prev/Next and live Now Playing bar, topic filter pills (`All Episodes`, `Motion & Forces`, `Work & Energy`, `Heat & Matter`), live search with result count, episode numbering + `localStorage` watched badges, skeleton loading state + blocked-YouTube fallback, and full Light/Dark mode support via `<meta name="color-scheme">` and `light-dark()`.
+
 ## 2026-11-15 — Classroomscreen Live Participation & Positive Statement Billboard
 **Patterns Updated**: `classroom-projection-and-high-contrast-theming.md`.
 **Files Created**: `admin/classroomscreen_widget.html`.
