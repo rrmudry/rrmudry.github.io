@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="color-scheme" content="light dark" />
+  <meta name="color-scheme" content="dark" />
   <script>
     (function () {
       try {
@@ -32,7 +32,7 @@
 
   <style>
     :root {
-      color-scheme: light dark;
+      color-scheme: dark;
 
       /* Light / Dark adaptive design tokens */
       --ev-bg: light-dark(#f1f5f9, #070b18);
@@ -87,28 +87,6 @@
         --ev-focus: #38bdf8;
       }
 
-      @media (prefers-color-scheme: light) {
-        :root:not(:has(> head > meta[name="color-scheme"][content="dark"])) {
-          --ev-bg: #f1f5f9;
-          --ev-surface: #ffffff;
-          --ev-surface-2: #f8fafc;
-          --ev-header-bg: rgba(255, 255, 255, 0.96);
-          --ev-ink: #0f172a;
-          --ev-ink-muted: #334155;
-          --ev-ink-dim: #475569;
-          --ev-border: #cbd5e1;
-          --ev-border-strong: #0284c7;
-          --ev-accent: #ea580c;
-          --ev-accent-strong: #c2410c;
-          --ev-accent-ink: #ffffff;
-          --ev-cyan: #0284c7;
-          --ev-emerald: #059669;
-          --ev-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-          --ev-card-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
-          --ev-focus: #0284c7;
-        }
-      }
-
       :root:has(> head > meta[name="color-scheme"][content="light"]) {
         --ev-bg: #f1f5f9;
         --ev-surface: #ffffff;
@@ -142,12 +120,6 @@
     /* Tone down background sketch in light mode so contrast stays crisp */
     :root:has(> head > meta[name="color-scheme"][content="light"]) body::before {
       opacity: 0.07;
-    }
-
-    @media (prefers-color-scheme: light) {
-      :root:not(:has(> head > meta[name="color-scheme"][content="dark"])) body::before {
-        opacity: 0.07;
-      }
     }
 
     /* Adapt shared header & footer partials to current scheme */
@@ -297,29 +269,20 @@
     }
 
     /* Theme toggle icon branching without JS class dependency */
-    .ev-theme-icon-light,
+    .ev-theme-icon-light {
+      display: inline;
+    }
+
     .ev-theme-icon-dark {
       display: none;
     }
 
-    :root:has(> head > meta[name="color-scheme"][content="dark"]) .ev-theme-icon-light {
-      display: inline;
+    :root:has(> head > meta[name="color-scheme"][content="light"]) .ev-theme-icon-light {
+      display: none;
     }
 
     :root:has(> head > meta[name="color-scheme"][content="light"]) .ev-theme-icon-dark {
       display: inline;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root:not(:has(> head > meta[name="color-scheme"][content="light"])) .ev-theme-icon-light {
-        display: inline;
-      }
-    }
-
-    @media (prefers-color-scheme: light) {
-      :root:not(:has(> head > meta[name="color-scheme"][content="dark"])) .ev-theme-icon-dark {
-        display: inline;
-      }
     }
 
     /* Theater Section */
@@ -1126,40 +1089,23 @@
       });
     };
 
-    /* Theme Toggle following modern-web-guidance */
+    /* Theme Toggle (dark mode default) */
     function initThemeToggle() {
       const btn = document.getElementById("btn-theme-toggle");
       const meta = document.querySelector('meta[name="color-scheme"]');
       if (!btn || !meta) return;
 
-      const getSystemTheme = () =>
-        window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-
-      const getRenderedTheme = () => {
-        const c = meta.content;
-        if (c === "light" || c === "dark") return c;
-        return getSystemTheme();
-      };
-
       btn.addEventListener("click", () => {
-        const target = getRenderedTheme() === "dark" ? "light" : "dark";
-        const system = getSystemTheme();
+        const next = meta.content === "light" ? "dark" : "light";
+        meta.content = next;
         try {
-          if (target === system) {
-            localStorage.removeItem("color-scheme");
-            meta.content = "light dark";
-          } else {
-            localStorage.setItem("color-scheme", target);
-            meta.content = target;
-          }
-        } catch {
-          meta.content = target;
-        }
+          localStorage.setItem("color-scheme", next);
+        } catch {}
       });
 
       window.addEventListener("storage", (e) => {
         if (e.key === "color-scheme") {
-          meta.content = e.newValue === "light" || e.newValue === "dark" ? e.newValue : "light dark";
+          meta.content = e.newValue === "light" ? "light" : "dark";
         }
       });
     }
