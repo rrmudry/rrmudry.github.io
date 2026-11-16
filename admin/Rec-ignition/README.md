@@ -57,7 +57,7 @@ Always very positive. The format is "Way to go, [first name]!" plus one upbeat l
 
 ## Printing
 
-- **Printer:** Brother QL-710W over USB with a 29mm (1.1") continuous roll (DK-2210). Labels are laid out as a 90mm × 29mm strip.
+- **Printer:** Brother QL-710W over USB with a 29mm (1.1") continuous roll (DK-2210). Labels are laid out as a 2" × 29mm (50.8mm × 29mm) strip.
 - **Method:** Chrome's print dialog to the normal Brother driver.
 - **Do not switch to WebUSB or Zadig.** The teacher also uses P-touch Editor, and Zadig would replace the driver and break it.
 
