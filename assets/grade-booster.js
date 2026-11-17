@@ -423,7 +423,10 @@
         category = 'done';
       }
 
-      const currentPts = assignedGrade !== null ? assignedGrade : 0;
+      const floorPts = Number((maxPoints * 0.5).toFixed(2));
+      const rawPts = assignedGrade !== null ? assignedGrade : 0;
+      const currentPts = Math.max(rawPts, floorPts);
+      const floorApplied = rawPts < floorPts;
       const potentialGain = Math.max(0, Number((maxPoints - currentPts).toFixed(2)));
       // Counts in current grade denominator if graded OR past due
       const inCurrentGrade = assignedGrade !== null || isPastDue;
@@ -432,7 +435,10 @@
         id: cw.id,
         title: cw.title || 'Untitled Assignment',
         maxPoints,
+        rawPts,
         currentPts,
+        floorPts,
+        floorApplied,
         assignedGrade,
         draftGrade,
         potentialGain,
@@ -478,9 +484,12 @@
       .filter((r) => r.activityUrl && r.title)
       .map((r) => {
         const maxPoints = Number(r.maxPoints || 10);
+        const floorPts = Number((maxPoints * 0.5).toFixed(2));
         const appScoreData = getAppScorePct(r);
         const pct = appScoreData ? appScoreData.pct : null;
-        const currentPts = pct !== null ? Number(((pct / 100) * maxPoints).toFixed(2)) : 0;
+        const rawPts = pct !== null ? Number(((pct / 100) * maxPoints).toFixed(2)) : 0;
+        const currentPts = Math.max(rawPts, floorPts);
+        const floorApplied = rawPts < floorPts;
         const potentialGain = Math.max(0, Number((maxPoints - currentPts).toFixed(2)));
 
         let category = 'missing';
@@ -492,8 +501,11 @@
           id: r.id,
           title: r.title,
           maxPoints,
+          rawPts,
           currentPts,
-          assignedGrade: pct !== null ? currentPts : null,
+          floorPts,
+          floorApplied,
+          assignedGrade: pct !== null ? rawPts : null,
           draftGrade: null,
           potentialGain,
           subState: pct !== null ? 'RETURNED' : 'NEW',
@@ -820,9 +832,12 @@
     const checked = state.selectedIds.has(item.id);
     const badgeInfo = getCategoryBadge(item);
     const dueStr = item.due ? item.due.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'No due date';
-    const scoreStr = item.assignedGrade !== null ? `${item.assignedGrade} / ${item.maxPoints} pts` : `0 / ${item.maxPoints} pts`;
+    const rawScoreStr = item.assignedGrade !== null ? `${item.assignedGrade} / ${item.maxPoints} pts` : `0 / ${item.maxPoints} pts`;
+    const scoreStr = item.floorApplied
+      ? `${rawScoreStr} (50% min → ${item.currentPts} pts)`
+      : rawScoreStr;
 
-    const appSyncNote = (item.appScoreData && item.appScoreData.pct > (item.currentPts / item.maxPoints) * 100)
+    const appSyncNote = (item.appScoreData && item.appScoreData.pct > ((item.rawPts ?? item.currentPts) / item.maxPoints) * 100)
       ? `<span class="sync-hint">✓ App score saved (${item.appScoreData.pct}%) — awaiting Classroom sync</span>`
       : '';
 
