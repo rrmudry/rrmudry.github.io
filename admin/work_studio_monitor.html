@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Mechanical Work Studio Class Progress</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/unit2-favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Built from work_studio_monitor.src.html by scripts/inline-studio.js. Edit the source files, not this page. -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
+  <style>
+    :root {
+      --bg: #f1f5f9; --card: #ffffff; --line: #cbd5e1; --line-soft: #e2e8f0;
+      --text: #0f172a; --muted: #475569; --bar: #0284c7; --good: #15803d; --warn: #b45309; --bad: #be123c;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #070d19; --card: #0f172a; --line: #334155; --line-soft: #1e293b; --text: #f8fafc; --muted: #cbd5e1; --bar: #38bdf8; --good: #34d399; --warn: #fbbf24; --bad: #fb7185; }
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Outfit, system-ui, sans-serif; line-height: 1.4; }
+    header { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: var(--card); border-bottom: 1px solid var(--line); }
+    h1 { margin: 0; font-size: 1.25rem; font-weight: 800; }
+    h2 { margin: 0 0 0.6rem; font-size: 1rem; font-weight: 800; }
+    .sub { margin: 0; color: var(--muted); font-size: 0.85rem; }
+    main { padding: 1rem; max-width: 92rem; margin: 0 auto; display: grid; gap: 1rem; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 0.8rem; padding: 0.9rem; min-width: 0; }
+    select, button { font: inherit; font-weight: 700; color: var(--text); background: var(--card); border: 1px solid var(--line); border-radius: 0.5rem; padding: 0.3rem 0.6rem; }
+    button { cursor: pointer; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0.75rem; }
+    .tile strong { display: block; font-size: 1.8rem; font-variant-numeric: tabular-nums; }
+    .tile span { font-size: 0.85rem; color: var(--muted); }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr)); gap: 1rem; }
+    .bar-row { display: grid; grid-template-columns: 11rem 1fr 3.5rem; gap: 0.5rem; align-items: center; margin: 0.3rem 0; font-size: 0.9rem; }
+    .bar { height: 0.8rem; background: var(--line-soft); border-radius: 999px; overflow: hidden; }
+    .bar span { display: block; height: 100%; background: var(--bar); border-radius: 0 4px 4px 0; }
+    .val { font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+    .mistake { padding: 0.35rem 0; border-bottom: 1px solid var(--line-soft); font-size: 0.9rem; }
+    .mistake:last-child { border: 0; }
+    .mistake b { margin-right: 0.35rem; font-variant-numeric: tabular-nums; }
+    .mistake small { display: block; color: var(--muted); }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+    th { text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); padding: 0.35rem 0.5rem; border-bottom: 2px solid var(--line); white-space: nowrap; }
+    td { padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--line-soft); white-space: nowrap; }
+    td.name { font-weight: 700; }
+    td.num { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .pill { display: inline-block; min-width: 1.5rem; text-align: center; margin-right: 0.15rem; border: 1px solid var(--line); border-radius: 0.3rem; font-size: 0.72rem; font-weight: 700; color: var(--muted); padding: 0 0.25rem; }
+    .pill.on { border-color: var(--good); color: var(--good); }
+    .weak { color: var(--warn); font-size: 0.82rem; white-space: normal; min-width: 10rem; }
+    .none { color: var(--muted); }
+    td.low { color: var(--warn); }
+    .flag { color: var(--warn); font-size: 0.75rem; }
+    .filters { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .only-flagged { font-weight: 700; font-size: 0.9rem; }
+    .note { margin: 0 0 0.5rem; font-size: 0.85rem; color: var(--muted); }
+    .check { white-space: normal; min-width: 14rem; font-size: 0.82rem; color: var(--bad); font-weight: 600; }
+    .check div { margin: 0.1rem 0; }
+    tr.flagged td.name { color: var(--bad); }
+    .gate { text-align: center; padding: 3rem 1rem; }
+    .demo { background: var(--warn); color: #fff; font-weight: 700; text-align: center; padding: 0.25rem; }
+    .err { color: var(--bad); font-weight: 700; }
+    sub { font-size: 0.72em; }
+  </style>
+</head>
+<body>
+  <div id="demoBanner" class="demo" hidden>Sample data, not real students</div>
+  <header>
+    <div>
+      <h1>📦 Mechanical Work Studio Class Progress</h1>
+      <p class="sub">Unit 3 · Day 2 · Updates live as students work</p>
+    </div>
+    <div class="filters" id="filters" hidden>
+      <label class="only-flagged"><input type="checkbox" id="onlyFlagged"> Only records to check</label>
+      <label>Class <select id="course"><option value="all">All classes</option><option value="honors">Honors</option><option value="cp">CP</option><option value="conceptual">Conceptual</option></select></label>
+      <label>Period <select id="period"><option value="all">All periods</option></select></label>
+      <a href="sprint_progress_3d.html?assignment=unit3_day2_work_studio" style="font:inherit;font-weight:700;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:0.5rem;padding:0.3rem 0.6rem;text-decoration:none;">🏟️ 3D 100m Dash</a>
+      <button id="btnSignOut" type="button">Sign out</button>
+    </div>
+  </header>
+
+  <section id="gate" class="gate">
+    <p id="gateMsg">Checking sign-in…</p>
+    <button id="btnSignIn" type="button" hidden>Sign in with Google</button>
+    <p id="gateErr" class="err"></p>
+  </section>
+
+  <main id="main" hidden>
+    <section class="tiles" id="tiles"></section>
+    <div class="two">
+      <section class="card">
+        <h2>Skills on each student's latest Mastery Check</h2>
+        <div id="skills"></div>
+      </section>
+      <section class="card">
+        <h2>Most common mistakes (reteach these first)</h2>
+        <div id="mistakes"></div>
+      </section>
+    </div>
+    <section class="card">
+      <h2>Students</h2>
+      <p class="note">⚠ means a record is worth a look. It is not proof of cheating, and a careful cheater may not be flagged. A short in-person check settles it.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Student</th><th>Per.</th><th>Class</th><th>Grade /10</th><th title="Questions answered correctly on the first try">First try</th><th title="Trials recorded in the data table">Trials</th><th>Min.</th><th>Parts</th><th>Check record</th><th>Mastery best</th><th>Attempts</th><th>Needs work</th><th>Last active</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+// === Unit_2/vector_decomposition_studio/js/engine.js ===
+// Vector Decomposition Studio — Physics, scenario generators, answer checking, diagnostics, quiz builder
+// Angle θ is measured up from the ground unless a scenario says fromVertical.
+// Every wrong answer is compared against known mistakes so the student hears WHY, not just "wrong".
+// Questions are plain JSON so an unfinished Mastery Check can be saved and resumed with the same numbers.
+
+(function () {
+  const rad = d => d * Math.PI / 180;
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+
+  const Phys = {
+    vx: (v0, th) => v0 * Math.cos(rad(th)),
+    vy: (v0, th) => v0 * Math.sin(rad(th)),
+    speed: (x, y) => Math.hypot(x, y),
+    angle: (x, y) => Math.atan2(y, x) * 180 / Math.PI
+  };
+
+  function fmt(v, d) {
+    const s = Number(v).toFixed(d);
+    return /^-0\.?0*$/.test(s) ? s.slice(1) : s;
+  }
+  // Answers students compute: 1 decimal, 2 when small
+  const fmtAns = v => fmt(v, Math.abs(v) < 10 ? 2 : 1);
+
+  const near = (v, target, rel = 0.02, abs = 0.1) => Math.abs(v - target) <= Math.max(Math.abs(target) * rel, abs);
+
+  function parseNum(raw) {
+    const v = parseFloat(String(raw).replace(',', '.').replace(/[−–]/g, '-').replace(/[^0-9.\-eE]/g, ''));
+    return isFinite(v) ? v : null;
+  }
+
+  // ---------- Scenario contexts: the words never contain the numbers (those live on the picture) ----------
+  const THINGS = [
+    { icon: '⚽', name: 'soccer ball', verb: 'is kicked' },
+    { icon: '🏀', name: 'basketball', verb: 'is shot' },
+    { icon: '🏈', name: 'football', verb: 'is punted' },
+    { icon: '⛳', name: 'golf ball', verb: 'is hit' },
+    { icon: '🎾', name: 'tennis ball', verb: 'is lobbed' },
+    { icon: '🐸', name: 'frog', verb: 'jumps' },
+    { icon: '💣', name: 'cannonball', verb: 'is fired' },
+    { icon: '🚀', name: 'toy rocket', verb: 'is launched' }
+  ];
+
+  // No angles close to 45° in calculations: sin and cos must give clearly different answers.
+  const EASY_ANGLES = [30, 60];
+  const ALL_ANGLES = [15, 20, 25, 30, 35, 37, 40, 50, 53, 55, 60, 65, 70, 75];
+  const FIVE_ANGLES = [20, 25, 30, 35, 40, 50, 55, 60, 65, 70];
+  const EASY_SPEEDS = [10, 20, 30, 40];
+  const ALL_SPEEDS = [12, 14, 15, 16, 18, 20, 22, 24, 25, 26, 28, 30, 32, 35, 36, 40, 45, 50];
+
+  function launch(level = 2, not) {
+    let sc;
+    do {
+      sc = {
+        v0: pick(level <= 1 ? EASY_SPEEDS : ALL_SPEEDS),
+        th: pick(level <= 1 ? EASY_ANGLES : level === 'five' ? FIVE_ANGLES : ALL_ANGLES),
+        thing: Math.floor(Math.random() * THINGS.length)
+      };
+    } while (not && not.v0 === sc.v0 && not.th === sc.th);
+    sc.x = Phys.vx(sc.v0, sc.th);
+    sc.y = Phys.vy(sc.v0, sc.th);
+    return sc;
+  }
+
+  // Whole-number arrows that land exactly on grid corners, for reading squares with no trig
+  const TRIPLES = [[8, 6], [6, 8], [12, 5], [5, 12], [12, 9], [9, 12], [15, 8], [8, 15], [4, 3], [3, 4], [16, 12], [12, 16]];
+  function gridArrow(scales = [1], not) {
+    let sc;
+    do {
+      const [gx, gy] = pick(TRIPLES);
+      const scale = pick(scales);
+      sc = { gx, gy, scale, x: gx * scale, y: gy * scale, v0: Math.hypot(gx, gy) * scale, thing: Math.floor(Math.random() * THINGS.length) };
+    } while (not && not.gx === sc.gx && not.gy === sc.gy && not.scale === sc.scale);
+    sc.th = Phys.angle(sc.x, sc.y);
+    return sc;
+  }
+
+  // ---------- Worked solutions ----------
+  const fn = asked => asked === 'x' ? 'cos' : 'sin';
+  const sym = asked => asked === 'x' ? 'v_0x' : 'v_0y';
+  const work = (asked, sc) =>
+    `${sym(asked)} = v_0 × ${fn(asked)}(θ) = ${sc.v0} m/s × ${fn(asked)}(${sc.th}°) = ${fmtAns(asked === 'x' ? sc.x : sc.y)} m/s`;
+
+  // ---------- Diagnostics: [id, test(v, sc), message(sc)] — first match wins. Ids feed the teacher monitor. ----------
+  function calcMistakes(asked) {
+    const f = asked === 'x' ? Math.cos : Math.sin;
+    const part = asked === 'x' ? 'sideways' : 'upward';
+    const other = asked === 'x' ? 'upward' : 'sideways';
+    const value = sc => f(rad(sc.th));
+    return [
+      ['swap', (v, s) => near(v, asked === 'x' ? s.y : s.x),
+        () => `You found the ${other} part. The ${part} part is the side that ${asked === 'x' ? 'touches' : 'is across from'} θ, so it uses ${fn(asked)}.`],
+      ['radians', (v, s) => near(v, s.v0 * f(s.th)) || near(v, f(s.th)),
+        () => `Your calculator is in radian mode. Switch it to degrees (DEG) and try again.`],
+      ['no_speed', (v, s) => near(v, value(s), 0.03, 0.01),
+        s => `${fn(asked)}(${s.th}°) only tells how much of the speed, as a decimal. Multiply it by v_0 to get m/s.`],
+      ['divided', (v, s) => near(v, s.v0 / value(s)),
+        () => `You divided. A part can never be bigger than the whole speed. Multiply v_0 by the decimal.`],
+      ['tan', (v, s) => near(v, s.v0 * Math.tan(rad(s.th))),
+        () => `That is tangent. Use sin or cos, because v_0 is the long side (the hypotenuse) of the triangle.`],
+      ['no_trig', (v, s) => near(v, s.v0 * s.th),
+        () => `You multiplied by the angle itself. Multiply by ${fn(asked)} of the angle.`],
+      ['added', (v, s) => near(v, s.v0 + value(s)),
+        () => `You added. Multiply the speed by the decimal: v_0 × ${fn(asked)}(θ).`],
+      ['whole_speed', (v, s) => near(v, s.v0),
+        () => `That is the whole launch speed v_0. Only part of it goes ${asked === 'x' ? 'sideways' : 'up'}.`],
+      ['angle_read', (v, s) => near(v, s.th),
+        () => `That is the angle. The answer is a speed in m/s. Use v_0 × ${fn(asked)}(θ).`],
+      ['decimal', (v, s) => { const t = asked === 'x' ? s.x : s.y; return near(v, t * 10) || near(v, t / 10); },
+        () => `Your digits are right but the decimal point moved. Check your typing.`]
+    ];
+  }
+
+  // Check a calculated component. Returns { ok, msg, mistake }.
+  function checkCalc(asked, raw, sc) {
+    const v = parseNum(raw);
+    if (v === null) return { ok: null, msg: 'Type a number first.' };
+    const target = asked === 'x' ? sc.x : sc.y;
+    if (near(v, target)) return { ok: true, msg: `<span class="formula">${work(asked, sc)}</span>` };
+    const hit = calcMistakes(asked).find(([, test]) => test(v, sc));
+    const why = hit ? hit[2](sc) : 'Not quite. Check each step: which function, then multiply by v_0.';
+    return {
+      ok: false,
+      mistake: hit ? hit[0] : 'other',
+      msg: `${why}<br><span class="worked">The right way: <span class="formula">${work(asked, sc)}</span></span>`
+    };
+  }
+
+  // ---------- Mastery Check questions ----------
+  // Each is plain JSON: { kind, skill, sc, asked?, order? }. QUESTION[kind] knows how to show and grade it.
+  const SKILLS = {
+    read: { label: 'Read parts off a grid' },
+    concept: { label: 'Angle and the parts' },
+    choose: { label: 'Choose sin or cos' },
+    calc_x: { label: 'Calculate v_0x' },
+    calc_y: { label: 'Calculate v_0y' },
+    sense: { label: 'Does the answer make sense?' },
+    honors: { label: 'Honors challenges' }
+  };
+
+  function shuffled(n) {
+    const a = [...Array(n).keys()];
+    for (let i = n - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  const QUESTION = {
+    // Read one part off a grid (the scale changes, so students must read the key)
+    read: {
+      make: () => ({ kind: 'read', skill: 'read', asked: pick(['x', 'y']), sc: gridArrow([1, 2, 5]) }),
+      type: 'num',
+      text: q => `Use the grid. Read the scale first. How fast is the ${q.asked === 'x' ? 'sideways' : 'upward'} part, ${sym(q.asked)}?`,
+      scene: q => ({ mode: 'grid', sc: q.sc, showArrow: true, showX: q.asked === 'x', showY: q.asked === 'y', keyLabel: true }),
+      unit: 'm/s',
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const t = q.asked === 'x' ? q.sc.x : q.sc.y;
+        if (v === null) return { ok: false, msg: `No answer. ${sym(q.asked)} = ${t} m/s.`, mistake: 'blank' };
+        if (near(v, t, 0, 0.01)) return { ok: true, msg: `${sym(q.asked)} = ${t} m/s.` };
+        const squares = q.asked === 'x' ? q.sc.gx : q.sc.gy;
+        if (near(v, squares, 0, 0.01) && q.sc.scale !== 1) {
+          return { ok: false, mistake: 'scale', msg: `You counted ${squares} squares, but each square is worth ${q.sc.scale} m/s here. ${squares} × ${q.sc.scale} = ${t} m/s.` };
+        }
+        if (near(v, q.asked === 'x' ? q.sc.y : q.sc.x, 0, 0.01)) {
+          return { ok: false, mistake: 'swap', msg: `You read the other part. ${q.asked === 'x' ? 'Sideways is along the ground' : 'Upward is the height of the tip'}. ${sym(q.asked)} = ${t} m/s.` };
+        }
+        return { ok: false, mistake: 'read', msg: `Count squares, then multiply by the scale. ${sym(q.asked)} = ${t} m/s.` };
+      }
+    },
+
+    // Which part is bigger at this angle?
+    concept: {
+      make: () => {
+        const th = pick([15, 20, 30, 45, 60, 70, 75]);
+        return { kind: 'concept', skill: 'concept', sc: { v0: pick([20, 30, 40]), th, thing: Math.floor(Math.random() * THINGS.length) }, order: shuffled(3) };
+      },
+      type: 'mc',
+      text: () => 'Look at the launch angle. Which part of the launch velocity is bigger?',
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: false, showY: false, labelV0: false }),
+      options: () => [{ t: 'The sideways part, v_0x', id: 'x' }, { t: 'The upward part, v_0y', id: 'y' }, { t: 'They are equal', id: 'eq' }],
+      grade: (q, id) => {
+        const right = q.sc.th === 45 ? 'eq' : q.sc.th < 45 ? 'x' : 'y';
+        const why = q.sc.th === 45 ? 'At 45° the speed splits evenly.' : q.sc.th < 45 ? 'A low angle aims mostly sideways, so v_0x is bigger.' : 'A steep angle aims mostly up, so v_0y is bigger.';
+        return { ok: id === right, msg: why, mistake: id === right ? null : 'angle_concept' };
+      }
+    },
+
+    // Pick the correct setup from symbols
+    choose: {
+      make: () => ({ kind: 'choose', skill: 'choose', asked: pick(['x', 'y']), sc: launch(2), order: shuffled(4) }),
+      type: 'mc',
+      text: q => `Which setup finds the part marked with "?" in the picture?`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: q.asked === 'x', showY: q.asked === 'y', mark: q.asked }),
+      options: () => [
+        { t: 'v_0 × cos(θ)', id: 'x', formula: true }, { t: 'v_0 × sin(θ)', id: 'y', formula: true },
+        { t: 'v_0 ÷ cos(θ)', id: 'dc', formula: true }, { t: 'v_0 × tan(θ)', id: 't', formula: true }
+      ],
+      grade: (q, id) => {
+        const ok = id === q.asked;
+        return {
+          ok,
+          mistake: ok ? null : (id === 'x' || id === 'y') ? 'swap' : id === 't' ? 'tan' : 'divided',
+          msg: q.asked === 'x' ? 'The sideways side touches θ (adjacent), so it uses cos.' : 'The upward side is across from θ (opposite), so it uses sin.'
+        };
+      }
+    },
+
+    calc_x: {
+      make: () => ({ kind: 'calc_x', skill: 'calc_x', asked: 'x', sc: launch(2) }),
+      type: 'num',
+      text: q => `A ${THINGS[q.sc.thing].name} ${THINGS[q.sc.thing].verb}. Use the picture to find the sideways part, v_0x.`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: true, showY: false, mark: 'x' }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, q.sc.th] }),
+      grade: (q, raw) => gradeCalc('x', raw, q.sc)
+    },
+
+    calc_y: {
+      make: () => ({ kind: 'calc_y', skill: 'calc_y', asked: 'y', sc: launch(2) }),
+      type: 'num',
+      text: q => `A ${THINGS[q.sc.thing].name} ${THINGS[q.sc.thing].verb}. Use the picture to find the upward part, v_0y.`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: false, showY: true, mark: 'y' }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, q.sc.th] }),
+      grade: (q, raw) => gradeCalc('y', raw, q.sc)
+    },
+
+    // A claimed answer: possible or not, and why?
+    sense: {
+      make: () => {
+        const sc = launch(2);
+        const bad = Math.random() < 0.5;
+        const asked = pick(['x', 'y']);
+        // Bad claims are bigger than the launch speed, a mistake students can catch without a calculator
+        const claim = bad ? Math.round(sc.v0 * pick([1.2, 1.4, 1.5])) : Math.round(asked === 'x' ? sc.x : sc.y);
+        return { kind: 'sense', skill: 'sense', asked, sc, claim, bad, order: shuffled(3) };
+      },
+      type: 'mc',
+      text: q => `A student says the ${q.asked === 'x' ? 'sideways' : 'upward'} part of this launch is ${q.claim} m/s. Without calculating, could that be right?`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: q.asked === 'x', showY: q.asked === 'y', mark: q.asked }),
+      options: () => [
+        { t: 'No. A part cannot be bigger than the launch speed.', id: 'no' },
+        { t: 'Yes. It could be right, because it is smaller than the launch speed.', id: 'yes' },
+        { t: 'Yes. Parts are always bigger than the launch speed.', id: 'bigger' }
+      ],
+      grade: (q, id) => {
+        const right = q.bad ? 'no' : 'yes';
+        return {
+          ok: id === right,
+          mistake: id === right ? null : 'part_bigger',
+          msg: q.bad ? `v_0 is the long side of the triangle, so each part must be smaller than ${q.sc.v0} m/s.` : `${q.claim} m/s is smaller than ${q.sc.v0} m/s, so it passes the check.`
+        };
+      }
+    },
+
+    // ---------- Honors (Period 0 only) ----------
+    h_vertical: {
+      make: () => ({ kind: 'h_vertical', skill: 'honors', asked: pick(['x', 'y']), sc: Object.assign(launch(2), {}) }),
+      type: 'num',
+      text: q => `Careful: this angle is measured from the vertical, not the ground. Find ${sym(q.asked)}.`,
+      hints: () => ['Look at which side touches the marked angle. Here it is the upward side.', 'The side that touches the angle uses cos. The side across from it uses sin.'],
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: q.asked === 'x', showY: q.asked === 'y', mark: q.asked, fromVertical: true }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, 90 - q.sc.th] }),
+      // sc.th is the angle from the GROUND; the picture shows 90° − th from the vertical.
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const t = q.asked === 'x' ? q.sc.x : q.sc.y;
+        const shown = 90 - q.sc.th;
+        const right = `${sym(q.asked)} = ${q.sc.v0} m/s × ${q.asked === 'x' ? 'sin' : 'cos'}(${shown}°) = ${fmtAns(t)} m/s`;
+        if (v !== null && near(v, t)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const flipped = v !== null && near(v, q.asked === 'x' ? q.sc.y : q.sc.x);
+        return {
+          ok: false,
+          mistake: flipped ? 'vertical_angle' : 'other',
+          msg: `${flipped ? `You used the ground rule. Here the UPWARD side touches the angle, so cos goes with v_0y and sin goes with v_0x.<br>` : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>`
+        };
+      }
+    },
+
+    h_down: {
+      make: () => ({ kind: 'h_down', skill: 'honors', asked: 'y', sc: launch(2) }),
+      type: 'num',
+      text: () => 'This launch aims BELOW the horizontal. Up is positive and down is negative. Calculate how fast the vertical part is. Then choose its direction.',
+      signed: true,
+      hints: () => ['Use v_0 × sin(θ) in the calculator. You do not need a minus sign there.', 'Look at the arrow. Which way does the vertical part point? Choose Up or Down.'],
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: false, showY: true, mark: 'y', downward: true }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, q.sc.th] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const t = -q.sc.y;
+        const right = `v_0y = −(${q.sc.v0} m/s × sin(${q.sc.th}°)) = ${fmtAns(t).replace('-', '−')} m/s`;
+        if (v !== null && near(v, t)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const noSign = v !== null && near(v, q.sc.y);
+        return { ok: false, mistake: noSign ? 'sign' : 'other', msg: `${noSign ? 'Right size, wrong sign. Downward is negative.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    },
+
+    h_speed: {
+      make: () => ({ kind: 'h_speed', skill: 'honors', sc: gridArrow([1, 2]) }),
+      type: 'num',
+      text: () => 'Work backward. Read both parts off the grid, then find the launch speed v_0.',
+      hints: () => ['The parts are at a right angle, so use the Pythagorean theorem.', 'On the calculator: press the √ button. Inside it, type the first part, press a², press +, type the second part, press a².'],
+      scene: q => ({ mode: 'grid', sc: q.sc, showArrow: true, showX: true, showY: true, keyLabel: true }),
+      unit: 'm/s',
+      needs: q => ({ fn: 'sqrt', nums: [q.sc.x, q.sc.y] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const right = `v_0 = √(v_0x² + v_0y²) = √(${q.sc.x}² + ${q.sc.y}²) = ${fmtAns(q.sc.v0)} m/s`;
+        if (v !== null && near(v, q.sc.v0)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const added = v !== null && near(v, q.sc.x + q.sc.y);
+        return { ok: false, mistake: added ? 'added_parts' : 'other', msg: `${added ? 'You added the parts. They are at a right angle, so use the Pythagorean theorem.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    },
+
+    h_angle: {
+      make: () => ({ kind: 'h_angle', skill: 'honors', sc: gridArrow([1, 2]) }),
+      type: 'num',
+      text: () => 'Work backward. Read both parts off the grid, then find the launch angle θ above the ground.',
+      hints: () => ['Use θ = tan⁻¹(v_0y ÷ v_0x).', 'The tan⁻¹ button is on the calculator\'s func tab. Press func, then tan⁻¹.', 'Press main to get the numbers back. Type the upward part, press ÷, then type the sideways part.'],
+      scene: q => ({ mode: 'grid', sc: q.sc, showArrow: true, showX: true, showY: true, keyLabel: true }),
+      unit: '°',
+      needs: q => ({ fn: 'atan', nums: [q.sc.x, q.sc.y] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const right = `θ = tan⁻¹(v_0y ÷ v_0x) = tan⁻¹(${q.sc.y} ÷ ${q.sc.x}) = ${fmt(q.sc.th, 1)}°`;
+        if (v !== null && Math.abs(v - q.sc.th) <= 1) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const flipped = v !== null && Math.abs(v - (90 - q.sc.th)) <= 1;
+        return { ok: false, mistake: flipped ? 'vertical_angle' : 'other', msg: `${flipped ? 'That angle is from the vertical. Divide up by sideways.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    },
+
+    h_back: {
+      make: () => ({ kind: 'h_back', skill: 'honors', sc: launch(2) }),
+      type: 'num',
+      text: () => 'The picture gives v_0x and θ. Work backward to find the launch speed v_0.',
+      hints: () => ['Normally v_0x = v_0 × cos(θ). Here you know v_0x, so divide instead.', 'On the calculator: type v_0x, press ÷, then press cos and type the angle.'],
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: true, showY: false, labelV0: false, giveX: true }),
+      unit: 'm/s',
+      needs: q => ({ fn: 'cos', nums: [Number(fmt(q.sc.x, 1)), q.sc.th] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const shownX = Number(fmt(q.sc.x, 1));
+        const t = shownX / Math.cos(rad(q.sc.th));
+        const right = `v_0 = v_0x ÷ cos(θ) = ${fmt(shownX, 1)} ÷ cos(${q.sc.th}°) = ${fmtAns(t)} m/s`;
+        if (v !== null && near(v, t)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const times = v !== null && near(v, shownX * Math.cos(rad(q.sc.th)));
+        return { ok: false, mistake: times ? 'multiplied' : 'other', msg: `${times ? 'You multiplied, so your answer came out smaller than v_0x. The whole speed must be bigger. Divide.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    }
+  };
+
+  function gradeCalc(asked, raw, sc) {
+    const r = checkCalc(asked, raw, sc);
+    if (r.ok === null) return { ok: false, mistake: 'blank', msg: `No answer. <span class="formula">${work(asked, sc)}</span>` };
+    return r;
+  }
+
+  // Mastery Check: one blueprint so every retake tests the same skills with new numbers.
+  function buildQuiz(honors) {
+    const list = ['read', 'concept', 'choose', 'calc_x', 'calc_x', 'calc_y', 'calc_y', 'sense'];
+    if (honors) list.push(pick(['h_speed', 'h_angle']), pick(['h_vertical', 'h_down', 'h_back']));
+    return list.map(kind => QUESTION[kind].make());
+  }
+
+  function gradeQuiz(questions, answers) {
+    const results = questions.map((q, i) => {
+      const r = QUESTION[q.kind].grade(q, answers[i]);
+      return { skill: q.skill, ok: !!r.ok, msg: r.msg, mistake: r.mistake || null };
+    });
+    const correct = results.filter(r => r.ok).length;
+    const skills = {};
+    results.forEach(r => {
+      skills[r.skill] = skills[r.skill] || { right: 0, total: 0 };
+      skills[r.skill].total++;
+      if (r.ok) skills[r.skill].right++;
+    });
+    return { results, correct, total: questions.length, pct: Math.round(100 * correct / questions.length), skills };
+  }
+
+  // ---------- Reading the Desmos scientific calculator ----------
+  // Its API reports what was typed (LaTeX) but not the result, so this evaluates the LaTeX itself.
+  // It also records which numbers and functions were used, so "17.3" alone can't pass as work.
+  function parseCalc(latex, degrees, prev) {
+    let src = String(latex)
+      .replace(/\\left|\\right/g, '').replace(/\\cdot|\\times/g, '*').replace(/\\div/g, '/')
+      .replace(/\\operatorname\{([a-z]+)\}/g, '\\$1').replace(/\\ /g, '').replace(/\s+/g, '')
+      .replace(/−/g, '-').replace(/\^\{?\\circ\}?|°/g, '°');
+    let i = 0;
+    const nums = [], fns = [];
+    const peek = t => src.startsWith(t, i);
+    const take = t => (peek(t) ? (i += t.length, true) : false);
+    const fail = () => { throw new Error('unreadable'); };
+    const need = t => { if (!take(t)) fail(); };
+    const group = () => { need('{'); const v = expr(); need('}'); return v; };
+
+    const FN = { sin: Math.sin, cos: Math.cos, tan: Math.tan };
+    const INV = { sin: Math.asin, cos: Math.acos, tan: Math.atan };
+    const toRad = x => (degrees ? rad(x) : x);
+    const fromRad = x => (degrees ? x * 180 / Math.PI : x);
+
+    function funcCall() {
+      for (const name of ['arcsin', 'arccos', 'arctan', 'sin', 'cos', 'tan']) {
+        if (!take('\\' + name)) continue;
+        const base = name.replace('arc', '');
+        let inverse = name.startsWith('arc');
+        if (take('^{-1}')) inverse = true;
+        const arg = unary();
+        fns.push((inverse ? 'a' : '') + base);
+        return inverse ? fromRad(INV[base](arg)) : FN[base](toRad(arg));
+      }
+      return null;
+    }
+
+    function atom() {
+      if (take('(')) { const v = expr(); need(')'); return v; }
+      if (take('\\frac')) { const a = group(); const b = group(); return a / b; }
+      if (take('\\sqrt')) {
+        let n = 2;
+        if (take('[')) { n = expr(); need(']'); }
+        fns.push('sqrt');
+        return Math.pow(group(), 1 / n);
+      }
+      if (take('\\pi')) return Math.PI;
+      if (take('ans') || take('\\ans')) {
+        if (!prev) fail();
+        nums.push(...prev.nums); fns.push(...prev.fns);
+        return prev.value;
+      }
+      const m = src.slice(i).match(/^(\d+\.?\d*|\.\d+)/);
+      if (m) { i += m[0].length; const v = parseFloat(m[0]); nums.push(v); return v; }
+      const f = funcCall();
+      if (f !== null) return f;
+      return fail();
+    }
+
+    function postfix() {
+      let v = atom();
+      for (;;) {
+        if (take('°')) { if (!degrees) v = rad(v); }
+        else if (take('\\%')) v /= 100;
+        else if (take('^')) {
+          if (peek('{')) v = Math.pow(v, group());
+          else { const m = src.slice(i).match(/^\d/); if (!m) fail(); i++; v = Math.pow(v, Number(m[0])); }
+        } else return v;
+      }
+    }
+    function unary() { return take('-') ? -unary() : postfix(); }
+    function term() {
+      let v = unary();
+      for (;;) {
+        if (take('*')) v *= unary();
+        else if (take('/')) v /= unary();
+        else if (i < src.length && /[\d(\\.a]/.test(src[i])) v *= unary();   // 20\cos(30)
+        else return v;
+      }
+    }
+    function expr() {
+      let v = term();
+      for (;;) {
+        if (take('+')) v += term();
+        else if (take('-')) v -= term();
+        else return v;
+      }
+    }
+
+    try {
+      const value = expr();
+      if (i !== src.length || !isFinite(value)) return null;
+      return { value, nums, fns, latex };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // state = desmos.getState(). Uses the student's latest line, as the calculator itself would show it.
+  function readCalculator(state) {
+    const list = (state && state.expressions && state.expressions.list) || [];
+    const degrees = !state || !state.settings || state.settings.degreeMode !== false;
+    let prev = null, last = null, unreadable = false;
+    list.forEach(item => {
+      if (!item || !item.latex) return;
+      const parsed = parseCalc(item.latex, degrees, prev);
+      unreadable = !parsed;
+      last = item.latex;
+      if (parsed) prev = parsed;
+    });
+    if (last === null) return { empty: true };
+    if (unreadable) return { unreadable: true };
+    return prev;
+  }
+
+  // needs = { nums: [...], fn: 'sin' | 'cos' | 'sqrt' | 'atan', trig: true }. Returns a message, or null when it is real work.
+  // These stop a looked-up answer without costing a streak, so a real mistake still gets its diagnosis at Check.
+  function checkWork(work, needs = {}) {
+    if (!work.fns.length && work.nums.length <= 1) {
+      return 'Type the whole calculation into the calculator, not just the answer.';
+    }
+    if (needs.fn && !work.fns.includes(needs.fn)) {
+      const names = { sin: 'the sin button', cos: 'the cos button', sqrt: 'the square root button', atan: 'the tan⁻¹ button' };
+      return `Your calculation needs to use ${names[needs.fn]}.`;
+    }
+    if (needs.trig && !work.fns.some(f => ['sin', 'cos', 'tan'].includes(f))) {
+      return 'Your calculation needs to use the sin or cos button.';
+    }
+    const missing = (needs.nums || []).filter(n => !work.nums.some(w => Math.abs(w - Math.abs(n)) < 1e-6));
+    if (missing.length) return `Your calculation needs to use the numbers from the problem. Look for ${missing.join(' and ')}.`;
+    return null;
+  }
+
+  window.Engine = { parseCalc, readCalculator, checkWork, Phys, THINGS, SKILLS, QUESTION, fmt, fmtAns, near, parseNum, pick, shuffled, rad, launch, gridArrow, work, fn, sym, checkCalc, buildQuiz, gradeQuiz };
+})();
+
+// === Unit_3/work_studio/js/physics.js ===
+// Mechanical Work Studio — physics, instrument checks, the graph, and grading.
+// The big idea: a force does work only along the motion. W = F × d, measured in joules (1 J = 1 N × 1 m).
+// Students pull a crate along a track, read the spring scale (N), the tape measure (m) and the work meter (J),
+// record each trial in a table, graph W against d, and predict a distance they never tested.
+//   conceptual (P1–3): reads the pattern from the table: twice the distance, twice the work. No division.
+//   cp (P4–6):         finds the slope of W against d and matches it to the spring scale: slope = force.
+//   honors (P0):       the rope is angled, so the slope is the part of the force along the track: F × cos θ.
+// Every wrong answer is compared against known mistakes, so the student hears WHY. Mistake ids feed the teacher monitor.
+
+(function () {
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const shuffle = a => {
+    const b = a.slice();
+    for (let i = b.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [b[i], b[j]] = [b[j], b[i]];
+    }
+    return b;
+  };
+  const round = (v, d = 2) => Math.round(v * 10 ** d) / 10 ** d;
+
+  // Whole numbers stay whole, then 1 decimal, 2 when small
+  function fmt(v) {
+    const s = Math.abs(v - Math.round(v)) < 1e-9 ? String(Math.round(v)) : Math.abs(v) < 10 ? String(round(v, 2)) : String(round(v, 1));
+    return s.replace(/^-/, '−');   // a real minus sign
+  }
+  const near = (v, target, rel = 0.02, abs = 0.05) => Math.abs(v - target) <= Math.max(Math.abs(target) * rel, abs);
+  function parseNum(raw) {
+    const v = parseFloat(String(raw).replace(',', '.').replace(/[−–]/g, '-').replace(/[^0-9.\-eE]/g, ''));
+    return isFinite(v) ? v : null;
+  }
+  const cosd = deg => Math.cos(deg * Math.PI / 180);
+
+  // ---------- The apparatus: a crate pulled along a warehouse track ----------
+  const G = 10;                                     // m/s², on Earth, in this class
+  const DIAL = { max: 50, tol: 0.3 };               // spring scale in newtons; every force is a whole number on a mark
+  const TRACK = { max: 8 };                         // the tape measure runs from 0 to 8 m
+  const TRIALS = { conceptual: 5, cp: 5, honors: 6 };
+  const TEST_D = { conceptual: 8, cp: 7.5, honors: 7.5 };   // never offered during the trials, so the prediction is a new case
+  const D_RANGE = { conceptual: { min: 1, max: 6, step: 1 }, cp: { min: 0.8, max: 6.2, step: 0.1 }, honors: { min: 0.8, max: 6.2, step: 0.1 } };
+
+  // Each student gets their own crate and pull, so no two tables match.
+  const RIGS = {
+    conceptual: [10, 15, 20, 25, 30].map(F => [F, 0]),
+    cp: [12, 14, 16, 18, 22, 24, 26, 28, 32, 35].map(F => [F, 0]),
+    honors: [24, 28, 30, 32, 36, 40].reduce((all, F) => all.concat([30, 40, 50, 60].map(th => [F, th])), [])
+  };
+  function newRig(tier) {
+    const [F, theta] = pick(RIGS[tier] || RIGS.cp);
+    return { F, theta };
+  }
+  // The part of the rope's pull that points along the track
+  const along = rig => rig.F * cosd(rig.theta || 0);
+  const work = (rig, d) => along(rig) * d;
+  // The work meter shows one decimal place
+  const meter = (rig, d) => round(work(rig, d), 1);
+
+  // Which distance each trial asks for. Periods 1–3 use 1, 2, 3, 4, 5 m so doubling and tripling sit in the table.
+  // Everyone else starts short, then long, then fills in, so the graph has spread.
+  const WORDS = ['', '', 'twice', '3 times'];
+  function distRule(tier, n, table = []) {
+    const used = table.slice(0, n - 1).map(r => r.set);
+    if (tier === 'conceptual') {
+      if (n === 1) return { text: 'Set the pull distance to 1 m.', ok: s => s === 1, why: 'Trial 1 uses 1 m. Slide the distance to 1 m.' };
+      if (n === 2 || n === 3) return { text: `Set the distance to ${WORDS[n]} as far as Trial 1.`, ok: s => s === n, why: `Trial 1 was 1 m. ${WORDS[n][0].toUpperCase() + WORDS[n].slice(1)} as far is ${n} × 1 m.` };
+      if (n === 4) return { text: 'Set the distance to twice as far as Trial 2.', ok: s => s === 4, why: 'Trial 2 was 2 m. Twice as far is 2 × 2 m.' };
+      return { text: 'Set the pull distance to 5 m.', ok: s => s === 5, why: 'This trial uses 5 m.' };
+    }
+    if (n === 1) return { text: 'Start short: a pull of 2 m or less.', ok: s => s <= 2.0001, why: 'Start with a short pull: 2 m or less. Watch the stop cone on the tape.' };
+    if (n === 2) return { text: 'Now go long: a pull of 5 m or more.', ok: s => s >= 4.9999, why: 'This trial needs a long pull: 5 m or more.' };
+    return {
+      text: 'Pick a distance in between, not close to one you tried.',
+      ok: s => used.every(u => Math.abs(u - s) >= 0.45),
+      why: 'That is too close to a distance already in your table. Move the stop cone at least half a meter away from the others.'
+    };
+  }
+
+  // Simulated trial table for teacher/preview inspection of Graph It without running every trial
+  const SAMPLE_SETS = { conceptual: [1, 2, 3, 4, 5], cp: [1.5, 5.5, 3.2, 2.4, 4.3], honors: [1.2, 5.6, 2.5, 3.4, 4.4, 6.2] };
+  function sampleTable(tier, rig) {
+    return (SAMPLE_SETS[tier] || SAMPLE_SETS.cp).map(set => ({ set, d: set, F: rig.F, W: meter(rig, set) }));
+  }
+
+  // ---------- Reading the three instruments. Never says the value or which way to go. ----------
+  const isAbout = (x, v, tol) => typeof v === 'number' && Math.abs(x - v) <= tol;
+  function checkForce(raw, F, d, W) {
+    const x = parseNum(raw);
+    if (x === null) return { ok: false, mistake: 'blank', msg: 'Read the spring scale dial and type the force.' };
+    if (Math.abs(x - F) <= DIAL.tol) return { ok: true };
+    if (isAbout(x, W, 0.6)) return { ok: false, mistake: 'force_gave_work', msg: 'That is the work meter, in joules (J). The force is on the round spring scale dial, in newtons (N).' };
+    if (isAbout(x, d, 0.051)) return { ok: false, mistake: 'force_gave_dist', msg: 'That is the distance on the tape. The force is on the round spring scale dial.' };
+    if (near(x, F * 10, 0.03) || near(x, F / 10, 0.03)) return { ok: false, mistake: 'force_scale', msg: 'Check the size of the marks. The numbers on the dial go up by 10 N, and each small mark is 1 N.' };
+    if (Math.abs(x - F) <= 3) return { ok: false, mistake: 'force_close', msg: 'Close. Find the last numbered mark the needle has passed, then count the small marks after it. Each small mark is 1 N. Use the close-up.' };
+    return { ok: false, mistake: 'force_far', msg: 'That does not match the dial. Find the two numbers the needle is between. Each small mark between them is 1 N.' };
+  }
+  function checkDist(raw, d, F, W) {
+    const x = parseNum(raw);
+    if (x === null) return { ok: false, mistake: 'blank', msg: 'Read the tape measure at the front edge of the crate and type the distance.' };
+    if (Math.abs(x - d) <= 0.051) return { ok: true };
+    if (isAbout(x, F, 0.3) && Math.abs(F - d) > 0.3) return { ok: false, mistake: 'dist_gave_force', msg: 'That is the force in N. The distance is on the tape measure, in meters (m).' };
+    if (isAbout(x, W, 0.6)) return { ok: false, mistake: 'dist_gave_work', msg: 'That is the work meter. The distance is on the tape measure under the crate.' };
+    if (near(x, d * 100, 0.01, 0.6)) return { ok: false, mistake: 'dist_cm', msg: 'That is in centimeters. Record the distance in meters: the big numbers on the tape are meters.' };
+    if (Math.abs(x - d) <= 0.35) return { ok: false, mistake: 'dist_close', msg: 'Close. Find the last big number before the red pointer. Then count the small marks after it: each one is 0.1 m. Use the tape close-up.' };
+    return { ok: false, mistake: 'dist_far', msg: 'That does not match the tape. Look where the red pointer at the front of the crate touches the tape.' };
+  }
+  function checkWork(raw, W, F, d) {
+    const x = parseNum(raw);
+    if (x === null) return { ok: false, mistake: 'blank', msg: 'Read the work meter and type the work.' };
+    if (Math.abs(x - W) <= 0.55) return { ok: true };
+    if (isAbout(x, F, 0.3)) return { ok: false, mistake: 'work_gave_force', msg: 'That is the force in N. Read the work meter, in joules (J).' };
+    if (isAbout(x, d, 0.051)) return { ok: false, mistake: 'work_gave_dist', msg: 'That is the distance in m. Read the work meter, in joules (J).' };
+    return { ok: false, mistake: 'work_far', msg: 'That does not match the work meter. Copy the number on the work meter.' };
+  }
+
+  // ---------- The graph: work against distance ----------
+  const BOX = { x0: 96, x1: 724, y0: 436, y1: 36 };
+  const X_AXIS = { key: 'd', sym: 'd', label: 'distance pulled, d (m)', max: 8, step: 1, minor: 0.5 };
+  // The work axis fits this student's crate: tall enough for 8 m, in steps that are easy to count
+  function workAxis(slope) {
+    const top = slope * TRACK.max * 1.02;
+    const max = [50, 100, 150, 200, 250, 300, 350, 400].find(m => m >= top) || 400;
+    const step = max <= 100 ? 10 : max <= 200 ? 25 : 50;
+    return { sym: 'W', label: 'work done, W (J)', max, step, minor: step / 5 };
+  }
+  function graphSpec(rig) { return { x: Object.assign({}, X_AXIS), y: workAxis(along(rig)), box: BOX }; }
+  const specFor = slope => ({ x: Object.assign({}, X_AXIS), y: workAxis(slope), box: BOX });
+  const toPx = (spec, x, y) => ({
+    x: spec.box.x0 + (x / spec.x.max) * (spec.box.x1 - spec.box.x0),
+    y: spec.box.y0 - (y / spec.y.max) * (spec.box.y0 - spec.box.y1)
+  });
+  const fromPx = (spec, px, py) => ({
+    x: ((px - spec.box.x0) / (spec.box.x1 - spec.box.x0)) * spec.x.max,
+    y: ((spec.box.y0 - py) / (spec.box.y0 - spec.box.y1)) * spec.y.max
+  });
+  const rowXY = row => ({ x: row.d, y: row.W });
+  const PLOT_TOL = 14;   // scene pixels
+  function checkPlot(spec, click, target) {
+    const t = toPx(spec, target.x, target.y);
+    const dx = Math.abs(click.x - t.x), dy = Math.abs(click.y - t.y);
+    if (Math.hypot(dx, dy) <= PLOT_TOL) return { ok: true };
+    if (dx <= PLOT_TOL) return { ok: false, mistake: 'plot_y', msg: `You are above the right spot on the bottom axis. Now check the height: go up to W = ${fmt(target.y)} J.` };
+    if (dy <= PLOT_TOL) return { ok: false, mistake: 'plot_x', msg: `The height is right. Now slide sideways to d = ${fmt(target.x)} m on the bottom axis.` };
+    return { ok: false, mistake: 'plot_off', msg: `Start on the bottom axis at d = ${fmt(target.x)} m. Go straight up until you are level with W = ${fmt(target.y)} J.` };
+  }
+  // The two points used for a slope have to be far enough apart for the slope to mean something.
+  const farApart = (spec, p, q) => Math.abs(p.x - q.x) >= spec.x.max * 0.2;
+
+  // A distance for reading the line: between the student's trials, not in the table
+  function readSpot(table) {
+    const used = table.map(r => r.d);
+    const options = [1.5, 2.5, 3.5, 4.5, 5.5].filter(x => used.every(u => Math.abs(u - x) >= 0.3));
+    return options.length ? pick(options) : 2.75;
+  }
+
+  // ---------- Showing and checking work ----------
+  // A calculator line has to be real work: more than one number, the right button, and this problem's numbers.
+  function workProblem(work, needs = {}) {
+    if (!work.fns.length && work.nums.length <= 1 && !/\\pi/.test(work.latex || '')) return 'Type the whole calculation into the calculator, not just the answer.';
+    if (needs.fn && !work.fns.includes(needs.fn)) return `Your calculation needs to use the ${needs.label || needs.fn} button.`;
+    const has = n => work.nums.some(w => Math.abs(w - Math.abs(n)) <= Math.max(Math.abs(n) * 0.015, 0.0051));
+    const routes = needs.routes || [];
+    if (routes.length && !routes.some(r => r.every(has))) {
+      return `Your calculation needs to use ${needs.from || 'the numbers from this problem'}. Look for ${routes[0].map(n => fmt(Math.abs(n))).join(' and ')}.`;
+    }
+    return null;
+  }
+
+  // A calculation reads one step per line with the equals signs lined up, never as one long chain.
+  function stack(calc) {
+    const [sym, ...steps] = calc.split(' = ');
+    if (!steps.length) return `<span class="formula">${calc}</span>`;
+    return `<span class="calc-stack">${steps.map(s => `<span class="calc-sym">${sym}</span><span>=</span><span>${s}</span>`).join('')}</span>`;
+  }
+
+  // q = { target, rel, abs, mistake(v) → [id, msg, retry?], right }. Returns { ok, retry, mistake, msg }. retry = same numbers.
+  function grade(q, raw) {
+    const v = parseNum(raw);
+    const worked = q.right ? `<br><span class="worked">The right way: ${stack(q.right)}</span>` : '';
+    if (v === null) return { ok: false, retry: true, mistake: 'blank', msg: q.calc ? 'Use the calculator, then press "Use calculator answer".' : 'Type your answer in the box.' };
+    if (near(v, q.target, q.rel === undefined ? 0.02 : q.rel, q.abs === undefined ? 0.05 : q.abs)) return { ok: true, msg: q.right ? stack(q.right) : '' };
+    const hit = q.mistake ? q.mistake(v) : null;
+    // The student's own data is never dealt again, and its answer is never given away.
+    if (q.own || (hit && hit[2])) return { ok: false, retry: true, mistake: hit ? hit[0] : 'other', msg: hit ? hit[1] : 'Not quite. Check the numbers you used.' };
+    return { ok: false, mistake: hit ? hit[0] : 'other', msg: (hit ? hit[1] : 'Not quite.') + worked };
+  }
+
+  window.FLcore = {
+    pick, shuffle, round, fmt, near, parseNum, cosd, G, DIAL, TRACK, TRIALS, TEST_D, D_RANGE, RIGS, newRig, along, work, meter,
+    distRule, sampleTable, checkForce, checkDist, checkWork, BOX, X_AXIS, workAxis, graphSpec, specFor, toPx, fromPx, rowXY,
+    PLOT_TOL, checkPlot, farApart, readSpot, workProblem, stack, grade
+  };
+})();
+
+// === Unit_3/work_studio/js/questions.js ===
+// Mechanical Work Studio — every number question, built from the student's own table or from a new problem.
+// Each question: { id, sym, unit, calc (needs Desmos), own (student's own data: a miss keeps the numbers), ask, formula,
+//                  hints, target, rel, abs, needs → { routes, fn }, mistake(v) → [id, msg, retry?], right }.
+
+(function () {
+  const C = window.FLcore;
+  const { fmt, near, round, pick, cosd, G } = C;
+
+  // A ratio table from the student's own numbers: the distance row shows the jump, the work row has the blank.
+  // rows: [distance from, distance to, distance factor], [work from, work to (or '?'), work factor (or '?')]
+  const ratio = (d1, d2, dm, w1, w2, wm) => `<div class="ratio"><span class="r-lab wk-d-text">distance</span><span class="r-val">${d1} m</span><span class="r-op">× ${dm} →</span><span class="r-val">${d2} m</span>`
+    + `<span class="r-lab wk-W-text">work</span><span class="r-val">${w1} J</span><span class="r-op ${wm === '?' ? 'r-ask' : ''}">× ${wm} →</span><span class="r-val ${w2 === '?' ? 'r-ask' : ''}">${w2}${w2 === '?' ? '' : ' J'}</span></div>`;
+
+  // ---------- Questions about the student's own data ----------
+  const Q = {
+    // Periods 1–3: how many times as much work, straight from two rows of the table
+    factor(table, a, b, mult) {
+      const lo = table[a - 1], hi = table[b - 1];
+      return {
+        id: `factor_${a}_${b}`, sym: 'work ×', noEq: true, unit: '', own: true, target: mult, rel: 0, abs: 0.25, skill: 'pattern',
+        ask: `Trial ${b} went ${mult === 2 ? 'twice' : `${mult} times`} as far as Trial ${a}. What was the work multiplied by?`,
+        visual: ratio(fmt(lo.d), fmt(hi.d), mult, fmt(lo.W), fmt(hi.W), '?'),
+        hints: [`Try it on the calculator: ${fmt(lo.W)} × 2, then ${fmt(lo.W)} × 3. Which one lands on ${fmt(hi.W)}?`],
+        mistake: v => {
+          if (near(v, mult * mult, 0, 0.01) && mult > 1) return ['factor_squared', `Check your table. ${fmt(lo.W)} J × ${mult * mult} is ${fmt(lo.W * mult * mult)} J. That is more than your Trial ${b} work.`];
+          if (near(v, hi.W, 0, 0.6)) return ['factor_gave_work', `That is the work itself. The question is how many TIMES as much as Trial ${a}.`];
+          if (near(v, hi.W - lo.W, 0, 0.6)) return ['factor_subtracted', `That is how much MORE work. "Times as much" asks what you multiply Trial ${a} by.`];
+          return ['factor_other', `Not yet. What do you multiply ${fmt(lo.W)} J by to get about ${fmt(hi.W)} J?`];
+        }
+      };
+    },
+    // Periods 1–3: the pattern carried to a distance that was never tested
+    pfactor(table) {
+      return {
+        id: 'pfactor', sym: 'work ×', noEq: true, unit: '', own: true, target: 2, rel: 0, abs: 0.01, skill: 'pattern',
+        ask: `You never tested ${C.TEST_D.conceptual} m. It is twice as far as Trial 4. What will the work be multiplied by?`,
+        visual: ratio(4, C.TEST_D.conceptual, 2, fmt(table[3].W), '?', '?'),
+        hints: ['You already found this pattern going from Trial 1 to Trial 2.'],
+        mistake: v => (near(v, 4, 0, 0.01)
+          ? ['factor_squared', 'Work did not grow that fast in your table. Look at Trial 1 and Trial 2 again.']
+          : ['factor_other', 'Use the pattern from your table: Trial 2 went twice as far as Trial 1.'])
+      };
+    },
+    predictC(table) {
+      const W4 = table[3].W, D = C.TEST_D.conceptual;
+      return {
+        id: 'predict', sym: 'W', unit: 'J', calc: true, own: true, target: W4 * 2, skill: 'predict',
+        ask: `Predict the work for a ${D} m pull.`,
+        visual: ratio(4, D, 2, fmt(W4), '?', 2),
+        hints: ['Your Trial 4 work is in your table.', `In the calculator: ${fmt(W4)} × 2`],
+        needs: { routes: [[W4, 2], [table[1].W, 4], [table[0].W, 8]], from: 'your own work numbers' },
+        mistake: v => (near(v, W4 * 4)
+          ? ['predict_squared', 'Twice the distance needs twice the work, not 4 times.']
+          : near(v, W4 + 2) ? ['predict_added', 'You added 2. "Twice as much" means multiply by 2.']
+            : ['predict_other', 'Multiply your Trial 4 work by how many times as much it will be.'])
+      };
+    },
+    // Read a value off the line, at a distance that is not in the table
+    readLine(x, slope, spec) {
+      const W = slope * x;
+      return {
+        id: 'readline', sym: 'W', unit: 'J', own: true, target: W, rel: 0, abs: Math.max(2, spec.y.max * 0.03), skill: 'graph',
+        ask: `Your table has no trial at d = ${fmt(x)} m. Use the line on your graph: about how much work would a ${fmt(x)} m pull take?`,
+        formula: 'up from d to the line, then across to W',
+        hints: [`Find ${fmt(x)} m on the bottom axis. Go straight up to the line, then straight across to the W axis.`, `Each small square up the side is ${fmt(spec.y.minor)} J.`],
+        mistake: v => {
+          if (near(v, x, 0, 0.01)) return ['read_gave_d', 'That is the distance. Go up from that distance to the line, then across to the work.'];
+          if (near(v, slope, 0.05)) return ['read_gave_slope', 'That is the force (the slope). Read the W axis where the line is at this distance.'];
+          return ['read_other', 'Not quite. Go straight up from the distance to the line, then straight across to the W axis and read it.'];
+        }
+      };
+    },
+    // Slope from two of the student's own plotted points
+    slope(p, q) {
+      const s = (q.y - p.y) / (q.x - p.x);
+      return {
+        id: 'slope', sym: 'slope', unit: 'J per m', calc: true, own: true, target: s, rel: 0.02, abs: 0.02, skill: 'graph',
+        ask: 'Find the slope of your line from the two points you picked.',
+        formula: 'slope = (W₂ − W₁) ÷ (d₂ − d₁)',
+        hints: ['Rise over run: how far up, divided by how far across.', `In the calculator: (${fmt(q.y)} − ${fmt(p.y)}) ÷ (${fmt(q.x)} − ${fmt(p.x)})`],
+        needs: { routes: [[p.y, q.y, p.x, q.x], [round(q.y - p.y, 1), round(q.x - p.x, 2)]], from: 'your two points, or the ΔW and Δd on the graph' },   // the graph labels ΔW and Δd, so using them is real work
+        mistake: v => {
+          if (near(v, 1 / s, 0.03)) return ['slope_flip', 'That is run ÷ rise. Slope is rise ÷ run: the W numbers go on top.'];
+          if (near(v, q.y - p.y, 0.02)) return ['slope_rise', 'That is only the rise. Divide it by the run.'];
+          if (near(v, q.y / q.x, 0.02) || near(v, p.y / p.x, 0.02)) return ['slope_one_point', 'Use both points: subtract the two W values, subtract the two d values, then divide.'];
+          return ['slope_other', 'Not quite. Subtract the two W values. Subtract the two d values in the same order. Then divide.'];
+        }
+      };
+    },
+    // Periods 4–6: what the slope means
+    slopeForce(slope) {
+      return {
+        id: 'slope_force', sym: 'F', unit: 'N', own: true, target: slope, rel: 0.03, abs: 0.2, skill: 'graph',
+        ask: 'W = F × d, so on a graph of W against d, the slope is the force. A joule per meter is a newton. What force does your slope say the rope pulled with?',
+        formula: 'slope = W ÷ d = F',
+        hints: ['Your slope is on the graph. No new calculation is needed.'],
+        mistake: v => (near(v, 1 / slope, 0.05) ? ['slope_flip', 'That is 1 ÷ slope. The slope itself is the force.'] : ['slope_force_other', 'The slope of W against d is the force. Use the slope you found.'])
+      };
+    },
+    // Period 0: the slope is the part of the pull along the track
+    parallel(rig) {
+      const par = rig.F * cosd(rig.theta);
+      return {
+        id: 'parallel', sym: 'F_par', unit: 'N', calc: true, own: true, target: par, rel: 0.015, abs: 0.05, skill: 'graph',
+        ask: 'Your slope is smaller than the spring scale reading. Only the part of the pull along the track does work. Find that part, using the spring scale and the rope angle.',
+        formula: 'F_par = F × cos θ',
+        hints: ['The spring scale reading and the angle θ are on the picture.', `In the calculator: ${fmt(rig.F)} × cos(${rig.theta})`],
+        needs: { fn: 'cos', label: 'cos', routes: [[rig.F, rig.theta]], from: 'the spring scale reading and the angle' },
+        mistake: v => {
+          if (near(v, rig.F * Math.sin(rig.theta * Math.PI / 180), 0.02)) return ['used_sin', 'That used sin. The part along the track is next to the angle, so it uses cos.'];
+          if (near(v, rig.F, 0.01)) return ['no_cos', 'That is the whole pull. Multiply by cos θ to keep only the part along the track.'];
+          if (near(v, rig.F / cosd(rig.theta), 0.02)) return ['cos_divide', 'Multiply by cos θ. Do not divide.'];
+          return ['parallel_other', 'Not quite. Multiply the spring scale reading by cos θ.'];
+        }
+      };
+    },
+    // Periods 4–6 and 0: work at a distance that was never tested, from the student's own slope
+    predict(slope, rig, tier) {
+      const D = C.TEST_D[tier], par = rig.F * cosd(rig.theta || 0);
+      const rel = Math.max(0.03, Math.abs(slope - par) / par + 0.01);
+      const target = slope * D;
+      return {
+        id: 'predict', sym: 'W', unit: 'J', calc: true, own: true, target, rel, abs: 0.5, skill: 'predict',
+        ask: `You never pulled ${D} m. Predict the work the meter will show.`,
+        formula: tier === 'honors' ? 'W = F × d × cos θ' : 'W = F × d',
+        hints: [tier === 'honors' ? 'Your slope is F × cos θ. Multiply it by the new distance.' : 'Your slope is the force. Multiply it by the new distance.', `In the calculator: ${fmt(round(slope, 2))} × ${D}`],
+        needs: { routes: [[round(slope, 2), D], [rig.F, D], [round(par, 2), D]], from: 'the force and the new distance' },
+        mistake: x => {
+          if (near(x, slope + D, 0.02)) return ['predict_added', 'You added. Work is force TIMES distance.'];
+          if (tier === 'honors' && near(x, rig.F * D, 0.02)) return ['no_cos', 'That uses the whole pull. Only F × cos θ (your slope) does work along the track.'];
+          if (near(x, slope / D, 0.03) || near(x, D / slope, 0.03)) return ['predict_divide', 'Multiply the force by the distance. Do not divide.'];
+          return ['predict_other', 'Not quite. Multiply your slope by the new distance.'];
+        }
+      };
+    }
+  };
+
+  // ---------- New problems (practice and Mastery Check). Plain JSON so they resume with the same numbers. ----------
+  function pullProblem() {
+    const F = pick([20, 25, 30, 40, 45, 50, 60, 75, 80]), d = pick([2, 3, 4, 5, 6, 8, 10, 12]);
+    return { kind: 'pull', F, d, W: F * d };
+  }
+  function liftProblem(two) {
+    const m = pick([2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25]), h = pick([0.5, 1, 1.5, 2, 2.5, 3, 4]);
+    return { kind: two ? 'liftC' : 'lift', m, h, Fg: m * G, W: round(m * G * h, 3) };
+  }
+  function netProblem() {
+    for (let i = 0; i < 100; i++) {
+      const push = pick([60, 80, 90, 100, 120, 150]), f = pick([10, 20, 25, 30, 40, 50]), d = pick([4, 5, 6, 8, 10, 12]);
+      if (f < push) return { kind: 'net', push, f, d, Fnet: push - f, W: (push - f) * d };
+    }
+    return { kind: 'net', push: 120, f: 40, d: 10, Fnet: 80, W: 800 };
+  }
+  function angleProblem() {
+    const F = pick([20, 30, 40, 50, 60, 80]), th = pick([30, 45, 60]), d = pick([5, 8, 10, 12, 15]);
+    return { kind: 'angle', F, th, d, W: round(F * d * cosd(th), 3) };
+  }
+  function fricProblem() {
+    const push = pick([60, 80, 90, 100, 120]), d = pick([5, 8, 10]), f = pick([10, 15, 20, 25, 30]);
+    return { kind: 'fric', push, d, f, Wpush: push * d, Wf: -f * d, Wnet: (push - f) * d };
+  }
+  function brakeProblem() {
+    const f = pick([20, 30, 40, 50, 60, 80]), d = pick([3, 4, 5, 6, 8]);
+    return { kind: 'brake', f, d, W: -f * d };
+  }
+
+  function revFProblem() {
+    const F = pick([20, 25, 30, 40, 50, 60, 75]), d = pick([2, 4, 5, 6, 8, 10, 12]);
+    return { kind: 'revF', F, d, W: F * d };
+  }
+  function carry0Problem() {
+    return { kind: 'carry0', m: pick([5, 8, 10, 12, 15, 20]), d: pick([6, 10, 12, 15, 20]) };
+  }
+  function revHProblem() {
+    const m = pick([2, 4, 5, 8, 10, 20, 50, 60]), h = pick([0.5, 1, 1.5, 2, 3, 4, 5, 10, 20]);
+    return { kind: 'revH', m, h, Fg: m * G, W: round(m * G * h, 3) };
+  }
+  function multiProblem() {
+    const m = pick([5, 8, 10, 12]), h1 = pick([0.5, 1, 1.2, 1.5]), walk = pick([4, 6, 8]), h2 = pick([0.5, 0.8, 1]);
+    return { kind: 'multi', m, h1, walk, h2, Fg: m * G, W1: round(m * G * h1, 3), W2: round(m * G * h2, 3), W: round(m * G * (h1 + h2), 3) };
+  }
+
+  const P = {
+    // Work backward: the meter shows the work, find the force
+    revF(sc) {
+      return {
+        id: 'revF', sym: 'F', unit: 'N', calc: true, target: sc.F, skill: 'backward',
+        ask: 'The work meter shows the work done pulling the crate. How strong was the pull?',
+        formula: 'F = W ÷ d',
+        hints: ['W = F × d, so to get F, divide the work by the distance.', `In the calculator: ${fmt(sc.W)} ÷ ${fmt(sc.d)}`],
+        needs: { routes: [[sc.W, sc.d]] },
+        mistake: x => (near(x, sc.W * sc.d) ? ['times_d', 'Divide the work by the distance. Do not multiply.'] : near(x, sc.d / sc.W, 0.03) ? ['divide_flip', 'That is d ÷ W. Force is work ÷ distance.'] : null),
+        right: `F = W ÷ d = ${fmt(sc.W)} J ÷ ${fmt(sc.d)} m = ${fmt(sc.F)} N`
+      };
+    },
+    // The 0 J trap: carrying at the same height
+    carry0(sc) {
+      return {
+        id: 'carry0', sym: 'W', unit: 'J', target: 0, rel: 0, abs: 0.01, skill: 'calc',
+        ask: "The worker carries the crate across the room at the same height. How much work do the worker's hands do on the crate?",
+        formula: 'W = F × d, only for the part of the force along the motion',
+        hints: ['Which way do the hands push on the crate? Which way does the crate move?'],
+        mistake: x => (near(x, sc.m * G * sc.d) || near(x, sc.m * sc.d) ? ['cat_90', 'The hands push up, but the crate moves sideways. A force at 90° to the motion does no work.'] : null),
+        right: 'W = 0 J, because the upward push is at 90° to the sideways motion'
+      };
+    },
+    // Work backward: the meter shows the work, find the height
+    revH(sc) {
+      return {
+        id: 'revH', sym: 'h', unit: 'm', calc: true, target: sc.h, skill: 'backward',
+        ask: 'The work meter shows the work done lifting this mass. How high was it lifted?',
+        formula: 'h = W ÷ (m × g)',
+        hints: ['First the weight: m × g, with g = 10 m/s². Then divide the work by the weight.', `In the calculator: ${fmt(sc.W)} ÷ (${fmt(sc.m)} × 10)`],
+        needs: { routes: [[sc.W, sc.m, G], [sc.W, sc.Fg]] },
+        mistake: x => (near(x, sc.W / sc.m) ? ['forgot_g', 'That divided by the mass. Divide by the weight, m × g.'] : near(x, sc.W * sc.Fg) ? ['times_d', 'Divide the work by the weight. Do not multiply.'] : null),
+        right: `h = W ÷ (m × g) = ${fmt(sc.W)} J ÷ (${fmt(sc.m)} kg × 10 m/s²) = ${fmt(sc.h)} m`
+      };
+    },
+    // Lift, walk, lift: add the pieces
+    up1(sc) {
+      return {
+        id: 'up1', sym: 'W_1', unit: 'J', calc: true, target: sc.W1, skill: 'calc',
+        ask: 'Box 1: Find the work done on the first lift.',
+        formula: 'W_1 = m × g × h_1',
+        hints: ['g = 10 m/s². The first height is on the picture.', `In the calculator: ${fmt(sc.m)} × 10 × ${fmt(sc.h1)}`],
+        needs: { routes: [[sc.m, G, sc.h1], [sc.Fg, sc.h1]] },
+        mistake: x => (near(x, sc.m * sc.h1) ? ['forgot_g', 'Multiply by g = 10 m/s² too: the lifting force is m × g.'] : null),
+        right: `W_1 = m × g × h_1 = ${fmt(sc.m)} kg × 10 m/s² × ${fmt(sc.h1)} m = ${fmt(sc.W1)} J`
+      };
+    },
+    up2(sc) {
+      return {
+        id: 'up2', sym: 'W_2', unit: 'J', calc: true, target: sc.W2, skill: 'calc',
+        ask: 'Box 2: Walking across at the same height does 0 J. Now find the work done on the second lift.',
+        formula: 'W_2 = m × g × h_2',
+        hints: [`In the calculator: ${fmt(sc.m)} × 10 × ${fmt(sc.h2)}`],
+        needs: { routes: [[sc.m, G, sc.h2], [sc.Fg, sc.h2]] },
+        mistake: x => (near(x, sc.m * G * sc.walk) ? ['cat_90', 'That used the walking distance. Walking at the same height does 0 J. Use the second height.'] : null),
+        right: `W_2 = m × g × h_2 = ${fmt(sc.m)} kg × 10 m/s² × ${fmt(sc.h2)} m = ${fmt(sc.W2)} J`
+      };
+    },
+    total(sc) {
+      return {
+        id: 'total', sym: 'W_total', unit: 'J', calc: true, target: sc.W, skill: 'calc',
+        ask: 'Box 3: Add up the work for the whole trip.',
+        formula: 'W_total = W_1 + 0 J + W_2',
+        hints: ['The walk in the middle adds 0 J.', `In the calculator: ${fmt(sc.W1)} + ${fmt(sc.W2)}`],
+        needs: { routes: [[sc.W1, sc.W2]] },
+        mistake: x => (near(x, sc.W + sc.m * G * sc.walk) ? ['cat_90', 'Do not add work for the walk. A force at 90° to the motion does 0 J.'] : null),
+        right: `W_total = W_1 + 0 J + W_2 = ${fmt(sc.W1)} J + ${fmt(sc.W2)} J = ${fmt(sc.W)} J`
+      };
+    },
+    pull(sc) {
+      return {
+        id: 'pull', sym: 'W', unit: 'J', calc: true, target: sc.W, skill: 'calc',
+        ask: 'How much work does the rope do on the crate?',
+        formula: 'W = F × d',
+        hints: ['The force and the distance are on the picture.', `In the calculator: ${fmt(sc.F)} × ${fmt(sc.d)}`],
+        needs: { routes: [[sc.F, sc.d]] },
+        mistake: x => {
+          if (near(x, sc.F + sc.d)) return ['added', 'You added. Work is force TIMES distance.'];
+          if (near(x, sc.F / sc.d) || near(x, sc.d / sc.F)) return ['divided', 'You divided. Work is force TIMES distance.'];
+          return null;
+        },
+        right: `W = F × d = ${fmt(sc.F)} N × ${fmt(sc.d)} m = ${fmt(sc.W)} J`
+      };
+    },
+    // Periods 1–3, Box 1 of 2
+    weight(sc) {
+      return {
+        id: 'weight', sym: 'F_g', unit: 'N', calc: true, target: sc.Fg, skill: 'calc',
+        ask: 'Box 1: To lift the crate at a steady speed, you pull up with a force equal to its weight. How much does the crate weigh?',
+        formula: 'F_g = m × g',
+        hints: ['The mass is on the crate. On Earth, g = 10 m/s².', `In the calculator: ${fmt(sc.m)} × 10`],
+        needs: { routes: [[sc.m, G]] },
+        mistake: x => {
+          if (near(x, sc.m * 9.8)) return ['g98', 'In this class, g = 10 m/s². Multiply the mass by 10.'];
+          if (near(x, sc.m + G)) return ['added', 'You added. Weight is mass TIMES 10.'];
+          return null;
+        },
+        right: `F_g = m × g = ${fmt(sc.m)} kg × 10 m/s² = ${fmt(sc.Fg)} N`
+      };
+    },
+    // Periods 1–3, Box 2 of 2
+    liftW(sc) {
+      return {
+        id: 'liftW', sym: 'W', unit: 'J', calc: true, target: sc.W, skill: 'calc',
+        ask: 'Box 2: Now find the work done lifting the crate up to the shelf.',
+        formula: 'W = F_g × h',
+        hints: ['Use the weight from Box 1. The height is on the picture.', `In the calculator: ${fmt(sc.Fg)} × ${fmt(sc.h)}`],
+        needs: { routes: [[sc.Fg, sc.h], [sc.m, G, sc.h]] },
+        mistake: x => {
+          if (near(x, sc.m * sc.h)) return ['forgot_g', 'That used the mass. Work uses the force: the weight from Box 1.'];
+          if (near(x, sc.Fg + sc.h)) return ['added', 'You added. Work is force TIMES height.'];
+          return null;
+        },
+        right: `W = F_g × h = ${fmt(sc.Fg)} N × ${fmt(sc.h)} m = ${fmt(sc.W)} J`
+      };
+    },
+    lift(sc) {
+      return {
+        id: 'lift', sym: 'W', unit: 'J', calc: true, target: sc.W, skill: 'calc',
+        ask: 'The crate is lifted to the shelf at a steady speed. How much work does the hoist do?',
+        formula: 'W = m × g × h',
+        hints: ['Lifting at a steady speed takes a force equal to the weight, m × g. On Earth, g = 10 m/s².', `In the calculator: ${fmt(sc.m)} × 10 × ${fmt(sc.h)}`],
+        needs: { routes: [[sc.m, G, sc.h], [sc.Fg, sc.h]] },
+        mistake: x => {
+          if (near(x, sc.m * sc.h)) return ['forgot_g', 'That is m × h. The lifting force is the weight, m × g, so multiply by g = 10 m/s² too.'];
+          if (near(x, sc.m * 9.8 * sc.h)) return ['g98', 'In this class, g = 10 m/s².'];
+          if (near(x, sc.Fg)) return ['weight_only', 'That is the weight. Multiply it by the height to get the work.'];
+          return null;
+        },
+        right: `W = m × g × h = ${fmt(sc.m)} kg × 10 m/s² × ${fmt(sc.h)} m = ${fmt(sc.W)} J`
+      };
+    },
+    fnet(sc) {
+      return {
+        id: 'fnet', sym: 'F_net', unit: 'N', calc: true, target: sc.Fnet, skill: 'net',
+        ask: 'Step 1: The push and friction point opposite ways. What is the net force on the crate?',
+        formula: 'F_net = F_push − F_f',
+        hints: ['Opposite forces fight each other, so subtract.', `In the calculator: ${fmt(sc.push)} − ${fmt(sc.f)}`],
+        needs: { routes: [[sc.push, sc.f]] },
+        mistake: x => (near(x, sc.push + sc.f) ? ['added_forces', 'The forces point opposite ways, so they fight each other. Subtract.'] : null),
+        right: `F_net = F_push − F_f = ${fmt(sc.push)} N − ${fmt(sc.f)} N = ${fmt(sc.Fnet)} N`
+      };
+    },
+    wnet(sc) {
+      return {
+        id: 'wnet', sym: 'W_net', unit: 'J', calc: true, target: sc.W, skill: 'net',
+        ask: 'Step 2: Find the net work done on the crate.',
+        formula: 'W_net = F_net × d',
+        hints: ['Use the net force from Step 1. The distance is on the picture.', `In the calculator: ${fmt(sc.Fnet)} × ${fmt(sc.d)}`],
+        needs: { routes: [[sc.Fnet, sc.d], [sc.push, sc.f, sc.d]] },
+        mistake: x => {
+          if (near(x, sc.push * sc.d)) return ['push_only', 'That is only the work of the push. Friction does negative work, so use the net force.'];
+          if (near(x, (sc.push + sc.f) * sc.d)) return ['added_forces', 'Friction works against the push. Use the net force from Step 1.'];
+          return null;
+        },
+        right: `W_net = F_net × d = ${fmt(sc.Fnet)} N × ${fmt(sc.d)} m = ${fmt(sc.W)} J`
+      };
+    },
+    // One-line net work, used on the Mastery Check
+    wnet1(sc) {
+      return {
+        id: 'wnet1', sym: 'W_net', unit: 'J', calc: true, target: sc.W, skill: 'net',
+        ask: 'Find the net work done on the crate.',
+        formula: 'W_net = (F_push − F_f) × d',
+        hints: [], needs: { routes: [[sc.push, sc.f, sc.d], [sc.Fnet, sc.d]] },
+        mistake: x => {
+          if (near(x, sc.push * sc.d)) return ['push_only', 'That is only the work of the push. Friction does negative work and takes some away.'];
+          if (near(x, (sc.push + sc.f) * sc.d)) return ['added_forces', 'Friction points against the motion. Subtract it from the push.'];
+          return null;
+        },
+        right: `W_net = (F_push − F_f) × d = (${fmt(sc.push)} N − ${fmt(sc.f)} N) × ${fmt(sc.d)} m = ${fmt(sc.W)} J`
+      };
+    },
+    angle(sc) {
+      return {
+        id: 'angle', sym: 'W', unit: 'J', calc: true, target: sc.W, skill: 'calc',
+        ask: 'The rope pulls at an angle. How much work does it do on the crate?',
+        formula: 'W = F × d × cos θ',
+        hints: ['Only the part of the pull along the motion does work.', `In the calculator: ${fmt(sc.F)} × ${fmt(sc.d)} × cos(${sc.th})`],
+        needs: { fn: 'cos', label: 'cos', routes: [[sc.F, sc.d, sc.th]] },
+        mistake: x => {
+          if (near(x, sc.F * sc.d)) return ['no_cos', 'That uses the whole pull. Multiply by cos θ to keep only the part along the motion.'];
+          if (near(x, sc.F * sc.d * Math.sin(sc.th * Math.PI / 180))) return ['used_sin', 'That used sin. The part along the motion is next to the angle: use cos.'];
+          return null;
+        },
+        right: `W = F × d × cos θ = ${fmt(sc.F)} N × ${fmt(sc.d)} m × cos ${sc.th}° = ${fmt(round(sc.W, 1))} J`
+      };
+    },
+    // Period 0: work backward to the friction
+    wf(sc) {
+      return {
+        id: 'wf', sym: 'W_f', unit: 'J', calc: true, target: sc.Wf, skill: 'backward',
+        ask: 'Step 1: The work meter shows the net work. The push did F_push × d. How much work did friction do? Keep its sign.',
+        formula: 'W_f = W_net − F_push × d',
+        hints: ['Friction takes work away, so its work is negative.', `In the calculator: ${fmt(sc.Wnet)} − ${fmt(sc.push)} × ${fmt(sc.d)}`],
+        needs: { routes: [[sc.Wnet, sc.push, sc.d], [sc.Wnet, sc.Wpush]] },
+        mistake: x => {
+          if (near(x, -sc.Wf)) return ['sign', 'Friction points against the motion, so its work is negative. Keep the minus sign.', true];
+          if (near(x, sc.Wpush)) return ['push_only', 'That is the work of the push. Friction did the difference between the net work and that.'];
+          return null;
+        },
+        right: `W_f = W_net − F_push × d = ${fmt(sc.Wnet)} J − ${fmt(sc.push)} N × ${fmt(sc.d)} m = ${fmt(sc.Wf)} J`
+      };
+    },
+    ff(sc) {
+      return {
+        id: 'ff', sym: 'F_f', unit: 'N', calc: true, target: sc.f, skill: 'backward',
+        ask: 'Step 2: How big is the friction force? Give its size, with no sign.',
+        formula: 'F_f = size of W_f ÷ d',
+        hints: ['Use the friction work from Step 1 and the distance on the picture.', `In the calculator: ${fmt(-sc.Wf)} ÷ ${fmt(sc.d)}`],
+        needs: { routes: [[sc.Wf, sc.d]] },
+        mistake: x => {
+          if (near(x, -sc.f)) return ['force_sign', 'A force size has no sign. The minus only told you the direction. Drop it.', true];
+          if (near(x, sc.Wf * sc.d) || near(x, -sc.Wf * sc.d)) return ['times_d', 'Divide the work by the distance. Do not multiply.'];
+          return null;
+        },
+        right: `F_f = ${fmt(-sc.Wf)} J ÷ ${fmt(sc.d)} m = ${fmt(sc.f)} N`
+      };
+    },
+    // Mastery Check: work done by brakes
+    brake(sc) {
+      return {
+        id: 'brake', sym: 'W_f', unit: 'J', calc: true, target: sc.W, skill: 'net',
+        ask: 'The brakes push backward while the cart rolls forward. How much work do the brakes do on the cart?',
+        formula: 'W_f = −F_f × d',
+        hints: [], needs: { routes: [[sc.f, sc.d]] },
+        mistake: x => (near(x, -sc.W) ? ['sign', 'The brake force points against the motion, so its work is negative.'] : near(x, sc.f + sc.d) ? ['added', 'Work is force TIMES distance.'] : null),
+        right: `W_f = −F_f × d = −${fmt(sc.f)} N × ${fmt(sc.d)} m = ${fmt(sc.W)} J`
+      };
+    }
+  };
+  const STEPS = { revF: ['revF'], carry0: ['carry0'], revH: ['revH'], multi: ['up1', 'up2', 'total'], pull: ['pull'], liftC: ['weight', 'liftW'], lift: ['lift'], net: ['fnet', 'wnet'], angle: ['angle'], fric: ['wf', 'ff'], brake: ['brake'] };
+  const stepsOf = sc => STEPS[sc.kind].map(k => P[k](sc));
+  const GEN = { revF: revFProblem, carry0: carry0Problem, revH: revHProblem, multi: multiProblem, pull: pullProblem, liftC: () => liftProblem(true), lift: () => liftProblem(false), net: netProblem, angle: angleProblem, fric: fricProblem, brake: brakeProblem };
+
+  window.FLq = { Q, P, STEPS, stepsOf, GEN, pullProblem, liftProblem, netProblem, angleProblem, fricProblem, brakeProblem };
+})();
+
+// === Unit_3/work_studio/js/concepts.js ===
+// Mechanical Work Studio — the direction check (+W, −W or 0 J) and the Mastery Check.
+
+(function () {
+  const C = window.FLcore, QS = window.FLq;
+  const { pick, shuffle, fmt, near, round } = C;
+
+  // ---------- Direction check: aim the force, aim the motion, then decide the work ----------
+  const DIRS = ['up', 'down', 'left', 'right'];
+  const OPP = { up: 'down', down: 'up', left: 'right', right: 'left' };
+  const WORD = { up: 'up', down: 'down', left: 'to the left', right: 'to the right', none: 'nowhere: it does not move' };
+  // The work a force does, from its direction and the direction of motion
+  function categoryOf(F, d) {
+    if (d === 'none') return 'zero';
+    if (F === d) return 'pos';
+    if (OPP[F] === d) return 'neg';
+    return 'zero';
+  }
+  // The three kinds of work a force can do
+  const CATS = [{ id: 'pos', t: '+W', short: '+W (positive work)' }, { id: 'zero', t: '0 J', short: '0 J (no work)' }, { id: 'neg', t: '−W', short: '−W (negative work)' }];
+
+  // Every scene: how the object moves (d, and how far, dist in m), the forces we follow (track: each with a work meter),
+  // and the full free-body diagram (fbd: [direction, label]). F, force: the first tracked force, used by the Mastery Check.
+  const T = (label, dir, mag, desc, tag) => ({ label, dir, mag, desc, tag });
+  const sc = (title, obj, d, dist, caption, track, fbd) => ({ title, obj, d, dist, caption, track, fbd, F: track[0].dir, force: track[0].desc });
+  const HANDS = "the upward push of the worker's hands";
+  const SCENES = {
+    push: sc('Pushing a sled', 'sled', 'right', 3, 'The worker pushes the sled to the right across a rough floor.',
+      [T('F_push', 'right', 60, "the push of the worker's hands", "worker's push")],
+      [['right', 'F_push'], ['left', 'F_f'], ['up', 'F_N'], ['down', 'F_g']]),
+    lower: sc('Lowering a crate', 'crate', 'down', 1, 'The worker slowly lowers a crate down to the floor.',
+      [T('F_hand', 'up', 100, HANDS, "worker's hands")],
+      [['up', 'F_hand'], ['down', 'F_g']]),
+    carry: sc('Carrying a box', 'box', 'right', 4, 'The worker carries a box across the room. The box stays at the same height.',
+      [T('F_hand', 'up', 50, HANDS, "worker's hands")],
+      [['up', 'F_hand'], ['down', 'F_g']]),
+    brake: sc('A sled sliding to a stop', 'sled', 'right', 2, 'Nobody pushes. The sled slides to the right on a rough floor and slows down.',
+      [T('F_f', 'left', 30, 'friction from the rough floor', 'friction')],
+      [['left', 'F_f'], ['up', 'F_N'], ['down', 'F_g']]),
+    lift: sc('Lifting a box onto a shelf', 'box', 'up', 1.5, 'The worker lifts a box up onto a high shelf.',
+      [T('F_hand', 'up', 50, HANDS, "worker's hands")],
+      [['up', 'F_hand'], ['down', 'F_g']]),
+    hold: sc('Holding a crate still', 'crate', 'none', 0, 'The worker holds a crate overhead, perfectly still, for 30 seconds.',
+      [T('F_hand', 'up', 100, HANDS, "worker's hands")],
+      [['up', 'F_hand'], ['down', 'F_g']]),
+    pull: sc('Pulling a cart', 'cart', 'left', 3, 'The worker pulls the cart with a rope. It rolls to the left.',
+      [T('F_pull', 'left', 40, 'the pull of the rope', 'rope')],
+      [['left', 'F_pull'], ['up', 'F_N'], ['down', 'F_g']]),
+    stop: sc('Stopping a rolling cart', 'cart', 'left', 2, 'A cart rolls to the left. The worker pushes on it to slow it down.',
+      [T('F_push', 'right', 40, "the push of the worker's hands", "worker's push")],
+      [['right', 'F_push'], ['up', 'F_N'], ['down', 'F_g']]),
+    // Mastery Check only
+    forklift: sc('A forklift raising a pallet', 'pallet', 'up', 2, 'The forklift raises a pallet of boxes straight up.',
+      [T('F_lift', 'up', 500, 'the upward push of the forks', 'forks')], [['up', 'F_lift'], ['down', 'F_g']]),
+    elevator: sc('An elevator going down', 'elevator', 'down', 3, 'The elevator moves down at a steady speed. The cable holds it from above.',
+      [T('F_pull', 'up', 800, 'the pull of the cable', 'cable')], [['up', 'F_pull'], ['down', 'F_g']]),
+    tray: sc('A server carrying a tray', 'tray', 'left', 4, 'The server walks to the left, carrying a tray at the same height.',
+      [T('F_hand', 'up', 10, "the upward push of the server's hand", "server's hand")], [['up', 'F_hand'], ['down', 'F_g']]),
+    wall: sc('Pushing on a wall', 'wall', 'none', 0, 'The worker pushes hard on a brick wall for a whole minute. The wall does not move.',
+      [T('F_push', 'right', 200, "the push of the worker's hands", "worker's push")], [['right', 'F_push'], ['left', 'F_N']])
+  };
+  // Four scenes, one force each: +W, −W, and both ways to get 0 J (90° to the motion, and no motion)
+  const MAIN_SCENES = ['push', 'lower', 'carry', 'hold'];
+  const EXTRA_SCENES = ['lift', 'brake', 'pull', 'stop'];
+  const QUIZ_SCENES = { sign: ['forklift', 'elevator'], zero: ['tray', 'wall'] };
+  // After a miss: a scene not seen in this streak, preferring one with a different first answer than the last one
+  function nextScene(seen = [], last) {
+    const lastCat = last ? categoryOf(SCENES[last].F, SCENES[last].d) : null;
+    const pool = EXTRA_SCENES.concat(MAIN_SCENES).filter(id => !seen.includes(id));
+    const open = pool.filter(id => categoryOf(SCENES[id].F, SCENES[id].d) !== lastCat);
+    return pick(open.length ? open : pool.length ? pool : EXTRA_SCENES.filter(id => id !== last));
+  }
+  // The work each tracked force does over the whole motion, for its meter
+  const workOf = (s, t) => { const c = categoryOf(t.dir, s.d); return c === 'pos' ? t.mag * s.dist : c === 'neg' ? -t.mag * s.dist : 0; };
+
+  const RULE = {
+    pos: 'points the same way as the motion, so it does positive work (+W).',
+    neg: 'points against the motion, so it does negative work (−W). It takes energy away.',
+    zero90: 'is at 90° to the motion, so it does no work: 0 J.',
+    still: 'pushes, but nothing moves. d = 0 m, so W = 0 J.'
+  };
+  const ruleOf = (s, t) => { const c = categoryOf(t.dir, s.d); return `${t.label} ${c === 'zero' ? (s.d === 'none' ? RULE.still : RULE.zero90) : RULE[c]}`; };
+  const ruleFor = s => ruleOf(s, s.track[0]);
+  const mistakeFor = (s, t) => { const c = categoryOf(t.dir, s.d); return c === 'zero' ? (s.d === 'none' ? 'cat_still' : 'cat_90') : c === 'neg' ? 'cat_neg' : 'cat_pos'; };
+
+  // A whole scene. a = { d, arrows: [dir per tracked force], preds: [meter prediction per tracked force] }.
+  // Returns one result per tracked force, and the first thing to fix.
+  function checkScene(id, a) {
+    const s = SCENES[id];
+    const results = s.track.map((t, i) => {
+      const W = workOf(s, t);
+      if (a.arrows[i] !== t.dir) return { ok: false, W, mistake: a.arrows[i] === s.d ? 'dir_force_is_motion' : 'dir_force', msg: `${t.label} is ${t.desc}. It points ${WORD[t.dir]}.` };
+      if (a.preds[i] !== categoryOf(t.dir, s.d)) return { ok: false, W, mistake: mistakeFor(s, t), msg: `Your arrow for ${t.label} is right. It ${ruleOf(s, t).slice(t.label.length + 1)}` };
+      return { ok: true, W, msg: ruleOf(s, t) };
+    });
+    if (a.d !== s.d) {
+      return { ok: false, results, mistake: s.d === 'none' ? 'dir_motion_none' : 'dir_motion', msg: s.d === 'none' ? `The ${s.obj} does not move at all. With d = 0 m, every meter stays at 0 J.` : `The ${s.obj} moves ${WORD[s.d]}. Every force is compared with that direction.` };
+    }
+    const bad = results.find(r => !r.ok);
+    return bad ? { ok: false, results, mistake: bad.mistake, msg: bad.msg } : { ok: true, results, msg: results.map(r => r.msg).join(' ') };
+  }
+  // The student predicts the work of each force; the motion and the force direction are shown on the picture
+  const checkPreds = (id, preds) => { const s = SCENES[id]; return checkScene(id, { d: s.d, arrows: s.track.map(t => t.dir), preds }); };
+  // The Mastery Check asks about one force. a = { F, d, cat }.
+  function checkDir(id, a) {
+    const r = checkScene(id, { d: a.d, arrows: [a.F], preds: [a.cat] });
+    return r.ok ? { ok: true, msg: ruleFor(SCENES[id]) } : { ok: false, mistake: r.mistake, msg: `${r.msg} ${r.mistake.startsWith('cat_') ? '' : ruleFor(SCENES[id])}`.trim() };
+  }
+
+  // ---------- Mastery Check: new situations. Plain JSON so it resumes with the same numbers. ----------
+  const QUIZ_SKILLS = { sign: 'Sign of work (+W or −W)', zero: 'When work is 0 J', calc: 'Calculating work', graph: 'Reading a W against d graph', net: 'Negative and net work' };
+  function buildQuiz(tier) {
+    const items = [
+      { type: 'dir', skill: 'sign', scene: pick(QUIZ_SCENES.sign) },
+      { type: 'dir', skill: 'zero', scene: pick(QUIZ_SCENES.zero) }
+    ];
+    if (tier === 'honors') items.push({ type: 'calc', skill: 'calc', sc: QS.angleProblem() });
+    else items.push({ type: 'calc', skill: 'calc', sc: QS.liftProblem(false) });
+    const F = pick([15, 20, 25, 30, 35, 40]);
+    if (tier === 'conceptual') items.push({ type: 'graph', skill: 'graph', kind: 'read', F, x: pick([2.5, 3.5, 4.5]) });
+    else if (tier === 'cp') items.push({ type: 'graph', skill: 'graph', kind: 'slope', F });
+    else items.push({ type: 'graph', skill: 'graph', kind: 'tension', F, th: pick([37, 53, 60]) });
+    items.push(tier === 'conceptual' ? { type: 'calc', skill: 'net', sc: QS.brakeProblem() } : { type: 'calc', skill: 'net', sc: Object.assign(QS.netProblem(), { one: true }) });
+    return shuffle(items.slice(0, 2)).concat(items.slice(2));
+  }
+  // Points for a quiz graph: a line W = slope × d
+  function quizGraph(item) {
+    const slope = item.kind === 'tension' ? item.F * Math.cos(item.th * Math.PI / 180) : item.F;
+    return { slope, points: [1, 2, 3, 4, 5, 6].map(x => ({ x, y: round(slope * x, 1) })) };
+  }
+
+  // The number question behind a calc or graph item
+  function quizQuestion(item) {
+    if (item.type === 'calc') {
+      const sc = item.sc;
+      if (sc.kind === 'net') return QS.P.wnet1(sc);
+      const q = QS.P[sc.kind](sc);
+      return Object.assign(q, { hints: [] });
+    }
+    const g = quizGraph(item);
+    if (item.kind === 'read') {
+      const W = item.F * item.x;
+      return {
+        id: 'q_read', sym: 'W', unit: 'J', target: W, rel: 0, abs: Math.max(3, C.specFor(item.F).y.max * 0.03), skill: 'graph',
+        ask: `This graph is for a different crate. Use it: about how much work does a ${fmt(item.x)} m pull take?`, hints: [],
+        mistake: v => (near(v, item.x, 0, 0.01) ? ['read_gave_d', 'That is the distance. Go up from that distance to the line, then across to the work.'] : null),
+        right: `W = about ${fmt(W)} J`
+      };
+    }
+    if (item.kind === 'slope') {
+      return {
+        id: 'q_slope', sym: 'F', unit: 'N', calc: true, target: item.F, rel: 0.05, abs: 0.3, skill: 'graph',
+        ask: 'This graph is for a different crate. What force pulled it?', formula: 'F = slope = (W₂ − W₁) ÷ (d₂ − d₁)', hints: [], needs: {},
+        mistake: v => (near(v, 1 / item.F, 0.08) ? ['slope_flip', 'That is run ÷ rise. Slope is rise ÷ run.'] : null),
+        right: `F = slope = ${fmt(item.F * 4)} J ÷ 4 m = ${fmt(item.F)} N`
+      };
+    }
+    return {
+      id: 'q_tension', sym: 'F', unit: 'N', calc: true, target: item.F, rel: 0.04, abs: 0.3, skill: 'graph',
+      ask: 'This graph is for a crate pulled by a rope at the angle shown. What did the spring scale on the rope read?', formula: 'slope = F × cos θ', hints: [], needs: { fn: 'cos', label: 'cos' },
+      mistake: v => (near(v, g.slope, 0.04) ? ['tension_slope_only', 'That is the slope: only the part along the track. Divide it by cos θ to get the whole pull.'] : near(v, g.slope * Math.cos(item.th * Math.PI / 180), 0.04) ? ['cos_times', 'Divide the slope by cos θ. Do not multiply.'] : null),
+      right: `F = slope ÷ cos θ = ${fmt(round(g.slope, 1))} N ÷ cos ${item.th}° = ${fmt(item.F)} N`
+    };
+  }
+
+  // answers[i]: { F, d, cat } for dir, { value, work } for calc and graph
+  function gradeQuizItem(item, ans) {
+    const a = ans || {};
+    if (item.type === 'dir') {
+      if (!a.cat) return { ok: false, mistake: 'blank', msg: `No answer was given. ${ruleFor(SCENES[item.scene])}` };
+      const s0 = SCENES[item.scene], r = checkDir(item.scene, { F: s0.F, d: s0.d, cat: a.cat });
+      return r.ok ? r : { ok: false, mistake: r.mistake, msg: `${SCENES[item.scene].title}: ${r.msg}` };
+    }
+    return C.grade(quizQuestion(item), a.value === undefined ? '' : a.value);
+  }
+  function gradeQuiz(items, answers) {
+    const results = items.map((it, i) => Object.assign({ skill: it.skill }, gradeQuizItem(it, answers[i])));
+    const score = results.filter(r => r.ok).length;
+    const skills = {};
+    results.forEach(r => { skills[r.skill] = r.ok ? 1 : 0; });
+    return { results, score, total: items.length, percent: Math.round((score / items.length) * 100), skills, mistakes: results.filter(r => !r.ok && r.mistake).map(r => r.mistake) };
+  }
+
+  window.FL = Object.assign({}, C, QS, {
+    DIRS, OPP, WORD, categoryOf, CATS, SCENES, MAIN_SCENES, EXTRA_SCENES, QUIZ_SCENES, nextScene, workOf, ruleOf, ruleFor, checkScene, checkPreds, checkDir,
+    QUIZ_SKILLS, buildQuiz, quizGraph, quizQuestion, gradeQuizItem, gradeQuiz
+  });
+})();
+
+// === Unit_3/work_studio/js/lesson.js ===
+// Mechanical Work Studio — the order of the lesson for each class.
+// Every page ends with something to do: aim an arrow, run the hoist, read an instrument, plot a point, or calculate.
+// Page kinds are drawn and checked by the app-*.js files.
+
+(function () {
+  const FL = window.FL;
+  const PARTS = [
+    { id: 'dir', name: 'Direction Check', icon: '🧭', weight: 1 },
+    { id: 'measure', name: 'Measure', icon: '📏', weight: 2 },
+    { id: 'graph', name: 'Graph It', icon: '📈', weight: 2 },
+    { id: 'much', name: 'How Much?', icon: '🧮', weight: 2 },
+    { id: 'quiz', name: 'Mastery Check', icon: '🏁', weight: 0 }
+  ];
+  const PART_POINTS = 6, QUIZ_POINTS = 4;
+  const TOTAL_WEIGHT = PARTS.reduce((s, p) => s + p.weight, 0);
+
+  const DIR = [
+    { id: 'd_predict', kind: 'choose', ungraded: true, title: 'Predict: which one does work?' },
+    { id: 'd_hold', kind: 'demo', act: 'hold', title: 'Test it: hold the crate still' },
+    { id: 'd_lift', kind: 'demo', act: 'lift', title: 'Test it: lift the crate' }
+  ].concat(FL.MAIN_SCENES.map(s => ({ id: `d_${s}`, kind: 'dir', sc: s, title: 'Positive, negative or zero work?' })));
+
+  const trials = tier => Array.from({ length: FL.TRIALS[tier] }, (_, i) => ({ id: `t${i + 1}`, kind: 'trial', n: i + 1, title: `Trial ${i + 1}` }));
+  const plots = tier => Array.from({ length: FL.TRIALS[tier] }, (_, i) => ({ id: `pl${i + 1}`, kind: 'plot', n: i + 1, title: `Plot Trial ${i + 1}` }));
+
+  // Before plotting: the distance is what you chose, the work depended on it. So d goes on x and W goes on y.
+  const AXES = { id: 'g_axes', kind: 'axes', title: 'Which goes on which axis?' };
+  const GRAPH = {
+    conceptual: [
+      { id: 'g_factor2', kind: 'ask', q: 'factor2', pic: 'graph', title: 'Twice as far' },
+      { id: 'g_factor3', kind: 'ask', q: 'factor3', pic: 'graph', title: '3 times as far' },
+      { id: 'g_read', kind: 'ask', q: 'readLine', pic: 'graph', title: 'Read your line' },
+      { id: 'g_pfactor', kind: 'ask', q: 'pfactor', pic: 'graph', title: 'A distance you did not test' },
+      { id: 'g_predict', kind: 'ask', q: 'predictC', pic: 'lab', title: 'Make your prediction' },
+      { id: 'g_test', kind: 'test', title: 'Test your prediction' }
+    ],
+    cp: [
+      { id: 'g_slope', kind: 'slope', title: 'Find the slope' },
+      { id: 'g_match', kind: 'match', title: 'What is the slope?' },
+      { id: 'g_read', kind: 'ask', q: 'readLine', pic: 'graph', title: 'Read your line' },
+      { id: 'g_predict', kind: 'ask', q: 'predict', pic: 'lab', title: 'A distance you did not test' },
+      { id: 'g_test', kind: 'test', title: 'Test your prediction' }
+    ],
+    honors: [
+      { id: 'g_slope', kind: 'slope', title: 'Find the slope' },
+      { id: 'g_match', kind: 'match', title: 'Slope against the scale' },
+      { id: 'g_par', kind: 'ask', q: 'parallel', pic: 'lab', title: 'The part along the track' },
+      { id: 'g_predict', kind: 'ask', q: 'predict', pic: 'lab', title: 'A distance you did not test' },
+      { id: 'g_test', kind: 'test', title: 'Test your prediction' }
+    ]
+  };
+
+  const prob = (id, gen) => ({ id, kind: 'problem', gen, title: 'How much work?' });
+  // More calculation practice, from the Day 2 problem set. Periods 1–3 get no division and the lift split into two boxes.
+  const MUCH = {
+    conceptual: [prob('m1', 'pull'), prob('m2', 'pull'), prob('m3', 'liftC'), prob('m4', 'liftC'), prob('m5', 'carry0'), prob('m6', 'net')],
+    cp: [prob('m1', 'pull'), prob('m2', 'revF'), prob('m3', 'brake'), prob('m4', 'carry0'), prob('m5', 'lift'), prob('m6', 'revH'), prob('m7', 'multi'), prob('m8', 'net')],
+    honors: [prob('m1', 'pull'), prob('m2', 'revF'), prob('m3', 'brake'), prob('m4', 'lift'), prob('m5', 'revH'), prob('m6', 'multi'), prob('m7', 'net'), prob('m8', 'angle'), prob('m9', 'fric')]
+  };
+
+  function pages(partId, tier) {
+    if (partId === 'dir') return DIR;
+    if (partId === 'measure') return trials(tier);
+    if (partId === 'graph') return [AXES].concat(plots(tier), GRAPH[tier]);
+    if (partId === 'much') return MUCH[tier];
+    return [];
+  }
+
+  const partProgress = (st, id, tier) => {
+    const p = st.parts[id];
+    if (!p) return 0;
+    if (p.done) return 1;
+    const n = pages(id, tier).length;
+    return n ? Math.min(1, (p.far || 0) / n) : 0;
+  };
+  function earnedPoints(st, tier) {
+    const guided = PARTS.reduce((s, p) => s + (p.weight / TOTAL_WEIGHT) * PART_POINTS * partProgress(st, p.id, tier), 0);
+    return guided + QUIZ_POINTS * ((st.quiz && st.quiz.best) || 0) / 100;
+  }
+
+  window.Lesson = { PARTS, PART_POINTS, QUIZ_POINTS, pages, partProgress, earnedPoints };
+})();
+
+// === Unit_3/work_studio/js/integrity.js ===
+// Mechanical Work Studio — looks for records that don't add up, for the teacher's Class Progress page.
+// A flag means "worth a look," not proof: everything here comes from the browser.
+
+(function () {
+  const FAST_SECONDS = 60;   // a passing Mastery Check faster than this is unusual
+
+  function check(doc) {
+    try {
+      return checkRecord(doc);
+    } catch (e) {
+      return ['This record could not be checked. It may have been edited.'];
+    }
+  }
+
+  function checkRecord(doc) {
+    const flags = [];
+    const st = doc.studioState;
+    const score = doc.score || 0;
+    if (!st || typeof st !== 'object' || !st.parts || !st.quiz) {
+      if (score > 0) flags.push('Score on record, but no saved work.');
+      return flags;
+    }
+    const tier = ['conceptual', 'cp', 'honors'].includes(doc.track) ? doc.track : 'cp';
+    const supported = window.Lesson.earnedPoints(st, tier);
+    if (score > supported + 0.15) flags.push(`Score of ${score} is higher than the saved work supports (about ${supported.toFixed(1)}).`);
+
+    const attempts = st.quiz.attempts || [];
+    const best = st.quiz.best || 0;
+    if (doc.quiz_best !== undefined && doc.quiz_best !== best) flags.push('Mastery Check score on record does not match the saved work.');
+    if (best > 0) {
+      if (!attempts.length || Math.max(...attempts.map(a => a.pct)) !== best) flags.push('Best Mastery Check score does not match any attempt.');
+      const last = st.quiz.last;
+      if (!last || !Array.isArray(last.items) || !Array.isArray(last.answers)) flags.push('Mastery Check score, but no saved questions.');
+      else checkLast(last, attempts[attempts.length - 1], flags);
+    }
+    // The graph part cannot be finished without a full data table.
+    const need = window.FL.TRIALS[tier];
+    const graphDone = st.parts.graph && st.parts.graph.done;
+    if (graphDone && (st.table || []).length < need) flags.push(`Graph part finished with ${(st.table || []).length} of ${need} trials recorded.`);
+    return flags;
+  }
+
+  function checkLast(last, attempt, flags) {
+    const graded = window.FL.gradeQuiz(last.items, last.answers);
+    if (attempt && graded.percent !== attempt.pct) flags.push(`Latest Mastery Check says ${attempt.pct}%, but its saved answers grade to ${graded.percent}%.`);
+    if (attempt && attempt.secs !== null && attempt.secs !== undefined && attempt.secs < FAST_SECONDS && attempt.pct >= 75) {
+      flags.push(`Scored ${attempt.pct}% on the Mastery Check in ${attempt.secs} seconds.`);
+    }
+  }
+
+  window.Integrity = { check };
+})();
+
+</script>
+<script>
+    // firestore-audit: teacher-only
+    // Access: Google OAuth through Firebase Auth. This page's check only decides what to draw. The real lock is
+    // firestore.rules: listing student_results/*/students and roster is allowed only for the isAdmin() emails,
+    // so nobody else gets class data even if they edit this page. Keep this list matching isAdmin().
+    const ASSIGNMENT_ID = 'unit3_day2_work_studio';
+    const TEACHER_IDS = ['rmudry', 'ryan.mudry', 'ryanmudry'];
+    const TEACHER_EMAILS = ['rmudry@orangeusd.org', 'ryan.mudry@gmail.com', 'ryanmudry@gmail.com'];
+    const PART_PILLS = [['dir', 'Dir'], ['measure', 'Measure'], ['graph', 'Graph'], ['much', 'Much'], ['quiz', 'MC']];
+    const COURSE = { honors: 'Honors', cp: 'CP', conceptual: 'Conceptual' };
+    const courseForPeriod = p => (String(p) === '0' ? 'honors' : ['1', '2', '3'].includes(String(p)) ? 'conceptual' : 'cp');
+    const SKILLS = window.FL.QUIZ_SKILLS;
+    const MISTAKES = {
+      dir_force: ['Aimed the force the wrong way', 'Ask: what touches the object, and which way does it push or pull?'],
+      dir_force_is_motion: ['Aimed the force along the motion when it was not', 'Force and motion are separate arrows. A hand holding a box up pushes up even while walking sideways.'],
+      dir_motion: ['Aimed the motion the wrong way', 'Look at the faded copies: they show where the object was a moment ago.'],
+      dir_motion_none: ['Gave a motion for something that did not move', 'Holding still or pushing a wall: d = 0 m.'],
+      cat_pos: ['Missed positive work (force along the motion)', 'Same direction means +W.'],
+      cat_neg: ['Missed negative work (force against the motion)', 'Opposite directions mean −W: friction, brakes, lowering.'],
+      cat_90: ['Missed 0 J when the force is at 90° to the motion', 'Carrying a box flat: the upward force does no work.'],
+      cat_still: ['Gave work when nothing moved', 'd = 0 m means W = 0 J, no matter how much effort it takes.'],
+      demo_gave_force: ['Read the rope pull (N) as the work meter', 'The work meter is in joules.'],
+      demo_misread: ['Misread the work meter in the hoist test', 'Copy the big number on the meter.'],
+      dist_gave_force: ['Typed the force where the distance goes', 'The distance is on the tape at the red pointer.'],
+      dist_gave_work: ['Typed the work where the distance goes', 'The distance is on the tape at the red pointer.'],
+      dist_cm: ['Recorded the distance in centimeters', 'Big numbers on the tape are meters.'],
+      dist_close: ['Read the tape a mark or two off', 'Last big number, then count small marks: 0.1 m each.'],
+      dist_far: ['Tape reading far from the pointer', 'Find the red pointer at the front of the crate.'],
+      force_gave_work: ['Typed the work where the force goes', 'The force is on the round spring scale.'],
+      force_gave_dist: ['Typed the distance where the force goes', 'The force is on the round spring scale.'],
+      force_scale: ['Read the spring scale 10 times off', 'Numbers go up by 10 N. Each small mark is 1 N.'],
+      force_close: ['Read the spring scale a mark or two off', 'Last number passed, then count small marks.'],
+      force_far: ['Spring scale reading far from the needle', 'Find the two numbers the needle is between.'],
+      work_gave_force: ['Typed the force where the work goes', 'Copy the work meter, in joules.'],
+      work_gave_dist: ['Typed the distance where the work goes', 'Copy the work meter, in joules.'],
+      work_far: ['Work meter copied wrong', 'Copy the number on the meter.'],
+      prediction_missed: ['Prediction did not match the test pull', 'Have them say the slope and the new distance out loud, then multiply.'],
+      divide_flip: ['Divided distance by work to find the force', 'F = W ÷ d: work on top.'],
+      axes_swapped: ['Put work on the x-axis', 'The quantity you choose (distance) goes on x; the one that depends on it (work) goes on y.'],
+      plot_x: ['Plotted at the right height, wrong place sideways', 'Find the distance on the bottom axis first, then go up.'],
+      plot_y: ['Plotted above the right spot, wrong height', 'Go up until level with the work on the side axis.'],
+      plot_off: ['Plotted far from the point', 'Model one point: along the bottom, then straight up.'],
+      factor_squared: ['Thought work grows faster than distance', 'Point to Trials 1 and 2: twice the distance, twice the work.'],
+      factor_gave_work: ['Gave the work when asked how many times as much', 'Compare: what do you multiply Trial 1 by?'],
+      factor_subtracted: ['Subtracted to compare two works', '"Times as much" asks what you multiply by.'],
+      factor_other: ['Could not find the pattern in the table', 'Compare two rows where one distance is double the other.'],
+      predict_squared: ['Predicted 4 times the work for twice the distance', 'Twice the distance, twice the work.'],
+      predict_added: ['Added instead of multiplying in the prediction', 'Work is force times distance.'],
+      predict_divide: ['Divided in the prediction', 'Multiply the slope (force) by the distance.'],
+      predict_other: ['Could not predict the untested distance', 'Slope × new distance.'],
+      read_gave_d: ['Gave the distance when reading the line', 'Go up to the line, then across to W.'],
+      read_gave_slope: ['Gave the slope when reading the line', 'Read the W axis.'],
+      read_other: ['Misread a value off the line', 'Up from the distance to the line, then across.'],
+      slope_flip: ['Slope upside down (run ÷ rise)', 'The W numbers go on top.'],
+      slope_rise: ['Gave only the rise for the slope', 'Divide the rise by the run.'],
+      slope_one_point: ['Used one point for the slope', 'Use the change between two points.'],
+      slope_other: ['Slope calculation off', 'Subtract in the same order on top and bottom.'],
+      slope_force_other: ['Did not connect the slope to the force', 'W = F × d, so the slope of W against d is F.'],
+      used_sin: ['Used sin for the part along the motion', 'The side next to the angle uses cos.'],
+      no_cos: ['Left out cos θ for an angled pull', 'Only F × cos θ moves the crate along.'],
+      cos_divide: ['Divided by cos θ instead of multiplying', 'F<sub>par</sub> = F × cos θ.'],
+      cos_times: ['Multiplied the slope by cos θ to find the pull', 'Slope = F × cos θ, so F = slope ÷ cos θ.'],
+      tension_slope_only: ['Gave the slope as the rope pull', 'Divide the slope by cos θ.'],
+      parallel_other: ['Could not find F × cos θ', 'Spring scale reading × cos θ.'],
+      added: ['Added force and distance', 'Work is force TIMES distance.'],
+      divided: ['Divided force and distance', 'Work is force TIMES distance.'],
+      g98: ['Used g = 9.8', 'This class uses g = 10 m/s².'],
+      forgot_g: ['Used mass instead of weight when lifting', 'Lifting force = m × g.'],
+      weight_only: ['Gave the weight as the work', 'Multiply the weight by the height.'],
+      added_forces: ['Added the push and friction', 'Opposite forces subtract.'],
+      push_only: ['Ignored friction in net work', 'Friction does negative work; use the net force.'],
+      sign: ['Lost the minus sign on friction or brake work', 'A force against the motion does negative work.'],
+      force_sign: ['Gave a force size with a minus sign', 'The sign belonged to the work, not the force size.'],
+      times_d: ['Multiplied work by distance to get a force', 'F = W ÷ d.']
+    };
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
+    let roster = new Map(), docs = [], unsubscribe = null;
+
+    function render() {
+      const period = $('period').value, course = $('course').value;
+      const merged = new Map();
+      roster.forEach((r, id) => merged.set(id, { id, name: r.name, period: r.period, started: false }));
+      docs.forEach(d => {
+        const r = roster.get(d.id);
+        merged.set(d.id, Object.assign({}, d, {
+          started: true,
+          name: (r && r.name) || d.student_name || d.id,
+          period: d.class_period !== null && d.class_period !== undefined ? String(d.class_period) : (r ? r.period : '?')
+        }));
+      });
+      const all = [...merged.values()].filter(s => !TEACHER_IDS.includes(s.id));
+      all.forEach(s => { s.course = s.track || courseForPeriod(s.period); });
+      const periods = [...new Set(all.map(s => s.period))].filter(p => p !== '' && p !== undefined).sort((a, b) => Number(a) - Number(b));
+      $('period').innerHTML = '<option value="all">All periods</option>' + periods.map(p => `<option value="${esc(p)}">Period ${esc(p)}</option>`).join('');
+      $('period').value = periods.includes(period) ? period : 'all';
+      // Sample rows without saved work stay unflagged so the demo shows only the example problem record
+      const isDemo = !$('demoBanner').hidden;
+      all.forEach(s => { s.flags = s.started && (!isDemo || s.studioState) ? Integrity.check(s) : []; });
+      const inView = all.filter(s => ($('period').value === 'all' || s.period === $('period').value) && (course === 'all' || s.course === course));
+      const list = inView
+        .filter(s => !$('onlyFlagged').checked || s.flags.length)
+        .sort((a, b) => Number(a.period) - Number(b.period) || String(a.name).localeCompare(String(b.name)));
+
+      const started = inView.filter(s => s.started);
+      const tookQuiz = started.filter(s => (s.quiz_history || []).length);
+      const avgOf = a => (a.length ? (a.reduce((t, x) => t + x, 0) / a.length) : null);
+      const avgGrade = avgOf(started.map(s => s.score || 0));
+      const avgFirst = avgOf(started.filter(s => typeof s.first_try === 'number').map(s => s.first_try));
+      const avgBest = avgOf(tookQuiz.map(s => s.quiz_best || 0));
+      $('tiles').innerHTML = [
+        [`${started.length}/${inView.length}`, 'students started'],
+        [avgGrade === null ? '—' : avgGrade.toFixed(1), 'average grade so far (of 10)'],
+        [avgFirst === null ? '—' : `${Math.round(avgFirst)}%`, 'right on the first try'],
+        [String(tookQuiz.length), 'took the Mastery Check'],
+        [avgBest === null ? '—' : `${Math.round(avgBest)}%`, 'average best Mastery score'],
+        [String(inView.filter(s => s.flags.length).length), 'records to check']
+      ].map(([n, l]) => `<div class="card tile"><strong>${n}</strong><span>${l}</span></div>`).join('');
+
+      const totals = {};
+      tookQuiz.forEach(s => Object.entries(s.quiz_skills || {}).forEach(([k, v]) => {
+        totals[k] = totals[k] || { right: 0, total: 0 };
+        totals[k].right += v.right; totals[k].total += v.total;
+      }));
+      const skillKeys = Object.keys(SKILLS).filter(k => totals[k]);
+      $('skills').innerHTML = skillKeys.length ? skillKeys.map(k => {
+        const p = Math.round(100 * totals[k].right / totals[k].total);
+        return `<div class="bar-row" title="${totals[k].right} of ${totals[k].total} correct"><span>${SKILLS[k]}</span><span class="bar"><span style="width:${p}%"></span></span><span class="val">${p}%</span></div>`;
+      }).join('') : '<p class="none">No Mastery Checks yet.</p>';
+
+      const counts = {};
+      started.forEach(s => Object.entries(s.mistakes || {}).forEach(([k, v]) => { if (MISTAKES[k]) counts[k] = (counts[k] || 0) + v; }));
+      const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+      $('mistakes').innerHTML = top.length
+        ? top.map(([k, v]) => `<div class="mistake"><b>${v}×</b>${MISTAKES[k][0]}<small>${MISTAKES[k][1]}</small></div>`).join('')
+        : '<p class="none">No mistakes recorded yet.</p>';
+
+      $('rows').innerHTML = list.map(s => {
+        const hist = s.quiz_history || [];
+        const pills = PART_PILLS.map(([k, label]) => {
+          const pct = (s.parts_progress || {})[k];
+          const partial = pct > 0 && pct < 100;
+          return `<span class="pill ${(s.parts_done || []).includes(k) ? 'on' : ''}">${label}${partial ? ` ${pct}%` : ''}</span>`;
+        }).join('');
+        const weak = Object.entries(s.quiz_skills || {}).filter(([, v]) => v.right < v.total).map(([k]) => SKILLS[k]).filter(Boolean).join(', ');
+        const when = s.timestamp && s.timestamp.toDate ? s.timestamp.toDate().toLocaleString([], { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+        return `<tr class="${s.flags.length ? 'flagged' : ''}"><td class="name">${esc(s.name)}${s.certificate_code ? ` <span title="Certificate ${esc(s.certificate_code)}">🎓</span>` : ''}${s.calc_unavailable ? ' <span class="flag" title="Desmos did not load for this student, so they could type answers">⚠ typed</span>' : ''}</td><td>${esc(s.period)}</td><td>${COURSE[s.course] || ''}</td><td class="num">${s.started ? Number(s.score || 0).toFixed(1) : '<span class="none">—</span>'}</td>
+          <td class="num ${typeof s.first_try === 'number' && s.first_try < 60 ? 'low' : ''}" title="${s.questions || 0} questions answered">${typeof s.first_try === 'number' ? `${s.first_try}%` : ''}</td><td class="num">${s.started ? (s.trials || 0) : ''}</td><td class="num">${s.minutes || ''}</td>
+          <td>${s.started ? pills : '<span class="none">Not started</span>'}</td>
+          <td class="check">${s.flags.map(f => `<div>⚠ ${esc(f)}</div>`).join('')}</td>
+          <td class="num">${hist.length ? `${s.quiz_best}%` : '<span class="none">—</span>'}</td>
+          <td class="num">${hist.length ? hist.map(p => `${p}%`).join(' → ') : ''}</td>
+          <td class="weak">${weak}</td><td>${esc(when)}</td></tr>`;
+      }).join('');
+    }
+
+    function showGate(msg, err) {
+      if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+      roster = new Map(); docs = [];
+      $('main').hidden = true;
+      $('filters').hidden = true;
+      $('rows').innerHTML = '';
+      $('gate').hidden = false;
+      $('gateMsg').textContent = msg;
+      $('gateErr').textContent = err || '';
+      $('btnSignIn').hidden = false;
+    }
+
+    function start() {
+      $('gate').hidden = true;
+      $('main').hidden = false;
+      $('filters').hidden = false;
+      const db = firebase.firestore();
+      db.collection('roster').get().then(snap => {
+        snap.forEach(doc => {
+          const d = doc.data();
+          roster.set(doc.id, {
+            name: d.name || d.full_name || `${d.first_name || ''} ${d.last_name || ''}`.trim() || doc.id,
+            period: String(d.class_period ?? d.period ?? '')
+          });
+        });
+        render();
+      }).catch(e => console.warn('Roster not loaded:', e));
+      unsubscribe = db.collection('student_results').doc(ASSIGNMENT_ID).collection('students').onSnapshot(snap => {
+        docs = snap.docs.map(d => Object.assign({ id: d.id }, d.data()));
+        render();
+      }, e => { $('tiles').innerHTML = `<p class="err">Could not load results: ${esc(e.message)}</p>`; });
+    }
+
+    // Sample data for working on this page. Local dev only, so the deployed page shows nothing without sign-in.
+    function demo() {
+      $('demoBanner').hidden = false;
+      $('gate').hidden = true;
+      $('main').hidden = false;
+      $('filters').hidden = false;
+      roster = new Map([['s9', { name: 'Sample Student I', period: '1' }]]);
+      const sk = (a, z, c, g, n) => ({ sign: { right: a, total: 1 }, zero: { right: z, total: 1 }, calc: { right: c, total: 1 }, graph: { right: g, total: 1 }, net: { right: n, total: 1 } });
+      const all = ['dir', 'measure', 'graph', 'much', 'quiz'];
+      const parts = done => Object.fromEntries(['dir', 'measure', 'graph', 'much'].map(p => [p, { i: 0, far: 9, done }]));
+      docs = [
+        { id: 's1', student_name: 'Sample Student A', class_period: 1, track: 'conceptual', score: 8.7, first_try: 58, questions: 41, trials: 5, minutes: 44, parts_done: all, quiz_best: 60, quiz_history: [40, 60], quiz_skills: sk(1, 0, 1, 1, 0), mistakes: { cat_90: 4, dist_close: 3, sign: 2 } },
+        { id: 's2', student_name: 'Sample Student B', class_period: 2, track: 'conceptual', score: 1.9, first_try: 71, questions: 7, trials: 2, minutes: 12, parts_done: ['dir'], parts_progress: { dir: 100, measure: 40 }, quiz_history: [], mistakes: { cat_still: 2, force_scale: 1 } },
+        { id: 's3', student_name: 'Sample Student C', class_period: 4, track: 'cp', score: 10, first_try: 88, questions: 36, trials: 5, minutes: 39, parts_done: all, quiz_best: 100, quiz_history: [80, 100], quiz_skills: sk(1, 1, 1, 1, 1), mistakes: { slope_flip: 2, push_only: 1 }, certificate_code: 'SAMPLE' },
+        { id: 's5', student_name: 'Sample Student E', class_period: 5, track: 'cp', score: 10, first_try: 100, questions: 6, trials: 1, minutes: 3, parts_done: all, quiz_best: 100, quiz_history: [100], quiz_skills: sk(1, 1, 1, 1, 1),
+          studioState: { v: 1, parts: parts(true), pg: {}, table: [{ set: 2, d: 2, F: 20, W: 40 }], graph: {}, quiz: { best: 100, attempts: [{ pct: 100, correct: 5, total: 5, at: 1 }], last: null } } },
+        { id: 's4', student_name: 'Sample Student D', class_period: 0, track: 'honors', score: 9.2, first_try: 79, questions: 44, trials: 6, minutes: 51, parts_done: all, quiz_best: 80, quiz_history: [80], quiz_skills: sk(1, 1, 1, 0, 1), mistakes: { no_cos: 2, used_sin: 1, sign: 1 } }
+      ];
+      render();
+    }
+
+    $('period').addEventListener('change', render);
+    $('course').addEventListener('change', render);
+    $('onlyFlagged').addEventListener('change', render);
+    const isLocal = ['localhost', '127.0.0.1'].includes(location.hostname);
+    if (isLocal && new URLSearchParams(location.search).has('demo')) demo();
+    else {
+      $('btnSignIn').addEventListener('click', () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        firebase.auth().signInWithPopup(provider).catch(e => {
+          if (e.code === 'auth/popup-blocked') firebase.auth().signInWithRedirect(provider);
+          else if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') $('gateErr').textContent = e.message;
+        });
+      });
+      $('btnSignOut').addEventListener('click', () => firebase.auth().signOut());
+      firebase.auth().getRedirectResult().catch(e => { $('gateErr').textContent = e.message; });
+      firebase.auth().onAuthStateChanged(user => {
+        const email = user && (user.email || '').toLowerCase();
+        if (user && TEACHER_EMAILS.includes(email)) start();
+        else if (user) {
+          firebase.auth().signOut();
+          showGate('Teacher sign-in required.', 'This page is for the teacher only.');
+        } else if (!$('gateErr').textContent) showGate('Teacher sign-in required.');
+      });
+    }
+  </script>
+</body>
+</html>

@@ -3,6 +3,17 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-16 — Unit 3 Day 2 Mechanical Work Studio
+**Patterns Followed**: `student-app-standards.md`, `centripetal-force-lab.md`, `cast-aligned-webapp-design.md`.
+**Patterns Added**: `work-studio.md`.
+**Files Added**: `Unit_3/work_studio/` (src, js, css, built index), `admin/work_studio_monitor.{src.html,html}`, `tests/workStudio.test.js`.
+**Files Updated**: `admin/sprint_progress_3d.html`, `.agents/wiki/index.md`.
+**Notes**:
+- Investigation studio for W = F × d: a simple direction check (watch the scene, tap +W / 0 J / −W on the work meter), five or six trials reading a tape, spring scale and work meter, W against d graph from the student's own table, a tested prediction, three problems on the calculator and a Mastery Check with a 0 J Day 1 callback.
+- Visual & scaffolding upgrade: added warehouse test-bay backdrop (`bayBackdrop`), instrument console framing + loupe crosshair + live force/distance track bar (`scene.js`), fixed hoist rope-tail vs. ruler overlap + `100 N` tension badge, added 4-way clickable compass targets + `90°` perpendicular badge on FBD, Rise/Run (`Δd`, `ΔW`) slope triangle on `Find the slope`, and vertical `readX` guide on `Read your line` (`scene2.js`, `app-graph.js`, `style.css`).
+- Simplified after teacher review: removed free-body-diagram dragging, two-force scenes and the normal force; added an axes step, ratio tables for Periods 1–3, a locked-in prediction checked by the test pull, and 6–9 calculation problems.
+- The handout still needs its exit question.
+
 ## 2026-11-15 — Eureka! Physics Videos Page Redesign
 **Patterns Followed**: `classroom-projection-and-high-contrast-theming.md`, `mobile-responsive.md`.
 **Files Updated**: `eureka-videos.html`, `partials/footer.html`.
