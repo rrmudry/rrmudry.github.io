@@ -19,6 +19,9 @@
   .bar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
   button, select { font:inherit; padding:8px 12px; border-radius:8px; border:1px solid #ccc; background:#fff; cursor:pointer; }
   button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  button.danger { color:#b91c1c; border-color:#fecaca; background:#fff; }
+  button.danger:hover { background:#fef2f2; }
+  .card-actions { display:flex; gap:8px; align-items:center; }
   main { padding:0 20px 40px; display:grid; gap:12px; }
   .status { color:var(--muted); font-size:14px; }
   .card { background:var(--card); border-radius:12px; padding:14px 16px; display:flex; gap:14px; align-items:center; flex-wrap:wrap; box-shadow:0 1px 3px rgba(0,0,0,.06); }
@@ -170,6 +173,9 @@ const outOf = p => `${pts(p)}/${maxScore()}`;
 let printed = {};
 try { printed = JSON.parse(localStorage.getItem("recig-printed") || "{}"); } catch {}
 const savePrinted = () => { try { localStorage.setItem("recig-printed", JSON.stringify(printed)); } catch {} };
+let dismissed = {};
+try { dismissed = JSON.parse(localStorage.getItem("recig-dismissed") || "{}"); } catch {}
+const saveDismissed = () => { try { localStorage.setItem("recig-dismissed", JSON.stringify(dismissed)); } catch {} };
 
 // Each class app keeps one document per student per assignment and overwrites it, so the
 // document only knows its latest save time. Live mode remembers which days it has seen each
@@ -470,14 +476,14 @@ async function drainQueue() {
     while (printLog.length && printLog[0] < hourAgo) printLog.shift();
     if (printLog.length >= A.maxPerHour) { alertStatus(`Hourly cap reached (${A.maxPerHour}). ${queue.length} waiting — print them by hand below.`); break; }
     const c = queue.shift();
-    if (!printed[c.key] && !gotLabelToday(c.sid)) { printLabel(c); printLog.push(Date.now()); render(lastCands); alertStatus(`Auto-printed: ${c.name} — ${c.type}`); }
+    if (!dismissed[c.key] && !printed[c.key] && !gotLabelToday(c.sid)) { printLabel(c); printLog.push(Date.now()); render(lastCands); alertStatus(`Auto-printed: ${c.name} — ${c.type}`); }
     await new Promise(r => setTimeout(r, A.secondsBetween * 1000));
   }
   printing = false;
 }
 // Re-run detection; anything not seen before is "new". First pass only records what exists (no burst on start-up).
 function process(firstPass) {
-  const all = detect(records);
+  const all = detect(records).filter(c => !dismissed[c.key]);
   const cands = onePerStudent(all).sort((a, b) => !!printed[a.key] - !!printed[b.key]);
   const fresh = cands.filter(c => !knownKeys.has(c.key));
   all.forEach(c => knownKeys.add(c.key));
@@ -498,9 +504,14 @@ function render(cands) {
   $("#list").innerHTML = cands.length ? "" : `<p class="status">No stand-outs right now. Check back after the next activity!</p>`;
   cands.forEach(c => {
     const el = document.createElement("div"); el.className = "card" + (printed[c.key] ? " printed" : "");
-    el.innerHTML = `<div class="who"><span class="tag">${esc(c.type)}</span><b>${esc(c.name)}</b><div class="why">${esc(c.detail)}</div></div>${labelHTML(c)}<button class="primary">${printed[c.key] ? "Print again" : "Print label"}</button>`;
-    el.querySelector("button").onclick = () => {
-      printLabel(c); el.classList.add("printed"); el.querySelector("button").textContent = "Print again";
+    el.innerHTML = `<div class="who"><span class="tag">${esc(c.type)}</span><b>${esc(c.name)}</b><div class="why">${esc(c.detail)}</div></div>${labelHTML(c)}<div class="card-actions"><button class="primary" data-act="print">${printed[c.key] ? "Print again" : "Print label"}</button><button class="danger" data-act="delete" title="Remove this sticker">Delete</button></div>`;
+    el.querySelector('[data-act="print"]').onclick = () => {
+      printLabel(c); el.classList.add("printed"); el.querySelector('[data-act="print"]').textContent = "Print again";
+    };
+    el.querySelector('[data-act="delete"]').onclick = () => {
+      dismissed[c.key] = Date.now(); saveDismissed();
+      for (let i = queue.length - 1; i >= 0; i--) if (queue[i].key === c.key) queue.splice(i, 1);
+      process(true);
     };
     $("#list").appendChild(el);
   });
