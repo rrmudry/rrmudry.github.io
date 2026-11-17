@@ -51,6 +51,7 @@ Preview without saving: `index.html?preview&view=conceptual` (or `cp`, `honors`)
 - Built and reviewed with the teacher. A scripted honest play-through finishes every part for all three classes in headless Chrome, scoring 10/10, and the real save data has no values Firestore rejects (about 8 KB per student).
 - No scrolling on the tightest pages at 1366 × 768 and 1366 × 650.
 - Guest mode resumes after a reload on the same page with the same numbers.
-- **Posted to Classroom on 2026-11-16** in all 7 periods as "Mechanical Work Studio" under the topic "Unit 3: Work and Energy", 10 points, due Tue 11/17 at 6:00 PM PST. `npm run verify` passed every check, including the live student-permission test, and Day 2 in `assets/lessons-data.js` now links it.
+- **Scheduled in Classroom on 2026-11-16** in all 7 periods as "Mechanical Work Studio" under the topic "Unit 3: Work and Energy", 10 points, due Tue 11/17 at 6:00 PM PST. Each period's copy posts itself at that period's start (P0 8:30, P1 9:20, P2 10:10, P3 11:10, P4 12:35, P5 1:55, P6 2:45, same as the Thursday PRIDE TIME schedule) with `deploy-assignment.js --schedule`. A first copy posted immediately was deleted before anyone turned it in. `npm run verify` passed every check, and Day 2 in `assets/lessons-data.js` links the studio.
+- Checking a scheduled draft: `courseWork.get` answers "Precondition check failed" for drafts, so list with `courseWorkStates: ['DRAFT']` instead.
 - Posting under a topic needed the `classroom.topics.readonly` scope, added to `sync-classroom/auth.js` and re-authorized with `npm run auth`. Earlier topics only worked because their IDs were hard-coded in `deploy-assignment.js`.
 - Not seen yet: a real student session on a Chromebook and the monitor with real class data.
