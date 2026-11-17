@@ -1877,3 +1877,10 @@ Append-only log tracking pattern changes across recent sessions.
 - Added to `patterns/student-app-standards.md` after the teacher's review of the recent studios: a new "Investigate first: measure, record, graph" section (set a variable, read an instrument, record in a table, graph own points, answer from the graph, predict an untested case); teaching pages end with a task instead of a bare Next; predict → measure → explain; a missed choice question needs 2 right in a row and the explanation stays up before a retry; no follow-through credit for a wrong main idea; answers are actions and depend on the student's own data; a handwritten closing question; Mastery Check uses new situations with a review before retakes; save time per page and tries per question for the monitor.
 - Mirrored in the Definition of Done (`.agent/workflows/create-student-webapp.md`), which now also links `student-task-engagement.md` and `cast-aligned-webapp-design.md`.
 - Not applied to any existing app yet. First planned use: Day 52 (Centripetal Force). The Centripetal Workshop's three loophole fixes in `centripetal-acceleration-workshop.md` are still open.
+
+
+## 2026-11-17 — Student Grade Booster & Thanksgiving Make-Up Planner (`grade-booster.html`)
+- Built `grade-booster.html` + `assets/grade-booster.js` and linked in `partials/header.html` (`Grade Booster 🚀`).
+- Uses student Google OAuth (`classroom.courses.readonly` + `classroom.coursework.me.readonly`) to pull live Google Classroom courses, published coursework, and student submissions, sorted by highest potential point gain.
+- Cross-references `assignment_registry`, `student_results`, and `physics_labs` in Firestore so interactive `rrmudry.github.io` labs show direct launch links and "Saved in App — awaiting Classroom sync" indicators, with a graceful Firestore fallback if Classroom scopes are unavailable.
+- Added read-only student rule for `assignment_registry` (`allow read: if isSchoolUser();`) in `firestore.rules` and deployed to `site-6e500`.

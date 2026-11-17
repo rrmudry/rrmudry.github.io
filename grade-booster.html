@@ -1,0 +1,795 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Grade Booster & Make-Up Planner • Mr. Mudry’s Physics</title>
+  <link rel="icon" type="image/png" href="head.png" />
+  <link rel="apple-touch-icon" href="head.png" />
+  <link rel="stylesheet" href="assets/theme.css" />
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <style>
+    :root {
+      --gb-bg: #070b1a;
+      --gb-surface: rgba(15, 23, 42, 0.9);
+      --gb-surface-2: rgba(30, 41, 59, 0.72);
+      --gb-border: rgba(148, 163, 184, 0.22);
+      --gb-text: #f8fafc;
+      --gb-muted: #cbd5e1;
+      --gb-accent: #f97316;
+      --gb-cyan: #38bdf8;
+      --gb-green: #4ade80;
+      --gb-red: #f87171;
+      --gb-amber: #fbbf24;
+    }
+
+    html.light-mode {
+      --gb-bg: #f8fafc;
+      --gb-surface: #ffffff;
+      --gb-surface-2: #f1f5f9;
+      --gb-border: #cbd5e1;
+      --gb-text: #0f172a;
+      --gb-muted: #334155;
+      --gb-accent: #c2410c;
+      --gb-cyan: #0369a1;
+      --gb-green: #15803d;
+      --gb-red: #b91c1c;
+      --gb-amber: #b45309;
+    }
+
+    html.light-mode body {
+      background: #f8fafc;
+      background-image: none;
+      color: #0f172a;
+    }
+
+    html.light-mode body::before {
+      display: none;
+    }
+
+    .gb-main {
+      width: min(1080px, 94vw);
+      margin: 1.5rem auto 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Sticky Toolbar */
+    .gb-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: var(--gb-surface);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--gb-border);
+      border-radius: 1rem;
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .gb-toolbar-left,
+    .gb-toolbar-right {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .student-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      background: var(--gb-surface-2);
+      border: 1px solid var(--gb-border);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--gb-text);
+    }
+
+    .pill-period {
+      color: var(--gb-cyan);
+    }
+
+    .gb-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 0.65rem;
+      border: 1px solid var(--gb-border);
+      background: var(--gb-surface-2);
+      color: var(--gb-text);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .gb-btn:hover {
+      border-color: var(--gb-accent);
+      transform: translateY(-1px);
+    }
+
+    .gb-btn.active-size {
+      background: var(--gb-accent);
+      color: #ffffff;
+      border-color: var(--gb-accent);
+    }
+
+    .gb-btn-primary {
+      background: linear-gradient(135deg, #f97316, #ea580c);
+      color: #ffffff;
+      border: none;
+      font-weight: 700;
+    }
+
+    .gb-btn-primary:hover {
+      color: #ffffff;
+      filter: brightness(1.06);
+    }
+
+    /* Auth Gate */
+    .auth-card {
+      max-width: 34rem;
+      margin: 3rem auto;
+      background: var(--gb-surface);
+      border: 1px solid var(--gb-border);
+      border-radius: 1.5rem;
+      padding: 2.25rem 2rem;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    }
+
+    .auth-badge {
+      display: inline-block;
+      padding: 0.3rem 0.85rem;
+      border-radius: 999px;
+      background: rgba(249, 115, 22, 0.15);
+      border: 1px solid rgba(249, 115, 22, 0.45);
+      color: var(--gb-accent);
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 1rem;
+    }
+
+    .auth-card h1 {
+      margin: 0 0 0.75rem;
+      font-size: 2rem;
+      line-height: 1.15;
+      color: var(--gb-text);
+    }
+
+    .auth-card p {
+      color: var(--gb-muted);
+      margin: 0 0 1.5rem;
+      font-size: 1rem;
+    }
+
+    .btn-google-signin {
+      width: 100%;
+      padding: 0.9rem 1.25rem;
+      border-radius: 0.85rem;
+      border: none;
+      background: #ffffff;
+      color: #0f172a;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      transition: transform 0.15s ease;
+    }
+
+    .btn-google-signin:hover:not(:disabled) {
+      transform: translateY(-2px);
+    }
+
+    .btn-google-signin:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    /* Banners */
+    .classroom-banner {
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 1rem;
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    html.light-mode .classroom-banner {
+      background: #e0f2fe;
+      border-color: #0284c7;
+    }
+
+    .status-banner {
+      padding: 0.85rem 1.1rem;
+      border-radius: 0.85rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .status-banner.error {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      color: var(--gb-red);
+    }
+
+    /* Grade Boost Meter */
+    .meter-card {
+      background: var(--gb-surface);
+      border: 1px solid var(--gb-border);
+      border-radius: 1.25rem;
+      padding: 1.35rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .meter-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .meter-header h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: var(--gb-text);
+    }
+
+    .course-select-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--gb-muted);
+    }
+
+    .course-select-wrap select,
+    .target-select {
+      background: var(--gb-surface-2);
+      color: var(--gb-text);
+      border: 1px solid var(--gb-border);
+      border-radius: 0.55rem;
+      padding: 0.4rem 0.65rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .meter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+      gap: 1rem;
+    }
+
+    .grade-box {
+      background: var(--gb-surface-2);
+      border: 1px solid var(--gb-border);
+      border-radius: 1rem;
+      padding: 1rem 1.15rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .grade-box-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+      color: var(--gb-muted);
+    }
+
+    .grade-box-pct {
+      font-size: 1.9rem;
+      font-weight: 900;
+      line-height: 1.1;
+      color: var(--gb-text);
+      margin: 0.2rem 0;
+    }
+
+    .grade-box-pts {
+      font-size: 0.85rem;
+      color: var(--gb-muted);
+    }
+
+    .grade-letter {
+      width: 3.25rem;
+      height: 3.25rem;
+      border-radius: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.65rem;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+
+    .grade-a { background: rgba(34, 197, 94, 0.2); color: var(--gb-green); border: 1px solid var(--gb-green); }
+    .grade-b { background: rgba(56, 189, 248, 0.2); color: var(--gb-cyan); border: 1px solid var(--gb-cyan); }
+    .grade-c { background: rgba(251, 191, 36, 0.2); color: var(--gb-amber); border: 1px solid var(--gb-amber); }
+    .grade-d { background: rgba(249, 115, 22, 0.2); color: var(--gb-accent); border: 1px solid var(--gb-accent); }
+    .grade-f { background: rgba(239, 68, 68, 0.2); color: var(--gb-red); border: 1px solid var(--gb-red); }
+
+    .progress-track {
+      height: 0.75rem;
+      background: var(--gb-surface-2);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--gb-border);
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #f97316, #4ade80);
+      transition: width 0.35s ease;
+    }
+
+    .meter-footer {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .boost-delta {
+      font-weight: 700;
+      color: var(--gb-muted);
+    }
+
+    .boost-delta.positive {
+      color: var(--gb-green);
+    }
+
+    .goal-hint {
+      font-weight: 700;
+      color: var(--gb-cyan);
+    }
+
+    .plan-quick-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--gb-border);
+    }
+
+    .plan-btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    /* Filter Tabs */
+    .filter-tabs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+      gap: 0.5rem;
+    }
+
+    .filter-tab {
+      background: var(--gb-surface);
+      border: 1px solid var(--gb-border);
+      color: var(--gb-muted);
+      border-radius: 0.75rem;
+      padding: 0.6rem 0.75rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.4rem;
+      transition: all 0.15s ease;
+    }
+
+    .filter-tab.active {
+      background: var(--gb-accent);
+      border-color: var(--gb-accent);
+      color: #ffffff;
+    }
+
+    .tab-count {
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.25);
+      font-size: 0.75rem;
+    }
+
+    /* Assignment Cards */
+    .assignments-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .assignment-card {
+      background: var(--gb-surface);
+      border: 1px solid var(--gb-border);
+      border-left: 5px solid var(--gb-border);
+      border-radius: 1rem;
+      padding: 1.05rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      transition: border-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .assignment-card.cat-missing { border-left-color: var(--gb-red); }
+    .assignment-card.cat-low { border-left-color: var(--gb-accent); }
+    .assignment-card.cat-polish { border-left-color: var(--gb-amber); }
+    .assignment-card.cat-pending { border-left-color: var(--gb-cyan); }
+    .assignment-card.cat-done { border-left-color: var(--gb-green); }
+
+    .assignment-card.in-plan {
+      box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.45);
+    }
+
+    .card-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .card-badges {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .cat-badge,
+    .unit-badge,
+    .gain-badge {
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+
+    .badge-missing { background: rgba(239, 68, 68, 0.18); color: var(--gb-red); }
+    .badge-low { background: rgba(249, 115, 22, 0.18); color: var(--gb-accent); }
+    .badge-polish { background: rgba(251, 191, 36, 0.18); color: var(--gb-amber); }
+    .badge-pending { background: rgba(56, 189, 248, 0.18); color: var(--gb-cyan); }
+    .badge-done { background: rgba(34, 197, 94, 0.18); color: var(--gb-green); }
+
+    .unit-badge {
+      background: var(--gb-surface-2);
+      color: var(--gb-muted);
+      border: 1px solid var(--gb-border);
+    }
+
+    .gain-badge {
+      background: rgba(74, 222, 128, 0.18);
+      color: var(--gb-green);
+    }
+
+    .card-score {
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: var(--gb-text);
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 1.15rem;
+      color: var(--gb-text);
+      line-height: 1.3;
+    }
+
+    .card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.85rem;
+      font-size: 0.85rem;
+      color: var(--gb-muted);
+    }
+
+    .sync-hint {
+      color: var(--gb-green);
+      font-weight: 700;
+    }
+
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding-top: 0.45rem;
+      border-top: 1px solid var(--gb-border);
+    }
+
+    .plan-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--gb-text);
+    }
+
+    .plan-toggle input {
+      width: 1.1rem;
+      height: 1.1rem;
+      accent-color: #22c55e;
+      cursor: pointer;
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .btn-launch-app,
+    .btn-classroom {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 0.6rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .btn-launch-app {
+      background: linear-gradient(135deg, #f97316, #ea580c);
+      color: #ffffff;
+    }
+
+    .btn-launch-app:hover {
+      color: #ffffff;
+      filter: brightness(1.08);
+    }
+
+    .btn-classroom {
+      background: var(--gb-surface-2);
+      border: 1px solid var(--gb-border);
+      color: var(--gb-text);
+    }
+
+    .btn-classroom:hover {
+      border-color: var(--gb-cyan);
+      color: var(--gb-cyan);
+    }
+
+    .loading-panel,
+    .empty-state {
+      background: var(--gb-surface);
+      border: 1px solid var(--gb-border);
+      border-radius: 1.25rem;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      color: var(--gb-muted);
+    }
+
+    .empty-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .disclaimer-note {
+      font-size: 0.8rem;
+      color: var(--gb-muted);
+      text-align: center;
+      margin-top: 0.5rem;
+    }
+
+    @media print {
+      header, footer, .gb-toolbar, .filter-tabs, .plan-quick-actions, .classroom-banner, .action-buttons {
+        display: none !important;
+      }
+      body, html {
+        background: #ffffff !important;
+        color: #000000 !important;
+      }
+      body::before {
+        display: none !important;
+      }
+      .meter-card, .assignment-card {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #94a3b8 !important;
+        break-inside: avoid;
+      }
+      .assignment-card:not(.in-plan) {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div data-include="header"></div>
+
+  <main class="gb-main">
+    <!-- Auth Gate -->
+    <section id="auth-gate" class="auth-card">
+      <div class="auth-badge">Thanksgiving Break Grade Booster</div>
+      <h1>See What Raises Your Grade Fastest</h1>
+      <p>
+        Sign in with your <strong>@orangeusd.org</strong> Google account to pull your assignments,
+        find missing or low-score work, and build a prioritized make-up plan.
+      </p>
+      <button id="btn-google-login" class="btn-google-signin" type="button">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" width="20" height="20" />
+        Sign in with School Google Account (@orangeusd.org)
+      </button>
+      <p style="font-size: 0.8rem; margin-top: 1rem; margin-bottom: 0;">
+        Read-only access: this page only reads your own Classroom assignments and grades.
+      </p>
+    </section>
+
+    <!-- Authenticated Dashboard -->
+    <section id="dashboard-shell" class="hidden">
+      <div class="gb-toolbar">
+        <div class="gb-toolbar-left">
+          <div id="student-profile-pill" class="student-pill hidden"></div>
+          <button id="btn-theme-toggle" class="gb-btn" type="button" aria-pressed="false">☀️ High-Contrast Light</button>
+          <button class="gb-btn" type="button" data-font-size="16" aria-pressed="true">Normal</button>
+          <button class="gb-btn" type="button" data-font-size="20" aria-pressed="false">Large</button>
+          <button class="gb-btn" type="button" data-font-size="25" aria-pressed="false">Projector</button>
+        </div>
+        <div class="gb-toolbar-right">
+          <button id="btn-print-plan" class="gb-btn" type="button">🖨️ Print Break Plan</button>
+          <button id="btn-sign-out" class="gb-btn" type="button">Sign Out</button>
+        </div>
+      </div>
+
+      <div id="status-banner" class="status-banner hidden"></div>
+
+      <!-- Classroom Connect Prompt (shown if session restored without fresh OAuth token) -->
+      <div id="classroom-connect-banner" class="classroom-banner hidden">
+        <div>
+          <strong style="display:block; margin-bottom: 0.2rem;">Google Classroom Sync</strong>
+          <span id="classroom-banner-msg" style="font-size: 0.9rem;">
+            Connect your Google Classroom account to pull every missing assignment, quiz, and lab grade automatically.
+          </span>
+        </div>
+        <button id="btn-connect-classroom" class="gb-btn gb-btn-primary" type="button">
+          Connect Google Classroom
+        </button>
+      </div>
+
+      <!-- Loading -->
+      <div id="loading-panel" class="loading-panel hidden">
+        <p id="loading-msg" style="font-weight: 700; font-size: 1.1rem;">Loading your assignments...</p>
+      </div>
+
+      <!-- Main Content -->
+      <div id="dashboard-content">
+        <section class="meter-card">
+          <div class="meter-header">
+            <h1>🎯 Thanksgiving Break Grade Booster</h1>
+            <div id="course-selector-wrap" class="course-select-wrap hidden">
+              <label for="course-select">Class:</label>
+              <select id="course-select"></select>
+            </div>
+          </div>
+
+          <div class="meter-grid">
+            <div class="grade-box">
+              <div>
+                <div class="grade-box-label">Current Classroom Estimate</div>
+                <div id="cur-pct" class="grade-box-pct">--</div>
+                <div id="cur-pts" class="grade-box-pts">0 / 0 pts</div>
+              </div>
+              <div id="cur-letter" class="grade-letter">-</div>
+            </div>
+
+            <div class="grade-box">
+              <div>
+                <div class="grade-box-label">Projected After Break Plan</div>
+                <div id="proj-pct" class="grade-box-pct">--</div>
+                <div id="proj-pts" class="grade-box-pts">0 / 0 pts</div>
+              </div>
+              <div id="proj-letter" class="grade-letter">-</div>
+            </div>
+          </div>
+
+          <div class="progress-track" aria-label="Projected grade progress">
+            <div id="proj-progress-fill" class="progress-fill"></div>
+          </div>
+
+          <div class="meter-footer">
+            <span id="boost-delta" class="boost-delta">Check assignments below to simulate your grade boost</span>
+            <span id="goal-hint" class="goal-hint"></span>
+          </div>
+
+          <div class="plan-quick-actions">
+            <div class="plan-btn-group">
+              <button id="btn-select-top3" class="gb-btn gb-btn-primary" type="button">⚡ Pick Top 3 Boosters</button>
+              <button id="btn-select-missing" class="gb-btn" type="button">Select All Missing</button>
+              <button id="btn-clear-plan" class="gb-btn" type="button">Clear Plan</button>
+            </div>
+            <label style="font-size: 0.85rem; color: var(--gb-muted); display:flex; align-items:center; gap:0.45rem;">
+              Simulate earning:
+              <select id="target-score-select" class="target-select">
+                <option value="1">100% (Full Credit)</option>
+                <option value="0.8">80% (Solid Pass)</option>
+              </select>
+            </label>
+          </div>
+        </section>
+
+        <!-- Filter Tabs -->
+        <nav class="filter-tabs" aria-label="Assignment filters">
+          <button class="filter-tab active" data-filter="actionable" type="button">
+            <span>🔥 Priority To-Do</span>
+            <span class="tab-count">0</span>
+          </button>
+          <button class="filter-tab" data-filter="missing" type="button">
+            <span>❌ Missing</span>
+            <span class="tab-count">0</span>
+          </button>
+          <button class="filter-tab" data-filter="low" type="button">
+            <span>📈 Can Improve</span>
+            <span class="tab-count">0</span>
+          </button>
+          <button class="filter-tab" data-filter="apps" type="button">
+            <span>🚀 Interactive Apps</span>
+            <span class="tab-count">0</span>
+          </button>
+          <button class="filter-tab" data-filter="pending" type="button">
+            <span>⏳ Turned In</span>
+            <span class="tab-count">0</span>
+          </button>
+          <button class="filter-tab" data-filter="done" type="button">
+            <span>✅ Completed</span>
+            <span class="tab-count">0</span>
+          </button>
+        </nav>
+
+        <!-- Assignments List -->
+        <section id="assignments-list" class="assignments-list"></section>
+
+        <p class="disclaimer-note">
+          Note: Percentages shown here are point-based estimates from Google Classroom. Always check Aeries for your official weighted semester grade.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <div data-include="footer"></div>
+  <script src="assets/partials.js" defer></script>
+  <script src="assets/grade-booster.js" defer></script>
+</body>
+</html>
