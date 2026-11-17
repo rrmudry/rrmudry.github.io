@@ -3986,16 +3986,29 @@ window.NGSS_STANDARDS_DATA = window.NGSS_STANDARDS_DATA || [{
         A.ui.fb = null;
         if (typeof d.a !== 'number') d.a = i;
         else if (i === d.a) delete d.a;
-        else if (!FL.farApart(spec(), pts[d.a], pts[i])) A.ui.fb = { retry: true, msg: 'Those two points are close together. Pick two that are far apart, so the slope is easier to trust.' };
+        else if (!FL.farApart(spec(), pts[d.a], pts[i])) {
+          const anyFar = pts.some(p => p.i !== d.a && FL.farApart(spec(), pts[d.a], p));
+          A.ui.fb = { retry: true, msg: anyFar
+            ? 'Those two points are close together. Pick two that are far apart, so the slope is easier to trust.'
+            : 'No other point is far enough from this one. Click it again or tap Pick a different point, then choose two points near opposite ends.' };
+        }
         else d.b = i;
         A.save(); A.render();
       }));
     },
     task(pg, d) {
-      if (!picked(d)) return A.title('Click two of your points that are far apart.') + '<p class="task-body">A line will be drawn through the two points you pick. Their numbers appear next to them.</p>' + A.fbHTML() + A.actions();
+      if (!picked(d)) {
+        const hasA = typeof d.a === 'number';
+        const clearBtn = hasA ? '<button type="button" class="btn-ghost" id="btnClearPick">Pick a different point</button>' : '';
+        const body = hasA
+          ? 'First point selected. Click a second point far away from it, or click it again to unselect.'
+          : 'A line will be drawn through the two points you pick. Their numbers appear next to them.';
+        return A.title('Click two of your points that are far apart.') + `<p class="task-body">${body}</p>` + A.fbHTML() + A.actions(clearBtn);
+      }
       return A.qHTML(slopeQ(d), d.q, { extra: d.q.ok ? '' : '<button type="button" class="btn-ghost" id="btnRepick">Pick different points</button>' });
     },
     bindTask(pg, d) {
+      A.on('btnClearPick', () => { delete d.a; A.ui.fb = null; A.save(); A.render(); });
       A.on('btnRepick', () => { delete d.a; delete d.b; d.q = {}; A.ui.fb = null; A.ui.draft = ''; A.save(); A.render(); });
       A.on('btnCheck', () => A.checkQ(slopeQ(d), d.q, pg.id, {
         okMsg: v => `slope = ${FL.fmt(FL.round(v, 2))} J per m`,
