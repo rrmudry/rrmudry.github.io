@@ -78,6 +78,17 @@
       <option value="demo">Sample data</option>
       <option value="live">Live Firestore</option>
     </select>
+    <select id="periodFilter" title="Which class period to recognize">
+      <option value="auto">Current period (auto)</option>
+      <option value="all">All periods</option>
+      <option value="0">Period 0</option>
+      <option value="1">Period 1</option>
+      <option value="2">Period 2</option>
+      <option value="3">Period 3</option>
+      <option value="4">Period 4</option>
+      <option value="5">Period 5</option>
+      <option value="6">Period 6</option>
+    </select>
     <button id="refresh" class="primary">Find stand-outs</button>
     <label><input type="checkbox" id="auto"> Auto-print new stand-outs</label>
     <button id="simulate">Simulate new activity</button>
@@ -145,7 +156,16 @@ const DEFAULT_CFG = {
     maxPerHour: 8,        // safety cap so a data glitch can't empty the roll
     secondsBetween: 10,   // gap between labels in the queue
     schoolHours: [7, 16]  // only auto-print between 7:00 and 16:00
-  }
+  },
+  periodSchedule: [
+    { period: "0", start: "07:30", end: "09:19" },
+    { period: "1", start: "09:20", end: "10:09" },
+    { period: "2", start: "10:10", end: "11:09" },
+    { period: "3", start: "11:10", end: "12:34" },
+    { period: "4", start: "12:35", end: "13:54" },
+    { period: "5", start: "13:55", end: "14:44" },
+    { period: "6", start: "14:45", end: "16:00" }
+  ]
 };
 let cfg = DEFAULT_CFG;
 try {
@@ -155,6 +175,7 @@ try {
     fields: { ...DEFAULT_CFG.fields, ...(saved.fields || {}) },
     thresholds: { ...DEFAULT_CFG.thresholds, ...(saved.thresholds || {}) },
     autoPrint: { ...DEFAULT_CFG.autoPrint, ...(saved.autoPrint || {}) } };
+  if (!Array.isArray(cfg.periodSchedule)) cfg.periodSchedule = DEFAULT_CFG.periodSchedule;
   if (!cfg.firebase?.apiKey) cfg.firebase = DEFAULT_CFG.firebase;
   if (cfg.progressCollection === "progress") cfg.progressCollection = DEFAULT_CFG.progressCollection;
   if (!Array.isArray(cfg.fields.timestamps)) cfg.fields.timestamps = DEFAULT_CFG.fields.timestamps;
@@ -218,7 +239,8 @@ function demoRecords() {
       if (i === 14 && d === 0) { s = 88; quizHistory = [45, 60, 72, 90]; } // Luna: persistence
       // Whole-number score on the real scale, like the class apps save.
       const score = Math.max(0, Math.min(maxScore(), Math.round(s * maxScore() / 100)));
-      recs.push({ path: `demo/${i}/${d}`, studentId: "s" + i, studentName: n, classId: "P3", activity: act,
+      const demoP = "P" + (currentSchedulePeriod() ?? "3");
+      recs.push({ path: `demo/${i}/${d}`, studentId: "s" + i, studentName: n, classId: demoP, activity: act,
         pct: Math.round(100 * score / maxScore()), settled: true, quizHistory, minutes, t: now - d * day - Math.random() * 3e7 });
     }
   });
@@ -409,10 +431,11 @@ function detect(recs) {
   for (const [sid, rs] of Object.entries(byStudent)) {
     rs.sort((a, b) => a.t - b.t);
     const name = rs[rs.length - 1].studentName;
+    const classId = normPeriod(rs[rs.length - 1].classId);
     const done = rs.filter(r => r.settled);
     const latest = done[done.length - 1];
     const recent = done.filter(r => r.t >= recentCut);
-    const add = (type, line, detail, key) => out.push({ sid, name, type, line, detail, key: sid + "|" + type + "|" + key });
+    const add = (type, line, detail, key) => out.push({ sid, name, classId, type, line, detail, key: sid + "|" + type + "|" + key });
 
     // Class standout
     for (const r of recent) {
@@ -482,6 +505,25 @@ function onePerStudent(cands) {
   for (const c of cands) { const b = best.get(c.sid); if (!b || score(c) < score(b)) best.set(c.sid, c); }
   return [...best.values()];
 }
+function normPeriod(v) { const m = String(v ?? "").match(/\d+/); return m ? m[0] : String(v ?? ""); }
+function toMins(hhmm) { const [h, m] = String(hhmm).split(":").map(Number); return h * 60 + (m || 0); }
+function currentSchedulePeriod() {
+  const now = new Date(), cur = now.getHours() * 60 + now.getMinutes();
+  const hit = (cfg.periodSchedule || DEFAULT_CFG.periodSchedule).find(p => cur >= toMins(p.start) && cur <= toMins(p.end));
+  return hit ? hit.period : null;
+}
+function activePeriod() {
+  const sel = $("#periodFilter")?.value || "auto";
+  if (sel === "all") return null;
+  if (sel === "auto") return currentSchedulePeriod() ?? "none";
+  return sel;
+}
+function updatePeriodLabel() {
+  const opt = $("#periodFilter")?.querySelector('option[value="auto"]');
+  if (!opt) return;
+  const p = currentSchedulePeriod();
+  opt.textContent = p !== null ? `Current period (auto: P${p})` : "Current period (auto: none)";
+}
 function inSchoolHours() { const h = new Date().getHours(), [a, b] = (cfg.autoPrint || DEFAULT_CFG.autoPrint).schoolHours; return h >= a && h < b; }
 async function drainQueue() {
   if (printing) return; printing = true;
@@ -498,7 +540,9 @@ async function drainQueue() {
 }
 // Re-run detection; anything not seen before is "new". First pass only records what exists (no burst on start-up).
 function process(firstPass) {
-  const all = detect(records).filter(c => !dismissed[c.key]);
+  updatePeriodLabel();
+  const targetP = activePeriod();
+  const all = detect(records).filter(c => !dismissed[c.key] && (targetP === null || c.classId === targetP));
   const cands = onePerStudent(all).sort((a, b) => !!printed[a.key] - !!printed[b.key]);
   const fresh = cands.filter(c => !knownKeys.has(c.key));
   all.forEach(c => knownKeys.add(c.key));
@@ -508,6 +552,11 @@ function process(firstPass) {
   }
   return cands;
 }
+$("#periodFilter").onchange = () => {
+  const c = process(true);
+  const p = activePeriod();
+  alertStatus(p === "none" ? "Outside scheduled class periods." : `${c.length} recognition${c.length === 1 ? "" : "s"} shown${p === null ? " (all periods)" : ` for Period ${p}`}.`);
+};
 $("#simulate").onclick = () => {
   if ($("#source").value !== "demo") return alertStatus("Simulate only works with sample data.");
   const s = records[Math.floor(Math.random() * records.length)];
@@ -519,7 +568,8 @@ function render(cands) {
   $("#list").innerHTML = cands.length ? "" : `<p class="status">No stand-outs right now. Check back after the next activity!</p>`;
   cands.forEach(c => {
     const el = document.createElement("div"); el.className = "card" + (printed[c.key] ? " printed" : "");
-    el.innerHTML = `<div class="who"><span class="tag">${esc(c.type)}</span><b>${esc(c.name)}</b><div class="why">${esc(c.detail)}</div></div>${labelHTML(c)}<div class="card-actions"><button class="primary" data-act="print">${printed[c.key] ? "Print again" : "Print label"}</button><button class="danger" data-act="delete" title="Remove this sticker">Delete</button></div>`;
+    const pTag = c.classId ? `<span class="tag">P${esc(c.classId)}</span>` : "";
+    el.innerHTML = `<div class="who">${pTag}<span class="tag">${esc(c.type)}</span><b>${esc(c.name)}</b><div class="why">${esc(c.detail)}</div></div>${labelHTML(c)}<div class="card-actions"><button class="primary" data-act="print">${printed[c.key] ? "Print again" : "Print label"}</button><button class="danger" data-act="delete" title="Remove this sticker">Delete</button></div>`;
     el.querySelector('[data-act="print"]').onclick = () => {
       printLabel(c); el.classList.add("printed"); el.querySelector('[data-act="print"]').textContent = "Print again";
     };
