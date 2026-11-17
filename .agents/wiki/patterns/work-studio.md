@@ -39,8 +39,8 @@ Periods 1–6 never see a class label. The first hint is already open for Period
 - **Slope triangle & read-line guide:** `graph()` draws a dashed Rise/Run (`ΔW`, `Δd`) right triangle when `showTriangle: true` on `Find the slope`, and a vertical `readX` amber guide on `Read your line`.
 - **No notebook page.** The handwritten question belongs on the day's handout (see below).
 
-## Still to do
-- Add a one-line exit question to `Unit_3/worksheets/Day2_Work_Calculation_Practice` that uses one row of the student's own table.
+## Day 2 materials
+- The studio is the whole Day 2 activity. The teacher removed the 12-problem Day 2 Work Calculation Practice packet from the dashboard and the outline on 2026-11-17, because How Much? covers the same problem types. The packet files are still in `Unit_3/worksheets/`. There is no paper exit question for this day.
 
 ## Inline build
 `node scripts/inline-studio.js Unit_3/work_studio` and `node scripts/inline-studio.js admin/work_studio_monitor.src.html`. Rebuild after every edit to `js/` or `css/`.

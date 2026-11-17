@@ -60,28 +60,12 @@ Students transition from forces and kinematics into an energy-accounting framewo
 - **Essential Question:** EQ1
 - **Bell-Ringer:** A student pushes a heavy box `4 m` east with `20 N` while floor friction pulls `5 N` west. Identify the positive work (`+80 J`), negative friction work (`-20 J`), and net work (`+60 J`).
 - **Lesson Focus:** Build fluent stacked GUESS problem solving (Given, Unknown, Equation, Stacked Substitution, Solution with SI units) across horizontal work (`W = F · d`), vertical lifting work (`W = m · g · h`, `g = 10 m/s²`), zero-work traps, and opposing-force net work (`W_net = F_net · d`).
-- **Calculation Practice Set (12 Scaffolded Problems, `g = 10 m/s²`):**
-  - **Part A — Direct Horizontal & Zero-Work Cases (Problems 1–4):**
-    1. Forward sled push: `F = 45 N` over `d = 6.0 m` → `W = 270 J`.
-    2. Reverse force solve: `W = 600 J` over `d = 12 m` → `F = 50 N`.
-    3. Braking friction work: `F_f = 400 N` backward over `8.0 m` → `W_f = -3,200 J`.
-    4. Hallway carrying check: `15 kg` crate carried horizontally `20 m` at constant height → `0 J` (`F ⟂ d`).
-  - **Part B — Vertical Lifting Against Gravity `W = m · g · h` (Problems 5–8):**
-    5. Bench lift: `4.0 kg` toolbox lifted `1.5 m` → `F_g = 40 N`, `W = 60 J`.
-    6. Warehouse forklift: `250 kg` pallet lifted `3.0 m` → `F_g = 2,500 N`, `W = 7,500 J`.
-    7. Reverse elevation solve: `60 kg` rock climber (`F_g = 600 N`) does `12,000 J` of lifting work → `h = 20 m`.
-    8. Multi-stage warehouse path: lift `10 kg` up `1.2 m` (`+120 J`), walk `8.0 m` flat (`0 J`), lift `0.8 m` onto top shelf (`+80 J`) → Total `200 J`.
-  - **Part C — Net Work & Angled Forces (Problems 9–12):**
-    9. Opposing push and friction: `120 N` east push vs. `40 N` west friction across `10 m` → `W_net = +800 J`.
-    10. Angled luggage strap: `40 N` pulled at `60°` (`cos 60° = 0.50`) over `15 m` → `W = 300 J`.
-    11. Unknown braking force solve: `90 N` push over `10 m` (`+900 J`) yields measured `W_net = +650 J` → `W_f = -250 J`, `F_f = 25 N`.
-    12. Lift vs. slide comparison: `20 kg` crate (`F_g = 200 N`, `μ_k = 0.25` → `F_f = 50 N`) moved `4.0 m` flat against friction (`200 J`) vs. lifted `4.0 m` vertically (`800 J` — `4×` more work).
-- **Activity & Completion Requirement:** *Tiered Work Calculation Check & Partner Whiteboards* — pairs alternate solving and unit-checking odds/evens, complete assigned problems (Conceptual: #1–8; CP: #1–10; Honors: #1–12), and pass a 4-item exit calculation check (`≥ 3/4` stacked GUESS work shown).
+- **Activity & Completion Requirement:** *Mechanical Work Studio* (Google Classroom, 10 points, due 6:00 PM). Students (1) watch four scenes and decide whether one force does `+W`, `0 J` or `−W`, (2) pull a crate in 5 trials (6 in Period 0), reading the tape (m), spring scale (N) and work meter (J) into their own data table, (3) put `d` on x and `W` on y, plot their points, find the pattern or slope, predict an untested distance and pull it to check, then (4) solve 6–9 calculation problems and a 5-question Mastery Check (6 guided points + 4 Mastery Check points).
 - **Differentiation:**
-  - *P1–3:* Problems 1–8 with pre-boxed two-line step (`Step 1: Weight = m · 10`, `Step 2: W = Weight · h`) and unit bank; zero trigonometry.
-  - *P4–6:* Problems 1–10 using full stacked GUESS templates with SI unit checks (`N`, `m`, `J`).
-  - *P0:* All 12 problems including angled `W = F · d · cos(θ)` projections and reverse algebraic solves for resistive force `F_f`.
-- **Links:** [Mechanical Work Studio](work_studio/index.html) · [Day 2 Work Calculation Workshop (PDF)](worksheets/Day2_Work_Calculation_Practice.pdf) · [Print View (HTML)](worksheets/Day2_Work_Calculation_Practice.html)
+  - *P1–3:* Distances of 1, 2, 3, 4 and 5 m; ratio tables from their own rows ("2× the distance → 2× the work") with no division; 6 problems with the lift split into two boxes (`F_g = m × g`, then `W = F_g × h`); first hint already open.
+  - *P4–6:* Student-chosen distances; slope of `W` vs. `d` = force, checked against the spring scale; 8 problems including `F = W ÷ d`, `h = W ÷ (m × g)`, braking work and a lift-walk-lift path.
+  - *P0:* The rope pulls at an angle, so the slope is `F × cos θ`; 9 problems adding an angled pull and friction worked backward from net work.
+- **Links:** [Mechanical Work Studio](work_studio/index.html)
 
 #### Day 3 — Wed, Nov 18, 2026
 - **Title:** Work Done Against Gravity: Ramp & Pulley Trade-Off Lab

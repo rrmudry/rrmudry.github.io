@@ -5683,7 +5683,7 @@ const lessonsData = [
     "semester": 1,
     "isFeatured": false,
     "summary": "Build quantitative fluency using stacked GUESS steps (Given, Unknown, Equation, Stacked Substitution, Solution with SI units) across three work calculation families: direct horizontal pushes and zero-work traps (W = F · d), lifting weights against gravity (W = m · g · h with g = 10 m/s²), and net work combining forward engine/push forces with backward friction work.",
-    "activity": "12-Problem Scaffolded Work Calculation Workshop (g = 10 m/s²): Solve Part A horizontal & zero-work drills (e.g., 45 N × 6.0 m = 270 J; -400 N × 8.0 m = -3,200 J; carrying 15 kg horizontally 20 m = 0 J), Part B vertical lifts (4.0 kg lifted 1.5 m = 60 J; 250 kg pallet up 3.0 m = 7,500 J; 3-stage warehouse lift/carry/lift = 200 J total), and Part C net work & angled pulls (120 N east vs. 40 N west over 10 m = +800 J; Honors 40 N at 60° over 15 m = 300 J). Pass >= 3/4 on the Exit Calculation Check with units shown.",
+    "activity": "Mechanical Work Studio (Google Classroom, 10 points): decide whether a force does +W, 0 J or −W in four short scenes, pull a crate in 5–6 trials and read the tape, spring scale and work meter into your own data table, graph W against d, predict an untested distance and test it, then solve 6–9 calculation problems (W = F · d, W = m · g · h, net work) and a Mastery Check.",
     "essentialQuestion": "How do stacked substitutions distinguish horizontal work, vertical lifting work against gravity, and net work when multiple forces act?",
     "standards": [
       "HS-PS3-1"
@@ -5691,7 +5691,7 @@ const lessonsData = [
     "wicor": {
       "Writing": "Explaining zero-work multi-stage path segments (lift + horizontal walk + lift) using force-direction rules.",
       "Inquiry": "Diagnosing why sliding a crate horizontally against friction takes 4× less work than lifting it vertically.",
-      "Collaboration": "Pairs alternate whiteboard turns solving and unit-checking odd/even practice sets.",
+      "Collaboration": "Partners compare their data tables and graphs: different rope forces give different slopes, but every line starts at 0.",
       "Organization": "Structuring every problem with stacked Given, Formula, Substitution, and SI Unit boxes.",
       "Reading": "Extracting mass (kg), weight (N = m · 10), displacement (m), and force angles from word scenarios."
     },
@@ -5702,9 +5702,7 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
-      "Mechanical Work Studio (Classroom assignment)": "Unit_3/work_studio/index.html",
-      "Day 2 Work Calculation Workshop (PDF)": "Unit_3/worksheets/Day2_Work_Calculation_Practice.pdf",
-      "Day 2 Print View (HTML)": "Unit_3/worksheets/Day2_Work_Calculation_Practice.html"
+      "Mechanical Work Studio (Classroom assignment)": "Unit_3/work_studio/index.html"
     },
     "assignments": [
       {
@@ -5715,25 +5713,9 @@ const lessonsData = [
         "actionLabel": "Open the Studio",
         "description": "Decide when a force does +W, −W or 0 J, pull a crate and read the spring scale, tape and work meter, graph W against d, predict an untested distance, then solve W = F · d and W = m · g · h problems.",
         "status": "active"
-      },
-      {
-        "title": "Work Calculation Workshop (12-Problem Packet & Exit Check)",
-        "url": "Unit_3/worksheets/Day2_Work_Calculation_Practice.pdf",
-        "typeLabel": "Calculation Practice",
-        "submission": "Tiered Problem Set + >= 3/4 Stacked GUESS Exit Check",
-        "actionLabel": "Open PDF Worksheet",
-        "description": "Practice W = F · d, W = m · g · h (g = 10 m/s²), zero-work traps, and W<sub>net</sub> across 12 tiered scenarios.",
-        "status": "active"
       }
     ],
-    "resources": [
-      {
-        "title": "Mechanical Work Calculation Workshop — 2-Page Handout (PDF)",
-        "url": "Unit_3/worksheets/Day2_Work_Calculation_Practice.pdf",
-        "typeLabel": "Printable Worksheet",
-        "description": "12 tiered calculation problems with faded scaffold, stacked GUESS workspaces, and self-check strip (g = 10 m/s²)."
-      }
-    ]
+    "resources": []
   },
   {
     "day": 3,
