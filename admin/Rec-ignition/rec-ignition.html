@@ -134,10 +134,13 @@ const DEFAULT_CFG = {
     improveBefore: 3,     // ...compared with the N before them
     improvePct: 20,       // big improvement: in percentage points (20 = 2 out of 10); also used for Mastery Check retakes
     persistAttempts: 3,   // persistence: this many Mastery Check attempts...
-    persistScore: 80      // ...ending at this percent or better
+    persistScore: 80,     // ...ending at this percent or better
+    speedZ: 1.2,          // speed of progress: std devs above classmates' pct/min pace
+    speedMinPct: 60,      // speed of progress: minimum score % reached (~all prep done)
+    speedMinMinutes: 3    // speed of progress: minimum minutes to avoid 1-minute spikes
   },
   // One label per student per day. When several triggers fire at once, the first one in this list wins.
-  labelPriority: ["Personal best", "Big improvement", "Persistence", "Class standout", "Streak"],
+  labelPriority: ["Personal best", "Big improvement", "Persistence", "Class standout", "Speed of progress", "Streak"],
   autoPrint: {
     maxPerHour: 8,        // safety cap so a data glitch can't empty the roll
     secondsBetween: 10,   // gap between labels in the queue
@@ -210,11 +213,13 @@ function demoRecords() {
       if (i === 5 && d < 4) s += 28;          // Ethan: big improvement
       if (i === 9 && d === 0) s = 99;          // Mateo: stands out + personal best
       let quizHistory = [Math.round(s)];
+      let minutes = 18 + Math.floor(Math.random() * 14);
+      if (i === 7 && d === 0) { s = 75; minutes = 9; } // Lucas: speed of progress
       if (i === 14 && d === 0) { s = 88; quizHistory = [45, 60, 72, 90]; } // Luna: persistence
       // Whole-number score on the real scale, like the class apps save.
       const score = Math.max(0, Math.min(maxScore(), Math.round(s * maxScore() / 100)));
       recs.push({ path: `demo/${i}/${d}`, studentId: "s" + i, studentName: n, classId: "P3", activity: act,
-        pct: Math.round(100 * score / maxScore()), settled: true, quizHistory, t: now - d * day - Math.random() * 3e7 });
+        pct: Math.round(100 * score / maxScore()), settled: true, quizHistory, minutes, t: now - d * day - Math.random() * 3e7 });
     }
   });
   return recs;
@@ -293,7 +298,7 @@ function toRecord(d) {
     studentName: String(x[F.studentName] ?? x.studentName ?? x.displayName ?? "Student"),
     classId: x[F.classId] ?? x.period ?? "",
     activity: String(x.assignmentTitle ?? x.activityId ?? d.ref.parent.parent?.id ?? "Activity"),
-    pct, settled, quizHistory, t
+    pct, settled, quizHistory, minutes: Number(x.minutes ?? x.timeMinutes ?? 0) || 0, t
   };
 }
 const liveDocs = new Map(); // document path -> record
@@ -396,6 +401,10 @@ function detect(recs) {
   const byStudent = {}; recs.forEach(r => (byStudent[r.studentId] ||= []).push(r));
   // Class comparisons use finished work only, so a classmate who is halfway through doesn't drag the average down.
   const byAct = {}; recs.filter(r => r.settled).forEach(r => (byAct[r.activity] ||= []).push(r.pct));
+  // Speed comparisons use any classmate with enough time & progress on the same activity.
+  const minMins = T.speedMinMinutes ?? 3, minPct = T.speedMinPct ?? 60, speedZ = T.speedZ ?? 1.2;
+  const speedByAct = {};
+  recs.filter(r => r.minutes >= minMins && r.pct >= 25).forEach(r => (speedByAct[r.activity] ||= []).push(r.pct / r.minutes));
 
   for (const [sid, rs] of Object.entries(byStudent)) {
     rs.sort((a, b) => a.t - b.t);
@@ -438,12 +447,18 @@ function detect(recs) {
     // Persistence: several Mastery Check attempts, ending strong
     const p = recent.find(r => r.quizHistory.length >= T.persistAttempts && r.quizHistory[r.quizHistory.length - 1] >= T.persistScore);
     if (p) add("Persistence", `Never gave up on ${p.activity}!`, `${p.quizHistory.length} Mastery Check tries → ${p.quizHistory[p.quizHistory.length - 1]}%`, p.activity);
+    // Speed of progress: strong points-per-minute pace vs classmates on the same activity (works before finishing)
+    for (const r of rs.filter(r => r.t >= recentCut && r.pct >= minPct && r.minutes >= minMins)) {
+      const pool = speedByAct[r.activity]; if (!pool || pool.length < 5) continue;
+      const rate = r.pct / r.minutes, z = (rate - mean(pool)) / (sd(pool) || 1);
+      if (z >= speedZ) { add("Speed of progress", `Cruising through ${r.activity}!`, `${outOf(r.pct)} in ${Math.round(r.minutes)} min (${Math.round(rate)}%/min vs avg ${Math.round(mean(pool))}%/min)`, r.activity); break; }
+    }
   }
   return out;
 }
 
 // ---------- UI + printing ----------
-const STARS = { "Class standout":"🌟", "Personal best":"🏆", "Streak":"🔥", "Big improvement":"🚀", "Persistence":"💪" };
+const STARS = { "Class standout":"🌟", "Personal best":"🏆", "Streak":"🔥", "Big improvement":"🚀", "Persistence":"💪", "Speed of progress":"⚡" };
 const labelHTML = c => `<div class="label"><div class="star">${STARS[c.type] || "⭐"}</div><div>
   <div class="t1">Way to go, ${esc(first(c.name))}!</div><div class="t2">${esc(c.line)}</div>
   <div class="t3">${new Date().toLocaleDateString()}</div></div></div>`;

@@ -46,6 +46,7 @@ Each class app keeps one record per student per assignment and updates it as the
 | Streak | Work on 5 school days in a row (weekends don't break it). The tool remembers the days it sees each student working, so streaks build up from when it starts running |
 | Big improvement | The last 2 finished activities average at least 20 points above the 3 before them, or a Mastery Check retake is at least 20 points above the first try |
 | Persistence | At least 3 Mastery Check attempts, ending at 80% or better |
+| Speed of progress | Reached at least 60% with a points-per-minute pace (`score / minutes`) at least 1.2 standard deviations above classmates on the same activity (works before finishing) |
 
 ### One label per student per day
 

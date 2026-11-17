@@ -30,6 +30,7 @@ Each app keeps **one document per student per assignment and overwrites it**, so
 3. Streak: 5 school days in a row. The tool remembers the days it saw each student save (`recig-days` in localStorage), so streaks build up from when it starts running
 4. Big improvement: last 2 finished activities average ≥20 points above the 3 before, **or** a Mastery Check retake ≥20 points above the first try (`quiz_history`)
 5. Persistence: ≥3 Mastery Check attempts ending at ≥80% (`quiz_history`)
+6. Speed of progress: ≥60% score (all prep done) with ≥1.2 SD faster `pct / minutes` pace than classmates on the same activity (works before finishing)
 
 ## To do next
 - Scoring is 6 points for completing all preparation steps plus 4 for a mastery check. A score under 10 doesn't mean the assignment is unfinished.
