@@ -57,7 +57,9 @@ const scopes = [
   'https://www.googleapis.com/auth/classroom.courses.readonly',
   'https://www.googleapis.com/auth/classroom.coursework.students',
   'https://www.googleapis.com/auth/classroom.rosters.readonly',
-  'https://www.googleapis.com/auth/classroom.profile.emails'
+  'https://www.googleapis.com/auth/classroom.profile.emails',
+  // Read topic names so deploy-assignment.js can file new assignments under a unit topic (e.g. "Unit 3: Work and Energy")
+  'https://www.googleapis.com/auth/classroom.topics.readonly'
 ];
 
 // Generate the authorization URL

@@ -5702,10 +5702,20 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Mechanical Work Studio (Classroom assignment)": "Unit_3/work_studio/index.html",
       "Day 2 Work Calculation Workshop (PDF)": "Unit_3/worksheets/Day2_Work_Calculation_Practice.pdf",
       "Day 2 Print View (HTML)": "Unit_3/worksheets/Day2_Work_Calculation_Practice.html"
     },
     "assignments": [
+      {
+        "title": "Mechanical Work Studio",
+        "url": "Unit_3/work_studio/index.html",
+        "typeLabel": "Interactive Studio",
+        "submission": "Google Classroom: 10 points (6 guided parts + 4 Mastery Check), due Tue 11/17 at 6:00 PM",
+        "actionLabel": "Open the Studio",
+        "description": "Decide when a force does +W, −W or 0 J, pull a crate and read the spring scale, tape and work meter, graph W against d, predict an untested distance, then solve W = F · d and W = m · g · h problems.",
+        "status": "active"
+      },
       {
         "title": "Work Calculation Workshop (12-Problem Packet & Exit Check)",
         "url": "Unit_3/worksheets/Day2_Work_Calculation_Practice.pdf",

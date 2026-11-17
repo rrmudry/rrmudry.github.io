@@ -39,9 +39,8 @@ Periods 1–6 never see a class label. The first hint is already open for Period
 - **Slope triangle & read-line guide:** `graph()` draws a dashed Rise/Run (`ΔW`, `Δd`) right triangle when `showTriangle: true` on `Find the slope`, and a vertical `readX` amber guide on `Read your line`.
 - **No notebook page.** The handwritten question belongs on the day's handout (see below).
 
-## Still to do before students see it
+## Still to do
 - Add a one-line exit question to `Unit_3/worksheets/Day2_Work_Calculation_Practice` that uses one row of the student's own table.
-- Post with `deploy-assignment.js` once the teacher confirms the due date, run `npm run verify -- --id unit3_day2_work_studio --app Unit_3/work_studio`, then link Day 2 in `assets/lessons-data.js`.
 
 ## Inline build
 `node scripts/inline-studio.js Unit_3/work_studio` and `node scripts/inline-studio.js admin/work_studio_monitor.src.html`. Rebuild after every edit to `js/` or `css/`.
@@ -51,4 +50,7 @@ Preview without saving: `index.html?preview&view=conceptual` (or `cp`, `honors`)
 ## Status (as of 2026-11-16)
 - Built and reviewed with the teacher. A scripted honest play-through finishes every part for all three classes in headless Chrome, scoring 10/10, and the real save data has no values Firestore rejects (about 8 KB per student).
 - No scrolling on the tightest pages at 1366 × 768 and 1366 × 650.
-- Guest mode resumes after a reload on the same page with the same numbers. Signed-in saving and a real Chromebook still need a live check.
+- Guest mode resumes after a reload on the same page with the same numbers.
+- **Posted to Classroom on 2026-11-16** in all 7 periods as "Mechanical Work Studio" under the topic "Unit 3: Work and Energy", 10 points, due Tue 11/17 at 6:00 PM PST. `npm run verify` passed every check, including the live student-permission test, and Day 2 in `assets/lessons-data.js` now links it.
+- Posting under a topic needed the `classroom.topics.readonly` scope, added to `sync-classroom/auth.js` and re-authorized with `npm run auth`. Earlier topics only worked because their IDs were hard-coded in `deploy-assignment.js`.
+- Not seen yet: a real student session on a Chromebook and the monitor with real class data.

@@ -81,7 +81,7 @@ Students transition from forces and kinematics into an energy-accounting framewo
   - *P1–3:* Problems 1–8 with pre-boxed two-line step (`Step 1: Weight = m · 10`, `Step 2: W = Weight · h`) and unit bank; zero trigonometry.
   - *P4–6:* Problems 1–10 using full stacked GUESS templates with SI unit checks (`N`, `m`, `J`).
   - *P0:* All 12 problems including angled `W = F · d · cos(θ)` projections and reverse algebraic solves for resistive force `F_f`.
-- **Links:** [Day 2 Work Calculation Workshop (PDF)](worksheets/Day2_Work_Calculation_Practice.pdf) · [Print View (HTML)](worksheets/Day2_Work_Calculation_Practice.html)
+- **Links:** [Mechanical Work Studio](work_studio/index.html) · [Day 2 Work Calculation Workshop (PDF)](worksheets/Day2_Work_Calculation_Practice.pdf) · [Print View (HTML)](worksheets/Day2_Work_Calculation_Practice.html)
 
 #### Day 3 — Wed, Nov 18, 2026
 - **Title:** Work Done Against Gravity: Ramp & Pulley Trade-Off Lab
