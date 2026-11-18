@@ -1,6 +1,6 @@
 // Pulleys and Ramps Lab — one page, like the Ideal Pulley System Lab: 1 Setup, 2 Simulation, 3 My Data, 4 What It Shows.
-// Tap P to pull: 35 N for every tap per second, smoothed. The load speeds up or sinks with the net force.
-// Hold it in the green zone for 1.5 s and it latches, so the spring scale and rope tape can be read calmly.
+// Tap P to pull: 55 N for every tap per second, smoothed. The load speeds up or sinks with the net force.
+// Hold it in the green zone for 1.2 s and it latches, so the spring scale and rope tape can be read calmly.
 // The student reads d and F, works out W = F × d, and adds the row. Nothing is filled in for them.
 // Points (10): 1 for each correct row up to 6 (3 pulley + 3 ramp), 1 for each of two questions, 2 for a tested prediction.
 
@@ -9,7 +9,7 @@
   const $ = id => document.getElementById(id);
   const esc = s => String(s === undefined || s === null ? '' : s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
   const fmt = FL.fmt;
-  const N_PER_TAP_RATE = 35, DAMP = 30, HOLD_T = 1.5, FORGET = 3000;
+  const N_PER_TAP_RATE = 55, DAMP = 30, HOLD_T = 1.2, FORGET = 3000, ZONE_TOL = 0.20;
   const NEED_EACH = 3, MAX_EACH = 4;   // each table needs 3 rows and holds up to 4
   const fast = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) && /[?&]fast\b/.test(location.search);
   const wait = s => Date.now() + s * (fast ? 50 : 1000);
@@ -105,9 +105,9 @@
   const heightOf = (mc, x) => x / FL.factor(st.rig, mc);
   function inZone(mc, x) {
     const y = heightOf(mc, x), h = st.rig.h;
-    return Math.abs(y - h) <= 0.12;   // the same green band for pulleys and ramps
+    return Math.abs(y - h) <= ZONE_TOL;   // the same green band for pulleys and ramps
   }
-  const maxRope = mc => (mc.mach === 'pulley' ? mc.n : mc.L / st.rig.h) * (st.rig.h + 0.25);
+  const maxRope = mc => (mc.mach === 'pulley' ? mc.n : mc.L / st.rig.h) * (st.rig.h + 0.28);
   function step(dt) {
     const mc = machine(), r = st.rig, now = performance.now();
     sim.effort += (tapRate(now) * N_PER_TAP_RATE - sim.effort) * (1 - Math.exp(-8 * dt));
@@ -118,15 +118,15 @@
     sim.x += sim.v * dt;
     if (sim.x <= 0) { sim.x = 0; if (sim.v < 0) sim.v = 0; }
     if (sim.x >= maxRope(mc)) { sim.x = maxRope(mc); if (sim.v > 0) sim.v = 0; }
-    sim.hold = inZone(mc, sim.x) ? sim.hold + dt : 0;
+    sim.hold = inZone(mc, sim.x) ? sim.hold + dt : Math.max(0, sim.hold - dt * 1.5);
     if (sim.hold >= HOLD_T) { sim.locked = true; sim.x = FL.ropeDist(r, mc); sim.v = 0; ui.rec = {}; ui.recMsg = ''; paintRec(); paintAsk(); }
   }
   function status() {
     const mc = machine(), y = heightOf(mc, sim.x), h = st.rig.h;
     let m, cls = '';
     if (sim.locked) { m = '🔒 Held! Read the scale and the tape.'; cls = 'ok'; }
-    else if (sim.hold > 0) { m = `Hold it… ${'🟩'.repeat(Math.ceil(sim.hold / HOLD_T * 3))}${'⬜'.repeat(3 - Math.ceil(sim.hold / HOLD_T * 3))}`; cls = 'ok'; }
-    else if (y > h + 0.12) { m = 'Too high. Slow down.'; cls = 'warn'; }
+    else if (inZone(mc, sim.x) && sim.hold > 0) { m = `Hold it… ${'🟩'.repeat(Math.ceil(sim.hold / HOLD_T * 3))}${'⬜'.repeat(3 - Math.ceil(sim.hold / HOLD_T * 3))}`; cls = 'ok'; }
+    else if (y > h + ZONE_TOL) { m = 'Too high. Slow down.'; cls = 'warn'; }
     else if (sim.v < -0.05) { m = 'Slipping! Tap faster.'; cls = 'warn'; }
     else if (sim.x < 0.01) m = 'Tap P fast! Hold it in the green zone.';
     else m = 'Up, up…';

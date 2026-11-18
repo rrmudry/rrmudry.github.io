@@ -3,6 +3,13 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-18 — Pulleys and Ramps Lab (`Unit_3/tradeoff_lab`) Tapping & Green Zone Tuning
+**Patterns Updated**: `tradeoff-lab.md`.
+**Files Updated**: `Unit_3/tradeoff_lab/js/app.js`, `Unit_3/tradeoff_lab/js/scene.js`, `Unit_3/tradeoff_lab/index.html` (via `scripts/inline-studio.js`).
+**Notes**:
+- Increased `N_PER_TAP_RATE` from `35` to `55` N per tap/s so heavier loads (up to 24 kg = 240 N on 1 rope) only need ~4.4 taps/s instead of ~6.9 taps/s.
+- Widened the green hold zone (`ZONE_TOL` / `band`) from `±0.12 m` to `±0.20 m` around the 1.5 m hold line in both `app.js` and `scene.js` (with `maxRope` ceiling bumped to `h + 0.28 m`), lowered `HOLD_T` from `1.5 s` to `1.2 s`, and changed out-of-zone hold progress to decay (`-1.5 * dt`) rather than resetting to `0` on a 1-frame dip.
+
 ## 2026-11-16 — Unit 3 Day 2 Mechanical Work Studio
 **Patterns Followed**: `student-app-standards.md`, `centripetal-force-lab.md`, `cast-aligned-webapp-design.md`.
 **Patterns Added**: `work-studio.md`.

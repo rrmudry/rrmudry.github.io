@@ -105,7 +105,7 @@
   // ---------- The two machines ----------
   function pulleyStatic(rig, mc) {
     const g = geo(rig, mc, 0), R = PUL.r, tops = g.wheels.filter(w => !w.bot);
-    const lineY = FLOOR - rig.h * PUL.pxm, band = 0.12 * PUL.pxm;
+    const lineY = FLOOR - rig.h * PUL.pxm, band = 0.20 * PUL.pxm;
     const xsTop = tops.map(w => w.x).concat(g.deadTop ? [g.xs[0]] : []);
     const bx0 = Math.min(...xsTop) - R - 5, bx1 = Math.max(...xsTop) + R + 5;
     let s = `<rect x="150" y="${PUL.beam - 14}" width="360" height="14" class="to-beam"/>`;
@@ -127,7 +127,7 @@
     return s + `<text x="${x + 13}" y="${floor - 4}" class="sv-text to-ruler-num">m</text>`;
   }
   function rampStatic(rig, mc) {
-    const g = geo(rig, mc, 0), band = 0.12 * RAMP.pxm;
+    const g = geo(rig, mc, 0), band = 0.20 * RAMP.pxm;
     let s = `<rect x="${g.top.x - 6}" y="${g.top.y}" width="12" height="${FLOOR - g.top.y}" class="to-platform"/>`;
     s += ruler(60, FLOOR, RAMP.pxm, 1.8);
     s += `<path d="M ${g.foot.x} ${FLOOR} L ${g.top.x} ${g.top.y} L ${g.top.x} ${FLOOR} Z" class="to-wedge"/>`;
