@@ -75,12 +75,12 @@
   <h1 aria-label="Rec-IGNITION"><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="fl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc531"/><stop offset=".55" stop-color="#ff7a18"/><stop offset="1" stop-color="#e02d0f"/></linearGradient></defs><rect width="32" height="32" rx="8" fill="#1d1d1f"/><g transform="translate(16 16) scale(.82) translate(-16 -15)"><path fill="url(#fl)" d="M17 2C17.5 7 24 10 24 18.5A8 8 0 0 1 8 18.5C8 15 9.5 12.5 11.5 10.5C11.8 13 12.8 14.2 14 14.8C13.2 10 14 5.5 17 2Z"/><path class="core" fill="#ffe9a8" d="M16 27a4.2 4.2 0 0 1-4.2-4.2c0-2.6 2.2-3.6 3.4-6.3c2.6 1.8 5 3.6 5 6.3A4.2 4.2 0 0 1 16 27Z"/></g></svg><span>Rec-<span class="ig">IGNITION</span></span></h1>
   <div class="bar">
     <select id="source">
+      <option value="live" selected>Live Firestore</option>
       <option value="demo">Sample data</option>
-      <option value="live">Live Firestore</option>
     </select>
     <select id="periodFilter" title="Which class period to recognize">
+      <option value="all" selected>All periods</option>
       <option value="auto">Current period (auto)</option>
-      <option value="all">All periods</option>
       <option value="0">Period 0</option>
       <option value="1">Period 1</option>
       <option value="2">Period 2</option>
@@ -90,6 +90,7 @@
       <option value="6">Period 6</option>
     </select>
     <button id="refresh" class="primary">Find stand-outs</button>
+    <button id="printAll">Print unprinted</button>
     <label><input type="checkbox" id="auto"> Auto-print new stand-outs</label>
     <button id="simulate">Simulate new activity</button>
     <span id="userBadge" class="user-pill" hidden></span>
@@ -446,7 +447,8 @@ function detect(recs) {
     // Personal best
     if (latest && latest.t >= recentCut) {
       const prior = done.filter(r => r !== latest).map(r => r.pct);
-      if (prior.length >= T.personalPrior && latest.pct > Math.max(...prior) && latest.pct - mean(prior) >= T.personalJumpPct)
+      const topPrior = prior.length ? Math.max(...prior) : 0;
+      if (prior.length >= T.personalPrior && (latest.pct > topPrior || (latest.pct === 100 && topPrior === 100)) && latest.pct - mean(prior) >= T.personalJumpPct)
         add("Personal best", `New personal best in ${latest.activity}!`, `${outOf(latest.pct)} (your avg ${outOf(mean(prior))})`, latest.activity);
     }
     // Streak: any saved work counts, finished or not
@@ -557,6 +559,14 @@ $("#periodFilter").onchange = () => {
   const p = activePeriod();
   alertStatus(p === "none" ? "Outside scheduled class periods." : `${c.length} recognition${c.length === 1 ? "" : "s"} shown${p === null ? " (all periods)" : ` for Period ${p}`}.`);
 };
+$("#printAll").onclick = () => {
+  const todo = lastCands.filter(c => !dismissed[c.key] && !printed[c.key] && !gotLabelToday(c.sid));
+  if (!todo.length) return alertStatus("No unprinted stand-outs right now.");
+  todo.forEach(c => queue.push(c));
+  drainQueue();
+};
+try { $("#auto").checked = localStorage.getItem("recig-auto") === "1"; } catch {}
+$("#auto").onchange = () => { try { localStorage.setItem("recig-auto", $("#auto").checked ? "1" : "0"); } catch {} };
 $("#simulate").onclick = () => {
   if ($("#source").value !== "demo") return alertStatus("Simulate only works with sample data.");
   const s = records[Math.floor(Math.random() * records.length)];
@@ -603,6 +613,7 @@ function showGate(msg, err, buttonText) {
 async function initAuth() {
   const isLocal = ["localhost", "127.0.0.1"].includes(location.hostname);
   if (isLocal && new URLSearchParams(location.search).has("demo")) {
+    $("#source").value = "demo";
     $("#authGate").hidden = true;
     $("#appShell").hidden = false;
     $("#refresh").click();
