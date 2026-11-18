@@ -1897,3 +1897,6 @@ Append-only log tracking pattern changes across recent sessions.
 
 ## 2026-11-18 — Pulleys and Ramps Lab rebuilt in pulley-work's style
 - The teacher rejected the first, wizard-style version: they had asked to copy pulley-work. Rebuilt `Unit_3/tradeoff_lab/` as one page of numbered cards with sliders, few words, predictions only after data, and Firestore saving. The monitor now follows the new fields. Rewrote `patterns/tradeoff-lab.md` with the direction: children's-book visual load, not kindergarten rigor.
+
+## 2026-11-18 — Pulleys and Ramps Lab posted
+- Scheduled in all 7 periods (due 11/18 6 PM), `npm run verify` green, then linked on Unit 3 Day 3 (lessons-data, outline, dashboard). Noted in `patterns/tradeoff-lab.md`.

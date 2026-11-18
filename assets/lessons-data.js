@@ -5747,12 +5747,21 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Pulleys and Ramps Lab (Classroom assignment)": "Unit_3/tradeoff_lab/index.html",
       "Ideal Pulley System Lab": "pulley-work/index.html",
-      "Ramp Work Lab": "ramp-work/index.html",
       "Day 3 Ramp & Pulley Lab Sheet (PDF)": "Unit_3/worksheets/Day3_Ramp_and_Pulley_Work_Lab.pdf",
       "Day 3 Lab Print View (HTML)": "Unit_3/worksheets/Day3_Ramp_and_Pulley_Work_Lab.html"
     },
     "assignments": [
+      {
+        "title": "Pulleys and Ramps Lab: The Force–Distance Trade-Off",
+        "url": "Unit_3/tradeoff_lab/index.html",
+        "typeLabel": "Interactive Lab",
+        "submission": "Google Classroom: 10 points (6 for 3 pulley + 3 ramp trials, 4 for the questions), due Wed 11/18 at 6:00 PM",
+        "actionLabel": "Open the Lab",
+        "description": "Tap P to lift a load with 1–4 rope pulleys and smooth ramps, read the spring scale and rope tape, record d, F and W = F × d, then use your own graph and tables to show that machines trade force for distance and predict a new ramp. Finish to download a certificate.",
+        "status": "active"
+      },
       {
         "title": "Ramp & Pulley Force–Distance Lab Sheet",
         "url": "Unit_3/worksheets/Day3_Ramp_and_Pulley_Work_Lab.pdf",

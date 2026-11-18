@@ -43,5 +43,8 @@
 - **Points:** 6 for rows plus 4 shared by that class's steps (each question 1, predict 2, design 2), so each class still totals 10 and partial scores can be decimals.
 - In the big view, the calculator's 📥 button fills the box the student last clicked (or else the first empty one).
 
+## Posted (2026-11-18)
+- Scheduled in Classroom on 2026-11-18 in all 7 periods as "Pulleys and Ramps Lab: The Force–Distance Trade-Off", topic Unit 3: Work and Energy, 10 points, due Wed 11/18 at 6:00 PM PST. Each period's copy posts itself at that period's start (P0 8:30, P1 9:20, P2 10:10, P3 11:10, P4 12:35, P5 1:55, P6 2:45, the same times as Day 2) with `deploy-assignment.js --schedule`. `npm run verify -- --id unit3_day3_tradeoff_lab --app Unit_3/tradeoff_lab` passed every check, then Day 3 was linked in `assets/lessons-data.js`, `Unit_3/outline.md` and the Unit 3 dashboard. The standalone `ramp-work/` link was replaced.
+
 ## Testing
 Use puppeteer with an in-page tapping bot (`TradeoffLab.debug()` exposes `st`, `sim`, `tap`, `machine`). It reaches 10/10 with no console errors at 1366 × 768. At 1366 × 650 only the My Data card scrolls.
