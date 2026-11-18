@@ -405,10 +405,13 @@
       const reg = regByCwId.get(String(cw.id)) || regByTitle.get(normalizeTitle(cw.title));
       const appUrl = findAppUrl(cw, reg);
       const appScoreData = reg ? getAppScorePct(reg) : null;
+      const bellRinger = isBellRingerItem(cw.title, reg, appUrl);
 
-      // Classify status
+      // Classify status (Bell-Ringers are timed in-class warm-ups and cannot be made up)
       let category = 'done';
-      if (subState === 'TURNED_IN' && assignedGrade === null) {
+      if (bellRinger) {
+        category = 'non_makeup';
+      } else if (subState === 'TURNED_IN' && assignedGrade === null) {
         category = 'pending';
       } else if (assignedGrade === null) {
         // Not graded yet and not turned in
@@ -427,7 +430,7 @@
       const rawPts = assignedGrade !== null ? assignedGrade : 0;
       const currentPts = Math.max(rawPts, floorPts);
       const floorApplied = rawPts < floorPts;
-      const potentialGain = Math.max(0, Number((maxPoints - currentPts).toFixed(2)));
+      const potentialGain = bellRinger ? 0 : Math.max(0, Number((maxPoints - currentPts).toFixed(2)));
       // Counts in current grade denominator if graded OR past due
       const inCurrentGrade = assignedGrade !== null || isPastDue;
 
@@ -442,6 +445,7 @@
         assignedGrade,
         draftGrade,
         potentialGain,
+        isBellRinger: bellRinger,
         subState,
         late: Boolean(sub.late),
         due,
@@ -481,7 +485,7 @@
   function buildFallbackItemsFromRegistry() {
     // When Classroom API isn't connected yet, show interactive apps from assignment_registry + Firestore
     const items = state.registry
-      .filter((r) => r.activityUrl && r.title)
+      .filter((r) => r.activityUrl && r.title && !isBellRingerItem(r.title, r, r.activityUrl))
       .map((r) => {
         const maxPoints = Number(r.maxPoints || 10);
         const floorPts = Number((maxPoints * 0.5).toFixed(2));
@@ -524,6 +528,13 @@
 
     items.sort((a, b) => b.potentialGain - a.potentialGain);
     state.items = items;
+  }
+
+  function isBellRingerItem(title, reg, appUrl) {
+    if (reg && (reg.type === 'bell_ringer' || String(reg.id || '').startsWith('bell_ringer'))) return true;
+    if (/bell[\s-]*ringer/i.test(title || '')) return true;
+    if (appUrl && /Bell-Ringer/i.test(appUrl)) return true;
+    return false;
   }
 
   function normalizeTitle(t) {
