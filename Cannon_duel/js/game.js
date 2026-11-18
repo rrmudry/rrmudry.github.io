@@ -146,7 +146,12 @@
       const d = this.duel, rec = d.world.recon(this.idx);
       const dy = rec.dy === 0 ? '0.0 m (level)' : `${rec.dy > 0 ? '+' : '−'}${Math.abs(rec.dy).toFixed(1)} m (${rec.dy > 0 ? 'higher' : 'lower'})`;
       const windLine = d.world.wind ? `<br>wind = ${d.world.wind > 0 ? '+' : '−'}${Math.abs(d.world.wind).toFixed(1)} m/s² ${d.world.wind > 0 ? '→' : '←'}` : '';
-      $('recon').innerHTML = `<b>Recon: enemy pivot</b><br>Δx = ${rec.dx.toFixed(1)} m<br class="wide"><span class="sep"></span>Δy = ${dy}<br>g = ${d.world.g.toFixed(1)} m/s²${windLine}`;
+      const tgt = d.world.blitz && d.world.target;
+      const velLine = tgt && (tgt.vx || tgt.vy)
+        ? `<br>v<sub>tgt</sub> = ${tgt.vx ? (tgt.vx > 0 ? '+' : '−') + Math.abs(tgt.vx).toFixed(1) + ' m/s →' : (tgt.vy > 0 ? '+' : '−') + Math.abs(tgt.vy).toFixed(1) + ' m/s ↑'}`
+        : '';
+      const title = d.world.blitz ? 'Recon: active target' : 'Recon: enemy pivot';
+      $('recon').innerHTML = `<b>${title}</b><br>Δx = ${rec.dx.toFixed(1)} m<br class="wide"><span class="sep"></span>Δy = ${dy}<br>g = ${d.world.g.toFixed(1)} m/s²${windLine}${velLine}`;
       const mine = d.shots.filter((s) => s.by === this.idx).slice(-3).reverse();
       $('shotLog').querySelector('tbody').innerHTML = mine.length ? mine.map((s) => {
         let cls = '', txt;
@@ -388,6 +393,10 @@
     }
 
     next(idx) {
+      if (this.o.onShotDone) {
+        this.o.onShotDone(idx, this.shots[this.shots.length - 1]);
+        return;
+      }
       const dead = [0, 1].filter((j) => this.hp[j] <= 0);
       if (dead.length) {
         const winner = dead.length === 2 ? -1 : 1 - dead[0];
@@ -473,6 +482,20 @@
       } catch (e) { el.hidden = true; }
     },
 
+    paintBlitzBest() {
+      const el = $('blitzBest');
+      if (!el) return;
+      try {
+        const best = JSON.parse(localStorage.getItem('cd_blitz_best') || 'null');
+        if (best && best.score > 0) {
+          el.textContent = `Best: ${best.score.toLocaleString()} pts (${best.hits} hits)`;
+          el.hidden = false;
+        } else {
+          el.hidden = true;
+        }
+      } catch (e) { el.hidden = true; }
+    },
+
     endDuel() {
       if (this.duel) this.duel.destroy();
       this.duel = null;
@@ -486,6 +509,7 @@
       ['setup', 'result', 'help', 'online', 'hostView'].forEach((id) => UI.hide(id));
       $('btnHostPanel').hidden = true;
       this.paintGauntletBest();
+      this.paintBlitzBest();
       UI.show('menu');
       this.startDemo();
     },
@@ -513,12 +537,13 @@
 
     openSetup(mode) {
       this.setupMode = mode;
-      $('setupTitle').textContent = mode === 'cpu' ? '🤖 Single Player' : mode === 'gauntlet' ? '🪐 Gravity Gauntlet' : '👥 Two Players';
+      $('setupTitle').textContent = mode === 'cpu' ? '🤖 Single Player' : mode === 'gauntlet' ? '🪐 Gravity Gauntlet' : mode === 'blitz' ? '🎯 Target Blitz' : '👥 Two Players';
       $('diffField').hidden = mode !== 'cpu';
+      $('optSabo').closest('label').hidden = mode === 'blitz';
       const wrap = $('setupTeams'); wrap.innerHTML = '';
       let saved = {};
       try { saved = JSON.parse(localStorage.getItem('cd_setup') || '{}'); } catch (e) { /* storage blocked */ }
-      const defs = mode === 'cpu' || mode === 'gauntlet'
+      const defs = mode === 'cpu' || mode === 'gauntlet' || mode === 'blitz'
         ? [{ name: saved.n0 || 'Blue Barons', color: saved.c0 || 'blue', label: 'Your team' }]
         : [{ name: saved.n0 || 'Blue Barons', color: saved.c0 || 'blue', label: 'Player 1 (left fort)' },
            { name: saved.n1 || 'Red Raiders', color: saved.c1 || 'red', label: 'Player 2 (right fort)' }];
@@ -541,6 +566,11 @@
       if (this.setupMode === 'gauntlet') {
         UI.hide('setup');
         this.startGauntlet(t[0], guide, sabotage);
+        return;
+      }
+      if (this.setupMode === 'blitz') {
+        UI.hide('setup');
+        this.startBlitz(t[0], guide);
         return;
       }
       if (this.setupMode === 'cpu') {
@@ -662,12 +692,133 @@
         ],
       });
     },
+
+    startBlitz(playerTeam, guide) {
+      this.blitz = {
+        player: playerTeam, guide, shells: 10, hits: 0, bullseyes: 0,
+        streak: 0, bestStreak: 0, score: 0, shotsTotal: 0, targetNum: 1,
+      };
+      this.startBlitzTarget();
+    },
+
+    startBlitzTarget() {
+      this.stopDemo();
+      const b = this.blitz;
+      const seed = this.newSeed();
+      const tmp = new E.World(seed);
+      const tx = Math.round(130 + Math.random() * 155);
+      const gnd = tmp.heightAt(tx);
+      const ty = Math.round(Math.max(gnd + 10, 24 + Math.random() * 62));
+      let vx = 0, vy = 0;
+      if (b.targetNum >= 4) {
+        if (b.targetNum % 2 === 0) vx = (Math.random() < 0.5 ? -1 : 1) * (2.0 + Math.round(Math.random() * 20) / 10);
+        else vy = (Math.random() < 0.5 ? -1 : 1) * (1.2 + Math.round(Math.random() * 14) / 10);
+      }
+      const target = { x: tx, y: ty, vx: Math.round(vx * 10) / 10, vy: Math.round(vy * 10) / 10, r: 4.5 };
+      const tgtTeam = { name: `Target #${b.targetNum}`, color: 'gold' };
+
+      this.duel = new Duel({
+        seed,
+        teams: [b.player, tgtTeam],
+        controls: ['human', 'cpu'],
+        guide: b.guide,
+        sabotage: false,
+        worldOpts: { blitz: true, target },
+        midLabel: () => `🎯 ${b.hits} · 💣 ${b.shells} · ${b.score} pts`,
+        onShotDone: (idx, shot) => this.blitzShotDone(shot),
+        onOver: () => this.blitzOver(),
+      });
+      const d = this.duel;
+      UI.banner(`🎯 TARGET #${b.targetNum}`, `${b.shells} shells left${b.streak >= 2 ? ` · 🔥 ${b.streak}× Streak!` : ''}`, 1400);
+      setTimeout(() => { if (this.duel === d) d.beginTurn(0, { quiet: true }); }, 400);
+    },
+
+    blitzShotDone(shot) {
+      const d = this.duel, b = this.blitz;
+      b.shells--;
+      b.shotsTotal++;
+      const dist = shot.hitDist;
+      const bullseye = shot.direct && dist !== null && dist <= 2.2;
+      const hit = shot.direct;
+
+      if (hit) {
+        b.hits++;
+        b.streak++;
+        b.bestStreak = Math.max(b.bestStreak, b.streak);
+        if (bullseye) {
+          b.bullseyes++;
+          b.shells++;
+          const pts = 500 * b.streak;
+          b.score += pts;
+          sound.win();
+          UI.banner('🎯 BULLSEYE!', `+${pts} pts · +1 Free Shell! (${b.streak}× streak)`, 1500);
+        } else {
+          const pts = 250 * b.streak;
+          b.score += pts;
+          sound.hit();
+          UI.banner('💥 TARGET HIT!', `+${pts} pts (${b.streak}× streak)`, 1300);
+        }
+        d.hp[1] = 0;
+        renderer.hp = d.hp.slice();
+        renderer.burst(1);
+        b.targetNum++;
+        d.updateHud();
+        d.waveTimer = setTimeout(() => {
+          if (this.duel !== d) return;
+          if (b.shells <= 0) d.finish(0);
+          else this.startBlitzTarget();
+        }, 1450);
+        return;
+      }
+
+      b.streak = 0;
+      if (dist !== null && dist <= 8.5) {
+        b.score += 50;
+        UI.toast('😬 Close! +50 pts — adjust from your ghost trail.');
+      }
+      d.updateHud();
+      if (b.shells <= 0) {
+        d.finish(0);
+      } else {
+        d.beginTurn(0, { quiet: true });
+      }
+    },
+
+    blitzOver() {
+      const d = this.duel, b = this.blitz;
+      let best = { score: 0, hits: 0 };
+      try { best = JSON.parse(localStorage.getItem('cd_blitz_best') || 'null') || best; } catch (e) { /* storage blocked */ }
+      const isNewBest = b.score > best.score;
+      if (isNewBest) {
+        best = { score: b.score, hits: b.hits };
+        try { localStorage.setItem('cd_blitz_best', JSON.stringify(best)); } catch (e) { /* storage blocked */ }
+      }
+      $('resTrophy').textContent = isNewBest ? '🏆' : '🎯';
+      $('resTitle').textContent = isNewBest ? '🌟 New Target Blitz Record!' : 'Out of Shells!';
+      $('resSub').textContent = `Score: ${b.score.toLocaleString()} pts · Best: ${best.score.toLocaleString()} pts (${best.hits} hits)`;
+      $('resStats').innerHTML = `
+        <div class="team" style="--c:${colorOf(b.player)}"><h4>${esc(b.player.name)}</h4><dl>
+          <dt>Targets hit</dt><dd>${b.hits}</dd>
+          <dt>Bullseyes</dt><dd>${b.bullseyes}</dd>
+          <dt>Best streak</dt><dd>${b.bestStreak}×</dd>
+          <dt>Shells fired</dt><dd>${b.shotsTotal}</dd>
+          <dt>Final score</dt><dd>${b.score.toLocaleString()}</dd></dl></div>`;
+      const row = $('resBtns'); row.innerHTML = '';
+      [['Main menu', 'ghost', () => this.goMenu()], ['Play Target Blitz again', 'primary', () => this.startBlitz(b.player, b.guide)]].forEach(([label, cls, fn]) => {
+        const btn = document.createElement('button');
+        btn.className = 'btn ' + cls; btn.textContent = label;
+        btn.addEventListener('click', () => { UI.hide('result'); fn(); });
+        row.appendChild(btn);
+      });
+      UI.show('result');
+    },
   };
 
   // ---------------------------------------------------------------- wiring
   $('modeCpu').addEventListener('click', () => { sound.click(); App.openSetup('cpu'); });
   $('modeLocal').addEventListener('click', () => { sound.click(); App.openSetup('local'); });
   $('modeGauntlet').addEventListener('click', () => { sound.click(); App.openSetup('gauntlet'); });
+  $('modeBlitz').addEventListener('click', () => { sound.click(); App.openSetup('blitz'); });
   $('btnStart').addEventListener('click', () => { sound.quiet = false; sound.click(); App.startFromSetup(); });
   document.querySelectorAll('#diffSeg button').forEach((b) => b.addEventListener('click', () => {
     document.querySelectorAll('#diffSeg button').forEach((x) => x.classList.toggle('sel', x === b)); sound.click();

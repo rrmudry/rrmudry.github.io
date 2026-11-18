@@ -73,6 +73,8 @@
       this.g = opts.g !== undefined ? opts.g : G;
       this.wind = opts.wind !== undefined ? opts.wind : 0;
       this.planet = opts.planet || null;
+      this.blitz = !!opts.blitz;
+      this.target = opts.target || null;
       this.theme = opts.theme || ['day', 'sunset', 'day', 'dusk', 'night'][Math.floor(rnd() * 5)];
 
       const pad = this.g > 15 ? 48 : 22;
@@ -108,7 +110,9 @@
       this.h = h;
       this.cannons = [
         { x: xL, ground: gL, y: r1(gL + PIVOT_H), dir: 1 },
-        { x: xR, ground: gR, y: r1(gR + PIVOT_H), dir: -1 },
+        this.blitz && this.target
+          ? { x: this.target.x, ground: this.heightAt(this.target.x), y: this.target.y, dir: -1 }
+          : { x: xR, ground: gR, y: r1(gR + PIVOT_H), dir: -1 },
       ];
       this.craters = [];
 
@@ -138,7 +142,12 @@
     }
 
     inFort(x) {
-      return this.cannons.some((c) => Math.abs(x - c.x) < FORT_HALF + 1);
+      return (this.blitz ? [this.cannons[0]] : this.cannons).some((c) => Math.abs(x - c.x) < FORT_HALF + 1);
+    }
+
+    targetAt(t) {
+      if (!this.blitz || !this.target) return this.cannons[1];
+      return { x: this.target.x + (this.target.vx || 0) * t, y: this.target.y + (this.target.vy || 0) * t };
     }
 
     applyCrater(c) {
@@ -166,8 +175,9 @@
         const p = pos(t);
         for (let j = 0; j < 2; j++) {
           if (j === idx && t < 0.5) continue;
-          const o = this.cannons[j];
-          if (Math.hypot(p.x - o.x, p.y - o.y) < HIT_R) { impact = { ...p, t, type: 'cannon', target: j }; break; }
+          const o = j === 1 && this.blitz ? this.targetAt(t) : this.cannons[j];
+          const rad = j === 1 && this.blitz && this.target ? (this.target.r || HIT_R) : HIT_R;
+          if (Math.hypot(p.x - o.x, p.y - o.y) < rad) { impact = { ...p, t, type: 'cannon', target: j }; break; }
         }
         if (impact) break;
         if (p.x < -30 || p.x > WORLD_W + 30) { impact = { ...p, t, type: 'out' }; break; }
@@ -209,11 +219,13 @@
         craters.push({ x: im.x, y: im.y, r: r1(ammo.blast * 0.55) });
       }
       const main = impacts[ammoKey === 'triple' ? 1 : 0];
-      const enemy = this.cannons[1 - idx], me = this.cannons[idx];
+      const enemy = this.blitz ? this.targetAt(main.t) : this.cannons[1 - idx], me = this.cannons[idx];
       const offset = main.type === 'out' ? null : r1((main.x - enemy.x) * me.dir);
+      const hitDist = main.type === 'out' ? null : r2(Math.hypot(main.x - enemy.x, main.y - enemy.y));
       return {
         ammo: ammo.key, angle, speed, impacts, craters, dmg,
         offset,                                  // + long, − short (horizontal, m)
+        hitDist,
         direct: impacts.some((im) => im.type === 'cannon' && im.target === 1 - idx),
         range: main.type === 'out' ? null : r1(Math.abs(main.x - me.x)),
         flight: main.t, peak: peak ? r1(peak.y - me.y) : 0,
@@ -665,7 +677,7 @@
         }
       }
       // Stone forts
-      for (const c of w.cannons) {
+      for (const c of (w.blitz ? [w.cannons[0]] : w.cannons)) {
         const [lx, ty] = this.toScreen(c.x - FORT_HALF, c.ground), [rx, by] = this.toScreen(c.x + FORT_HALF, c.ground - 5);
         ctx.fillStyle = '#78716c'; ctx.fillRect(lx, ty, rx - lx, by - ty);
         ctx.strokeStyle = '#57534e'; ctx.lineWidth = 1;
@@ -681,6 +693,7 @@
 
     drawCannon(i) {
       const ctx = this.ctx, w = this.world, c = w.cannons[i];
+      if (w.blitz && i === 1) { this.drawTarget(); return; }
       const team = this.teams[i] || { name: '', color: i ? 'red' : 'blue' };
       const col = TEAM_COLORS[team.color] || TEAM_COLORS.blue;
       const k = Math.max(this.cam.s * 1.7, 6);          // px per meter for the cannon drawing (drawn larger than life)
@@ -749,6 +762,38 @@
         const bob = Math.sin(this.time * 5) * 3;
         ctx.fillStyle = '#fde047';
         ctx.beginPath(); ctx.moveTo(px - 7, lblY - 26 + bob); ctx.lineTo(px + 7, lblY - 26 + bob); ctx.lineTo(px, lblY - 18 + bob); ctx.fill();
+      }
+    }
+
+    drawTarget() {
+      const ctx = this.ctx, w = this.world, tgt = w.target;
+      if (!tgt || this.hp[1] <= 0) return;
+      const tFlight = this.balls.length ? this.balls[0].t : 0;
+      const pos = w.targetAt(tFlight);
+      const bob = this.balls.length ? 0 : Math.sin(this.time * 3.5) * 2.5;
+      const [px, py0] = this.toScreen(pos.x, pos.y);
+      const py = py0 + bob;
+      const r = Math.max(14, (tgt.r || 4.5) * this.cam.s);
+
+      // Hover glow
+      const glow = ctx.createRadialGradient(px, py, r * 0.2, px, py, r * 1.8);
+      glow.addColorStop(0, 'rgba(250,204,21,0.35)'); glow.addColorStop(1, 'rgba(250,204,21,0)');
+      ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(px, py, r * 1.8, 0, 7); ctx.fill();
+
+      // Concentric bullseye rings
+      const rings = [[1, '#ef4444'], [0.68, '#f8fafc'], [0.36, '#facc15']];
+      for (const [f, col] of rings) {
+        ctx.fillStyle = col; ctx.beginPath(); ctx.arc(px, py, r * f, 0, 7); ctx.fill();
+      }
+      ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(px, py, r, 0, 7); ctx.stroke();
+
+      // Velocity indicator if moving
+      if (tgt.vx || tgt.vy) {
+        const vx = tgt.vx || 0, vy = tgt.vy || 0;
+        const label = `v = ${vx ? (vx > 0 ? '+' : '−') + Math.abs(vx).toFixed(1) + ' m/s →' : (vy > 0 ? '+' : '−') + Math.abs(vy).toFixed(1) + ' m/s ↑'}`;
+        ctx.font = '700 12px "JetBrains Mono", monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        pill(ctx, label, px, py - r - 18, 0, '#fde047');
       }
     }
 
