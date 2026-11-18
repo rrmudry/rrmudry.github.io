@@ -5748,6 +5748,7 @@ const lessonsData = [
     },
     "links": {
       "Ideal Pulley System Lab": "pulley-work/index.html",
+      "Ramp Work Lab": "ramp-work/index.html",
       "Day 3 Ramp & Pulley Lab Sheet (PDF)": "Unit_3/worksheets/Day3_Ramp_and_Pulley_Work_Lab.pdf",
       "Day 3 Lab Print View (HTML)": "Unit_3/worksheets/Day3_Ramp_and_Pulley_Work_Lab.html"
     },

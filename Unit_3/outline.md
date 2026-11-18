@@ -93,7 +93,7 @@ Students transition from forces and kinematics into an energy-accounting framewo
   - *P1–3:* Run clean `1×`, `2×`, and `4×` distances (`0.30 m`, `0.60 m`, `1.20 m`) to observe how doubling ramp distance halves ideal pull force while keeping work near `1.50 J`.
   - *P4–6:* Complete all 5 physical trials, calculate `W_in = F_pull · d` and `IMA = d ÷ h`, and compare against `m · g · h = 1.50 J`.
   - *P0:* Compute mechanical efficiency (`Eff = W_out ÷ W_in`) and negative friction work (`W_f = -(W_in - W_out)`, e.g. `-0.24 J` on Ramp D) along each track length.
-- **Links:** [Ideal Pulley System Lab](../pulley-work/index.html) · [Day 3 Ramp & Pulley Lab (PDF)](worksheets/Day3_Ramp_and_Pulley_Work_Lab.pdf) · [Print View (HTML)](worksheets/Day3_Ramp_and_Pulley_Work_Lab.html)
+- **Links:** [Ideal Pulley System Lab](../pulley-work/index.html) · [Ramp Work Lab](../ramp-work/index.html) · [Day 3 Ramp & Pulley Lab (PDF)](worksheets/Day3_Ramp_and_Pulley_Work_Lab.pdf) · [Print View (HTML)](worksheets/Day3_Ramp_and_Pulley_Work_Lab.html)
 
 #### Day 4 — Thu, Nov 19, 2026
 - **Title:** Force–Distance Data Analysis & Ramp Trade-Off CER

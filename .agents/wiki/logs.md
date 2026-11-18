@@ -1884,3 +1884,16 @@ Append-only log tracking pattern changes across recent sessions.
 - Uses student Google OAuth (`classroom.courses.readonly` + `classroom.coursework.me.readonly`) to pull live Google Classroom courses, published coursework, and student submissions, sorted by highest potential point gain.
 - Cross-references `assignment_registry`, `student_results`, and `physics_labs` in Firestore so interactive `rrmudry.github.io` labs show direct launch links and "Saved in App — awaiting Classroom sync" indicators, with a graceful Firestore fallback if Classroom scopes are unavailable.
 - Added read-only student rule for `assignment_registry` (`allow read: if isSchoolUser();`) in `firestore.rules` and deployed to `site-6e500`.
+
+## 2026-11-17 — Ramp Work Lab (Unit 3 Day 3)
+- Added `ramp-work/index.html`, an ungraded companion to `pulley-work/`. It reuses the pulley lab's tap-P effort model (35 N per tap per second, same smoothing) so both sims feel the same. Smooth ramp only: no friction and no force components.
+- The spring scale shows the rope force during a steady crawl, and a red Max pointer keeps the reading after the trip so students can read it calmly. Two ranges (0–100 N, 0–500 N) with an over-range warning.
+- Animated, so checked with puppeteer (see the WebGL/animation note): 20 kg, 1.0 m straight up reads 200 N at about 6.7 taps/s; a 4 m ramp reads 50 N at 3 taps/s; 2 taps/s cannot move 100 N.
+
+## 2026-11-17 — Force–Distance Trade-Off Lab (`Unit_3/tradeoff_lab/`)
+- New graded studio combining pulleys and ramps (assignment `unit3_day3_tradeoff_lab`), built on the Day 2 work studio framework, with `admin/tradeoff_lab_monitor.html` and an entry in `admin/sprint_progress_3d.html`. Added `patterns/tradeoff-lab.md`.
+- Pattern: measure tap rate from the gaps between taps, not by counting taps in a window, so light loads can be held still. Latch after 1.5 s in a hold zone for a clean spring-scale reading.
+- Not yet posted or verified; not yet linked in `assets/lessons-data.js`.
+
+## 2026-11-18 — Pulleys and Ramps Lab rebuilt in pulley-work's style
+- The teacher rejected the first, wizard-style version: they had asked to copy pulley-work. Rebuilt `Unit_3/tradeoff_lab/` as one page of numbered cards with sliders, few words, predictions only after data, and Firestore saving. The monitor now follows the new fields. Rewrote `patterns/tradeoff-lab.md` with the direction: children's-book visual load, not kindergarten rigor.

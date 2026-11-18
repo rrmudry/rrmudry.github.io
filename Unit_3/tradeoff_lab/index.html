@@ -1,0 +1,2787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pulleys and Ramps Lab</title>
+  <meta name="description" content="Lift a load with pulleys and ramps by tapping P. Record force and rope distance, and see how machines trade force for distance.">
+  <link rel="icon" type="image/svg+xml" href="../../assets/unit3-favicon.svg">
+  <!-- Built from src.html by scripts/inline-studio.js. Edit the source files, not this page. -->
+  <script>try { if (localStorage.getItem('tol_theme') === 'dark') document.documentElement.classList.add('theme-dark'); if (localStorage.getItem('tol_big') === 'on') document.documentElement.classList.add('big'); } catch (e) {}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+/* === Unit_3/tradeoff_lab/css/style.css === */
+/* Pulleys and Ramps Lab — the look of the Ideal Pulley System Lab: gray-50 page, white rounded cards, numbered blue badges, Inter.
+   Few words, big pictures. Light mode is high contrast; dark mode and Big (projector) text are in the header. */
+:root {
+  --page: #f8fafc; --card: #ffffff; --line: #e2e8f0; --line-2: #cbd5e1; --ink: #0f172a; --muted: #475569;
+  --blue: #2563eb; --blue-soft: #dbeafe; --green: #059669; --green-soft: #d1fae5; --amber-soft: #fef3c7; --red: #b91c1c;
+  --c-d: #b45309; --c-F: #0e7490; --c-W: #047857; --sky: #ffffff; --text-main: #0f172a; --text-dim: #475569; --bad: #dc2626;
+  --border-color: #cbd5e1; --bg-card: #ffffff; --font-sans: 'Inter', system-ui, sans-serif;
+  font-size: 16px;
+}
+html.theme-dark {
+  --page: #0b1220; --card: #111a2e; --line: #1e293b; --line-2: #334155; --ink: #f1f5f9; --muted: #cbd5e1;
+  --blue: #60a5fa; --blue-soft: #1e3a8a; --green: #34d399; --green-soft: #064e3b; --amber-soft: #451a03; --red: #fca5a5;
+  --c-d: #fbbf24; --c-F: #22d3ee; --c-W: #34d399; --sky: #0f172a; --text-main: #f1f5f9; --text-dim: #cbd5e1;
+  --border-color: #334155; --bg-card: #111a2e;
+}
+html.big { font-size: 19px; }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--page); color: var(--ink); font-family: var(--font-sans); display: flex; flex-direction: column; overflow: hidden; -webkit-font-smoothing: antialiased; }
+.muted { color: var(--muted); } .small { font-size: 0.78rem; } .strong { font-weight: 700; } .err { color: var(--red); font-weight: 600; }
+.green { color: var(--green); font-weight: 800; }
+kbd { font-family: inherit; font-weight: 800; color: var(--ink); background: var(--card); border: 1px solid var(--line-2); border-bottom-width: 3px; border-radius: 0.35rem; padding: 0.05rem 0.45rem; }
+
+.top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.55rem 1.25rem; background: var(--card); border-bottom: 1px solid var(--line); box-shadow: 0 1px 2px rgba(15,23,42,.05); }
+.brand { display: flex; align-items: center; gap: 0.75rem; }
+.brand h1 { margin: 0; font-size: 1.15rem; font-weight: 800; }
+.badge { width: 2.4rem; height: 2.4rem; border-radius: 0.6rem; background: linear-gradient(135deg, #2563eb, #4338ca); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 1.25rem; box-shadow: 0 2px 6px rgba(37,99,235,.3); flex: none; }
+.top-right { display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; justify-content: flex-end; }
+.chip { font: inherit; font-size: 0.8rem; font-weight: 700; color: var(--ink); background: var(--card); border: 1px solid var(--line-2); border-radius: 0.5rem; padding: 0.3rem 0.6rem; cursor: pointer; text-decoration: none; }
+.chip.on { background: var(--blue-soft); border-color: var(--blue); }
+.chip.score { background: var(--green-soft); border-color: var(--green); cursor: default; }
+
+.lab { flex: 1; min-height: 0; display: grid; gap: 0.9rem; padding: 0.9rem 1.25rem; max-width: 100rem; width: 100%; margin: 0 auto;
+  grid-template-columns: 19.5rem minmax(0, 1fr) 23rem; grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-areas: "setup sim data" "setup shows data"; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 1rem; box-shadow: 0 1px 3px rgba(15,23,42,.06); padding: 0.9rem 1rem; min-height: 0; display: flex; flex-direction: column; }
+.card h2 { margin: 0 0 0.55rem; font-size: 1.05rem; font-weight: 800; display: flex; align-items: center; gap: 0.55rem; }
+.num { width: 1.75rem; height: 1.75rem; border-radius: 0.45rem; background: var(--blue); color: #fff; display: inline-grid; place-items: center; font-size: 0.9rem; flex: none; }
+html.theme-dark .num { color: #0b1220; }
+.green-num { background: var(--green); }
+.setup { grid-area: setup; gap: 0.65rem; }
+.sim { grid-area: sim; }
+.data { grid-area: data; overflow-y: auto; }
+.shows { grid-area: shows; padding-bottom: 0.6rem; }
+.shows h2 { margin-bottom: 0.3rem; }
+
+.machine-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.mach { font: inherit; font-weight: 800; font-size: 1rem; color: var(--ink); background: var(--card); border: 2px solid var(--line-2); border-radius: 0.8rem; padding: 0.4rem 0.3rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; }
+.mach-ico { font-size: 1.35rem; line-height: 1; }
+.tip { margin: 0; font-size: 0.85rem; line-height: 1.4; color: var(--muted); }
+.tip kbd { font-size: 0.95rem; }
+.mach.on { border-color: var(--blue); background: var(--blue-soft); }
+.ctl label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-bottom: 0.35rem; }
+.slider-row { display: flex; align-items: center; gap: 0.75rem; }
+.slider-row input { flex: 1; accent-color: var(--blue); }
+.slider-row b { width: 2.4rem; text-align: right; font-size: 1.05rem; }
+.howto { display: flex; gap: 0.7rem; align-items: center; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 0.75rem; padding: 0.45rem 0.7rem; font-size: 0.88rem; color: #312e81; line-height: 1.45; }
+html.theme-dark .howto { background: #1e1b4b; border-color: #3730a3; color: #e0e7ff; }
+.howto-key kbd { font-size: 1.3rem; padding: 0.2rem 0.6rem; }
+.btn { font: inherit; font-weight: 800; border-radius: 0.65rem; padding: 0.6rem 0.9rem; cursor: pointer; border: 2px solid transparent; }
+.btn:disabled { opacity: 0.55; cursor: default; }
+.btn-blue { background: var(--blue); color: #fff; }
+html.theme-dark .btn-blue, html.theme-dark .btn-green { color: #0b1220; }
+.btn-green { background: var(--green); color: #fff; }
+.btn-plain { background: var(--card); color: var(--ink); border-color: var(--line-2); }
+.pull-row { display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; }
+.pull { font-size: 1.15rem; padding: 0.7rem; user-select: none; touch-action: manipulation; }
+.pull:active { transform: scale(0.97); }
+
+.status { margin-left: auto; font-size: 0.9rem; font-weight: 700; padding: 0.25rem 0.65rem; border-radius: 0.5rem; background: var(--page); border: 1px solid var(--line); }
+.status.ok { background: var(--green-soft); border-color: var(--green); }
+.status.warn { background: var(--amber-soft); border-color: #f59e0b; }
+.stage { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.stage svg { width: 100%; height: 100%; display: block; }
+
+.progress { margin-left: auto; display: flex; gap: 0.4rem; font-size: 0.82rem; }
+.progress span { padding: 0.15rem 0.45rem; border-radius: 0.4rem; background: var(--page); border: 1px solid var(--line); }
+.progress span.done { background: var(--green-soft); border-color: var(--green); }
+.tbl { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 0.92rem; }
+.tbl th, .tbl td { border-bottom: 1px solid var(--line); padding: 0.32rem 0.3rem; text-align: center; }
+.tbl th { font-size: 0.78rem; color: var(--muted); font-weight: 800; }
+.tbl td { font-weight: 700; height: 1.9rem; }
+.tbl .mach-cell { text-align: left; font-weight: 600; font-size: 0.85rem; white-space: nowrap; }
+.tbl tr.empty td { color: var(--line-2); }
+.c-d, th.c-d { color: var(--c-d); } .c-F, th.c-F { color: var(--c-F); } .c-W, th.c-W { color: var(--c-W); }
+.rec { margin-top: 0.6rem; }
+.rec-row { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
+.rec-in { display: inline-flex; align-items: center; gap: 0.25rem; font-weight: 800; }
+.rec-in input { width: 3.9rem; font: inherit; font-weight: 700; padding: 0.35rem 0.4rem; border: 2px solid var(--line-2); border-radius: 0.5rem; background: var(--card); color: var(--ink); text-align: center; }
+.rec-in input:focus { outline: none; border-color: var(--blue); }
+.formula { margin: 0.35rem 0 0; font-size: 0.85rem; color: var(--muted); font-weight: 700; }
+.hint { margin: 0.2rem 0; font-size: 0.88rem; color: var(--muted); }
+.miss { margin: 0.35rem 0 0; font-size: 0.88rem; font-weight: 700; color: #92400e; background: var(--amber-soft); border-radius: 0.5rem; padding: 0.35rem 0.55rem; }
+html.theme-dark .miss { color: #fde68a; }
+.ask { margin-top: 0.4rem; display: flex; flex-direction: column; gap: 0.55rem; }
+.q { border-top: 1px dashed var(--line-2); padding-top: 0.55rem; }
+.q p { margin: 0 0 0.4rem; font-size: 0.95rem; }
+.q-opts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.35rem; }
+.opt { font: inherit; font-size: 0.85rem; font-weight: 700; color: var(--ink); background: var(--card); border: 2px solid var(--line-2); border-radius: 0.55rem; padding: 0.4rem 0.3rem; cursor: pointer; }
+.opt:disabled { cursor: default; }
+.opt-ok { border-color: var(--green); background: var(--green-soft); }
+.pred.done p { background: var(--green-soft); border-radius: 0.5rem; padding: 0.45rem 0.6rem; }
+
+.charts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
+.chart svg { width: 100%; height: auto; max-height: 11.5rem; display: block; }
+.ch-title { font-size: 15px; font-weight: 800; fill: var(--ink); }
+.ch-grid { stroke: var(--line); stroke-width: 1; }
+.ch-axis { fill: none; stroke: var(--ink); stroke-width: 2; }
+.ch-num { font-size: 13px; font-weight: 700; fill: var(--ink); }
+.ch-lab { font-size: 13.5px; font-weight: 800; }
+.c-d-fill { fill: var(--c-d); } .c-F-fill { fill: var(--c-F); } .c-W-fill { fill: var(--c-W); }
+.ch-empty { font-size: 13px; font-weight: 600; fill: var(--line-2); }
+.pt-pulley { fill: #dc2626; stroke: var(--card); stroke-width: 2; }
+.pt-ramp { fill: #d97706; stroke: var(--card); stroke-width: 1.5; }
+.bar-pulley { fill: #60a5fa; } .bar-ramp { fill: #fbbf24; }
+
+.login-gate { position: fixed; inset: 0; z-index: 500; background: rgba(15,23,42,.55); display: grid; place-items: center; padding: 1rem; }
+.login-gate[hidden] { display: none; }
+.gate-card { background: var(--card); border-radius: 1.2rem; padding: 1.6rem; max-width: 26rem; width: 100%; text-align: center; display: flex; flex-direction: column; gap: 0.6rem; box-shadow: 0 20px 50px rgba(0,0,0,.25); }
+.gate-card h1 { margin: 0.3rem 0 0; font-size: 1.4rem; }
+.gate-card p { margin: 0; }
+.big-badge { width: 3.4rem; height: 3.4rem; font-size: 1.7rem; margin: 0 auto; }
+
+@media (max-width: 1100px) {
+  body { overflow: auto; }
+  .lab { grid-template-columns: 1fr; grid-template-rows: none; grid-template-areas: "sim" "setup" "data" "shows"; }
+  .stage { min-height: 22rem; }
+}
+
+/* ---------- the apparatus picture (scene.js) ---------- */
+.scene-svg { width: 100%; height: 100%; }
+.sv-text { font-family: var(--font-sans); font-weight: 700; font-size: 17px; fill: var(--text-main); }
+.sv-small { font-size: 14px; font-weight: 600; }
+.sv-plate { fill: var(--bg-card); fill-opacity: 0.92; }
+.sv-floor { fill: var(--sky); }
+.fl-dim { fill: var(--text-dim); }
+.to-ground { fill: #f1f5f9; } html.theme-dark .to-ground { fill: #111827; }
+.to-floor-line { stroke: var(--text-main); stroke-width: 2.5; }
+.to-beam { fill: #334155; } html.theme-dark .to-beam { fill: #94a3b8; }
+.to-hanger { fill: #475569; } html.theme-dark .to-hanger { fill: #94a3b8; }
+.to-block { fill: #cbd5e1; stroke: #334155; stroke-width: 2; } html.theme-dark .to-block { fill: #334155; stroke: #cbd5e1; }
+.to-wheel { fill: #f8fafc; stroke: #334155; stroke-width: 2.5; } html.theme-dark .to-wheel { fill: #0f172a; stroke: #cbd5e1; }
+.to-cartwheel { fill: #1e293b; stroke: #1e293b; } html.theme-dark .to-cartwheel { fill: #e2e8f0; stroke: #e2e8f0; }
+.to-axle { fill: #334155; } html.theme-dark .to-axle { fill: #cbd5e1; }
+.to-rope { fill: none; stroke: #c2410c; stroke-width: 3; stroke-linejoin: round; } html.theme-dark .to-rope { stroke: #fb923c; }
+.to-rope-thin { stroke: #c2410c; stroke-width: 3; }
+.to-crate { fill: #2563eb; stroke: #1e3a8a; stroke-width: 2; } html.theme-dark .to-crate { fill: #3b82f6; stroke: #bfdbfe; }
+.to-crate-text { fill: #ffffff; font-size: 15px; font-weight: 800; }
+.to-pointer { stroke: var(--bad); stroke-width: 2; stroke-dasharray: 4 3; }
+.to-band { fill: #22c55e; opacity: 0.18; }
+.to-line { stroke: #15803d; stroke-width: 2.5; stroke-dasharray: 8 6; } html.theme-dark .to-line { stroke: #4ade80; }
+.to-line-text { fill: #15803d; font-weight: 800; } html.theme-dark .to-line-text { fill: #4ade80; }
+.to-ruler { fill: #fef9c3; stroke: #0f172a; stroke-width: 1; }
+.to-ruler-tick { stroke: #0f172a; stroke-width: 1.2; }
+.to-ruler-num { font-size: 17px; font-weight: 700; fill: #0f172a; }
+.to-platform { fill: #94a3b8; stroke: #334155; stroke-width: 2; } html.theme-dark .to-platform { fill: #475569; stroke: #cbd5e1; }
+.to-wedge { fill: #fde68a; opacity: 0.55; } html.theme-dark .to-wedge { fill: #78350f; opacity: 0.6; }
+.to-ramp { stroke: #b45309; stroke-width: 8; stroke-linecap: round; } html.theme-dark .to-ramp { stroke: #f59e0b; }
+.to-ramp-zone { stroke: #22c55e; stroke-width: 8; stroke-linecap: round; opacity: 0.85; }
+.to-tape { fill: #fde047; stroke: #a16207; stroke-width: 1; }
+.to-tape-tick { stroke: #0f172a; stroke-width: 1.2; }
+.to-tape-num { font-size: 21px; font-weight: 800; fill: #0f172a; }
+.to-tag { fill: #dc2626; }
+.to-mini-scale { fill: #e2e8f0; stroke: #334155; stroke-width: 1.5; }
+.to-grip { fill: #1e293b; } html.theme-dark .to-grip { fill: #e2e8f0; }
+.to-grip-key { fill: #ffffff; font-size: 15px; font-weight: 800; } html.theme-dark .to-grip-key { fill: #0f172a; }
+.to-scale-body { fill: #f1f5f9; stroke: #334155; stroke-width: 2; } html.theme-dark .to-scale-body { fill: #1e293b; stroke: #cbd5e1; }
+.to-scale-title { font-weight: 800; }
+.to-scale-tube { fill: #ffffff; stroke: #0f172a; stroke-width: 1.5; }
+.to-tick { stroke: #0f172a; stroke-width: 1; }
+.to-tick-major { stroke-width: 2; }
+.to-scale-num { font-size: 19px; font-weight: 800; }
+.to-needle { fill: #dc2626; }
+.to-needle-tip { fill: #dc2626; }
+.to-hold-box { stroke: var(--border-color); }
+.to-hold-track { fill: #e2e8f0; } html.theme-dark .to-hold-track { fill: #334155; }
+.to-hold-fill { fill: #16a34a; }
+.sv-sub { font-size: 0.72em; }
+
+/* calculator in the Setup card */
+.calc { margin-top: 0.15rem; display: flex; flex-direction: column; gap: 0.35rem; min-height: 0; }
+.calc-head { font-weight: 800; font-size: 0.9rem; }
+.calc { flex: 1; min-height: 0; }
+.calc-host { flex: 1; min-height: 0; border: 1px solid var(--line-2); border-radius: 0.6rem; overflow: hidden; }   /* tall enough to show earlier lines above the keypad */
+.btn-purple { background: #7c3aed; color: #fff; }
+html.theme-dark .btn-purple { background: #c4b5fd; color: #0b1220; }
+.rec-in input.calc-fill { background: #f5f3ff; border-style: dashed; }
+html.theme-dark .rec-in input.calc-fill { background: #2e1065; }
+.setup { overflow: hidden; }
+
+/* big, clear callouts in My Data */
+.callout { display: flex; gap: 0.6rem; align-items: center; border-radius: 0.75rem; padding: 0.7rem 0.8rem; font-weight: 800; font-size: 1rem; line-height: 1.35; border: 2px solid; }
+.callout .ico { font-size: 1.6rem; line-height: 1; }
+.callout-info { background: var(--blue-soft); border-color: var(--blue); }
+.callout-done { background: var(--amber-soft); border-color: #f59e0b; }
+.callout-full { background: var(--green-soft); border-color: var(--green); }
+.callout small { display: block; font-weight: 600; font-size: 0.85rem; color: var(--muted); }
+
+/* teacher tools */
+.teach-wrap { position: relative; }
+.chip.teach { background: #fef3c7; border-color: #f59e0b; }
+html.theme-dark .chip.teach { background: #451a03; }
+.teach-panel { position: absolute; right: 0; top: 2.3rem; z-index: 300; width: 16rem; background: var(--card); border: 1px solid var(--line-2); border-radius: 0.8rem; box-shadow: 0 10px 30px rgba(0,0,0,.18); padding: 0.75rem; display: flex; flex-direction: column; gap: 0.45rem; }
+.teach-panel .btn { font-size: 0.85rem; padding: 0.45rem 0.6rem; text-align: left; }
+.teach-row { font-size: 0.85rem; font-weight: 700; display: flex; gap: 0.4rem; align-items: center; }
+.true-read { font-size: 0.72rem; white-space: nowrap; font-weight: 800; color: #92400e; background: #fef3c7; border-radius: 0.4rem; padding: 0.15rem 0.45rem; margin-left: 0.5rem; }
+
+/* Think about your data: the big view */
+.think { grid-column: 2 / 4; grid-row: 1 / 3; z-index: 50; box-shadow: 0 12px 40px rgba(15,23,42,.18); border: 2px solid var(--blue); }
+.think[hidden] { display: none; }
+.chip-step { font-size: 0.8rem; font-weight: 800; padding: 0.2rem 0.55rem; border-radius: 0.45rem; background: var(--blue-soft); }
+.back-btn { margin-left: auto; font-size: 0.9rem; padding: 0.4rem 0.8rem; }
+.think-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1.1rem; align-items: start; overflow-y: auto; }
+.think-chart svg { width: 100%; height: auto; max-height: 30rem; }
+.think-q { display: flex; flex-direction: column; gap: 0.6rem; }
+.q-text p { margin: 0 0 0.35rem; font-size: 1.1rem; line-height: 1.45; }
+.q-ask { margin: 0.2rem 0 0; font-size: 1.25rem; font-weight: 800; }
+.big-opts { grid-template-columns: 1fr; gap: 0.45rem; }
+.big-opts .opt { font-size: 1.05rem; padding: 0.65rem; text-align: left; }
+.big-in input { width: 5.5rem; font-size: 1.15rem; }
+.big-tbl { font-size: 0.9rem; margin-top: 0.3rem; }
+.big-tbl tr.row-on td { background: #fef3c7; }
+html.theme-dark .big-tbl tr.row-on td { background: #451a03; }
+.big-tbl .col-on { font-weight: 800; }
+.pt-on { stroke: #0f172a; stroke-width: 2.5; }
+html.theme-dark .pt-on { stroke: #f8fafc; }
+.pt-label { font-size: 16px; font-weight: 800; fill: var(--ink); paint-order: stroke; stroke: var(--card); stroke-width: 4px; }
+.bar-on { stroke: #0f172a; stroke-width: 3; }
+html.theme-dark .bar-on { stroke: #f8fafc; }
+.strong-num { font-weight: 800; fill: var(--ink); }
+.ch-curve { fill: none; stroke: #7c3aed; stroke-width: 2.5; stroke-dasharray: 2 0; opacity: 0.7; }
+.ch-read { stroke: var(--c-d); stroke-width: 2.5; stroke-dasharray: 7 5; }
+.callout-go { background: var(--blue-soft); border-color: var(--blue); }
+.go-btn { display: block; margin-top: 0.5rem; font-size: 0.95rem; padding: 0.5rem 0.9rem; }
+@media (max-width: 1100px) { .think { grid-column: 1; grid-row: auto; } .think-body { grid-template-columns: 1fr; } }
+
+/* full-screen nudge */
+.fs-banner { display: flex; align-items: center; gap: 0.8rem; justify-content: center; padding: 0.45rem 1rem; background: #fef3c7; border-bottom: 1px solid #f59e0b; font-weight: 700; font-size: 0.92rem; color: #78350f; }
+.fs-banner[hidden] { display: none; }
+html.theme-dark .fs-banner { background: #451a03; color: #fef3c7; }
+.fs-banner .btn { padding: 0.3rem 0.8rem; font-size: 0.88rem; }
+.fs-x { background: none; border: 0; font: inherit; font-size: 1.1rem; cursor: pointer; color: inherit; }
+
+/* pulleys and rope */
+.to-spoke { stroke: #475569; stroke-width: 1.6; fill: none; }
+html.theme-dark .to-spoke { stroke: #cbd5e1; }
+.to-rope { fill: none; stroke: #c2410c; stroke-width: 3.6; stroke-linejoin: round; stroke-linecap: round; }
+.to-rope-tex { fill: none; stroke: #7c2d12; stroke-width: 3.6; stroke-dasharray: 3 5; stroke-linecap: butt; opacity: 0.85; }
+html.theme-dark .to-rope { stroke: #fb923c; } html.theme-dark .to-rope-tex { stroke: #7c2d12; }
+.to-bracket { stroke: #475569; stroke-width: 5; stroke-linecap: round; }
+.to-block-front { opacity: 0.92; }
+/* digital readout (Periods 1–3) */
+.to-lcd { fill: #0f172a; stroke: #334155; stroke-width: 1.5; }
+.to-lcd-text { fill: #4ade80; font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace; }
+
+.to-dimline { fill: none; stroke: #92400e; stroke-width: 1.8; }
+html.theme-dark .to-dimline { stroke: #fbbf24; }
+.to-dim-pill { fill: #ffffff; stroke: #92400e; stroke-width: 1.5; }
+html.theme-dark .to-dim-pill { fill: #0f172a; stroke: #fbbf24; }
+.to-dim-text { font-size: 13px; font-weight: 800; fill: #92400e; }
+html.theme-dark .to-dim-text { fill: #fbbf24; }
+.to-tape-label { font-size: 17px; font-weight: 800; fill: var(--c-d); }
+
+.ch-grid-minor { stroke: var(--line); stroke-width: 0.6; opacity: 0.7; }
+.ch-grid { stroke: var(--line-2); }
+.teach-row select { font: inherit; font-size: 0.82rem; margin-left: 0.3rem; flex: 1; }
+
+.to-dimext { fill: none; stroke: #92400e; stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.8; }
+html.theme-dark .to-dimext { stroke: #fbbf24; }
+
+.teach-panel[hidden] { display: none; }
+
+.to-tape-tick-big { stroke-width: 2; }
+.chart svg { max-height: 12.5rem; }
+
+/* short windows (a Chromebook that is not full screen): tighten Setup so the whole calculator fits with no scroll bar */
+@media (max-height: 700px) {
+  .setup { gap: 0.4rem; padding-top: 0.6rem; padding-bottom: 0.6rem; }
+  .setup h2 { margin-bottom: 0.25rem; }
+  .tip { display: none; }
+  .pull { padding: 0.5rem; } .pull-row .btn-plain { padding: 0.45rem 0.7rem; }
+  .ctl label { margin-bottom: 0.15rem; }
+  .calc-head { display: none; }
+  .btn-purple { padding: 0.45rem; }
+  .lab { padding-top: 0.6rem; padding-bottom: 0.6rem; gap: 0.6rem; }
+  .chart svg { max-height: 10.5rem; }
+}
+
+/* scene labels large enough to read when the picture is scaled down */
+.to-lab .sv-small { font-size: 16px; }
+.to-line-text { font-size: 17px; }
+.to-scale-title { font-size: 15px; }
+
+/* compact Setup so the calculator's screen is tall */
+.setup-head { display: flex; flex-direction: column; gap: 0.45rem; }
+.setup-head h2 { margin: 0; }
+.ctl .slider-row label { margin: 0; font-size: 0.85rem; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.pull kbd { font-size: 0.85rem; color: #1e3a8a; margin-left: 0.3rem; }
+.setup { gap: 0.55rem; }
+.calc { margin-top: 0; }
+
+/* two data tables */
+.tbl-block { margin-bottom: 0.45rem; }
+.tbl-title { font-size: 0.85rem; font-weight: 800; margin: 0.1rem 0 0.15rem; }
+.tag-cell { font-weight: 800; color: var(--muted); width: 2.2rem; }
+.big-tables { display: grid; gap: 0.3rem; }
+.to-link { stroke: #475569; stroke-width: 3; }
+html.theme-dark .to-link { stroke: #cbd5e1; }
+
+/* Think view with no scroll bars: chart on top left, both tables side by side under it, the question on the right */
+.think-body { overflow: hidden; align-items: stretch; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); }
+.think-left { display: flex; flex-direction: column; gap: 0.5rem; min-height: 0; }
+.think-chart { flex: 1; min-height: 0; display: flex; justify-content: center; }
+.think-chart svg { width: 100%; height: 100%; max-height: none; }
+.big-tables { grid-template-columns: 1fr 1fr; gap: 0.8rem; flex: none; }
+.big-tables .tbl-block { margin: 0; }
+.big-tbl { font-size: 0.85rem; margin-top: 0; }
+.big-tbl th, .big-tbl td { padding: 0.18rem 0.2rem; height: auto; }
+.think-q { overflow: hidden; }
+@media (max-height: 700px) {
+  .q-text p { font-size: 1rem; margin-bottom: 0.2rem; }
+  .q-ask { font-size: 1.1rem; }
+  .big-opts .opt { padding: 0.45rem 0.6rem; font-size: 0.98rem; }
+}
+
+/* charts open full screen */
+.chart, .think-chart { cursor: zoom-in; position: relative; }
+.chart::after, .think-chart::after { content: '⛶'; position: absolute; top: 0.2rem; right: 0.3rem; font-size: 0.95rem; font-weight: 800; color: var(--muted); background: var(--card); border: 1px solid var(--line-2); border-radius: 0.4rem; padding: 0 0.3rem; pointer-events: none; }
+.chart:hover svg, .think-chart:hover svg { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 4px; }
+.chart-modal { position: fixed; inset: 0; z-index: 600; background: rgba(15, 23, 42, 0.6); display: grid; place-items: center; padding: 1.2rem; }
+.chart-modal[hidden] { display: none; }
+.chart-modal-card { background: var(--card); border-radius: 1rem; width: 100%; height: 100%; padding: 0.8rem 1rem 1rem; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+.chart-close { align-self: flex-end; font-size: 1rem; padding: 0.4rem 0.9rem; }
+.chart-modal-body { flex: 1; min-height: 0; display: flex; justify-content: center; }
+.chart-modal-body svg { width: 100%; height: 100%; }
+
+/* questions view: only the rows a question is about */
+.rows-tbl { font-size: 1rem; margin: 0.2rem 0 0.3rem; background: #fffbeb; border-radius: 0.5rem; }
+html.theme-dark .rows-tbl { background: #2a1d05; }
+.rows-tbl th, .rows-tbl td { padding: 0.3rem 0.35rem; }
+.rows-tbl .col-on { font-weight: 800; }
+.work-line { margin: 0.2rem 0 0; font-size: 0.95rem; font-weight: 700; }
+/* the full-screen chart always fits inside the window */
+.chart-modal-body { position: relative; display: block; }
+.chart-modal-body svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* questions view: full tables stacked under the question; the three choices sit in one row */
+.big-tables { grid-template-columns: 1fr; gap: 0.35rem; }
+.big-opts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.big-opts .opt { text-align: center; font-size: 0.95rem; padding: 0.5rem 0.4rem; }
+.think-q { gap: 0.5rem; }
+.big-tbl th, .big-tbl td { padding: 0.16rem 0.3rem; }
+.big-tbl tr.row-on td { background: #fde68a; }
+html.theme-dark .big-tbl tr.row-on td { background: #713f12; }
+
+/* simulation, full screen */
+.stage { position: relative; cursor: zoom-in; }
+.stage::after { content: '⛶'; position: absolute; top: 0.2rem; right: 0.3rem; font-size: 0.95rem; font-weight: 800; color: var(--muted); background: var(--card); border: 1px solid var(--line-2); border-radius: 0.4rem; padding: 0 0.3rem; pointer-events: none; }
+.sim.sim-full { position: fixed; inset: 1rem; z-index: 560; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+.sim.sim-full .stage { cursor: default; }
+.sim.sim-full .stage::after { display: none; }
+.sim-backdrop { position: fixed; inset: 0; z-index: 555; background: rgba(15, 23, 42, 0.6); }
+.sim-backdrop[hidden] { display: none; }
+.sim-close { margin-left: 0.5rem; font-size: 0.95rem; padding: 0.35rem 0.8rem; }
+
+/* finished */
+.done-modal { position: fixed; inset: 0; z-index: 650; background: rgba(15,23,42,.6); display: grid; place-items: center; padding: 1rem; }
+.done-modal[hidden] { display: none; }
+.done-card { background: var(--card); border-radius: 1.2rem; padding: 1.6rem 1.8rem; max-width: 32rem; width: 100%; text-align: center; display: flex; flex-direction: column; gap: 0.7rem; box-shadow: 0 20px 60px rgba(0,0,0,.3); border: 3px solid var(--green); }
+.done-burst { font-size: 3.4rem; line-height: 1; animation: pop 0.6s ease-out; }
+@keyframes pop { 0% { transform: scale(0.3); } 70% { transform: scale(1.15); } 100% { transform: scale(1); } }
+.done-card h2 { margin: 0; font-size: 1.6rem; }
+.done-score b { font-size: 2rem; color: var(--green); }
+.done-score { margin: 0; }
+.done-list { text-align: left; margin: 0; padding-left: 0.2rem; list-style: none; display: grid; gap: 0.3rem; font-weight: 600; }
+.done-cert { font-size: 1.1rem; padding: 0.8rem 1rem; width: 100%; }
+.done-note { margin: 0; font-weight: 700; }
+.done-callout .done-cert { margin-top: 0.5rem; font-size: 0.95rem; padding: 0.55rem; }
+.chip.cert-chip { background: #fef3c7; border-color: #d97706; }
+
+/* MA, sentence and design questions */
+.ma-grid { display: grid; grid-template-columns: auto auto; gap: 0.45rem 0.7rem; align-items: center; justify-content: start; }
+.formula-chip { font-weight: 800; font-size: 0.95rem; background: var(--page); border: 1px solid var(--line-2); border-radius: 0.45rem; padding: 0.3rem 0.55rem; }
+.claim-sentence { font-size: 1.15rem; line-height: 1.6; margin: 0.1rem 0; }
+.claim-sentence .blank { display: inline-block; min-width: 6rem; border-bottom: 3px solid var(--blue); font-weight: 800; text-align: center; padding: 0 0.3rem; }
+.claim-lab { margin: 0.1rem 0 0; font-weight: 800; font-size: 0.9rem; }
+.claim-opt { font-size: 0.9rem !important; }
+
+.claim-sel { font: inherit; font-size: 1rem; font-weight: 800; padding: 0.25rem 0.4rem; border: 2px solid var(--blue); border-radius: 0.5rem; background: var(--card); margin: 0.15rem 0; }
+.claim-sentence { line-height: 2.1; }
+@media (max-height: 700px) {
+  .formula-chip { font-size: 0.85rem; padding: 0.2rem 0.45rem; }
+  .ma-grid { gap: 0.3rem 0.6rem; }
+  .think-q { gap: 0.4rem; }
+}
+</style>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
+  <!-- Desmos Scientific Calculator (same key as the other studios) -->
+  <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+  <script src="../../assets/ngss-helper.js" defer></script>
+</head>
+<body>
+  <div id="loginGate" class="login-gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+    <div class="gate-card">
+      <div class="badge big-badge" aria-hidden="true">W</div>
+      <h1 id="gateTitle">Pulleys and Ramps Lab</h1>
+      <p class="muted">Unit 3 · Day 3</p>
+      <p>Sign in with your <strong>@orangeusd.org</strong> account. Your work saves as you go.</p>
+      <button type="button" id="btnGateSignIn" class="btn btn-blue">Sign in with Google</button>
+      <button type="button" id="btnGateGuest" class="btn btn-plain">Continue as guest (not graded)</button>
+      <p id="gateStatus" class="muted" aria-live="polite"></p>
+      <p id="gateError" class="err" role="alert" hidden></p>
+      <div data-ngss="HS-PS3-1"></div>
+    </div>
+  </div>
+
+  <div class="fs-banner" id="fsBanner" hidden>
+    <span>⛶ Go full screen to see the whole lab.</span>
+    <button type="button" class="btn btn-blue" id="btnFsBanner">Full screen</button>
+    <span class="small">or press the full-screen key ( ⛶ ) on your Chromebook</span>
+    <button type="button" class="fs-x" id="btnFsClose" aria-label="Hide this">✕</button>
+  </div>
+  <header class="top">
+    <div class="brand">
+      <div class="badge" aria-hidden="true">W</div>
+      <div><h1>Work-Energy Trade-Off</h1><div class="muted small">Pulleys and Ramps Lab</div></div>
+    </div>
+    <div class="top-right">
+      <div class="teach-wrap" id="teachWrap" hidden>
+        <button type="button" id="btnTeach" class="chip teach">🧑‍🏫 Teacher</button>
+        <div id="teachPanel" class="teach-panel" hidden>
+          <label class="teach-row">View as <select id="tView"><option value="">Teacher (CP view)</option><option value="conceptual">Periods 1–3: Conceptual</option><option value="cp">Periods 4–6: CP</option><option value="honors">Period 0: Honors</option></select></label>
+          <label class="teach-row"><input type="checkbox" id="tShow"> Show the true readings</label>
+          <button type="button" class="btn btn-plain" id="tFill">🧪 Fill 6 sample rows</button>
+          <button type="button" class="btn btn-plain" id="tQuestions">⏭ Skip to the prediction</button>
+          <button type="button" class="btn btn-plain" id="tReset">🗑 Start over (my copy)</button>
+          <p class="small muted">Only you see this. Students never do.</p>
+        </div>
+      </div>
+      <a id="btnMonitor" class="chip" href="../../admin/tradeoff_lab_monitor.html" target="_blank" hidden>📊 Class</a>
+      <button type="button" id="btnFull" class="chip" title="Full screen">⛶ Full screen</button>
+      <button type="button" id="btnBig" class="chip" title="Bigger text for the projector">🖥️ Big</button>
+      <button type="button" id="btn-theme-toggle" class="chip">🌙</button>
+      <button type="button" id="btnCertChip" class="chip cert-chip" hidden>🎓 Certificate</button>
+      <span id="scoreChip" class="chip score" title="Your points"></span>
+      <span id="saveIndicator" class="muted small" aria-live="polite"></span>
+      <span id="userName" class="small strong"></span>
+      <button type="button" id="btnSignOut" class="chip" hidden>Sign out</button>
+      <button type="button" id="btnChipSignIn" class="chip" hidden>Sign in</button>
+    </div>
+  </header>
+
+  <main class="lab">
+    <!-- 1 Setup -->
+    <section class="card setup">
+      <div class="setup-head">
+        <h2><span class="num">1</span> Setup</h2>
+        <div class="machine-pick" role="group" aria-label="Machine">
+          <button type="button" class="mach" data-mach="pulley"><span class="mach-ico">⚙️</span>Pulley</button>
+          <button type="button" class="mach" data-mach="ramp"><span class="mach-ico">📐</span>Ramp</button>
+        </div>
+      </div>
+      <div id="ctlPulley" class="ctl">
+        <div class="slider-row"><label for="ropes">Ropes</label><input type="range" id="ropes" min="1" max="4" step="1" value="1"><b id="ropesVal">1</b></div>
+      </div>
+      <div id="ctlRamp" class="ctl" hidden>
+        <div class="slider-row"><label for="rampL">Length (m)</label><input type="range" id="rampL" min="1.5" max="6" step="0.5" value="3"><b id="rampLVal">3.0</b></div>
+      </div>
+      <div class="pull-row">
+        <button type="button" id="btnPull" class="btn btn-blue pull">PULL <kbd>P</kbd></button>
+        <button type="button" id="btnReset" class="btn btn-plain" title="Start this lift over">↺ Reset</button>
+      </div>
+      <div class="calc">
+        <div id="calcHost" class="calc-host"></div>
+        <p id="calcMsg" class="miss" hidden></p>
+        <button type="button" id="btnUseCalc" class="btn btn-purple" disabled>📥 Use answer</button>
+      </div>
+    </section>
+
+    <div id="simBackdrop" class="sim-backdrop" hidden></div>
+    <!-- 2 Simulation -->
+    <section class="card sim">
+      <h2><span class="num">2</span> Simulation <span id="status" class="status" aria-live="polite"></span><button type="button" class="btn btn-plain sim-close" id="btnSimClose" hidden>✕ Close</button></h2>
+      <div id="stage" class="stage"></div>
+    </section>
+
+    <!-- 3 My data -->
+    <section class="card data">
+      <h2><span class="num green-num">3</span> My Data <span class="progress" id="progress"></span></h2>
+      <div id="tables"></div>
+      <div id="recBox" class="rec"></div>
+      <div id="askBox" class="ask"></div>
+    </section>
+
+    <!-- Think about your data: covers cards 2–4 so the chart and table are big. The calculator stays on the left. -->
+    <section class="card think" id="think" hidden aria-label="Think about your data">
+      <h2><span class="num">🤔</span> Think about your data <span class="chip-step" id="thinkStep"></span><button type="button" class="btn btn-plain back-btn" id="btnThinkBack">◀ Back to the lab</button></h2>
+      <div class="think-body" id="thinkBody"></div>
+    </section>
+
+    <!-- 4 What it shows -->
+    <section class="card shows">
+      <h2><span class="num green-num">4</span> What It Shows</h2>
+      <div class="charts">
+        <div id="graph" class="chart"></div>
+        <div id="bars" class="chart"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Finished! Shown once when everything is done; the certificate stays in the header after that -->
+  <div id="doneModal" class="done-modal" hidden role="dialog" aria-modal="true" aria-labelledby="doneTitle">
+    <div class="done-card">
+      <div class="done-burst" aria-hidden="true">🎉</div>
+      <h2 id="doneTitle">You finished the lab!</h2>
+      <p class="done-score"><b id="doneScore">10 / 10</b></p>
+      <ul class="done-list" id="doneList"></ul>
+      <div id="doneCert"></div>
+      <button type="button" class="btn btn-plain" id="btnDoneClose">Back to the lab</button>
+    </div>
+  </div>
+
+  <!-- A chart shown full screen: click any chart to open, ✕ / Esc / click outside to close -->
+  <div id="chartModal" class="chart-modal" hidden role="dialog" aria-modal="true" aria-label="Chart, full screen">
+    <div class="chart-modal-card">
+      <button type="button" class="btn btn-plain chart-close" id="chartClose">✕ Close</button>
+      <div id="chartModalBody" class="chart-modal-body"></div>
+    </div>
+  </div>
+
+  <script>
+// === Unit_3/tradeoff_lab/js/ngss-data.js ===
+// NGSS standard shown on the sign-in card, inlined so it works even if standards-data.js is filtered.
+window.NGSS_STANDARDS_DATA = window.NGSS_STANDARDS_DATA || [{
+  code: "HS-PS3-1",
+  domain: "Physical Science",
+  domainCode: "PS",
+  is: "IS3",
+  topic: "Energy",
+  title: "Conservation of Energy & Energy Transformations",
+  pe: "Create a computational model or mathematical representation to calculate the change in the energy of one component in a system when the change in energy of the other component(s) and energy flows in and out of the system are known.",
+  clarification: "Emphasis is on kinetic, potential, thermal, and chemical energy transformations.",
+  boundary: "Assessment is limited to basic algebraic expressions and simple closed/open systems.",
+  sep: "Using Mathematics and Computational Thinking",
+  dci: "PS3.A: Definitions of Energy",
+  ccc: "Energy and Matter",
+  unitLink: "../../unit3-dashboard.html",
+  keywords: ["work", "joules", "force", "distance", "energy", "mechanical work"]
+}];
+
+// === Unit_2/vector_decomposition_studio/js/engine.js ===
+// Vector Decomposition Studio — Physics, scenario generators, answer checking, diagnostics, quiz builder
+// Angle θ is measured up from the ground unless a scenario says fromVertical.
+// Every wrong answer is compared against known mistakes so the student hears WHY, not just "wrong".
+// Questions are plain JSON so an unfinished Mastery Check can be saved and resumed with the same numbers.
+
+(function () {
+  const rad = d => d * Math.PI / 180;
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+
+  const Phys = {
+    vx: (v0, th) => v0 * Math.cos(rad(th)),
+    vy: (v0, th) => v0 * Math.sin(rad(th)),
+    speed: (x, y) => Math.hypot(x, y),
+    angle: (x, y) => Math.atan2(y, x) * 180 / Math.PI
+  };
+
+  function fmt(v, d) {
+    const s = Number(v).toFixed(d);
+    return /^-0\.?0*$/.test(s) ? s.slice(1) : s;
+  }
+  // Answers students compute: 1 decimal, 2 when small
+  const fmtAns = v => fmt(v, Math.abs(v) < 10 ? 2 : 1);
+
+  const near = (v, target, rel = 0.02, abs = 0.1) => Math.abs(v - target) <= Math.max(Math.abs(target) * rel, abs);
+
+  function parseNum(raw) {
+    const v = parseFloat(String(raw).replace(',', '.').replace(/[−–]/g, '-').replace(/[^0-9.\-eE]/g, ''));
+    return isFinite(v) ? v : null;
+  }
+
+  // ---------- Scenario contexts: the words never contain the numbers (those live on the picture) ----------
+  const THINGS = [
+    { icon: '⚽', name: 'soccer ball', verb: 'is kicked' },
+    { icon: '🏀', name: 'basketball', verb: 'is shot' },
+    { icon: '🏈', name: 'football', verb: 'is punted' },
+    { icon: '⛳', name: 'golf ball', verb: 'is hit' },
+    { icon: '🎾', name: 'tennis ball', verb: 'is lobbed' },
+    { icon: '🐸', name: 'frog', verb: 'jumps' },
+    { icon: '💣', name: 'cannonball', verb: 'is fired' },
+    { icon: '🚀', name: 'toy rocket', verb: 'is launched' }
+  ];
+
+  // No angles close to 45° in calculations: sin and cos must give clearly different answers.
+  const EASY_ANGLES = [30, 60];
+  const ALL_ANGLES = [15, 20, 25, 30, 35, 37, 40, 50, 53, 55, 60, 65, 70, 75];
+  const FIVE_ANGLES = [20, 25, 30, 35, 40, 50, 55, 60, 65, 70];
+  const EASY_SPEEDS = [10, 20, 30, 40];
+  const ALL_SPEEDS = [12, 14, 15, 16, 18, 20, 22, 24, 25, 26, 28, 30, 32, 35, 36, 40, 45, 50];
+
+  function launch(level = 2, not) {
+    let sc;
+    do {
+      sc = {
+        v0: pick(level <= 1 ? EASY_SPEEDS : ALL_SPEEDS),
+        th: pick(level <= 1 ? EASY_ANGLES : level === 'five' ? FIVE_ANGLES : ALL_ANGLES),
+        thing: Math.floor(Math.random() * THINGS.length)
+      };
+    } while (not && not.v0 === sc.v0 && not.th === sc.th);
+    sc.x = Phys.vx(sc.v0, sc.th);
+    sc.y = Phys.vy(sc.v0, sc.th);
+    return sc;
+  }
+
+  // Whole-number arrows that land exactly on grid corners, for reading squares with no trig
+  const TRIPLES = [[8, 6], [6, 8], [12, 5], [5, 12], [12, 9], [9, 12], [15, 8], [8, 15], [4, 3], [3, 4], [16, 12], [12, 16]];
+  function gridArrow(scales = [1], not) {
+    let sc;
+    do {
+      const [gx, gy] = pick(TRIPLES);
+      const scale = pick(scales);
+      sc = { gx, gy, scale, x: gx * scale, y: gy * scale, v0: Math.hypot(gx, gy) * scale, thing: Math.floor(Math.random() * THINGS.length) };
+    } while (not && not.gx === sc.gx && not.gy === sc.gy && not.scale === sc.scale);
+    sc.th = Phys.angle(sc.x, sc.y);
+    return sc;
+  }
+
+  // ---------- Worked solutions ----------
+  const fn = asked => asked === 'x' ? 'cos' : 'sin';
+  const sym = asked => asked === 'x' ? 'v_0x' : 'v_0y';
+  const work = (asked, sc) =>
+    `${sym(asked)} = v_0 × ${fn(asked)}(θ) = ${sc.v0} m/s × ${fn(asked)}(${sc.th}°) = ${fmtAns(asked === 'x' ? sc.x : sc.y)} m/s`;
+
+  // ---------- Diagnostics: [id, test(v, sc), message(sc)] — first match wins. Ids feed the teacher monitor. ----------
+  function calcMistakes(asked) {
+    const f = asked === 'x' ? Math.cos : Math.sin;
+    const part = asked === 'x' ? 'sideways' : 'upward';
+    const other = asked === 'x' ? 'upward' : 'sideways';
+    const value = sc => f(rad(sc.th));
+    return [
+      ['swap', (v, s) => near(v, asked === 'x' ? s.y : s.x),
+        () => `You found the ${other} part. The ${part} part is the side that ${asked === 'x' ? 'touches' : 'is across from'} θ, so it uses ${fn(asked)}.`],
+      ['radians', (v, s) => near(v, s.v0 * f(s.th)) || near(v, f(s.th)),
+        () => `Your calculator is in radian mode. Switch it to degrees (DEG) and try again.`],
+      ['no_speed', (v, s) => near(v, value(s), 0.03, 0.01),
+        s => `${fn(asked)}(${s.th}°) only tells how much of the speed, as a decimal. Multiply it by v_0 to get m/s.`],
+      ['divided', (v, s) => near(v, s.v0 / value(s)),
+        () => `You divided. A part can never be bigger than the whole speed. Multiply v_0 by the decimal.`],
+      ['tan', (v, s) => near(v, s.v0 * Math.tan(rad(s.th))),
+        () => `That is tangent. Use sin or cos, because v_0 is the long side (the hypotenuse) of the triangle.`],
+      ['no_trig', (v, s) => near(v, s.v0 * s.th),
+        () => `You multiplied by the angle itself. Multiply by ${fn(asked)} of the angle.`],
+      ['added', (v, s) => near(v, s.v0 + value(s)),
+        () => `You added. Multiply the speed by the decimal: v_0 × ${fn(asked)}(θ).`],
+      ['whole_speed', (v, s) => near(v, s.v0),
+        () => `That is the whole launch speed v_0. Only part of it goes ${asked === 'x' ? 'sideways' : 'up'}.`],
+      ['angle_read', (v, s) => near(v, s.th),
+        () => `That is the angle. The answer is a speed in m/s. Use v_0 × ${fn(asked)}(θ).`],
+      ['decimal', (v, s) => { const t = asked === 'x' ? s.x : s.y; return near(v, t * 10) || near(v, t / 10); },
+        () => `Your digits are right but the decimal point moved. Check your typing.`]
+    ];
+  }
+
+  // Check a calculated component. Returns { ok, msg, mistake }.
+  function checkCalc(asked, raw, sc) {
+    const v = parseNum(raw);
+    if (v === null) return { ok: null, msg: 'Type a number first.' };
+    const target = asked === 'x' ? sc.x : sc.y;
+    if (near(v, target)) return { ok: true, msg: `<span class="formula">${work(asked, sc)}</span>` };
+    const hit = calcMistakes(asked).find(([, test]) => test(v, sc));
+    const why = hit ? hit[2](sc) : 'Not quite. Check each step: which function, then multiply by v_0.';
+    return {
+      ok: false,
+      mistake: hit ? hit[0] : 'other',
+      msg: `${why}<br><span class="worked">The right way: <span class="formula">${work(asked, sc)}</span></span>`
+    };
+  }
+
+  // ---------- Mastery Check questions ----------
+  // Each is plain JSON: { kind, skill, sc, asked?, order? }. QUESTION[kind] knows how to show and grade it.
+  const SKILLS = {
+    read: { label: 'Read parts off a grid' },
+    concept: { label: 'Angle and the parts' },
+    choose: { label: 'Choose sin or cos' },
+    calc_x: { label: 'Calculate v_0x' },
+    calc_y: { label: 'Calculate v_0y' },
+    sense: { label: 'Does the answer make sense?' },
+    honors: { label: 'Honors challenges' }
+  };
+
+  function shuffled(n) {
+    const a = [...Array(n).keys()];
+    for (let i = n - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  const QUESTION = {
+    // Read one part off a grid (the scale changes, so students must read the key)
+    read: {
+      make: () => ({ kind: 'read', skill: 'read', asked: pick(['x', 'y']), sc: gridArrow([1, 2, 5]) }),
+      type: 'num',
+      text: q => `Use the grid. Read the scale first. How fast is the ${q.asked === 'x' ? 'sideways' : 'upward'} part, ${sym(q.asked)}?`,
+      scene: q => ({ mode: 'grid', sc: q.sc, showArrow: true, showX: q.asked === 'x', showY: q.asked === 'y', keyLabel: true }),
+      unit: 'm/s',
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const t = q.asked === 'x' ? q.sc.x : q.sc.y;
+        if (v === null) return { ok: false, msg: `No answer. ${sym(q.asked)} = ${t} m/s.`, mistake: 'blank' };
+        if (near(v, t, 0, 0.01)) return { ok: true, msg: `${sym(q.asked)} = ${t} m/s.` };
+        const squares = q.asked === 'x' ? q.sc.gx : q.sc.gy;
+        if (near(v, squares, 0, 0.01) && q.sc.scale !== 1) {
+          return { ok: false, mistake: 'scale', msg: `You counted ${squares} squares, but each square is worth ${q.sc.scale} m/s here. ${squares} × ${q.sc.scale} = ${t} m/s.` };
+        }
+        if (near(v, q.asked === 'x' ? q.sc.y : q.sc.x, 0, 0.01)) {
+          return { ok: false, mistake: 'swap', msg: `You read the other part. ${q.asked === 'x' ? 'Sideways is along the ground' : 'Upward is the height of the tip'}. ${sym(q.asked)} = ${t} m/s.` };
+        }
+        return { ok: false, mistake: 'read', msg: `Count squares, then multiply by the scale. ${sym(q.asked)} = ${t} m/s.` };
+      }
+    },
+
+    // Which part is bigger at this angle?
+    concept: {
+      make: () => {
+        const th = pick([15, 20, 30, 45, 60, 70, 75]);
+        return { kind: 'concept', skill: 'concept', sc: { v0: pick([20, 30, 40]), th, thing: Math.floor(Math.random() * THINGS.length) }, order: shuffled(3) };
+      },
+      type: 'mc',
+      text: () => 'Look at the launch angle. Which part of the launch velocity is bigger?',
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: false, showY: false, labelV0: false }),
+      options: () => [{ t: 'The sideways part, v_0x', id: 'x' }, { t: 'The upward part, v_0y', id: 'y' }, { t: 'They are equal', id: 'eq' }],
+      grade: (q, id) => {
+        const right = q.sc.th === 45 ? 'eq' : q.sc.th < 45 ? 'x' : 'y';
+        const why = q.sc.th === 45 ? 'At 45° the speed splits evenly.' : q.sc.th < 45 ? 'A low angle aims mostly sideways, so v_0x is bigger.' : 'A steep angle aims mostly up, so v_0y is bigger.';
+        return { ok: id === right, msg: why, mistake: id === right ? null : 'angle_concept' };
+      }
+    },
+
+    // Pick the correct setup from symbols
+    choose: {
+      make: () => ({ kind: 'choose', skill: 'choose', asked: pick(['x', 'y']), sc: launch(2), order: shuffled(4) }),
+      type: 'mc',
+      text: q => `Which setup finds the part marked with "?" in the picture?`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: q.asked === 'x', showY: q.asked === 'y', mark: q.asked }),
+      options: () => [
+        { t: 'v_0 × cos(θ)', id: 'x', formula: true }, { t: 'v_0 × sin(θ)', id: 'y', formula: true },
+        { t: 'v_0 ÷ cos(θ)', id: 'dc', formula: true }, { t: 'v_0 × tan(θ)', id: 't', formula: true }
+      ],
+      grade: (q, id) => {
+        const ok = id === q.asked;
+        return {
+          ok,
+          mistake: ok ? null : (id === 'x' || id === 'y') ? 'swap' : id === 't' ? 'tan' : 'divided',
+          msg: q.asked === 'x' ? 'The sideways side touches θ (adjacent), so it uses cos.' : 'The upward side is across from θ (opposite), so it uses sin.'
+        };
+      }
+    },
+
+    calc_x: {
+      make: () => ({ kind: 'calc_x', skill: 'calc_x', asked: 'x', sc: launch(2) }),
+      type: 'num',
+      text: q => `A ${THINGS[q.sc.thing].name} ${THINGS[q.sc.thing].verb}. Use the picture to find the sideways part, v_0x.`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: true, showY: false, mark: 'x' }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, q.sc.th] }),
+      grade: (q, raw) => gradeCalc('x', raw, q.sc)
+    },
+
+    calc_y: {
+      make: () => ({ kind: 'calc_y', skill: 'calc_y', asked: 'y', sc: launch(2) }),
+      type: 'num',
+      text: q => `A ${THINGS[q.sc.thing].name} ${THINGS[q.sc.thing].verb}. Use the picture to find the upward part, v_0y.`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: false, showY: true, mark: 'y' }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, q.sc.th] }),
+      grade: (q, raw) => gradeCalc('y', raw, q.sc)
+    },
+
+    // A claimed answer: possible or not, and why?
+    sense: {
+      make: () => {
+        const sc = launch(2);
+        const bad = Math.random() < 0.5;
+        const asked = pick(['x', 'y']);
+        // Bad claims are bigger than the launch speed, a mistake students can catch without a calculator
+        const claim = bad ? Math.round(sc.v0 * pick([1.2, 1.4, 1.5])) : Math.round(asked === 'x' ? sc.x : sc.y);
+        return { kind: 'sense', skill: 'sense', asked, sc, claim, bad, order: shuffled(3) };
+      },
+      type: 'mc',
+      text: q => `A student says the ${q.asked === 'x' ? 'sideways' : 'upward'} part of this launch is ${q.claim} m/s. Without calculating, could that be right?`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: q.asked === 'x', showY: q.asked === 'y', mark: q.asked }),
+      options: () => [
+        { t: 'No. A part cannot be bigger than the launch speed.', id: 'no' },
+        { t: 'Yes. It could be right, because it is smaller than the launch speed.', id: 'yes' },
+        { t: 'Yes. Parts are always bigger than the launch speed.', id: 'bigger' }
+      ],
+      grade: (q, id) => {
+        const right = q.bad ? 'no' : 'yes';
+        return {
+          ok: id === right,
+          mistake: id === right ? null : 'part_bigger',
+          msg: q.bad ? `v_0 is the long side of the triangle, so each part must be smaller than ${q.sc.v0} m/s.` : `${q.claim} m/s is smaller than ${q.sc.v0} m/s, so it passes the check.`
+        };
+      }
+    },
+
+    // ---------- Honors (Period 0 only) ----------
+    h_vertical: {
+      make: () => ({ kind: 'h_vertical', skill: 'honors', asked: pick(['x', 'y']), sc: Object.assign(launch(2), {}) }),
+      type: 'num',
+      text: q => `Careful: this angle is measured from the vertical, not the ground. Find ${sym(q.asked)}.`,
+      hints: () => ['Look at which side touches the marked angle. Here it is the upward side.', 'The side that touches the angle uses cos. The side across from it uses sin.'],
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: q.asked === 'x', showY: q.asked === 'y', mark: q.asked, fromVertical: true }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, 90 - q.sc.th] }),
+      // sc.th is the angle from the GROUND; the picture shows 90° − th from the vertical.
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const t = q.asked === 'x' ? q.sc.x : q.sc.y;
+        const shown = 90 - q.sc.th;
+        const right = `${sym(q.asked)} = ${q.sc.v0} m/s × ${q.asked === 'x' ? 'sin' : 'cos'}(${shown}°) = ${fmtAns(t)} m/s`;
+        if (v !== null && near(v, t)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const flipped = v !== null && near(v, q.asked === 'x' ? q.sc.y : q.sc.x);
+        return {
+          ok: false,
+          mistake: flipped ? 'vertical_angle' : 'other',
+          msg: `${flipped ? `You used the ground rule. Here the UPWARD side touches the angle, so cos goes with v_0y and sin goes with v_0x.<br>` : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>`
+        };
+      }
+    },
+
+    h_down: {
+      make: () => ({ kind: 'h_down', skill: 'honors', asked: 'y', sc: launch(2) }),
+      type: 'num',
+      text: () => 'This launch aims BELOW the horizontal. Up is positive and down is negative. Calculate how fast the vertical part is. Then choose its direction.',
+      signed: true,
+      hints: () => ['Use v_0 × sin(θ) in the calculator. You do not need a minus sign there.', 'Look at the arrow. Which way does the vertical part point? Choose Up or Down.'],
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: false, showY: true, mark: 'y', downward: true }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, q.sc.th] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const t = -q.sc.y;
+        const right = `v_0y = −(${q.sc.v0} m/s × sin(${q.sc.th}°)) = ${fmtAns(t).replace('-', '−')} m/s`;
+        if (v !== null && near(v, t)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const noSign = v !== null && near(v, q.sc.y);
+        return { ok: false, mistake: noSign ? 'sign' : 'other', msg: `${noSign ? 'Right size, wrong sign. Downward is negative.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    },
+
+    h_speed: {
+      make: () => ({ kind: 'h_speed', skill: 'honors', sc: gridArrow([1, 2]) }),
+      type: 'num',
+      text: () => 'Work backward. Read both parts off the grid, then find the launch speed v_0.',
+      hints: () => ['The parts are at a right angle, so use the Pythagorean theorem.', 'On the calculator: press the √ button. Inside it, type the first part, press a², press +, type the second part, press a².'],
+      scene: q => ({ mode: 'grid', sc: q.sc, showArrow: true, showX: true, showY: true, keyLabel: true }),
+      unit: 'm/s',
+      needs: q => ({ fn: 'sqrt', nums: [q.sc.x, q.sc.y] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const right = `v_0 = √(v_0x² + v_0y²) = √(${q.sc.x}² + ${q.sc.y}²) = ${fmtAns(q.sc.v0)} m/s`;
+        if (v !== null && near(v, q.sc.v0)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const added = v !== null && near(v, q.sc.x + q.sc.y);
+        return { ok: false, mistake: added ? 'added_parts' : 'other', msg: `${added ? 'You added the parts. They are at a right angle, so use the Pythagorean theorem.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    },
+
+    h_angle: {
+      make: () => ({ kind: 'h_angle', skill: 'honors', sc: gridArrow([1, 2]) }),
+      type: 'num',
+      text: () => 'Work backward. Read both parts off the grid, then find the launch angle θ above the ground.',
+      hints: () => ['Use θ = tan⁻¹(v_0y ÷ v_0x).', 'The tan⁻¹ button is on the calculator\'s func tab. Press func, then tan⁻¹.', 'Press main to get the numbers back. Type the upward part, press ÷, then type the sideways part.'],
+      scene: q => ({ mode: 'grid', sc: q.sc, showArrow: true, showX: true, showY: true, keyLabel: true }),
+      unit: '°',
+      needs: q => ({ fn: 'atan', nums: [q.sc.x, q.sc.y] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const right = `θ = tan⁻¹(v_0y ÷ v_0x) = tan⁻¹(${q.sc.y} ÷ ${q.sc.x}) = ${fmt(q.sc.th, 1)}°`;
+        if (v !== null && Math.abs(v - q.sc.th) <= 1) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const flipped = v !== null && Math.abs(v - (90 - q.sc.th)) <= 1;
+        return { ok: false, mistake: flipped ? 'vertical_angle' : 'other', msg: `${flipped ? 'That angle is from the vertical. Divide up by sideways.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    },
+
+    h_back: {
+      make: () => ({ kind: 'h_back', skill: 'honors', sc: launch(2) }),
+      type: 'num',
+      text: () => 'The picture gives v_0x and θ. Work backward to find the launch speed v_0.',
+      hints: () => ['Normally v_0x = v_0 × cos(θ). Here you know v_0x, so divide instead.', 'On the calculator: type v_0x, press ÷, then press cos and type the angle.'],
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: true, showY: false, labelV0: false, giveX: true }),
+      unit: 'm/s',
+      needs: q => ({ fn: 'cos', nums: [Number(fmt(q.sc.x, 1)), q.sc.th] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const shownX = Number(fmt(q.sc.x, 1));
+        const t = shownX / Math.cos(rad(q.sc.th));
+        const right = `v_0 = v_0x ÷ cos(θ) = ${fmt(shownX, 1)} ÷ cos(${q.sc.th}°) = ${fmtAns(t)} m/s`;
+        if (v !== null && near(v, t)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const times = v !== null && near(v, shownX * Math.cos(rad(q.sc.th)));
+        return { ok: false, mistake: times ? 'multiplied' : 'other', msg: `${times ? 'You multiplied, so your answer came out smaller than v_0x. The whole speed must be bigger. Divide.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    }
+  };
+
+  function gradeCalc(asked, raw, sc) {
+    const r = checkCalc(asked, raw, sc);
+    if (r.ok === null) return { ok: false, mistake: 'blank', msg: `No answer. <span class="formula">${work(asked, sc)}</span>` };
+    return r;
+  }
+
+  // Mastery Check: one blueprint so every retake tests the same skills with new numbers.
+  function buildQuiz(honors) {
+    const list = ['read', 'concept', 'choose', 'calc_x', 'calc_x', 'calc_y', 'calc_y', 'sense'];
+    if (honors) list.push(pick(['h_speed', 'h_angle']), pick(['h_vertical', 'h_down', 'h_back']));
+    return list.map(kind => QUESTION[kind].make());
+  }
+
+  function gradeQuiz(questions, answers) {
+    const results = questions.map((q, i) => {
+      const r = QUESTION[q.kind].grade(q, answers[i]);
+      return { skill: q.skill, ok: !!r.ok, msg: r.msg, mistake: r.mistake || null };
+    });
+    const correct = results.filter(r => r.ok).length;
+    const skills = {};
+    results.forEach(r => {
+      skills[r.skill] = skills[r.skill] || { right: 0, total: 0 };
+      skills[r.skill].total++;
+      if (r.ok) skills[r.skill].right++;
+    });
+    return { results, correct, total: questions.length, pct: Math.round(100 * correct / questions.length), skills };
+  }
+
+  // ---------- Reading the Desmos scientific calculator ----------
+  // Its API reports what was typed (LaTeX) but not the result, so this evaluates the LaTeX itself.
+  // It also records which numbers and functions were used, so "17.3" alone can't pass as work.
+  function parseCalc(latex, degrees, prev) {
+    let src = String(latex)
+      .replace(/\\left|\\right/g, '').replace(/\\cdot|\\times/g, '*').replace(/\\div/g, '/')
+      .replace(/\\operatorname\{([a-z]+)\}/g, '\\$1').replace(/\\ /g, '').replace(/\s+/g, '')
+      .replace(/−/g, '-').replace(/\^\{?\\circ\}?|°/g, '°');
+    let i = 0;
+    const nums = [], fns = [];
+    const peek = t => src.startsWith(t, i);
+    const take = t => (peek(t) ? (i += t.length, true) : false);
+    const fail = () => { throw new Error('unreadable'); };
+    const need = t => { if (!take(t)) fail(); };
+    const group = () => { need('{'); const v = expr(); need('}'); return v; };
+
+    const FN = { sin: Math.sin, cos: Math.cos, tan: Math.tan };
+    const INV = { sin: Math.asin, cos: Math.acos, tan: Math.atan };
+    const toRad = x => (degrees ? rad(x) : x);
+    const fromRad = x => (degrees ? x * 180 / Math.PI : x);
+
+    function funcCall() {
+      for (const name of ['arcsin', 'arccos', 'arctan', 'sin', 'cos', 'tan']) {
+        if (!take('\\' + name)) continue;
+        const base = name.replace('arc', '');
+        let inverse = name.startsWith('arc');
+        if (take('^{-1}')) inverse = true;
+        const arg = unary();
+        fns.push((inverse ? 'a' : '') + base);
+        return inverse ? fromRad(INV[base](arg)) : FN[base](toRad(arg));
+      }
+      return null;
+    }
+
+    function atom() {
+      if (take('(')) { const v = expr(); need(')'); return v; }
+      if (take('\\frac')) { const a = group(); const b = group(); return a / b; }
+      if (take('\\sqrt')) {
+        let n = 2;
+        if (take('[')) { n = expr(); need(']'); }
+        fns.push('sqrt');
+        return Math.pow(group(), 1 / n);
+      }
+      if (take('\\pi')) return Math.PI;
+      if (take('ans') || take('\\ans')) {
+        if (!prev) fail();
+        nums.push(...prev.nums); fns.push(...prev.fns);
+        return prev.value;
+      }
+      const m = src.slice(i).match(/^(\d+\.?\d*|\.\d+)/);
+      if (m) { i += m[0].length; const v = parseFloat(m[0]); nums.push(v); return v; }
+      const f = funcCall();
+      if (f !== null) return f;
+      return fail();
+    }
+
+    function postfix() {
+      let v = atom();
+      for (;;) {
+        if (take('°')) { if (!degrees) v = rad(v); }
+        else if (take('\\%')) v /= 100;
+        else if (take('^')) {
+          if (peek('{')) v = Math.pow(v, group());
+          else { const m = src.slice(i).match(/^\d/); if (!m) fail(); i++; v = Math.pow(v, Number(m[0])); }
+        } else return v;
+      }
+    }
+    function unary() { return take('-') ? -unary() : postfix(); }
+    function term() {
+      let v = unary();
+      for (;;) {
+        if (take('*')) v *= unary();
+        else if (take('/')) v /= unary();
+        else if (i < src.length && /[\d(\\.a]/.test(src[i])) v *= unary();   // 20\cos(30)
+        else return v;
+      }
+    }
+    function expr() {
+      let v = term();
+      for (;;) {
+        if (take('+')) v += term();
+        else if (take('-')) v -= term();
+        else return v;
+      }
+    }
+
+    try {
+      const value = expr();
+      if (i !== src.length || !isFinite(value)) return null;
+      return { value, nums, fns, latex };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // state = desmos.getState(). Uses the student's latest line, as the calculator itself would show it.
+  function readCalculator(state) {
+    const list = (state && state.expressions && state.expressions.list) || [];
+    const degrees = !state || !state.settings || state.settings.degreeMode !== false;
+    let prev = null, last = null, unreadable = false;
+    list.forEach(item => {
+      if (!item || !item.latex) return;
+      const parsed = parseCalc(item.latex, degrees, prev);
+      unreadable = !parsed;
+      last = item.latex;
+      if (parsed) prev = parsed;
+    });
+    if (last === null) return { empty: true };
+    if (unreadable) return { unreadable: true };
+    return prev;
+  }
+
+  // needs = { nums: [...], fn: 'sin' | 'cos' | 'sqrt' | 'atan', trig: true }. Returns a message, or null when it is real work.
+  // These stop a looked-up answer without costing a streak, so a real mistake still gets its diagnosis at Check.
+  function checkWork(work, needs = {}) {
+    if (!work.fns.length && work.nums.length <= 1) {
+      return 'Type the whole calculation into the calculator, not just the answer.';
+    }
+    if (needs.fn && !work.fns.includes(needs.fn)) {
+      const names = { sin: 'the sin button', cos: 'the cos button', sqrt: 'the square root button', atan: 'the tan⁻¹ button' };
+      return `Your calculation needs to use ${names[needs.fn]}.`;
+    }
+    if (needs.trig && !work.fns.some(f => ['sin', 'cos', 'tan'].includes(f))) {
+      return 'Your calculation needs to use the sin or cos button.';
+    }
+    const missing = (needs.nums || []).filter(n => !work.nums.some(w => Math.abs(w - Math.abs(n)) < 1e-6));
+    if (missing.length) return `Your calculation needs to use the numbers from the problem. Look for ${missing.join(' and ')}.`;
+    return null;
+  }
+
+  window.Engine = { parseCalc, readCalculator, checkWork, Phys, THINGS, SKILLS, QUESTION, fmt, fmtAns, near, parseNum, pick, shuffled, rad, launch, gridArrow, work, fn, sym, checkCalc, buildQuiz, gradeQuiz };
+})();
+
+// === Unit_3/tradeoff_lab/js/physics.js ===
+// Force–Distance Trade-Off Lab — physics, instrument checks, the graph, and grading.
+// The big idea: a pulley or a smooth ramp lowers the force you need, but you pull the rope farther by the same factor.
+// The work you put in, W = F × d, stays the same as lifting straight up: m × g × h.
+// Students lift their own load to the same height with 1–4 supporting ropes and with ramps of different lengths,
+// read the spring scale (N) and the rope tape (m), record each trial, graph F against d, and test an untested case.
+//   conceptual (P1–3): reads the pattern from the table: twice the distance, half the force. No division needed.
+//   cp (P4–6):         computes W = F × d for rows of the table and predicts a force with F = W ÷ d.
+//   honors (P0):       also finds the ramp length that gives a chosen force, L = W ÷ F, then tests it.
+// No friction and no force components anywhere: every ramp is perfectly smooth.
+
+(function () {
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const shuffle = a => {
+    const b = a.slice();
+    for (let i = b.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [b[i], b[j]] = [b[j], b[i]];
+    }
+    return b;
+  };
+  const round = (v, d = 2) => Math.round(v * 10 ** d) / 10 ** d;
+  function fmt(v) {
+    const s = Math.abs(v - Math.round(v)) < 1e-9 ? String(Math.round(v)) : Math.abs(v) < 10 ? String(round(v, 2)) : String(round(v, 1));
+    return s.replace(/^-/, '−');
+  }
+  const near = (v, target, rel = 0.02, abs = 0.05) => Math.abs(v - target) <= Math.max(Math.abs(target) * rel, abs);
+  function parseNum(raw) {
+    const v = parseFloat(String(raw).replace(',', '.').replace(/[−–]/g, '-').replace(/[^0-9.\-eE]/g, ''));
+    return isFinite(v) ? v : null;
+  }
+
+  // ---------- The apparatus ----------
+  const G = 10;                       // m/s², on Earth, in this class
+  const H = 1.5;                      // every lift ends 1.5 m above the floor
+  const SCALE = { max: 250, minor: 5, label: 25, tol: 2.6 };   // spring scale in newtons
+  const TAPE = { max: 7 };            // the rope tape runs from 0 to 7 m
+  const ROPES = [1, 2, 3, 4];
+  // Ramp trials. Periods 1–3 use 2, 3 and 4 times the height so the pattern sits in the table.
+  const RAMP_C = [3, 4.5, 6];
+  const RAMP_RANGE = { min: 1.6, max: 6.5, step: 0.1 };
+  const TRIALS = { conceptual: 7, cp: 7, honors: 7 };
+
+  // Each student gets their own load. Periods 1–3 get loads whose forces land on the scale's marks.
+  const MASSES = { conceptual: [12, 18, 24], cp: [12, 14, 16, 18, 20, 22, 24], honors: [14, 16, 18, 20, 22] };
+  function newRig(tier) {
+    const m = pick(MASSES[tier] || MASSES.cp);
+    return { m, h: H, test: null, Ftest: null };
+  }
+  const weight = rig => rig.m * G;
+  const workOut = rig => rig.m * G * rig.h;
+  // A machine: { mach: 'pulley', n } or { mach: 'ramp', L }. k = how many times farther the rope moves than the load rises.
+  const factor = (rig, mc) => (mc.mach === 'pulley' ? mc.n : mc.L / rig.h);
+  const ropeDist = (rig, mc) => (mc.mach === 'pulley' ? mc.n * rig.h : mc.L);
+  const forceNeed = (rig, mc) => weight(rig) / factor(rig, mc);
+  const machLabel = mc => (mc.mach === 'pulley' ? `${mc.n} rope${mc.n > 1 ? 's' : ''}` : `ramp ${fmt(mc.L)} m`);
+
+  // The machine each trial uses. Trials 1–4 are pulleys, 5–7 are ramps.
+  function trialMachine(n) { return n <= 4 ? { mach: 'pulley', n: ROPES[n - 1] } : { mach: 'ramp', L: null }; }
+  function rampRule(tier, n, table = []) {
+    const i = n - 5;
+    if (tier === 'conceptual') {
+      const L = RAMP_C[i], k = L / H;
+      return { text: `Set the ramp to ${fmt(L)} m long: ${k} times the 1.5 m height.`, ok: s => Math.abs(s - L) < 0.05, why: `This trial uses a ${fmt(L)} m ramp. Slide the ramp length to ${fmt(L)} m.` };
+    }
+    const used = table.slice(0, n - 1).map(r => r.d);
+    if (i === 0) return { text: 'Start with a short, steep ramp: 2.5 m or shorter.', ok: s => s <= 2.5001, why: 'This ramp needs to be short and steep: 2.5 m or less.' };
+    if (i === 1) return { text: 'Now a long, gentle ramp: 5.0 m or longer.', ok: s => s >= 4.9999, why: 'This ramp needs to be long: 5.0 m or more.' };
+    return {
+      text: 'Pick a length in between that is not close to any rope distance in your table.',
+      ok: s => used.every(u => Math.abs(u - s) >= 0.4),
+      why: 'That is too close to a distance already in your table. Move at least 0.4 m away from every distance you have.'
+    };
+  }
+
+  // Simulated table for teacher inspection
+  const SAMPLE_RAMPS = { conceptual: RAMP_C, cp: [2.2, 5.6, 3.8], honors: [2.4, 5.2, 3.7] };
+  function sampleTable(tier, rig) {
+    const rows = ROPES.map(n => ({ mach: 'pulley', n }));
+    (SAMPLE_RAMPS[tier] || SAMPLE_RAMPS.cp).forEach(L => rows.push({ mach: 'ramp', L }));
+    return rows.map(mc => ({ mach: mc.mach, set: mc.mach === 'pulley' ? mc.n : mc.L, d: round(ropeDist(rig, mc), 2), F: round(forceNeed(rig, mc), 1) }));
+  }
+  const rowMachine = row => (row.mach === 'pulley' ? { mach: 'pulley', n: row.set } : { mach: 'ramp', L: row.set });
+
+  // ---------- Reading the two instruments. Never says the value or which way to go. ----------
+  function checkForce(raw, F, d, rig) {
+    const x = parseNum(raw);
+    if (x === null) return { ok: false, mistake: 'blank', msg: 'Read the spring scale and type the force.' };
+    if (Math.abs(x - F) <= SCALE.tol) return { ok: true };
+    if (Math.abs(x - weight(rig)) <= 1 && Math.abs(F - weight(rig)) > 3) return { ok: false, mistake: 'force_gave_weight', msg: 'That is the whole weight of the load. Read the spring scale on the rope: it shows how hard you pull.' };
+    if (Math.abs(x - d) <= 0.06) return { ok: false, mistake: 'force_gave_dist', msg: 'That is the rope distance in meters. The force is on the spring scale, in newtons (N).' };
+    if (Math.abs(x - F) <= 8) return { ok: false, mistake: 'force_close', msg: 'Close. Find the last numbered mark above the needle, then count the small marks. Each small mark is 5 N.' };
+    return { ok: false, mistake: 'force_far', msg: 'That does not match the spring scale. Find the two numbers the needle is between. Each small mark is 5 N.' };
+  }
+  function checkDist(raw, d, F) {
+    const x = parseNum(raw);
+    if (x === null) return { ok: false, mistake: 'blank', msg: 'Read the rope tape at the red tag and type the distance.' };
+    if (Math.abs(x - d) <= 0.051) return { ok: true };
+    if (Math.abs(x - F) <= 2 && Math.abs(F - d) > 2) return { ok: false, mistake: 'dist_gave_force', msg: 'That is the force in N. The distance is on the rope tape, in meters (m).' };
+    if (Math.abs(x - 1.5) <= 0.051) return { ok: false, mistake: 'dist_gave_height', msg: 'That is how high the load went. Read how far YOU pulled the rope: the red tag on the rope tape.' };
+    if (near(x, d * 100, 0.01, 0.6)) return { ok: false, mistake: 'dist_cm', msg: 'That is in centimeters. Record meters: the big numbers on the tape are meters.' };
+    if (Math.abs(x - d) <= 0.35) return { ok: false, mistake: 'dist_close', msg: 'Close. Find the last big number before the red tag, then count small marks. Each small mark is 0.1 m.' };
+    return { ok: false, mistake: 'dist_far', msg: 'That does not match the tape. Look where the red tag on the rope points.' };
+  }
+
+  // ---------- The graph: force against rope distance ----------
+  const BOX = { x0: 96, x1: 724, y0: 436, y1: 36 };
+  const X_AXIS = { key: 'd', sym: 'd', label: 'rope pulled, d (m)', max: 7, step: 1, minor: 0.5 };
+  function forceAxis(Fg) {
+    const max = [100, 125, 150, 175, 200, 225, 250, 275, 300].find(m => m >= Fg * 1.08) || 300;
+    return { sym: 'F', label: 'force on the rope, F (N)', max, step: 25, minor: 5 };
+  }
+  const graphSpec = rig => ({ x: Object.assign({}, X_AXIS), y: forceAxis(weight(rig)), box: BOX });
+  const specFor = Fg => ({ x: Object.assign({}, X_AXIS), y: forceAxis(Fg), box: BOX });
+  const toPx = (spec, x, y) => ({
+    x: spec.box.x0 + (x / spec.x.max) * (spec.box.x1 - spec.box.x0),
+    y: spec.box.y0 - (y / spec.y.max) * (spec.box.y0 - spec.box.y1)
+  });
+  const fromPx = (spec, px, py) => ({
+    x: ((px - spec.box.x0) / (spec.box.x1 - spec.box.x0)) * spec.x.max,
+    y: ((spec.box.y0 - py) / (spec.box.y0 - spec.box.y1)) * spec.y.max
+  });
+  const rowXY = row => ({ x: row.d, y: row.F });
+  const PLOT_TOL = 14;
+  function checkPlot(spec, click, target) {
+    const t = toPx(spec, target.x, target.y);
+    const dx = Math.abs(click.x - t.x), dy = Math.abs(click.y - t.y);
+    if (Math.hypot(dx, dy) <= PLOT_TOL) return { ok: true };
+    if (dx <= PLOT_TOL) return { ok: false, mistake: 'plot_y', msg: `You are above the right spot on the bottom axis. Now check the height: F = ${fmt(target.y)} N.` };
+    if (dy <= PLOT_TOL) return { ok: false, mistake: 'plot_x', msg: `The height is right. Now slide sideways to d = ${fmt(target.x)} m on the bottom axis.` };
+    return { ok: false, mistake: 'plot_off', msg: `Start on the bottom axis at d = ${fmt(target.x)} m. Go straight up until you are level with F = ${fmt(target.y)} N.` };
+  }
+
+  // A rope distance for reading the curve: not in the table, and not the distance that will be tested
+  function readSpot(table, avoid) {
+    const used = table.map(r => r.d).concat(avoid ? [avoid] : []);
+    const options = [2.5, 3.5, 4.0, 5.0, 5.5].filter(x => used.every(u => Math.abs(u - x) >= 0.3));
+    return options.length ? pick(options) : 5.5;
+  }
+  // The ramp tested at the end. Periods 1–3 and 4–6 predict the force for a length they never used.
+  function testLength(table) {
+    const used = table.map(r => r.d);
+    const options = [2.0, 2.5, 3.5, 4.0, 5.0, 5.5, 6.5].filter(x => used.every(u => Math.abs(u - x) >= 0.3));
+    return options.length ? pick(options) : 6.5;
+  }
+  // Period 0 is given a force and finds the ramp length. The length lands on the tape's 0.1 m marks.
+  function testForce(rig, table) {
+    const used = table.map(r => r.d);
+    const W = workOut(rig);
+    const options = [2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0].filter(L => used.every(u => Math.abs(u - L) >= 0.3) && Number.isInteger(round(W / L, 4)));
+    const L = options.length ? pick(options) : 5.0;
+    return { L, F: round(W / L, 2) };
+  }
+
+  // ---------- Showing and checking work (same rules as the Day 2 studio) ----------
+  function workProblem(work, needs = {}) {
+    if (!work.fns.length && work.nums.length <= 1) return 'Type the whole calculation into the calculator, not just the answer.';
+    if (needs.fn && !work.fns.includes(needs.fn)) return `Your calculation needs to use the ${needs.label || needs.fn} button.`;
+    const has = n => work.nums.some(w => Math.abs(w - Math.abs(n)) <= Math.max(Math.abs(n) * 0.015, 0.0051));
+    const routes = needs.routes || [];
+    if (routes.length && !routes.some(r => r.every(has))) {
+      return `Your calculation needs to use ${needs.from || 'the numbers from this problem'}. Look for ${routes[0].map(n => fmt(Math.abs(n))).join(' and ')}.`;
+    }
+    return null;
+  }
+  function stack(calc) {
+    const [sym, ...steps] = calc.split(' = ');
+    if (!steps.length) return `<span class="formula">${calc}</span>`;
+    return `<span class="calc-stack">${steps.map(s => `<span class="calc-sym">${sym}</span><span>=</span><span>${s}</span>`).join('')}</span>`;
+  }
+  function grade(q, raw) {
+    const v = parseNum(raw);
+    const worked = q.right ? `<br><span class="worked">The right way: ${stack(q.right)}</span>` : '';
+    if (v === null) return { ok: false, retry: true, mistake: 'blank', msg: q.calc ? 'Use the calculator, then press "Use calculator answer".' : 'Type your answer in the box.' };
+    if (near(v, q.target, q.rel === undefined ? 0.02 : q.rel, q.abs === undefined ? 0.05 : q.abs)) return { ok: true, msg: q.right ? stack(q.right) : '' };
+    const hit = q.mistake ? q.mistake(v) : null;
+    if (q.own || (hit && hit[2])) return { ok: false, retry: true, mistake: hit ? hit[0] : 'other', msg: hit ? hit[1] : 'Not quite. Check the numbers you used.' };
+    return { ok: false, mistake: hit ? hit[0] : 'other', msg: (hit ? hit[1] : 'Not quite.') + worked };
+  }
+
+  window.FLcore = {
+    pick, shuffle, round, fmt, near, parseNum, G, H, SCALE, TAPE, ROPES, RAMP_C, RAMP_RANGE, TRIALS, MASSES, newRig, weight, workOut,
+    factor, ropeDist, forceNeed, machLabel, trialMachine, rampRule, sampleTable, rowMachine, checkForce, checkDist,
+    BOX, X_AXIS, forceAxis, graphSpec, specFor, toPx, fromPx, rowXY, PLOT_TOL, checkPlot, readSpot, testLength, testForce,
+    workProblem, stack, grade
+  };
+})();
+
+// === Unit_3/tradeoff_lab/js/scene.js ===
+// Force–Distance Trade-Off Lab — the pictures. Everything is SVG in a 760 × 520 box.
+// lab(): a block-and-tackle or a smooth ramp, the rope tape along the bottom, and a spring scale on the right.
+// The parts that move (load, rope, tag, needle, hold bar) carry ids, and place() moves them every frame.
+// graph(): force against rope distance, with the student's own points. problem(): pictures for the Mastery Check.
+
+(function () {
+  const W = 760, H = 520, FLOOR = 430;
+  const TAPE = { x0: 96, pxm: 76, y: 486, rope: 474 };          // rope tape: 0–7 m
+  const SC = { x: 656, w: 100, top: 56, bot: 404, max: 250 };   // spring scale tube; a digital readout can sit under it
+  const PUL = { cx: 330, pxm: 90, beam: 40, topY: 67, r: 8, crateW: 64, crateH: 50 };   // topY: centers of the top wheels; r: wheel radius (strands are 2r apart)
+  const RAMP = { pxm: 66, platL: 62, platR: 172, extra: 0.3 };   // the ramp runs 0.3 m higher than the hold line
+  const ROPE_X = 40;                                          // the rope comes down the left edge to the floor pulley
+  const esc = s => String(s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
+  const fmt = v => window.FL.fmt(v);
+  const SUB_RE = /\b(F|W|d|h|L)_(g|in|out|need)\b/g;
+  const rich = str => esc(str).replace(SUB_RE, '$1<tspan class="sv-sub" dy="5">$2</tspan><tspan dy="-5">​</tspan>');
+  const text = (x, y, str, cls = '', anchor = 'middle', id = '') => `<text x="${x}" y="${y}" class="sv-text ${cls}" text-anchor="${anchor}"${id ? ` id="${id}"` : ''}>${rich(str)}</text>`;
+  function plate(x, y, str, cls = '', anchor = 'middle') {
+    const w = String(str).replace(/_/g, '').length * 9.2 + 18, x0 = anchor === 'middle' ? x - w / 2 : anchor === 'end' ? x - w + 6 : x - 6;
+    return `<rect x="${x0.toFixed(1)}" y="${y - 19}" width="${w.toFixed(1)}" height="27" rx="6" class="sv-plate"/>${text(x, y, str, cls, anchor)}`;
+  }
+  const frame = (inner, cls = '') => `<svg viewBox="0 0 ${W} ${H}" class="scene-svg ${cls}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"><rect x="0" y="0" width="${W}" height="${H}" class="sv-floor"/>${inner}</svg>`;
+  const wheel = (x, y, r, cls = 'to-wheel') => `<circle cx="${x}" cy="${y}" r="${r}" class="${cls}"/><circle cx="${x}" cy="${y}" r="2.5" class="to-axle"/>`;
+  // A wheel with spokes that place() can turn. ang in degrees, clockwise.
+  const spun = (id, x, y, r, ang = 0) => `<g id="${id}" transform="rotate(${ang.toFixed(1)} ${x} ${y})"><circle cx="${x}" cy="${y}" r="${r}" class="to-wheel"/>`
+    + `<path d="M ${x - r + 2} ${y} H ${x + r - 2} M ${x - (r - 2) / 2} ${y - (r - 2) * 0.866} L ${x + (r - 2) / 2} ${y + (r - 2) * 0.866} M ${x - (r - 2) / 2} ${y + (r - 2) * 0.866} L ${x + (r - 2) / 2} ${y - (r - 2) * 0.866}" class="to-spoke"/>`
+    + `<circle cx="${x}" cy="${y}" r="2.2" class="to-axle"/></g>`;
+  // A rope section: a solid rope with a braided texture on top. The texture's offset shows the rope material moving.
+  const ropeSeg = (id, d, off = 0) => `<path id="${id}" d="${d}" class="to-rope"/><path id="${id}t" d="${d}" class="to-rope-tex" stroke-dashoffset="${off.toFixed(1)}"/>`;
+  const CORNER_X = 49, CR = 9, FLOOR_PULLEY = { x: 49, y: 465 };
+  const deg = rad => rad * 180 / Math.PI;
+  const FL_r = v => Math.round(v * 10) / 10;
+
+  // ---------- Geometry of each machine ----------
+  // x = rope pulled (m).
+  // Block and tackle with n supporting strands, numbered 1..n from the dead end (right) toward the free end (left).
+  // With an even n the dead end is on the top block; with an odd n it is on the moving block. Wheel k joins strands k and k+1,
+  // on whichever block strand k ends at, and a last top wheel turns strand n toward the free end.
+  // Rope speeds (in units of the load speed u): the dead end moves with its block; across a wheel moving at b, w(k+1) = 2b − w(k).
+  // That makes the free end move at n·u, and every wheel turns at its own rate: (w(k) − b) / r.
+  function reeving(n) {
+    const deadTop = n % 2 === 0, xs = [], wheels = [];
+    for (let k = 1; k <= n; k++) xs.push(PUL.cx + PUL.r + 2 * PUL.r * ((n - 1) / 2 - (k - 1)));
+    let w = deadTop ? 0 : 1;
+    const speeds = [w];
+    for (let k = 1; k < n; k++) {
+      const bot = deadTop ? k % 2 === 1 : k % 2 === 0, b = bot ? 1 : 0;
+      wheels.push({ id: `wk${k}`, bot, x: (xs[k - 1] + xs[k]) / 2, rel: w - b });
+      w = 2 * b - w; speeds.push(w);
+    }
+    wheels.push({ id: 'wkf', bot: false, x: xs[n - 1] - PUL.r, rel: w });
+    return { deadTop, xs, wheels, speeds };
+  }
+  function geo(rig, mc, x) {
+    if (mc.mach === 'pulley') {
+      const n = mc.n, y = x / n, crateBot = FLOOR - y * PUL.pxm, crateTop = crateBot - PUL.crateH;
+      const botY = n > 1 ? crateTop - 22 : crateTop;   // centers of the moving wheels (or the crate's hook for 1 rope)
+      return Object.assign({ y, crateBot, crateTop, botY, cornerY: PUL.topY - PUL.r + CR }, reeving(n));
+    }
+    // L is the distance along the ramp from the floor up to the hold line (height h). The board keeps going a little higher.
+    const L = mc.L, h = rig.h, hTop = h + RAMP.extra, Lf = L * hTop / h, run = Math.sqrt(Math.max(0, Lf * Lf - hTop * hTop));
+    const top = { x: RAMP.platR, y: FLOOR - hTop * RAMP.pxm }, foot = { x: RAMP.platR + run * RAMP.pxm, y: FLOOR };
+    const ux = (top.x - foot.x) / (Lf * RAMP.pxm), uy = (top.y - foot.y) / (Lf * RAMP.pxm);   // up-the-ramp, unit
+    const nx = -uy, ny = ux;                                                                  // unit normal, pointing to the sky side of the board
+    const line = { x: foot.x + ux * L * RAMP.pxm, y: FLOOR - h * RAMP.pxm };
+    // The rope runs 25 px above the board, so the ramp pulley's center sits 25 − r above the board's top end
+    const P = { x: top.x + nx * (25 - PUL.r), y: top.y + ny * (25 - PUL.r) };
+    return { L, Lf, top, foot, line, ux, uy, nx, ny, P, y: (x / L) * h, cornerY: P.y - PUL.r + CR };
+  }
+
+  // ---------- The spring scale, with an optional digital readout ----------
+  const needleY = F => SC.top + Math.max(0, Math.min(SC.max * 1.02, F)) / SC.max * (SC.bot - SC.top);
+  function springScale(digital) {
+    const tx = SC.x + 54, tw = 30;
+    let s = `<rect x="${SC.x}" y="8" width="${SC.w}" height="${SC.bot + 58}" rx="12" class="to-scale-body"/>`
+      + text(SC.x + SC.w / 2, 28, 'Spring', 'sv-small to-scale-title') + text(SC.x + SC.w / 2, 44, 'scale (N)', 'sv-small to-scale-title')
+      + `<rect x="${tx}" y="${SC.top - 6}" width="${tw}" height="${SC.bot - SC.top + 12}" class="to-scale-tube"/>`;
+    for (let f = 0; f <= SC.max; f += 5) {
+      const y = needleY(f), lab = f % 25 === 0;
+      s += `<line x1="${tx}" y1="${y.toFixed(1)}" x2="${tx + (lab ? 16 : 8)}" y2="${y.toFixed(1)}" class="to-tick ${lab ? 'to-tick-major' : ''}"/>`;
+      if (lab) s += `<text x="${tx - 4}" y="${(y + 7).toFixed(1)}" class="sv-text to-scale-num" text-anchor="end">${f}</text>`;
+    }
+    s += `<g id="needle" transform="translate(0 ${needleY(0).toFixed(1)})"><rect x="${tx - 6}" y="-2" width="${tw + 12}" height="4" class="to-needle"/><path d="M ${tx + tw + 6} 0 l 9 -7 v 14 z" class="to-needle-tip"/></g>`;
+    if (digital) s += `<rect x="${SC.x + 6}" y="${SC.bot + 16}" width="${SC.w - 12}" height="30" rx="5" class="to-lcd"/><text id="digital" x="${SC.x + SC.w / 2}" y="${SC.bot + 37}" class="sv-text to-lcd-text" text-anchor="middle">0 N</text>`;
+    return s;
+  }
+
+  // ---------- The rope tape along the bottom ----------
+  function ropeTape() {
+    const x0 = TAPE.x0, x1 = x0 + 7 * TAPE.pxm;
+    let s = `<rect x="${x0 - 10}" y="${TAPE.y}" width="${x1 - x0 + 20}" height="32" rx="3" class="to-tape"/>`;
+    for (let i = 0; i <= 70; i++) {
+      const x = x0 + i * TAPE.pxm / 10, big = i % 10 === 0, mid = i % 5 === 0;
+      s += `<line x1="${x.toFixed(1)}" y1="${TAPE.y}" x2="${x.toFixed(1)}" y2="${TAPE.y + (big ? 12 : mid ? 9 : 5)}" class="to-tape-tick ${big ? 'to-tape-tick-big' : ''}"/>`;
+      if (big) s += `<text x="${x.toFixed(1)}" y="${TAPE.y + 30}" class="sv-text to-tape-num" text-anchor="middle">${i / 10}</text>`;
+    }
+    s += text(x0 - 14, TAPE.y + 22, 'd (m)', 'sv-small to-tape-label', 'end');
+    return s;
+  }
+  const tagX = x => TAPE.x0 + x * TAPE.pxm;
+  // The grip you pull: the red tag marks the rope, the little scale sits in the rope, the grip shows the P key
+  const grip = () => `<g id="grip"><path d="M 0 ${TAPE.rope} l -6 -14 h 12 z" class="to-tag"/><rect x="6" y="${TAPE.rope - 7}" width="22" height="14" rx="3" class="to-mini-scale"/>`
+    + `<rect x="30" y="${TAPE.rope - 12}" width="24" height="24" rx="5" class="to-grip"/><text x="42" y="${TAPE.rope + 6}" class="sv-text to-grip-key" text-anchor="middle">P</text></g>`;
+
+  // ---------- The two machines ----------
+  function pulleyStatic(rig, mc) {
+    const g = geo(rig, mc, 0), R = PUL.r, tops = g.wheels.filter(w => !w.bot);
+    const lineY = FLOOR - rig.h * PUL.pxm, band = 0.12 * PUL.pxm;
+    const xsTop = tops.map(w => w.x).concat(g.deadTop ? [g.xs[0]] : []);
+    const bx0 = Math.min(...xsTop) - R - 5, bx1 = Math.max(...xsTop) + R + 5;
+    let s = `<rect x="150" y="${PUL.beam - 14}" width="360" height="14" class="to-beam"/>`;
+    s += `<rect x="${(bx0 + bx1) / 2 - 4}" y="${PUL.beam}" width="8" height="${PUL.topY - R - 5 - PUL.beam}" class="to-hanger"/>`;
+    s += `<rect x="${bx0}" y="${PUL.topY - R - 5}" width="${bx1 - bx0}" height="${2 * R + 10}" rx="7" class="to-block"/>`;
+    // the hold line and its band
+    s += `<rect x="250" y="${(lineY - band).toFixed(1)}" width="210" height="${(2 * band).toFixed(1)}" class="to-band"/>`;
+    s += `<line x1="250" y1="${lineY}" x2="460" y2="${lineY}" class="to-line"/>` + text(244, lineY + 5, 'hold line', 'sv-small to-line-text', 'end');
+    s += ruler(470, FLOOR, PUL.pxm, 1.8);
+    return s;
+  }
+  function ruler(x, floor, pxm, maxH) {
+    let s = `<rect x="${x}" y="${floor - maxH * pxm}" width="38" height="${maxH * pxm}" class="to-ruler"/>`;
+    for (let i = 0; i <= Math.round(maxH * 10); i++) {
+      const y = floor - i * pxm / 10, major = i % 5 === 0;
+      s += `<line x1="${x}" y1="${y.toFixed(1)}" x2="${x + (major ? 12 : 6)}" y2="${y.toFixed(1)}" class="to-ruler-tick"/>`;
+      if (major && i) s += `<text x="${x + 13}" y="${(y + 5).toFixed(1)}" class="sv-text to-ruler-num">${(i / 10).toFixed(1)}</text>`;
+    }
+    return s + `<text x="${x + 13}" y="${floor - 4}" class="sv-text to-ruler-num">m</text>`;
+  }
+  function rampStatic(rig, mc) {
+    const g = geo(rig, mc, 0), band = 0.12 * RAMP.pxm;
+    let s = `<rect x="${g.top.x - 6}" y="${g.top.y}" width="12" height="${FLOOR - g.top.y}" class="to-platform"/>`;
+    s += ruler(60, FLOOR, RAMP.pxm, 1.8);
+    s += `<path d="M ${g.foot.x} ${FLOOR} L ${g.top.x} ${g.top.y} L ${g.top.x} ${FLOOR} Z" class="to-wedge"/>`;
+    s += `<line x1="${g.foot.x}" y1="${FLOOR}" x2="${g.top.x}" y2="${g.top.y}" class="to-ramp"/>`;
+    const x0 = 100, x1 = Math.min(g.foot.x, g.line.x + 70);
+    s += `<rect x="${x0}" y="${(g.line.y - band).toFixed(1)}" width="${(x1 - x0).toFixed(1)}" height="${(2 * band).toFixed(1)}" class="to-band"/>`;
+    s += `<line x1="${x0}" y1="${g.line.y}" x2="${x1.toFixed(1)}" y2="${g.line.y}" class="to-line"/>` + text(x0 + 2, g.line.y - 9, 'hold line', 'sv-small to-line-text', 'start');
+    // a dimension line on the open side, above the cart's path: from the floor up to the hold line, parallel to the board
+    const off = 54, ext = (x, y) => `M ${(x + g.nx * 6).toFixed(1)} ${(y + g.ny * 6).toFixed(1)} L ${(x + g.nx * (off + 6)).toFixed(1)} ${(y + g.ny * (off + 6)).toFixed(1)}`;
+    const ax = g.foot.x + g.nx * off, ay = FLOOR + g.ny * off, bx = g.line.x + g.nx * off, by = g.line.y + g.ny * off;
+    const ang = deg(Math.atan2(g.foot.y - g.line.y, g.foot.x - g.line.x));
+    s += `<path d="${ext(g.foot.x, FLOOR)} ${ext(g.line.x, g.line.y)}" class="to-dimext"/><path d="M ${ax.toFixed(1)} ${ay.toFixed(1)} L ${bx.toFixed(1)} ${by.toFixed(1)}" class="to-dimline"/>`
+      + `<g transform="translate(${(ax + (bx - ax) * 0.3).toFixed(1)} ${(ay + (by - ay) * 0.3).toFixed(1)}) rotate(${ang.toFixed(1)})"><rect x="-27" y="-11" width="54" height="21" rx="10" class="to-dim-pill"/><text x="0" y="4.5" class="sv-text to-dim-text" text-anchor="middle">${fmt(mc.L)} m</text></g>`;
+    s += `<line x1="${g.top.x}" y1="${g.top.y}" x2="${g.P.x.toFixed(1)}" y2="${g.P.y.toFixed(1)}" class="to-bracket"/>`;
+    return s;
+  }
+
+  // The cart rolls up the ramp to the LEFT. Its frame starts at the front wheel and points back toward the rear wheel,
+  // so the body is always drawn right side up.
+  const WB = 0.5;   // wheelbase, m
+  function cartFrame(g, x) {
+    const path = s => (s >= 0 ? { x: g.foot.x + g.ux * s * RAMP.pxm, y: g.foot.y + g.uy * s * RAMP.pxm } : { x: g.foot.x - s * RAMP.pxm, y: FLOOR });
+    const F = path(x), R = path(x - WB);
+    return { F, a: Math.atan2(R.y - F.y, R.x - F.x) };
+  }
+  function cartSvg(rig, g, x) {
+    const { F, a } = cartFrame(g, x), len = WB * RAMP.pxm;
+    return `<g transform="translate(${F.x.toFixed(1)} ${F.y.toFixed(1)}) rotate(${(a * 180 / Math.PI).toFixed(2)})">`
+      + `<rect x="-8" y="-40" width="${len + 16}" height="30" rx="4" class="to-crate"/>`
+      + `<text x="${len / 2}" y="-19" class="sv-text to-crate-text" text-anchor="middle">${rig.m} kg</text>`
+      + wheel(0, -6, 6, 'to-cartwheel') + wheel(len, -6, 6, 'to-cartwheel') + '</g>';
+  }
+  function cartFront(g, x) {
+    const { F, a } = cartFrame(g, x), lx = -8, ly = -25;
+    return { x: F.x + lx * Math.cos(a) - ly * Math.sin(a), y: F.y + lx * Math.sin(a) + ly * Math.cos(a) };
+  }
+  // ---------- The rope, section by section ----------
+  // Each section's texture moves with the rope material in that section, so a strand tied to a block stays still and the free end moves fastest.
+  // The free end: over the last wheel, along the top, down the left edge to the floor pulley. Then the floor run to the tag.
+  const freeTail = g => `L ${CORNER_X} ${g.cornerY - CR} A ${CR} ${CR} 0 0 0 ${CORNER_X - CR} ${g.cornerY} L ${FLOOR_PULLEY.x - CR} ${FLOOR_PULLEY.y} A ${CR} ${CR} 0 0 0 ${FLOOR_PULLEY.x} ${FLOOR_PULLEY.y + CR}`;
+  const freePath = (x0, y0, g) => `M ${x0.toFixed(1)} ${y0.toFixed(1)} ${freeTail(g)}`;
+  const floorPath = x => `M ${FLOOR_PULLEY.x} ${FLOOR_PULLEY.y + CR} L ${tagX(x).toFixed(1)} ${TAPE.rope}`;
+  function ropeParts(rig, mc, x) {
+    const g = geo(rig, mc, x), parts = [];
+    if (mc.mach === 'pulley') {
+      const u = g.y, R = PUL.r, spd = PUL.pxm;
+      g.xs.forEach((xx, i) => parts.push({ id: `st${i + 1}`, d: `M ${xx} ${PUL.topY} L ${xx} ${g.botY.toFixed(1)}`, off: g.speeds[i] * u * spd }));
+      parts.push({ id: 'rfree', d: freePath(g.xs[g.xs.length - 1] - R, PUL.topY - R, g), off: -x * spd });
+    } else {
+      const f = cartFront(g, x), R = PUL.r, T1 = { x: g.P.x + g.nx * R, y: g.P.y + g.ny * R };   // where the ramp rope touches the pulley
+      // drawn from the ramp pulley down to the cart: the material moves back toward the pulley as you pull
+      parts.push({ id: 'rcart', d: `M ${T1.x.toFixed(1)} ${T1.y.toFixed(1)} L ${f.x.toFixed(1)} ${f.y.toFixed(1)}`, off: x * RAMP.pxm });
+      parts.push({ id: 'rfree', d: `M ${T1.x.toFixed(1)} ${T1.y.toFixed(1)} A ${R} ${R} 0 0 0 ${g.P.x.toFixed(1)} ${(g.P.y - R).toFixed(1)} ${freeTail(g)}`, off: -x * RAMP.pxm });
+    }
+    parts.push({ id: 'rfloor', d: floorPath(x), off: -x * TAPE.pxm });
+    return parts;
+  }
+  // How far each wheel has turned, in degrees (negative = counterclockwise on screen)
+  function wheelAngles(rig, mc, x) {
+    const g = geo(rig, mc, x), a = {};
+    if (mc.mach === 'pulley') {
+      g.wheels.forEach(w => { a[w.id] = -deg(w.rel * g.y * PUL.pxm / PUL.r); });
+      a.wcorner = -deg(x * PUL.pxm / CR);
+    } else {
+      a.wramp = -deg(x * RAMP.pxm / PUL.r);
+      a.wcorner = -deg(x * RAMP.pxm / CR);
+    }
+    a.wfloor = -deg(x * TAPE.pxm / CR);
+    return a;
+  }
+
+  // The moving parts, drawn at rope position x
+  function movers(rig, mc, x) {
+    let s = '';
+    const ang = wheelAngles(rig, mc, x), R = PUL.r;
+    if (mc.mach === 'pulley') {
+      const g0 = geo(rig, mc, 0), n = mc.n, bots = g0.wheels.filter(w => w.bot);
+      // ropes first, so the wheels sit on top of them
+      ropeParts(rig, mc, x).forEach(p => { s += ropeSeg(p.id, p.d, p.off); });
+      // the moving block: drawn at the floor and lifted by the transform
+      s += `<g id="load" transform="translate(0 ${(-(x / n) * PUL.pxm).toFixed(2)})">`;
+      // the crate hangs centered under the moving block (or right under the single rope)
+      let cxC = g0.xs[0];
+      if (n > 1) {
+        const xsBot = bots.map(w => w.x).concat(g0.deadTop ? [] : [g0.xs[0]]);
+        const bx0 = Math.min(...xsBot) - R - 5, bx1 = Math.max(...xsBot) + R + 5;
+        cxC = (bx0 + bx1) / 2;
+        bots.forEach(w => { s += `<path d="M ${w.x - R} ${g0.botY} A ${R} ${R} 0 0 0 ${w.x + R} ${g0.botY}" class="to-rope"/>`; });
+        s += `<rect x="${bx0}" y="${g0.botY - R - 5}" width="${bx1 - bx0}" height="${2 * R + 10}" rx="7" class="to-block to-block-front"/>`;
+        bots.forEach(w => { s += spun(w.id, w.x, g0.botY, R, ang[w.id]); });
+        s += `<line x1="${cxC}" y1="${g0.botY + R + 5}" x2="${cxC}" y2="${g0.crateTop}" class="to-link"/>`;
+      }
+      s += `<rect x="${cxC - PUL.crateW / 2}" y="${g0.crateTop}" width="${PUL.crateW}" height="${PUL.crateH}" rx="4" class="to-crate"/>`
+        + text(cxC, g0.crateTop + 31, `${rig.m} kg`, 'to-crate-text')
+        + `<path d="M ${cxC + PUL.crateW / 2} ${g0.crateBot} H 470" class="to-pointer"/></g>`;
+      // the top wheels, with the rope over the top of each
+      g0.wheels.filter(w => !w.bot).forEach(w => { s += `<path d="M ${w.x - R} ${PUL.topY} A ${R} ${R} 0 0 1 ${w.x + R} ${PUL.topY}" class="to-rope"/>` + spun(w.id, w.x, PUL.topY, R, ang[w.id]); });
+    } else {
+      const g = geo(rig, mc, x);
+      s += `<g id="load">${cartSvg(rig, g, x)}</g>`;
+      ropeParts(rig, mc, x).forEach(p => { s += ropeSeg(p.id, p.d, p.off); });
+      s += spun('wramp', FL_r(g.P.x), FL_r(g.P.y), R, ang.wramp);
+    }
+    return s;
+  }
+
+  // o = { rig, mc, x, F, hold (0–1), locked, digital }
+  function lab(o) {
+    const { rig, mc } = o, x = o.x || 0;
+    let s = `<rect x="0" y="${FLOOR}" width="${SC.x - 8}" height="${H - FLOOR}" class="to-ground"/><line x1="0" y1="${FLOOR}" x2="${SC.x - 8}" y2="${FLOOR}" class="to-floor-line"/>`;
+    s += mc.mach === 'pulley' ? pulleyStatic(rig, mc) : rampStatic(rig, mc);
+    s += ropeTape();
+    const g = geo(rig, mc, 0), ang = wheelAngles(rig, mc, x);
+    s += movers(rig, mc, x);
+    s += spun('wcorner', CORNER_X, g.cornerY, CR, ang.wcorner) + spun('wfloor', FLOOR_PULLEY.x, FLOOR_PULLEY.y, CR, ang.wfloor);
+    s += `<g id="gripG" transform="translate(${tagX(x).toFixed(1)} 0)">${grip()}</g>`;
+    s += springScale(o.digital);
+    s += `<g id="holdG"><rect x="62" y="${mc.mach === 'pulley' ? 92 : 14}" width="170" height="44" rx="8" class="sv-plate to-hold-box"/>`
+      + `<text id="holdTxt" x="72" y="${mc.mach === 'pulley' ? 110 : 32}" class="sv-text sv-small">${o.locked ? '🔒 Latched' : 'Hold steady'}</text>`
+      + `<rect x="72" y="${mc.mach === 'pulley' ? 118 : 40}" width="150" height="9" rx="4" class="to-hold-track"/>`
+      + `<rect id="holdBar" x="72" y="${mc.mach === 'pulley' ? 118 : 40}" width="${(150 * (o.locked ? 1 : o.hold || 0)).toFixed(1)}" height="9" rx="4" class="to-hold-fill"/></g>`;
+    return frame(s, 'to-lab');
+  }
+  // Move the parts already on screen
+  function place(root, o) {
+    if (!root) return;
+    const { rig, mc, x } = o;
+    const set = (id, attr, v) => { const el = root.querySelector('#' + id); if (el) el.setAttribute(attr, v); };
+    const load = root.querySelector('#load');
+    if (load) {
+      const g = geo(rig, mc, x);
+      if (mc.mach === 'pulley') load.setAttribute('transform', `translate(0 ${(-(g.y) * PUL.pxm).toFixed(2)})`);
+      else load.innerHTML = cartSvg(rig, g, x);
+    }
+    ropeParts(rig, mc, x).forEach(p => { set(p.id, 'd', p.d); set(`${p.id}t`, 'd', p.d); set(`${p.id}t`, 'stroke-dashoffset', p.off.toFixed(1)); });
+    const ang = wheelAngles(rig, mc, x);
+    Object.keys(ang).forEach(id => {
+      const el = root.querySelector('#' + id); if (!el) return;
+      const c = el.querySelector('circle');
+      el.setAttribute('transform', `rotate(${ang[id].toFixed(1)} ${c.getAttribute('cx')} ${c.getAttribute('cy')})`);
+    });
+    set('gripG', 'transform', `translate(${tagX(x).toFixed(1)} 0)`);
+    set('needle', 'transform', `translate(0 ${needleY(o.F || 0).toFixed(1)})`);
+    const dg = root.querySelector('#digital');
+    if (dg) dg.textContent = `${o.locked ? window.FL.fmt(window.FL.round(o.F || 0, 1)) : Math.round(o.F || 0)} N`;
+    set('holdBar', 'width', (150 * (o.locked ? 1 : Math.min(1, o.hold || 0))).toFixed(1));
+    const ht = root.querySelector('#holdTxt');
+    if (ht) ht.textContent = o.locked ? '🔒 Latched' : (o.hold > 0 ? 'Hold steady…' : 'Hold steady');
+  }
+
+  // ---------- The graph: force against rope distance ----------
+  function graph(o) {
+    const { spec } = o, b = spec.box, FL = window.FL, px = (x, y) => FL.toPx(spec, x, y);
+    let s = `<rect x="${b.x0}" y="${b.y1}" width="${b.x1 - b.x0}" height="${b.y0 - b.y1}" class="fl-plot"/>`;
+    for (let i = 1; i * spec.x.minor <= spec.x.max + 1e-9; i++) {
+      const v = i * spec.x.minor, major = Math.abs(v / spec.x.step - Math.round(v / spec.x.step)) < 1e-6, X = px(v, 0).x.toFixed(1);
+      s += `<line x1="${X}" y1="${b.y0}" x2="${X}" y2="${b.y1}" class="${major ? 'fl-grid-major' : 'fl-grid-minor'}"/>`;
+      if (major && !o.hideNums) s += text(X, b.y0 + 24, String(v), 'fl-tick-num');
+    }
+    for (let i = 1; i * spec.y.minor <= spec.y.max + 1e-9; i++) {
+      const v = i * spec.y.minor, major = Math.abs(v / spec.y.step - Math.round(v / spec.y.step)) < 1e-6, Y = px(0, v).y.toFixed(1);
+      s += `<line x1="${b.x0}" y1="${Y}" x2="${b.x1}" y2="${Y}" class="${major ? 'fl-grid-major' : 'fl-grid-minor'}"/>`;
+      if (major && !o.hideNums) s += text(b.x0 - 10, Number(Y) + 6, String(Math.round(v)), 'fl-tick-num', 'end');
+    }
+    if (!o.hideNums) s += text(b.x0 - 10, b.y0 + 24, '0', 'fl-tick-num', 'end');
+    // rectangles: the area under a point is F × d
+    (o.rects || []).forEach(r => {
+      const P = px(r.x, r.y);
+      s += `<rect x="${b.x0}" y="${P.y.toFixed(1)}" width="${(P.x - b.x0).toFixed(1)}" height="${(b.y0 - P.y).toFixed(1)}" class="to-area ${r.cls || ''}"/>`;
+      if (r.label) s += plate((b.x0 + P.x) / 2, b.y0 - 14 - (r.lift || 0), r.label, 'sv-small to-area-text');
+    });
+    s += `<path d="M ${b.x0} ${b.y1} V ${b.y0} H ${b.x1}" class="fl-axis"/>` + text(b.x1 + 16, b.y0 + 7, 'x', 'fl-axis-tag') + text(b.x0, b.y1 - 12, 'y', 'fl-axis-tag');
+    s += text((b.x0 + b.x1) / 2, H - 18, spec.x.label, 'fl-axis-label wk-d-text');
+    s += `<text transform="translate(26 ${(b.y0 + b.y1) / 2}) rotate(-90)" class="sv-text fl-axis-label wk-F-text" text-anchor="middle">${esc(spec.y.label)}</text>`;
+    if (o.curve) {
+      const Wc = o.curve, xa = Math.max(0.2, Wc / spec.y.max), pts = [];
+      for (let i = 0; i <= 60; i++) { const x = xa + (spec.x.max - xa) * i / 60; const P = px(x, Wc / x); pts.push(`${P.x.toFixed(1)} ${P.y.toFixed(1)}`); }
+      s += `<path d="M ${pts.join(' L ')}" class="fl-fit"/>`;
+    }
+    if (o.guide) { const g = px(o.guide.x, o.guide.y); s += `<path d="M ${g.x} ${b.y0} V ${g.y} H ${b.x0}" class="fl-guide"/>`; }
+    if (typeof o.readX === 'number') {
+      const rx = px(o.readX, 0).x.toFixed(1);
+      s += `<line x1="${rx}" y1="${b.y0}" x2="${rx}" y2="${b.y1}" class="wk-read-line"/>` + plate(Number(rx), b.y1 + 24, `d = ${fmt(o.readX)} m`, 'sv-small wk-d-text');
+    }
+    (o.points || []).forEach(pt => {
+      const c = px(pt.x, pt.y), big = pt.cls === 'fl-pt-new' ? 1.3 : 1, attr = pt.i !== undefined ? ` data-pt="${pt.i}"` : '';
+      if (pt.mach === 'ramp') {
+        const r = 13 * big;   // bigger than a pulley circle, so it shows around one at the same spot
+        s += `<path d="M ${c.x.toFixed(1)} ${(c.y - r).toFixed(1)} l ${r} ${(r * 1.6).toFixed(1)} h ${(-2 * r)} z" class="fl-pt to-pt-ramp ${pt.cls || ''}"${attr}/>`;
+      } else s += `<circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="${(7 * big).toFixed(1)}" class="fl-pt ${pt.cls || ''}"${attr}/>`;
+    });
+    (o.points || []).filter(pt => pt.label).forEach(pt => { const c = px(pt.x, pt.y); s += text(c.x + 12, c.y - 12, pt.label, 'sv-small fl-pt-label', c.x > b.x1 - 150 ? 'end' : 'start'); });
+    if (o.miss) s += `<path d="M ${o.miss.x - 7} ${o.miss.y - 7} l 14 14 m 0 -14 l -14 14" class="fl-miss"/>`;
+    if (o.legend !== false && (o.points || []).length) {
+      s += `<g transform="translate(${b.x1 - 150} ${b.y1 + 14})"><rect x="0" y="0" width="146" height="54" rx="6" class="sv-plate"/>`
+        + `<circle cx="16" cy="18" r="6" class="fl-pt"/>${text(30, 23, 'pulley', 'sv-small', 'start')}`
+        + `<path d="M 16 32 l 8 13 h -16 z" class="fl-pt to-pt-ramp"/>${text(30, 45, 'ramp', 'sv-small', 'start')}</g>`;
+    }
+    if (o.note) s += plate(b.x0 + 14, b.y1 + 28, o.note, 'sv-small', 'start');
+    return frame(s, o.clickable ? 'fl-click fl-cross' : '');
+  }
+
+  // ---------- Mastery Check pictures: every number is on the picture ----------
+  function problem(it) {
+    const F0 = 380;
+    let s = `<rect x="0" y="${F0}" width="${W}" height="${H - F0}" class="to-ground"/><line x1="0" y1="${F0}" x2="${W}" y2="${F0}" class="to-floor-line"/>`;
+    const crate = (x, y, w, h, label) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" class="to-crate"/>${label ? text(x + w / 2, y + h / 2 + 6, label, 'to-crate-text') : ''}`;
+    const dimV = (x, y1, y2, label) => `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" class="to-dim"/><path d="M ${x - 6} ${y1} h 12 M ${x - 6} ${y2} h 12" class="to-dim"/>` + plate(x + 12, (y1 + y2) / 2 + 6, label, 'wk-d-text', 'start');
+    if (it.kind === 'pulleyD' || it.kind === 'pulleyF' || it.kind === 'same') {
+      const n = it.n, cx = 300, xs = Array.from({ length: n }, (_, i) => cx + (i - (n - 1) / 2) * 18), bw = n * 18 + 20, top = 70, low = 250;
+      s += `<rect x="150" y="40" width="300" height="14" class="to-beam"/><rect x="${cx - bw / 2}" y="${top}" width="${bw}" height="30" rx="8" class="to-block"/>`;
+      xs.forEach(x => { s += wheel(x, top + 15, 7) + `<line x1="${x}" y1="${top + 22}" x2="${x}" y2="${low}" class="to-rope"/>`; });
+      s += `<rect x="${cx - bw / 2}" y="${low}" width="${bw}" height="26" rx="8" class="to-block"/>` + crate(cx - 45, low + 34, 90, 64, it.kind === 'same' ? 'crate' : `${fmt(it.Fg)} N`);
+      s += `<path d="M ${xs[0] - 7} ${top + 15} H ${cx - 80} V 330" class="to-rope"/>` + plate(cx - 88, 350, 'pull ↓', 'sv-small', 'end');
+      s += plate(560, 120, `${n} supporting ropes`, 'fl-value');
+      if (it.kind === 'pulleyD') s += `<rect x="470" y="${F0 - it.h / 3.2 * 150}" width="140" height="${it.h / 3.2 * 150}" class="to-platform"/>` + dimV(630, F0 - it.h / 3.2 * 150, F0, `h = ${fmt(it.h)} m`);
+      if (it.kind === 'same') s += plate(560, 170, `straight up: W = ${fmt(it.W)} J`, 'sv-small');
+      return frame(s);
+    }
+    if (it.kind === 'rampW' || it.kind === 'rampL') {
+      const x0 = 110, x1 = 620, topY = 220;
+      s += `<rect x="${x1}" y="${topY}" width="120" height="${F0 - topY}" class="to-platform"/><path d="M ${x0} ${F0} L ${x1} ${topY} L ${x1} ${F0} Z" class="to-wedge"/><line x1="${x0}" y1="${F0}" x2="${x1}" y2="${topY}" class="to-ramp"/>`;
+      const a = Math.atan2(topY - F0, x1 - x0) * 180 / Math.PI, mx = x0 + (x1 - x0) * 0.35, my = F0 + (topY - F0) * 0.35;
+      s += `<g transform="translate(${mx} ${my}) rotate(${a.toFixed(1)})"><rect x="-40" y="-50" width="80" height="50" rx="4" class="to-crate"/>`
+        + `<line x1="44" y1="-25" x2="120" y2="-25" class="to-arrow-F"/><path d="M 128 -25 l -12 -7 v 14 z" class="to-arrow-F-head"/></g>`;
+      s += plate(mx + 90, my - 70, it.kind === 'rampW' ? `push F = ${fmt(it.F)} N` : `push at most ${fmt(it.F)} N`, 'wk-F-text');
+      s += plate((x0 + x1) / 2 + 30, (F0 + topY) / 2 + 50, it.kind === 'rampW' ? `smooth ramp, L = ${fmt(it.L)} m` : 'smooth ramp, L = ?', 'wk-d-text', 'start');
+      if (it.kind === 'rampL') s += dimV(x1 + 135, topY, F0, `h = ${fmt(it.h)} m`) + plate(mx, my + 40, `box: F_g = ${fmt(it.Fg)} N`, 'sv-small');
+      s += plate(W / 2, 40, it.kind === 'rampW' ? 'Pushing a box up a smooth ramp' : 'Moving day: how long a ramp?', 'fl-title');
+      return frame(s);
+    }
+    if (it.kind === 'lift') {
+      const shH = Math.min(220, it.h / 3 * 220);
+      s += `<rect x="460" y="${F0 - shH}" width="200" height="${shH}" class="to-platform"/>` + crate(200, F0 - 70, 100, 70, `${it.m} kg`);
+      s += `<path d="M 250 ${F0 - 80} V ${F0 - shH - 40} H 430" class="to-arrow-path"/>` + dimV(680, F0 - shH, F0, `h = ${fmt(it.h)} m`);
+      s += plate(W / 2, 40, 'Lifting a box straight up onto a shelf', 'fl-title');
+      return frame(s);
+    }
+    const c = window.FL.quizCurve(it), spec = window.FL.specFor(it.W);
+    return graph({ spec, points: c.points, curve: it.W, readX: it.x, legend: false });
+  }
+
+  window.Scene = { W, H, FLOOR, TAPE, SC, lab, place, graph, problem, geo, reeving, tagX, needleY, plate, text, frame };
+})();
+
+// === Unit_3/tradeoff_lab/js/certificate.js ===
+// Force–Distance Trade-Off Lab — completion certificate, downloaded as a real PDF
+// jsPDF is vendored in assets/vendor (no CDN for the district web filter to block) and only loads on click.
+// The built-in PDF fonts can't show every student name (Nguyễn, for example), so the name is drawn
+// on a canvas in the page's font and placed as an image. Colors stay light so it prints cheaply.
+// Adapted from Unit_2/monkey_hunter_studio/js/certificate.js.
+
+(function () {
+  const LIB = '../../assets/vendor/jspdf.umd.min.js';
+  const INK = '#0f172a', MUTED = '#475569', NAVY = '#0f4c81', GOLD = '#b7892b';
+  const VEL = '#0369a1', ACC = '#be123c';
+
+  function loadLibrary() {
+    if (window.jspdf) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = LIB;
+      s.onload = resolve;
+      s.onerror = () => reject(new Error('Could not load the PDF library'));
+      document.head.append(s);
+    });
+  }
+
+  // Quick checksum so a typed-up fake code stands out; not cryptographic
+  function code(id, best) {
+    const text = `${id}|${best}|TOL-U3`;
+    let h = 5381;
+    for (let i = 0; i < text.length; i++) h = ((h * 33) ^ text.charCodeAt(i)) >>> 0;
+    return `MUD-TOL-${id}-${best}-${h.toString(16).toUpperCase().padStart(8, '0')}`;
+  }
+
+  async function nameImage(name, maxW) {
+    const family = 'Inter, system-ui, sans-serif';
+    if (document.fonts && document.fonts.load) {
+      try { await document.fonts.load('700 96px Inter', name); } catch (e) { /* falls back to a system font */ }
+    }
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    let px = 96;
+    ctx.font = `700 ${px}px ${family}`;
+    const want = maxW * 2.4;   // sharp in print
+    const w = ctx.measureText(name).width;
+    if (w > want) px = Math.floor(px * want / w);
+    ctx.font = `700 ${px}px ${family}`;
+    canvas.width = Math.ceil(ctx.measureText(name).width) + 8;
+    canvas.height = Math.ceil(px * 1.35);
+    ctx.font = `700 ${px}px ${family}`;
+    ctx.fillStyle = INK;
+    ctx.textBaseline = 'middle';
+    ctx.fillText(name, 4, canvas.height / 2);
+    return { url: canvas.toDataURL('image/png'), w: canvas.width / 2.4, h: canvas.height / 2.4 };
+  }
+
+  function loadImage(src) {
+    return new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => {
+        // The source image is 8000 px wide; a small copy keeps the PDF light
+        const c = document.createElement('canvas');
+        c.height = 320;
+        c.width = Math.round(320 * img.naturalWidth / img.naturalHeight);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        resolve({ url: c.toDataURL('image/png'), ratio: img.naturalWidth / img.naturalHeight });
+      };
+      img.onerror = () => resolve(null);
+      img.src = src;
+    });
+  }
+
+  // The lesson's picture: a circle, the velocity along the tangent, and a_c pointing to the center
+  // A crate pulled along the floor: the force arrow (F) and the distance it moves (d)
+  function emblem(doc, ox, oy, w, h) {
+    const floor = oy - 12, x0 = ox + 10;
+    doc.setDrawColor('#94a3b8'); doc.setLineWidth(1.3);
+    doc.line(ox, floor, ox + w, floor);
+    doc.setDrawColor(INK); doc.setFillColor('#fde68a');
+    doc.rect(x0, floor - 34, 40, 34, 'FD');
+    const head = (x, y, color) => { doc.setFillColor(color); doc.triangle(x, y, x - 8, y - 4.5, x - 8, y + 4.5, 'F'); };
+    doc.setDrawColor(VEL); doc.setLineWidth(2.6);
+    doc.line(x0 + 42, floor - 20, x0 + 92, floor - 20);
+    head(x0 + 98, floor - 20, VEL);
+    doc.setDrawColor(ACC); doc.setLineWidth(1.6);
+    doc.line(x0 + 40, floor - 44, x0 + 130, floor - 44);
+    head(x0 + 134, floor - 44, ACC);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(INK);
+    doc.text('W = F x d', ox + w / 2, oy + 2, { align: 'center' });
+  }
+
+  function statBox(doc, x, y, w, h, label, value) {
+    doc.setDrawColor('#cbd5e1');
+    doc.setLineWidth(1);
+    doc.roundedRect(x, y, w, h, 5, 5, 'S');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10.5);
+    doc.setTextColor(MUTED);
+    doc.text(label, x + w / 2, y + 16, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(15);
+    doc.setTextColor(INK);
+    doc.text(value, x + w / 2, y + 36, { align: 'center' });
+  }
+
+  async function build(info) {
+    await loadLibrary();
+    const doc = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'pt', format: 'letter', compress: true });
+    const W = 792, H = 612, cx = W / 2;
+    doc.setProperties({ title: `Certificate of Completion: ${info.name}`, subject: 'Pulleys and Ramps Lab', creator: 'Mr. Mudry, Orange High School Physics' });
+
+    doc.setDrawColor(NAVY); doc.setLineWidth(4); doc.rect(24, 24, W - 48, H - 48);
+    doc.setDrawColor(GOLD); doc.setLineWidth(1.2); doc.rect(33, 33, W - 66, H - 66);
+
+    const logo = await loadImage('../../OrangeHS_PantherMark.png');
+    if (logo) doc.addImage(logo.url, 'PNG', cx - 24 * logo.ratio, 44, 48 * logo.ratio, 48);
+
+    doc.setTextColor(MUTED); doc.setFont('helvetica', 'bold'); doc.setFontSize(12);
+    doc.text('ORANGE HIGH SCHOOL PHYSICS   ·   UNIT 3', cx, 110, { align: 'center', charSpace: 0.6 });
+
+    doc.setTextColor(NAVY); doc.setFont('times', 'bold'); doc.setFontSize(44);
+    doc.text('Certificate of Completion', cx, 158, { align: 'center' });
+
+    doc.setTextColor(MUTED); doc.setFont('helvetica', 'normal'); doc.setFontSize(14);
+    doc.text('This certifies that', cx, 188, { align: 'center' });
+
+    const maxName = W - 180;
+    const nm = await nameImage(info.name || 'Student', maxName);
+    const nameH = Math.min(nm.h, 48), nameW = nm.w * (nameH / nm.h);
+    doc.addImage(nm.url, 'PNG', cx - nameW / 2, 246 - nameH, nameW, nameH);   // sits on the line at any size
+    doc.setDrawColor(GOLD); doc.setLineWidth(1); doc.line(cx - 220, 248, cx + 220, 248);
+
+    doc.setTextColor(INK); doc.setFont('helvetica', 'bold'); doc.setFontSize(17);
+    doc.text('has completed the Pulleys and Ramps Lab', cx, 276, { align: 'center' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(12.5); doc.setTextColor(MUTED);
+    doc.text('Measuring pulleys and ramps, and showing that machines trade force for distance', cx, 296, { align: 'center' });
+    if (info.honors) {
+      doc.setFont('helvetica', 'bold'); doc.setTextColor(NAVY);
+      doc.text('Completed at the Honors Physics level', cx, 314, { align: 'center' });
+    }
+
+    const when = new Date(info.earned).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    const boxes = [['Score', `${info.best} / 10`], ['Date earned', when]];
+    if (info.period) boxes.splice(1, 0, ['Class', info.period]);
+    const bw = 170, gap = 14, total = boxes.length * bw + (boxes.length - 1) * gap;
+    boxes.forEach(([l, v], i) => statBox(doc, cx - total / 2 + i * (bw + gap), 328, bw, 48, l, v));
+
+    // Teacher on the left, the lesson's flight on the right
+    const tx = cx - 170;
+    doc.setTextColor(INK); doc.setFont('times', 'bolditalic'); doc.setFontSize(26);
+    doc.text('Mr. Mudry', tx, 476, { align: 'center' });
+    doc.setDrawColor(GOLD); doc.setLineWidth(1); doc.line(tx - 90, 484, tx + 90, 484);
+    doc.setTextColor(MUTED); doc.setFont('helvetica', 'normal'); doc.setFontSize(11);
+    doc.text('Teacher', tx, 499, { align: 'center' });
+
+    emblem(doc, cx + 70, 498, 150, 82);
+
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(MUTED);
+    doc.text(`Verification code: ${info.code}`, cx, 556, { align: 'center' });
+
+    if (info.sample) {
+      doc.setTextColor('#b91c1c'); doc.setFont('helvetica', 'bold'); doc.setFontSize(13);
+      doc.text('SAMPLE: teacher preview, not an earned certificate', cx, 574, { align: 'center' });
+    }
+    return doc;
+  }
+
+  async function download(info) {
+    const doc = await build(info);
+    const safe = (info.name || 'Student').normalize('NFD').replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    doc.save(`Pulleys_and_Ramps_Certificate_${safe || 'Student'}.pdf`);
+    return doc;
+  }
+
+  window.Certificate = { code, build, download };
+})();
+
+// === Unit_3/tradeoff_lab/js/app.js ===
+// Pulleys and Ramps Lab — one page, like the Ideal Pulley System Lab: 1 Setup, 2 Simulation, 3 My Data, 4 What It Shows.
+// Tap P to pull: 35 N for every tap per second, smoothed. The load speeds up or sinks with the net force.
+// Hold it in the green zone for 1.5 s and it latches, so the spring scale and rope tape can be read calmly.
+// The student reads d and F, works out W = F × d, and adds the row. Nothing is filled in for them.
+// Points (10): 1 for each correct row up to 6 (3 pulley + 3 ramp), 1 for each of two questions, 2 for a tested prediction.
+
+(function () {
+  const FL = window.FL = window.FLcore, Scene = window.Scene;
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s === undefined || s === null ? '' : s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
+  const fmt = FL.fmt;
+  const N_PER_TAP_RATE = 35, DAMP = 30, HOLD_T = 1.5, FORGET = 3000;
+  const NEED_EACH = 3, MAX_EACH = 4;   // each table needs 3 rows and holds up to 4
+  const fast = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) && /[?&]fast\b/.test(location.search);
+  const wait = s => Date.now() + s * (fast ? 50 : 1000);
+  const left = t => Math.max(0, Math.ceil(((t || 0) - Date.now()) / 1000));
+
+  let st = null, cloud = null, profile = null;
+  // Periods 1–3 (conceptual) also get a digital readout under the spring scale. The teacher can switch views.
+  let viewTier = null;
+  const tier = () => viewTier || (profile && profile.tier) || 'cp';
+  const sim = { x: 0, v: 0, effort: 0, taps: [], hold: 0, locked: false, last: 0 };
+  const ui = { rec: {}, msg: '', recMsg: '', predDraft: '', readDraft: '' };
+
+  // ---------- Saved work ----------
+  const newState = () => ({ v: 2, rig: null, setup: { mach: 'pulley', n: 1, L: 3 }, rows: [], ask: {}, pred: null, tries: {}, mistakes: {}, time: {}, bestPoints: 0, savedAt: 0 });
+  const validState = s => !!(s && s.v === 2 && Array.isArray(s.rows) && s.setup);
+  const counts = s => ({ pulley: s.rows.filter(r => r.mach === 'pulley').length, ramp: s.rows.filter(r => r.mach === 'ramp').length });
+  function earned(s) {
+    const c = counts(s);
+    const rowPts = Math.min(NEED_EACH, c.pulley) + Math.min(NEED_EACH, c.ramp);
+    const steps = STEPS(tier()), total = steps.reduce((t, id) => t + WEIGHT[id], 0);
+    const got = steps.filter(id => stepDone(s, id)).reduce((t, id) => t + WEIGHT[id], 0);
+    return Math.round((rowPts + 4 * got / total) * 10) / 10;
+  }
+  function scoreState(s) {
+    s.bestPoints = Math.max(s.bestPoints || 0, earned(s));
+    const tries = Object.values(s.tries || {}), c = counts(s);
+    const done = [];
+    if (c.pulley >= NEED_EACH) done.push('pulley');
+    if (c.ramp >= NEED_EACH) done.push('ramp');
+    const steps = STEPS(tier());
+    if (steps.filter(id => !['predict', 'design'].includes(id)).every(id => stepDone(s, id))) done.push('think');
+    if (steps.filter(id => ['predict', 'design'].includes(id)).every(id => stepDone(s, id))) done.push('predict');
+    return {
+      points: s.bestPoints, percentage: Math.round(s.bestPoints * 10), done, rows: s.rows.length,
+      progress: { pulley: Math.round(100 * Math.min(1, c.pulley / NEED_EACH)), ramp: Math.round(100 * Math.min(1, c.ramp / NEED_EACH)) },
+      questions: tries.length, firstTry: tries.length ? Math.round((100 * tries.filter(t => t.first).length) / tries.length) : null,
+      minutes: Math.round(Object.values(s.time || {}).reduce((a, b) => a + b, 0) / 60), mistakes: s.mistakes || {}
+    };
+  }
+  const save = immediate => { scoreState(st); if (cloud) cloud.queueSave(immediate); paintScore(); };
+  const recordTry = (key, ok) => { const t = st.tries[key] || (st.tries[key] = { n: 0, first: !!ok }); t.n++; };
+  const mistake = id => { st.mistakes[id] = (st.mistakes[id] || 0) + 1; };
+
+  // time spent, only while the tab is showing and in use
+  let lastTick = Date.now(), lastInput = Date.now();
+  ['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, () => { lastInput = Date.now(); }, true));
+  setInterval(() => {
+    const now = Date.now(), gap = Math.min(30, (now - lastTick) / 1000);
+    lastTick = now;
+    if (!st || document.hidden || now - lastInput > 120000) return;
+    st.time.lab = Math.round(((st.time.lab || 0) + gap) * 10) / 10;
+  }, 5000);
+
+  // ---------- The machine ----------
+  const machine = () => (st.setup.mach === 'pulley' ? { mach: 'pulley', n: st.setup.n } : { mach: 'ramp', L: st.setup.L });
+  const sameMachine = (a, b) => a.mach === b.mach && (a.mach === 'pulley' ? a.n === b.set : Math.abs(a.L - b.set) < 0.01);
+  const already = () => st.rows.find(r => sameMachine(machine(), r));
+  const label = r => (r.mach === 'pulley' ? `⚙️ ${r.set} rope${r.set > 1 ? 's' : ''}` : `📐 ${fmt(r.set)} m ramp`);
+  // Short row names used everywhere: P1, P2… for pulley rows and R1, R2… for ramp rows
+  const tag = i => { const r = st.rows[i]; return `${r.mach === 'pulley' ? 'P' : 'R'}${st.rows.slice(0, i + 1).filter(x => x.mach === r.mach).length}`; };
+  // Two tables, one per machine. hi = row indexes to highlight, cols = columns to bold
+  function tablesHTML(o = {}) {
+    const hi = o.hi || [], cols = o.cols || [], c = k => (cols.includes(k) ? 'col-on' : '');
+    return [['pulley', '⚙️ Pulley trials', 'Ropes'], ['ramp', '📐 Ramp trials', 'Ramp']].map(([m, title, setHead]) => {
+      const idx = st.rows.map((r, i) => i).filter(i => st.rows[i].mach === m);
+      const body = idx.map(i => { const r = st.rows[i]; return `<tr class="${hi.includes(i) ? 'row-on' : ''}"><td class="tag-cell">${tag(i)}</td><td>${m === 'pulley' ? r.set : `${fmt(r.set)} m`}</td><td class="${c('d')}">${fmt(r.d)}</td><td class="${c('F')}">${fmt(r.F)}</td><td class="${c('W')}">${fmt(r.W)}</td></tr>`; });
+      for (let k = idx.length; k < (o.big ? 0 : NEED_EACH); k++) body.push(`<tr class="empty"><td class="tag-cell">${m === 'pulley' ? 'P' : 'R'}${k + 1}</td><td></td><td></td><td></td><td></td></tr>`);
+      return `<div class="tbl-block"><div class="tbl-title">${title}</div><table class="tbl ${o.big ? 'big-tbl' : ''}"><thead><tr><th></th><th>${setHead}</th><th class="c-d ${c('d')}">d (m)</th><th class="c-F ${c('F')}">F (N)</th><th class="c-W ${c('W')}">W (J)</th></tr></thead><tbody>${body.join('')}</tbody></table></div>`;
+    }).join('');
+  }
+
+  function resetLift() { Object.assign(sim, { x: 0, v: 0, effort: 0, taps: [], hold: 0, locked: false }); ui.rec = {}; ui.recMsg = ''; drawScene(); paintRec(); paintAsk(); }
+
+  // ---------- Tapping ----------
+  function tap() { if (!sim.locked) sim.taps.push(performance.now()); }
+  window.addEventListener('keydown', e => {
+    if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+    const t = e.target && e.target.tagName;
+    if (t === 'TEXTAREA' || t === 'SELECT' || (t === 'INPUT' && e.target.type !== 'range')) return;
+    if (e.key && e.key.toLowerCase() === 'p') { e.preventDefault(); tap(); }
+  });
+  function tapRate(now) {
+    const t = sim.taps;
+    while (t.length && now - t[0] > FORGET) t.shift();
+    if (t.length > 6) t.splice(0, t.length - 6);
+    if (!t.length) return 0;
+    const since = (now - t[t.length - 1]) / 1000;
+    let r;
+    if (t.length >= 2) { const n = Math.min(t.length - 1, 3); r = n / ((t[t.length - 1] - t[t.length - 1 - n]) / 1000); } else r = 1 / Math.max(since, 1);
+    if (since > 0 && 1 / since < r) r = 1 / since;
+    return Math.min(r, 14);
+  }
+  const heightOf = (mc, x) => x / FL.factor(st.rig, mc);
+  function inZone(mc, x) {
+    const y = heightOf(mc, x), h = st.rig.h;
+    return Math.abs(y - h) <= 0.12;   // the same green band for pulleys and ramps
+  }
+  const maxRope = mc => (mc.mach === 'pulley' ? mc.n : mc.L / st.rig.h) * (st.rig.h + 0.25);
+  function step(dt) {
+    const mc = machine(), r = st.rig, now = performance.now();
+    sim.effort += (tapRate(now) * N_PER_TAP_RATE - sim.effort) * (1 - Math.exp(-8 * dt));
+    if (sim.locked) return;
+    const need = FL.forceNeed(r, mc), k = FL.factor(r, mc);
+    const inertia = mc.mach === 'pulley' ? r.m / (k * k) : r.m;
+    sim.v += ((sim.effort - need - DAMP * sim.v) / inertia) * dt;
+    sim.x += sim.v * dt;
+    if (sim.x <= 0) { sim.x = 0; if (sim.v < 0) sim.v = 0; }
+    if (sim.x >= maxRope(mc)) { sim.x = maxRope(mc); if (sim.v > 0) sim.v = 0; }
+    sim.hold = inZone(mc, sim.x) ? sim.hold + dt : 0;
+    if (sim.hold >= HOLD_T) { sim.locked = true; sim.x = FL.ropeDist(r, mc); sim.v = 0; ui.rec = {}; ui.recMsg = ''; paintRec(); paintAsk(); }
+  }
+  function status() {
+    const mc = machine(), y = heightOf(mc, sim.x), h = st.rig.h;
+    let m, cls = '';
+    if (sim.locked) { m = '🔒 Held! Read the scale and the tape.'; cls = 'ok'; }
+    else if (sim.hold > 0) { m = `Hold it… ${'🟩'.repeat(Math.ceil(sim.hold / HOLD_T * 3))}${'⬜'.repeat(3 - Math.ceil(sim.hold / HOLD_T * 3))}`; cls = 'ok'; }
+    else if (y > h + 0.12) { m = 'Too high. Slow down.'; cls = 'warn'; }
+    else if (sim.v < -0.05) { m = 'Slipping! Tap faster.'; cls = 'warn'; }
+    else if (sim.x < 0.01) m = 'Tap P fast! Hold it in the green zone.';
+    else m = 'Up, up…';
+    if (m + cls !== ui.msg) { ui.msg = m + cls; $('status').textContent = m; $('status').className = `status ${cls}`; }
+  }
+  function frame(now) {
+    const dt = Math.min(0.05, Math.max(0, (now - sim.last) / 1000));
+    sim.last = now;
+    if (st) {
+      step(dt);
+      const F = sim.locked ? FL.forceNeed(st.rig, machine()) : sim.effort;
+      Scene.place($('stage').querySelector('svg'), { rig: st.rig, mc: machine(), x: sim.x, F, hold: sim.hold / HOLD_T, locked: sim.locked });
+      status();
+    }
+    requestAnimationFrame(frame);
+  }
+
+  // ---------- 1 Setup ----------
+  function paintSetup() {
+    const s = st.setup;
+    document.querySelectorAll('.mach').forEach(b => b.classList.toggle('on', b.dataset.mach === s.mach));
+    $('ctlPulley').hidden = s.mach !== 'pulley';
+    $('ctlRamp').hidden = s.mach !== 'ramp';
+    $('ropes').value = s.n; $('ropesVal').textContent = s.n;
+    $('rampL').value = s.L; $('rampLVal').textContent = s.L.toFixed(1);
+  }
+  function changeSetup(patch) { Object.assign(st.setup, patch); paintSetup(); resetLift(); save(); paintTrue(); }
+  function bindSetup() {
+    document.querySelectorAll('.mach').forEach(b => b.addEventListener('click', () => changeSetup({ mach: b.dataset.mach })));
+    $('ropes').addEventListener('input', e => changeSetup({ n: Number(e.target.value) }));
+    $('rampL').addEventListener('input', e => changeSetup({ L: Number(e.target.value) }));
+    // let go of the keyboard once the slider is set, so arrow keys and P go back to the lab
+    ['ropes', 'rampL'].forEach(id => ['change', 'pointerup'].forEach(ev => $(id).addEventListener(ev, e => e.target.blur())));
+    document.querySelectorAll('.mach').forEach(b => b.addEventListener('pointerup', () => b.blur()));
+    $('btnReset').addEventListener('click', resetLift);
+    $('btnPull').addEventListener('pointerdown', e => { e.preventDefault(); tap(); });
+  }
+
+  // ---------- 2 Simulation ----------
+  function drawScene() {
+    $('stage').innerHTML = Scene.lab({ rig: st.rig, mc: machine(), x: sim.x, F: sim.locked ? FL.forceNeed(st.rig, machine()) : sim.effort, hold: 0, locked: sim.locked, digital: tier() === 'conceptual' });
+  }
+
+  // ---------- 3 My Data ----------
+  function paintRows() {
+    const c = counts(st);
+    $('progress').innerHTML = `<span class="${c.pulley >= NEED_EACH ? 'done' : ''}">⚙️ ${Math.min(c.pulley, NEED_EACH)}/${NEED_EACH}</span><span class="${c.ramp >= NEED_EACH ? 'done' : ''}">📐 ${Math.min(c.ramp, NEED_EACH)}/${NEED_EACH}</span>`;
+    $('tables').innerHTML = tablesHTML();
+  }
+  // fromCalc: the box is filled only by the calculator's "Use answer" button
+  const inp = (k, unit, cls, fromCalc) => `<label class="rec-in ${cls}"><span>${k}</span><input type="text" inputmode="decimal" autocomplete="off" data-rec="${k}" value="${esc(ui.rec[k] || '')}" aria-label="${k} in ${unit}${fromCalc ? ', from the calculator' : ''}" ${fromCalc ? 'readonly tabindex="-1" class="calc-fill" placeholder="🧮"' : ''}><span>${unit}</span></label>`;
+  function paintRec() {
+    const box = $('recBox');
+    const callout = (cls, ico, big, small) => `<div class="callout ${cls}"><span class="ico">${ico}</span><div>${big}${small ? `<small>${small}</small>` : ''}</div></div>`;
+    if (counts(st)[st.setup.mach] >= MAX_EACH && !already()) { box.innerHTML = callout('callout-full', '✅', `Your ${st.setup.mach} table is full.`, `Try the ${st.setup.mach === 'pulley' ? 'ramp' : 'pulley'}, or answer the questions.`); syncCalc(); return; }
+    if (already()) { box.innerHTML = callout('callout-done', '🔁', 'This setup is already in your table.', `Change to a different ${st.setup.mach === 'pulley' ? 'number of ropes' : 'ramp length'} or machine in 1 Setup.`); syncCalc(); return; }
+    if (!sim.locked) { box.innerHTML = callout('callout-info', '⬆️', 'Lift and hold to record.', 'Tap P. Keep the load in the green zone.'); syncCalc(); return; }
+    const until = ui.recUntil || 0, l = left(until);
+    box.innerHTML = `<div class="rec-row">${inp('d', 'm', 'c-d')}${inp('F', 'N', 'c-F')}${inp('W', 'J', 'c-W', !!desmos)}
+      <button type="button" class="btn btn-green" id="btnAdd" ${l ? 'disabled' : ''}>${l ? `Wait ${l}` : 'Add ✓'}</button></div>
+      <p class="formula">W = F × d${desmos ? ' · work it out on the 🧮 calculator, then press 📥 Use answer' : ''}</p>${ui.recMsg ? `<p class="miss">${ui.recMsg}</p>` : ''}`;
+    box.querySelectorAll('[data-rec]').forEach(el => {
+      el.addEventListener('input', () => { ui.rec[el.dataset.rec] = el.value; });
+      el.addEventListener('keydown', e => { if (e.key === 'Enter') addRow(); });
+    });
+    $('btnAdd').addEventListener('click', addRow);
+    syncCalc();
+    if (l) setTimeout(paintRec, Math.min(1000, Math.max(50, (until || 0) - Date.now())));
+  }
+  function addRow() {
+    if (!sim.locked || already() || left(ui.recUntil) || counts(st)[st.setup.mach] >= MAX_EACH) return;
+    const mc = machine(), d = FL.ropeDist(st.rig, mc), F = FL.forceNeed(st.rig, mc);
+    const v = k => FL.parseNum(ui.rec[k] || '');
+    const dv = v('d'), Fv = v('F'), Wv = v('W');
+    if (dv === null || Fv === null || Wv === null) { ui.recMsg = 'Fill in all three.'; return paintRec(); }
+    const cd = FL.checkDist(String(dv), d, F), cF = FL.checkForce(String(Fv), F, d, st.rig);
+    const wOk = Math.abs(Wv - Fv * dv) <= Math.max(0.6, 0.02 * Fv * dv);
+    const key = `row_${st.rows.length + 1}`;
+    if (!cd.ok || !cF.ok || !wOk) {
+      recordTry(key, false);
+      const bad = !cd.ok ? cd : !cF.ok ? cF : null;
+      if (bad) mistake(bad.mistake); else mistake('w_math');
+      ui.recMsg = !cd.ok ? (cd.mistake === 'dist_gave_height' ? '1.5 m is how high the load went. How far did the rope move? Look at the red tag.' : '🔍 Look again at the red tag on the tape.')
+        : !cF.ok ? (cF.mistake === 'force_gave_weight' ? 'That is the whole weight. Read the scale.' : '🔍 Look again at the scale. Small marks are 5 N.')
+          : 'Check your multiplying: W = F × d.';
+      ui.misses = (ui.misses || 0) + 1;
+      ui.recUntil = wait(Math.min(12, 2 + 2 * ui.misses));
+      save(); return paintRec();
+    }
+    recordTry(key, true);
+    st.rows.push({ mach: mc.mach, set: mc.mach === 'pulley' ? mc.n : mc.L, d: FL.round(dv, 2), F: FL.round(Fv, 1), W: FL.round(Wv, 1), work: ui.work || null });
+    ui.work = null; if (desmos && desmos.setBlank) desmos.setBlank();
+    ui.rec = {}; ui.recMsg = ''; ui.misses = 0; ui.recUntil = 0;
+    save(true); paintRows(); paintRec(); paintCharts(); paintAsk();
+    if (ready() && !ready.__was) { ready.__was = true; openThink(); }
+  }
+
+  // ---------- Charts: small in card 4, big in the Think view ----------
+  // o = { big, hi: [row indexes to highlight], curve: true, readX: number }
+  function graphSVG(o = {}) {
+    const W = o.big ? 600 : 320, H = o.big ? 380 : 214, b = o.big ? { x0: 84, x1: 584, y0: 318, y1: 34 } : { x0: 56, x1: 312, y0: 172, y1: 26 };
+    const fs = o.big ? 1.4 : 1, ymax = FL.forceAxis(FL.weight(st.rig)).max, xmax = 7, hi = o.hi || [];
+    const px = (x, y) => ({ x: b.x0 + x / xmax * (b.x1 - b.x0), y: b.y0 - y / ymax * (b.y0 - b.y1) });
+    let g = `<text x="${W / 2}" y="${16 * fs}" class="ch-title" style="font-size:${15 * fs}px" text-anchor="middle">Force vs. rope pulled</text>`;
+    const step = o.big ? 25 : 50;
+    if (o.big) {   // minor lines every 0.5 m and 5 N, so a value can be read closely
+      for (let x = 0.5; x < xmax; x += 1) { const p = px(x, 0); g += `<line x1="${p.x}" y1="${b.y0}" x2="${p.x}" y2="${b.y1}" class="ch-grid-minor"/>`; }
+      for (let y = 5; y < ymax; y += 5) { if (y % 25) { const p = px(0, y); g += `<line x1="${b.x0}" y1="${p.y}" x2="${b.x1}" y2="${p.y}" class="ch-grid-minor"/>`; } }
+    }
+    for (let x = 0; x <= xmax; x++) { const p = px(x, 0); g += `<line x1="${p.x}" y1="${b.y0}" x2="${p.x}" y2="${b.y1}" class="ch-grid"/><text x="${p.x}" y="${b.y0 + 16 * fs}" class="ch-num" style="font-size:${13 * fs}px" text-anchor="middle">${x}</text>`; }
+    for (let y = 0; y <= ymax; y += step) { const p = px(0, y); g += `<line x1="${b.x0}" y1="${p.y}" x2="${b.x1}" y2="${p.y}" class="ch-grid"/><text x="${b.x0 - 6}" y="${p.y + 4}" class="ch-num" style="font-size:${13 * fs}px" text-anchor="end">${y}</text>`; }
+    g += `<path d="M ${b.x0} ${b.y1} V ${b.y0} H ${b.x1}" class="ch-axis"/><text x="${(b.x0 + b.x1) / 2}" y="${H - 8}" class="ch-lab c-d-fill" style="font-size:${13.5 * fs}px" text-anchor="middle">rope pulled, d (m)</text>`
+      + `<text transform="translate(${16 * fs} ${(b.y0 + b.y1) / 2}) rotate(-90)" class="ch-lab c-F-fill" style="font-size:${13.5 * fs}px" text-anchor="middle">force, F (N)</text>`;
+    if (o.curve && st.rows.length) {
+      const Wc = FL.workOut(st.rig), xa = Math.max(0.3, Wc / ymax), pts = [];
+      for (let i = 0; i <= 50; i++) { const x = xa + (xmax - xa) * i / 50, p = px(x, Wc / x); pts.push(`${p.x.toFixed(1)} ${p.y.toFixed(1)}`); }
+      g += `<path d="M ${pts.join(' L ')}" class="ch-curve"/>`;
+    }
+    if (typeof o.readX === 'number') { const p = px(o.readX, 0); g += `<line x1="${p.x}" y1="${b.y0}" x2="${p.x}" y2="${b.y1}" class="ch-read"/><text x="${p.x + 6}" y="${b.y0 - 8}" class="ch-lab c-d-fill pt-label" style="font-size:${14 * fs}px">d = ${fmt(o.readX)} m</text>`; }
+    const order = st.rows.map((r, i) => i).sort((p, q) => (st.rows[p].mach === st.rows[q].mach ? 0 : st.rows[p].mach === 'ramp' ? -1 : 1));
+    order.forEach(i => {
+      const r = st.rows[i], p = px(r.d, r.F), on = hi.includes(i), k = (on ? 1.35 : 1) * (o.big ? 1.25 : 1);
+      g += r.mach === 'ramp' ? `<path d="M ${p.x} ${p.y - 13 * k} l ${12 * k} ${20 * k} h ${-24 * k} z" class="pt-ramp ${on ? 'pt-on' : ''}"/>` : `<circle cx="${p.x}" cy="${p.y}" r="${5.5 * k}" class="pt-pulley ${on ? 'pt-on' : ''}"/>`;
+      if (on) g += `<text x="${p.x + 14}" y="${p.y - 10}" class="pt-label">${tag(i)}: ${fmt(r.F)} N</text>`;
+    });
+    if (!st.rows.length) g += `<text x="${(b.x0 + b.x1) / 2}" y="${(b.y0 + b.y1) / 2}" class="ch-empty" text-anchor="middle">Your trials appear here</text>`;
+    g += `<g transform="translate(${b.x1 - 140 * fs} ${b.y1 + 4})" style="font-size:${13 * fs}px"><circle cx="8" cy="8" r="6" class="pt-pulley"/><text x="18" y="13" class="ch-num" style="font-size:inherit">pulley</text><path d="M ${84 * fs} 0 l 8 14 h -16 z" class="pt-ramp"/><text x="${96 * fs}" y="13" class="ch-num" style="font-size:inherit">ramp</text></g>`;
+    return `<svg viewBox="0 0 ${W} ${H}" class="ch">${g}</svg>`;
+  }
+  function barsSVG(o = {}) {
+    const W = o.big ? 600 : 320, H = o.big ? 380 : 214, b = o.big ? { x0: 84, x1: 584, y0: 318, y1: 34 } : { x0: 56, x1: 312, y0: 172, y1: 26 };
+    const fs = o.big ? 1.4 : 1, hi = o.hi || [];
+    const wmax = Math.ceil((FL.workOut(st.rig) * 1.3) / 50) * 50, n = Math.max(6, st.rows.length), slot = (b.x1 - b.x0) / n;
+    let w = `<text x="${W / 2}" y="${16 * fs}" class="ch-title" style="font-size:${15 * fs}px" text-anchor="middle">Work in each trial</text>`;
+    for (let y = 0; y <= wmax; y += (o.big ? 50 : 100)) { const yy = b.y0 - y / wmax * (b.y0 - b.y1); w += `<line x1="${b.x0}" y1="${yy}" x2="${b.x1}" y2="${yy}" class="ch-grid"/><text x="${b.x0 - 6}" y="${yy + 4}" class="ch-num" style="font-size:${13 * fs}px" text-anchor="end">${y}</text>`; }
+    w += `<path d="M ${b.x0} ${b.y1} V ${b.y0} H ${b.x1}" class="ch-axis"/><text transform="translate(${16 * fs} ${(b.y0 + b.y1) / 2}) rotate(-90)" class="ch-lab c-W-fill" style="font-size:${13.5 * fs}px" text-anchor="middle">work, W (J)</text>`;
+    st.rows.forEach((r, i) => {
+      const x = b.x0 + i * slot + slot * 0.18, bw = slot * 0.64, top = b.y0 - Math.min(wmax, r.W) / wmax * (b.y0 - b.y1), on = hi.includes(i);
+      w += `<rect x="${x.toFixed(1)}" y="${top.toFixed(1)}" width="${bw.toFixed(1)}" height="${(b.y0 - top).toFixed(1)}" rx="3" class="${r.mach === 'ramp' ? 'bar-ramp' : 'bar-pulley'} ${on ? 'bar-on' : ''}"/>`
+        + `<text x="${(x + bw / 2).toFixed(1)}" y="${(top - 5).toFixed(1)}" class="ch-num ${on ? 'strong-num' : ''}" style="font-size:${13 * fs}px" text-anchor="middle">${fmt(Math.round(r.W))}</text>`
+        + `<text x="${(x + bw / 2).toFixed(1)}" y="${b.y0 + 16 * fs}" class="ch-num" style="font-size:${13 * fs}px" text-anchor="middle">${tag(i)}</text>`;
+      if (on && o.big) w += `<text x="${(x + bw / 2).toFixed(1)}" y="${b.y0 + 34 * fs}" class="pt-label" text-anchor="middle">d = ${fmt(r.d)} m</text>`;
+    });
+    if (!st.rows.length) w += `<text x="${(b.x0 + b.x1) / 2}" y="${(b.y0 + b.y1) / 2}" class="ch-empty" text-anchor="middle">W = F × d for each trial</text>`;
+    return `<svg viewBox="0 0 ${W} ${H}" class="ch">${w}</svg>`;
+  }
+  // ---------- Any chart, full screen ----------
+  let chartOpen = null;
+  function openChart(kind, opts) {
+    chartOpen = { kind, opts: Object.assign({}, opts, { big: true }) };
+    paintChartModal();
+    $('chartModal').hidden = false;
+    $('chartClose').focus();
+  }
+  function paintChartModal() {
+    if (!chartOpen) return;
+    $('chartModalBody').innerHTML = chartOpen.kind === 'bars' ? barsSVG(chartOpen.opts) : graphSVG(chartOpen.opts);
+  }
+  function closeChart() { chartOpen = null; $('chartModal').hidden = true; }
+  function bindCharts() {
+    $('graph').addEventListener('click', () => openChart('graph', { curve: st.rows.length >= 4 }));
+    $('bars').addEventListener('click', () => openChart('bars', {}));
+    $('thinkBody').addEventListener('click', e => { if (e.target.closest('.think-chart') && ui.thinkChart) openChart(ui.thinkChart.kind, ui.thinkChart.opts); });
+    $('chartClose').addEventListener('click', closeChart);
+    $('chartModal').addEventListener('click', e => { if (e.target.id === 'chartModal') closeChart(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && chartOpen) closeChart(); });
+    $('graph').title = $('bars').title = 'Click to see it full screen';
+  }
+  function paintCharts() { $('graph').innerHTML = graphSVG(); $('bars').innerHTML = barsSVG(); if (!$('think').hidden) paintThink(); paintChartModal(); }
+
+  // ---------- Think about your data: a big view, opened once the table is ready ----------
+  function ready() { const c = counts(st); return c.pulley >= NEED_EACH && c.ramp >= NEED_EACH; }
+  function testLengths() { const used = st.rows.map(r => r.d); return [2.5, 3.5, 4.5, 5, 5.5].filter(L => used.every(u => Math.abs(u - L) > 0.2)); }
+  const FRAC = { 2: '½', 3: '⅓', 4: '¼' };
+  // Two of their pulley rows where one rope distance is a whole number of times the other (2× if possible)
+  function pairQ() {
+    const a = st.ask.double || (st.ask.double = {});
+    if (!a.pair) {
+      const P = st.rows.map((r, i) => ({ r, i })).filter(o => o.r.mach === 'pulley');
+      let best = null;
+      P.forEach(p => P.forEach(q => { const k = q.r.set / p.r.set; if (Number.isInteger(k) && k > 1 && (!best || Math.abs(k - 2) < Math.abs(best.k - 2))) best = { i: p.i, j: q.i, k }; }));
+      if (!best) { const s = st.rows.map((r, i) => ({ r, i })).sort((p, q) => p.r.d - q.r.d); best = { i: s[0].i, j: s[s.length - 1].i, k: Math.round(s[s.length - 1].r.d / s[0].r.d) }; }
+      Object.assign(a, { pair: [best.i, best.j], k: best.k });
+    }
+    return a;
+  }
+  function spreadQ() {
+    const a = st.ask.same || (st.ask.same = {});
+    if (!a.pair) { const s = st.rows.map((r, i) => ({ r, i })).sort((p, q) => p.r.d - q.r.d); a.pair = [s[0].i, s[s.length - 1].i]; }
+    return a;
+  }
+  // ---------- The questions each class gets, in order ----------
+  // Periods 1–3: force pattern, work pattern, predict a ramp.
+  // Periods 4–6 add mechanical advantage and a sentence that explains the trade-off. Period 0 also designs a ramp.
+  const STEPS = t => ['double', 'same'].concat(t === 'conceptual' ? [] : ['ma', 'claim'], ['predict'], t === 'honors' ? ['design'] : []);
+  const WEIGHT = { double: 1, same: 1, ma: 1, claim: 1, predict: 2, design: 2 };
+  const THINK = ['double', 'same', 'ma', 'claim', 'predict', 'design'];   // steps answered in the big view
+  function stepDone(s, id) {
+    if (id === 'predict') return !!(s.pred && s.pred.ok);
+    if (id === 'design') return !!(s.design && s.design.ok);
+    return !!(s.ask && s.ask[id] && s.ask[id].ok);
+  }
+  function thinkStep() {
+    if (!ready()) return null;
+    for (const id of STEPS(tier())) {
+      if (stepDone(st, id)) continue;
+      if (id === 'predict') return st.pred && st.pred.val !== undefined && st.pred.val !== null ? 'test' : 'predict';
+      if (id === 'design') return st.design && st.design.Lok ? 'dtest' : 'design';
+      return id;
+    }
+    return 'done';
+  }
+  const thinkLeft = () => STEPS(tier()).filter(id => !stepDone(st, id)).length;
+
+  function questionFor(id) {
+    if (id === 'double') {
+      const a = pairQ(), [i, j] = a.pair, r1 = st.rows[i], r2 = st.rows[j], k = a.k;
+      return {
+        a, hi: [i, j], chart: 'graph', cols: ['d', 'F'],
+        text: `<p><b>${tag(i)}</b> (${label(r1)}): you pulled <b class="c-d">${fmt(r1.d)} m</b> of rope.</p><p><b>${tag(j)}</b> (${label(r2)}): you pulled <b class="c-d">${fmt(r2.d)} m</b>. That is <b>${k} times as far</b>.</p>`,
+        ask: `What happened to the <span class="c-F">force</span>?`,
+        opts: [['bigger', `${k}× bigger`], ['same', 'stayed the same'], ['smaller', `${FRAC[k] || `1/${k}`} as big`]], right: 'smaller',
+        look: `Find ${tag(i)} and ${tag(j)} in your tables. Compare their forces.`
+      };
+    }
+    const a = spreadQ(), [i, j] = a.pair, r1 = st.rows[i], r2 = st.rows[j];
+    return {
+      a, hi: [i, j], chart: 'bars', cols: ['d', 'W'],
+      text: `<p><b>${tag(i)}</b> (${label(r1)}) pulled the <b>least</b> rope: <b class="c-d">${fmt(r1.d)} m</b>.</p><p><b>${tag(j)}</b> (${label(r2)}) pulled the <b>most</b> rope: <b class="c-d">${fmt(r2.d)} m</b>.</p>`,
+      ask: `How does their <span class="c-W">work</span> compare?`,
+      opts: [['more', `${tag(j)} took more work`], ['same', 'about the same work'], ['less', `${tag(j)} took less work`]], right: 'same',
+      look: `Look at the bars for ${tag(i)} and ${tag(j)}. Are they different heights?`
+    };
+  }
+  const bigTable = (hi, cols) => `<div class="big-tables">${tablesHTML({ hi, cols, big: true })}</div>`;
+
+  // Number boxes in the big view. The calculator's "Use answer" fills the one the student last clicked (or the first empty one).
+  const numBox = (id, sym, unit, cls) => `<label class="rec-in ${cls} big-in"><span>${sym}</span><input type="text" inputmode="decimal" autocomplete="off" class="calc-target" id="${id}" value="${esc((ui.drafts || {})[id] || '')}" aria-label="${sym}"><span>${unit}</span></label>`;
+  function bindNumBoxes(box, onEnter) {
+    box.querySelectorAll('.calc-target').forEach(el => {
+      el.addEventListener('focus', () => { ui.lastCalc = el.id; });
+      el.addEventListener('input', () => { ui.drafts = Object.assign({}, ui.drafts, { [el.id]: el.value }); });
+      el.addEventListener('keydown', e => { if (e.key === 'Enter' && onEnter) onEnter(); });
+    });
+  }
+  const draft = id => FL.parseNum((ui.drafts || {})[id] || '');
+  const clearDrafts = () => { ui.drafts = {}; ui.lastCalc = null; };
+
+  function openThink() { $('think').hidden = false; paintThink(); }
+  function closeThink() { $('think').hidden = true; paintAsk(); syncCalc(); }
+  function paintThink() {
+    const stp = thinkStep(), box = $('thinkBody');
+    if (!stp || !THINK.includes(stp)) { closeThink(); return; }
+    const list = STEPS(tier()).filter(id => THINK.includes(id));
+    $('thinkStep').textContent = `Question ${list.indexOf(stp) + 1} of ${list.length}`;
+    const left2 = (chart, kind, opts) => { ui.thinkChart = { kind, opts }; return `<div class="think-left"><div class="think-chart" title="Click to see it full screen">${chart}</div></div>`; };
+
+    if (stp === 'predict') {
+      if (!st.pred) { st.pred = { L: FL.pick(testLengths()) || 5 }; save(); }
+      const L = st.pred.L, o = { big: true, curve: true, readX: L };
+      box.innerHTML = left2(graphSVG(o), 'graph', o) + `
+        <div class="think-q"><div class="q-text">${st.pred.lastMsg ? `<p class="miss">${st.pred.lastMsg} Try this one.</p>` : ''}<p>A <b class="c-d">${fmt(L)} m</b> ramp is <b>not</b> in your tables.</p><p>The curve goes through your points. The dashed line is at ${fmt(L)} m.</p></div>
+        <p class="q-ask">Predict the <span class="c-F">force</span> on the rope.</p>
+        <div class="rec-row">${numBox('predIn', 'F', 'N', 'c-F')}<button type="button" class="btn btn-blue" id="btnPred">Lock it in</button></div>
+        <p class="hint">Read the curve, or use the calculator: F = W ÷ d.</p>${bigTable([], ['d', 'F', 'W'])}</div>`;
+      bindNumBoxes(box, () => $('btnPred').click());
+      $('btnPred').addEventListener('click', () => {
+        const v = draft('predIn');
+        if (v === null || v <= 0) return;
+        st.pred.val = FL.round(v, 1); st.pred.lastMsg = ''; clearDrafts(); save(true); closeThink();
+      });
+      syncCalc(); return;
+    }
+
+    if (stp === 'ma') {
+      // the row with the most rope: a big trade-off to look at
+      const a = st.ask.ma || (st.ask.ma = {});
+      if (a.i === undefined) a.i = st.rows.reduce((b, r, i) => (r.d > st.rows[b].d ? i : b), 0);
+      const r = st.rows[a.i], l = left(a.until), o = { big: true, hi: [a.i] };
+      box.innerHTML = left2(graphSVG(o), 'graph', o) + `
+        <div class="think-q"><div class="q-text"><p><b>Mechanical advantage (MA)</b> tells how many times a machine multiplies your force.</p>
+          <p>Look at <b>${tag(a.i)}</b> (${label(r)}). Your load is <b>${st.rig.m} kg</b>, so its weight is F<sub>g</sub> = m × g.</p></div>
+        <p class="q-ask">Find both. Use the calculator.</p>
+        <div class="ma-grid"><span class="formula-chip">MA = F<sub>g</sub> ÷ F</span>${numBox('maIn', 'MA', '', 'c-F')}
+          <span class="formula-chip">rope distance ÷ height = d ÷ h</span>${numBox('ratioIn', 'd ÷ h', '', 'c-d')}</div>
+        <button type="button" class="btn btn-green" id="btnMa" ${l ? 'disabled' : ''}>${l ? `Wait ${l}` : 'Check'}</button>
+        ${a.msg ? `<p class="miss">${a.msg}</p>` : ''}${bigTable([a.i], ['d', 'F'])}</div>`;
+      bindNumBoxes(box, () => $('btnMa').click());
+      $('btnMa').addEventListener('click', () => {
+        if (left(a.until)) return;
+        const ma = draft('maIn'), ra = draft('ratioIn');
+        if (ma === null || ra === null) { a.msg = 'Fill in both boxes.'; return paintThink(); }
+        const maT = st.rig.m * 10 / r.F, raT = r.d / st.rig.h;
+        const maOk = Math.abs(ma - maT) <= Math.max(0.1, 0.03 * maT), raOk = Math.abs(ra - raT) <= Math.max(0.05, 0.02 * raT);
+        recordTry('q_ma', maOk && raOk);
+        if (maOk && raOk) { a.ok = true; a.ma = FL.round(ma, 2); a.ratio = FL.round(ra, 2); a.msg = ''; clearDrafts(); save(true); paintThink(); paintAsk(); return; }
+        mistake(!maOk ? 'q_ma_value' : 'q_ma_ratio');
+        a.msg = !maOk ? `Check MA. First find F<sub>g</sub> = ${st.rig.m} kg × 10 m/s², then divide by ${tag(a.i)}'s force from your table.` : `Check d ÷ h. Use ${tag(a.i)}'s rope distance from your table and the 1.5 m height.`;
+        a.until = wait(4); save(); paintThink();
+        setTimeout(paintThink, Math.min(1000, Math.max(50, a.until - Date.now())));
+      });
+      syncCalc(); return;
+    }
+
+    if (stp === 'claim') {
+      const pq = pairQ(), [i, j] = pq.pair, k = pq.k, a = st.ask.claim || (st.ask.claim = {}), l = left(a.until), o = { big: true, hi: [i, j] };
+      const choices = [['up', `went up ${k} times`], ['same', 'stayed the same'], ['down', `went down to ${FRAC[k] || `1/${k}`}`]];
+      const pick = slot => `<select class="claim-sel ${slot === 'F' ? 'c-F' : 'c-W'}" data-slot="${slot}" ${l ? 'disabled' : ''} aria-label="${slot === 'F' ? 'What the force did' : 'What the work did'}"><option value="">choose…</option>${choices.map(c => `<option value="${c[0]}" ${a[slot] === c[0] ? 'selected' : ''}>${c[1]}</option>`).join('')}</select>`;
+      box.innerHTML = left2(graphSVG(o), 'graph', o) + `
+        <div class="think-q"><div class="q-text"><p>Explain the trade-off with ${tag(i)} and ${tag(j)}. Finish the sentence.</p></div>
+        <p class="claim-sentence">When the rope distance went up <b>${k} times</b>, the <span class="c-F">force</span> ${pick('F')} and the <span class="c-W">work</span> ${pick('W')}.</p>
+        <button type="button" class="btn btn-green" id="btnClaim" ${l ? 'disabled' : ''}>${l ? `Wait ${l}` : 'Check my sentence'}</button>
+        ${a.msg ? `<p class="miss">${a.msg}</p>` : ''}${bigTable([i, j], ['d', 'F', 'W'])}</div>`;
+      box.querySelectorAll('[data-slot]').forEach(sel => sel.addEventListener('change', () => { a[sel.dataset.slot] = sel.value || null; a.msg = ''; }));
+      $('btnClaim').addEventListener('click', () => {
+        if (left(a.until)) return;
+        if (!a.F || !a.W) { a.msg = 'Pick one for the force and one for the work.'; return paintThink(); }
+        const ok = a.F === 'down' && a.W === 'same';
+        recordTry('q_claim', ok);
+        if (ok) { a.ok = true; a.msg = ''; save(true); paintThink(); paintAsk(); return; }
+        mistake(`q_claim_${a.F}_${a.W}`);
+        a.msg = a.F !== 'down' ? `Look at the forces for ${tag(i)} and ${tag(j)} in your table.` : `Look at the work (W) for ${tag(i)} and ${tag(j)}.`;
+        a.F = null; a.W = null; a.until = wait(6); save(); paintThink();
+        setTimeout(paintThink, Math.min(1000, Math.max(50, a.until - Date.now())));
+      });
+      syncCalc(); return;
+    }
+
+    if (stp === 'design') {
+      if (!st.design) {
+        const W = FL.workOut(st.rig), used = st.rows.map(r => r.d).concat(st.pred ? [st.pred.L] : []);
+        const opts = [2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6].filter(L => used.every(u => Math.abs(u - L) > 0.2) && Number.isInteger(FL.round(W / L, 4)));
+        const L = FL.pick(opts) || 5;
+        st.design = { L, F: FL.round(W / L, 1) }; save();
+      }
+      const d = st.design, l = left(d.until), o = { big: true, curve: true };
+      box.innerHTML = left2(graphSVG(o), 'graph', o) + `
+        <div class="think-q"><div class="q-text"><p><b>Design a ramp.</b> Your strongest steady pull is only <b class="c-F">${fmt(d.F)} N</b>.</p><p>The load still has to reach the 1.5 m line.</p></div>
+        <p class="q-ask">What is the <b>shortest</b> ramp that works?</p>
+        <div class="rec-row">${numBox('designIn', 'L', 'm', 'c-d')}<button type="button" class="btn btn-green" id="btnDesign" ${l ? 'disabled' : ''}>${l ? `Wait ${l}` : 'Check'}</button></div>
+        <p class="hint">Use your work: L = W ÷ F. Then you will build it and test it.</p>${d.msg ? `<p class="miss">${d.msg}</p>` : ''}${bigTable([], ['d', 'F', 'W'])}</div>`;
+      bindNumBoxes(box, () => $('btnDesign').click());
+      $('btnDesign').addEventListener('click', () => {
+        if (left(d.until)) return;
+        const v = draft('designIn');
+        if (v === null) return;
+        const ok = Math.abs(v - d.L) <= Math.max(0.05, 0.02 * d.L);
+        recordTry('q_design', ok);
+        if (ok) { d.Lok = true; d.val = d.L; d.msg = ''; clearDrafts(); save(true); closeThink(); return; }
+        mistake(v > d.L ? 'q_design_long' : 'q_design_short');
+        d.msg = `Check it: your work in every trial was about ${fmt(Math.round(FL.workOut(st.rig)))} J. Divide by the ${fmt(d.F)} N you can pull.`;
+        d.until = wait(5); save(); paintThink();
+        setTimeout(paintThink, Math.min(1000, Math.max(50, d.until - Date.now())));
+      });
+      syncCalc(); return;
+    }
+
+    // double / same: pick an answer
+    const q = questionFor(stp), a = q.a, l = left(a.until), order = a.order || q.opts.map(o => o[0]), o = { big: true, hi: q.hi };
+    box.innerHTML = left2(q.chart === 'graph' ? graphSVG(o) : barsSVG(o), q.chart, o) + `
+      <div class="think-q"><div class="q-text">${q.text}</div><p class="q-ask">${q.ask}</p>
+        <div class="q-opts big-opts">${order.map(k => { const op = q.opts.find(x => x[0] === k); return `<button type="button" class="opt" data-a="${k}" ${l ? 'disabled' : ''}>${op[1]}</button>`; }).join('')}</div>
+        ${l ? `<p class="miss">Not quite. ${q.look} (${l})</p>` : ''}${bigTable(q.hi, q.cols)}</div>`;
+    box.querySelectorAll('[data-a]').forEach(b => b.addEventListener('click', () => {
+      if (left(a.until)) return;
+      const ok = b.dataset.a === q.right;
+      recordTry(`q_${stp}`, ok);
+      if (ok) a.ok = true; else { mistake(`q_${stp}_${b.dataset.a}`); a.until = wait(6); a.order = FL.shuffle(q.opts.map(x => x[0])); }
+      save(true); paintThink(); paintAsk();
+    }));
+    if (l) setTimeout(paintThink, Math.min(1000, Math.max(50, (a.until || 0) - Date.now())));
+    syncCalc();
+  }
+
+  // ---------- In My Data: the way into the questions, then testing the prediction or the design ----------
+  function paintAsk() {
+    const box = $('askBox'), stp = thinkStep();
+    const callout = (cls, ico, big, small, btn) => `<div class="callout ${cls}"><span class="ico">${ico}</span><div>${big}${small ? `<small>${small}</small>` : ''}${btn || ''}</div></div>`;
+    if (!stp) { box.innerHTML = ''; if ($('btnUseCalc')) syncCalc(); return; }
+    if (THINK.includes(stp)) {
+      const n = thinkLeft();
+      box.innerHTML = callout('callout-go', '🤔', `Your tables are ready! ${n} question${n > 1 ? 's' : ''} left.`, 'They use your own data.', '<button type="button" class="btn btn-blue go-btn" id="btnThink">Answer the questions ▶</button>');
+      $('btnThink').addEventListener('click', openThink);
+    } else if (stp === 'done') {
+      const p = st.pred;
+      box.innerHTML = `<div class="callout callout-full done-callout"><span class="ico">🎉</span><div>You finished the lab!<small>You predicted ${fmt(p.val)} N for a ${fmt(p.L)} m ramp. The scale read ${fmt(p.read)} N.</small>${certButton()}</div></div>`;
+      bindCertButtons(box);
+    } else box.innerHTML = testHTML(stp === 'dtest' ? 'design' : 'pred');
+    bindTest(stp === 'dtest' ? 'design' : 'pred');
+    if ($('btnUseCalc')) syncCalc();
+  }
+  function testHTML(kind) {
+    const p = kind === 'design' ? st.design : st.pred, L = p.L, onIt = st.setup.mach === 'ramp' && Math.abs(st.setup.L - L) < 0.01;
+    const head = kind === 'design'
+      ? `<div class="callout callout-go"><span class="ico">🛠️</span><div>Build your design: a <b>${fmt(L)} m</b> ramp. You can pull only <b>${fmt(p.F)} N</b>.`
+      : `<div class="callout callout-go"><span class="ico">🎯</span><div>Test your prediction: <b>${fmt(p.val)} N</b> for a <b>${fmt(L)} m</b> ramp.`;
+    if (!onIt) return `${head}<small>Set the ramp to ${fmt(L)} m in 1 Setup.</small><button type="button" class="btn btn-blue go-btn" id="btnGoTest">Set it up ▶</button></div></div>`;
+    if (!sim.locked) return `${head}<small>Now lift the cart and hold it at the line.</small></div></div>`;
+    const l = left(p.until);
+    return `${head}<small>What does the scale read?</small><div class="rec-row" style="margin-top:0.4rem"><label class="rec-in c-F"><span>F</span><input type="text" inputmode="decimal" id="readIn" value="${esc(ui.readDraft)}" aria-label="Scale reading in newtons"><span>N</span></label>
+      <button type="button" class="btn btn-green" id="btnRead" ${l ? 'disabled' : ''}>${l ? `Wait ${l}` : 'Check'}</button></div>${p.msg ? `<p class="miss">${p.msg}</p>` : ''}</div></div>`;
+  }
+  function bindTest(kind) {
+    const p = kind === 'design' ? st.design : st.pred;
+    if (!p) return;
+    const bg = $('btnGoTest'); if (bg) bg.addEventListener('click', () => changeSetup({ mach: 'ramp', L: p.L }));
+    const ri = $('readIn'); if (ri) { ri.addEventListener('input', () => { ui.readDraft = ri.value; }); ri.addEventListener('keydown', e => { if (e.key === 'Enter') $('btnRead').click(); }); }
+    const br = $('btnRead');
+    if (br) br.addEventListener('click', () => {
+      if (left(p.until)) return;
+      const F = FL.forceNeed(st.rig, { mach: 'ramp', L: p.L }), x = FL.parseNum(ui.readDraft);
+      if (x === null) return;
+      const c = FL.checkForce(String(x), F, p.L, st.rig);
+      if (!c.ok) { mistake(c.mistake); p.msg = '🔍 Look again at the scale. Small marks are 5 N.'; p.until = wait(4); save(); return paintAsk(); }
+      p.read = FL.round(x, 1); ui.readDraft = ''; p.msg = '';
+      if (kind === 'design') {
+        // the design was checked when it was entered; the test shows the scale lands on the pull limit
+        p.ok = true; recordTry('design_test', true);
+        save(true); paintAsk(); checkFinished();
+        if (thinkStep() !== 'done') openThink();
+        return;
+      }
+      const ok = Math.abs(p.val - F) <= Math.max(4, 0.08 * F);
+      recordTry(`pred_${(p.tries || 0) + 1}`, ok);
+      if (ok) p.ok = true; else {
+        mistake('prediction_missed');
+        const L = FL.pick(testLengths().filter(t => t !== p.L)) || p.L;
+        st.pred = { L, tries: (p.tries || 0) + 1, lastMsg: `The scale read ${fmt(p.read)} N, not ${fmt(p.val)} N.` };
+        save(true); paintAsk(); openThink(); return;
+      }
+      save(true); paintAsk(); checkFinished();
+      if (thinkStep() !== 'done') openThink();
+    });
+  }
+
+  // ---------- Finished: an obvious ending and a certificate (PDF) ----------
+  const finished = () => scoreState(st).done.length === 4;
+  // Certificates are for signed-in students. A preview gets a SAMPLE. A guest is asked to sign in.
+  const certKind = () => (profile.preview || profile.teacher ? 'sample' : profile.guest ? 'guest' : 'real');
+  function ensureCert() {
+    if (!finished() || certKind() === 'guest') return null;
+    const id = certKind() === 'sample' ? 'SAMPLE' : (cloud && cloud.studentId) || 'STUDENT';
+    const code = window.Certificate.code(id, st.bestPoints);
+    if (!st.cert || st.cert.code !== code) st.cert = { code, at: (st.cert && st.cert.at) || Date.now() };
+    return st.cert;
+  }
+  async function downloadCert(btn) {
+    const c = ensureCert();
+    if (!c) return;
+    const label = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Making your certificate…';
+    try {
+      await window.Certificate.download({
+        name: certKind() === 'sample' ? 'Sample Student' : profile.name, sample: certKind() === 'sample', best: st.bestPoints, honors: tier() === 'honors',
+        period: profile.teacher ? 'Teacher' : (profile.period !== null && profile.period !== undefined ? `Period ${profile.period}` : ''),
+        earned: c.at, code: c.code
+      });
+      btn.textContent = label;
+    } catch (e) { console.error('Certificate failed:', e); btn.textContent = 'It did not download. Try again'; }
+    btn.disabled = false;
+    save(true);
+  }
+  const certButton = () => (certKind() === 'guest'
+    ? '<p class="done-note">🎓 Certificates are for signed-in students. Sign in with your school account to get yours.</p>'
+    : '<button type="button" class="btn btn-green done-cert" data-cert>📄 Download my certificate (PDF)</button>');
+  function bindCertButtons(root) { root.querySelectorAll('[data-cert]').forEach(b => b.addEventListener('click', () => downloadCert(b))); }
+  function showDone() {
+    const c = counts(st), p = st.pred;
+    $('doneScore').textContent = `${fmt(st.bestPoints)} / 10`;
+    const items = [`✅ ${c.pulley} pulley trials and ${c.ramp} ramp trials, read and recorded`, '✅ Found that more rope distance means less force', '✅ Showed the work stays the same'];
+    if (st.ask.ma && st.ask.ma.ok) items.push(`✅ Found a mechanical advantage of ${fmt(st.ask.ma.ma)}, the same as d ÷ h`);
+    if (st.ask.claim && st.ask.claim.ok) items.push('✅ Explained the trade-off in a sentence');
+    items.push(`✅ Predicted ${fmt(p.val)} N for a ${fmt(p.L)} m ramp, and it held up`);
+    if (st.design && st.design.ok) items.push(`✅ Designed a ${fmt(st.design.L)} m ramp for a ${fmt(st.design.F)} N pull, and it worked`);
+    $('doneList').innerHTML = items.map(t => `<li>${t}</li>`).join('');
+    $('doneCert').innerHTML = certButton();
+    bindCertButtons($('doneCert'));
+    $('doneModal').hidden = false;
+  }
+  function checkFinished() {
+    const done = finished();
+    $('btnCertChip').hidden = !done || certKind() === 'guest';
+    if (done) ensureCert();
+    if (done && !st.celebrated) { st.celebrated = true; save(true); showDone(); }
+  }
+
+  function paintScore() { const el = $('scoreChip'); if (el && st) el.textContent = `${fmt(st.bestPoints || 0)} / 10`; }
+
+  // ---------- Calculator: W (and the prediction) come from here, and the line has to be real work ----------
+  let desmos = null;
+  function setupCalc() {
+    if (!window.Desmos) { st.calcUnavailable = true; $('calcHost').innerHTML = '<p class="hint" style="padding:0.6rem">The calculator did not load. Type W yourself.</p>'; return; }
+    try {
+      desmos = window.Desmos.ScientificCalculator($('calcHost'), { degreeMode: true, invertedColors: document.documentElement.classList.contains('theme-dark') });
+    } catch (e) { desmos = null; }
+    $('btnUseCalc').addEventListener('click', useCalc);
+    window.addEventListener('resize', () => { if (desmos && desmos.resize) desmos.resize(); });
+  }
+  // Where the answer goes right now: the W box, or the prediction box
+  function calcTarget() {
+    if (!$('think').hidden && $('thinkBody').querySelector('.calc-target')) return 'think';
+    if ($('btnAdd')) return 'W';
+    return null;
+  }
+  function syncCalc() {
+    const t = calcTarget(), b = $('btnUseCalc');
+    b.disabled = !desmos || !t;
+    b.textContent = t === 'W' ? '📥 Use as W' : t === 'think' ? ($('predIn') ? '📥 Use as prediction' : '📥 Use as answer') : '📥 Use answer';
+  }
+  function sayCalc(msg) { $('calcMsg').hidden = !msg; $('calcMsg').textContent = msg || ''; }
+  function useCalc() {
+    const t = calcTarget();
+    if (!desmos || !t) return;
+    const work = window.Engine.readCalculator(desmos.getState());
+    if (work.empty) return sayCalc('Type your calculation first.');
+    if (work.unreadable) return sayCalc('The line is not finished. Check it.');
+    if (t === 'W') {
+      const d = FL.parseNum(ui.rec.d || ''), F = FL.parseNum(ui.rec.F || '');
+      if (d === null || F === null) return sayCalc('Type d and F first.');
+      const problem = FL.workProblem(work, { routes: [[F, d]], from: 'your F and d' });
+      if (problem) return sayCalc(problem);
+      ui.rec.W = String(FL.round(work.value, 2)); ui.work = work.latex;
+    } else {
+      const problem = FL.workProblem(work, {});
+      if (problem) return sayCalc(problem);
+      // the box the student last clicked, or else the first empty one
+      const boxes = [...$('thinkBody').querySelectorAll('.calc-target')];
+      const target = boxes.find(b => b.id === ui.lastCalc) || boxes.find(b => !b.value) || boxes[0];
+      ui.drafts = Object.assign({}, ui.drafts, { [target.id]: String(FL.round(work.value, 2)) });
+      ui.lastCalc = null;
+    }
+    sayCalc('');
+    if (t === 'W') paintRec(); else paintThink();
+  }
+
+  // ---------- Teacher tools: only for teacher accounts (and ?teacher on localhost) ----------
+  const isTeacher = () => !!(profile && (profile.teacher || profile.teacherPreview));
+  function trueReadings() {
+    if (!isTeacher() || !$('tShow').checked) return '';
+    const mc = machine(), d = FL.ropeDist(st.rig, mc), F = FL.forceNeed(st.rig, mc);
+    return `d = ${fmt(FL.round(d, 2))} m · F = ${fmt(FL.round(F, 1))} N · W = ${fmt(FL.round(F * d, 1))} J`;
+  }
+  function paintTrue() {
+    const t = trueReadings(), h = document.querySelector('.sim h2');
+    let el = $('trueRead');
+    if (!t) { if (el) el.remove(); return; }
+    if (!el) { el = document.createElement('span'); el.id = 'trueRead'; el.className = 'true-read'; h.insertBefore(el, $('status')); }
+    el.textContent = t;
+  }
+  function setupTeacher() {
+    if (!isTeacher()) return;
+    $('teachWrap').hidden = false;
+    $('btnMonitor').hidden = false;
+    $('btnTeach').addEventListener('click', () => { $('teachPanel').hidden = !$('teachPanel').hidden; });
+    document.addEventListener('pointerdown', e => { if (!$('teachWrap').contains(e.target)) $('teachPanel').hidden = true; });
+    $('tShow').addEventListener('change', paintTrue);
+    $('tView').addEventListener('change', e => { viewTier = e.target.value || null; drawScene(); });
+    ['tFill', 'tQuestions', 'tReset'].forEach(id => $(id).addEventListener('click', () => { $('teachPanel').hidden = true; }));
+    $('tFill').addEventListener('click', () => {
+      const plan = [{ mach: 'pulley', n: 1 }, { mach: 'pulley', n: 2 }, { mach: 'pulley', n: 4 }, { mach: 'ramp', L: 3 }, { mach: 'ramp', L: 6 }, { mach: 'ramp', L: 2 }];
+      st.rows = plan.map(mc => { const d = FL.ropeDist(st.rig, mc), F = FL.round(FL.forceNeed(st.rig, mc), 1); return { mach: mc.mach, set: mc.mach === 'pulley' ? mc.n : mc.L, d, F, W: FL.round(F * d, 1), work: null }; });
+      save(true); paintRows(); paintRec(); paintCharts(); paintAsk();
+    });
+    $('tQuestions').addEventListener('click', () => {
+      if (!ready()) $('tFill').click();
+      pairQ(); spreadQ(); ['double', 'same', 'ma', 'claim'].forEach(id => { st.ask[id] = Object.assign(st.ask[id] || {}, { ok: true }); });
+      save(true); paintAsk(); openThink();
+    });
+    $('tReset').addEventListener('click', () => {
+      if (!window.confirm('Start over? This clears your own copy only.')) return;
+      const keep = st.rig; Object.keys(st).forEach(k => delete st[k]); Object.assign(st, newState(), { rig: keep });
+      paintSetup(); resetLift(); paintRows(); paintCharts(); paintAsk(); save(true);
+    });
+  }
+
+  // ---------- Header tools ----------
+  function bindTools() {
+    const root = document.documentElement, store = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* blocked */ } };
+    const show = () => { $('btn-theme-toggle').textContent = root.classList.contains('theme-dark') ? '☀️' : '🌙'; $('btnBig').classList.toggle('on', root.classList.contains('big')); };
+    $('btn-theme-toggle').addEventListener('click', () => { root.classList.toggle('theme-dark'); store('tol_theme', root.classList.contains('theme-dark') ? 'dark' : 'light'); show(); drawScene(); if (desmos && desmos.updateSettings) desmos.updateSettings({ invertedColors: root.classList.contains('theme-dark') }); });
+    // Full screen: the button, plus a banner whenever the lab is not full screen. ✕ hides the banner until the next visit.
+    const isFull = () => !!document.fullscreenElement || (window.innerHeight >= screen.height - 2);
+    const goFull = () => { const el = document.documentElement; if (el.requestFullscreen) el.requestFullscreen().catch(() => {}); };
+    let fsDismissed = false;
+    const fsPaint = () => { $('fsBanner').hidden = fsDismissed || isFull(); $('btnFull').textContent = document.fullscreenElement ? '⛶ Exit full screen' : '⛶ Full screen'; };
+    $('btnFull').addEventListener('click', () => { if (document.fullscreenElement) document.exitFullscreen(); else goFull(); });
+    $('btnFsBanner').addEventListener('click', goFull);
+    $('btnFsClose').addEventListener('click', () => { fsDismissed = true; fsPaint(); });
+    document.addEventListener('fullscreenchange', fsPaint);
+    window.addEventListener('resize', fsPaint);
+    fsPaint();
+    $('btnBig').addEventListener('click', () => { root.classList.toggle('big'); store('tol_big', root.classList.contains('big') ? 'on' : 'off'); show(); });
+    show();
+  }
+
+  function start(s, c, prof) {
+    st = s; cloud = c; profile = prof;
+    if (!st.rig) st.rig = FL.newRig('cp');
+    if (st.setup.L > 6) st.setup.L = 6;
+    bindSetup(); bindTools(); setupCalc(); setupTeacher();
+    $('btnDoneClose').addEventListener('click', () => { $('doneModal').hidden = true; });
+    $('btnCertChip').addEventListener('click', e => downloadCert(e.currentTarget));
+    $('btnThinkBack').addEventListener('click', closeThink);
+    // The simulation, full screen: click it to open. It stays live, so P still pulls. ✕, Esc or a click outside closes it.
+    const simFull = on => {
+      document.querySelector('.sim').classList.toggle('sim-full', on);
+      $('simBackdrop').hidden = !on; $('btnSimClose').hidden = !on;
+    };
+    $('stage').addEventListener('click', () => { if (!document.querySelector('.sim').classList.contains('sim-full')) simFull(true); });
+    $('btnSimClose').addEventListener('click', () => simFull(false));
+    $('simBackdrop').addEventListener('click', () => simFull(false));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.querySelector('.sim').classList.contains('sim-full')) simFull(false); });
+    $('stage').title = 'Click to see it full screen';
+    bindCharts();
+    ready.__was = ready();
+    paintSetup(); drawScene(); paintRows(); paintRec(); paintAsk(); paintCharts(); paintScore(); checkFinished();
+    requestAnimationFrame(frame);
+  }
+
+  window.TradeoffLab = { start, newState, validState, scoreState, debug: () => ({ st, sim, tap, machine }) };
+})();
+
+// === Unit_3/tradeoff_lab/js/auth.js ===
+// Pulleys and Ramps Lab — Google sign-in, roster lookup, and Firestore saving.
+// Path: student_results/{ASSIGNMENT_ID}/students/{emailPrefix} (owner-only in firestore.rules; the admin-only parent
+// doc is written by sync-classroom/deploy-assignment.js). Guest: saved on this device only, never graded.
+// Preview (?preview): nothing saved. Based on Unit_3/work_studio/js/auth.js.
+
+const ASSIGNMENT_ID = 'unit3_day3_tradeoff_lab';
+const MAX_POINTS = 10;
+const TEACHER_EMAILS = ['rmudry@orangeusd.org', 'ryan.mudry@gmail.com', 'ryanmudry@gmail.com'];
+const GUEST_KEY = 'tol2_state_guest';
+const tierForPeriod = p => (p === 0 ? 'honors' : [1, 2, 3].includes(p) ? 'conceptual' : 'cp');
+
+class LabAuth {
+  constructor(onReady) {
+    this.onReady = onReady;
+    this.started = false; this.guest = false; this.preview = false; this.stalled = false;
+    this.saving = false; this.pending = false; this.saveTimer = null;
+    this.gate = document.getElementById('loginGate');
+    this.gateBtn = document.getElementById('btnGateSignIn');
+    this.indicator = document.getElementById('saveIndicator');
+    this.gateBtn.addEventListener('click', () => this.signIn());
+    document.getElementById('btnGateGuest').addEventListener('click', () => this.startGuest());
+    document.getElementById('btnSignOut').addEventListener('click', () => this.signOut());
+    // In a preview there is no sign-in on this page: reload without ?preview / ?teacher so the Google sign-in card appears
+    document.getElementById('btnChipSignIn').addEventListener('click', () => { if (this.preview) location.href = location.pathname; else this.signIn(); });
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && this.saveTimer) this.flush(); });
+    window.addEventListener('pagehide', () => { if (this.saveTimer) this.flush(); });
+
+    const q = new URLSearchParams(location.search);
+    if (q.has('preview') || (q.has('teacher') && /^(localhost|127\.0\.0\.1)$/.test(location.hostname))) { this.startPreview(); return; }
+    if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) {
+      this.showError('Could not load Google Sign-In. Refresh, or continue as a guest.');
+      this.gateBtn.disabled = true;
+      return;
+    }
+    this.db = firebase.firestore();
+    firebase.auth().getRedirectResult().catch(err => this.showError(`Sign-in error: ${err.message || err.code}`));
+    firebase.auth().onAuthStateChanged(user => this.handleUser(user));
+  }
+
+  showError(msg) { const el = document.getElementById('gateError'); el.textContent = msg; el.hidden = !msg; }
+  setGateBusy(text) { document.getElementById('gateStatus').textContent = text || ''; this.gateBtn.hidden = !!text; }
+  setIndicator(text) { this.indicator.textContent = text; }
+
+  signIn() {
+    if (!this.db) return;
+    this.showError('');
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ hd: 'orangeusd.org', prompt: 'select_account' });
+    firebase.auth().signInWithPopup(provider).catch(err => {
+      if (err.code === 'auth/popup-blocked') firebase.auth().signInWithRedirect(provider);
+      else if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') this.showError(`Google Sign-In error: ${err.message || err.code}`);
+    });
+  }
+  async signOut() {
+    if (!window.confirm('Sign out? Your work is saved to your school account.')) return;
+    await this.flush();
+    await firebase.auth().signOut();
+    location.reload();
+  }
+  docRef() { return this.db.collection('student_results').doc(ASSIGNMENT_ID).collection('students').doc(this.studentId); }
+  localKey() { return this.guest ? GUEST_KEY : `tol2_state_${this.studentId}`; }
+  static readLocal(key) { try { const s = JSON.parse(localStorage.getItem(key)); return TradeoffLab.validState(s) ? s : null; } catch (e) { return null; } }
+  begin(state, name, profile) {
+    this.state = state; this.profile = profile; this.started = true;
+    this.gate.hidden = true;
+    document.getElementById('userName').textContent = name;
+    this.onReady({ state, cloud: this, profile });
+  }
+
+  startPreview() {
+    this.preview = true; this.guest = true;
+    // ?teacher on localhost: preview with the teacher tools, without signing in
+    const teacherPreview = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) && new URLSearchParams(location.search).has('teacher');
+    this.begin(TradeoffLab.newState(), teacherPreview ? '🧑‍🏫 Teacher preview' : '👁 Preview', { guest: true, preview: true, teacherPreview, tier: 'cp', period: null, name: 'Preview' });
+    this.setIndicator('Nothing is saved');
+    const chip = document.getElementById('btnChipSignIn');
+    chip.hidden = false; chip.textContent = '🔑 Sign in with Google';
+  }
+  startGuest() {
+    if (this.started) return;
+    this.guest = true;
+    this.begin(LabAuth.readLocal(GUEST_KEY) || TradeoffLab.newState(), '👤 Guest', { guest: true, tier: 'cp', period: null, name: 'Guest' });
+    const chip = document.getElementById('btnChipSignIn');
+    chip.hidden = !this.db; chip.textContent = '🔑 Sign in with Google';
+    this.setIndicator('💾 This device only');
+  }
+
+  async lookupPeriod(email) {
+    if (TEACHER_EMAILS.includes(email)) return { period: 'T', teacher: true };
+    try {
+      const snap = await this.db.collection('roster').doc(this.studentId).get();
+      if (snap.exists) {
+        const d = snap.data();
+        const p = d.class_period !== undefined && d.class_period !== null ? d.class_period : d.period !== undefined && d.period !== null ? d.period : null;
+        if (p !== null) { const num = parseInt(p, 10); return { period: Number.isNaN(num) ? p : num }; }
+      }
+    } catch (e) { console.warn('Roster lookup failed:', e); }
+    return { period: null };
+  }
+
+  async handleUser(user) {
+    if (!user) {
+      if (this.started && !this.guest) location.reload();
+      if (this.started) return;
+      this.gate.hidden = false; this.setGateBusy('');
+      return;
+    }
+    const email = (user.email || '').toLowerCase();
+    if (!email.endsWith('@orangeusd.org') && !TEACHER_EMAILS.includes(email)) {
+      this.showError(`${email} is not a school account. Use your @orangeusd.org account.`);
+      firebase.auth().signOut();
+      return;
+    }
+    if (this.started && this.guest) { this.flushLocal(); location.reload(); return; }
+    if (this.started) return;
+    this.user = user;
+    this.studentId = email.split('@')[0];
+    this.setGateBusy('Loading your saved work…');
+    let cloudDoc = null;
+    for (let tryNum = 1; ; tryNum++) {
+      try { const snap = await this.docRef().get(); cloudDoc = snap.exists ? snap.data() : null; break; } catch (e) {
+        // Starting without the saved copy would let the next save overwrite real work, so keep trying
+        this.setGateBusy(`Can't reach the server. Retrying… (try ${tryNum})`);
+        await new Promise(r => setTimeout(r, Math.min(10000, 2000 * tryNum)));
+      }
+    }
+    const roster = await this.lookupPeriod(email);
+    const cloudState = cloudDoc && TradeoffLab.validState(cloudDoc.labState) ? cloudDoc.labState : null;
+    const localState = LabAuth.readLocal(this.localKey());
+    let state = cloudState;
+    if (localState && (!state || (localState.savedAt || 0) > (state.savedAt || 0))) state = localState;
+    const guestState = LabAuth.readLocal(GUEST_KEY);
+    if (!state && guestState) { state = guestState; try { localStorage.removeItem(GUEST_KEY); } catch (e) { /* ignore */ } }
+    if (!state) state = TradeoffLab.newState();
+    if (cloudDoc) state.bestPoints = Math.max(state.bestPoints || 0, cloudDoc.score || 0);   // never lower the grade
+    document.getElementById('btnSignOut').hidden = false;
+    this.begin(state, user.displayName || this.studentId, { guest: false, period: roster.period, teacher: !!roster.teacher, tier: tierForPeriod(roster.period), name: user.displayName || this.studentId });
+    if (state !== cloudState) this.queueSave(true); else this.setIndicator('☁️ Saved');
+  }
+
+  flushLocal() { if (!this.state || this.preview) return; try { localStorage.setItem(this.localKey(), JSON.stringify(this.state)); } catch (e) { /* blocked */ } }
+  queueSave(immediate = false) {
+    if (!this.state || this.preview) return;
+    this.state.savedAt = Date.now();
+    this.flushLocal();
+    if (this.guest) return;
+    clearTimeout(this.saveTimer);
+    if (!this.stalled) this.setIndicator('⏳ Saving…');
+    this.saveTimer = setTimeout(() => this.flush(), immediate ? 0 : 1500);
+  }
+  async flush() {
+    clearTimeout(this.saveTimer); this.saveTimer = null;
+    if (!this.state || !this.studentId || this.guest) return;
+    if (this.saving) { this.pending = true; return; }
+    this.saving = true;
+    const s = TradeoffLab.scoreState(this.state);
+    const val = v => (v !== undefined && v !== null ? v : null);
+    const payload = {
+      student_id: this.studentId,
+      student_name: this.profile.name || this.studentId,
+      email: (this.user && this.user.email) || `${this.studentId}@orangeusd.org`,
+      score: s.points, maxScore: MAX_POINTS, maxPoints: MAX_POINTS, percentage: s.percentage,
+      parts_done: s.done,               // pulley, ramp, think, predict
+      parts_progress: s.progress,
+      trials: s.rows,                   // rows in their own data table
+      first_try: val(s.firstTry),       // percent right on the first try
+      questions: s.questions,
+      minutes: s.minutes,
+      mistakes: s.mistakes,
+      load_kg: this.state.rig ? this.state.rig.m : null,
+      certificate_code: this.state.cert ? this.state.cert.code : null,
+      certificate_earned_at: this.state.cert ? this.state.cert.at : null,
+      calc_unavailable: !!this.state.calcUnavailable,   // Desmos did not load, so W could be typed
+      track: this.profile.tier,
+      class_period: val(this.profile.period),
+      isCompleted: s.points >= MAX_POINTS,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      labState: JSON.parse(JSON.stringify(this.state))   // strips undefined, which Firestore rejects
+    };
+    const slow = setTimeout(() => { this.stalled = true; this.setIndicator('⚠️ No connection: kept on this device'); }, 6000);
+    try {
+      await this.docRef().set(payload, { mergeFields: Object.keys(payload) });
+      this.stalled = false; this.setIndicator('☁️ Saved');
+    } catch (e) {
+      console.error('Firestore save failed:', e);
+      this.setIndicator('⚠️ Not saved: retrying');
+      this.saveTimer = setTimeout(() => this.flush(), 8000);
+    } finally {
+      clearTimeout(slow); this.saving = false;
+      if (this.pending) { this.pending = false; this.flush(); }
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  window.labAuth = new LabAuth(({ state, cloud, profile }) => TradeoffLab.start(state, cloud, profile));
+});
+
+</script>
+</body>
+</html>

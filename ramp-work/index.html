@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ramp Work Lab</title>
+<meta name="description" content="Pull a cart up a smooth ramp by tapping P. Change the ramp length, read the spring scale, and see how force and distance trade off.">
+<link rel="icon" type="image/svg+xml" href="../assets/unit3-favicon.svg">
+<script>
+  try {
+    var t = localStorage.getItem('rw_theme'), s = localStorage.getItem('rw_size');
+    if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    if (s) document.documentElement.setAttribute('data-size', s);
+  } catch (e) {}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f1f5f9; --card: #ffffff; --ink: #0f172a; --ink-2: #334155; --line: #cbd5e1;
+    --accent: #1d4ed8; --accent-soft: #dbeafe; --good: #047857; --good-soft: #d1fae5;
+    --warn: #b91c1c; --warn-soft: #fee2e2; --tip: #3730a3; --tip-soft: #e0e7ff;
+    /* scene palette */
+    --sky: #ffffff; --floor: #e2e8f0; --floor-line: #0f172a; --platform: #94a3b8; --platform-edge: #334155;
+    --ramp: #b45309; --ramp-fill: #fef3c7; --cart: #1d4ed8; --cart-2: #1e3a8a; --wheel: #0f172a;
+    --rope: #7c2d12; --person: #0f172a; --tape: #fde047; --tape-ink: #0f172a; --ruler: #fef9c3;
+    --scale-body: #e2e8f0; --scale-ink: #0f172a; --needle: #0f172a; --maxptr: #dc2626;
+    font-size: 16px;
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b1220; --card: #111a2e; --ink: #f1f5f9; --ink-2: #cbd5e1; --line: #334155;
+    --accent: #60a5fa; --accent-soft: #1e3a8a; --good: #34d399; --good-soft: #064e3b;
+    --warn: #f87171; --warn-soft: #450a0a; --tip: #a5b4fc; --tip-soft: #1e1b4b;
+    --sky: #0f172a; --floor: #1e293b; --floor-line: #e2e8f0; --platform: #475569; --platform-edge: #cbd5e1;
+    --ramp: #f59e0b; --ramp-fill: #3b2a0a; --cart: #60a5fa; --cart-2: #1e40af; --wheel: #e2e8f0;
+    --rope: #fb923c; --person: #e2e8f0; --tape: #facc15; --tape-ink: #0f172a; --ruler: #fef08a;
+    --scale-body: #1e293b; --scale-ink: #f1f5f9; --needle: #f1f5f9; --maxptr: #f87171;
+  }
+  :root[data-size="large"] { font-size: 19px; }
+  :root[data-size="projector"] { font-size: 23px; }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  header {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+    padding: 0.5rem 1rem; background: var(--card); border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: 0.6rem; min-width: 0; }
+  .logo {
+    width: 2.25rem; height: 2.25rem; border-radius: 0.5rem; flex: none;
+    background: linear-gradient(135deg, #b45309, #1d4ed8); color: #fff;
+    display: grid; place-items: center; font-weight: 800; font-size: 1.15rem;
+  }
+  h1 { font-size: 1.15rem; margin: 0; line-height: 1.2; }
+  .sub { font-size: 0.78rem; color: var(--ink-2); }
+  .tools { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: flex-end; }
+  .tbtn {
+    font: inherit; font-size: 0.8rem; font-weight: 600; color: var(--ink);
+    background: var(--card); border: 1px solid var(--line); border-radius: 0.5rem;
+    padding: 0.35rem 0.6rem; cursor: pointer;
+  }
+  .tbtn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
+
+  main {
+    flex: 1; min-height: 0; display: grid; gap: 0.75rem; padding: 0.75rem;
+    grid-template-columns: minmax(15rem, 18rem) minmax(0, 1fr);
+  }
+  .panel {
+    background: var(--card); border: 1px solid var(--line); border-radius: 0.75rem;
+    padding: 0.85rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.8rem;
+  }
+  .field label { display: flex; justify-content: space-between; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.3rem; }
+  .field .val { font-weight: 800; color: var(--accent); white-space: nowrap; }
+  .field .note { font-size: 0.75rem; color: var(--ink-2); margin-top: 0.15rem; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem; }
+  .seg button {
+    font: inherit; font-size: 0.82rem; font-weight: 700; padding: 0.4rem; border-radius: 0.5rem; cursor: pointer;
+    border: 2px solid var(--line); background: var(--card); color: var(--ink);
+  }
+  .seg button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+  .howto { background: var(--tip-soft); color: var(--tip); border-radius: 0.6rem; padding: 0.6rem 0.7rem; font-size: 0.82rem; line-height: 1.4; }
+  .howto b { color: var(--ink); }
+  kbd {
+    font-family: inherit; font-weight: 800; color: var(--ink); background: var(--card);
+    border: 1px solid var(--line); border-bottom-width: 3px; border-radius: 0.3rem; padding: 0 0.35rem;
+  }
+  .pull {
+    font: inherit; font-weight: 800; font-size: 1rem; padding: 0.7rem; border-radius: 0.6rem; cursor: pointer;
+    border: none; background: var(--accent); color: #fff; user-select: none; touch-action: manipulation;
+  }
+  :root[data-theme="dark"] .pull { color: #0b1220; }
+  .pull:active { transform: scale(0.97); }
+  .reset {
+    font: inherit; font-weight: 700; font-size: 0.9rem; padding: 0.55rem; border-radius: 0.6rem; cursor: pointer;
+    border: 2px solid var(--line); background: var(--card); color: var(--ink);
+  }
+
+  .stage { display: flex; flex-direction: column; gap: 0.6rem; min-height: 0; min-width: 0; }
+  .canvas-wrap {
+    flex: 1; min-height: 14rem; background: var(--sky); border: 1px solid var(--line);
+    border-radius: 0.75rem; overflow: hidden; position: relative;
+  }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .readouts { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.7fr); gap: 0.6rem; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 0.75rem; padding: 0.55rem 0.8rem; }
+  .card h2 { margin: 0 0 0.3rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-2); }
+  .tapbar { height: 1.1rem; border-radius: 0.55rem; background: var(--floor); position: relative; overflow: hidden; border: 1px solid var(--line); }
+  .tapbar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: linear-gradient(90deg, #059669, #eab308 55%, #dc2626); }
+  .tapnums { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--ink-2); margin-top: 0.15rem; }
+  .big { font-size: 1.35rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .status {
+    border-radius: 0.6rem; padding: 0.5rem 0.75rem; font-weight: 700; font-size: 0.95rem;
+    background: var(--accent-soft); color: var(--ink); border: 1px solid var(--line);
+  }
+  .status.good { background: var(--good-soft); }
+  .status.warn { background: var(--warn-soft); }
+
+  :root[data-size="projector"] .panel { gap: 0.5rem; padding: 0.65rem; }
+  :root[data-size="projector"] .howto { font-size: 0.74rem; padding: 0.45rem 0.6rem; }
+  :root[data-size="projector"] .pull { padding: 0.5rem; }
+  :root[data-size="projector"] .reset { padding: 0.4rem; }
+  :root[data-size="projector"] main { gap: 0.5rem; padding: 0.5rem; }
+
+  @media (max-width: 900px) {
+    body { overflow: auto; }
+    main { grid-template-columns: 1fr; }
+    .canvas-wrap { min-height: 60vw; }
+    header { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="logo">W</div>
+    <div>
+      <h1>Ramp Work Lab</h1>
+      <div class="sub">Same height, different ramps. Trade force for distance.</div>
+    </div>
+  </div>
+  <div class="tools">
+    <button class="tbtn" id="btn-read" title="Read the directions out loud">🔊 Read aloud</button>
+    <button class="tbtn" id="btn-size" title="Text size">A Text: Normal</button>
+    <button class="tbtn" id="btn-theme-toggle" title="Light or dark">🌙 Dark</button>
+  </div>
+</header>
+
+<main>
+  <aside class="panel" aria-label="Lab controls">
+    <div class="field">
+      <label for="mass">Cart mass <span class="val" id="massVal">20 kg</span></label>
+      <input type="range" id="mass" min="10" max="50" step="5" value="20">
+    </div>
+    <div class="field">
+      <label for="height">Platform height <span class="val" id="heightVal">1.0 m</span></label>
+      <input type="range" id="height" min="0.5" max="2" step="0.5" value="1">
+    </div>
+    <div class="field">
+      <label for="length">Ramp length <span class="val" id="lengthVal">2.0 m</span></label>
+      <input type="range" id="length" min="1" max="6" step="0.5" value="2">
+      <div class="note" id="lengthNote">The ramp is perfectly smooth.</div>
+    </div>
+    <div class="field">
+      <label>Spring scale</label>
+      <div class="seg" role="group" aria-label="Spring scale range">
+        <button id="rng100" aria-pressed="false">0 – 100 N</button>
+        <button id="rng500" aria-pressed="true">0 – 500 N</button>
+      </div>
+    </div>
+    <div class="howto" id="howto">
+      <b>How to pull:</b> tap the <kbd>P</kbd> key over and over.
+      Faster tapping means a bigger pull.
+      Heavy loads and steep ramps need faster tapping!
+    </div>
+    <button class="pull" id="pullBtn">PULL (or tap P)</button>
+    <button class="reset" id="resetBtn">↺ Reset cart</button>
+  </aside>
+
+  <section class="stage">
+    <div class="canvas-wrap"><canvas id="scene" aria-label="A cart on a ramp pulled by a rope over a pulley to a person on a platform, with a spring scale"></canvas></div>
+    <div class="readouts">
+      <div class="card">
+        <h2>Your tapping speed</h2>
+        <div class="tapbar"><i id="tapFill"></i></div>
+        <div class="tapnums"><span>0</span><span>3</span><span>6</span><span>9</span><span>12 taps per second</span></div>
+      </div>
+      <div class="card">
+        <h2>Trip time</h2>
+        <div class="big" id="timer">0.0 s</div>
+      </div>
+    </div>
+    <div class="status" id="status" aria-live="polite">Tap P to pull the cart up the ramp.</div>
+  </section>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  var G = 10;                 // m/s²
+  var N_PER_TAP_RATE = 35;    // newtons of pull per (tap per second) — same as the pulley lab
+  var MAX_UP = 0.6;           // m/s top crawl speed
+  var MAX_BACK = 0.5;         // m/s slide-back speed
+
+  var $ = function (id) { return document.getElementById(id); };
+  var els = {
+    mass: $('mass'), height: $('height'), length: $('length'),
+    massVal: $('massVal'), heightVal: $('heightVal'), lengthVal: $('lengthVal'), lengthNote: $('lengthNote'),
+    rng100: $('rng100'), rng500: $('rng500'), pull: $('pullBtn'), reset: $('resetBtn'),
+    tapFill: $('tapFill'), timer: $('timer'), status: $('status'), canvas: $('scene')
+  };
+
+  var S = {
+    m: 20, h: 1, L: 2, range: 500,
+    pos: 0, v: 0, effort: 0, tension: 0, shown: 0, peak: 0,
+    taps: [], rate: 0, t: 0, timing: false, done: false, msg: ''
+  };
+
+  function store(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+
+  // ---------- settings ----------
+  function fmt(x) { return x.toFixed(1); }
+  function syncLengthBounds() {
+    els.length.min = S.h;
+    if (S.L < S.h) S.L = S.h;
+    els.length.value = S.L;
+  }
+  function renderSettings() {
+    els.massVal.textContent = S.m + ' kg';
+    els.heightVal.textContent = fmt(S.h) + ' m';
+    els.lengthVal.textContent = fmt(S.L) + ' m';
+    els.lengthNote.textContent = (S.L <= S.h + 1e-9)
+      ? 'No ramp: the cart is lifted straight up.'
+      : 'The ramp is perfectly smooth.';
+    els.rng100.setAttribute('aria-pressed', String(S.range === 100));
+    els.rng500.setAttribute('aria-pressed', String(S.range === 500));
+  }
+  function resetCart() {
+    S.pos = 0; S.v = 0; S.tension = 0; S.shown = 0; S.peak = 0;
+    S.t = 0; S.timing = false; S.done = false; S.taps = []; S.effort = 0; S.rate = 0;
+    setStatus('Tap P to pull the cart up the ramp.', '');
+  }
+  function saveSettings() { store('rw_settings', JSON.stringify({ m: S.m, h: S.h, L: S.L, range: S.range })); }
+
+  (function restore() {
+    try {
+      var o = JSON.parse(load('rw_settings') || 'null');
+      if (o) { S.m = +o.m || 20; S.h = +o.h || 1; S.L = +o.L || 2; S.range = o.range === 100 ? 100 : 500; }
+    } catch (e) {}
+    els.mass.value = S.m; els.height.value = S.h;
+    syncLengthBounds(); renderSettings();
+  })();
+
+  els.mass.addEventListener('input', function () { S.m = +els.mass.value; renderSettings(); resetCart(); saveSettings(); });
+  els.height.addEventListener('input', function () { S.h = +els.height.value; syncLengthBounds(); renderSettings(); resetCart(); saveSettings(); });
+  els.length.addEventListener('input', function () { S.L = +els.length.value; renderSettings(); resetCart(); saveSettings(); });
+  els.rng100.addEventListener('click', function () { S.range = 100; renderSettings(); saveSettings(); });
+  els.rng500.addEventListener('click', function () { S.range = 500; renderSettings(); saveSettings(); });
+  els.reset.addEventListener('click', resetCart);
+
+  // ---------- tapping ----------
+  function tap() { S.taps.push(performance.now()); if (S.taps.length > 8) S.taps.shift(); }
+  window.addEventListener('keydown', function (e) {
+    if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key && e.key.toLowerCase() === 'p') { tap(); e.preventDefault(); }
+  });
+  els.pull.addEventListener('pointerdown', function (e) { e.preventDefault(); tap(); });
+  els.pull.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!e.repeat) tap(); } });
+
+  // Tap speed from the time between recent taps; it fades if you stop.
+  function tapRate(now) {
+    var a = S.taps;
+    while (a.length && now - a[0] > 1500) a.shift();
+    if (!a.length) return 0;
+    var since = (now - a[a.length - 1]) / 1000;
+    var r = 0;
+    if (a.length >= 2) {
+      var n = Math.min(a.length - 1, 4);
+      r = n / ((a[a.length - 1] - a[a.length - 1 - n]) / 1000);
+    } else {
+      r = 1 / Math.max(since, 0.5);
+    }
+    if (since > 0 && 1 / since < r) r = 1 / since;   // waiting longer than your rhythm slows you down
+    return Math.min(r, 14);
+  }
+
+  // ---------- status ----------
+  function setStatus(text, kind) {
+    if (S.msg === text + kind) return;
+    S.msg = text + kind;
+    els.status.textContent = text;
+    els.status.className = 'status' + (kind ? ' ' + kind : '');
+  }
+
+  // ---------- physics ----------
+  function step(dt) {
+    var now = performance.now();
+    var need = S.m * G * S.h / S.L;
+    S.rate = tapRate(now);
+    var target = S.rate * N_PER_TAP_RATE;
+    S.effort += (target - S.effort) * (1 - Math.exp(-8 * dt));
+
+    if (S.done) {
+      S.tension = 0;
+    } else {
+      var vt;
+      if (S.effort >= need) {
+        var r = (S.effort - need) / need;
+        vt = MAX_UP * Math.min(1, Math.max(0.08, r / 0.3));
+      } else {
+        vt = S.pos > 0 ? -MAX_BACK * Math.min(1, (need - S.effort) / need) : 0;
+      }
+      S.v += (vt - S.v) * (1 - Math.exp(-6 * dt));
+      S.pos += S.v * dt;
+      if (S.pos <= 0) { S.pos = 0; if (S.v < 0) S.v = 0; }
+      // Steady pull: the rope carries what the cart needs, or less if you are not keeping up.
+      S.tension = Math.min(S.effort, need);
+      if (S.tension > S.peak) S.peak = S.tension;
+
+      if (S.pos > 0.005 && !S.timing) S.timing = true;
+      if (S.timing) S.t += dt;
+
+      if (S.pos >= S.L) {
+        S.pos = S.L; S.v = 0; S.done = true; S.timing = false;
+        S.peak = Math.max(S.peak, need);
+      }
+
+      if (S.done && S.peak > S.range) setStatus('Made it, but the force was more than ' + S.range + ' N. Switch to the 0 – 500 N scale, reset, and pull again.', 'warn');
+      else if (S.done) setStatus('Made it! A latch holds the cart. Read the red Max pointer on the spring scale.', 'good');
+      else if (S.peak > S.range && S.range === 100) setStatus('Over range! The force is more than 100 N. Switch to the 0 – 500 N scale.', 'warn');
+      else if (S.v < -0.02) setStatus('The cart is sliding back down. Tap faster!', 'warn');
+      else if (S.v > 0.02) setStatus('The cart is moving up. Keep tapping!', '');
+      else if (S.effort > 1) setStatus('Not enough pull to move the cart. Tap faster, or try a longer ramp.', 'warn');
+      else setStatus('Tap P to pull the cart up the ramp.', '');
+    }
+    S.shown += (S.tension - S.shown) * (1 - Math.exp(-10 * dt));
+  }
+
+  // ---------- drawing ----------
+  var ctx = els.canvas.getContext('2d');
+  var W = 1000, H = 470;            // logical canvas size
+  var view = { k: 1, ox: 0, oy: 0 };
+  var css = {};
+  function readPalette() {
+    var cs = getComputedStyle(document.documentElement);
+    ['sky','floor','floor-line','platform','platform-edge','ramp','ramp-fill','cart','cart-2','wheel','rope','person','tape','tape-ink','ruler','scale-body','scale-ink','needle','maxptr','ink','ink-2']
+      .forEach(function (n) { css[n] = cs.getPropertyValue('--' + n).trim(); });
+  }
+  function resize() {
+    var r = els.canvas.getBoundingClientRect();
+    var dpr = window.devicePixelRatio || 1;
+    els.canvas.width = Math.max(1, Math.round(r.width * dpr));
+    els.canvas.height = Math.max(1, Math.round(r.height * dpr));
+    var k = Math.min(r.width / W, r.height / H);
+    view.k = k * dpr;
+    view.ox = (r.width - W * k) / 2 * dpr;
+    view.oy = (r.height - H * k) / 2 * dpr;
+  }
+  window.addEventListener('resize', resize);
+
+  var SC = 110;              // pixels per meter
+  var GROUND = 430;
+  var X_WALL = 690;          // platform's left wall (top of ramp)
+  var PLAT_W = 140;
+
+  function font(px, w) { return (w || 600) + ' ' + px + 'px Inter, system-ui, sans-serif'; }
+
+  function draw() {
+    readPalette();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = css.sky; ctx.fillRect(0, 0, els.canvas.width, els.canvas.height);
+    ctx.setTransform(view.k, 0, 0, view.k, view.ox, view.oy);
+
+    var h = S.h, L = S.L, straight = L <= h + 1e-9;
+    var topY = GROUND - h * SC;
+    var run = straight ? 0 : Math.sqrt(L * L - h * h);
+    var footX = X_WALL - run * SC;
+    var ux = straight ? 0 : (run / L), uy = straight ? -1 : -(h / L);    // up-the-ramp direction (canvas y down)
+    var nx = uy, ny = -ux;                                              // normal pointing up/out of the ramp
+    if (straight) { nx = -1; ny = 0; }
+
+    // floor
+    ctx.fillStyle = css.floor; ctx.fillRect(-600, GROUND, 1440, H - GROUND + 600);
+    ctx.strokeStyle = css['floor-line']; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(-600, GROUND); ctx.lineTo(840, GROUND); ctx.stroke();
+
+    // platform
+    ctx.fillStyle = css.platform; ctx.fillRect(X_WALL, topY, PLAT_W, GROUND - topY);
+    ctx.strokeStyle = css['platform-edge']; ctx.lineWidth = 2; ctx.strokeRect(X_WALL, topY, PLAT_W, GROUND - topY);
+
+    // height ruler on the platform face
+    drawRuler(X_WALL + PLAT_W - 40, topY, h);
+
+    // ramp
+    if (!straight) {
+      ctx.fillStyle = css['ramp-fill'];
+      ctx.beginPath(); ctx.moveTo(footX, GROUND); ctx.lineTo(X_WALL, topY); ctx.lineTo(X_WALL, GROUND); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = css.ramp; ctx.lineWidth = 9; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(footX, GROUND); ctx.lineTo(X_WALL, topY); ctx.stroke();
+      ctx.lineCap = 'butt';
+      drawTape(footX, GROUND, ux, uy, nx, ny, L);
+    }
+
+    // pulley
+    var pr = 10, pcx, pcy;
+    if (straight) { pcx = X_WALL - 22 + pr; pcy = topY - 74; }
+    else { pcx = X_WALL + ux * 16 + nx * 23; pcy = topY + uy * 16 + ny * 23; }
+    ctx.strokeStyle = css['platform-edge']; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(pcx, pcy); ctx.lineTo(X_WALL + 8, topY); ctx.stroke();
+
+    // person
+    var px = X_WALL + 92, feet = topY, handX = px - 22, handY = feet - 92;
+    drawPerson(px, feet, handX, handY);
+
+    // cart
+    var attach;
+    if (straight) attach = drawCrate(pcx - pr, GROUND - S.pos * SC);
+    else attach = drawCart(footX, ux, uy, nx, ny);
+
+    // rope: cart → pulley → hands
+    ctx.strokeStyle = css.rope; ctx.lineWidth = 3;
+    ctx.beginPath();
+    if (straight) { ctx.moveTo(attach.x, attach.y); ctx.lineTo(pcx - pr, pcy); }
+    else { ctx.moveTo(attach.x, attach.y); ctx.lineTo(pcx + nx * pr, pcy + ny * pr); }
+    ctx.stroke();
+    var sx = pcx, sy = pcy - pr;
+    ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(handX, handY); ctx.stroke();
+    // small scale in the rope
+    var mx = sx + (handX - sx) * 0.55, my = sy + (handY - sy) * 0.55;
+    var ang = Math.atan2(handY - sy, handX - sx);
+    ctx.save(); ctx.translate(mx, my); ctx.rotate(ang);
+    ctx.fillStyle = css['scale-body']; ctx.strokeStyle = css['scale-ink']; ctx.lineWidth = 1.5;
+    ctx.fillRect(-13, -5, 26, 10); ctx.strokeRect(-13, -5, 26, 10);
+    ctx.restore();
+    ctx.fillStyle = css.ink; ctx.font = font(11, 700); ctx.textAlign = 'center';
+    ctx.fillText('scale', mx, my - 10);
+
+    // pulley wheel on top
+    ctx.fillStyle = css.sky; ctx.strokeStyle = css['platform-edge']; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(pcx, pcy, pr, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(pcx, pcy, 2.5, 0, Math.PI * 2); ctx.fillStyle = css['platform-edge']; ctx.fill();
+
+    drawSpringScale();
+  }
+
+  function drawRuler(x, topY, h) {
+    var w = 34;
+    ctx.fillStyle = css.ruler; ctx.fillRect(x, topY, w, GROUND - topY);
+    ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 1; ctx.strokeRect(x, topY, w, GROUND - topY);
+    ctx.fillStyle = '#0f172a'; ctx.font = font(10, 700); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    for (var i = 0; i <= Math.round(h * 10); i++) {
+      var y = GROUND - i * SC / 10;
+      var major = i % 5 === 0;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + (major ? 12 : 6), y); ctx.stroke();
+      if (major && i > 0) ctx.fillText((i / 10).toFixed(1), x + 13, Math.max(y, topY + 7));
+    }
+    ctx.fillText('m', x + 13, GROUND - 7);
+    ctx.textBaseline = 'alphabetic';
+  }
+
+  function drawTape(fx, fy, ux, uy, nx, ny, L) {
+    var off = 7;  // sits on top of the board
+    ctx.save();
+    ctx.translate(fx + nx * off, fy + ny * off);
+    ctx.rotate(Math.atan2(uy, ux));
+    ctx.fillStyle = css.tape; ctx.fillRect(0, -8, L * SC, 9);
+    ctx.strokeStyle = css['tape-ink']; ctx.lineWidth = 1;
+    ctx.fillStyle = css['tape-ink']; ctx.font = font(10, 700); ctx.textAlign = 'center';
+    for (var i = 0; i <= Math.round(L * 10); i++) {
+      var x = i * SC / 10, major = i % 5 === 0;
+      ctx.beginPath(); ctx.moveTo(x, 1); ctx.lineTo(x, major ? -8 : -4); ctx.stroke();
+      if (major) ctx.fillText((i / 10).toFixed(1), x, -11);
+    }
+    ctx.textAlign = 'left'; ctx.fillText('m', L * SC + 6, -1);
+    ctx.restore();
+  }
+
+  function drawPerson(px, feet, hx, hy) {
+    ctx.strokeStyle = css.person; ctx.lineWidth = 5; ctx.lineCap = 'round';
+    var hip = { x: px + 10, y: feet - 70 }, neck = { x: px + 22, y: feet - 128 };
+    var lean = Math.min(1, S.tension / 300);
+    neck.x += 10 * lean; hip.x += 4 * lean;
+    ctx.beginPath();
+    ctx.moveTo(px - 6, feet); ctx.lineTo(hip.x, hip.y); ctx.lineTo(px + 24, feet);   // legs
+    ctx.moveTo(hip.x, hip.y); ctx.lineTo(neck.x, neck.y);                            // body
+    ctx.moveTo(neck.x, neck.y + 10); ctx.lineTo(hx, hy);                             // arms
+    ctx.moveTo(neck.x, neck.y + 18); ctx.lineTo(hx + 3, hy + 3);
+    ctx.stroke();
+    ctx.beginPath(); ctx.arc(neck.x + 3, neck.y - 13, 12, 0, Math.PI * 2);
+    ctx.fillStyle = css.person; ctx.fill();
+    ctx.lineCap = 'butt';
+  }
+
+  function drawCrate(rightRopeX, bottomY) {
+    var w = 46, hgt = 40, x = rightRopeX - w / 2;
+    ctx.fillStyle = css.cart; ctx.strokeStyle = css['cart-2']; ctx.lineWidth = 2;
+    ctx.fillRect(x, bottomY - hgt, w, hgt); ctx.strokeRect(x, bottomY - hgt, w, hgt);
+    ctx.fillStyle = '#fff'; ctx.font = font(12, 800); ctx.textAlign = 'center';
+    ctx.fillText(S.m + ' kg', rightRopeX, bottomY - hgt / 2 + 4);
+    return { x: rightRopeX, y: bottomY - hgt };
+  }
+
+  function drawCart(footX, ux, uy, nx, ny) {
+    var wb = 0.36;                       // wheelbase, m
+    function path(s) {                   // front of the cart follows floor then ramp
+      if (s >= 0) return { x: footX + ux * s * SC, y: GROUND + uy * s * SC };
+      return { x: footX + s * SC, y: GROUND };
+    }
+    var F = path(S.pos), R = path(S.pos - wb);
+    var a = Math.atan2(F.y - R.y, F.x - R.x);
+    var wr = 6, bodyH = 24, len = wb * SC + 16;
+    ctx.save(); ctx.translate(R.x, R.y); ctx.rotate(a);
+    ctx.fillStyle = css.cart; ctx.strokeStyle = css['cart-2']; ctx.lineWidth = 2;
+    ctx.fillRect(-8, -wr * 2 - bodyH, len, bodyH); ctx.strokeRect(-8, -wr * 2 - bodyH, len, bodyH);
+    ctx.fillStyle = '#fff'; ctx.font = font(12, 800); ctx.textAlign = 'center';
+    ctx.fillText(S.m + ' kg', len / 2 - 8, -wr * 2 - bodyH / 2 + 4);
+    ctx.fillStyle = css.wheel;
+    ctx.beginPath(); ctx.arc(0, -wr, wr, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(wb * SC, -wr, wr, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    var ay = -wr * 2 - bodyH / 2, ax = len - 8;
+    return { x: R.x + Math.cos(a) * ax - Math.sin(a) * ay, y: R.y + Math.sin(a) * ax + Math.cos(a) * ay };
+  }
+
+  function drawSpringScale() {
+    var x0 = 860, y0 = 12, w = 128, hgt = H - 24;
+    ctx.fillStyle = css['scale-body']; ctx.strokeStyle = css['scale-ink']; ctx.lineWidth = 2;
+    roundRect(x0, y0, w, hgt, 12); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = css['scale-ink']; ctx.font = font(15, 800); ctx.textAlign = 'center';
+    ctx.fillText('Spring Scale', x0 + w / 2, y0 + 22);
+    ctx.font = font(12, 600); ctx.fillText('0 – ' + S.range + ' N', x0 + w / 2, y0 + 40);
+
+    var top = y0 + 58, bot = y0 + hgt - 46, tx = x0 + 44, tw = 40;
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(tx, top - 6, tw, bot - top + 12);
+    ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 1.5; ctx.strokeRect(tx, top - 6, tw, bot - top + 12);
+
+    var R = S.range, minor = R === 100 ? 2 : 10, label = R === 100 ? 10 : 50, mid = R === 100 ? 5 : 25;
+    ctx.fillStyle = css['scale-ink']; ctx.font = font(12, 700); ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.strokeStyle = '#0f172a';
+    for (var f = 0; f <= R + 1e-9; f += minor) {
+      var y = top + (f / R) * (bot - top);
+      var isL = Math.abs(f % label) < 1e-6, isM = Math.abs(f % mid) < 1e-6;
+      var len = isL ? 22 : isM ? 14 : 8;
+      ctx.lineWidth = isL ? 1.6 : 1;
+      ctx.beginPath(); ctx.moveTo(tx, y); ctx.lineTo(tx + len, y); ctx.stroke();
+      if (isL) ctx.fillText(String(Math.round(f)), tx - 5, y);
+    }
+    ctx.textBaseline = 'alphabetic';
+
+    function yOf(F) { return top + Math.min(1, Math.max(0, F / R)) * (bot - top); }
+    // red max pointer
+    if (S.peak > 0.5) {
+      var py = yOf(S.peak);
+      ctx.fillStyle = '#dc2626';
+      ctx.beginPath(); ctx.moveTo(tx + tw + 2, py); ctx.lineTo(tx + tw + 16, py - 8); ctx.lineTo(tx + tw + 16, py + 8); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(tx, py); ctx.lineTo(tx + tw, py); ctx.stroke();
+    }
+    // live needle
+    var ny = yOf(S.shown);
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(tx - 4, ny - 2, tw + 8, 4);
+
+    ctx.fillStyle = css['scale-ink']; ctx.font = font(11, 600); ctx.textAlign = 'center';
+    ctx.fillText('N', tx + tw / 2, bot + 22);
+    ctx.fillStyle = css.maxptr; ctx.font = font(11, 800);
+    ctx.fillText('▶ red = Max', x0 + w / 2, bot + 40);
+    if (S.peak > R + 0.5) {
+      ctx.fillStyle = css.maxptr; ctx.font = font(13, 800);
+      ctx.fillText('OVER RANGE', x0 + w / 2, top - 12);
+    }
+  }
+
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+  }
+
+  // ---------- readouts ----------
+  function renderReadouts() {
+    els.tapFill.style.width = Math.min(100, S.rate / 12 * 100) + '%';
+    els.timer.textContent = S.t.toFixed(1) + ' s';
+  }
+
+  // ---------- loop ----------
+  var last = 0;
+  function frame(ts) {
+    var dt = last ? (ts - last) / 1000 : 0;
+    last = ts;
+    if (dt > 0.1) dt = 0.1;
+    if (dt > 0) step(dt);
+    draw();
+    renderReadouts();
+    requestAnimationFrame(frame);
+  }
+  resize();
+  requestAnimationFrame(frame);
+
+  // ---------- header tools ----------
+  var sizes = ['normal', 'large', 'projector'], sizeNames = { normal: 'Normal', large: 'Large', projector: '🖥️ Projector' };
+  function curSize() { return document.documentElement.getAttribute('data-size') || 'normal'; }
+  function paintTools() {
+    $('btn-size').textContent = 'A Text: ' + sizeNames[curSize()];
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    $('btn-theme-toggle').textContent = dark ? '☀️ Light' : '🌙 Dark';
+  }
+  $('btn-size').addEventListener('click', function () {
+    var n = sizes[(sizes.indexOf(curSize()) + 1) % sizes.length];
+    document.documentElement.setAttribute('data-size', n); store('rw_size', n); paintTools();
+    setTimeout(resize, 30);
+  });
+  $('btn-theme-toggle').addEventListener('click', function () {
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (dark) document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', 'dark');
+    store('rw_theme', dark ? 'light' : 'dark'); paintTools();
+  });
+  $('btn-read').addEventListener('click', function () {
+    if (!('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    var text = 'Ramp Work Lab. Pick a cart mass, a platform height, and a ramp length. ' +
+      'Tap the P key over and over to pull. Faster tapping means a bigger pull. ' +
+      'When the cart reaches the top, read the red Max pointer on the spring scale. ' + els.status.textContent;
+    var u = new SpeechSynthesisUtterance(text); u.rate = 0.95; speechSynthesis.speak(u);
+  });
+  paintTools();
+
+  // For automated checks only.
+  window.RampWork = { state: S, tap: tap, reset: resetCart };
+})();
+</script>
+</body>
+</html>

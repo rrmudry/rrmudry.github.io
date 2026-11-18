@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pulleys and Ramps Lab</title>
+  <meta name="description" content="Lift a load with pulleys and ramps by tapping P. Record force and rope distance, and see how machines trade force for distance.">
+  <link rel="icon" type="image/svg+xml" href="../../assets/unit3-favicon.svg">
+  <!-- Source page. Edit js/ and css/, then run: node scripts/inline-studio.js Unit_3/tradeoff_lab -->
+  <script>try { if (localStorage.getItem('tol_theme') === 'dark') document.documentElement.classList.add('theme-dark'); if (localStorage.getItem('tol_big') === 'on') document.documentElement.classList.add('big'); } catch (e) {}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
+  <!-- Desmos Scientific Calculator (same key as the other studios) -->
+  <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+  <script src="../../assets/ngss-helper.js" defer></script>
+</head>
+<body>
+  <div id="loginGate" class="login-gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+    <div class="gate-card">
+      <div class="badge big-badge" aria-hidden="true">W</div>
+      <h1 id="gateTitle">Pulleys and Ramps Lab</h1>
+      <p class="muted">Unit 3 · Day 3</p>
+      <p>Sign in with your <strong>@orangeusd.org</strong> account. Your work saves as you go.</p>
+      <button type="button" id="btnGateSignIn" class="btn btn-blue">Sign in with Google</button>
+      <button type="button" id="btnGateGuest" class="btn btn-plain">Continue as guest (not graded)</button>
+      <p id="gateStatus" class="muted" aria-live="polite"></p>
+      <p id="gateError" class="err" role="alert" hidden></p>
+      <div data-ngss="HS-PS3-1"></div>
+    </div>
+  </div>
+
+  <div class="fs-banner" id="fsBanner" hidden>
+    <span>⛶ Go full screen to see the whole lab.</span>
+    <button type="button" class="btn btn-blue" id="btnFsBanner">Full screen</button>
+    <span class="small">or press the full-screen key ( ⛶ ) on your Chromebook</span>
+    <button type="button" class="fs-x" id="btnFsClose" aria-label="Hide this">✕</button>
+  </div>
+  <header class="top">
+    <div class="brand">
+      <div class="badge" aria-hidden="true">W</div>
+      <div><h1>Work-Energy Trade-Off</h1><div class="muted small">Pulleys and Ramps Lab</div></div>
+    </div>
+    <div class="top-right">
+      <div class="teach-wrap" id="teachWrap" hidden>
+        <button type="button" id="btnTeach" class="chip teach">🧑‍🏫 Teacher</button>
+        <div id="teachPanel" class="teach-panel" hidden>
+          <label class="teach-row">View as <select id="tView"><option value="">Teacher (CP view)</option><option value="conceptual">Periods 1–3: Conceptual</option><option value="cp">Periods 4–6: CP</option><option value="honors">Period 0: Honors</option></select></label>
+          <label class="teach-row"><input type="checkbox" id="tShow"> Show the true readings</label>
+          <button type="button" class="btn btn-plain" id="tFill">🧪 Fill 6 sample rows</button>
+          <button type="button" class="btn btn-plain" id="tQuestions">⏭ Skip to the prediction</button>
+          <button type="button" class="btn btn-plain" id="tReset">🗑 Start over (my copy)</button>
+          <p class="small muted">Only you see this. Students never do.</p>
+        </div>
+      </div>
+      <a id="btnMonitor" class="chip" href="../../admin/tradeoff_lab_monitor.html" target="_blank" hidden>📊 Class</a>
+      <button type="button" id="btnFull" class="chip" title="Full screen">⛶ Full screen</button>
+      <button type="button" id="btnBig" class="chip" title="Bigger text for the projector">🖥️ Big</button>
+      <button type="button" id="btn-theme-toggle" class="chip">🌙</button>
+      <button type="button" id="btnCertChip" class="chip cert-chip" hidden>🎓 Certificate</button>
+      <span id="scoreChip" class="chip score" title="Your points"></span>
+      <span id="saveIndicator" class="muted small" aria-live="polite"></span>
+      <span id="userName" class="small strong"></span>
+      <button type="button" id="btnSignOut" class="chip" hidden>Sign out</button>
+      <button type="button" id="btnChipSignIn" class="chip" hidden>Sign in</button>
+    </div>
+  </header>
+
+  <main class="lab">
+    <!-- 1 Setup -->
+    <section class="card setup">
+      <div class="setup-head">
+        <h2><span class="num">1</span> Setup</h2>
+        <div class="machine-pick" role="group" aria-label="Machine">
+          <button type="button" class="mach" data-mach="pulley"><span class="mach-ico">⚙️</span>Pulley</button>
+          <button type="button" class="mach" data-mach="ramp"><span class="mach-ico">📐</span>Ramp</button>
+        </div>
+      </div>
+      <div id="ctlPulley" class="ctl">
+        <div class="slider-row"><label for="ropes">Ropes</label><input type="range" id="ropes" min="1" max="4" step="1" value="1"><b id="ropesVal">1</b></div>
+      </div>
+      <div id="ctlRamp" class="ctl" hidden>
+        <div class="slider-row"><label for="rampL">Length (m)</label><input type="range" id="rampL" min="1.5" max="6" step="0.5" value="3"><b id="rampLVal">3.0</b></div>
+      </div>
+      <div class="pull-row">
+        <button type="button" id="btnPull" class="btn btn-blue pull">PULL <kbd>P</kbd></button>
+        <button type="button" id="btnReset" class="btn btn-plain" title="Start this lift over">↺ Reset</button>
+      </div>
+      <div class="calc">
+        <div id="calcHost" class="calc-host"></div>
+        <p id="calcMsg" class="miss" hidden></p>
+        <button type="button" id="btnUseCalc" class="btn btn-purple" disabled>📥 Use answer</button>
+      </div>
+    </section>
+
+    <div id="simBackdrop" class="sim-backdrop" hidden></div>
+    <!-- 2 Simulation -->
+    <section class="card sim">
+      <h2><span class="num">2</span> Simulation <span id="status" class="status" aria-live="polite"></span><button type="button" class="btn btn-plain sim-close" id="btnSimClose" hidden>✕ Close</button></h2>
+      <div id="stage" class="stage"></div>
+    </section>
+
+    <!-- 3 My data -->
+    <section class="card data">
+      <h2><span class="num green-num">3</span> My Data <span class="progress" id="progress"></span></h2>
+      <div id="tables"></div>
+      <div id="recBox" class="rec"></div>
+      <div id="askBox" class="ask"></div>
+    </section>
+
+    <!-- Think about your data: covers cards 2–4 so the chart and table are big. The calculator stays on the left. -->
+    <section class="card think" id="think" hidden aria-label="Think about your data">
+      <h2><span class="num">🤔</span> Think about your data <span class="chip-step" id="thinkStep"></span><button type="button" class="btn btn-plain back-btn" id="btnThinkBack">◀ Back to the lab</button></h2>
+      <div class="think-body" id="thinkBody"></div>
+    </section>
+
+    <!-- 4 What it shows -->
+    <section class="card shows">
+      <h2><span class="num green-num">4</span> What It Shows</h2>
+      <div class="charts">
+        <div id="graph" class="chart"></div>
+        <div id="bars" class="chart"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Finished! Shown once when everything is done; the certificate stays in the header after that -->
+  <div id="doneModal" class="done-modal" hidden role="dialog" aria-modal="true" aria-labelledby="doneTitle">
+    <div class="done-card">
+      <div class="done-burst" aria-hidden="true">🎉</div>
+      <h2 id="doneTitle">You finished the lab!</h2>
+      <p class="done-score"><b id="doneScore">10 / 10</b></p>
+      <ul class="done-list" id="doneList"></ul>
+      <div id="doneCert"></div>
+      <button type="button" class="btn btn-plain" id="btnDoneClose">Back to the lab</button>
+    </div>
+  </div>
+
+  <!-- A chart shown full screen: click any chart to open, ✕ / Esc / click outside to close -->
+  <div id="chartModal" class="chart-modal" hidden role="dialog" aria-modal="true" aria-label="Chart, full screen">
+    <div class="chart-modal-card">
+      <button type="button" class="btn btn-plain chart-close" id="chartClose">✕ Close</button>
+      <div id="chartModalBody" class="chart-modal-body"></div>
+    </div>
+  </div>
+
+  <script src="js/ngss-data.js"></script>
+  <script src="../../Unit_2/vector_decomposition_studio/js/engine.js"></script>
+  <script src="js/physics.js"></script>
+  <script src="js/scene.js"></script>
+  <script src="js/certificate.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>
