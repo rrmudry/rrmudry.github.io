@@ -758,10 +758,16 @@
     if (bar) {
       bar.style.width = `${Math.min(100, Math.max(0, summary.projPct))}%`;
     }
+
+    const selTabCount = document.querySelector('[data-filter="selected"] .tab-count');
+    if (selTabCount) {
+      selTabCount.textContent = state.items.filter((i) => !i.isBellRinger && state.selectedIds.has(i.id)).length;
+    }
   }
 
   function renderFilterTabs() {
     const counts = {
+      selected: 0,
       actionable: 0,
       missing: 0,
       low: 0,
@@ -771,6 +777,8 @@
       all: state.items.length
     };
     state.items.forEach((i) => {
+      if (i.isBellRinger) return;
+      if (state.selectedIds.has(i.id)) counts.selected++;
       if (i.category === 'missing') counts.missing++;
       if (i.category === 'low' || i.category === 'polish') counts.low++;
       if (i.category === 'missing' || i.category === 'low' || i.category === 'polish') counts.actionable++;
@@ -792,7 +800,10 @@
     if (!container) return;
 
     const filtered = state.items.filter((item) => {
+      if (item.isBellRinger) return false;
       switch (state.activeFilter) {
+        case 'selected':
+          return state.selectedIds.has(item.id);
         case 'actionable':
           return item.category === 'missing' || item.category === 'low' || item.category === 'polish';
         case 'missing':
@@ -813,13 +824,32 @@
     if (filtered.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-icon">🎉</div>
-          <h3>Nothing in this filter!</h3>
-          <p>${state.activeFilter === 'actionable'
-            ? 'Awesome job — you have no missing or low-score assignments right now.'
-            : 'Try switching tabs above to view other assignments.'}</p>
+          <div class="empty-icon">${state.activeFilter === 'selected' ? '📋' : '🎉'}</div>
+          <h3>${state.activeFilter === 'selected' ? 'No activities selected yet' : 'Nothing in this filter!'}</h3>
+          <p>${state.activeFilter === 'selected'
+            ? 'Check "Add to Break Plan" on any assignment in Priority To-Do, or click "Pick Top 3 Boosters" above.'
+            : state.activeFilter === 'actionable'
+              ? 'Awesome job — you have no missing or low-score assignments right now.'
+              : 'Try switching tabs above to view other assignments.'}</p>
         </div>
       `;
+      return;
+    }
+
+    if (state.activeFilter === 'selected') {
+      container.innerHTML = `
+        <div class="simple-list-header">
+          <span>Simplified checklist of your <strong>${filtered.length}</strong> selected make-up ${filtered.length === 1 ? 'activity' : 'activities'} with direct links:</span>
+        </div>
+        ${filtered.map((item, idx) => renderSimpleSelectedRow(item, idx)).join('')}
+      `;
+      container.querySelectorAll('.btn-remove-simple').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          const id = e.currentTarget.getAttribute('data-id');
+          state.selectedIds.delete(id);
+          renderAll();
+        });
+      });
       return;
     }
 
@@ -836,6 +866,29 @@
         if (card) card.classList.toggle('in-plan', e.target.checked);
       });
     });
+  }
+
+  function renderSimpleSelectedRow(item, idx) {
+    return `
+      <div class="simple-row">
+        <div class="simple-row-info">
+          <span class="simple-num">${idx + 1}.</span>
+          <span class="simple-title">${escapeHtml(item.title)}</span>
+          ${item.potentialGain > 0 ? `<span class="simple-pts">+${item.potentialGain} pts</span>` : ''}
+        </div>
+        <div class="action-buttons">
+          ${item.appUrl ? `
+            <a href="${escapeHtml(item.appUrl)}" target="_blank" rel="noopener" class="btn-launch-app">
+              🚀 Open App
+            </a>
+          ` : ''}
+          <a href="${escapeHtml(item.classroomUrl)}" target="_blank" rel="noopener" class="btn-classroom">
+            📚 Classroom
+          </a>
+          <button type="button" class="btn-remove-simple" data-id="${escapeHtml(item.id)}" title="Remove from list">✕</button>
+        </div>
+      </div>
+    `;
   }
 
   function renderAssignmentCard(item) {
