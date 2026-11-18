@@ -152,9 +152,9 @@ const DEFAULT_CFG = {
     speedMinMinutes: 3    // speed of progress: minimum minutes to avoid 1-minute spikes
   },
   // One label per student per day. When several triggers fire at once, the first one in this list wins.
-  labelPriority: ["Personal best", "Big improvement", "Persistence", "Class standout", "Speed of progress", "Streak"],
+  labelPriority: ["Personal best", "Big improvement", "Persistence", "Class standout", "Speed of progress", "Streak", "Assignment complete"],
   autoPrint: {
-    maxPerHour: 8,        // safety cap so a data glitch can't empty the roll
+    maxPerHour: 20,       // safety cap so a data glitch can't empty the roll
     secondsBetween: 10,   // gap between labels in the queue
     schoolHours: [7, 16]  // only auto-print between 7:00 and 16:00
   },
@@ -299,6 +299,18 @@ $("#signout").onclick = async () => {
 };
 
 // ---------- Live data ----------
+const ACTIVITY_NAMES = {
+  unit3_day3_tradeoff_lab: "Pulleys & Ramps Lab",
+  unit3_day2_work_studio: "Mechanical Work Studio",
+  unit2_day54_highway_curve_lab: "Highway Curve Lab",
+  unit2_day52_centripetal_force_lab: "Centripetal Force Lab",
+  unit2_day51_centripetal_workshop: "Centripetal Acceleration Workshop",
+  unit2_monkey_hunter_studio: "Monkey Hunter Studio",
+  unit2_day47_projectile_range_studio: "Projectile Range Studio",
+  unit2_day46_vector_decomposition_studio: "Vector Decomposition Studio",
+  unit2_day44_vector_decomposition_studio: "Vector Decomposition Studio",
+  unit2_day42_horizontal_projectile_workbench: "Horizontal Projectile Workbench"
+};
 const toMillis = ts => ts?.toMillis ? ts.toMillis() : (ts ? new Date(ts).getTime() : 0);
 // Only student_results/{assignment}/students/{student}; the collection group also holds practice_results.
 const isResultDoc = d => d.ref.parent.parent?.parent?.id === cfg.resultsRoot;
@@ -320,7 +332,7 @@ function toRecord(d) {
     studentId: String(x[F.studentId] ?? x.studentId ?? d.id),
     studentName: String(x[F.studentName] ?? x.studentName ?? x.displayName ?? "Student"),
     classId: x[F.classId] ?? x.period ?? "",
-    activity: String(x.assignmentTitle ?? x.activityId ?? d.ref.parent.parent?.id ?? "Activity"),
+    activity: (raw => ACTIVITY_NAMES[raw] || raw)(String(x.assignmentTitle ?? x.activityId ?? d.ref.parent.parent?.id ?? "Activity")),
     pct, settled, quizHistory, minutes: Number(x.minutes ?? x.timeMinutes ?? 0) || 0, t
   };
 }
@@ -478,12 +490,17 @@ function detect(recs) {
       const rate = r.pct / r.minutes, z = (rate - mean(pool)) / (sd(pool) || 1);
       if (z >= speedZ) { add("Speed of progress", `Cruising through ${r.activity}!`, `${outOf(r.pct)} in ${Math.round(r.minutes)} min (${Math.round(rate)}%/min vs avg ${Math.round(mean(pool))}%/min)`, r.activity); break; }
     }
+    // Conceptual Physics (Periods 1–3): recognize any recently completed assignment
+    if (["1", "2", "3"].includes(classId)) {
+      const comp = [...recent].reverse().find(r => !/^bell_ringer_/i.test(r.activity));
+      if (comp) add("Assignment complete", `Finished ${comp.activity}!`, `${outOf(comp.pct)} · Conceptual Physics`, comp.activity);
+    }
   }
   return out;
 }
 
 // ---------- UI + printing ----------
-const STARS = { "Class standout":"🌟", "Personal best":"🏆", "Streak":"🔥", "Big improvement":"🚀", "Persistence":"💪", "Speed of progress":"⚡" };
+const STARS = { "Class standout":"🌟", "Personal best":"🏆", "Streak":"🔥", "Big improvement":"🚀", "Persistence":"💪", "Speed of progress":"⚡", "Assignment complete":"✅" };
 const labelHTML = c => `<div class="label"><div class="star">${STARS[c.type] || "⭐"}</div><div>
   <div class="t1">Way to go, ${esc(first(c.name))}!</div><div class="t2">${esc(c.line)}</div>
   <div class="t3">${new Date().toLocaleDateString()}</div></div></div>`;
