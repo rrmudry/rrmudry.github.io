@@ -65,14 +65,19 @@
 
   // ---------------------------------------------------------------- World
   class World {
-    constructor(seed) {
+    constructor(seed, opts = {}) {
       this.seed = seed >>> 0;
       const rnd = mulberry32(this.seed);
       this.W = WORLD_W;
       this.n = Math.round(WORLD_W / RES) + 1;
-      this.theme = ['day', 'sunset', 'day', 'dusk', 'night'][Math.floor(rnd() * 5)];
+      this.g = opts.g !== undefined ? opts.g : G;
+      this.wind = opts.wind !== undefined ? opts.wind : 0;
+      this.planet = opts.planet || null;
+      this.theme = opts.theme || ['day', 'sunset', 'day', 'dusk', 'night'][Math.floor(rnd() * 5)];
 
-      const xL = r1(22 + rnd() * 24), xR = r1(WORLD_W - (22 + rnd() * 24));
+      const pad = this.g > 15 ? 48 : 22;
+      const span = this.g > 15 ? 18 : 24;
+      const xL = r1(pad + rnd() * span), xR = r1(WORLD_W - (pad + rnd() * span));
       const gL = r1(8 + rnd() * 42), gR = r1(8 + rnd() * 42);
       const hill = rnd() < 0.75
         ? { x: WORLD_W / 2 + (rnd() - 0.5) * 70, a: 25 + rnd() * 75, w: 16 + rnd() * 22 }
@@ -109,7 +114,8 @@
 
       // Decoration (never affects physics)
       this.trees = [];
-      for (let i = 0; i < 26; i++) {
+      const noTrees = opts.noTrees || ['moon', 'mars', 'jupiter'].includes(this.theme);
+      for (let i = 0; i < (noTrees ? 0 : 26); i++) {
         const x = 4 + rnd() * (WORLD_W - 8);
         if (Math.abs(x - xL) < FORT_HALF + 6 || Math.abs(x - xR) < FORT_HALF + 6) continue;
         this.trees.push({ x, s: 0.7 + rnd() * 0.6, kind: rnd() < 0.6 ? 'pine' : 'round', alive: true });
@@ -152,7 +158,8 @@
       const c = this.cannons[idx];
       const th = (angleDeg * Math.PI) / 180;
       const vx = c.dir * speed * Math.cos(th), vy = speed * Math.sin(th);
-      const pos = (t) => ({ x: c.x + vx * t, y: c.y + vy * t - 0.5 * G * t * t });
+      const g = this.g, wx = this.wind;
+      const pos = (t) => ({ x: c.x + vx * t + 0.5 * wx * t * t, y: c.y + vy * t - 0.5 * g * t * t });
       const dt = 1 / 240;
       let impact = null;
       for (let t = dt; t < 60; t += dt) {
@@ -175,7 +182,7 @@
         }
       }
       if (!impact) impact = { ...pos(60), t: 60, type: 'out' };
-      const tp = vy / G;
+      const tp = vy / g;
       const peak = tp > 0 && tp < impact.t ? { ...pos(tp), t: tp } : { x: c.x, y: c.y, t: 0 };
       return { impact: { x: r2(impact.x), y: r2(impact.y), t: r2(impact.t), type: impact.type, target: impact.target }, peak };
     }
@@ -270,6 +277,7 @@
     turn() { this.tone(520, 0.12, 'triangle', 0.12); this.tone(780, 0.16, 'triangle', 0.1, null, 0.09); }
     win() { [523, 659, 784, 1047].forEach((f, i) => this.tone(f, 0.35, 'triangle', 0.16, null, i * 0.13)); }
     lose() { [392, 330, 262].forEach((f, i) => this.tone(f, 0.4, 'triangle', 0.14, null, i * 0.18)); }
+    warp() { [330, 440, 587, 880].forEach((f, i) => this.tone(f, 0.18, 'sine', 0.12, f * 1.2, i * 0.07)); }
     startWhistle() {
       const ctx = this.ensure(); if (!ctx || this.muted) return;
       this.stopWhistle();
@@ -288,6 +296,9 @@
     sunset: { top: '#5b3b9c', bot: '#ffb36b', mtn: ['#a86a8f', '#7c4a78'], sun: '#ffd27a', grass: '#84cc16', grassDk: '#4d7c0f', dirt: ['#9a5b2b', '#6b3a1c', '#36190a'] },
     dusk:   { top: '#1e2a5a', bot: '#d9708a', mtn: ['#5b4a78', '#3e3460'], sun: '#ffc6a0', grass: '#34d399', grassDk: '#047857', dirt: ['#7c4a2a', '#52301b', '#2a170b'] },
     night:  { top: '#050a1e', bot: '#1f2f5c', mtn: ['#25325a', '#1a2445'], sun: '#f1f5f9', grass: '#22c55e', grassDk: '#166534', dirt: ['#5c3a1e', '#3d2513', '#1c1009'] },
+    moon:   { top: '#02040a', bot: '#0f172a', mtn: ['#334155', '#1e293b'], sun: '#60a5fa', grass: '#94a3b8', grassDk: '#475569', dirt: ['#64748b', '#475569', '#1e293b'], stars: true, noClouds: true, earth: true },
+    mars:   { top: '#451a03', bot: '#d97706', mtn: ['#9a3412', '#7c2d12'], sun: '#fed7aa', grass: '#ea580c', grassDk: '#9a3412', dirt: ['#b45309', '#78350f', '#451a03'], noClouds: true },
+    jupiter:{ top: '#1e1b4b', bot: '#b45309', mtn: ['#78350f', '#451a03'], sun: '#fde047', grass: '#f59e0b', grassDk: '#b45309', dirt: ['#92400e', '#78350f', '#451a03'], stars: true, rings: true },
   };
 
   class Renderer {
@@ -471,10 +482,12 @@
 
     update(dt) {
       let highest = 0;
+      const g = this.world.g, wx = this.world.wind;
       for (const b of this.balls) {
         if (b.done) continue;
         b.t = Math.min(b.tEnd, b.t + dt * PLAYBACK);
-        b.x = b.x0 + b.vx * b.t; b.y = b.y0 + b.vy * b.t - 0.5 * G * b.t * b.t;
+        b.x = b.x0 + b.vx * b.t + 0.5 * wx * b.t * b.t;
+        b.y = b.y0 + b.vy * b.t - 0.5 * g * b.t * b.t;
         b.trail.push([b.x, b.y]);
         if (b.trail.length > 400) b.trail.shift();
         if (Math.random() < 0.6) this.parts.push({ x: b.x, y: b.y, vx: 0, vy: 0.5, life: 0.7, max: 0.7, size: 0.7, type: 'puff' });
@@ -485,7 +498,7 @@
       if (this.balls.length && this.balls.every((b) => b.done)) this.balls = [];
       if (!this.balls.length) this.sound.stopWhistle();
       if (this.balls.length) {
-        const vy = this.balls[0].vy - G * this.balls[0].t;
+        const vy = this.balls[0].vy - g * this.balls[0].t;
         this.sound.setWhistle(Math.max(0, Math.min(1, 0.5 + vy / 80)));
       }
       this.cam.targetS = this.baseScale(highest);
@@ -494,7 +507,7 @@
       for (const p of this.parts) {
         p.life -= dt;
         if (p.type === 'ring') continue;
-        if (p.g) p.vy -= G * 1.5 * dt;
+        if (p.g) p.vy -= g * 1.5 * dt;
         if (p.type === 'smoke') { p.vx *= 0.97; p.vy *= 0.97; p.size += dt * 2.2; }
         if (p.type === 'confetti') { p.vy = Math.max(p.vy - 4 * dt, -6); p.vx += Math.sin(this.time * 3 + p.spin) * 0.2; }
         p.x += p.vx * dt; p.y += p.vy * dt;
@@ -516,19 +529,29 @@
       const g = ctx.createLinearGradient(0, 0, 0, H);
       g.addColorStop(0, sk.top); g.addColorStop(1, sk.bot);
       ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-      if (w.theme === 'night' || w.theme === 'dusk') {
+      if (sk.stars || w.theme === 'night' || w.theme === 'dusk') {
         for (const s of w.stars) {
-          ctx.globalAlpha = (w.theme === 'night' ? 0.9 : 0.4) * (0.6 + 0.4 * Math.sin(this.time * 2 + s.p));
+          ctx.globalAlpha = (sk.stars || w.theme === 'night' ? 0.9 : 0.4) * (0.6 + 0.4 * Math.sin(this.time * 2 + s.p));
           ctx.fillStyle = '#fff'; ctx.fillRect(s.x * W, s.y * H, s.s, s.s);
         }
         ctx.globalAlpha = 1;
       }
-      // Sun / moon
+      // Sun / moon / Earth / ringed planet
       const sunX = W * (w.theme === 'sunset' ? 0.78 : 0.82), sunY = H * (w.theme === 'sunset' ? 0.42 : 0.16);
       const sg = ctx.createRadialGradient(sunX, sunY, 4, sunX, sunY, 70);
       sg.addColorStop(0, sk.sun); sg.addColorStop(0.35, sk.sun + 'aa'); sg.addColorStop(1, sk.sun + '00');
       ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(sunX, sunY, 70, 0, 7); ctx.fill();
-      ctx.fillStyle = sk.sun; ctx.beginPath(); ctx.arc(sunX, sunY, 22, 0, 7); ctx.fill();
+      if (sk.rings) {
+        ctx.save(); ctx.translate(sunX, sunY); ctx.rotate(-0.3);
+        ctx.strokeStyle = 'rgba(253,224,71,0.5)'; ctx.lineWidth = 5;
+        ctx.beginPath(); ctx.ellipse(0, 0, 44, 10, 0, 0, 7); ctx.stroke();
+        ctx.restore();
+      }
+      ctx.fillStyle = sk.sun; ctx.beginPath(); ctx.arc(sunX, sunY, sk.earth ? 24 : 22, 0, 7); ctx.fill();
+      if (sk.earth) {
+        ctx.fillStyle = '#22c55e';
+        ctx.beginPath(); ctx.arc(sunX - 7, sunY - 4, 8, 0, 7); ctx.arc(sunX + 6, sunY + 5, 7, 0, 7); ctx.fill();
+      }
       if (w.theme === 'night') { ctx.fillStyle = sk.top; ctx.beginPath(); ctx.arc(sunX + 9, sunY - 6, 19, 0, 7); ctx.fill(); }
       // Mountains (parallax layers fixed to the screen)
       w.mountains.forEach((pts, li) => {
@@ -538,12 +561,25 @@
         ctx.lineTo(W, H); ctx.fill();
       });
       // Clouds
-      for (const c of w.clouds) {
-        const cx = ((c.x + this.time * c.v) % 1.2 - 0.1) * W, cy = c.y * H, s = c.s * 26;
-        ctx.fillStyle = w.theme === 'night' ? 'rgba(148,163,184,0.25)' : 'rgba(255,255,255,0.85)';
-        ctx.beginPath();
-        ctx.arc(cx, cy, s, 0, 7); ctx.arc(cx + s, cy - s * 0.4, s * 1.2, 0, 7); ctx.arc(cx + s * 2.1, cy, s * 0.9, 0, 7);
-        ctx.fill();
+      if (!sk.noClouds) {
+        for (const c of w.clouds) {
+          const cx = ((c.x + this.time * c.v) % 1.2 - 0.1) * W, cy = c.y * H, s = c.s * 26;
+          ctx.fillStyle = w.theme === 'night' || sk.rings ? 'rgba(148,163,184,0.25)' : 'rgba(255,255,255,0.85)';
+          ctx.beginPath();
+          ctx.arc(cx, cy, s, 0, 7); ctx.arc(cx + s, cy - s * 0.4, s * 1.2, 0, 7); ctx.arc(cx + s * 2.1, cy, s * 0.9, 0, 7);
+          ctx.fill();
+        }
+      }
+      // Wind streaks when solar wind is active
+      if (w.wind !== 0) {
+        const dir = w.wind > 0 ? 1 : -1;
+        const spd = (0.12 + Math.abs(w.wind) * 0.08) * dir;
+        ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1.5;
+        for (let i = 0; i < 10; i++) {
+          const sx = (((i * 0.13 + this.time * spd) % 1.2) + 1.2) % 1.2 - 0.1;
+          const sy = 0.1 + (i % 5) * 0.11;
+          ctx.beginPath(); ctx.moveTo(sx * W, sy * H); ctx.lineTo(sx * W + dir * 36, sy * H); ctx.stroke();
+        }
       }
 
       ctx.save();
@@ -569,6 +605,18 @@
         const tw = ctx.measureText(txt).width;
         ctx.fillStyle = 'rgba(15,23,42,0.7)'; roundRect(ctx, W / 2 - tw / 2 - 12, 10, tw + 24, 30, 15); ctx.fill();
         ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, W / 2, 25);
+      }
+      if (w.planet || w.g !== G || w.wind !== 0) {
+        ctx.font = '700 13px "JetBrains Mono", monospace';
+        const parts = [];
+        if (w.planet) parts.push(`${w.planet.icon} ${w.planet.name}`);
+        parts.push(`g = ${w.g.toFixed(1)} m/s²`);
+        if (w.wind !== 0) parts.push(`Wind: ${w.wind > 0 ? '+' : '−'}${Math.abs(w.wind).toFixed(1)} m/s² ${w.wind > 0 ? '→' : '←'}`);
+        const badge = parts.join(' · ');
+        const bw = ctx.measureText(badge).width;
+        ctx.fillStyle = 'rgba(15,23,42,0.78)'; roundRect(ctx, 12, 10, bw + 20, 28, 14); ctx.fill();
+        ctx.strokeStyle = 'rgba(250,204,21,0.45)'; ctx.lineWidth = 1.5; roundRect(ctx, 12, 10, bw + 20, 28, 14); ctx.stroke();
+        ctx.fillStyle = '#fde047'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText(badge, 22, 24);
       }
     }
 
@@ -762,7 +810,7 @@
     }
 
     drawGhosts() {
-      const ctx = this.ctx, w = this.world;
+      const ctx = this.ctx, w = this.world, g = w.g, wx = w.wind;
       for (let i = 0; i < 2; i++) {
         const col = (TEAM_COLORS[(this.teams[i] || {}).color] || TEAM_COLORS.blue).light;
         this.ghosts[i].forEach((gp, n) => {
@@ -772,7 +820,7 @@
           ctx.lineWidth = 2.5; ctx.setLineDash([6, 6]);
           ctx.beginPath();
           for (let t = 0; t <= gp.tEnd; t += 0.05) {
-            const [px, py] = this.toScreen(c.x + vx * t, c.y + vy * t - 5 * t * t);
+            const [px, py] = this.toScreen(c.x + vx * t + 0.5 * wx * t * t, c.y + vy * t - 0.5 * g * t * t);
             t === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
           }
           ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
@@ -936,7 +984,7 @@
     const gauss = () => (Math.random() + Math.random() + Math.random() - 1.5) / 0.5;
     let angle = Math.max(5, Math.min(85, Math.round((best.a + gauss() * sd * 30) * 2) / 2));
     if (isJammed(jam, angle)) angle = best.a;
-    const speed = Math.max(5, Math.round(best.sp * (1 + gauss() * sd) * 2) / 2);
+    const speed = Math.min(80, Math.max(5, Math.round(best.sp * (1 + gauss() * sd) * 2) / 2));
     return { angle, speed };
   }
 

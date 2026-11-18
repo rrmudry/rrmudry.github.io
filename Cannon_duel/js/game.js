@@ -145,7 +145,8 @@
     renderIntel() {
       const d = this.duel, rec = d.world.recon(this.idx);
       const dy = rec.dy === 0 ? '0.0 m (level)' : `${rec.dy > 0 ? '+' : '−'}${Math.abs(rec.dy).toFixed(1)} m (${rec.dy > 0 ? 'higher' : 'lower'})`;
-      $('recon').innerHTML = `<b>Recon: enemy pivot</b><br>Δx = ${rec.dx.toFixed(1)} m<br class="wide"><span class="sep"></span>Δy = ${dy}<br>g = 10 m/s²`;
+      const windLine = d.world.wind ? `<br>wind = ${d.world.wind > 0 ? '+' : '−'}${Math.abs(d.world.wind).toFixed(1)} m/s² ${d.world.wind > 0 ? '→' : '←'}` : '';
+      $('recon').innerHTML = `<b>Recon: enemy pivot</b><br>Δx = ${rec.dx.toFixed(1)} m<br class="wide"><span class="sep"></span>Δy = ${dy}<br>g = ${d.world.g.toFixed(1)} m/s²${windLine}`;
       const mine = d.shots.filter((s) => s.by === this.idx).slice(-3).reverse();
       $('shotLog').querySelector('tbody').innerHTML = mine.length ? mine.map((s) => {
         let cls = '', txt;
@@ -220,10 +221,10 @@
   class Duel {
     constructor(o) {
       this.o = o;
-      this.world = new E.World(o.seed);
+      this.world = new E.World(o.seed, o.worldOpts);
       this.teams = o.teams;
       this.controls = o.controls;
-      this.hp = [E.HP_MAX, E.HP_MAX];
+      this.hp = o.startHp ? o.startHp.slice() : [E.HP_MAX, E.HP_MAX];
       this.ammo = [AMMO_START(), AMMO_START()];
       this.aims = [{ angle: 45, speed: 40 }, { angle: 45, speed: 40 }];
       this.shots = [];
@@ -245,6 +246,7 @@
     destroy() {
       this.over = true;
       clearTimeout(this.cpuTimer);
+      clearTimeout(this.waveTimer);
       cancelAnimationFrame(this.cpuAnim);
     }
 
@@ -439,6 +441,13 @@
     UI.show('result');
   }
 
+  const PLANETS = [
+    { id: 'earth',   name: 'Earth',   icon: '🌍', g: 10.0, theme: 'day',     bot: 'Earth Defender',   diff: 'easy' },
+    { id: 'moon',    name: 'Moon',    icon: '🌕', g: 1.6,  theme: 'moon',    bot: 'Lunar Lander',     diff: 'medium' },
+    { id: 'mars',    name: 'Mars',    icon: '🔴', g: 3.7,  theme: 'mars',    bot: 'Martian Marauder', diff: 'medium' },
+    { id: 'jupiter', name: 'Jupiter', icon: '🟠', g: 24.8, theme: 'jupiter', bot: 'Jovian Titan',     diff: 'hard' },
+  ];
+
   // ---------------------------------------------------------------- modes
   const App = {
     duel: null,
@@ -446,8 +455,23 @@
     series: [0, 0],
     setupMode: 'cpu',
     setupTeams: [],
+    gauntlet: null,
 
     newSeed() { return (Math.random() * 2 ** 32) >>> 0; },
+
+    paintGauntletBest() {
+      const el = $('gauntletBest');
+      if (!el) return;
+      try {
+        const best = JSON.parse(localStorage.getItem('cd_gauntlet_best') || 'null');
+        if (best && best.score > 0) {
+          el.textContent = `Best: ${best.score.toLocaleString()} pts (Wave ${best.wave})`;
+          el.hidden = false;
+        } else {
+          el.hidden = true;
+        }
+      } catch (e) { el.hidden = true; }
+    },
 
     endDuel() {
       if (this.duel) this.duel.destroy();
@@ -461,6 +485,7 @@
       this.endDuel();
       ['setup', 'result', 'help', 'online', 'hostView'].forEach((id) => UI.hide(id));
       $('btnHostPanel').hidden = true;
+      this.paintGauntletBest();
       UI.show('menu');
       this.startDemo();
     },
@@ -488,12 +513,12 @@
 
     openSetup(mode) {
       this.setupMode = mode;
-      $('setupTitle').textContent = mode === 'cpu' ? '🤖 Single Player' : '👥 Two Players';
+      $('setupTitle').textContent = mode === 'cpu' ? '🤖 Single Player' : mode === 'gauntlet' ? '🪐 Gravity Gauntlet' : '👥 Two Players';
       $('diffField').hidden = mode !== 'cpu';
       const wrap = $('setupTeams'); wrap.innerHTML = '';
       let saved = {};
       try { saved = JSON.parse(localStorage.getItem('cd_setup') || '{}'); } catch (e) { /* storage blocked */ }
-      const defs = mode === 'cpu'
+      const defs = mode === 'cpu' || mode === 'gauntlet'
         ? [{ name: saved.n0 || 'Blue Barons', color: saved.c0 || 'blue', label: 'Your team' }]
         : [{ name: saved.n0 || 'Blue Barons', color: saved.c0 || 'blue', label: 'Player 1 (left fort)' },
            { name: saved.n1 || 'Red Raiders', color: saved.c1 || 'red', label: 'Player 2 (right fort)' }];
@@ -513,6 +538,11 @@
       try { localStorage.setItem('cd_setup', JSON.stringify({ n0: t[0].name, c0: t[0].color, n1: t[1] && t[1].name, c1: t[1] && t[1].color })); } catch (e) { /* storage blocked */ }
       const diff = document.querySelector('#diffSeg .sel').dataset.v;
       const guide = $('optGuide').checked, sabotage = $('optSabo').checked;
+      if (this.setupMode === 'gauntlet') {
+        UI.hide('setup');
+        this.startGauntlet(t[0], guide, sabotage);
+        return;
+      }
       if (this.setupMode === 'cpu') {
         const botColor = t[0].color === 'red' ? 'orange' : 'red';
         const botName = { easy: 'Cannonbot Jr.', medium: 'Cannonbot', hard: 'Cannonbot 9000' }[diff];
@@ -556,11 +586,88 @@
       if (c.mode === 'local' || this.series[0] + this.series[1] > 1) sub += `  Series: ${d.teams[0].name} ${this.series[0]} – ${this.series[1]} ${d.teams[1].name}`;
       showResult(d, { title, sub, trophy, buttons: [['Main menu', 'ghost', () => this.goMenu()], ['Rematch (new valley)', 'primary', () => this.startLocal()]] });
     },
+
+    startGauntlet(playerTeam, guide, sabotage) {
+      this.gauntlet = { wave: 1, score: 0, hp: E.HP_MAX, player: playerTeam, guide, sabotage };
+      this.startGauntletWave();
+    },
+
+    startGauntletWave() {
+      this.stopDemo();
+      const gState = this.gauntlet;
+      const w = gState.wave;
+      const planet = w <= PLANETS.length ? PLANETS[w - 1] : PLANETS[Math.floor(Math.random() * PLANETS.length)];
+      let wind = 0;
+      if (w === 3) wind = (Math.random() < 0.5 ? -1 : 1) * (0.6 + Math.round(Math.random() * 6) / 10);
+      else if (w >= 4) wind = (Math.random() < 0.5 ? -1 : 1) * (1.0 + Math.round(Math.random() * 14) / 10);
+      wind = Math.round(wind * 10) / 10;
+
+      const botColor = gState.player.color === 'red' ? 'orange' : 'red';
+      const botDiff = w >= 4 ? 'hard' : planet.diff;
+      const botTeam = { name: `${planet.icon} ${planet.bot}`, color: botColor, diff: botDiff };
+
+      this.duel = new Duel({
+        seed: this.newSeed(),
+        teams: [gState.player, botTeam],
+        controls: ['human', 'cpu'],
+        guide: gState.guide,
+        sabotage: gState.sabotage,
+        startHp: [gState.hp, E.HP_MAX],
+        worldOpts: { g: planet.g, wind, theme: planet.theme, planet },
+        midLabel: () => `W${gState.wave} · ${gState.score} pts`,
+        onOver: (winner) => this.gauntletOver(winner, planet),
+      });
+      const d = this.duel;
+      UI.banner(`${planet.icon} WAVE ${w}: ${planet.name.toUpperCase()}`, `g = ${planet.g.toFixed(1)} m/s²${wind ? ` · Wind ${wind > 0 ? '+' : '−'}${Math.abs(wind).toFixed(1)} m/s²` : ''}`, 2100);
+      setTimeout(() => { if (this.duel === d) d.beginTurn(0, { quiet: true }); }, 1000);
+    },
+
+    gauntletOver(winner, planet) {
+      const d = this.duel, gState = this.gauntlet;
+      const st = d.stats[0];
+      const hitPts = st.dmg + st.direct * 200 + (st.direct && st.shots === 1 ? 500 : 0);
+      if (winner === 0) {
+        const waveBonus = 400 * gState.wave + Math.round(d.hp[0] * 3);
+        const gained = hitPts + waveBonus;
+        gState.score += gained;
+        const nextHp = Math.min(E.HP_MAX, d.hp[0] + 25);
+        const repaired = nextHp - d.hp[0];
+        gState.hp = nextHp;
+        gState.wave++;
+        d.updateHud();
+        UI.banner(`${planet.icon} WAVE ${gState.wave - 1} CLEAR!`, `+${gained} pts${repaired > 0 ? ` · +${repaired} HP repaired` : ''}`, 2000);
+        d.waveTimer = setTimeout(() => {
+          if (this.duel !== d) return;
+          sound.warp();
+          this.startGauntletWave();
+        }, 2150);
+        return;
+      }
+
+      gState.score += hitPts;
+      let best = { score: 0, wave: 0 };
+      try { best = JSON.parse(localStorage.getItem('cd_gauntlet_best') || 'null') || best; } catch (e) { /* storage blocked */ }
+      const isNewBest = gState.score > best.score;
+      if (isNewBest) {
+        best = { score: gState.score, wave: gState.wave };
+        try { localStorage.setItem('cd_gauntlet_best', JSON.stringify(best)); } catch (e) { /* storage blocked */ }
+      }
+      showResult(d, {
+        title: isNewBest ? '🌟 New Gauntlet Record!' : `Stopped on Wave ${gState.wave}`,
+        sub: `${planet.icon} ${planet.name} (g = ${planet.g} m/s²) · Final Score: ${gState.score.toLocaleString()} pts · Best: ${best.score.toLocaleString()} pts (Wave ${best.wave})`,
+        trophy: isNewBest ? '🏆' : '🪐',
+        buttons: [
+          ['Main menu', 'ghost', () => this.goMenu()],
+          ['Play Gauntlet again', 'primary', () => this.startGauntlet(gState.player, gState.guide, gState.sabotage)],
+        ],
+      });
+    },
   };
 
   // ---------------------------------------------------------------- wiring
   $('modeCpu').addEventListener('click', () => { sound.click(); App.openSetup('cpu'); });
   $('modeLocal').addEventListener('click', () => { sound.click(); App.openSetup('local'); });
+  $('modeGauntlet').addEventListener('click', () => { sound.click(); App.openSetup('gauntlet'); });
   $('btnStart').addEventListener('click', () => { sound.quiet = false; sound.click(); App.startFromSetup(); });
   document.querySelectorAll('#diffSeg button').forEach((b) => b.addEventListener('click', () => {
     document.querySelectorAll('#diffSeg button').forEach((x) => x.classList.toggle('sel', x === b)); sound.click();
