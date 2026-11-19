@@ -108,7 +108,7 @@ Students transition from forces and kinematics into an energy-accounting framewo
   - **Row 2 (Ideal Ramp Trade-Off `F_pull · d_ramp = m · g · h`):** `#4` solve for `F_pull` (`200 N`), `#5` solve for `d_ramp` (`6 m`), `#6` solve for dock height `h` (`1.5 m`).
   - **Row 3 (Mechanical Advantage `MA = F_g ÷ F_pull = d_pull ÷ h`):** `#7` solve for `MA` (`5`), `#8` solve for `F_pull` (`300 N`), `#9` solve for wheelchair ramp length `d` (`2.7 m`) and work (`720 J`).
   - **Row 4 (Friction & Ideal Work Conservation):** `#10` rough ramp `W_in` (`550 J`) vs. `W_out` (`450 J`), `#11` friction work `W_f` (`100 J`) and friction force `F_f` (`20 N`), `#12` straight lift vs. frictionless ramp work comparison (`300 J` each).
-- **Links:** [Day 4 Work & Simple Machines Practice P304 (PDF)](worksheets/Day4_Force_Distance_Data_Analysis_CER.pdf) · [Print View (HTML)](worksheets/Day4_Force_Distance_Data_Analysis_CER.html)
+- **Links:** [Work & Simple Machines Practice (Classroom assignment)](machines_practice/index.html) · [Day 4 Work & Simple Machines Practice P304 (PDF)](worksheets/Day4_Force_Distance_Data_Analysis_CER.pdf) · [Print View (HTML)](worksheets/Day4_Force_Distance_Data_Analysis_CER.html)
 
 #### Day 5 — Fri, Nov 20, 2026
 - **Title:** Staircase Power Lab (`P = W ÷ t`) & Week 1 Mastery Check

@@ -5827,10 +5827,20 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
+      "Work & Simple Machines Practice (Classroom assignment)": "Unit_3/machines_practice/index.html",
       "Day 4 Work & Simple Machines Practice P304 (PDF)": "Unit_3/worksheets/Day4_Force_Distance_Data_Analysis_CER.pdf",
       "Day 4 Print View (HTML)": "Unit_3/worksheets/Day4_Force_Distance_Data_Analysis_CER.html"
     },
     "assignments": [
+      {
+        "title": "Work & Simple Machines Practice",
+        "url": "Unit_3/machines_practice/index.html",
+        "typeLabel": "Interactive Practice",
+        "submission": "Google Classroom: 10 points, due Thu 11/19 at 6:00 PM",
+        "actionLabel": "Open the Practice",
+        "description": "Scaffolded GUESS-method practice for pulley work, ramp force-distance trade-offs, mechanical advantage, and friction.",
+        "status": "active"
+      },
       {
         "title": "Work and Simple Machines Practice (P304)",
         "url": "Unit_3/worksheets/Day4_Force_Distance_Data_Analysis_CER.pdf",

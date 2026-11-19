@@ -1923,3 +1923,6 @@ Append-only log tracking pattern changes across recent sessions.
 - Moved `📥 Use calculator answer` into `.calc-head` globally, increased `--calc-height` (`22.5rem`–`36rem`, `20.6rem` on short screens), switched Desmos to default medium font + `resize()`, giving `148 px` (`1366×768`) and `86 px` (`1366×650`) of unclipped expression screen.
 - Added `.agents/wiki/patterns/machines-practice-studio.md` and `tests/machinesPractice.test.js`. Not yet deployed to Google Classroom or linked in `assets/lessons-data.js` (pending teacher review & due date confirmation).
 
+
+## 2026-11-18 — Work & Simple Machines Practice posted
+- `unit3_day4_machines_practice` scheduled in all 7 periods for Thu 11/19 at each period's start (P0 8:30 … P6 2:45), due 6 PM. `npm run verify` green, then linked first on Unit 3 Day 4 in `assets/lessons-data.js` and `Unit_3/outline.md`.
