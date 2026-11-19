@@ -5702,7 +5702,9 @@ const lessonsData = [
       "defaultDuration": 3
     },
     "links": {
-      "Mechanical Work Studio (Classroom assignment)": "Unit_3/work_studio/index.html"
+      "Mechanical Work Studio (Classroom assignment)": "Unit_3/work_studio/index.html",
+      "Mechanical Work Practice P302 (PDF)": "Unit_3/worksheets/Day2_Work_Calculation_Practice.pdf",
+      "Mechanical Work Practice Print View (HTML)": "Unit_3/worksheets/Day2_Work_Calculation_Practice.html"
     },
     "assignments": [
       {
@@ -5715,7 +5717,14 @@ const lessonsData = [
         "status": "active"
       }
     ],
-    "resources": []
+    "resources": [
+      {
+        "title": "Mechanical Work Practice — P302 (PDF)",
+        "url": "Unit_3/worksheets/Day2_Work_Calculation_Practice.pdf",
+        "typeLabel": "Printable Worksheet",
+        "description": "1-page 3×4 open-box grid (12 problems) covering W = F · d (solving for W, F, d), vertical lifting W = m · g · h (solving for W, h, m), net work, multi-stage paths, and zero displacement."
+      }
+    ]
   },
   {
     "day": 3,
@@ -5791,53 +5800,53 @@ const lessonsData = [
     "day": 4,
     "date": "2026-11-19",
     "unit": 3,
-    "title": "Force–Distance Data Analysis & Ramp Trade-Off CER",
-    "topic": "Work as Graph Area (W = Area), Negative Regions & CAST Argumentation",
-    "dok": 3,
-    "type": "Data Analysis / CER",
+    "title": "Work and Simple Machines Practice (P304)",
+    "topic": "Pulley Work, Ideal Ramp Trade-Offs, Mechanical Advantage & Real Ramp Friction",
+    "dok": 2,
+    "type": "Calculation Practice",
     "semester": 1,
     "isFeatured": false,
-    "summary": "Real machines and human pushes rarely maintain one constant force from start to finish. Just as area under a velocity–time graph reveals distance, the shaded area under a Force vs. Distance graph equals mechanical work—turning Day 3's tall/narrow lift rectangle (0.30 m × 5.0 N) and wide/short ramp rectangle (1.20 m × 1.25 N) into a visual proof of equal 1.50 J areas.",
-    "activity": "CAST Data Analysis & Ramp Trade-Off CER: (1) Plot Day 3 (d, F<sub>pull</sub>) points on a 0–1.50 m by 0–6.0 N grid and compare the Direct Lift rectangle vs. Ramp D (1.20 m) rectangle areas (both 1.50 J ideal). (2) Solve 4 CAST F–d Area tasks covering a constant push rectangle (60 J), increasing triangle force (40 J), trapezoidal push (+80 J), and forward push + negative braking area below axis (+40 J - 20 J = +20 J). (3) Write a formal CER refuting the claim that '4× longer ramps cut work to one-fourth' (Honors extension: extract average friction force F<sub>f</sub> = 0.24 J ÷ 1.20 m = 0.20 N from excess area).",
-    "essentialQuestion": "How do shaded areas on Force–Distance graphs prove conservation of ideal work and quantify friction work?",
+    "summary": "Build fluent problem-solving across pulleys, inclined planes, and real friction systems without fill-in-the-blank crutches. Students solve 12 open-box calculations systematically rotating the unknown across pulley work (W, F, d), ideal ramp trade-offs (F_pull, d_ramp, h), mechanical advantage (MA = F_g ÷ F_pull = d_pull ÷ h), and rough-ramp friction work (W_in − W_out).",
+    "activity": "Work and Simple Machines Practice (P304 — 1-page 3×4 open-box grid, 12 problems): Solve for W, F, and d in pulley hoisting scenarios (#1–#3), apply work conservation F_pull · d_ramp = m · g · h across ramps solving for pull force, ramp length, and truck height (#4–#6), compute Mechanical Advantage MA and required pull force or ramp distance (#7–#9), calculate input vs. useful output work and friction work/force on a rough ramp (#10–#11), and compare lifting vs. frictionless ramp work (#12).",
+    "essentialQuestion": "How do W = F · d and F_pull · d_ramp = m · g · h let us solve for force, distance, height, mechanical advantage, and friction loss in simple machines?",
     "standards": [
       "HS-PS3-1",
       "HS-PS3-2"
     ],
     "wicor": {
-      "Writing": "Drafting a 3-part Claim–Evidence–Reasoning rebuttal citing measured Day 3 Forces, Distances, and Graph Areas.",
-      "Inquiry": "Comparing excess input work area (W<sub>in</sub> - W<sub>out</sub>) across ramp lengths to isolate track friction force.",
-      "Collaboration": "Partners verify rectangular/triangular area partitions and peer-check CER quantitative evidence.",
-      "Organization": "Logging positive (+) and negative (-) graph region areas before summing W<sub>net</sub>.",
-      "Reading": "Extracting non-constant and piecewise force data from CAST-style Force vs. Distance curves."
+      "Writing": "Showing clear formula selection, substitution, and units inside open problem boxes (#1–#12).",
+      "Inquiry": "Isolating energy lost to friction (W_f = W_in − W_out) and friction force (F_f = W_f ÷ d) in #10–#11.",
+      "Collaboration": "Partners compare formula setups and check unit consistency across P304 practice problems.",
+      "Organization": "Structuring each open box cleanly: equation first, numeric substitution, and boxed answer with SI units.",
+      "Reading": "Identifying given quantities and unknown variables directly from concise word problems without hint badges."
     },
     "bellRinger": {
       "type": "free_response",
-      "promptQuestion": "On a Force vs. Distance graph, a robot pushes with a steady 15 N from 0 m to 4 m, then eases off linearly from 15 N to 0 N between 4 m and 6 m. What is the total work done?",
-      "explanation": "Rectangle area (0–4 m): 15 N × 4 m = 60 J. Triangle area (4–6 m): ½ × 2 m × 15 N = 15 J. Total work = 60 J + 15 J = 75 J.",
+      "promptQuestion": "A 40 kg cart must be lifted 1.5 m onto a loading dock. If a worker pushes it up a frictionless 6.0 m ramp instead of lifting it straight up, how much force is required (use g = 10 m/s²)?",
+      "explanation": "Lifting work is W = m · g · h = 40 kg × 10 m/s² × 1.5 m = 600 J. Along a 6.0 m frictionless ramp, F_pull = W ÷ d = 600 J ÷ 6.0 m = 100 N (one-fourth of the 400 N weight).",
       "defaultDuration": 3
     },
     "links": {
-      "Day 4 CAST Data Analysis & CER (PDF)": "Unit_3/worksheets/Day4_Force_Distance_Data_Analysis_CER.pdf",
+      "Day 4 Work & Simple Machines Practice P304 (PDF)": "Unit_3/worksheets/Day4_Force_Distance_Data_Analysis_CER.pdf",
       "Day 4 Print View (HTML)": "Unit_3/worksheets/Day4_Force_Distance_Data_Analysis_CER.html"
     },
     "assignments": [
       {
-        "title": "Force–Distance Data Analysis & Ramp Trade-Off CER",
+        "title": "Work and Simple Machines Practice (P304)",
         "url": "Unit_3/worksheets/Day4_Force_Distance_Data_Analysis_CER.pdf",
-        "typeLabel": "CAST Data Analysis",
-        "submission": "Plotted Ramp Graph + >= 3/4 Area Tasks + CER",
+        "typeLabel": "Calculation Practice",
+        "submission": "12/12 Open-Box Calculations with Equations & SI Units",
         "actionLabel": "Open PDF Worksheet",
-        "description": "Overlay Day 3 lift vs. ramp areas, evaluate 4 CAST F–d graph problems, and write a CER on simple-machine work.",
+        "description": "1-page 3×4 open-box grid covering pulley work, ramp force-distance trade-offs, mechanical advantage, and rough-ramp friction.",
         "status": "active"
       }
     ],
     "resources": [
       {
-        "title": "Force–Distance Data Analysis & Ramp CER — 2-Page Handout (PDF)",
+        "title": "Work and Simple Machines Practice — P304 (PDF)",
         "url": "Unit_3/worksheets/Day4_Force_Distance_Data_Analysis_CER.pdf",
         "typeLabel": "Printable Worksheet",
-        "description": "Calibrated Force–Distance plotting grid, 4 CAST area-under-curve tasks (rectangle, triangle, trapezoid, braking), Honors friction extraction, and 3-zone CER."
+        "description": "1-page 3×4 open-box worksheet (12 problems) solving across pulley W/F/d, ramp F_pull/d/h, MA, real ramp friction, and ideal work conservation."
       }
     ]
   },

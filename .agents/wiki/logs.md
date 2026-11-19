@@ -10,6 +10,14 @@ Append-only log tracking pattern changes across recent sessions.
 - Increased `N_PER_TAP_RATE` from `35` to `55` N per tap/s so heavier loads (up to 24 kg = 240 N on 1 rope) only need ~4.4 taps/s instead of ~6.9 taps/s.
 - Widened the green hold zone (`ZONE_TOL` / `band`) from `±0.12 m` to `±0.20 m` around the 1.5 m hold line in both `app.js` and `scene.js` (with `maxRope` ceiling bumped to `h + 0.28 m`), lowered `HOLD_T` from `1.5 s` to `1.2 s`, and changed out-of-zone hold progress to decay (`-1.5 * dt`) rather than resetting to `0` on a 1-frame dip.
 
+## 2026-11-18 — Classic 1-Page 3×4 Open-Box Grid Worksheet Standard & Unit 3 Day 2/Day 4 Rebuild
+**Patterns Updated**: `low-stress-worksheet-skill.md` (`.agents/wiki/patterns/low-stress-worksheet-skill.md`), `.agents/skills/low-stress-worksheet/SKILL.md`.
+**Files Updated**: `Unit_3/worksheets/Day2_Work_Calculation_Practice.{html,pdf}`, `Unit_3/worksheets/Day4_Force_Distance_Data_Analysis_CER.{html,pdf}`, `assets/lessons-data.js`, `Unit_3/outline.md`, `partials/footer.html`.
+**Notes**:
+- Adopted the teacher's historical `Work and Energy Review` (`P106`) layout as the **default standard for calculation practice and review worksheets**: single US Letter page, `Name/Date/Period` top line, navy serif title (`#2b4c7e`) with double blue rule (`#4a7ebb`), a clean 3×4 `1px`-bordered black grid (`height: 2.12in` per cell, `9.5pt` Arial), numbered 2–3 sentence word problems at the top of large open white boxes (zero fill-in-the-blank lines, badges, or clutter), and bottom-left page code (`P302`, `P304`) with `Use g = 10 m/s²`.
+- Rebuilt Day 2 (`P302`: *Mechanical Work Practice*, 12 problems across `W = F · d`, `W = m · g · h`, net work, multi-stage lifting, and zero-displacement) and Day 4 (`P304`: *Work and Simple Machines Practice*, 12 problems across pulley `W/F/d`, ideal ramp trade-offs `F_pull · d_ramp = m · g · h`, mechanical advantage `MA`, rough-ramp friction loss, and ideal work conservation).
+- Verified `Pages: 1` for both PDFs via `pdfinfo`, visually inspected both rendered PNGs (`150 DPI`), and synced curriculum references across `assets/lessons-data.js` and `Unit_3/outline.md`.
+
 ## 2026-11-16 — Unit 3 Day 2 Mechanical Work Studio
 **Patterns Followed**: `student-app-standards.md`, `centripetal-force-lab.md`, `cast-aligned-webapp-design.md`.
 **Patterns Added**: `work-studio.md`.
@@ -1907,3 +1915,11 @@ Append-only log tracking pattern changes across recent sessions.
 
 ## 2026-11-18 — Pulleys and Ramps Lab posted
 - Scheduled in all 7 periods (due 11/18 6 PM), `npm run verify` green, then linked on Unit 3 Day 3 (lessons-data, outline, dashboard). Noted in `patterns/tradeoff-lab.md`.
+
+## 2026-11-18 — Work & Simple Machines Practice Studio (`Unit_3/machines_practice/`)
+- Transitioned Unit 3 Day 4 (`P304` worksheet) into a scaffolded interactive GUESS-method webapp (`assignment_id: unit3_day4_machines_practice`) with companion teacher monitor (`admin/machines_practice_monitor.html`) and `admin/sprint_progress_3d.html` integration.
+- Bridges Level 6 → Level 10 by introducing zero-arithmetic GUESS sorting setups (`G`/`U`/`E`), giving Work Needed `W` directly on early ramp problems instead of jumping straight to `m × g × h`, splitting multi-part problems into 2–3 checked boxes, and differentiating across Conceptual (P1–3), CP (P4–6), and Honors (P0).
+- Added symbol decoder pills (`.sym-key`), plain-English `.teach-box` anchors, highlighted `W`/`MA` formula triangles (`cover` circled), proportional friction split bars (`W_in = W_out + W_f`), Stage A/B GUESS hints, and choice-specific `explainWrongEq` diagnostics after teacher review of Step 5 (`setup_ma`). Tightened `html.short` CSS so `1366 × 650` stays clear of Desmos.
+- Moved `📥 Use calculator answer` into `.calc-head` globally, increased `--calc-height` (`22.5rem`–`36rem`, `20.6rem` on short screens), switched Desmos to default medium font + `resize()`, giving `148 px` (`1366×768`) and `86 px` (`1366×650`) of unclipped expression screen.
+- Added `.agents/wiki/patterns/machines-practice-studio.md` and `tests/machinesPractice.test.js`. Not yet deployed to Google Classroom or linked in `assets/lessons-data.js` (pending teacher review & due date confirmation).
+

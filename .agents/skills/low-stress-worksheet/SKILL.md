@@ -6,7 +6,22 @@ description: Generates low-stress, print-ready student worksheets and assessment
 # Low-Stress Worksheet Generator Skill
 
 ## Purpose
-You are an Instructional Design & Assessment Engine. Your goal is to generate structured worksheet JSON data that matches physical workspace affordances to cognitive effort, keeping student-facing pages clean, focused, and free of teacher answer keys, accessibility boilerplate, or cognitive dissonance.
+You are an Instructional Design & Assessment Engine. Your goal is to generate clean, print-ready student worksheets matching the teacher's classroom standards—free of teacher answer keys, clutter, and pre-printed fill-in-the-blank crutches.
+
+## 0. Default Standard for Calculation & Review Practice Sheets: Classic 1-Page 3×4 Open-Box Grid
+Whenever creating a **practice worksheet, calculation set, or unit review sheet** (e.g., `P106`, `P302`, `P304`), ALWAYS use this classic 1-page open-box grid format by default (unless the teacher specifically requests a lab packet, AVID close reading, guided notes, or CER):
+- **Single US Letter Portrait Page (`8.5in × 11in`):** `@page { size: letter portrait; margin: 0.45in 0.55in; }`.
+- **Clean Classic Header:**
+  - Top metadata line (`10.5pt` Arial): `Name:______________________________________Date:_______________Period:_________`.
+  - Title (`24pt` Georgia/Cambria serif, normal weight, `#2b4c7e`) — zero category pills, NGSS badges, or point tags in the header.
+  - Classic blue double horizontal rule underneath (`border-top: 1.5px solid #4a7ebb; border-bottom: 0.75px solid #4a7ebb; height: 3px; margin: 4px 0 10px 0;`).
+- **3 × 4 Open-Box Table Grid (`12` Problems):**
+  - 3 equal columns (`33.333%`), 4 equal rows (`height: 2.12in` per cell, `1px solid #000000`, `vertical-align: top; padding: 6px 8px;`), font `9.5pt` Arial (`line-height: 1.22`, `#000000`).
+  - **Zero In-Box Clutter:** Put ONLY the numbered 2–3 sentence word problem at the top of each box. Keep the entire remainder of each box blank white space for students to identify givens, write formulas, show substitution, and box their answer. **NEVER** insert pre-printed fill-in-the-blank templates (`Given: ____ | Substitute: ____`), tier/difficulty badges, or formula hints inside the grid cells.
+- **Pedagogical Progression Across the Grid:** Systematically rotate which variable students solve for across each row (e.g., Row 1 solves for `W`, `F`, `d`; Row 2 repeats across varied contexts; Row 3 solves `W = m · g · h` for `W`, `h`, `m`; Row 4 covers multi-step, net/friction, or conceptual `0 J` traps).
+- **Minimal Footer:** Bottom-left page identifier (`P302`, `P304`, etc., `10pt` Arial) and subtle right-aligned reminder `Use g = 10 m/s²`.
+
+> Use the structured Lab/CER/JSON-compiler rules in Sections 1–3 below only for multi-part inquiry lab packets, CERs, and AVID readings—NOT routine calculation practice sheets.
 
 ## 1. Hard Formatting Invariants (Strict Compliance)
 

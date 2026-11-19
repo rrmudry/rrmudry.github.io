@@ -1,0 +1,1907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Work &amp; Simple Machines Practice Class Progress</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/unit3-favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Built from machines_practice_monitor.src.html by scripts/inline-studio.js. Edit the source files, not this page. -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
+  <style>
+    :root {
+      --bg: #f1f5f9; --card: #ffffff; --line: #cbd5e1; --line-soft: #e2e8f0;
+      --text: #0f172a; --muted: #475569; --bar: #0284c7; --good: #15803d; --warn: #b45309; --bad: #be123c;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #070d19; --card: #0f172a; --line: #334155; --line-soft: #1e293b; --text: #f8fafc; --muted: #cbd5e1; --bar: #38bdf8; --good: #34d399; --warn: #fbbf24; --bad: #fb7185; }
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Outfit, system-ui, sans-serif; line-height: 1.4; }
+    header { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: var(--card); border-bottom: 1px solid var(--line); }
+    h1 { margin: 0; font-size: 1.25rem; font-weight: 800; }
+    h2 { margin: 0 0 0.6rem; font-size: 1rem; font-weight: 800; }
+    .sub { margin: 0; color: var(--muted); font-size: 0.85rem; }
+    main { padding: 1rem; max-width: 92rem; margin: 0 auto; display: grid; gap: 1rem; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 0.8rem; padding: 0.9rem; min-width: 0; }
+    select, button { font: inherit; font-weight: 700; color: var(--text); background: var(--card); border: 1px solid var(--line); border-radius: 0.5rem; padding: 0.3rem 0.6rem; }
+    button { cursor: pointer; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0.75rem; }
+    .tile strong { display: block; font-size: 1.8rem; font-variant-numeric: tabular-nums; }
+    .tile span { font-size: 0.85rem; color: var(--muted); }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr)); gap: 1rem; }
+    .bar-row { display: grid; grid-template-columns: 11rem 1fr 3.5rem; gap: 0.5rem; align-items: center; margin: 0.3rem 0; font-size: 0.9rem; }
+    .bar { height: 0.8rem; background: var(--line-soft); border-radius: 999px; overflow: hidden; }
+    .bar span { display: block; height: 100%; background: var(--bar); border-radius: 0 4px 4px 0; }
+    .val { font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+    .mistake { padding: 0.35rem 0; border-bottom: 1px solid var(--line-soft); font-size: 0.9rem; }
+    .mistake:last-child { border: 0; }
+    .mistake b { margin-right: 0.35rem; font-variant-numeric: tabular-nums; }
+    .mistake small { display: block; color: var(--muted); }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+    th { text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); padding: 0.35rem 0.5rem; border-bottom: 2px solid var(--line); white-space: nowrap; }
+    td { padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--line-soft); white-space: nowrap; }
+    td.name { font-weight: 700; }
+    td.num { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .pill { display: inline-block; min-width: 1.5rem; text-align: center; margin-right: 0.15rem; border: 1px solid var(--line); border-radius: 0.3rem; font-size: 0.72rem; font-weight: 700; color: var(--muted); padding: 0 0.25rem; }
+    .pill.on { border-color: var(--good); color: var(--good); }
+    .weak { color: var(--warn); font-size: 0.82rem; white-space: normal; min-width: 10rem; }
+    .none { color: var(--muted); }
+    td.low { color: var(--warn); }
+    .flag { color: var(--warn); font-size: 0.75rem; }
+    .filters { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .only-flagged { font-weight: 700; font-size: 0.9rem; }
+    .note { margin: 0 0 0.5rem; font-size: 0.85rem; color: var(--muted); }
+    .check { white-space: normal; min-width: 14rem; font-size: 0.82rem; color: var(--bad); font-weight: 600; }
+    .check div { margin: 0.1rem 0; }
+    tr.flagged td.name { color: var(--bad); }
+    .gate { text-align: center; padding: 3rem 1rem; }
+    .demo { background: var(--warn); color: #fff; font-weight: 700; text-align: center; padding: 0.25rem; }
+    .err { color: var(--bad); font-weight: 700; }
+    sub { font-size: 0.72em; }
+  </style>
+</head>
+<body>
+  <div id="demoBanner" class="demo" hidden>Sample data, not real students</div>
+  <header>
+    <div>
+      <h1>⚙️ Work &amp; Simple Machines Practice Class Progress</h1>
+      <p class="sub">Unit 3 · Day 4 · Updates live as students work</p>
+    </div>
+    <div class="filters" id="filters" hidden>
+      <label class="only-flagged"><input type="checkbox" id="onlyFlagged"> Only records to check</label>
+      <label>Class <select id="course"><option value="all">All classes</option><option value="honors">Honors</option><option value="cp">CP</option><option value="conceptual">Conceptual</option></select></label>
+      <label>Period <select id="period"><option value="all">All periods</option></select></label>
+      <a href="sprint_progress_3d.html?assignment=unit3_day4_machines_practice" style="font:inherit;font-weight:700;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:0.5rem;padding:0.3rem 0.6rem;text-decoration:none;">🏟️ 3D 100m Dash</a>
+      <button id="btnSignOut" type="button">Sign out</button>
+    </div>
+  </header>
+
+  <section id="gate" class="gate">
+    <p id="gateMsg">Checking sign-in…</p>
+    <button id="btnSignIn" type="button" hidden>Sign in with Google</button>
+    <p id="gateErr" class="err"></p>
+  </section>
+
+  <main id="main" hidden>
+    <section class="tiles" id="tiles"></section>
+    <div class="two">
+      <section class="card">
+        <h2>Skills on each student's latest Mastery Check</h2>
+        <div id="skills"></div>
+      </section>
+      <section class="card">
+        <h2>Most common mistakes (reteach these first)</h2>
+        <div id="mistakes"></div>
+      </section>
+    </div>
+    <section class="card">
+      <h2>Students</h2>
+      <p class="note">⚠ means a record is worth a look. It is not proof of cheating, and a careful cheater may not be flagged. A short in-person check settles it.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Student</th><th>Per.</th><th>Class</th><th>Grade /10</th><th title="Questions answered correctly on the first try">First try</th><th>Min.</th><th>Parts</th><th>Check record</th><th>Mastery best</th><th>Attempts</th><th>Needs work</th><th>Last active</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+// === Unit_2/vector_decomposition_studio/js/engine.js ===
+// Vector Decomposition Studio — Physics, scenario generators, answer checking, diagnostics, quiz builder
+// Angle θ is measured up from the ground unless a scenario says fromVertical.
+// Every wrong answer is compared against known mistakes so the student hears WHY, not just "wrong".
+// Questions are plain JSON so an unfinished Mastery Check can be saved and resumed with the same numbers.
+
+(function () {
+  const rad = d => d * Math.PI / 180;
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+
+  const Phys = {
+    vx: (v0, th) => v0 * Math.cos(rad(th)),
+    vy: (v0, th) => v0 * Math.sin(rad(th)),
+    speed: (x, y) => Math.hypot(x, y),
+    angle: (x, y) => Math.atan2(y, x) * 180 / Math.PI
+  };
+
+  function fmt(v, d) {
+    const s = Number(v).toFixed(d);
+    return /^-0\.?0*$/.test(s) ? s.slice(1) : s;
+  }
+  // Answers students compute: 1 decimal, 2 when small
+  const fmtAns = v => fmt(v, Math.abs(v) < 10 ? 2 : 1);
+
+  const near = (v, target, rel = 0.02, abs = 0.1) => Math.abs(v - target) <= Math.max(Math.abs(target) * rel, abs);
+
+  function parseNum(raw) {
+    const v = parseFloat(String(raw).replace(',', '.').replace(/[−–]/g, '-').replace(/[^0-9.\-eE]/g, ''));
+    return isFinite(v) ? v : null;
+  }
+
+  // ---------- Scenario contexts: the words never contain the numbers (those live on the picture) ----------
+  const THINGS = [
+    { icon: '⚽', name: 'soccer ball', verb: 'is kicked' },
+    { icon: '🏀', name: 'basketball', verb: 'is shot' },
+    { icon: '🏈', name: 'football', verb: 'is punted' },
+    { icon: '⛳', name: 'golf ball', verb: 'is hit' },
+    { icon: '🎾', name: 'tennis ball', verb: 'is lobbed' },
+    { icon: '🐸', name: 'frog', verb: 'jumps' },
+    { icon: '💣', name: 'cannonball', verb: 'is fired' },
+    { icon: '🚀', name: 'toy rocket', verb: 'is launched' }
+  ];
+
+  // No angles close to 45° in calculations: sin and cos must give clearly different answers.
+  const EASY_ANGLES = [30, 60];
+  const ALL_ANGLES = [15, 20, 25, 30, 35, 37, 40, 50, 53, 55, 60, 65, 70, 75];
+  const FIVE_ANGLES = [20, 25, 30, 35, 40, 50, 55, 60, 65, 70];
+  const EASY_SPEEDS = [10, 20, 30, 40];
+  const ALL_SPEEDS = [12, 14, 15, 16, 18, 20, 22, 24, 25, 26, 28, 30, 32, 35, 36, 40, 45, 50];
+
+  function launch(level = 2, not) {
+    let sc;
+    do {
+      sc = {
+        v0: pick(level <= 1 ? EASY_SPEEDS : ALL_SPEEDS),
+        th: pick(level <= 1 ? EASY_ANGLES : level === 'five' ? FIVE_ANGLES : ALL_ANGLES),
+        thing: Math.floor(Math.random() * THINGS.length)
+      };
+    } while (not && not.v0 === sc.v0 && not.th === sc.th);
+    sc.x = Phys.vx(sc.v0, sc.th);
+    sc.y = Phys.vy(sc.v0, sc.th);
+    return sc;
+  }
+
+  // Whole-number arrows that land exactly on grid corners, for reading squares with no trig
+  const TRIPLES = [[8, 6], [6, 8], [12, 5], [5, 12], [12, 9], [9, 12], [15, 8], [8, 15], [4, 3], [3, 4], [16, 12], [12, 16]];
+  function gridArrow(scales = [1], not) {
+    let sc;
+    do {
+      const [gx, gy] = pick(TRIPLES);
+      const scale = pick(scales);
+      sc = { gx, gy, scale, x: gx * scale, y: gy * scale, v0: Math.hypot(gx, gy) * scale, thing: Math.floor(Math.random() * THINGS.length) };
+    } while (not && not.gx === sc.gx && not.gy === sc.gy && not.scale === sc.scale);
+    sc.th = Phys.angle(sc.x, sc.y);
+    return sc;
+  }
+
+  // ---------- Worked solutions ----------
+  const fn = asked => asked === 'x' ? 'cos' : 'sin';
+  const sym = asked => asked === 'x' ? 'v_0x' : 'v_0y';
+  const work = (asked, sc) =>
+    `${sym(asked)} = v_0 × ${fn(asked)}(θ) = ${sc.v0} m/s × ${fn(asked)}(${sc.th}°) = ${fmtAns(asked === 'x' ? sc.x : sc.y)} m/s`;
+
+  // ---------- Diagnostics: [id, test(v, sc), message(sc)] — first match wins. Ids feed the teacher monitor. ----------
+  function calcMistakes(asked) {
+    const f = asked === 'x' ? Math.cos : Math.sin;
+    const part = asked === 'x' ? 'sideways' : 'upward';
+    const other = asked === 'x' ? 'upward' : 'sideways';
+    const value = sc => f(rad(sc.th));
+    return [
+      ['swap', (v, s) => near(v, asked === 'x' ? s.y : s.x),
+        () => `You found the ${other} part. The ${part} part is the side that ${asked === 'x' ? 'touches' : 'is across from'} θ, so it uses ${fn(asked)}.`],
+      ['radians', (v, s) => near(v, s.v0 * f(s.th)) || near(v, f(s.th)),
+        () => `Your calculator is in radian mode. Switch it to degrees (DEG) and try again.`],
+      ['no_speed', (v, s) => near(v, value(s), 0.03, 0.01),
+        s => `${fn(asked)}(${s.th}°) only tells how much of the speed, as a decimal. Multiply it by v_0 to get m/s.`],
+      ['divided', (v, s) => near(v, s.v0 / value(s)),
+        () => `You divided. A part can never be bigger than the whole speed. Multiply v_0 by the decimal.`],
+      ['tan', (v, s) => near(v, s.v0 * Math.tan(rad(s.th))),
+        () => `That is tangent. Use sin or cos, because v_0 is the long side (the hypotenuse) of the triangle.`],
+      ['no_trig', (v, s) => near(v, s.v0 * s.th),
+        () => `You multiplied by the angle itself. Multiply by ${fn(asked)} of the angle.`],
+      ['added', (v, s) => near(v, s.v0 + value(s)),
+        () => `You added. Multiply the speed by the decimal: v_0 × ${fn(asked)}(θ).`],
+      ['whole_speed', (v, s) => near(v, s.v0),
+        () => `That is the whole launch speed v_0. Only part of it goes ${asked === 'x' ? 'sideways' : 'up'}.`],
+      ['angle_read', (v, s) => near(v, s.th),
+        () => `That is the angle. The answer is a speed in m/s. Use v_0 × ${fn(asked)}(θ).`],
+      ['decimal', (v, s) => { const t = asked === 'x' ? s.x : s.y; return near(v, t * 10) || near(v, t / 10); },
+        () => `Your digits are right but the decimal point moved. Check your typing.`]
+    ];
+  }
+
+  // Check a calculated component. Returns { ok, msg, mistake }.
+  function checkCalc(asked, raw, sc) {
+    const v = parseNum(raw);
+    if (v === null) return { ok: null, msg: 'Type a number first.' };
+    const target = asked === 'x' ? sc.x : sc.y;
+    if (near(v, target)) return { ok: true, msg: `<span class="formula">${work(asked, sc)}</span>` };
+    const hit = calcMistakes(asked).find(([, test]) => test(v, sc));
+    const why = hit ? hit[2](sc) : 'Not quite. Check each step: which function, then multiply by v_0.';
+    return {
+      ok: false,
+      mistake: hit ? hit[0] : 'other',
+      msg: `${why}<br><span class="worked">The right way: <span class="formula">${work(asked, sc)}</span></span>`
+    };
+  }
+
+  // ---------- Mastery Check questions ----------
+  // Each is plain JSON: { kind, skill, sc, asked?, order? }. QUESTION[kind] knows how to show and grade it.
+  const SKILLS = {
+    read: { label: 'Read parts off a grid' },
+    concept: { label: 'Angle and the parts' },
+    choose: { label: 'Choose sin or cos' },
+    calc_x: { label: 'Calculate v_0x' },
+    calc_y: { label: 'Calculate v_0y' },
+    sense: { label: 'Does the answer make sense?' },
+    honors: { label: 'Honors challenges' }
+  };
+
+  function shuffled(n) {
+    const a = [...Array(n).keys()];
+    for (let i = n - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  const QUESTION = {
+    // Read one part off a grid (the scale changes, so students must read the key)
+    read: {
+      make: () => ({ kind: 'read', skill: 'read', asked: pick(['x', 'y']), sc: gridArrow([1, 2, 5]) }),
+      type: 'num',
+      text: q => `Use the grid. Read the scale first. How fast is the ${q.asked === 'x' ? 'sideways' : 'upward'} part, ${sym(q.asked)}?`,
+      scene: q => ({ mode: 'grid', sc: q.sc, showArrow: true, showX: q.asked === 'x', showY: q.asked === 'y', keyLabel: true }),
+      unit: 'm/s',
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const t = q.asked === 'x' ? q.sc.x : q.sc.y;
+        if (v === null) return { ok: false, msg: `No answer. ${sym(q.asked)} = ${t} m/s.`, mistake: 'blank' };
+        if (near(v, t, 0, 0.01)) return { ok: true, msg: `${sym(q.asked)} = ${t} m/s.` };
+        const squares = q.asked === 'x' ? q.sc.gx : q.sc.gy;
+        if (near(v, squares, 0, 0.01) && q.sc.scale !== 1) {
+          return { ok: false, mistake: 'scale', msg: `You counted ${squares} squares, but each square is worth ${q.sc.scale} m/s here. ${squares} × ${q.sc.scale} = ${t} m/s.` };
+        }
+        if (near(v, q.asked === 'x' ? q.sc.y : q.sc.x, 0, 0.01)) {
+          return { ok: false, mistake: 'swap', msg: `You read the other part. ${q.asked === 'x' ? 'Sideways is along the ground' : 'Upward is the height of the tip'}. ${sym(q.asked)} = ${t} m/s.` };
+        }
+        return { ok: false, mistake: 'read', msg: `Count squares, then multiply by the scale. ${sym(q.asked)} = ${t} m/s.` };
+      }
+    },
+
+    // Which part is bigger at this angle?
+    concept: {
+      make: () => {
+        const th = pick([15, 20, 30, 45, 60, 70, 75]);
+        return { kind: 'concept', skill: 'concept', sc: { v0: pick([20, 30, 40]), th, thing: Math.floor(Math.random() * THINGS.length) }, order: shuffled(3) };
+      },
+      type: 'mc',
+      text: () => 'Look at the launch angle. Which part of the launch velocity is bigger?',
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: false, showY: false, labelV0: false }),
+      options: () => [{ t: 'The sideways part, v_0x', id: 'x' }, { t: 'The upward part, v_0y', id: 'y' }, { t: 'They are equal', id: 'eq' }],
+      grade: (q, id) => {
+        const right = q.sc.th === 45 ? 'eq' : q.sc.th < 45 ? 'x' : 'y';
+        const why = q.sc.th === 45 ? 'At 45° the speed splits evenly.' : q.sc.th < 45 ? 'A low angle aims mostly sideways, so v_0x is bigger.' : 'A steep angle aims mostly up, so v_0y is bigger.';
+        return { ok: id === right, msg: why, mistake: id === right ? null : 'angle_concept' };
+      }
+    },
+
+    // Pick the correct setup from symbols
+    choose: {
+      make: () => ({ kind: 'choose', skill: 'choose', asked: pick(['x', 'y']), sc: launch(2), order: shuffled(4) }),
+      type: 'mc',
+      text: q => `Which setup finds the part marked with "?" in the picture?`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: q.asked === 'x', showY: q.asked === 'y', mark: q.asked }),
+      options: () => [
+        { t: 'v_0 × cos(θ)', id: 'x', formula: true }, { t: 'v_0 × sin(θ)', id: 'y', formula: true },
+        { t: 'v_0 ÷ cos(θ)', id: 'dc', formula: true }, { t: 'v_0 × tan(θ)', id: 't', formula: true }
+      ],
+      grade: (q, id) => {
+        const ok = id === q.asked;
+        return {
+          ok,
+          mistake: ok ? null : (id === 'x' || id === 'y') ? 'swap' : id === 't' ? 'tan' : 'divided',
+          msg: q.asked === 'x' ? 'The sideways side touches θ (adjacent), so it uses cos.' : 'The upward side is across from θ (opposite), so it uses sin.'
+        };
+      }
+    },
+
+    calc_x: {
+      make: () => ({ kind: 'calc_x', skill: 'calc_x', asked: 'x', sc: launch(2) }),
+      type: 'num',
+      text: q => `A ${THINGS[q.sc.thing].name} ${THINGS[q.sc.thing].verb}. Use the picture to find the sideways part, v_0x.`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: true, showY: false, mark: 'x' }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, q.sc.th] }),
+      grade: (q, raw) => gradeCalc('x', raw, q.sc)
+    },
+
+    calc_y: {
+      make: () => ({ kind: 'calc_y', skill: 'calc_y', asked: 'y', sc: launch(2) }),
+      type: 'num',
+      text: q => `A ${THINGS[q.sc.thing].name} ${THINGS[q.sc.thing].verb}. Use the picture to find the upward part, v_0y.`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: false, showY: true, mark: 'y' }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, q.sc.th] }),
+      grade: (q, raw) => gradeCalc('y', raw, q.sc)
+    },
+
+    // A claimed answer: possible or not, and why?
+    sense: {
+      make: () => {
+        const sc = launch(2);
+        const bad = Math.random() < 0.5;
+        const asked = pick(['x', 'y']);
+        // Bad claims are bigger than the launch speed, a mistake students can catch without a calculator
+        const claim = bad ? Math.round(sc.v0 * pick([1.2, 1.4, 1.5])) : Math.round(asked === 'x' ? sc.x : sc.y);
+        return { kind: 'sense', skill: 'sense', asked, sc, claim, bad, order: shuffled(3) };
+      },
+      type: 'mc',
+      text: q => `A student says the ${q.asked === 'x' ? 'sideways' : 'upward'} part of this launch is ${q.claim} m/s. Without calculating, could that be right?`,
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: q.asked === 'x', showY: q.asked === 'y', mark: q.asked }),
+      options: () => [
+        { t: 'No. A part cannot be bigger than the launch speed.', id: 'no' },
+        { t: 'Yes. It could be right, because it is smaller than the launch speed.', id: 'yes' },
+        { t: 'Yes. Parts are always bigger than the launch speed.', id: 'bigger' }
+      ],
+      grade: (q, id) => {
+        const right = q.bad ? 'no' : 'yes';
+        return {
+          ok: id === right,
+          mistake: id === right ? null : 'part_bigger',
+          msg: q.bad ? `v_0 is the long side of the triangle, so each part must be smaller than ${q.sc.v0} m/s.` : `${q.claim} m/s is smaller than ${q.sc.v0} m/s, so it passes the check.`
+        };
+      }
+    },
+
+    // ---------- Honors (Period 0 only) ----------
+    h_vertical: {
+      make: () => ({ kind: 'h_vertical', skill: 'honors', asked: pick(['x', 'y']), sc: Object.assign(launch(2), {}) }),
+      type: 'num',
+      text: q => `Careful: this angle is measured from the vertical, not the ground. Find ${sym(q.asked)}.`,
+      hints: () => ['Look at which side touches the marked angle. Here it is the upward side.', 'The side that touches the angle uses cos. The side across from it uses sin.'],
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: q.asked === 'x', showY: q.asked === 'y', mark: q.asked, fromVertical: true }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, 90 - q.sc.th] }),
+      // sc.th is the angle from the GROUND; the picture shows 90° − th from the vertical.
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const t = q.asked === 'x' ? q.sc.x : q.sc.y;
+        const shown = 90 - q.sc.th;
+        const right = `${sym(q.asked)} = ${q.sc.v0} m/s × ${q.asked === 'x' ? 'sin' : 'cos'}(${shown}°) = ${fmtAns(t)} m/s`;
+        if (v !== null && near(v, t)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const flipped = v !== null && near(v, q.asked === 'x' ? q.sc.y : q.sc.x);
+        return {
+          ok: false,
+          mistake: flipped ? 'vertical_angle' : 'other',
+          msg: `${flipped ? `You used the ground rule. Here the UPWARD side touches the angle, so cos goes with v_0y and sin goes with v_0x.<br>` : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>`
+        };
+      }
+    },
+
+    h_down: {
+      make: () => ({ kind: 'h_down', skill: 'honors', asked: 'y', sc: launch(2) }),
+      type: 'num',
+      text: () => 'This launch aims BELOW the horizontal. Up is positive and down is negative. Calculate how fast the vertical part is. Then choose its direction.',
+      signed: true,
+      hints: () => ['Use v_0 × sin(θ) in the calculator. You do not need a minus sign there.', 'Look at the arrow. Which way does the vertical part point? Choose Up or Down.'],
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: false, showY: true, mark: 'y', downward: true }),
+      unit: 'm/s',
+      needs: q => ({ trig: true, nums: [q.sc.v0, q.sc.th] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const t = -q.sc.y;
+        const right = `v_0y = −(${q.sc.v0} m/s × sin(${q.sc.th}°)) = ${fmtAns(t).replace('-', '−')} m/s`;
+        if (v !== null && near(v, t)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const noSign = v !== null && near(v, q.sc.y);
+        return { ok: false, mistake: noSign ? 'sign' : 'other', msg: `${noSign ? 'Right size, wrong sign. Downward is negative.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    },
+
+    h_speed: {
+      make: () => ({ kind: 'h_speed', skill: 'honors', sc: gridArrow([1, 2]) }),
+      type: 'num',
+      text: () => 'Work backward. Read both parts off the grid, then find the launch speed v_0.',
+      hints: () => ['The parts are at a right angle, so use the Pythagorean theorem.', 'On the calculator: press the √ button. Inside it, type the first part, press a², press +, type the second part, press a².'],
+      scene: q => ({ mode: 'grid', sc: q.sc, showArrow: true, showX: true, showY: true, keyLabel: true }),
+      unit: 'm/s',
+      needs: q => ({ fn: 'sqrt', nums: [q.sc.x, q.sc.y] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const right = `v_0 = √(v_0x² + v_0y²) = √(${q.sc.x}² + ${q.sc.y}²) = ${fmtAns(q.sc.v0)} m/s`;
+        if (v !== null && near(v, q.sc.v0)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const added = v !== null && near(v, q.sc.x + q.sc.y);
+        return { ok: false, mistake: added ? 'added_parts' : 'other', msg: `${added ? 'You added the parts. They are at a right angle, so use the Pythagorean theorem.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    },
+
+    h_angle: {
+      make: () => ({ kind: 'h_angle', skill: 'honors', sc: gridArrow([1, 2]) }),
+      type: 'num',
+      text: () => 'Work backward. Read both parts off the grid, then find the launch angle θ above the ground.',
+      hints: () => ['Use θ = tan⁻¹(v_0y ÷ v_0x).', 'The tan⁻¹ button is on the calculator\'s func tab. Press func, then tan⁻¹.', 'Press main to get the numbers back. Type the upward part, press ÷, then type the sideways part.'],
+      scene: q => ({ mode: 'grid', sc: q.sc, showArrow: true, showX: true, showY: true, keyLabel: true }),
+      unit: '°',
+      needs: q => ({ fn: 'atan', nums: [q.sc.x, q.sc.y] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const right = `θ = tan⁻¹(v_0y ÷ v_0x) = tan⁻¹(${q.sc.y} ÷ ${q.sc.x}) = ${fmt(q.sc.th, 1)}°`;
+        if (v !== null && Math.abs(v - q.sc.th) <= 1) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const flipped = v !== null && Math.abs(v - (90 - q.sc.th)) <= 1;
+        return { ok: false, mistake: flipped ? 'vertical_angle' : 'other', msg: `${flipped ? 'That angle is from the vertical. Divide up by sideways.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    },
+
+    h_back: {
+      make: () => ({ kind: 'h_back', skill: 'honors', sc: launch(2) }),
+      type: 'num',
+      text: () => 'The picture gives v_0x and θ. Work backward to find the launch speed v_0.',
+      hints: () => ['Normally v_0x = v_0 × cos(θ). Here you know v_0x, so divide instead.', 'On the calculator: type v_0x, press ÷, then press cos and type the angle.'],
+      scene: q => ({ mode: 'scene', sc: q.sc, showX: true, showY: false, labelV0: false, giveX: true }),
+      unit: 'm/s',
+      needs: q => ({ fn: 'cos', nums: [Number(fmt(q.sc.x, 1)), q.sc.th] }),
+      grade: (q, raw) => {
+        const v = parseNum(raw);
+        const shownX = Number(fmt(q.sc.x, 1));
+        const t = shownX / Math.cos(rad(q.sc.th));
+        const right = `v_0 = v_0x ÷ cos(θ) = ${fmt(shownX, 1)} ÷ cos(${q.sc.th}°) = ${fmtAns(t)} m/s`;
+        if (v !== null && near(v, t)) return { ok: true, msg: `<span class="formula">${right}</span>` };
+        const times = v !== null && near(v, shownX * Math.cos(rad(q.sc.th)));
+        return { ok: false, mistake: times ? 'multiplied' : 'other', msg: `${times ? 'You multiplied, so your answer came out smaller than v_0x. The whole speed must be bigger. Divide.<br>' : ''}<span class="worked">The right way: <span class="formula">${right}</span></span>` };
+      }
+    }
+  };
+
+  function gradeCalc(asked, raw, sc) {
+    const r = checkCalc(asked, raw, sc);
+    if (r.ok === null) return { ok: false, mistake: 'blank', msg: `No answer. <span class="formula">${work(asked, sc)}</span>` };
+    return r;
+  }
+
+  // Mastery Check: one blueprint so every retake tests the same skills with new numbers.
+  function buildQuiz(honors) {
+    const list = ['read', 'concept', 'choose', 'calc_x', 'calc_x', 'calc_y', 'calc_y', 'sense'];
+    if (honors) list.push(pick(['h_speed', 'h_angle']), pick(['h_vertical', 'h_down', 'h_back']));
+    return list.map(kind => QUESTION[kind].make());
+  }
+
+  function gradeQuiz(questions, answers) {
+    const results = questions.map((q, i) => {
+      const r = QUESTION[q.kind].grade(q, answers[i]);
+      return { skill: q.skill, ok: !!r.ok, msg: r.msg, mistake: r.mistake || null };
+    });
+    const correct = results.filter(r => r.ok).length;
+    const skills = {};
+    results.forEach(r => {
+      skills[r.skill] = skills[r.skill] || { right: 0, total: 0 };
+      skills[r.skill].total++;
+      if (r.ok) skills[r.skill].right++;
+    });
+    return { results, correct, total: questions.length, pct: Math.round(100 * correct / questions.length), skills };
+  }
+
+  // ---------- Reading the Desmos scientific calculator ----------
+  // Its API reports what was typed (LaTeX) but not the result, so this evaluates the LaTeX itself.
+  // It also records which numbers and functions were used, so "17.3" alone can't pass as work.
+  function parseCalc(latex, degrees, prev) {
+    let src = String(latex)
+      .replace(/\\left|\\right/g, '').replace(/\\cdot|\\times/g, '*').replace(/\\div/g, '/')
+      .replace(/\\operatorname\{([a-z]+)\}/g, '\\$1').replace(/\\ /g, '').replace(/\s+/g, '')
+      .replace(/−/g, '-').replace(/\^\{?\\circ\}?|°/g, '°');
+    let i = 0;
+    const nums = [], fns = [];
+    const peek = t => src.startsWith(t, i);
+    const take = t => (peek(t) ? (i += t.length, true) : false);
+    const fail = () => { throw new Error('unreadable'); };
+    const need = t => { if (!take(t)) fail(); };
+    const group = () => { need('{'); const v = expr(); need('}'); return v; };
+
+    const FN = { sin: Math.sin, cos: Math.cos, tan: Math.tan };
+    const INV = { sin: Math.asin, cos: Math.acos, tan: Math.atan };
+    const toRad = x => (degrees ? rad(x) : x);
+    const fromRad = x => (degrees ? x * 180 / Math.PI : x);
+
+    function funcCall() {
+      for (const name of ['arcsin', 'arccos', 'arctan', 'sin', 'cos', 'tan']) {
+        if (!take('\\' + name)) continue;
+        const base = name.replace('arc', '');
+        let inverse = name.startsWith('arc');
+        if (take('^{-1}')) inverse = true;
+        const arg = unary();
+        fns.push((inverse ? 'a' : '') + base);
+        return inverse ? fromRad(INV[base](arg)) : FN[base](toRad(arg));
+      }
+      return null;
+    }
+
+    function atom() {
+      if (take('(')) { const v = expr(); need(')'); return v; }
+      if (take('\\frac')) { const a = group(); const b = group(); return a / b; }
+      if (take('\\sqrt')) {
+        let n = 2;
+        if (take('[')) { n = expr(); need(']'); }
+        fns.push('sqrt');
+        return Math.pow(group(), 1 / n);
+      }
+      if (take('\\pi')) return Math.PI;
+      if (take('ans') || take('\\ans')) {
+        if (!prev) fail();
+        nums.push(...prev.nums); fns.push(...prev.fns);
+        return prev.value;
+      }
+      const m = src.slice(i).match(/^(\d+\.?\d*|\.\d+)/);
+      if (m) { i += m[0].length; const v = parseFloat(m[0]); nums.push(v); return v; }
+      const f = funcCall();
+      if (f !== null) return f;
+      return fail();
+    }
+
+    function postfix() {
+      let v = atom();
+      for (;;) {
+        if (take('°')) { if (!degrees) v = rad(v); }
+        else if (take('\\%')) v /= 100;
+        else if (take('^')) {
+          if (peek('{')) v = Math.pow(v, group());
+          else { const m = src.slice(i).match(/^\d/); if (!m) fail(); i++; v = Math.pow(v, Number(m[0])); }
+        } else return v;
+      }
+    }
+    function unary() { return take('-') ? -unary() : postfix(); }
+    function term() {
+      let v = unary();
+      for (;;) {
+        if (take('*')) v *= unary();
+        else if (take('/')) v /= unary();
+        else if (i < src.length && /[\d(\\.a]/.test(src[i])) v *= unary();   // 20\cos(30)
+        else return v;
+      }
+    }
+    function expr() {
+      let v = term();
+      for (;;) {
+        if (take('+')) v += term();
+        else if (take('-')) v -= term();
+        else return v;
+      }
+    }
+
+    try {
+      const value = expr();
+      if (i !== src.length || !isFinite(value)) return null;
+      return { value, nums, fns, latex };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // state = desmos.getState(). Uses the student's latest line, as the calculator itself would show it.
+  function readCalculator(state) {
+    const list = (state && state.expressions && state.expressions.list) || [];
+    const degrees = !state || !state.settings || state.settings.degreeMode !== false;
+    let prev = null, last = null, unreadable = false;
+    list.forEach(item => {
+      if (!item || !item.latex) return;
+      const parsed = parseCalc(item.latex, degrees, prev);
+      unreadable = !parsed;
+      last = item.latex;
+      if (parsed) prev = parsed;
+    });
+    if (last === null) return { empty: true };
+    if (unreadable) return { unreadable: true };
+    return prev;
+  }
+
+  // needs = { nums: [...], fn: 'sin' | 'cos' | 'sqrt' | 'atan', trig: true }. Returns a message, or null when it is real work.
+  // These stop a looked-up answer without costing a streak, so a real mistake still gets its diagnosis at Check.
+  function checkWork(work, needs = {}) {
+    if (!work.fns.length && work.nums.length <= 1) {
+      return 'Type the whole calculation into the calculator, not just the answer.';
+    }
+    if (needs.fn && !work.fns.includes(needs.fn)) {
+      const names = { sin: 'the sin button', cos: 'the cos button', sqrt: 'the square root button', atan: 'the tan⁻¹ button' };
+      return `Your calculation needs to use ${names[needs.fn]}.`;
+    }
+    if (needs.trig && !work.fns.some(f => ['sin', 'cos', 'tan'].includes(f))) {
+      return 'Your calculation needs to use the sin or cos button.';
+    }
+    const missing = (needs.nums || []).filter(n => !work.nums.some(w => Math.abs(w - Math.abs(n)) < 1e-6));
+    if (missing.length) return `Your calculation needs to use the numbers from the problem. Look for ${missing.join(' and ')}.`;
+    return null;
+  }
+
+  window.Engine = { parseCalc, readCalculator, checkWork, Phys, THINGS, SKILLS, QUESTION, fmt, fmtAns, near, parseNum, pick, shuffled, rad, launch, gridArrow, work, fn, sym, checkCalc, buildQuiz, gradeQuiz };
+})();
+
+// === Unit_3/machines_practice/js/physics.js ===
+// Work & Simple Machines Practice — physics, GUESS setup scenarios, scaffolded problem generators,
+// Desmos work verification, mistake diagnostics, and Mastery Check builder.
+// g = 10 m/s² everywhere. Every generated scenario is plain JSON so reload/Firestore resume keeps the exact numbers.
+
+(function () {
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const shuffle = a => {
+    const b = a.slice();
+    for (let i = b.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [b[i], b[j]] = [b[j], b[i]];
+    }
+    return b;
+  };
+  const round = (v, d = 2) => Math.round(v * 10 ** d) / 10 ** d;
+
+  function fmt(v) {
+    const s = Math.abs(v - Math.round(v)) < 1e-9 ? String(Math.round(v)) : Math.abs(v) < 10 ? String(round(v, 2)) : String(round(v, 1));
+    return s.replace(/^-/, '−');
+  }
+  const near = (v, target, rel = 0.02, abs = 0.05) => Math.abs(v - target) <= Math.max(Math.abs(target) * rel, abs);
+  function parseNum(raw) {
+    const v = parseFloat(String(raw).replace(',', '.').replace(/[−–]/g, '-').replace(/[^0-9.\-eE]/g, ''));
+    return isFinite(v) ? v : null;
+  }
+
+  const G = 10; // m/s², on Earth, in this class
+
+  // A calculator line has to be real work: more than one number, and uses this problem's numbers.
+  function workProblem(work, needs = {}) {
+    if (!work.fns.length && work.nums.length <= 1 && !/\\pi/.test(work.latex || '')) {
+      return 'Type the whole calculation into the calculator, not just the answer.';
+    }
+    if (needs.fn && !work.fns.includes(needs.fn)) {
+      return `Your calculation needs to use the ${needs.label || needs.fn} button.`;
+    }
+    const has = n => work.nums.some(w => Math.abs(w - Math.abs(n)) <= Math.max(Math.abs(n) * 0.015, 0.0051));
+    const routes = needs.routes || [];
+    if (routes.length && !routes.some(r => r.every(has))) {
+      return `Your calculation needs to use ${needs.from || 'the numbers from this problem'}. Look for ${routes[0].map(n => fmt(Math.abs(n))).join(' and ')}.`;
+    }
+    return null;
+  }
+
+  // Stacked vertical equation steps, one line per step with equals signs lined up.
+  function stack(calc) {
+    const [sym, ...steps] = calc.split(' = ');
+    if (!steps.length) return `<span class="formula">${calc}</span>`;
+    return `<span class="calc-stack">${steps.map(s => `<span class="calc-sym">${sym}</span><span>=</span><span>${s}</span>`).join('')}</span>`;
+  }
+
+  function grade(q, raw) {
+    const v = parseNum(raw);
+    const worked = q.right ? `<br><span class="worked">The right way: ${stack(q.right)}</span>` : '';
+    if (v === null) {
+      return { ok: false, retry: true, mistake: 'blank', msg: q.calc ? 'Use the calculator, then press "Use calculator answer".' : 'Type your answer in the box.' };
+    }
+    if (near(v, q.target, q.rel === undefined ? 0.02 : q.rel, q.abs === undefined ? 0.05 : q.abs)) {
+      return { ok: true, msg: q.right ? stack(q.right) : '' };
+    }
+    const hit = q.mistake ? q.mistake(v) : null;
+    if (hit && hit[2]) return { ok: false, retry: true, mistake: hit[0], msg: hit[1] };
+    return { ok: false, mistake: hit ? hit[0] : 'other', msg: (hit ? hit[1] : 'Not quite.') + worked };
+  }
+
+  // ---------- Part 1: GUESS Setup Scenarios (zero arithmetic, interactive G / U / E matching) ----------
+  const SETUP_GEN = {
+    setup_w() {
+      const F = pick([150, 200, 250, 300]), d = pick([3, 4, 5, 6]);
+      return { kind: 'setup_w', sceneKind: 'pulley_w', F, d, W: F * d, title: 'Mechanic lifting an engine with a pulley hoist' };
+    },
+    setup_f() {
+      const F = pick([80, 100, 120, 150]), d = pick([4, 5, 6, 8]);
+      return { kind: 'setup_f', sceneKind: 'pulley_f', F, d, W: F * d, title: 'Stagehand pulling rope to hoist a stage light' };
+    },
+    setup_d() {
+      const F = pick([80, 100, 120, 150]), d = pick([4, 5, 6]);
+      return { kind: 'setup_d', sceneKind: 'ramp_givenW_d', F, d, W: F * d, h: 1.5, title: 'Worker pushing a cart up a smooth loading ramp' };
+    },
+    setup_ma() {
+      const ma = pick([3, 4, 5]), Fin = pick([60, 80, 90, 100]);
+      return { kind: 'setup_ma', sceneKind: 'ma_find', Fout: ma * Fin, Fin, ma, title: 'Worker lifting a heavy crate with a block-and-tackle pulley' };
+    }
+  };
+
+  function setupSpec(sc) {
+    if (sc.kind === 'setup_w') {
+      return {
+        prompt: 'Sort the picture labels into <strong>Givens (G)</strong> and <strong>Unknown (U)</strong>, then pick the matching <strong>Equation (E)</strong>.',
+        symbols: ['F = pull force (N)', 'd = rope distance (m)', 'W = work done (J)'],
+        teach: 'Work measures force applied over a distance. Cover <strong>W</strong> in the triangle: <strong>F</strong> and <strong>d</strong> sit side by side, so you multiply.',
+        triangle: { kind: 'work', cover: 'W' },
+        guHints: [
+          'Numbers you can read right off the picture belong in Givens (G).',
+          'Look for the ? badge (W = ? J) — put that one in Unknown (U).'
+        ],
+        eqHints: [
+          `We are solving for W. Cover W in the triangle — F (${fmt(sc.F)} N) and d (${fmt(sc.d)} m) are next to each other on the bottom.`,
+          'Side-by-side in the triangle means multiply: W = F × d.'
+        ],
+        chips: [
+          { id: 'F', text: `F = ${fmt(sc.F)} N`, cls: 'wk-F-text' },
+          { id: 'd', text: `d = ${fmt(sc.d)} m`, cls: 'wk-d-text' },
+          { id: 'W', text: 'W = ? J', cls: 'wk-W-text' }
+        ],
+        givens: ['F', 'd'],
+        unknown: 'W',
+        eqChoices: ['W = F × d', 'F = W ÷ d', 'd = W ÷ F'],
+        rightEq: 'W = F × d',
+        explainWrongEq: eq => (eq.startsWith('F =')
+          ? `That solves for force F, but Unknown (U) has W = ? J. With F = ${fmt(sc.F)} N and d = ${fmt(sc.d)} m, multiply to find W = F × d.`
+          : `That solves for distance d, but Unknown (U) has W = ? J. Cover W in the triangle to get W = F × d.`),
+        worked: `W = F × d = ${fmt(sc.F)} N × ${fmt(sc.d)} m = ${fmt(sc.W)} J`
+      };
+    }
+    if (sc.kind === 'setup_f') {
+      return {
+        prompt: 'Sort the picture labels into <strong>Givens (G)</strong> and <strong>Unknown (U)</strong>, then pick the matching <strong>Equation (E)</strong>.',
+        symbols: ['W = work done (J)', 'd = rope distance (m)', 'F = pull force (N)'],
+        teach: 'You already know the work <strong>W</strong> and rope distance <strong>d</strong>. Cover <strong>F</strong> in the triangle: <strong>W</strong> sits over <strong>d</strong>, so you divide.',
+        triangle: { kind: 'work', cover: 'F' },
+        guHints: [
+          'The Work Meter gives W and the tape line gives d — both are Givens (G).',
+          'F = ? N is missing, so F goes in Unknown (U).'
+        ],
+        eqHints: [
+          `Cover F in the triangle: W (${fmt(sc.W)} J) is on top and d (${fmt(sc.d)} m) is on bottom.`,
+          'Top ÷ bottom gives F = W ÷ d.'
+        ],
+        chips: [
+          { id: 'W', text: `W = ${fmt(sc.W)} J`, cls: 'wk-W-text' },
+          { id: 'd', text: `d = ${fmt(sc.d)} m`, cls: 'wk-d-text' },
+          { id: 'F', text: 'F = ? N', cls: 'wk-F-text' }
+        ],
+        givens: ['W', 'd'],
+        unknown: 'F',
+        eqChoices: ['F = W ÷ d', 'W = F × d', 'F = d ÷ W'],
+        rightEq: 'F = W ÷ d',
+        explainWrongEq: eq => (eq === 'W = F × d'
+          ? `We already know W = ${fmt(sc.W)} J! Unknown (U) is F = ? N, so cover F in the triangle: F = W ÷ d.`
+          : `That flips the fraction upside down (${fmt(sc.d)} ÷ ${fmt(sc.W)} gives a tiny decimal!). Keep W on top: F = W ÷ d.`),
+        worked: `F = W ÷ d = ${fmt(sc.W)} J ÷ ${fmt(sc.d)} m = ${fmt(sc.F)} N`
+      };
+    }
+    if (sc.kind === 'setup_d') {
+      return {
+        prompt: 'The work needed to lift the cart is already shown on the dock. Sort <strong>Givens (G)</strong> and <strong>Unknown (U)</strong>, then pick the <strong>Equation (E)</strong>.',
+        symbols: ['W = work needed (J)', 'F = push force (N)', 'd = ramp length (m)'],
+        teach: 'A smooth ramp uses the same lifting work <strong>W</strong> shown on the dock. Cover <strong>d</strong> in the triangle: <strong>W</strong> sits over <strong>F</strong>, so you divide.',
+        triangle: { kind: 'work', cover: 'd' },
+        guHints: [
+          'Work Needed (W) and push force (F) both have numbers — put them in Givens (G).',
+          'Ramp length d = ? m is Unknown (U).'
+        ],
+        eqHints: [
+          `Cover d in the triangle: W (${fmt(sc.W)} J) is on top and F (${fmt(sc.F)} N) is on bottom.`,
+          'Top ÷ bottom gives d = W ÷ F.'
+        ],
+        chips: [
+          { id: 'W', text: `W = ${fmt(sc.W)} J`, cls: 'wk-W-text' },
+          { id: 'F', text: `F = ${fmt(sc.F)} N`, cls: 'wk-F-text' },
+          { id: 'd', text: 'd = ? m', cls: 'wk-d-text' }
+        ],
+        givens: ['W', 'F'],
+        unknown: 'd',
+        eqChoices: ['d = W ÷ F', 'd = W × F', 'd = F ÷ W'],
+        rightEq: 'd = W ÷ F',
+        explainWrongEq: eq => (eq === 'd = W × F'
+          ? `Multiplying ${fmt(sc.W)} J × ${fmt(sc.F)} N would make a ramp ${fmt(sc.W * sc.F)} m long! Divide work by force instead: d = W ÷ F.`
+          : `Putting F on top gives ${fmt(sc.F)} ÷ ${fmt(sc.W)}, a tiny fraction of a meter. Keep W on top: d = W ÷ F.`),
+        worked: `d = W ÷ F = ${fmt(sc.W)} J ÷ ${fmt(sc.F)} N = ${fmt(sc.d)} m`
+      };
+    }
+    return {
+      prompt: 'Sort the pulley forces into <strong>Givens (G)</strong> and <strong>Unknown (U)</strong>, then pick the <strong>Mechanical Advantage Equation (E)</strong>.',
+      symbols: ['F_out = crate weight lifted (N)', 'F_in = your pull force (N)', 'MA = how many times easier'],
+      teach: 'Remember Step 1: lifting a <strong>300 N</strong> crate with a <strong>100 N</strong> pull was <strong>3× easier</strong> (300 ÷ 100 = 3), so <strong>MA = 3</strong>. A helpful machine always has <strong>MA &gt; 1</strong>.',
+      triangle: { kind: 'ma', cover: 'MA' },
+      guHints: [
+        'Both forces (F_out on the crate and F_in on the pull rope) have numbers — put them in Givens (G).',
+        'MA = ? has the question mark, so put MA in Unknown (U).'
+      ],
+      eqHints: [
+        `Test with this crate's numbers (${fmt(sc.Fout)} N weight, ${fmt(sc.Fin)} N pull): which formula gives a number bigger than 1?`,
+        'Cover MA in the triangle: F_out is on top and F_in is on bottom, so MA = F_out ÷ F_in.'
+      ],
+      chips: [
+        { id: 'Fout', text: `F_out = ${fmt(sc.Fout)} N`, cls: 'wk-F-text' },
+        { id: 'Fin', text: `F_in = ${fmt(sc.Fin)} N`, cls: 'wk-F-text' },
+        { id: 'MA', text: 'MA = ?', cls: 'wk-MA-text' }
+      ],
+      givens: ['Fout', 'Fin'],
+      unknown: 'MA',
+      eqChoices: ['MA = F_out ÷ F_in', 'MA = F_out × F_in', 'MA = F_in ÷ F_out'],
+      rightEq: 'MA = F_out ÷ F_in',
+      explainWrongEq: eq => (eq === 'MA = F_out × F_in'
+        ? `Multiplying gives ${fmt(sc.Fout)} × ${fmt(sc.Fin)} = ${fmt(sc.Fout * sc.Fin)} — way too big! MA asks how many TIMES bigger the crate weight (${fmt(sc.Fout)} N) is than your pull (${fmt(sc.Fin)} N), so divide: MA = F_out ÷ F_in.`
+        : `Dividing ${fmt(sc.Fin)} ÷ ${fmt(sc.Fout)} gives ${round(sc.Fin / sc.Fout, 2)} (less than 1). A helpful pulley always has MA > 1, so put the heavier crate weight F_out on top: MA = F_out ÷ F_in.`),
+      worked: `MA = F_out ÷ F_in = ${fmt(sc.Fout)} N ÷ ${fmt(sc.Fin)} N = ${fmt(sc.ma)}`
+    };
+  }
+
+  // ---------- Parts 2–4: Scaffolded Word Problem Generators ----------
+  const GEN = {
+    // Part 2: Pulley Work
+    pulley_w() {
+      const F = pick([150, 200, 250, 300, 350]), d = pick([3, 4, 5, 6]);
+      return { kind: 'pulley_w', F, d, W: F * d };
+    },
+    pulley_f() {
+      const F = pick([80, 90, 120, 140, 160]), d = pick([4, 5, 6, 8]);
+      return { kind: 'pulley_f', F, d, W: F * d };
+    },
+    pulley_d() {
+      const F = pick([120, 150, 180, 200]), d = pick([5, 6, 8, 10]);
+      return { kind: 'pulley_d', F, d, W: F * d };
+    },
+    pulley_2step() {
+      const F = pick([160, 200, 240, 300]), d = pick([3, 4, 5]), d2 = d * 2;
+      return { kind: 'pulley_2step', F, d, d2, W: F * d, F2: F / 2 };
+    },
+    pulley_lift_h() {
+      const m = pick([30, 40, 50, 60]), h = pick([2, 3, 4]), d = h * pick([2, 3]);
+      const W = m * G * h;
+      return { kind: 'pulley_lift_h', m, h, d, W, F: round(W / d, 2) };
+    },
+
+    // Part 3: Ramp Trade-Off (bridge W-given -> 2-box weight/mgh)
+    ramp_givenW_f() {
+      const F = pick([100, 120, 150, 200, 250]), d = pick([3, 4, 5, 6]);
+      return { kind: 'ramp_givenW_f', F, d, W: F * d, h: 1.5 };
+    },
+    ramp_givenW_d() {
+      const F = pick([60, 80, 100, 120]), d = pick([4, 5, 6, 8]);
+      return { kind: 'ramp_givenW_d', F, d, W: F * d, h: 1.2 };
+    },
+    ramp_ratio_c() {
+      const mult = pick([2, 3, 4]), F = pick([60, 80, 100, 120]);
+      const Fout = F * mult, h = pick([1, 1.5, 2]), d = h * mult;
+      return { kind: 'ramp_ratio_c', mult, Fout, F, h, d, W: Fout * h };
+    },
+    ramp_2box_d_cp() {
+      const F = pick([80, 100, 120, 150]), d = pick([4, 5, 6]), h = pick([1.2, 1.5, 2]);
+      const W = round(F * d, 1);
+      const Fg = round(W / h, 1);
+      // Keep Fg clean integer
+      if (!Number.isInteger(Fg)) return GEN.ramp_2box_d_cp();
+      return { kind: 'ramp_2box_d_cp', Fg, h, F, d, W };
+    },
+    ramp_2box_h_cp() {
+      const Fg = pick([400, 500, 600, 800]), h = pick([1.2, 1.5, 2]), d = pick([4, 5, 6, 8]);
+      const W = round(Fg * h, 1), F = round(W / d, 2);
+      if (!Number.isInteger(F)) return GEN.ramp_2box_h_cp();
+      return { kind: 'ramp_2box_h_cp', Fg, h, F, d, W };
+    },
+    ramp_2box_d_h() {
+      const m = pick([30, 40, 50, 60]), h = pick([1.2, 1.5, 2]), d = pick([4, 5, 6, 8]);
+      const W = round(m * G * h, 1), F = round(W / d, 2);
+      if (!Number.isInteger(F)) return GEN.ramp_2box_d_h();
+      return { kind: 'ramp_2box_d_h', m, h, F, d, W };
+    },
+    ramp_2box_h_h() {
+      const m = pick([40, 50, 60, 80]), h = pick([1.5, 2, 2.5]), d = pick([5, 6, 8, 10]);
+      const W = round(m * G * h, 1), F = round(W / d, 2);
+      if (!Number.isInteger(F)) return GEN.ramp_2box_h_h();
+      return { kind: 'ramp_2box_h_h', m, h, F, d, W };
+    },
+    compare_ab() {
+      const m = pick([20, 30, 40]), h = pick([1.5, 2, 2.5]), d = pick([6, 8]);
+      const Fg = m * G, W = round(Fg * h, 1), Fb = round(W / d, 1);
+      return { kind: 'compare_ab', m, Fg, h, d, W, Fb };
+    },
+
+    // Part 4: Mechanical Advantage & Rough-Ramp Friction
+    ma_find() {
+      const ma = pick([3, 4, 5, 6]), Fin = pick([60, 75, 80, 90, 120]);
+      return { kind: 'ma_find', ma, Fin, Fout: ma * Fin };
+    },
+    ma_pull_c() {
+      const ma = pick([3, 4, 5]), Fin = pick([150, 200, 250, 300]);
+      return { kind: 'ma_pull_c', ma, Fin, Fout: ma * Fin };
+    },
+    ma_pull_2box() {
+      const ma = pick([3, 4, 5]), m = pick([60, 80, 100, 120, 150]);
+      const Fout = m * G, Fin = round(Fout / ma, 2);
+      if (!Number.isInteger(Fin)) return GEN.ma_pull_2box();
+      return { kind: 'ma_pull_2box', ma, m, Fout, Fin };
+    },
+    ma_pull_h() {
+      const ma = pick([3, 4, 5, 6]), m = pick([60, 90, 120, 150]);
+      const Fout = m * G, Fin = round(Fout / ma, 2);
+      if (!Number.isInteger(Fin)) return GEN.ma_pull_h();
+      return { kind: 'ma_pull_h', ma, m, Fout, Fin };
+    },
+    ma_ramp_len() {
+      const ma = pick([3, 4, 5]), h = pick([0.8, 0.9, 1.2, 1.5]);
+      return { kind: 'ma_ramp_len', ma, h, d: round(ma * h, 2) };
+    },
+    ma_ramp_2box_h() {
+      const ma = pick([3, 4, 5]), h = pick([0.8, 0.9, 1.2, 1.5]), m = pick([60, 70, 80, 90]);
+      return { kind: 'ma_ramp_2box_h', ma, h, m, d: round(ma * h, 2), W: round(m * G * h, 1) };
+    },
+    rough_2box() {
+      const d = pick([4, 5, 6]), F = pick([100, 110, 120, 140]);
+      const Win = F * d;
+      const Ff = pick([15, 20, 25, 30]);
+      const Wf = Ff * d, Wout = Win - Wf;
+      if (Wout <= 100) return GEN.rough_2box();
+      return { kind: 'rough_2box', d, F, Win, Wout, Wf, Ff, h: 1.5 };
+    },
+    rough_3box_h() {
+      const d = pick([4, 5, 6]), F = pick([110, 120, 130, 150]);
+      const Win = F * d;
+      const Ff = pick([15, 20, 25, 30]);
+      const Wf = Ff * d, Wout = Win - Wf;
+      if (Wout <= 100) return GEN.rough_3box_h();
+      return { kind: 'rough_3box_h', d, F, Win, Wout, Wf, Ff, h: 1.5 };
+    }
+  };
+
+  // Mistake helpers
+  const mulDivMistake = (a, b, sym, eq) => x => {
+    if (near(x, a + b)) return ['added_instead', `You added. Use ${eq}.`];
+    if (near(x, a / b, 0.03) || near(x, b / a, 0.03)) return ['divided_instead', `You divided instead of multiplying. Use ${eq}.`];
+    return null;
+  };
+  const divMistake = (top, bot, topSym, botSym) => x => {
+    if (near(x, top * bot)) return ['multiplied_instead', `You multiplied. Divide ${topSym} by ${botSym}: ${topSym} ÷ ${botSym}.`];
+    if (near(x, bot / top, 0.03)) return ['divide_flip', `That is ${botSym} ÷ ${topSym}. Put ${topSym} on top.`];
+    if (near(x, top + bot) || near(x, Math.abs(top - bot))) return ['added_instead', `Divide ${topSym} by ${botSym}; do not add or subtract.`];
+    return null;
+  };
+
+  function stepsOf(sc, tier = 'cp') {
+    const showTri = tier === 'conceptual' || tier === 'cp';
+    const workTri = cover => (showTri ? { kind: 'work', cover } : null);
+    const maTri = cover => (showTri ? { kind: 'ma', cover } : null);
+    const maSymbols = ['F_out = crate weight lifted', 'F_in = your pull force', 'MA = times easier'];
+    const fricSymbols = ['W_in = total push work', 'W_out = useful lift', 'W_f = lost to friction'];
+    switch (sc.kind) {
+      case 'pulley_w':
+        return [{
+          id: 'w', sym: 'W', unit: 'J', calc: true, target: sc.W, skill: 'pulley',
+          ask: 'A mechanic pulls the pulley chain to lift an engine. How much work is done?',
+          formula: 'W = F × d',
+          guessG: `F = ${fmt(sc.F)} N, d = ${fmt(sc.d)} m`, guessU: 'W = ? J',
+          hints: ['Multiply the pulling force by the chain distance.', `In the calculator: ${fmt(sc.F)} × ${fmt(sc.d)}`],
+          needs: { routes: [[sc.F, sc.d]], from: 'F and d on the picture' },
+          mistake: mulDivMistake(sc.F, sc.d, 'W', 'W = F × d'),
+          right: `W = F × d = ${fmt(sc.F)} N × ${fmt(sc.d)} m = ${fmt(sc.W)} J`
+        }];
+      case 'pulley_f':
+        return [{
+          id: 'f', sym: 'F', unit: 'N', calc: true, target: sc.F, skill: 'pulley',
+          tri: workTri('F'),
+          ask: 'The pulley work meter shows how much work lifted the stage light. How hard does the stagehand pull?',
+          formula: 'F = W ÷ d',
+          guessG: `W = ${fmt(sc.W)} J, d = ${fmt(sc.d)} m`, guessU: 'F = ? N',
+          hints: ['Cover F in W = F × d: divide work by distance.', `In the calculator: ${fmt(sc.W)} ÷ ${fmt(sc.d)}`],
+          needs: { routes: [[sc.W, sc.d]], from: 'W and d on the picture' },
+          mistake: divMistake(sc.W, sc.d, 'W', 'd'),
+          right: `F = W ÷ d = ${fmt(sc.W)} J ÷ ${fmt(sc.d)} m = ${fmt(sc.F)} N`
+        }];
+      case 'pulley_d':
+        return [{
+          id: 'd', sym: 'd', unit: 'm', calc: true, target: sc.d, skill: 'pulley',
+          tri: workTri('d'),
+          ask: 'Raising the sail takes the work shown on the meter. How many meters of rope must the sailor pull?',
+          formula: 'd = W ÷ F',
+          guessG: `W = ${fmt(sc.W)} J, F = ${fmt(sc.F)} N`, guessU: 'd = ? m',
+          hints: ['Cover d in W = F × d: divide work by force.', `In the calculator: ${fmt(sc.W)} ÷ ${fmt(sc.F)}`],
+          needs: { routes: [[sc.W, sc.F]], from: 'W and F on the picture' },
+          mistake: divMistake(sc.W, sc.F, 'W', 'F'),
+          right: `d = W ÷ F = ${fmt(sc.W)} J ÷ ${fmt(sc.F)} N = ${fmt(sc.d)} m`
+        }];
+      case 'pulley_2step':
+        return [
+          {
+            id: 'w', sym: 'W', unit: 'J', calc: true, target: sc.W, skill: 'pulley',
+            ask: 'Step 1: Find the work done by the single-rope hoist.',
+            formula: 'W = F × d',
+            guessG: `F = ${fmt(sc.F)} N, d = ${fmt(sc.d)} m`, guessU: 'W = ? J',
+            hints: [`Multiply force by distance: ${fmt(sc.F)} × ${fmt(sc.d)}`],
+            needs: { routes: [[sc.F, sc.d]], from: 'F and d' },
+            mistake: mulDivMistake(sc.F, sc.d, 'W', 'W = F × d'),
+            right: `W = F × d = ${fmt(sc.F)} N × ${fmt(sc.d)} m = ${fmt(sc.W)} J`
+          },
+          {
+            id: 'f2', sym: 'F_2', unit: 'N', calc: true, target: sc.F2, skill: 'pulley',
+            ask: `Step 2: A double pulley needs the same ${fmt(sc.W)} J of work, pulled over d_2 = ${fmt(sc.d2)} m of rope. Find the new pull force.`,
+            formula: 'F_2 = W ÷ d_2',
+            guessG: `W = ${fmt(sc.W)} J, d_2 = ${fmt(sc.d2)} m`, guessU: 'F_2 = ? N',
+            hints: ['Twice as much rope cuts the pull force in half.', `In the calculator: ${fmt(sc.W)} ÷ ${fmt(sc.d2)}`],
+            needs: { routes: [[sc.W, sc.d2]], from: 'W and d_2' },
+            mistake: divMistake(sc.W, sc.d2, 'W', 'd_2'),
+            right: `F_2 = W ÷ d_2 = ${fmt(sc.W)} J ÷ ${fmt(sc.d2)} m = ${fmt(sc.F2)} N`
+          }
+        ];
+      case 'pulley_lift_h':
+        return [
+          {
+            id: 'w', sym: 'W', unit: 'J', calc: true, target: sc.W, skill: 'pulley',
+            ask: 'Step 1: Find the work needed to lift the crate straight up by height h.',
+            formula: 'W = m × g × h',
+            guessG: `m = ${fmt(sc.m)} kg, h = ${fmt(sc.h)} m, g = 10 m/s²`, guessU: 'W = ? J',
+            hints: ['Weight = m × g with g = 10 m/s², then multiply by h.', `In the calculator: ${fmt(sc.m)} × 10 × ${fmt(sc.h)}`],
+            needs: { routes: [[sc.m, G, sc.h], [sc.m * G, sc.h]], from: 'm, g = 10, and h' },
+            mistake: x => (near(x, sc.m * sc.h) ? ['forgot_g', 'Multiply by g = 10 m/s² to convert mass to weight.'] : near(x, sc.m * 9.8 * sc.h) ? ['g98', 'This class uses g = 10 m/s².'] : null),
+            right: `W = m × g × h = ${fmt(sc.m)} kg × 10 m/s² × ${fmt(sc.h)} m = ${fmt(sc.W)} J`
+          },
+          {
+            id: 'f', sym: 'F', unit: 'N', calc: true, target: sc.F, skill: 'pulley',
+            ask: `Step 2: Using a pulley hoist, a worker pulls ${fmt(sc.d)} m of rope to do that same ${fmt(sc.W)} J of work. Find the pull force.`,
+            formula: 'F = W ÷ d',
+            guessG: `W = ${fmt(sc.W)} J, d = ${fmt(sc.d)} m`, guessU: 'F = ? N',
+            hints: [`In the calculator: ${fmt(sc.W)} ÷ ${fmt(sc.d)}`],
+            needs: { routes: [[sc.W, sc.d]], from: 'W and d' },
+            mistake: divMistake(sc.W, sc.d, 'W', 'd'),
+            right: `F = W ÷ d = ${fmt(sc.W)} J ÷ ${fmt(sc.d)} m = ${fmt(sc.F)} N`
+          }
+        ];
+
+      // Part 3: Ramps
+      case 'ramp_givenW_f':
+        return [{
+          id: 'f', sym: 'F', unit: 'N', calc: true, target: sc.F, skill: 'ramp',
+          tri: workTri('F'),
+          ask: 'The work needed to get the speaker onto the stage is shown on the dock. How much push force is needed up this smooth ramp?',
+          formula: 'F = W ÷ d',
+          guessG: `W = ${fmt(sc.W)} J, d = ${fmt(sc.d)} m`, guessU: 'F = ? N',
+          hints: ['A smooth ramp does the same work W, stretched over ramp length d.', `In the calculator: ${fmt(sc.W)} ÷ ${fmt(sc.d)}`],
+          needs: { routes: [[sc.W, sc.d]], from: 'W and d on the picture' },
+          mistake: divMistake(sc.W, sc.d, 'W', 'd'),
+          right: `F = W ÷ d = ${fmt(sc.W)} J ÷ ${fmt(sc.d)} m = ${fmt(sc.F)} N`
+        }];
+      case 'ramp_givenW_d':
+        return [{
+          id: 'd', sym: 'd', unit: 'm', calc: true, target: sc.d, skill: 'ramp',
+          tri: workTri('d'),
+          ask: 'The cart needs the work shown on the dock, and the worker can push with force F. How long must the smooth ramp be?',
+          formula: 'd = W ÷ F',
+          guessG: `W = ${fmt(sc.W)} J, F = ${fmt(sc.F)} N`, guessU: 'd = ? m',
+          hints: ['Divide the work needed by the push force.', `In the calculator: ${fmt(sc.W)} ÷ ${fmt(sc.F)}`],
+          needs: { routes: [[sc.W, sc.F]], from: 'W and F on the picture' },
+          mistake: divMistake(sc.W, sc.F, 'W', 'F'),
+          right: `d = W ÷ F = ${fmt(sc.W)} J ÷ ${fmt(sc.F)} N = ${fmt(sc.d)} m`
+        }];
+      case 'ramp_ratio_c':
+        return [{
+          id: 'f', sym: 'F', unit: 'N', calc: true, target: sc.F, skill: 'ramp',
+          ratio: { mult: sc.mult, h: sc.h, d: sc.d, Fout: sc.Fout },
+          ask: `The ramp is ${sc.mult} times as long as the straight-up height. How hard do you push to move the ${fmt(sc.Fout)} N weight up the ramp?`,
+          formula: `F = F_out ÷ ${sc.mult}`,
+          guessG: `F_out = ${fmt(sc.Fout)} N, ramp is ${sc.mult}× longer`, guessU: 'F = ? N',
+          hints: [`${sc.mult} times the distance cuts the force to 1/${sc.mult}.`, `In the calculator: ${fmt(sc.Fout)} ÷ ${sc.mult} (or ${fmt(sc.W)} ÷ ${fmt(sc.d)})`],
+          needs: { routes: [[sc.Fout, sc.mult], [sc.W, sc.d]], from: 'F_out and the ramp factor' },
+          mistake: x => (near(x, sc.Fout * sc.mult) ? ['multiplied_instead', `A ramp makes pushing EASIER, not harder. Divide ${fmt(sc.Fout)} N by ${sc.mult}.`] : near(x, sc.Fout) ? ['ignored_ramp', 'That is the straight-up weight. The ramp cuts the force down.'] : null),
+          right: `F = F_out ÷ ${sc.mult} = ${fmt(sc.Fout)} N ÷ ${sc.mult} = ${fmt(sc.F)} N`
+        }];
+      case 'ramp_2box_d_cp':
+        return [
+          {
+            id: 'w', sym: 'W', unit: 'J', calc: true, target: sc.W, skill: 'ramp',
+            ask: 'Step 1: Find the work needed to lift the cart straight up to the dock.',
+            formula: 'W = F_g × h',
+            guessG: `F_g = ${fmt(sc.Fg)} N, h = ${fmt(sc.h)} m`, guessU: 'W = ? J',
+            hints: ['Multiply the weight F_g by the vertical height h.', `In the calculator: ${fmt(sc.Fg)} × ${fmt(sc.h)}`],
+            needs: { routes: [[sc.Fg, sc.h]], from: 'F_g and h' },
+            mistake: mulDivMistake(sc.Fg, sc.h, 'W', 'W = F_g × h'),
+            right: `W = F_g × h = ${fmt(sc.Fg)} N × ${fmt(sc.h)} m = ${fmt(sc.W)} J`
+          },
+          {
+            id: 'd', sym: 'd', unit: 'm', calc: true, target: sc.d, skill: 'ramp',
+            ask: 'Step 2: A smooth ramp does that same work W using push force F. How long must the ramp be?',
+            formula: 'd = W ÷ F',
+            guessG: `W = ${fmt(sc.W)} J, F = ${fmt(sc.F)} N`, guessU: 'd = ? m',
+            hints: [`In the calculator: ${fmt(sc.W)} ÷ ${fmt(sc.F)}`],
+            needs: { routes: [[sc.W, sc.F]], from: 'W and F' },
+            mistake: divMistake(sc.W, sc.F, 'W', 'F'),
+            right: `d = W ÷ F = ${fmt(sc.W)} J ÷ ${fmt(sc.F)} N = ${fmt(sc.d)} m`
+          }
+        ];
+      case 'ramp_2box_h_cp':
+        return [
+          {
+            id: 'w', sym: 'W', unit: 'J', calc: true, target: sc.W, skill: 'ramp',
+            ask: 'Step 1: Find the work the mover does pushing up the smooth ramp.',
+            formula: 'W = F × d',
+            guessG: `F = ${fmt(sc.F)} N, d = ${fmt(sc.d)} m`, guessU: 'W = ? J',
+            hints: [`Multiply push force by ramp length: ${fmt(sc.F)} × ${fmt(sc.d)}`],
+            needs: { routes: [[sc.F, sc.d]], from: 'F and d' },
+            mistake: mulDivMistake(sc.F, sc.d, 'W', 'W = F × d'),
+            right: `W = F × d = ${fmt(sc.F)} N × ${fmt(sc.d)} m = ${fmt(sc.W)} J`
+          },
+          {
+            id: 'h', sym: 'h', unit: 'm', calc: true, target: sc.h, skill: 'ramp',
+            ask: 'Step 2: Because the ramp is smooth, that work equals the lifting work F_g × h. How high is the truck bed?',
+            formula: 'h = W ÷ F_g',
+            guessG: `W = ${fmt(sc.W)} J, F_g = ${fmt(sc.Fg)} N`, guessU: 'h = ? m',
+            hints: [`In the calculator: ${fmt(sc.W)} ÷ ${fmt(sc.Fg)}`],
+            needs: { routes: [[sc.W, sc.Fg]], from: 'W and F_g' },
+            mistake: divMistake(sc.W, sc.Fg, 'W', 'F_g'),
+            right: `h = W ÷ F_g = ${fmt(sc.W)} J ÷ ${fmt(sc.Fg)} N = ${fmt(sc.h)} m`
+          }
+        ];
+      case 'ramp_2box_d_h':
+        return [
+          {
+            id: 'w', sym: 'W', unit: 'J', calc: true, target: sc.W, skill: 'ramp',
+            ask: 'Step 1: Find the lifting work needed to raise the cart to height h.',
+            formula: 'W = m × g × h',
+            guessG: `m = ${fmt(sc.m)} kg, h = ${fmt(sc.h)} m, g = 10 m/s²`, guessU: 'W = ? J',
+            hints: [`In the calculator: ${fmt(sc.m)} × 10 × ${fmt(sc.h)}`],
+            needs: { routes: [[sc.m, G, sc.h], [sc.m * G, sc.h]], from: 'm, g = 10, and h' },
+            mistake: x => (near(x, sc.m * sc.h) ? ['forgot_g', 'Include g = 10 m/s² to convert mass to weight.'] : near(x, sc.m * 9.8 * sc.h) ? ['g98', 'Use g = 10 m/s².'] : null),
+            right: `W = m × g × h = ${fmt(sc.m)} kg × 10 m/s² × ${fmt(sc.h)} m = ${fmt(sc.W)} J`
+          },
+          {
+            id: 'd', sym: 'd', unit: 'm', calc: true, target: sc.d, skill: 'ramp',
+            ask: 'Step 2: With push limit F on a frictionless ramp, how long does the ramp need to be?',
+            formula: 'd = W ÷ F',
+            guessG: `W = ${fmt(sc.W)} J, F = ${fmt(sc.F)} N`, guessU: 'd = ? m',
+            hints: [`In the calculator: ${fmt(sc.W)} ÷ ${fmt(sc.F)}`],
+            needs: { routes: [[sc.W, sc.F]], from: 'W and F' },
+            mistake: divMistake(sc.W, sc.F, 'W', 'F'),
+            right: `d = W ÷ F = ${fmt(sc.W)} J ÷ ${fmt(sc.F)} N = ${fmt(sc.d)} m`
+          }
+        ];
+      case 'ramp_2box_h_h':
+        return [
+          {
+            id: 'w', sym: 'W', unit: 'J', calc: true, target: sc.W, skill: 'ramp',
+            ask: 'Step 1: Find the total work done pushing up the frictionless ramp.',
+            formula: 'W = F × d',
+            guessG: `F = ${fmt(sc.F)} N, d = ${fmt(sc.d)} m`, guessU: 'W = ? J',
+            hints: [`In the calculator: ${fmt(sc.F)} × ${fmt(sc.d)}`],
+            needs: { routes: [[sc.F, sc.d]], from: 'F and d' },
+            mistake: mulDivMistake(sc.F, sc.d, 'W', 'W = F × d'),
+            right: `W = F × d = ${fmt(sc.F)} N × ${fmt(sc.d)} m = ${fmt(sc.W)} J`
+          },
+          {
+            id: 'h', sym: 'h', unit: 'm', calc: true, target: sc.h, skill: 'ramp',
+            ask: 'Step 2: Set W equal to m × g × h and solve for the truck bed height h.',
+            formula: 'h = W ÷ (m × g)',
+            guessG: `W = ${fmt(sc.W)} J, m = ${fmt(sc.m)} kg, g = 10 m/s²`, guessU: 'h = ? m',
+            hints: [`Divide W by weight (m × 10): ${fmt(sc.W)} ÷ (${fmt(sc.m)} × 10)`],
+            needs: { routes: [[sc.W, sc.m, G], [sc.W, sc.m * G]], from: 'W, m, and g = 10' },
+            mistake: x => (near(x, sc.W / sc.m) ? ['forgot_g', 'Divide by weight (m × g), not just mass.'] : null),
+            right: `h = W ÷ (m × g) = ${fmt(sc.W)} J ÷ (${fmt(sc.m)} kg × 10 m/s²) = ${fmt(sc.h)} m`
+          }
+        ];
+      case 'compare_ab': {
+        const useMass = tier === 'honors';
+        return [{
+          id: 'w', sym: 'W', unit: 'J', calc: true, target: sc.W, skill: 'ramp',
+          ask: 'Now calculate the work each student does to get the box onto the shelf.',
+          formula: useMass ? 'W = m × g × h' : 'W = F_g × h',
+          guessG: useMass ? `m = ${fmt(sc.m)} kg, h = ${fmt(sc.h)} m, g = 10 m/s²` : `F_g = ${fmt(sc.Fg)} N, h = ${fmt(sc.h)} m`,
+          guessU: 'W_A = W_B = ? J',
+          hints: [useMass ? `In the calculator: ${fmt(sc.m)} × 10 × ${fmt(sc.h)}` : `In the calculator: ${fmt(sc.Fg)} × ${fmt(sc.h)}`],
+          needs: { routes: useMass ? [[sc.m, G, sc.h], [sc.Fg, sc.h]] : [[sc.Fg, sc.h], [sc.Fb, sc.d]], from: 'the load and height' },
+          mistake: x => (useMass && near(x, sc.m * sc.h) ? ['forgot_g', 'Include g = 10 m/s².'] : null),
+          right: useMass
+            ? `W = m × g × h = ${fmt(sc.m)} kg × 10 m/s² × ${fmt(sc.h)} m = ${fmt(sc.W)} J`
+            : `W = F_g × h = ${fmt(sc.Fg)} N × ${fmt(sc.h)} m = ${fmt(sc.W)} J`
+        }];
+      }
+
+      // Part 4: Mechanical Advantage & Friction
+      case 'ma_find':
+        return [{
+          id: 'ma', sym: 'MA', unit: '', calc: true, target: sc.ma, skill: 'ma',
+          symbols: maSymbols,
+          tri: maTri('MA'),
+          ask: 'A pulley lets the worker lift a heavy crate with a smaller pull force. What is the mechanical advantage?',
+          formula: 'MA = F_out ÷ F_in',
+          guessG: `F_out = ${fmt(sc.Fout)} N, F_in = ${fmt(sc.Fin)} N`, guessU: 'MA = ?',
+          hints: ['Divide the crate weight (F_out) by your pull force (F_in).', `In the calculator: ${fmt(sc.Fout)} ÷ ${fmt(sc.Fin)}`],
+          needs: { routes: [[sc.Fout, sc.Fin]], from: 'F_out and F_in' },
+          mistake: x => (near(x, sc.Fin / sc.Fout, 0.04) ? ['ma_flip', 'That is F_in ÷ F_out. Mechanical advantage is larger than 1: F_out ÷ F_in.'] : near(x, sc.Fout * sc.Fin) ? ['multiplied_instead', 'Divide F_out by F_in; do not multiply.'] : null),
+          right: `MA = F_out ÷ F_in = ${fmt(sc.Fout)} N ÷ ${fmt(sc.Fin)} N = ${fmt(sc.ma)}`
+        }];
+      case 'ma_pull_c':
+        return [{
+          id: 'fin', sym: 'F_in', unit: 'N', calc: true, target: sc.Fin, skill: 'ma',
+          symbols: maSymbols,
+          tri: maTri('Fin'),
+          ask: `An ideal pulley has a mechanical advantage of ${sc.ma}. How much pull force is needed to lift the ${fmt(sc.Fout)} N engine?`,
+          formula: 'F_in = F_out ÷ MA',
+          guessG: `F_out = ${fmt(sc.Fout)} N, MA = ${sc.ma}`, guessU: 'F_in = ? N',
+          hints: [`A mechanical advantage of ${sc.ma} divides the force by ${sc.ma}.`, `In the calculator: ${fmt(sc.Fout)} ÷ ${sc.ma}`],
+          needs: { routes: [[sc.Fout, sc.ma]], from: 'F_out and MA' },
+          mistake: divMistake(sc.Fout, sc.ma, 'F_out', 'MA'),
+          right: `F_in = F_out ÷ MA = ${fmt(sc.Fout)} N ÷ ${sc.ma} = ${fmt(sc.Fin)} N`
+        }];
+      case 'ma_pull_2box':
+        return [
+          {
+            id: 'fout', sym: 'F_out', unit: 'N', calc: true, target: sc.Fout, skill: 'ma',
+            ask: 'Step 1: First find the engine block weight F_out in newtons.',
+            formula: 'F_out = m × g',
+            guessG: `m = ${fmt(sc.m)} kg, g = 10 m/s²`, guessU: 'F_out = ? N',
+            hints: [`Multiply mass by g = 10 m/s²: ${fmt(sc.m)} × 10`],
+            needs: { routes: [[sc.m, G]], from: 'm and g = 10' },
+            mistake: x => (near(x, sc.m * 9.8) ? ['g98', 'Use g = 10 m/s².'] : null),
+            right: `F_out = m × g = ${fmt(sc.m)} kg × 10 m/s² = ${fmt(sc.Fout)} N`
+          },
+          {
+            id: 'fin', sym: 'F_in', unit: 'N', calc: true, target: sc.Fin, skill: 'ma',
+            symbols: maSymbols,
+            tri: maTri('Fin'),
+            ask: `Step 2: Now divide that weight by the pulley's mechanical advantage (MA = ${sc.ma}) to find the pull force.`,
+            formula: 'F_in = F_out ÷ MA',
+            guessG: `F_out = ${fmt(sc.Fout)} N, MA = ${sc.ma}`, guessU: 'F_in = ? N',
+            hints: [`In the calculator: ${fmt(sc.Fout)} ÷ ${sc.ma}`],
+            needs: { routes: [[sc.Fout, sc.ma]], from: 'F_out and MA' },
+            mistake: divMistake(sc.Fout, sc.ma, 'F_out', 'MA'),
+            right: `F_in = F_out ÷ MA = ${fmt(sc.Fout)} N ÷ ${sc.ma} = ${fmt(sc.Fin)} N`
+          }
+        ];
+      case 'ma_pull_h':
+        return [{
+          id: 'fin', sym: 'F_in', unit: 'N', calc: true, target: sc.Fin, skill: 'ma',
+          symbols: ['F_out = m × g (weight)', 'F_in = your pull force', 'MA = times easier'],
+          ask: `An ideal pulley system has MA = ${sc.ma}. How much pull force is required to lift the ${fmt(sc.m)} kg engine block?`,
+          formula: 'F_in = (m × g) ÷ MA',
+          guessG: `m = ${fmt(sc.m)} kg, g = 10 m/s², MA = ${sc.ma}`, guessU: 'F_in = ? N',
+          hints: ['First find weight m × 10, then divide by MA.', `In the calculator: (${fmt(sc.m)} × 10) ÷ ${sc.ma}`],
+          needs: { routes: [[sc.m, G, sc.ma], [sc.Fout, sc.ma]], from: 'm, g = 10, and MA' },
+          mistake: x => (near(x, sc.m / sc.ma) ? ['forgot_g', 'Convert mass to weight (m × 10) first.'] : near(x, sc.Fout * sc.ma) ? ['multiplied_instead', 'Divide by MA, do not multiply.'] : null),
+          right: `F_in = (m × g) ÷ MA = (${fmt(sc.m)} kg × 10 m/s²) ÷ ${sc.ma} = ${fmt(sc.Fin)} N`
+        }];
+      case 'ma_ramp_len':
+        return [{
+          id: 'd', sym: 'd', unit: 'm', calc: true, target: sc.d, skill: 'ma',
+          teach: 'For a smooth ramp, <strong>MA</strong> also tells how many times longer the ramp is than the height (<strong>MA = d ÷ h</strong>), so <strong>d = MA × h</strong>.',
+          ask: `A wheelchair ramp has MA = ${sc.ma} and rises to a doorway h = ${fmt(sc.h)} m high. How long is the ramp?`,
+          formula: 'd = MA × h',
+          guessG: `MA = ${sc.ma}, h = ${fmt(sc.h)} m`, guessU: 'd = ? m',
+          hints: [`For an ideal ramp, MA = d ÷ h, so d = MA × h.`, `In the calculator: ${sc.ma} × ${fmt(sc.h)}`],
+          needs: { routes: [[sc.ma, sc.h]], from: 'MA and h' },
+          mistake: mulDivMistake(sc.ma, sc.h, 'd', 'd = MA × h'),
+          right: `d = MA × h = ${sc.ma} × ${fmt(sc.h)} m = ${fmt(sc.d)} m`
+        }];
+      case 'ma_ramp_2box_h':
+        return [
+          {
+            id: 'd', sym: 'd', unit: 'm', calc: true, target: sc.d, skill: 'ma',
+            teach: 'For a smooth ramp, <strong>MA</strong> also tells how many times longer the ramp is than the height (<strong>MA = d ÷ h</strong>), so <strong>d = MA × h</strong>.',
+            ask: `Step 1: A ramp with MA = ${sc.ma} leads up to a doorway ${fmt(sc.h)} m high. How long is the ramp?`,
+            formula: 'd = MA × h',
+            guessG: `MA = ${sc.ma}, h = ${fmt(sc.h)} m`, guessU: 'd = ? m',
+            hints: [`In the calculator: ${sc.ma} × ${fmt(sc.h)}`],
+            needs: { routes: [[sc.ma, sc.h]], from: 'MA and h' },
+            mistake: mulDivMistake(sc.ma, sc.h, 'd', 'd = MA × h'),
+            right: `d = MA × h = ${sc.ma} × ${fmt(sc.h)} m = ${fmt(sc.d)} m`
+          },
+          {
+            id: 'w', sym: 'W', unit: 'J', calc: true, target: sc.W, skill: 'ma',
+            ask: `Step 2: How much work is done lifting an ${fmt(sc.m)} kg wheelchair to that ${fmt(sc.h)} m doorway?`,
+            formula: 'W = m × g × h',
+            guessG: `m = ${fmt(sc.m)} kg, h = ${fmt(sc.h)} m, g = 10 m/s²`, guessU: 'W = ? J',
+            hints: [`In the calculator: ${fmt(sc.m)} × 10 × ${fmt(sc.h)}`],
+            needs: { routes: [[sc.m, G, sc.h], [sc.m * G, sc.h]], from: 'm, g = 10, and h' },
+            mistake: x => (near(x, sc.m * sc.h) ? ['forgot_g', 'Multiply by g = 10 m/s² too.'] : null),
+            right: `W = m × g × h = ${fmt(sc.m)} kg × 10 m/s² × ${fmt(sc.h)} m = ${fmt(sc.W)} J`
+          }
+        ];
+      case 'rough_2box':
+        return [
+          {
+            id: 'win', sym: 'W_in', unit: 'J', calc: true, target: sc.Win, skill: 'friction',
+            symbols: fricSymbols,
+            fricBar: true,
+            ask: 'Step 1: Find the total input work the worker puts in pushing up the rough ramp.',
+            formula: 'W_in = F × d',
+            guessG: `F = ${fmt(sc.F)} N, d = ${fmt(sc.d)} m`, guessU: 'W_in = ? J',
+            hints: [`Multiply push force by ramp length: ${fmt(sc.F)} × ${fmt(sc.d)}`],
+            needs: { routes: [[sc.F, sc.d]], from: 'F and d' },
+            mistake: mulDivMistake(sc.F, sc.d, 'W_in', 'W_in = F × d'),
+            right: `W_in = F × d = ${fmt(sc.F)} N × ${fmt(sc.d)} m = ${fmt(sc.Win)} J`
+          },
+          {
+            id: 'wf', sym: 'W_f', unit: 'J', calc: true, target: sc.Wf, skill: 'friction',
+            symbols: fricSymbols,
+            fricBar: true,
+            ask: `Step 2: Only ${fmt(sc.Wout)} J went into useful lifting work. How many joules were lost to friction?`,
+            formula: 'W_f = W_in − W_out',
+            guessG: `W_in = ${fmt(sc.Win)} J, W_out = ${fmt(sc.Wout)} J`, guessU: 'W_f = ? J',
+            hints: ['Subtract useful output work from total input work.', `In the calculator: ${fmt(sc.Win)} − ${fmt(sc.Wout)}`],
+            needs: { routes: [[sc.Win, sc.Wout]], from: 'W_in and W_out' },
+            mistake: x => (near(x, sc.Win + sc.Wout) ? ['added_instead', 'Subtract W_out from W_in to find what was lost to friction.'] : null),
+            right: `W_f = W_in − W_out = ${fmt(sc.Win)} J − ${fmt(sc.Wout)} J = ${fmt(sc.Wf)} J`
+          }
+        ];
+      case 'rough_3box_h':
+        return [
+          {
+            id: 'win', sym: 'W_in', unit: 'J', calc: true, target: sc.Win, skill: 'friction',
+            symbols: fricSymbols,
+            fricBar: true,
+            ask: 'Step 1: Find the total input work the worker puts in pushing up the rough ramp.',
+            formula: 'W_in = F × d',
+            guessG: `F = ${fmt(sc.F)} N, d = ${fmt(sc.d)} m`, guessU: 'W_in = ? J',
+            hints: [`In the calculator: ${fmt(sc.F)} × ${fmt(sc.d)}`],
+            needs: { routes: [[sc.F, sc.d]], from: 'F and d' },
+            mistake: mulDivMistake(sc.F, sc.d, 'W_in', 'W_in = F × d'),
+            right: `W_in = F × d = ${fmt(sc.F)} N × ${fmt(sc.d)} m = ${fmt(sc.Win)} J`
+          },
+          {
+            id: 'wf', sym: 'W_f', unit: 'J', calc: true, target: sc.Wf, skill: 'friction',
+            symbols: fricSymbols,
+            fricBar: true,
+            ask: `Step 2: Useful lifting work was W_out = ${fmt(sc.Wout)} J. How many joules of work were lost to friction?`,
+            formula: 'W_f = W_in − W_out',
+            guessG: `W_in = ${fmt(sc.Win)} J, W_out = ${fmt(sc.Wout)} J`, guessU: 'W_f = ? J',
+            hints: [`In the calculator: ${fmt(sc.Win)} − ${fmt(sc.Wout)}`],
+            needs: { routes: [[sc.Win, sc.Wout]], from: 'W_in and W_out' },
+            mistake: x => (near(x, sc.Win + sc.Wout) ? ['added_instead', 'Subtract W_out from W_in.'] : null),
+            right: `W_f = W_in − W_out = ${fmt(sc.Win)} J − ${fmt(sc.Wout)} J = ${fmt(sc.Wf)} J`
+          },
+          {
+            id: 'ff', sym: 'F_f', unit: 'N', calc: true, target: sc.Ff, skill: 'friction',
+            fricBar: true,
+            ask: `Step 3: That ${fmt(sc.Wf)} J friction loss happened over the ${fmt(sc.d)} m ramp. Find the friction force.`,
+            formula: 'F_f = W_f ÷ d',
+            guessG: `W_f = ${fmt(sc.Wf)} J, d = ${fmt(sc.d)} m`, guessU: 'F_f = ? N',
+            hints: [`In the calculator: ${fmt(sc.Wf)} ÷ ${fmt(sc.d)}`],
+            needs: { routes: [[sc.Wf, sc.d]], from: 'W_f and d' },
+            mistake: divMistake(sc.Wf, sc.d, 'W_f', 'd'),
+            right: `F_f = W_f ÷ d = ${fmt(sc.Wf)} J ÷ ${fmt(sc.d)} m = ${fmt(sc.Ff)} N`
+          }
+        ];
+      default:
+        return [];
+    }
+  }
+
+  // ---------- Part 5: Mastery Check (5 fresh situations, including Day 2 0 J callback) ----------
+  const QUIZ_SKILLS = {
+    pulley: 'Pulley Work (W, F, d)',
+    ramp: 'Ramp Trade-Off',
+    ma: 'Mechanical Advantage',
+    friction: 'Rough-Ramp Friction',
+    direction: 'Day 2: 0 J Perpendicular Force'
+  };
+
+  function buildQuiz(tier) {
+    // 1. Tow Truck Winch
+    const winchF = pick([200, 250, 300]), winchD = pick([4, 5, 6]);
+    const q1 = tier === 'conceptual'
+      ? { kind: 'q_pulley', sub: 'w', skill: 'pulley', F: winchF, d: winchD, W: winchF * winchD }
+      : { kind: 'q_pulley', sub: pick(['f', 'd']), skill: 'pulley', F: winchF, d: winchD, W: winchF * winchD };
+
+    // 2. Boat Trailer Ramp
+    const rF = pick([80, 100, 120]), rD = pick([5, 6, 8]), rW = rF * rD;
+    const rH = 2, rM = round(rW / (G * rH), 2);
+    const q2 = tier === 'honors' && Number.isInteger(rM)
+      ? { kind: 'q_ramp', sub: 'honors_d', skill: 'ramp', F: rF, d: rD, h: rH, m: rM, W: rW }
+      : { kind: 'q_ramp', sub: tier === 'conceptual' ? 'f' : pick(['f', 'd']), skill: 'ramp', F: rF, d: rD, h: rH, W: rW };
+
+    // 3. Theater Fly Rig (MA)
+    const ma = pick([3, 4, 5]), maFin = pick([70, 80, 90, 110]);
+    const q3 = { kind: 'q_ma', sub: tier === 'conceptual' ? 'ma' : pick(['ma', 'fin']), skill: 'ma', ma, Fin: maFin, Fout: ma * maFin };
+
+    // 4. Moving Van Rough Ramp
+    const vD = pick([4, 5]), vF = pick([120, 140]), vFf = pick([20, 25]);
+    const vWin = vD * vF, vWf = vD * vFf, vWout = vWin - vWf;
+    const q4 = {
+      kind: 'q_rough',
+      sub: tier === 'honors' ? 'ff' : 'wf',
+      skill: 'friction',
+      d: vD, F: vF, Ff: vFf, Win: vWin, Wf: vWf, Wout: vWout, h: 1.5
+    };
+
+    // 5. Day 2 Callback: Carrying a pallet flat (0 J)
+    const cM = pick([15, 20, 25]), cD = pick([6, 8, 10]);
+    const q5 = { kind: 'q_carry0', skill: 'direction', m: cM, F: cM * G, d: cD };
+
+    return [q1, q2, q3, q4, q5];
+  }
+
+  function quizQuestion(it) {
+    if (it.kind === 'q_pulley') {
+      if (it.sub === 'w') {
+        return {
+          id: 'qp', sym: 'W', unit: 'J', calc: true, target: it.W, skill: it.skill,
+          ask: 'A tow truck winch pulls a stalled car along the cable. How much work does the winch do?',
+          formula: 'W = F × d',
+          guessG: `F = ${fmt(it.F)} N, d = ${fmt(it.d)} m`, guessU: 'W = ? J',
+          needs: { routes: [[it.F, it.d]], from: 'F and d' },
+          mistake: mulDivMistake(it.F, it.d, 'W', 'W = F × d'),
+          right: `W = F × d = ${fmt(it.F)} N × ${fmt(it.d)} m = ${fmt(it.W)} J`
+        };
+      }
+      if (it.sub === 'f') {
+        return {
+          id: 'qp', sym: 'F', unit: 'N', calc: true, target: it.F, skill: it.skill,
+          ask: 'The tow truck winch does the work shown on the meter over cable distance d. How strong is the cable pull?',
+          formula: 'F = W ÷ d',
+          guessG: `W = ${fmt(it.W)} J, d = ${fmt(it.d)} m`, guessU: 'F = ? N',
+          needs: { routes: [[it.W, it.d]], from: 'W and d' },
+          mistake: divMistake(it.W, it.d, 'W', 'd'),
+          right: `F = W ÷ d = ${fmt(it.W)} J ÷ ${fmt(it.d)} m = ${fmt(it.F)} N`
+        };
+      }
+      return {
+        id: 'qp', sym: 'd', unit: 'm', calc: true, target: it.d, skill: it.skill,
+        ask: 'The tow truck winch pulls with force F and does the work shown. How far does the cable reel in?',
+        formula: 'd = W ÷ F',
+        guessG: `W = ${fmt(it.W)} J, F = ${fmt(it.F)} N`, guessU: 'd = ? m',
+        needs: { routes: [[it.W, it.F]], from: 'W and F' },
+        mistake: divMistake(it.W, it.F, 'W', 'F'),
+        right: `d = W ÷ F = ${fmt(it.W)} J ÷ ${fmt(it.F)} N = ${fmt(it.d)} m`
+      };
+    }
+    if (it.kind === 'q_ramp') {
+      if (it.sub === 'honors_d') {
+        return {
+          id: 'qr', sym: 'd', unit: 'm', calc: true, target: it.d, skill: it.skill,
+          ask: 'How long must this frictionless boat trailer ramp be so a pull force F lifts the load to height h?',
+          formula: 'd = (m × g × h) ÷ F',
+          guessG: `m = ${fmt(it.m)} kg, h = ${fmt(it.h)} m, F = ${fmt(it.F)} N`, guessU: 'd = ? m',
+          needs: { routes: [[it.m, G, it.h, it.F], [it.W, it.F]], from: 'm, g = 10, h, and F' },
+          mistake: x => (near(x, (it.m * it.h) / it.F) ? ['forgot_g', 'Include g = 10 m/s².'] : null),
+          right: `d = (m × g × h) ÷ F = (${fmt(it.m)} kg × 10 m/s² × ${fmt(it.h)} m) ÷ ${fmt(it.F)} N = ${fmt(it.d)} m`
+        };
+      }
+      if (it.sub === 'f') {
+        return {
+          id: 'qr', sym: 'F', unit: 'N', calc: true, target: it.F, skill: it.skill,
+          ask: 'The work needed to get the boat onto the trailer is shown. What pull force is needed up this smooth ramp?',
+          formula: 'F = W ÷ d',
+          guessG: `W = ${fmt(it.W)} J, d = ${fmt(it.d)} m`, guessU: 'F = ? N',
+          needs: { routes: [[it.W, it.d]], from: 'W and d' },
+          mistake: divMistake(it.W, it.d, 'W', 'd'),
+          right: `F = W ÷ d = ${fmt(it.W)} J ÷ ${fmt(it.d)} m = ${fmt(it.F)} N`
+        };
+      }
+      return {
+        id: 'qr', sym: 'd', unit: 'm', calc: true, target: it.d, skill: it.skill,
+        ask: 'The boat trailer requires the work shown, and you can pull with force F. How long must the ramp be?',
+        formula: 'd = W ÷ F',
+        guessG: `W = ${fmt(it.W)} J, F = ${fmt(it.F)} N`, guessU: 'd = ? m',
+        needs: { routes: [[it.W, it.F]], from: 'W and F' },
+        mistake: divMistake(it.W, it.F, 'W', 'F'),
+        right: `d = W ÷ F = ${fmt(it.W)} J ÷ ${fmt(it.F)} N = ${fmt(it.d)} m`
+      };
+    }
+    if (it.kind === 'q_ma') {
+      if (it.sub === 'ma') {
+        return {
+          id: 'qm', sym: 'MA', unit: '', calc: true, target: it.ma, skill: it.skill,
+          ask: 'A theater fly rig supports a backdrop of weight F_out using pull force F_in. Find the mechanical advantage.',
+          formula: 'MA = F_out ÷ F_in',
+          guessG: `F_out = ${fmt(it.Fout)} N, F_in = ${fmt(it.Fin)} N`, guessU: 'MA = ?',
+          needs: { routes: [[it.Fout, it.Fin]], from: 'F_out and F_in' },
+          mistake: x => (near(x, it.Fin / it.Fout, 0.04) ? ['ma_flip', 'Mechanical advantage is F_out ÷ F_in.'] : null),
+          right: `MA = F_out ÷ F_in = ${fmt(it.Fout)} N ÷ ${fmt(it.Fin)} N = ${fmt(it.ma)}`
+        };
+      }
+      return {
+        id: 'qm', sym: 'F_in', unit: 'N', calc: true, target: it.Fin, skill: it.skill,
+        ask: `A theater fly rig has MA = ${it.ma}. How much pull force F_in holds a ${fmt(it.Fout)} N backdrop?`,
+        formula: 'F_in = F_out ÷ MA',
+        guessG: `F_out = ${fmt(it.Fout)} N, MA = ${it.ma}`, guessU: 'F_in = ? N',
+        needs: { routes: [[it.Fout, it.ma]], from: 'F_out and MA' },
+        mistake: divMistake(it.Fout, it.ma, 'F_out', 'MA'),
+        right: `F_in = F_out ÷ MA = ${fmt(it.Fout)} N ÷ ${it.ma} = ${fmt(it.Fin)} N`
+      };
+    }
+    if (it.kind === 'q_rough') {
+      if (it.sub === 'ff') {
+        return {
+          id: 'qf', sym: 'F_f', unit: 'N', calc: true, target: it.Ff, skill: it.skill,
+          ask: 'On a rough moving-van ramp, find the friction force acting against the box.',
+          formula: 'F_f = (W_in − W_out) ÷ d',
+          guessG: `W_in = ${fmt(it.Win)} J, W_out = ${fmt(it.Wout)} J, d = ${fmt(it.d)} m`, guessU: 'F_f = ? N',
+          needs: { routes: [[it.Win, it.Wout, it.d], [it.Wf, it.d]], from: 'W_in, W_out, and d' },
+          mistake: x => (near(x, it.Wf) ? ['gave_wf', `That is the friction work W_f in joules. Divide by d = ${fmt(it.d)} m to get F_f.`] : null),
+          right: `F_f = (W_in − W_out) ÷ d = (${fmt(it.Win)} J − ${fmt(it.Wout)} J) ÷ ${fmt(it.d)} m = ${fmt(it.Ff)} N`
+        };
+      }
+      return {
+        id: 'qf', sym: 'W_f', unit: 'J', calc: true, target: it.Wf, skill: it.skill,
+        ask: `The mover put in W_in = ${fmt(it.Win)} J pushing up a rough ramp, and ${fmt(it.Wout)} J went into useful lifting. How much work was lost to friction?`,
+        formula: 'W_f = W_in − W_out',
+        guessG: `W_in = ${fmt(it.Win)} J, W_out = ${fmt(it.Wout)} J`, guessU: 'W_f = ? J',
+        needs: { routes: [[it.Win, it.Wout]], from: 'W_in and W_out' },
+        mistake: x => (near(x, it.Win + it.Wout) ? ['added_instead', 'Subtract W_out from W_in.'] : null),
+        right: `W_f = W_in − W_out = ${fmt(it.Win)} J − ${fmt(it.Wout)} J = ${fmt(it.Wf)} J`
+      };
+    }
+    return {
+      id: 'qc', sym: 'W', unit: 'J', calc: false, target: 0, rel: 0, abs: 0.01, skill: it.skill,
+      ask: "Day 2 Callback: A worker holds a pallet up and carries it sideways across a level floor. How much work do the worker's hands do on the pallet?",
+      formula: 'W = F × d only for force along the motion',
+      guessG: `F_hand = ${fmt(it.F)} N up, d = ${fmt(it.d)} m sideways (90°)`, guessU: 'W = ? J',
+      mistake: x => (near(x, it.F * it.d) || near(x, it.m * it.d) ? ['carry_90', 'The hands push up while the pallet moves sideways. Force at 90° to motion does 0 J of work.'] : null),
+      right: 'W = 0 J, because the upward force is at 90° to the sideways motion'
+    };
+  }
+
+  function gradeQuiz(items, answers) {
+    let score = 0;
+    const mistakes = [], skills = {};
+    const results = items.map((it, i) => {
+      const a = answers[i] || {};
+      const q = quizQuestion(it);
+      const r = grade(q, a.value);
+      const sk = skills[it.skill] || (skills[it.skill] = { right: 0, total: 0 });
+      sk.total++;
+      if (r.ok) { score++; sk.right++; }
+      else if (r.mistake && r.mistake !== 'blank') mistakes.push(r.mistake);
+      return { ok: r.ok, skill: it.skill, msg: r.msg, mistake: r.mistake };
+    });
+    const total = items.length;
+    return { score, total, percent: Math.round((score / total) * 100), results, mistakes, skills };
+  }
+
+  window.SMP = {
+    pick, shuffle, round, fmt, near, parseNum, G,
+    workProblem, stack, grade,
+    SETUP_GEN, setupSpec, GEN, stepsOf,
+    QUIZ_SKILLS, buildQuiz, quizQuestion, gradeQuiz
+  };
+})();
+
+// === Unit_3/machines_practice/js/lesson.js ===
+// Work & Simple Machines Practice — lesson progression and points for each class.
+// Periods 1–3 (conceptual), Periods 4–6 (cp), Period 0 (honors).
+// Credit grows step by step and never drops.
+
+(function () {
+  const PARTS = [
+    { id: 'setup', name: 'GUESS Setup', icon: '🧩', weight: 1 },
+    { id: 'pulley', name: 'Pulley Work', icon: '⚙️', weight: 2 },
+    { id: 'ramp', name: 'Ramp Trade-Off', icon: '📐', weight: 2 },
+    { id: 'machines', name: 'MA & Friction', icon: '⚖️', weight: 2 },
+    { id: 'quiz', name: 'Mastery Check', icon: '🏁', weight: 0 }
+  ];
+  const PART_POINTS = 6, QUIZ_POINTS = 4;
+  const TOTAL_WEIGHT = PARTS.reduce((s, p) => s + p.weight, 0);
+
+  const setupPage = (id, gen, title) => ({ id, kind: 'guess_setup', gen, title });
+  const probPage = (id, gen, title) => ({ id, kind: 'problem', gen, title });
+
+  const SETUP = [
+    { id: 's_predict', kind: 'predict', ungraded: true, title: 'Predict: 1 rope vs. 3 ropes' },
+    setupPage('s_w', 'setup_w', 'Identify G, U, and E for Work'),
+    setupPage('s_f', 'setup_f', 'Identify G, U, and E for Force'),
+    setupPage('s_d', 'setup_d', 'Identify G, U, and E on a Ramp'),
+    setupPage('s_ma', 'setup_ma', 'Identify G, U, and E for Mechanical Advantage')
+  ];
+
+  const PULLEY = {
+    conceptual: [
+      probPage('p1', 'pulley_w', '1. Pulley Work (W)'),
+      probPage('p2', 'pulley_f', '2. Stage Light Force (F)'),
+      probPage('p3', 'pulley_d', '3. Sail Rope Distance (d)')
+    ],
+    cp: [
+      probPage('p1', 'pulley_w', '1. Pulley Work (W)'),
+      probPage('p2', 'pulley_f', '2. Stage Light Force (F)'),
+      probPage('p3', 'pulley_d', '3. Sail Rope Distance (d)'),
+      probPage('p4', 'pulley_2step', '4. Single vs. Double Pulley')
+    ],
+    honors: [
+      probPage('p1', 'pulley_w', '1. Pulley Work (W)'),
+      probPage('p2', 'pulley_f', '2. Stage Light Force (F)'),
+      probPage('p3', 'pulley_d', '3. Sail Rope Distance (d)'),
+      probPage('p4', 'pulley_lift_h', '4. Lift Work & Pulley Pull')
+    ]
+  };
+
+  const RAMP = {
+    conceptual: [
+      probPage('r1', 'ramp_givenW_f', '1. Ramp Force from Work'),
+      probPage('r2', 'ramp_givenW_d', '2. Ramp Length from Work'),
+      probPage('r3', 'ramp_ratio_c', '3. Longer Ramp, Less Force'),
+      { id: 'r4', kind: 'compare', gen: 'compare_ab', title: '4. Lift vs. Smooth Ramp' }
+    ],
+    cp: [
+      probPage('r1', 'ramp_givenW_f', '1. Ramp Force from Work'),
+      probPage('r2', 'ramp_givenW_d', '2. Ramp Length from Work'),
+      probPage('r3', 'ramp_2box_d_cp', '3. Two-Step Ramp Length'),
+      probPage('r4', 'ramp_2box_h_cp', '4. Two-Step Dock Height'),
+      { id: 'r5', kind: 'compare', gen: 'compare_ab', title: '5. Lift vs. Smooth Ramp' }
+    ],
+    honors: [
+      probPage('r1', 'ramp_givenW_f', '1. Ramp Force from Work'),
+      probPage('r2', 'ramp_givenW_d', '2. Ramp Length from Work'),
+      probPage('r3', 'ramp_2box_d_h', '3. Cart Ramp Length'),
+      probPage('r4', 'ramp_2box_h_h', '4. Truck Bed Height'),
+      { id: 'r5', kind: 'compare', gen: 'compare_ab', title: '5. Lift vs. Smooth Ramp' }
+    ]
+  };
+
+  const MACHINES = {
+    conceptual: [
+      probPage('m1', 'ma_find', '1. Pulley Mechanical Advantage'),
+      probPage('m2', 'ma_pull_c', '2. Pull Force Using MA'),
+      probPage('m3', 'rough_2box', '3. Work Lost to Friction')
+    ],
+    cp: [
+      probPage('m1', 'ma_find', '1. Pulley Mechanical Advantage'),
+      probPage('m2', 'ma_pull_2box', '2. Weight & Pull Force'),
+      probPage('m3', 'ma_ramp_len', '3. Wheelchair Ramp Length'),
+      probPage('m4', 'rough_2box', '4. Rough Ramp Friction Work')
+    ],
+    honors: [
+      probPage('m1', 'ma_find', '1. Pulley Mechanical Advantage'),
+      probPage('m2', 'ma_pull_h', '2. Engine Block Pull Force'),
+      probPage('m3', 'ma_ramp_2box_h', '3. Wheelchair Ramp & Work'),
+      probPage('m4', 'rough_3box_h', '4. Rough Ramp Friction Force')
+    ]
+  };
+
+  function pages(partId, tier = 'cp') {
+    const t = ['conceptual', 'cp', 'honors'].includes(tier) ? tier : 'cp';
+    if (partId === 'setup') return SETUP;
+    if (partId === 'pulley') return PULLEY[t];
+    if (partId === 'ramp') return RAMP[t];
+    if (partId === 'machines') return MACHINES[t];
+    return [];
+  }
+
+  const partProgress = (st, id, tier) => {
+    const p = st.parts[id];
+    if (!p) return 0;
+    if (p.done) return 1;
+    const n = pages(id, tier).length;
+    return n ? Math.min(1, (p.far || 0) / n) : 0;
+  };
+
+  function earnedPoints(st, tier) {
+    const guided = PARTS.reduce((s, p) => s + (p.weight / TOTAL_WEIGHT) * PART_POINTS * partProgress(st, p.id, tier), 0);
+    return guided + QUIZ_POINTS * ((st.quiz && st.quiz.best) || 0) / 100;
+  }
+
+  window.Lesson = { PARTS, PART_POINTS, QUIZ_POINTS, pages, partProgress, earnedPoints };
+})();
+
+// === Unit_3/machines_practice/js/integrity.js ===
+// Work & Simple Machines Practice — looks for records that don't add up, for the teacher's Class Progress page.
+// A flag means "worth a look," not proof.
+
+(function () {
+  const FAST_SECONDS = 60;
+
+  function check(doc) {
+    try {
+      return checkRecord(doc);
+    } catch (e) {
+      return ['This record could not be checked. It may have been edited.'];
+    }
+  }
+
+  function checkRecord(doc) {
+    const flags = [];
+    const st = doc.studioState;
+    const score = doc.score || 0;
+    if (!st || typeof st !== 'object' || !st.parts || !st.quiz) {
+      if (score > 0) flags.push('Score on record, but no saved work.');
+      return flags;
+    }
+    const tier = ['conceptual', 'cp', 'honors'].includes(doc.track) ? doc.track : 'cp';
+    const supported = window.Lesson.earnedPoints(st, tier);
+    if (score > supported + 0.15) flags.push(`Score of ${score} is higher than the saved work supports (about ${supported.toFixed(1)}).`);
+
+    const attempts = st.quiz.attempts || [];
+    const best = st.quiz.best || 0;
+    if (doc.quiz_best !== undefined && doc.quiz_best !== best) flags.push('Mastery Check score on record does not match the saved work.');
+    if (best > 0) {
+      if (!attempts.length || Math.max(...attempts.map(a => a.pct)) !== best) flags.push('Best Mastery Check score does not match any attempt.');
+      const last = st.quiz.last;
+      if (!last || !Array.isArray(last.items) || !Array.isArray(last.answers)) flags.push('Mastery Check score, but no saved questions.');
+      else checkLast(last, attempts[attempts.length - 1], flags);
+    }
+    return flags;
+  }
+
+  function checkLast(last, attempt, flags) {
+    const graded = window.SMP.gradeQuiz(last.items, last.answers);
+    if (attempt && graded.percent !== attempt.pct) flags.push(`Latest Mastery Check says ${attempt.pct}%, but its saved answers grade to ${graded.percent}%.`);
+    if (attempt && attempt.secs !== null && attempt.secs !== undefined && attempt.secs < FAST_SECONDS && attempt.pct >= 75) {
+      flags.push(`Scored ${attempt.pct}% on the Mastery Check in ${attempt.secs} seconds.`);
+    }
+  }
+
+  window.Integrity = { check };
+})();
+
+</script>
+<script>
+    // firestore-audit: teacher-only
+    const ASSIGNMENT_ID = 'unit3_day4_machines_practice';
+    const TEACHER_IDS = ['rmudry', 'ryan.mudry', 'ryanmudry'];
+    const TEACHER_EMAILS = ['rmudry@orangeusd.org', 'ryan.mudry@gmail.com', 'ryanmudry@gmail.com'];
+    const PART_PILLS = [['setup', 'GUESS'], ['pulley', 'Pulley'], ['ramp', 'Ramp'], ['machines', 'MA/Fric'], ['quiz', 'MC']];
+    const COURSE = { honors: 'Honors', cp: 'CP', conceptual: 'Conceptual' };
+    const courseForPeriod = p => (String(p) === '0' ? 'honors' : ['1', '2', '3'].includes(String(p)) ? 'conceptual' : 'cp');
+    const SKILLS = window.SMP.QUIZ_SKILLS;
+    const MISTAKES = {
+      setup_gu: ['Put the unknown (?) in Givens instead of Unknown', 'Givens are known numbers; Unknown is what has the ? mark.'],
+      setup_eq: ['Picked the wrong GUESS equation', 'Match the equation that starts with the symbol in Unknown.'],
+      multiplied_instead: ['Multiplied instead of dividing', 'Use the formula triangle: F = W ÷ d or d = W ÷ F.'],
+      divided_instead: ['Divided instead of multiplying', 'Work is force TIMES distance (W = F × d).'],
+      divide_flip: ['Flipped numerator and denominator (d ÷ W)', 'Work goes on top: W ÷ d or W ÷ F.'],
+      added_instead: ['Added instead of multiplying/subtracting', 'Check the operator in the GUESS equation.'],
+      forgot_g: ['Used mass (kg) instead of weight (m × g)', 'On Earth in this class, multiply mass by g = 10 m/s².'],
+      g98: ['Used g = 9.8 instead of 10', 'This class uses g = 10 m/s².'],
+      ma_flip: ['Flipped Mechanical Advantage (F_in ÷ F_out)', 'Mechanical advantage is F_out ÷ F_in (usually > 1).'],
+      ignored_ramp: ['Gave straight-up weight for a ramp push', 'A longer ramp divides the needed push force.'],
+      compare_wrong: ['Thought ramp vs. straight lift changed total work', 'A smooth ramp trades smaller force for longer distance; work stays equal.'],
+      gave_wf: ['Gave friction work W_f instead of friction force F_f', 'Divide W_f by ramp distance d to find F_f.'],
+      carry_90: ['Missed 0 J when carrying flat (Day 2 callback)', 'Upward lift force is at 90° to sideways motion → 0 J.']
+    };
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
+    let roster = new Map(), docs = [], unsubscribe = null;
+
+    function render() {
+      const period = $('period').value, course = $('course').value;
+      const merged = new Map();
+      roster.forEach((r, id) => merged.set(id, { id, name: r.name, period: r.period, started: false }));
+      docs.forEach(d => {
+        const r = roster.get(d.id);
+        merged.set(d.id, Object.assign({}, d, {
+          started: true,
+          name: (r && r.name) || d.student_name || d.id,
+          period: d.class_period !== null && d.class_period !== undefined ? String(d.class_period) : (r ? r.period : '?')
+        }));
+      });
+      const all = [...merged.values()].filter(s => !TEACHER_IDS.includes(s.id));
+      all.forEach(s => { s.course = s.track || courseForPeriod(s.period); });
+      const periods = [...new Set(all.map(s => s.period))].filter(p => p !== '' && p !== undefined).sort((a, b) => Number(a) - Number(b));
+      $('period').innerHTML = '<option value="all">All periods</option>' + periods.map(p => `<option value="${esc(p)}">Period ${esc(p)}</option>`).join('');
+      $('period').value = periods.includes(period) ? period : 'all';
+      const isDemo = !$('demoBanner').hidden;
+      all.forEach(s => { s.flags = s.started && (!isDemo || s.studioState) ? Integrity.check(s) : []; });
+      const inView = all.filter(s => ($('period').value === 'all' || s.period === $('period').value) && (course === 'all' || s.course === course));
+      const list = inView
+        .filter(s => !$('onlyFlagged').checked || s.flags.length)
+        .sort((a, b) => Number(a.period) - Number(b.period) || String(a.name).localeCompare(String(b.name)));
+
+      const started = inView.filter(s => s.started);
+      const tookQuiz = started.filter(s => (s.quiz_history || []).length);
+      const avgOf = a => (a.length ? (a.reduce((t, x) => t + x, 0) / a.length) : null);
+      const avgGrade = avgOf(started.map(s => s.score || 0));
+      const avgFirst = avgOf(started.filter(s => typeof s.first_try === 'number').map(s => s.first_try));
+      const avgBest = avgOf(tookQuiz.map(s => s.quiz_best || 0));
+      $('tiles').innerHTML = [
+        [`${started.length}/${inView.length}`, 'students started'],
+        [avgGrade === null ? '—' : avgGrade.toFixed(1), 'average grade so far (of 10)'],
+        [avgFirst === null ? '—' : `${Math.round(avgFirst)}%`, 'right on the first try'],
+        [String(tookQuiz.length), 'took the Mastery Check'],
+        [avgBest === null ? '—' : `${Math.round(avgBest)}%`, 'average best Mastery score'],
+        [String(inView.filter(s => s.flags.length).length), 'records to check']
+      ].map(([n, l]) => `<div class="card tile"><strong>${n}</strong><span>${l}</span></div>`).join('');
+
+      const totals = {};
+      tookQuiz.forEach(s => Object.entries(s.quiz_skills || {}).forEach(([k, v]) => {
+        totals[k] = totals[k] || { right: 0, total: 0 };
+        totals[k].right += v.right; totals[k].total += v.total;
+      }));
+      const skillKeys = Object.keys(SKILLS).filter(k => totals[k]);
+      $('skills').innerHTML = skillKeys.length ? skillKeys.map(k => {
+        const p = Math.round(100 * totals[k].right / totals[k].total);
+        return `<div class="bar-row" title="${totals[k].right} of ${totals[k].total} correct"><span>${SKILLS[k]}</span><span class="bar"><span style="width:${p}%"></span></span><span class="val">${p}%</span></div>`;
+      }).join('') : '<p class="none">No Mastery Checks yet.</p>';
+
+      const counts = {};
+      started.forEach(s => Object.entries(s.mistakes || {}).forEach(([k, v]) => { if (MISTAKES[k]) counts[k] = (counts[k] || 0) + v; }));
+      const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+      $('mistakes').innerHTML = top.length
+        ? top.map(([k, v]) => `<div class="mistake"><b>${v}×</b>${MISTAKES[k][0]}<small>${MISTAKES[k][1]}</small></div>`).join('')
+        : '<p class="none">No mistakes recorded yet.</p>';
+
+      $('rows').innerHTML = list.map(s => {
+        const hist = s.quiz_history || [];
+        const pills = PART_PILLS.map(([k, label]) => {
+          const pct = (s.parts_progress || {})[k];
+          const partial = pct > 0 && pct < 100;
+          return `<span class="pill ${(s.parts_done || []).includes(k) ? 'on' : ''}">${label}${partial ? ` ${pct}%` : ''}</span>`;
+        }).join('');
+        const weak = Object.entries(s.quiz_skills || {}).filter(([, v]) => v.right < v.total).map(([k]) => SKILLS[k]).filter(Boolean).join(', ');
+        const when = s.timestamp && s.timestamp.toDate ? s.timestamp.toDate().toLocaleString([], { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+        return `<tr class="${s.flags.length ? 'flagged' : ''}"><td class="name">${esc(s.name)}${s.certificate_code ? ` <span title="Certificate ${esc(s.certificate_code)}">🎓</span>` : ''}${s.calc_unavailable ? ' <span class="flag" title="Desmos did not load">⚠ typed</span>' : ''}</td><td>${esc(s.period)}</td><td>${COURSE[s.course] || ''}</td><td class="num">${s.started ? Number(s.score || 0).toFixed(1) : '<span class="none">—</span>'}</td>
+          <td class="num ${typeof s.first_try === 'number' && s.first_try < 60 ? 'low' : ''}">${typeof s.first_try === 'number' ? `${s.first_try}%` : ''}</td><td class="num">${s.minutes || ''}</td>
+          <td>${s.started ? pills : '<span class="none">Not started</span>'}</td>
+          <td class="check">${s.flags.map(f => `<div>⚠ ${esc(f)}</div>`).join('')}</td>
+          <td class="num">${hist.length ? `${s.quiz_best}%` : '<span class="none">—</span>'}</td>
+          <td class="num">${hist.length ? hist.map(p => `${p}%`).join(' → ') : ''}</td>
+          <td class="weak">${weak}</td><td>${esc(when)}</td></tr>`;
+      }).join('');
+    }
+
+    function showGate(msg, err) {
+      if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+      roster = new Map(); docs = [];
+      $('main').hidden = true; $('filters').hidden = true; $('rows').innerHTML = '';
+      $('gate').hidden = false; $('gateMsg').textContent = msg; $('gateErr').textContent = err || ''; $('btnSignIn').hidden = false;
+    }
+
+    function start() {
+      $('gate').hidden = true; $('main').hidden = false; $('filters').hidden = false;
+      const db = firebase.firestore();
+      db.collection('roster').get().then(snap => {
+        snap.forEach(doc => {
+          const d = doc.data();
+          roster.set(doc.id, {
+            name: d.name || d.full_name || `${d.first_name || ''} ${d.last_name || ''}`.trim() || doc.id,
+            period: String(d.class_period ?? d.period ?? '')
+          });
+        });
+        render();
+      }).catch(e => console.warn('Roster not loaded:', e));
+      unsubscribe = db.collection('student_results').doc(ASSIGNMENT_ID).collection('students').onSnapshot(snap => {
+        docs = snap.docs.map(d => Object.assign({ id: d.id }, d.data()));
+        render();
+      }, e => { $('tiles').innerHTML = `<p class="err">Could not load results: ${esc(e.message)}</p>`; });
+    }
+
+    function demo() {
+      $('demoBanner').hidden = false; $('gate').hidden = true; $('main').hidden = false; $('filters').hidden = false;
+      roster = new Map([['s9', { name: 'Sample Student I', period: '1' }]]);
+      const sk = (p, r, m, f, d) => ({ pulley: { right: p, total: 1 }, ramp: { right: r, total: 1 }, ma: { right: m, total: 1 }, friction: { right: f, total: 1 }, direction: { right: d, total: 1 } });
+      const all = ['setup', 'pulley', 'ramp', 'machines', 'quiz'];
+      docs = [
+        { id: 's1', student_name: 'Sample Student A', class_period: 1, track: 'conceptual', score: 9.2, first_try: 78, minutes: 24, parts_done: all, quiz_best: 80, quiz_history: [60, 80], quiz_skills: sk(1, 1, 1, 1, 0), mistakes: { setup_eq: 2, carry_90: 1 } },
+        { id: 's2', student_name: 'Sample Student B', class_period: 4, track: 'cp', score: 10, first_try: 92, minutes: 31, parts_done: all, quiz_best: 100, quiz_history: [100], quiz_skills: sk(1, 1, 1, 1, 1), mistakes: {}, certificate_code: 'SAMPLE' },
+        { id: 's3', student_name: 'Sample Student C', class_period: 0, track: 'honors', score: 9.2, first_try: 85, minutes: 34, parts_done: all, quiz_best: 80, quiz_history: [80], quiz_skills: sk(1, 1, 1, 0, 1), mistakes: { forgot_g: 1 } }
+      ];
+      render();
+    }
+
+    $('period').addEventListener('change', render);
+    $('course').addEventListener('change', render);
+    $('onlyFlagged').addEventListener('change', render);
+    const isLocal = ['localhost', '127.0.0.1'].includes(location.hostname);
+    if (isLocal && new URLSearchParams(location.search).has('demo')) demo();
+    else {
+      $('btnSignIn').addEventListener('click', () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        firebase.auth().signInWithPopup(provider).catch(e => {
+          if (e.code === 'auth/popup-blocked') firebase.auth().signInWithRedirect(provider);
+          else if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') $('gateErr').textContent = e.message;
+        });
+      });
+      $('btnSignOut').addEventListener('click', () => firebase.auth().signOut());
+      firebase.auth().getRedirectResult().catch(e => { $('gateErr').textContent = e.message; });
+      firebase.auth().onAuthStateChanged(user => {
+        const email = user && (user.email || '').toLowerCase();
+        if (user && TEACHER_EMAILS.includes(email)) start();
+        else if (user) { firebase.auth().signOut(); showGate('Teacher sign-in required.', 'This page is for the teacher only.'); }
+        else if (!$('gateErr').textContent) showGate('Teacher sign-in required.');
+      });
+    }
+  </script>
+</body>
+</html>

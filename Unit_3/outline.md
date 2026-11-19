@@ -65,7 +65,7 @@ Students transition from forces and kinematics into an energy-accounting framewo
   - *P1–3:* Distances of 1, 2, 3, 4 and 5 m; ratio tables from their own rows ("2× the distance → 2× the work") with no division; 6 problems with the lift split into two boxes (`F_g = m × g`, then `W = F_g × h`); first hint already open.
   - *P4–6:* Student-chosen distances; slope of `W` vs. `d` = force, checked against the spring scale; 8 problems including `F = W ÷ d`, `h = W ÷ (m × g)`, braking work and a lift-walk-lift path.
   - *P0:* The rope pulls at an angle, so the slope is `F × cos θ`; 9 problems adding an angled pull and friction worked backward from net work.
-- **Links:** [Mechanical Work Studio](work_studio/index.html)
+- **Links:** [Mechanical Work Studio](work_studio/index.html) · [Mechanical Work Practice P302 (PDF)](worksheets/Day2_Work_Calculation_Practice.pdf) · [Print View (HTML)](worksheets/Day2_Work_Calculation_Practice.html)
 
 #### Day 3 — Wed, Nov 18, 2026
 - **Title:** Work Done Against Gravity: Ramp & Pulley Trade-Off Lab
@@ -96,27 +96,19 @@ Students transition from forces and kinematics into an energy-accounting framewo
 - **Links:** [Pulleys and Ramps Lab (Classroom assignment)](tradeoff_lab/index.html) · [Ideal Pulley System Lab](../pulley-work/index.html) · [Day 3 Ramp & Pulley Lab (PDF)](worksheets/Day3_Ramp_and_Pulley_Work_Lab.pdf) · [Print View (HTML)](worksheets/Day3_Ramp_and_Pulley_Work_Lab.html)
 
 #### Day 4 — Thu, Nov 19, 2026
-- **Title:** Force–Distance Data Analysis & Ramp Trade-Off CER
-- **Type:** CAST Data Analysis & Argumentation (CER)
-- **DOK:** DOK 3
+- **Title:** Work and Simple Machines Practice (`P304`)
+- **Type:** Calculation Practice (1-Page 3×4 Open-Box Grid)
+- **DOK:** DOK 2
 - **Standards:** HS-PS3-1, HS-PS3-2
 - **Essential Question:** EQ1
-- **Bell-Ringer:** A robot pushes a crate with `15 N` for `4 m`, then eases its push linearly from `15 N` down to `0 N` over the next `2 m`. Find the total work done by reading the rectangular (`60 J`) and triangular (`15 J`) graph areas (`75 J` total).
-- **Lesson Focus:** Interpret real Force vs. Distance graphs (`W = Area` between curve and axis) using yesterday's lab measurements, diagnose multi-shape `F–d` curves (rectangles, triangles, trapezoids, negative braking sections), and construct a quantitative Claim–Evidence–Reasoning (CER) argument refuting simple-machine work myths.
-- **Data Analysis & CAST Problems:**
-  1. **Graphing Day 3 Data:** Plot `(d, F_pull)` across `0.00–1.50 m` (x-axis) and `0.0–6.0 N` (y-axis), draw the smooth inverse curve (`F ∝ 1/d`), and shade the Direct Lift rectangle (`0.30 m × 5.00 N = 1.50 J`) vs. Ramp D rectangle (`1.20 m × 1.25 N = 1.50 J`) to prove visually why equal areas yield equal ideal work.
-  2. **4 CAST Graph Area Tasks:**
-     - *(Task 1)* Constant `12 N` push from `0–5 m` → rectangle area `+60 J`.
-     - *(Task 2)* Linearly increasing spring/pull force `0 N → 20 N` from `0–4 m` → triangle area `½ · 4 · 20 = +40 J`.
-     - *(Task 3)* Two-stage trapezoidal push (`0–2 m` ramping `0 → 20 N` = `+20 J`; `2–5 m` steady `20 N` = `+60 J`) → `+80 J`.
-     - *(Task 4)* Piecewise push & braking (`0–2 m` forward `+20 N` = `+40 J`; `2–4 m` negative braking `-10 N` below axis = `-20 J`) → `W_net = +20 J`.
-  3. **CAST CER Prompt:** A classmate claims *"Using Ramp D (`1.20 m`) cuts the total work in one-fourth compared to lifting straight up (`0.30 m`)."* Write a Claim–Evidence–Reasoning rebuttal citing measured Force, Distance, Work (`J`), and Graph Area.
-- **Activity & Completion Requirement:** *Ramp Graph Overlay + 4 CAST Area Tasks + Formal CER* — students complete the shaded area comparison, pass `≥ 3/4` CAST area tasks, and submit a complete 3-part CER citing at least two Day 3 measurements.
-- **Differentiation:**
-  - *P1–3:* Pre-scaled coordinate grid where each grid block equals `0.25 J` (`0.10 m × 2.5 N` or labeled square count), plus structured CER sentence frames.
-  - *P4–6:* Plot measured `F_pull` points alongside ideal curve, calculate rectangle/triangle areas algebraically, and write a quantitative CER.
-  - *P0:* Compute excess area `(W_in - W_out)` on Ramp D (`1.74 J - 1.50 J = 0.24 J`) to extract average rolling/slide friction force (`F_f = 0.24 J ÷ 1.20 m = 0.20 N`, matching `1.45 N - 1.25 N = 0.20 N`).
-- **Links:** [Day 4 Force–Distance Data Analysis & CER (PDF)](worksheets/Day4_Force_Distance_Data_Analysis_CER.pdf) · [Print View (HTML)](worksheets/Day4_Force_Distance_Data_Analysis_CER.html)
+- **Bell-Ringer:** A `40 kg` cart must be lifted `1.5 m` onto a loading dock (`600 J`). If pushed up a frictionless `6.0 m` ramp instead, calculate the required push force (`100 N`).
+- **Lesson Focus:** Independent practice solving pulley and ramp force–distance trade-off calculations in clean open-box format (no fill-in-the-blank crutches), rotating which variable is unknown across every row.
+- **Problem Breakdown (`P304` — 12 Open-Box Grid Problems, `g = 10 m/s²`):**
+  - **Row 1 (Pulley Work `W = F · d`):** `#1` solve for `W` (`1,000 J`), `#2` solve for `F` (`120 N`), `#3` solve for rope distance `d` (`8 m`).
+  - **Row 2 (Ideal Ramp Trade-Off `F_pull · d_ramp = m · g · h`):** `#4` solve for `F_pull` (`200 N`), `#5` solve for `d_ramp` (`6 m`), `#6` solve for dock height `h` (`1.5 m`).
+  - **Row 3 (Mechanical Advantage `MA = F_g ÷ F_pull = d_pull ÷ h`):** `#7` solve for `MA` (`5`), `#8` solve for `F_pull` (`300 N`), `#9` solve for wheelchair ramp length `d` (`2.7 m`) and work (`720 J`).
+  - **Row 4 (Friction & Ideal Work Conservation):** `#10` rough ramp `W_in` (`550 J`) vs. `W_out` (`450 J`), `#11` friction work `W_f` (`100 J`) and friction force `F_f` (`20 N`), `#12` straight lift vs. frictionless ramp work comparison (`300 J` each).
+- **Links:** [Day 4 Work & Simple Machines Practice P304 (PDF)](worksheets/Day4_Force_Distance_Data_Analysis_CER.pdf) · [Print View (HTML)](worksheets/Day4_Force_Distance_Data_Analysis_CER.html)
 
 #### Day 5 — Fri, Nov 20, 2026
 - **Title:** Staircase Power Lab (`P = W ÷ t`) & Week 1 Mastery Check

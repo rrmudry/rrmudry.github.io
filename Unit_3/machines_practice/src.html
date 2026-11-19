@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Work &amp; Simple Machines Practice</title>
+  <meta name="description" content="Scaffolded GUESS-method practice for pulley work, ramp force-distance trade-offs, mechanical advantage, and friction.">
+  <meta name="color-scheme" content="light">
+  <link rel="icon" type="image/svg+xml" href="../../assets/unit3-favicon.svg">
+  <!-- Source page. Edit js/ and css/, then run: node scripts/inline-studio.js Unit_3/machines_practice -->
+  <script>
+    // Apply saved theme + projector mode before first paint to avoid a flash
+    try {
+      const dark = localStorage.getItem('smp_theme') === 'dark';
+      const proj = localStorage.getItem('smp_projector') === 'on';
+      if (proj) {
+        document.documentElement.classList.add('projector');
+        document.querySelector('meta[name="color-scheme"]').content = 'light';
+      } else if (dark) {
+        document.documentElement.classList.add('theme-dark');
+        document.querySelector('meta[name="color-scheme"]').content = 'dark';
+      }
+    } catch (e) { /* storage blocked */ }
+    // Short screens get a tighter layout so Desmos never overlaps the question or buttons.
+    window.smpFit = function () {
+      var root = document.documentElement, rem = parseFloat(getComputedStyle(root).fontSize) || 16;
+      var tall = window.innerHeight / rem, wide = window.innerWidth > 900;
+      root.classList.toggle('compact', wide && tall <= 75);
+      root.classList.toggle('short', wide && tall <= 43.75);
+    };
+    window.smpFit();
+    window.addEventListener('resize', window.smpFit);
+    document.addEventListener('DOMContentLoaded', window.smpFit);
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Firebase (compat SDK, same as the rest of the site) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
+  <!-- Desmos Scientific Calculator API (same key as the other studios) -->
+  <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+  <script src="../../assets/ngss-helper.js" defer></script>
+</head>
+<body>
+
+  <!-- Native modal sign-in gate -->
+  <dialog id="loginGate" class="login-gate" closedby="none" aria-labelledby="gateTitle">
+    <div class="gate-card">
+      <div class="gate-icon" aria-hidden="true">⚙️</div>
+      <h1 id="gateTitle" class="gate-title">Work &amp; Simple Machines Practice</h1>
+      <p class="gate-sub">Unit 3 · Energy · Day 4</p>
+      <p class="gate-text">Sign in with your <strong>@orangeusd.org</strong> Google account. Your GUESS steps and calculations save automatically so you can pick up on any Chromebook.</p>
+      <div class="gate-grading">
+        <div><span aria-hidden="true">🧩</span> Guided GUESS parts (6 pts): step-by-step scaffolding</div>
+        <div><span aria-hidden="true">🏆</span> Mastery Check (4 pts): your best score counts</div>
+      </div>
+      <button type="button" id="btnGateSignIn" class="btn-google" autofocus>
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" width="20" height="20">
+        Sign in with Google
+      </button>
+      <div class="gate-guest">
+        <button type="button" id="btnGateGuest" class="btn-guest">Continue as Guest</button>
+        <p class="gate-guest-note">Guest progress stays on this device only and is <strong>not graded</strong>.</p>
+      </div>
+      <p id="gateStatus" class="gate-status" aria-live="polite"></p>
+      <p id="gateError" class="gate-error" role="alert" hidden></p>
+      <div class="gate-ngss" data-ngss="HS-PS3-1,HS-PS3-2"></div>
+    </div>
+  </dialog>
+
+  <header class="app-header">
+    <div class="header-row">
+      <div class="header-left">
+        <span class="app-icon" aria-hidden="true">⚙️</span>
+        <h1 class="app-title">Work &amp; Simple Machines Practice</h1>
+      </div>
+      <div class="header-right">
+        <label id="viewWrap" class="view-wrap" hidden>View as
+          <select id="viewSelect" aria-label="Teacher: view the studio as">
+            <option value="teacher">Teacher</option>
+            <option value="conceptual">Conceptual (P1–3)</option>
+            <option value="cp">CP (P4–6)</option>
+            <option value="honors">Honors (P0)</option>
+          </select>
+        </label>
+        <button type="button" id="btn-projector-mode" class="btn-tool" title="Big text and extra contrast for the classroom projector">🖥️ Projector</button>
+        <button type="button" id="btn-theme-toggle" class="btn-tool" title="Toggle light / dark theme">🌙 Dark</button>
+        <a id="btnMonitor" href="../../admin/machines_practice_monitor.html" target="_blank" class="btn-tool" title="See class progress and common mistakes" hidden>📊 Class Progress</a>
+        <button type="button" id="btnCert" class="cert-chip" title="Download your certificate as a PDF" hidden>🎓 Certificate</button>
+        <a href="../../unit3-dashboard.html" class="btn-tool" title="Back to Unit 3 Dashboard">🏠 Unit 3</a>
+        <div id="userChip" class="user-chip" hidden>
+          <span id="scoreChip" class="score-chip" title="Your grade so far"></span>
+          <span id="saveIndicator" class="save-indicator save-busy" aria-live="polite">⏳ Saving…</span>
+          <span id="userName" class="user-name"></span>
+          <span id="userTrack" class="user-track"></span>
+          <button type="button" id="btnSignOut" class="btn-signout" title="Sign out">Sign out</button>
+          <button type="button" id="btnChipSignIn" class="btn-signout" title="Sign in to get credit" hidden>Sign in for credit</button>
+        </div>
+      </div>
+    </div>
+    <nav id="partStrip" class="part-strip" aria-label="Parts"></nav>
+  </header>
+
+  <main class="workbench">
+    <!-- LEFT: the picture, with everything needed for the current question -->
+    <section class="card stage-card" aria-label="Picture">
+      <div id="stage" class="stage" tabindex="0" role="img" aria-label="Picture for the current step. The values you need appear here."></div>
+      <div class="stage-foot">
+        <div id="stageCtl" class="foot-row"></div>
+        <div id="guessBoard" class="guess-board" aria-label="GUESS checklist"></div>
+      </div>
+    </section>
+
+    <!-- RIGHT: one guided task at a time -->
+    <section class="card task-card" id="taskCard" aria-live="polite"></section>
+  </main>
+
+  <!-- Floating calculator: drag it by its title bar -->
+  <div id="calcPanel" class="calc-panel" hidden>
+    <div id="calcHead" class="calc-head" title="Drag to move the calculator"><strong>🧮 Calculator</strong><span class="calc-drag" aria-hidden="true">⠿ drag to move</span></div>
+    <div id="calcHost" class="calc-host"></div>
+    <div class="calc-foot">
+      <p id="calcMsg" class="calc-msg" role="alert" hidden></p>
+      <button type="button" id="btnUseCalc" class="btn-grab">📥 Use calculator answer</button>
+    </div>
+  </div>
+
+  <script src="js/ngss-data.js"></script>
+  <script src="js/text.js"></script>
+  <script src="../../Unit_2/vector_decomposition_studio/js/engine.js"></script>
+  <script src="js/physics.js"></script>
+  <script src="js/scene.js"></script>
+  <script src="js/lesson.js"></script>
+  <script src="js/certificate.js"></script>
+  <script src="js/integrity.js"></script>
+  <script src="js/app-core.js"></script>
+  <script src="js/app-parts.js"></script>
+  <script src="js/app-quiz.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

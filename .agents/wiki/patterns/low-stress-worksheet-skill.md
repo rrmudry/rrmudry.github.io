@@ -1,7 +1,7 @@
 # Low-Stress Worksheet Generator Skill Pattern
 
-> **Tags**: `worksheet`, `printable`, `pdf`, `cognitive-load`, `atomic-container`, `split-attention`, `skill`, `python-renderer`, `no-latex`, `guided-notes`  
-> **Last Updated**: 2026-11-02
+> **Tags**: `worksheet`, `printable`, `pdf`, `open-box-grid`, `3x4-grid`, `cognitive-load`, `atomic-container`, `split-attention`, `skill`, `python-renderer`, `no-latex`, `guided-notes`  
+> **Last Updated**: 2026-11-18
 
 ---
 
@@ -145,5 +145,24 @@ When creating a follow-along guided notes worksheet accompanying an instructor P
 5. **SVG Subscripts & Non-Wrapping Card Header Tags**:
    - Inside `<svg><text>...</text></svg>`, HTML `<sub>`/`<sup>` tags do not render in Chromium PDF print; always use `<tspan dy="2" font-size="6.5">ox</tspan><tspan dy="-2"> (m/s)</tspan>` instead of programmer underscores (`v_ox`).
    - Apply `white-space: nowrap; flex-shrink: 0;` to `.card-tag` header badges so unit tags (e.g., `Flight Time: t = 3 s`) never wrap mid-unit.
+
+---
+
+## 9. Classic 1-Page 3×4 Open-Box Grid Standard (Teacher Calculation & Review Format)
+
+> **Reference Examples**: Teacher exemplar `Work and Energy Review` (`P106`), `Unit_3/worksheets/Day2_Work_Calculation_Practice.html` (`P302`), `Unit_3/worksheets/Day4_Force_Distance_Data_Analysis_CER.html` (`P304`).
+
+For calculation practice sets and unit review worksheets (whenever a sheet is pure quantitative problem solving rather than a lab handout, graphing inquiry, AVID reading, or guided notes), **default to the teacher's Classic 1-Page 3×4 Open-Box Grid**:
+
+- **Page Setup**: Single US Letter portrait page (`@page { size: letter portrait; margin: 0.45in 0.55in; }`). Must never spill onto a 2nd page (`pdfinfo` verifies `Pages: 1`).
+- **Header**:
+  - `Name:______________________________________Date:_______________Period:_________` (`10.5pt` Arial)
+  - Navy serif title (`24pt` Georgia/Cambria, `#2b4c7e`, normal weight) — zero NGSS pills or subtitle clutter
+  - Classic blue double horizontal rule (`border-top: 1.5px solid #4a7ebb; border-bottom: 0.75px solid #4a7ebb; height: 3px; margin: 4px 0 10px 0;`)
+- **3 × 4 Table Grid (`12` Problems)**:
+  - Fixed 3 equal columns (`33.333%`), 4 equal rows (`height: 2.12in` per cell, `1px solid #000000`, `vertical-align: top; padding: 6px 8px;`), `9.5pt` Arial (`line-height: 1.22`, `#000000`).
+  - **No Pre-Printed Scaffolds or Badges**: Inside each cell, print ONLY the numbered `1.`–`12.` 2–3 sentence problem at the top. Leave the rest of the cell open white space so students learn to choose equations (`W = F · d`, `W = m · g · h`, `MA`, `W_f`), substitute values, and track units independently rather than filling in spoon-fed `____` prompts.
+- **Variable-Rotation Pedagogy**: Across each 3-problem row, rotate which quantity is solved for (e.g., solve for `W`, then solve for `F`, then solve for `d`; solve for `W_out`, then `d_ramp`, then `h`; finish Row 4 with friction loss `W_f` and conceptual zero-work or conservation comparisons). All numeric answers use `g = 10 m/s²` cleanly.
+- **Footer**: Page code at bottom-left (`P302`, `P304`, `10pt` Arial) and concise `Use g = 10 m/s²` bottom-right.
 
 

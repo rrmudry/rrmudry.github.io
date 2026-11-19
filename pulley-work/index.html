@@ -1,33 +1,2744 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ideal Pulley System Lab</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-      body {
-        font-family: 'Inter', sans-serif;
-      }
-    </style>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pulley &amp; Ramp Trade-Off Lab • Unit 3 Day 3</title>
+  <meta name="description" content="Investigate force–distance tradeoffs with pulleys and inclined planes: pull to lift a load, read the spring scale and distance tape, graph F vs. d, and prove W_in = W_out.">
+  <link rel="icon" type="image/svg+xml" href="../assets/unit3-favicon.svg">
 
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://aistudiocdn.com/react@^19.2.1",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
-    "react/": "https://aistudiocdn.com/react@^19.2.1/",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.556.0",
-    "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
-    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.2",
-    "vite": "https://aistudiocdn.com/vite@^7.2.7"
-  }
-}
-</script>
-  <script type="module" crossorigin src="./assets/index-CqBcI000.js"></script>
+  <script>
+    try {
+      if (localStorage.getItem('pwl_projector') === 'on') document.documentElement.classList.add('projector');
+      else if (localStorage.getItem('pwl_theme') === 'dark') document.documentElement.classList.add('theme-dark');
+    } catch (e) {}
+    window.pwlFit = function () {
+      var root = document.documentElement, rem = parseFloat(getComputedStyle(root).fontSize) || 16;
+      var tall = window.innerHeight / rem, wide = window.innerWidth > 900;
+      root.classList.toggle('compact', wide && tall <= 75);
+      root.classList.toggle('short', wide && tall <= 43.75);
+    };
+    window.pwlFit();
+    window.addEventListener('resize', window.pwlFit);
+    document.addEventListener('DOMContentLoaded', window.pwlFit);
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Firebase compat SDK (same version as site) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      projectId: "site-6e500",
+      appId: "1:591530758858:web:1996cdca7316ffc3781a33",
+      storageBucket: "site-6e500.firebasestorage.app",
+      apiKey: "AIzaSyAji2nTjD2dbmzgk8gySWCy-aiQyKvR1i4",
+      authDomain: "site-6e500.firebaseapp.com",
+      messagingSenderId: "591530758858"
+    };
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
+  <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+  <script src="../assets/ngss-helper.js" defer></script>
+
+  <style>
+    /* High-contrast Light Mode (default, WCAG AAA), Dark Mode, and Projector Mode */
+    :root {
+      --bg-page: #f1f5f9;
+      --bg-header: rgba(255, 255, 255, 0.97);
+      --bg-card: #ffffff;
+      --bg-subcard: #f8fafc;
+      --border-color: #cbd5e1;
+      --border-subtle: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #334155;
+      --text-dim: #475569;
+      --accent: #0284c7;
+      --accent-btn: #0369a1;
+      --good: #15803d;
+      --bad: #be123c;
+      --warn: #b45309;
+      --sky: #eef6ff;
+      --grid: #cbd5e1;
+      --c-F: #0e7490;
+      --c-d: #b45309;
+      --c-W: #047857;
+      --c-v: #7c3aed;
+      --radius: 0.85rem;
+      --font-sans: 'Outfit', system-ui, -apple-system, sans-serif;
+      --calc-height: clamp(19rem, calc(100vh - 28rem), 35rem);
+      font-size: 16px;
+    }
+
+    html.theme-dark {
+      --bg-page: #070d19;
+      --bg-header: rgba(7, 13, 25, 0.96);
+      --bg-card: #0f172a;
+      --bg-subcard: #1e293b;
+      --border-color: rgba(56, 189, 248, 0.32);
+      --border-subtle: rgba(148, 163, 184, 0.16);
+      --text-main: #f8fafc;
+      --text-muted: #cbd5e1;
+      --text-dim: #94a3b8;
+      --accent: #38bdf8;
+      --accent-btn: #38bdf8;
+      --good: #34d399;
+      --bad: #fb7185;
+      --warn: #fbbf24;
+      --sky: #0b1324;
+      --grid: #334155;
+      --c-F: #22d3ee;
+      --c-d: #fbbf24;
+      --c-W: #34d399;
+      --c-v: #c084fc;
+    }
+
+    html.projector {
+      font-size: clamp(16px, min(2.46vh, 1.17vw), 22px);
+      --bg-page: #ffffff;
+      --bg-subcard: #ffffff;
+      --border-color: #0f172a;
+      --border-subtle: #94a3b8;
+      --text-muted: #0f172a;
+      --text-dim: #1e293b;
+      --grid: #94a3b8;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      height: 100dvh;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-page);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+    }
+    [hidden] { display: none !important; }
+    button { font: inherit; cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: 0.65; }
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    p { margin: 0 0 0.5rem; }
+    p:last-child { margin-bottom: 0; }
+    sub { font-size: 0.72em; line-height: 0; }
+    kbd {
+      font-family: inherit;
+      font-weight: 800;
+      padding: 0.05rem 0.35rem;
+      border-radius: 0.3rem;
+      border: 1px solid var(--border-color);
+      border-bottom-width: 2px;
+      background: var(--bg-card);
+      color: var(--text-main);
+    }
+
+    .formula { white-space: nowrap; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .nowrap { white-space: nowrap; }
+    .calc-stack {
+      display: grid;
+      grid-template-columns: auto auto auto;
+      gap: 0.1rem 0.35rem;
+      width: fit-content;
+      margin: 0.25rem 0;
+      white-space: nowrap;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .calc-sym { text-align: right; }
+    .worked { display: inline-block; margin-top: 0.35rem; }
+
+    /* ---------- Sticky Header & 5-Part Strip ---------- */
+    .app-header {
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.35rem 0.75rem 0.45rem;
+    }
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.55rem;
+      flex-wrap: wrap;
+      max-width: 110rem;
+      margin: 0 auto;
+    }
+    .header-left { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+    .app-icon { font-size: 1.35rem; line-height: 1; }
+    .app-title { margin: 0; font-size: 1.1rem; font-weight: 800; letter-spacing: -0.01em; }
+    .header-right { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+    .btn-tool {
+      background: var(--bg-subcard);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      padding: 0.22rem 0.55rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .btn-tool.btn-on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+    .view-wrap { font-size: 0.82rem; font-weight: 700; display: flex; align-items: center; gap: 0.3rem; }
+    .view-wrap select {
+      font: inherit;
+      color: var(--text-main);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 0.4rem;
+      padding: 0.14rem 0.35rem;
+    }
+    .user-chip { display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; padding-left: 0.3rem; }
+    .user-name { font-weight: 700; max-width: 10.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .user-track { color: var(--text-dim); font-weight: 600; white-space: nowrap; }
+    .score-chip {
+      font-weight: 800;
+      background: var(--bg-subcard);
+      border: 1px solid var(--border-color);
+      border-radius: 999px;
+      padding: 0.08rem 0.6rem;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+    .save-indicator { font-weight: 600; white-space: nowrap; }
+    .save-ok { color: var(--good); }
+    .save-busy, .save-guest { color: var(--text-dim); }
+    .save-error { color: var(--bad); }
+    .cert-chip {
+      background: var(--bg-card);
+      color: var(--good);
+      border: 2px solid var(--good);
+      border-radius: 999px;
+      padding: 0.1rem 0.65rem;
+      font-size: 0.82rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .btn-signout {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      border-radius: 0.4rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.12rem 0.45rem;
+    }
+
+    .part-strip {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 0.4rem;
+      max-width: 110rem;
+      margin: 0.35rem auto 0;
+    }
+    .part-tab {
+      background: var(--bg-subcard);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-radius: 0.55rem;
+      padding: 0.22rem 0.5rem;
+      text-align: left;
+      min-width: 0;
+    }
+    .part-tab:disabled { color: var(--text-dim); background: transparent; opacity: 0.7; }
+    .part-on { border-color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); }
+    .part-name { display: block; font-size: 0.86rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .part-bar { display: block; height: 0.28rem; margin-top: 0.18rem; background: var(--border-subtle); border-radius: 999px; overflow: hidden; }
+    .part-bar span { display: block; height: 100%; background: var(--accent); transition: width 0.2s ease; }
+    .part-done .part-bar span { background: var(--good); }
+
+    /* ---------- Main 2-Column Workbench ---------- */
+    .workbench {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+      gap: 0.65rem;
+      padding: 0.65rem;
+      width: 100%;
+      max-width: 110rem;
+      margin: 0 auto;
+      flex: 1;
+      min-height: 0;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      min-width: 0;
+      min-height: 0;
+    }
+    .stage-card { display: flex; flex-direction: column; gap: 0.45rem; padding: 0.5rem; }
+    .stage {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.65rem;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      background: var(--sky);
+    }
+    .scene-svg { display: block; width: 100%; height: 100%; }
+    .stage-foot { flex: none; display: flex; flex-direction: column; gap: 0.35rem; }
+    .foot-row { display: flex; align-items: center; gap: 0.45rem; height: 2.55rem; overflow: hidden; flex-wrap: nowrap; }
+    .foot-row:empty { display: none; }
+
+    .btn-step {
+      background: var(--accent-btn);
+      color: #ffffff;
+      border: 0;
+      border-radius: 0.55rem;
+      padding: 0.4rem 0.95rem;
+      font-weight: 800;
+      font-size: 0.98rem;
+      white-space: nowrap;
+      touch-action: manipulation;
+    }
+    html.theme-dark .btn-step { color: #0f172a; }
+    .btn-step:active:not(:disabled) { transform: scale(0.97); }
+    .btn-step:disabled { background: var(--border-color); color: var(--text-dim); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-radius: 0.55rem;
+      padding: 0.38rem 0.7rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .ctl-label { font-weight: 800; white-space: nowrap; font-variant-numeric: tabular-nums; font-size: 0.95rem; }
+    .ctl-range { flex: 1; min-width: 4rem; max-width: 14rem; accent-color: var(--c-v); }
+    .ctl-note { color: var(--text-dim); font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+
+    /* ---------- Data Table (7 Trials) ---------- */
+    .data-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13px; line-height: 1; font-variant-numeric: tabular-nums; }
+    .data-table th, .data-table td { border: 1px solid var(--border-color); height: 22px; padding: 0 3px; text-align: center; font-weight: 700; white-space: nowrap; overflow: hidden; }
+    .data-table th { background: var(--bg-subcard); font-weight: 800; }
+    .data-table th:first-child { width: 8.8em; text-align: left; }
+    .data-table .cell-now { box-shadow: inset 0 0 0 2px var(--accent); }
+    .tag-p { color: var(--c-F); }
+    .tag-r { color: var(--c-d); }
+    html.projector .data-table { font-size: 15px; }
+    html.projector .data-table th, html.projector .data-table td { height: 25px; }
+
+    /* ---------- Task Card ---------- */
+    .task-card { display: flex; flex-direction: column; gap: 0.65rem; overflow-y: auto; padding: 0.85rem 1rem; }
+    .task-card > * { flex-shrink: 0; }
+    body.calc-open .task-card { padding-bottom: calc(var(--calc-height) + 1rem); }
+    .task-top { display: flex; align-items: center; justify-content: space-between; gap: 0.45rem; flex-wrap: wrap; }
+    .task-top-tools { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+    .step-jump { font: inherit; font-size: 0.78rem; font-weight: 700; color: var(--text-main); background: var(--bg-subcard); border: 1px solid var(--border-color); border-radius: 0.45rem; padding: 0.1rem 0.35rem; max-width: 14.5rem; }
+    .task-count { font-size: 0.85rem; font-weight: 700; color: var(--text-dim); }
+    .btn-read { background: var(--bg-subcard); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 0.45rem; padding: 0.1rem 0.48rem; font-size: 0.78rem; font-weight: 700; }
+    .launch-tag { margin: 0; font-size: 0.86rem; font-weight: 800; color: var(--accent); }
+    .task-title { margin: 0; font-size: 1.28rem; line-height: 1.25; font-weight: 800; }
+    .task-body { font-size: 1.04rem; }
+    .formula-box { margin: 0; padding: 0.4rem 0.7rem; font-size: 1.15rem; background: var(--bg-subcard); border: 1px solid var(--border-color); border-radius: 0.5rem; text-align: center; overflow-x: auto; }
+    .prev-step { font-size: 0.94rem; color: var(--text-muted); padding: 0.35rem 0.6rem; background: var(--bg-subcard); border-left: 4px solid var(--good); border-radius: 0 0.45rem 0.45rem 0; }
+    .pred-block { display: grid; gap: 0.35rem; }
+    .pred-label { margin: 0; font-size: 0.96rem; font-weight: 800; color: var(--text-muted); }
+    .ans-row { display: flex; align-items: center; gap: 0.5rem; font-size: 1.16rem; font-weight: 700; white-space: nowrap; }
+    .ans-row input { font: inherit; width: 7.5rem; padding: 0.28rem 0.5rem; border: 2px solid var(--accent); border-radius: 0.5rem; color: var(--text-main); background: var(--bg-card); font-variant-numeric: tabular-nums; }
+    .ans-row input.calc-readonly { background: var(--bg-subcard); border-color: var(--border-color); cursor: default; }
+    .ans-row input.calc-readonly::placeholder { font-size: 0.8rem; font-weight: 600; color: var(--text-dim); }
+    .rec-row { display: flex; flex-wrap: wrap; gap: 0.45rem 0.85rem; align-items: center; font-weight: 700; font-size: 1.05rem; }
+    .rec-row label { display: flex; align-items: center; gap: 0.35rem; white-space: nowrap; }
+    .rec-row input { font: inherit; width: 5.4rem; padding: 0.25rem 0.45rem; border: 2px solid var(--accent); border-radius: 0.5rem; color: var(--text-main); background: var(--bg-card); font-variant-numeric: tabular-nums; }
+
+    .task-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .btn-primary { background: var(--accent-btn); color: #ffffff; border: 0; border-radius: 0.55rem; padding: 0.48rem 1.15rem; font-weight: 800; font-size: 1.02rem; }
+    html.theme-dark .btn-primary { color: #0f172a; }
+    .btn-primary:disabled { background: var(--border-color); color: var(--text-dim); font-weight: 600; }
+    .btn-secondary { background: transparent; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 0.55rem; padding: 0.48rem 0.9rem; font-weight: 700; }
+    .feedback { border-radius: 0.55rem; padding: 0.52rem 0.7rem; font-size: 1rem; border: 1.5px solid; }
+    .fb-ok { border-color: var(--good); color: var(--text-main); background: color-mix(in srgb, var(--good) 10%, transparent); }
+    .fb-bad { border-color: var(--bad); color: var(--text-main); background: color-mix(in srgb, var(--bad) 8%, transparent); }
+    .fb-retry { border-color: var(--warn); color: var(--text-main); background: color-mix(in srgb, var(--warn) 10%, transparent); }
+    .hints { display: grid; gap: 0.35rem; justify-items: start; }
+    .hint { background: var(--bg-subcard); border: 1px solid var(--border-subtle); border-radius: 0.45rem; padding: 0.32rem 0.6rem; font-size: 0.96rem; }
+    .btn-hint { background: transparent; border: 0; color: var(--accent); font-weight: 700; padding: 0.1rem 0; text-decoration: underline; }
+
+    .opts { display: grid; gap: 0.45rem; }
+    .opts-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .opt { text-align: left; background: var(--bg-card); color: var(--text-main); border: 2px solid var(--border-color); border-radius: 0.6rem; padding: 0.5rem 0.75rem; font-size: 0.98rem; font-weight: 700; }
+    .opts-row .opt { text-align: center; padding: 0.5rem 0.4rem; }
+    .opt:hover:not(:disabled) { border-color: var(--accent); }
+    .opt-picked { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--bg-card)); }
+
+    .done-card { display: grid; gap: 0.6rem; justify-items: center; text-align: center; margin: auto 0; }
+    .done-mark { font-size: 2.5rem; line-height: 1; }
+    .quiz-msg { color: var(--bad); font-weight: 700; margin: 0; }
+    .quiz-msg:empty { display: none; }
+    .score-big { display: flex; align-items: baseline; gap: 0.6rem; }
+    .score-big strong { font-size: 2.5rem; line-height: 1; font-variant-numeric: tabular-nums; }
+    .score-big span { color: var(--text-dim); font-weight: 600; }
+    .misses { margin: 0.2rem 0 0; padding-left: 1.1rem; font-size: 0.96rem; display: grid; gap: 0.35rem; }
+
+    .cert-box { border: 2px solid var(--border-color); border-radius: 0.6rem; padding: 0.5rem 0.7rem; }
+    .cert-ready { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; border-color: var(--good); background: color-mix(in srgb, var(--good) 12%, var(--bg-card)); }
+    .cert-wait { background: var(--bg-subcard); font-size: 0.94rem; }
+
+    /* ---------- Floating Desmos Calculator ---------- */
+    .calc-panel { position: fixed; right: 1.1rem; bottom: 0.75rem; width: 24rem; max-width: calc(100vw - 1.2rem); height: var(--calc-height); z-index: 90; display: flex; flex-direction: column; background: var(--bg-card); border: 2px solid var(--accent); border-radius: 0.7rem; overflow: hidden; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28); }
+    .calc-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.22rem 0.6rem; background: var(--bg-subcard); cursor: move; touch-action: none; font-size: 0.88rem; }
+    .calc-drag { font-size: 0.75rem; font-weight: 600; color: var(--text-dim); }
+    .calc-host { flex: 1; min-height: 0; }
+    .calc-foot { padding: 0.35rem 0.5rem; background: var(--bg-subcard); border-top: 1px solid var(--border-color); display: grid; gap: 0.25rem; }
+    .calc-msg { margin: 0; color: var(--bad); font-size: 0.86rem; font-weight: 700; line-height: 1.2; }
+    .calc-missing { padding: 0.8rem; }
+    .btn-grab { width: 100%; background: var(--c-v); color: #ffffff; border: 0; border-radius: 0.5rem; padding: 0.42rem; font-weight: 800; font-size: 0.98rem; }
+
+    /* ---------- Sign-In Gate ---------- */
+    .login-gate { position: fixed; inset: 0; z-index: 200; background: var(--bg-page); display: flex; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto; }
+    .gate-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 1rem; padding: 1.5rem; width: min(30rem, 100%); text-align: center; display: grid; gap: 0.7rem; box-shadow: 0 12px 36px rgba(15, 23, 42, 0.14); }
+    .gate-icon { font-size: 2.3rem; line-height: 1; }
+    .gate-title { margin: 0; font-size: 1.5rem; font-weight: 800; }
+    .gate-sub { margin: 0; color: var(--text-dim); font-weight: 700; }
+    .gate-text { margin: 0; }
+    .gate-grading { text-align: left; background: var(--bg-subcard); border: 1px solid var(--border-subtle); border-radius: 0.6rem; padding: 0.55rem 0.75rem; display: grid; gap: 0.3rem; font-size: 0.94rem; }
+    .btn-google { display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem; background: #fff; color: #1f2937; border: 1px solid #94a3b8; border-radius: 0.55rem; padding: 0.55rem 1rem; font-weight: 700; }
+    .btn-guest { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); border-radius: 0.55rem; padding: 0.35rem 0.9rem; font-weight: 700; }
+    .gate-guest-note { margin: 0.25rem 0 0; font-size: 0.84rem; color: var(--text-dim); }
+    .gate-status { margin: 0; font-weight: 700; }
+    .gate-error { margin: 0; color: var(--bad); font-weight: 700; }
+
+    /* ---------- SVG Warehouse Visual Tokens ---------- */
+    .sv-text { font-family: var(--font-sans); font-weight: 700; font-size: 17px; fill: var(--text-main); }
+    .sv-small { font-size: 14px; font-weight: 600; }
+    .sv-plate { fill: var(--bg-card); fill-opacity: 0.94; stroke: var(--border-subtle); stroke-width: 1; }
+    .sv-floor { fill: var(--sky); }
+    .wk-bay-wall { fill: var(--border-subtle); opacity: 0.45; }
+    .wk-bay-truss { fill: none; stroke: var(--border-color); stroke-width: 2; opacity: 0.65; }
+    .wk-hazard { fill: var(--warn); opacity: 0.25; }
+    .wk-ground { fill: var(--bg-subcard); }
+    .wk-floor-line { stroke: var(--text-dim); stroke-width: 2.5; }
+    .wk-console { fill: var(--bg-card); stroke: var(--border-color); stroke-width: 1.5; }
+
+    .wk-F-text { color: var(--c-F); fill: var(--c-F); }
+    .wk-d-text { color: var(--c-d); fill: var(--c-d); }
+    .wk-W-text { color: var(--c-W); fill: var(--c-W); }
+    .wk-v-text { color: var(--c-v); fill: var(--c-v); }
+    .wk-F line { stroke: var(--c-F); } .wk-F polygon { fill: var(--c-F); }
+    .wk-d line { stroke: var(--c-d); } .wk-d polygon { fill: var(--c-d); }
+    .wk-dim line { stroke-width: 2.5; }
+    .fl-dim { fill: var(--text-dim); }
+    .fl-title { font-size: 19px; font-weight: 800; }
+    .fl-value { font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .fl-box { fill: var(--bg-card); stroke: var(--border-color); stroke-width: 1.5; }
+    .fl-box-good { stroke: var(--good); stroke-width: 2; }
+    .fl-coach { fill: var(--warn); }
+    .fl-divider { stroke: var(--border-color); stroke-width: 2; }
+    .fl-click { cursor: pointer; }
+    .fl-cross { cursor: crosshair; }
+
+    .wk-tape { fill: #fde68a; stroke: #92400e; stroke-width: 1.2; }
+    .wk-tape-tick { stroke: #1c1917; stroke-width: 1; }
+    .wk-tape-tick.major { stroke-width: 2; }
+    .wk-tape-num { font-size: 13px; font-weight: 800; fill: #1c1917; }
+    .wk-crate { fill: #d6a35c; stroke: #78350f; stroke-width: 2; }
+    .wk-crate-x { fill: none; stroke: #78350f; stroke-width: 1.4; opacity: 0.55; }
+    .wk-crate-trim { fill: none; stroke: #78350f; stroke-width: 1.2; opacity: 0.5; }
+    .wk-crate-label { fill: #1c1917; font-weight: 800; }
+    .wk-cart-body { fill: #0284c7; stroke: #0f172a; stroke-width: 2; }
+    .wk-wheel { fill: var(--text-main); }
+    .wk-rope { stroke: var(--text-main); stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    .wk-rope-marks { stroke: #f59e0b; stroke-width: 3; stroke-dasharray: 4 14; fill: none; }
+    .wk-scale-mini { fill: var(--bg-card); stroke: var(--c-F); stroke-width: 2.2; }
+    .wk-pointer { stroke: var(--bad); stroke-width: 2.2; }
+    .wk-pointer-head { fill: var(--bad); }
+    .wk-beam { fill: #475569; }
+    .wk-mast { fill: #64748b; }
+    .wk-shelf { fill: #b45309; }
+    .wk-shelf-face { fill: var(--border-subtle); stroke: var(--border-color); stroke-width: 1.5; }
+    .wk-ramp { fill: #fef3c7; stroke: #b45309; stroke-width: 2.5; }
+    html.theme-dark .wk-ramp { fill: #451a03; stroke: #f59e0b; }
+    .wk-pulley { fill: var(--bg-card); stroke: var(--text-main); stroke-width: 2.8; }
+    .wk-spoke { stroke: var(--text-main); stroke-width: 1.8; }
+    .wk-hub { fill: var(--c-F); }
+    .wk-zone { fill: color-mix(in srgb, var(--good) 16%, transparent); stroke: var(--good); stroke-width: 1.8; stroke-dasharray: 5 4; }
+    .wk-latch-ok { fill: color-mix(in srgb, var(--good) 16%, var(--bg-card)); stroke: var(--good); stroke-width: 2; }
+
+    .wk-p-leg { stroke: #334155; stroke-width: 9; stroke-linecap: round; }
+    .wk-p-shirt { stroke: #2563eb; stroke-width: 19; stroke-linecap: round; }
+    .wk-p-arm { fill: none; stroke: #1d4ed8; stroke-width: 6.5; stroke-linecap: round; stroke-linejoin: round; }
+    .wk-p-skin { fill: #f2c9a0; stroke: #7c4a2d; stroke-width: 1.4; }
+    .wk-helmet { fill: #f59e0b; stroke: #92400e; stroke-width: 1.4; }
+    .wk-helmet-brim { stroke: #92400e; stroke-width: 2.8; stroke-linecap: round; }
+    html.theme-dark .wk-p-leg { stroke: #94a3b8; }
+
+    .fl-dial-rim { fill: var(--text-dim); }
+    .fl-dial-face { fill: var(--bg-card); stroke: var(--text-main); stroke-width: 2; }
+    .fl-tick { stroke: var(--text-main); stroke-width: 1.1; }
+    .fl-tick-mid { stroke-width: 1.8; }
+    .fl-tick-major { stroke-width: 2.8; }
+    .fl-dial-num { font-size: 13px; font-weight: 800; }
+    .fl-needle { stroke: var(--bad); stroke-width: 2.2; stroke-linecap: round; }
+    .fl-needle-hub { fill: var(--text-main); }
+    .fl-loupe-rim { fill: none; stroke: var(--c-v); stroke-width: 4; }
+    .wk-loupe-cross { stroke: var(--c-v); stroke-width: 1.2; stroke-dasharray: 4 3; opacity: 0.65; }
+
+    /* Graph classes */
+    .fl-plot { fill: var(--bg-card); }
+    .fl-grid-major { stroke: var(--grid); stroke-width: 1.5; }
+    .fl-grid-minor { stroke: var(--grid); stroke-width: 0.6; opacity: 0.75; }
+    .fl-axis { fill: none; stroke: var(--text-main); stroke-width: 2.5; }
+    .fl-axis-label { font-size: 16px; }
+    .fl-guide { fill: none; stroke: var(--warn); stroke-width: 2.5; stroke-dasharray: 7 6; }
+    .fl-fit { fill: none; stroke: var(--c-v); stroke-width: 3; }
+    .fl-rect { fill: var(--c-W); fill-opacity: 0.16; stroke: var(--c-W); stroke-width: 2.4; stroke-dasharray: 6 4; }
+    .fl-rect-alt { fill: var(--c-F); fill-opacity: 0.12; stroke: var(--c-F); stroke-width: 2; stroke-dasharray: 4 4; }
+    .fl-pt-p { fill: var(--c-F); stroke: var(--bg-card); stroke-width: 2; }
+    .fl-pt-r { fill: var(--c-d); stroke: var(--bg-card); stroke-width: 2; }
+    .fl-pt-new { stroke: var(--text-main); stroke-width: 2.5; }
+    .fl-pt-hit[data-pt] { cursor: pointer; }
+    .fl-pt-label { paint-order: stroke; stroke: var(--bg-card); stroke-width: 4px; stroke-linejoin: round; pointer-events: none; }
+    .fl-miss { fill: none; stroke: var(--bad); stroke-width: 3; }
+    .wk-read-line { stroke: var(--c-d); stroke-width: 2.5; stroke-dasharray: 7 5; }
+
+    /* ---------- Compact & Short Viewport Adaptation (1366x768 & 1366x650) ---------- */
+    html.compact body.calc-open .task-card { flex-direction: row; flex-wrap: wrap; align-items: center; align-content: flex-start; gap: 0.4rem 0.6rem; padding-top: 0.5rem; }
+    html.compact body.calc-open .task-card > * { flex: 0 0 100%; }
+    html.compact body.calc-open .task-card > .launch-tag { flex: 0 0 auto; order: -1; }
+    html.compact body.calc-open .task-card > .task-top { flex: 1 1 0; order: -1; }
+    html.compact body.calc-open .task-card > .ans-row, html.compact body.calc-open .task-card > .task-actions { flex: 0 0 auto; }
+    html.compact body.calc-open .task-title { font-size: 1.12rem; line-height: 1.2; }
+    html.compact body.calc-open .formula-box { padding: 0.14rem 0.5rem; font-size: 1.04rem; }
+    html.compact body.calc-open .ans-row { font-size: 1.04rem; }
+    html.compact body.calc-open .hint { padding: 0.16rem 0.5rem; font-size: 0.9rem; line-height: 1.2; }
+    html.compact body.calc-open .task-actions .btn-primary, html.compact body.calc-open .task-actions .btn-secondary { padding: 0.34rem 0.8rem; font-size: 0.96rem; }
+    html.compact body.calc-open .task-card > .feedback { order: 1; padding: 0.28rem 0.6rem; font-size: 0.94rem; line-height: 1.25; }
+    html.compact body.calc-open .task-card > .hints { display: contents; }
+    html.compact body.calc-open .task-card > .hints > .hint { flex: 0 0 100%; order: 2; }
+    html.compact body.calc-open .task-card > .hints > .btn-hint { flex: 0 0 auto; }
+    html.compact body.calc-open .task-card > .feedback ~ .hints > .hint:not(:last-of-type) { display: none; }
+
+    html.short { --calc-height: 18.8rem; }
+    html.short .app-header { padding: 0.15rem 0.75rem 0.24rem; }
+    html.short .app-icon { font-size: 1.1rem; }
+    html.short .app-title { font-size: 1rem; }
+    html.short .part-strip { margin-top: 0.2rem; }
+    html.short .part-tab { padding: 0.08rem 0.5rem 0.14rem; }
+    html.short .part-bar { height: 0.22rem; margin-top: 0.08rem; }
+    html.short .workbench { padding-top: 0.35rem; padding-bottom: 0.35rem; }
+    html.short .calc-head { padding: 0.12rem 0.6rem; }
+    html.short body.calc-open .task-card { padding-bottom: calc(var(--calc-height) + 0.15rem); }
+    html.short body.calc-open .task-actions .btn-ghost { padding: 0.3rem 0.6rem; font-size: 0.92rem; }
+    html.short .calc-panel { display: grid; grid-template: auto minmax(0, 1fr) auto / minmax(0, 1fr) auto; bottom: 0.25rem; }
+    html.short .calc-head { grid-area: 1 / 1; }
+    html.short .calc-drag { display: none; }
+    html.short .calc-foot { display: contents; }
+    html.short .calc-foot .btn-grab { grid-area: 1 / 2; width: auto; border-radius: 0; padding: 0.22rem 0.7rem; font-size: 0.92rem; }
+    html.short .calc-host { grid-area: 2 / 1 / 3 / 3; }
+    html.short .calc-msg { grid-area: 3 / 1 / 4 / 3; padding: 0.3rem 0.55rem; background: var(--bg-subcard); border-top: 1px solid var(--border-color); }
+    html.short .opts { gap: 0.3rem; }
+    html.short .opt { padding: 0.38rem 0.75rem; }
+
+    @media (max-width: 900px) {
+      body { height: auto; display: block; }
+      .workbench { display: flex; flex-direction: column; }
+      .stage { aspect-ratio: 760 / 520; flex: none; }
+      .foot-row { height: auto; min-height: 2.55rem; flex-wrap: wrap; overflow: visible; }
+      .task-card { overflow: visible; }
+      .calc-panel { position: static; width: auto; max-width: none; height: 25rem; margin: 0 0.65rem 0.65rem; }
+      body.calc-open .task-card { padding-bottom: 0.9rem; }
+    }
+
+    @media print { .calc-panel, .app-header { display: none; } }
+  </style>
 </head>
-  <body class="bg-gray-50 text-slate-800 antialiased">
-    <div id="root"></div>
-  </body>
+<body oncontextmenu="return false;">
+
+  <!-- Google Sign-In Gate -->
+  <div id="loginGate" class="login-gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+    <div class="gate-card">
+      <div class="gate-icon" aria-hidden="true">⚙️</div>
+      <h2 id="gateTitle" class="gate-title">Pulley &amp; Ramp Trade-Off Lab</h2>
+      <p class="gate-sub">Unit 3 · Energy · Day 3 Investigation</p>
+      <p class="gate-text">Sign in with your <strong>@orangeusd.org</strong> Google account so your progress saves automatically across Chromebooks.</p>
+      <div class="gate-grading">
+        <div><span aria-hidden="true">⚙️</span> Pulleys &amp; Ramps (6 pts): lift, measure, graph, and prove W<sub>in</sub> = W<sub>out</sub></div>
+        <div><span aria-hidden="true">🏁</span> Mastery Check (4 pts): best attempt counts toward your grade</div>
+      </div>
+      <button type="button" id="btnGateSignIn" class="btn-google">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" width="20" height="20">
+        Sign in with Google
+      </button>
+      <div class="gate-guest">
+        <button type="button" id="btnGateGuest" class="btn-guest">Continue as Guest</button>
+        <p class="gate-guest-note">Guest progress stays on this device only and is <strong>not graded</strong>.</p>
+      </div>
+      <p id="gateStatus" class="gate-status" aria-live="polite"></p>
+      <p id="gateError" class="gate-error" role="alert" hidden></p>
+      <div data-ngss="HS-PS3-1"></div>
+    </div>
+  </div>
+
+  <!-- Sticky Header -->
+  <header class="app-header">
+    <div class="header-row">
+      <div class="header-left">
+        <span class="app-icon" aria-hidden="true">⚙️</span>
+        <h1 class="app-title">Pulley &amp; Ramp Trade-Off Lab</h1>
+      </div>
+      <div class="header-right">
+        <label id="viewWrap" class="view-wrap" hidden>View as
+          <select id="viewSelect" aria-label="Teacher: preview level">
+            <option value="teacher">Teacher</option>
+            <option value="conceptual">Conceptual (P1–3)</option>
+            <option value="cp">CP (P4–6)</option>
+            <option value="honors">Honors (P0)</option>
+          </select>
+        </label>
+        <button type="button" id="btnSampleData" class="btn-tool" title="Fill simulated trial data for previewing Graph It" hidden>🧪 Simulated Data</button>
+        <button type="button" id="btn-projector-mode" class="btn-tool" title="Big text and high contrast for classroom projection">🖥️ Projector</button>
+        <button type="button" id="btn-theme-toggle" class="btn-tool" title="Toggle light / dark mode">🌙 Dark</button>
+        <button type="button" id="btnCert" class="cert-chip" title="Download completion certificate PDF" hidden>🎓 Certificate</button>
+        <a href="../unit3-dashboard.html" class="btn-tool" title="Back to Unit 3 Dashboard">🏠 Unit 3</a>
+        <div id="userChip" class="user-chip" hidden>
+          <span id="scoreChip" class="score-chip" title="Your current score">0.0 / 10</span>
+          <span id="saveIndicator" class="save-indicator save-busy" aria-live="polite">⏳ Saving…</span>
+          <span id="userName" class="user-name"></span>
+          <span id="userTrack" class="user-track"></span>
+          <button type="button" id="btnSignOut" class="btn-signout" title="Sign out">Sign out</button>
+          <button type="button" id="btnChipSignIn" class="btn-signout" title="Sign in for credit" hidden>Sign in for credit</button>
+        </div>
+      </div>
+    </div>
+    <nav id="partStrip" class="part-strip" aria-label="Parts"></nav>
+  </header>
+
+  <!-- Main Two-Column Workbench -->
+  <main class="workbench">
+    <section class="card stage-card" aria-label="Interactive apparatus and data table">
+      <div id="stage" class="stage"></div>
+      <div class="stage-foot">
+        <div id="stageCtl" class="foot-row"></div>
+        <div id="dataTable" hidden></div>
+      </div>
+    </section>
+    <section id="taskCard" class="card task-card" aria-live="polite"></section>
+  </main>
+
+  <!-- Floating Desmos Scientific Calculator -->
+  <div id="calcPanel" class="calc-panel" hidden>
+    <div id="calcHead" class="calc-head">
+      <strong>🧮 Calculator</strong>
+      <span class="calc-drag">⠿ drag to move</span>
+    </div>
+    <div id="calcHost" class="calc-host"></div>
+    <div class="calc-foot">
+      <p id="calcMsg" class="calc-msg" role="alert" hidden></p>
+      <button type="button" id="btnUseCalc" class="btn-grab">📥 Use calculator answer</button>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      // =========================================================================
+      // 1. CONSTANTS, TEXT HELPERS & DESMOS CALCULATOR PARSER
+      // =========================================================================
+      const ASSIGNMENT_ID = 'unit3_day3_pulley_ramp_tradeoff_lab';
+      const GUEST_KEY = 'pwl_guest_v1';
+      const TEACHER_EMAILS = ['rmudry@orangeusd.org'];
+      const G = 10; // Class standard: g = 10 m/s²
+      const H_TARGET = 1.5; // Fixed vertical lift height (m)
+      const MAX_POINTS = 10;
+      const CERT_PERCENT = 80;
+
+      const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      const pick = a => a[Math.floor(Math.random() * a.length)];
+      const shuffle = a => { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+      const round = (n, d = 3) => Math.round(n * 10 ** d) / 10 ** d;
+      const fmt = n => (Number.isFinite(n) ? (Math.round(n * 100) / 100).toString() : '');
+      const near = (a, b, rel = 0.02, abs = 0.05) => Math.abs(a - b) <= Math.max(abs, Math.abs(b) * rel);
+
+      const SUB_RE = /([A-Za-z])_([A-Za-z0-9]+)/g;
+      function subHTML(s) {
+        return String(s).replace(/(<[^>]+>)|([^<]+)/g, (m, tag, text) => tag || text
+          .replace(SUB_RE, '$1<sub>$2</sub>')
+          .replace(/(\b[A-Za-z](?:<sub>[^<]+<\/sub>)?)\s*([=+\-−×÷/])\s*/g, '$1\u00A0$2\u00A0')
+          .replace(/(\d)\s+(m\/s²|m\/s|J\/m|kg|m|N|J|%)\b/g, '$1\u00A0$2'));
+      }
+
+      function parseNum(raw) {
+        const s = String(raw ?? '').trim().replace(/,/g, '').replace(/[−–]/g, '-');
+        if (!s || !/^[+-]?(\d+\.?\d*|\.\d+)$/.test(s)) return null;
+        const n = Number(s);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function parseCalc(latex, degrees = true, prev = null) {
+        let src = String(latex || '').replace(/\s+/g, '');
+        src = src.replace(/\\cdot|\\times/g, '*').replace(/\\div/g, '/');
+        src = src.replace(/\\left\(/g, '(').replace(/\\right\)/g, ')');
+        src = src.replace(/\\left\[/g, '[').replace(/\\right\]/g, ']');
+        src = src.replace(/\\operatorname\{([^}]+)\}/g, '$1');
+        if (!src) return null;
+        let i = 0;
+        const nums = [], fns = [];
+        const peek = t => src.startsWith(t, i);
+        const take = t => (peek(t) ? (i += t.length, true) : false);
+        const fail = () => { throw new Error('bad'); };
+        const need = t => { if (!take(t)) fail(); };
+        function group() {
+          if (take('{')) { const v = expr(); need('}'); return v; }
+          if (take('(')) { const v = expr(); need(')'); return v; }
+          return unary();
+        }
+        function funcCall() {
+          const map = { '\\sin': 'sin', '\\cos': 'cos', '\\tan': 'tan', sin: 'sin', cos: 'cos', tan: 'tan' };
+          for (const k of Object.keys(map)) {
+            if (take(k)) {
+              const fn = map[k];
+              fns.push(fn);
+              let arg;
+              if (take('(')) { arg = expr(); need(')'); }
+              else if (take('{')) { arg = expr(); need('}'); }
+              else arg = unary();
+              const a = degrees ? arg * Math.PI / 180 : arg;
+              return fn === 'sin' ? Math.sin(a) : fn === 'cos' ? Math.cos(a) : Math.tan(a);
+            }
+          }
+          return null;
+        }
+        function atom() {
+          if (take('(')) { const v = expr(); need(')'); return v; }
+          if (take('{')) { const v = expr(); need('}'); return v; }
+          if (take('\\frac')) { const a = group(), b = group(); return a / b; }
+          if (take('\\sqrt')) {
+            let n = 2;
+            if (take('[')) { n = expr(); need(']'); }
+            fns.push('sqrt');
+            return Math.pow(group(), 1 / n);
+          }
+          if (take('\\pi')) return Math.PI;
+          if (take('ans') || take('\\ans')) {
+            if (!prev) fail();
+            nums.push(...prev.nums); fns.push(...prev.fns);
+            return prev.value;
+          }
+          const m = src.slice(i).match(/^(\d+\.?\d*|\.\d+)/);
+          if (m) { i += m[0].length; const v = parseFloat(m[0]); nums.push(v); return v; }
+          const f = funcCall();
+          if (f !== null) return f;
+          return fail();
+        }
+        function postfix() {
+          let v = atom();
+          for (;;) {
+            if (take('°')) { if (!degrees) v = v * Math.PI / 180; }
+            else if (take('\\%')) v /= 100;
+            else if (take('^')) {
+              if (peek('{')) v = Math.pow(v, group());
+              else { const m = src.slice(i).match(/^\d/); if (!m) fail(); i++; v = Math.pow(v, Number(m[0])); }
+            } else return v;
+          }
+        }
+        function unary() { return take('-') ? -unary() : postfix(); }
+        function term() {
+          let v = unary();
+          for (;;) {
+            if (take('*')) v *= unary();
+            else if (take('/')) v /= unary();
+            else if (i < src.length && /[\d(\\.a]/.test(src[i])) v *= unary();
+            else return v;
+          }
+        }
+        function expr() {
+          let v = term();
+          for (;;) {
+            if (take('+')) v += term();
+            else if (take('-')) v -= term();
+            else return v;
+          }
+        }
+        try {
+          const value = expr();
+          if (i !== src.length || !isFinite(value)) return null;
+          return { value, nums, fns, latex };
+        } catch {
+          return null;
+        }
+      }
+
+      function readCalculator(state) {
+        const list = (state && state.expressions && state.expressions.list) || [];
+        const degrees = !state || !state.settings || state.settings.degreeMode !== false;
+        let prev = null, last = null, unreadable = false;
+        list.forEach(item => {
+          if (!item || !item.latex) return;
+          const parsed = parseCalc(item.latex, degrees, prev);
+          unreadable = !parsed;
+          last = item.latex;
+          if (parsed) prev = parsed;
+        });
+        if (last === null) return { empty: true };
+        if (unreadable) return { unreadable: true };
+        return prev;
+      }
+
+      function workProblem(work, needs = {}) {
+        if (!work.fns.length && work.nums.length <= 1 && !/\\pi/.test(work.latex || '')) {
+          return 'Type the full calculation into the calculator, not just the answer.';
+        }
+        if (needs.fn && !work.fns.includes(needs.fn)) {
+          return `Your calculation needs to use ${needs.label || needs.fn}.`;
+        }
+        const has = n => work.nums.some(w => Math.abs(w - Math.abs(n)) <= Math.max(Math.abs(n) * 0.015, 0.0051));
+        const routes = needs.routes || [];
+        if (routes.length && !routes.some(r => r.every(has))) {
+          return `Use the numbers from this problem (${routes[0].map(n => fmt(Math.abs(n))).join(' and ')}) in the calculator.`;
+        }
+        return null;
+      }
+
+      // =========================================================================
+      // 2. PHYSICS RIG, INSTRUMENT VALIDATORS, GRAPH SPECS & GRADING
+      // =========================================================================
+      const DIAL = { max: 320, tol: 2.0 };
+      const TAPE = { max: 8.0, tol: 0.06 };
+      const MASSES = [12, 18, 24, 30]; // Weight = 120, 180, 240, 300 N; W_out = 180, 270, 360, 450 J
+      const newRig = () => {
+        const m = pick(MASSES), Fg = m * G, W = round(Fg * H_TARGET, 1);
+        const testLen = pick([5.0, 7.5]); // Both give exact integer forces on every MASS
+        return { m, h: H_TARGET, Fg, W, testLen, Ff: pick([10, 15]) };
+      };
+      const pulleyDist = n => round(H_TARGET * n, 1);
+      const pulleyForce = (rig, n) => round(rig.Fg / n, 1);
+      const rampDist = (tier, n, table = []) => {
+        if (tier === 'conceptual') return [3.0, 4.5, 6.0][n - 1];
+        return null;
+      };
+      const rampForce = (rig, d) => round(rig.W / d, 1);
+
+      function rampRule(tier, idx, table = []) {
+        if (tier === 'conceptual') {
+          const target = [3.0, 4.5, 6.0][idx - 1];
+          const mult = [2, 3, 4][idx - 1];
+          return { locked: true, target, text: `Ramp Trial ${idx} (Trial ${4 + idx} of 7): Set ramp length to ${fmt(target)} m (${mult}× shelf height).`, ok: s => Math.abs(s - target) < 0.05, why: `Set the ramp to ${fmt(target)} m.` };
+        }
+        const usedRamps = table.slice(4, 4 + idx - 1).map(r => r.d);
+        if (idx === 1) return { text: 'Set a short, steep ramp (2.5 m or less).', ok: s => s <= 2.55, why: 'Choose a short steep ramp of 2.5 m or less.' };
+        if (idx === 2) return { text: 'Set a long, gentle ramp (5.2 m or more).', ok: s => s >= 5.15, why: 'Choose a long gentle ramp of 5.2 m or more.' };
+        return {
+          text: 'Set a middle ramp at least 0.4 m away from your other ramp lengths.',
+          ok: s => usedRamps.every(u => Math.abs(u - s) >= 0.35),
+          why: 'Too close to one of your earlier ramps. Slide at least 0.4 m away.'
+        };
+      }
+
+      const sampleTable = (tier, rig) => {
+        const pulleys = [1, 2, 3, 4].map(n => ({ kind: 'pulley', n, d: pulleyDist(n), F: pulleyForce(rig, n) }));
+        const rLens = tier === 'conceptual' ? [3.0, 4.5, 6.0] : [2.2, 5.8, 3.8];
+        const ramps = rLens.map(d => ({ kind: 'ramp', d, F: rampForce(rig, d) }));
+        return pulleys.concat(ramps);
+      };
+
+      const isAbout = (x, v, tol) => typeof v === 'number' && Math.abs(x - v) <= tol;
+      function checkDistRead(raw, targetD, targetF) {
+        const x = parseNum(raw);
+        if (x === null) return { ok: false, mistake: 'blank', msg: 'Read the yellow tape close-up at the red pointer and enter d (m).' };
+        if (Math.abs(x - targetD) <= TAPE.tol) return { ok: true };
+        if (isAbout(x, targetF, 2.5) && Math.abs(targetF - targetD) > 2) return { ok: false, mistake: 'dist_gave_force', msg: 'That is the force in N. Read the yellow tape measure in meters (m).' };
+        if (near(x, H_TARGET, 0.01, 0.05) && Math.abs(targetD - H_TARGET) > 0.25) return { ok: false, mistake: 'dist_gave_h', msg: '1.5 m is the shelf height. Read the rope/ramp distance on the yellow tape!' };
+        if (near(x, targetD * 100, 0.02, 1)) return { ok: false, mistake: 'dist_cm', msg: 'Record distance in meters (big numbers on the tape), not centimeters.' };
+        if (Math.abs(x - targetD) <= 0.35) return { ok: false, mistake: 'dist_close', msg: 'Close! Look at the red pointer on the tape close-up: each small tick is 0.1 m.' };
+        return { ok: false, mistake: 'dist_far', msg: 'Read the yellow tape close-up directly under the red pointer.' };
+      }
+
+      function checkForceRead(raw, targetF, targetD) {
+        const x = parseNum(raw);
+        if (x === null) return { ok: false, mistake: 'blank', msg: 'Read the spring scale loupe and enter force F (N).' };
+        if (Math.abs(x - targetF) <= DIAL.tol) return { ok: true };
+        if (isAbout(x, targetD, 0.15) && Math.abs(targetF - targetD) > 2) return { ok: false, mistake: 'force_gave_dist', msg: 'That is the distance in m. Read the round spring scale dial in newtons (N).' };
+        if (Math.abs(x - targetF) <= 10) return { ok: false, mistake: 'force_close', msg: 'Close! Look inside the purple close-up circle: numbered marks go by 50 N, mid marks by 10 N, and small ticks by 2 N.' };
+        return { ok: false, mistake: 'force_far', msg: 'Check the two numbers the needle sits between on the spring scale.' };
+      }
+
+      // Graph mapping: F (y) vs. d (x)
+      const BOX = { x0: 96, x1: 724, y0: 436, y1: 36 };
+      const specFor = maxF => {
+        const ym = [150, 200, 250, 300, 350].find(m => m >= maxF * 1.08) || 350;
+        return {
+          box: BOX,
+          x: { key: 'd', sym: 'd', label: 'distance pulled, d (m)', max: 8, step: 1, minor: 0.5 },
+          y: { sym: 'F', label: 'pull force, F (N)', max: ym, step: 50, minor: 10 }
+        };
+      };
+      const toPx = (spec, x, y) => ({
+        x: spec.box.x0 + (x / spec.x.max) * (spec.box.x1 - spec.box.x0),
+        y: spec.box.y0 - (y / spec.y.max) * (spec.box.y0 - spec.box.y1)
+      });
+      const PLOT_TOL = 16;
+      function checkPlot(spec, click, target) {
+        const t = toPx(spec, target.d, target.F);
+        const dx = Math.abs(click.x - t.x), dy = Math.abs(click.y - t.y);
+        if (Math.hypot(dx, dy) <= PLOT_TOL) return { ok: true };
+        if (dx <= PLOT_TOL) return { ok: false, mistake: 'plot_y', msg: `Your d = ${fmt(target.d)} m column is right — now move vertically to F = ${fmt(target.F)} N.` };
+        if (dy <= PLOT_TOL) return { ok: false, mistake: 'plot_x', msg: `Your F = ${fmt(target.F)} N height is right — now slide sideways to d = ${fmt(target.d)} m.` };
+        return { ok: false, mistake: 'plot_off', msg: `Start at d = ${fmt(target.d)} m along the bottom, then go straight up to F = ${fmt(target.F)} N.` };
+      }
+
+      function stack(calc) {
+        const [sym, ...steps] = calc.split(' = ');
+        if (!steps.length) return `<span class="formula">${calc}</span>`;
+        return `<span class="calc-stack">${steps.map(s => `<span class="calc-sym">${sym}</span><span>=</span><span>${s}</span>`).join('')}</span>`;
+      }
+
+      function grade(q, raw) {
+        const v = parseNum(raw);
+        const worked = q.right ? `<br><span class="worked">Stacked solution: ${stack(q.right)}</span>` : '';
+        if (v === null) return { ok: false, retry: true, mistake: 'blank', msg: q.calc ? 'Use the calculator, then press "Use calculator answer".' : 'Type your answer in the box.' };
+        if (near(v, q.target, q.rel === undefined ? 0.02 : q.rel, q.abs === undefined ? 0.05 : q.abs)) {
+          return { ok: true, msg: q.right ? stack(q.right) : '' };
+        }
+        const hit = q.mistake ? q.mistake(v) : null;
+        if (q.own || (hit && hit[2])) {
+          return { ok: false, retry: true, mistake: hit ? hit[0] : 'other', msg: hit ? hit[1] : 'Not quite. Check the numbers you used.' };
+        }
+        return { ok: false, mistake: hit ? hit[0] : 'other', msg: (hit ? hit[1] : 'Not quite.') + worked };
+      }
+
+      // =========================================================================
+      // 3. CURRICULUM QUESTIONS & DIFFERENTIATION ENGINE
+      // =========================================================================
+      function readCurveSpot(table, tier) {
+        if (tier === 'conceptual') return 5.0;
+        const used = table.map(r => r.d);
+        const candidates = [2.0, 2.5, 4.0, 5.0, 7.0].filter(d => used.every(u => Math.abs(u - d) >= 0.35));
+        return candidates.length ? candidates[0] : 5.0;
+      }
+
+      const Q = {
+        halfC(rig) {
+          return {
+            id: 'halfC', sym: 'force multiplier', unit: 'times smaller', noEq: true, own: true, target: 2, rel: 0, abs: 0.05,
+            ask: `Compare Trial 1 (1.5 m, ${fmt(rig.Fg)} N) to Trial 2 (3.0 m, ${fmt(rig.Fg / 2)} N). Pulling twice as far made the force how many times smaller?`,
+            formula: '2× rope distance → force is ? times smaller',
+            hints: [`${fmt(rig.Fg)} N dropped down to ${fmt(rig.Fg / 2)} N. Half of the force means ___ times smaller.`],
+            mistake: v => near(v, rig.Fg / 2, 0, 1) ? ['gave_force', 'Enter how many TIMES smaller (2, 3, or 4), not the force in N.'] : ['ratio_other', 'When distance doubled from 1.5 m to 3.0 m, force was cut by this factor.']
+          };
+        },
+        quarterC(rig) {
+          return {
+            id: 'quarterC', sym: 'force multiplier', unit: 'times smaller', noEq: true, own: true, target: 4, rel: 0, abs: 0.05,
+            ask: `Compare Trial 1 (1.5 m, ${fmt(rig.Fg)} N) to Trial 4 (6.0 m, ${fmt(rig.Fg / 4)} N). Pulling 4 times as far made the force how many times smaller?`,
+            formula: '4× rope distance → force is ? times smaller',
+            hints: [`Check: ${fmt(rig.Fg / 4)} × ? = ${fmt(rig.Fg)}.`],
+            mistake: v => near(v, rig.Fg / 4, 0, 1) ? ['gave_force', 'Enter the multiplier (4), not the force in N.'] : ['ratio_other', '4 times the distance reduces the pull force by the same factor.']
+          };
+        },
+        readLine(x, rig) {
+          const spec = specFor(rig.Fg), F = rampForce(rig, x);
+          return {
+            id: 'readline', sym: 'F', unit: 'N', own: true, target: F, rel: 0.06, abs: 8,
+            ask: `Follow the dashed amber marker at d = ${fmt(x)} m up to your curve. About how much force F does it read?`,
+            formula: 'trace up from d to curve, then left to F',
+            hints: [`Start at d = ${fmt(x)} m on the bottom axis, stop on the purple curve, and read straight left to the F axis.`],
+            mistake: v => near(v, x, 0, 0.1) ? ['read_gave_d', 'That is the distance. Read force F from the vertical axis.'] : near(v, rig.W, 0.05, 5) ? ['read_gave_work', 'That is total work (J). Read pull force F (N) from the vertical axis.'] : ['read_other', 'Trace straight up from d to the curve, then straight left to the F axis.']
+          };
+        },
+        inverseRule() {
+          return {
+            id: 'inverse_rule', sym: 'distance multiplier', unit: 'times h', noEq: true, own: true, target: 3, rel: 0, abs: 0.05,
+            ask: 'Since F · d stays constant along your curve, if you want a pull force that is 1/3 of the crate weight, how many times the shelf height h must d be?',
+            formula: '1/3 force → ? × h distance',
+            hints: ['To keep F × d unchanged, dividing F by 3 means multiplying d by ___ .'],
+            mistake: v => near(v, 1 / 3, 0.05, 0.05) ? ['flipped_ratio', 'Force shrinks to 1/3, so distance grows by the reciprocal (whole number).'] : ['ratio_other', 'Cutting force by a factor of 3 requires multiplying distance by 3.']
+          };
+        },
+        weightBox(rig) {
+          return {
+            id: 'weight', sym: 'F_g', unit: 'N', calc: true, own: true, target: rig.Fg,
+            ask: `Box 1: Find the weight F_g of your ${rig.m} kg crate.`,
+            formula: 'F_g = m × g',
+            hints: [`Use g = 10 m/s². In calculator: ${rig.m} × 10`],
+            needs: { routes: [[rig.m, G]] },
+            mistake: v => near(v, rig.m * 9.8) ? ['g98', 'Use g = 10 m/s² in this class.'] : near(v, rig.m * H_TARGET) ? ['forgot_g', 'Multiply mass by g = 10 m/s², not by height yet.'] : null,
+            right: `F_g = m × g = ${rig.m} kg × 10 m/s² = ${fmt(rig.Fg)} N`
+          };
+        },
+        wOutBox(rig) {
+          return {
+            id: 'wout_box', sym: 'W_out', unit: 'J', calc: true, own: true, target: rig.W,
+            ask: `Box 2: Now find the lifting output work W_out to raise ${fmt(rig.Fg)} N to shelf height h = 1.5 m.`,
+            formula: 'W_out = F_g × h',
+            hints: [`In calculator: ${fmt(rig.Fg)} × 1.5`],
+            needs: { routes: [[rig.Fg, H_TARGET], [rig.m, G, H_TARGET]] },
+            mistake: v => near(v, rig.m * H_TARGET) ? ['forgot_g', 'Use weight F_g in newtons (Box 1), not mass m in kg.'] : null,
+            right: `W_out = F_g × h = ${fmt(rig.Fg)} N × 1.5 m = ${fmt(rig.W)} J`
+          };
+        },
+        wOut(rig) {
+          return {
+            id: 'wout', sym: 'W_out', unit: 'J', calc: true, own: true, target: rig.W,
+            ask: `Calculate the ideal lifting output work W_out to raise your ${rig.m} kg crate onto the h = 1.5 m shelf.`,
+            formula: 'W_out = m × g × h',
+            hints: [`In calculator: ${rig.m} × 10 × 1.5`],
+            needs: { routes: [[rig.m, G, H_TARGET], [rig.Fg, H_TARGET]] },
+            mistake: v => near(v, rig.m * H_TARGET) ? ['forgot_g', 'Remember to multiply mass by g = 10 m/s² first!'] : near(v, rig.m * 9.8 * H_TARGET) ? ['g98', 'Use g = 10 m/s².'] : null,
+            right: `W_out = m × g × h = ${rig.m} kg × 10 m/s² × 1.5 m = ${fmt(rig.W)} J`
+          };
+        },
+        wIn(trial, label) {
+          const w = round(trial.F * trial.d, 1);
+          return {
+            id: `win_${label}`, sym: 'W_in', unit: 'J', calc: true, own: true, target: w, rel: 0.02, abs: 1,
+            ask: `Look at the shaded ${label} rectangle on your graph (d = ${fmt(trial.d)} m wide, F = ${fmt(trial.F)} N tall). Calculate the input work W_in.`,
+            formula: 'W_in = F × d',
+            hints: [`Area of rectangle = Force × Distance. In calculator: ${fmt(trial.F)} × ${fmt(trial.d)}`],
+            needs: { routes: [[trial.F, trial.d]] },
+            mistake: v => near(v, trial.F + trial.d) ? ['added', 'Multiply force by distance; do not add.'] : null,
+            right: `W_in = F × d = ${fmt(trial.F)} N × ${fmt(trial.d)} m = ${fmt(w)} J`
+          };
+        },
+        wSame(rig) {
+          return {
+            id: 'wsame', sym: 'W_in', unit: 'J', own: true, target: rig.W, rel: 0.01, abs: 1,
+            ask: `Suppose you pull your crate up a brand-new smooth 7.5 m ramp to the same 1.5 m shelf. Without measuring F first, how much total ideal work W_in will it take?`,
+            formula: 'smooth machine: W_in = W_out',
+            hints: ['A longer smooth ramp lowers force F, but increases d by the same factor so W_in stays equal to W_out!'],
+            mistake: v => near(v, rig.W / 5, 0.04, 1) ? ['gave_force', 'That is the smaller force in N. Total ideal WORK (J) stays equal to W_out!'] : ['same_work', `Check your W_out from Step 1 (${fmt(rig.W)} J) and Trial 1 vs Trial 7.`]
+          };
+        },
+        predForce(rig, dTest, needCalc = true) {
+          const f = round(rig.W / dTest, 1);
+          return {
+            id: 'predF', sym: 'F', unit: 'N', calc: needCalc, own: true, target: f, rel: needCalc ? 0.02 : 0.06, abs: needCalc ? 0.5 : 6,
+            ask: needCalc
+              ? `Predict the spring scale force F for an untested smooth ramp of length d = ${fmt(dTest)} m reaching h = 1.5 m.`
+              : `Follow the dashed marker at d = ${fmt(dTest)} m up to your curve. Predict the spring scale reading for a ${fmt(dTest)} m ramp.`,
+            formula: needCalc ? 'F = W_out ÷ d' : 'read F at d = 5 m on your curve',
+            hints: needCalc ? [`In calculator: ${fmt(rig.W)} ÷ ${fmt(dTest)}`] : [`At d = ${fmt(dTest)} m, F = ${fmt(rig.W)} ÷ ${fmt(dTest)}.`],
+            needs: needCalc ? { routes: [[rig.W, dTest]] } : undefined,
+            mistake: v => near(v, rig.W, 0.02, 1) ? ['gave_work', 'That is W_out in J. Divide by d to predict force F in N.'] : near(v, f * dTest) ? ['multiplied', 'Divide W_out by d (longer distance → smaller force).'] : null,
+            right: `F = W_out ÷ d = ${fmt(rig.W)} J ÷ ${fmt(dTest)} m = ${fmt(f)} N`
+          };
+        },
+        designLen(rig) {
+          const dT = rig.testLen, Fmax = round(rig.W / dT, 1);
+          return {
+            id: 'designL', sym: 'd', unit: 'm', calc: true, own: true, target: dT, rel: 0.02, abs: 0.05,
+            ask: `Your safety strap can only pull F_max = ${fmt(Fmax)} N. How long must a smooth ramp be to raise your ${rig.m} kg crate to the 1.5 m shelf?`,
+            formula: 'd = W_out ÷ F_max',
+            hints: [`Since W_out = ${fmt(rig.W)} J and F_max = ${fmt(Fmax)} N, in calculator: ${fmt(rig.W)} ÷ ${fmt(Fmax)}`],
+            needs: { routes: [[rig.W, Fmax]] },
+            mistake: v => near(v, Fmax / rig.W, 0.04, 0.05) ? ['flipped', 'Divide W_out by F_max, not F_max by W_out.'] : null,
+            right: `d = W_out ÷ F_max = ${fmt(rig.W)} J ÷ ${fmt(Fmax)} N = ${fmt(dT)} m`
+          };
+        },
+        roughWin(rig) {
+          const d = 6.0, fIdeal = round(rig.W / d, 1), fPull = fIdeal + rig.Ff, win = round(fPull * d, 1);
+          return {
+            id: 'r_win', sym: 'W_in', unit: 'J', calc: true, own: true, target: win, rel: 0.02, abs: 1,
+            ask: `Box 1 (Real Rough Ramp): Pulling up a 6.0 m rough track requires F_pull = ${fmt(fPull)} N (including ${rig.Ff} N of friction). Find actual W_in.`,
+            formula: 'W_in = F_pull × d',
+            hints: [`In calculator: ${fmt(fPull)} × 6`],
+            needs: { routes: [[fPull, d]] },
+            mistake: v => near(v, rig.W, 0.02, 1) ? ['used_ideal', 'Use the real measured pull force F_pull, not the frictionless W_out.'] : null,
+            right: `W_in = F_pull × d = ${fmt(fPull)} N × 6 m = ${fmt(win)} J`
+          };
+        },
+        roughEff(rig) {
+          const d = 6.0, fIdeal = round(rig.W / d, 1), fPull = fIdeal + rig.Ff, win = round(fPull * d, 1);
+          const eff = round((rig.W / win) * 100, 1);
+          return {
+            id: 'r_eff', sym: 'Eff', unit: '%', calc: true, own: true, target: eff, rel: 0.02, abs: 0.4,
+            ask: `Box 2 (Mechanical Efficiency): Compare ideal output work (${fmt(rig.W)} J) to your actual input work (${fmt(win)} J). What percent efficiency did this ramp achieve?`,
+            formula: 'Eff = (W_out ÷ W_in) × 100%',
+            hints: [`In calculator: (${fmt(rig.W)} ÷ ${fmt(win)}) × 100`],
+            needs: { routes: [[rig.W, win]] },
+            mistake: v => near(v, rig.W / win, 0.02, 0.02) ? ['not_percent', 'Multiply by 100 to convert your decimal to percent (%).'] : near(v, (win / rig.W) * 100, 0.02, 1) ? ['flipped_eff', 'Put W_out on top and W_in on the bottom (efficiency is under 100%).'] : null,
+            right: `Eff = (W_out ÷ W_in) × 100% = (${fmt(rig.W)} ÷ ${fmt(win)}) × 100% = ${fmt(eff)}%`
+          };
+        }
+      };
+
+      const QUIZ_SKILLS = {
+        pulley: 'Pulley force & rope trade-off',
+        ramp: 'Inclined plane work & force',
+        work: 'Conservation (W_in = W_out)',
+        graph: 'Reading F vs. d curves',
+        design: 'Applying IMA & efficiency'
+      };
+      function buildQuiz(tier) {
+        const m = pick([10, 15, 20, 24]), h = pick([2.0, 3.0]), Fg = m * G, W = round(Fg * h, 1);
+        const ropes = pick([2, 3, 4]), rL = h * pick([2, 3, 4]);
+        const items = [];
+        // 1. Pulley
+        if (Math.random() < 0.5) {
+          const load = pick([120, 180, 240, 360]);
+          items.push({ type: 'pulley', skill: 'pulley', mode: 'force', load, h: 2, ropes, target: load / ropes });
+        } else {
+          const load = pick([100, 150, 200]);
+          items.push({ type: 'pulley', skill: 'pulley', mode: 'dist', load, h, ropes, target: round(h * ropes, 1) });
+        }
+        // 2. Ramp work or force
+        items.push({ type: 'ramp', skill: 'ramp', m, h, d: rL, F: round(W / rL, 1), target: tier === 'conceptual' ? W : round(W / rL, 1), askW: tier === 'conceptual' });
+        // 3. Graph read on a different load's F vs d curve
+        const wG = pick([120, 180, 240, 300]), dPick = pick([2, 3, 4, 5, 6]);
+        items.push({ type: 'graph', skill: 'graph', W: wG, d: dPick, target: round(wG / dPick, 1) });
+        // 4. Same work conceptual check
+        items.push({ type: 'work', skill: 'work', Fg: pick([100, 150, 200]), h: 2, target: 0 });
+        items[3].target = items[3].Fg * items[3].h;
+        // 5. Tier-specific transfer
+        if (tier === 'conceptual') {
+          const hDoor = pick([0.5, 0.8, 1.0]);
+          items.push({ type: 'designC', skill: 'design', h: hDoor, mult: 10, target: round(hDoor * 10, 1) });
+        } else if (tier === 'cp') {
+          const FgD = pick([200, 300, 400]), hD = pick([1.5, 2.0]), Fmax = pick([40, 50, 80, 100]);
+          items.push({ type: 'designCP', skill: 'design', Fg: FgD, h: hD, Fmax, target: round((FgD * hD) / Fmax, 1) });
+        } else {
+          const FgH = 120, hH = 2.0, Wout = 240, Fpull = pick([50, 60, 80]), dH = pick([6.0, 5.0]);
+          const Win = Fpull * dH;
+          items.push({ type: 'designH', skill: 'design', Fg: FgH, h: hH, d: dH, Fpull, Wout, Win, target: round((Wout / Win) * 100, 1) });
+        }
+        return shuffle(items.slice(0, 2)).concat(items.slice(2));
+      }
+
+      function quizQuestion(it) {
+        if (it.type === 'pulley') {
+          if (it.mode === 'force') {
+            return {
+              id: 'q_pf', sym: 'F', unit: 'N', calc: true, target: it.target, skill: 'pulley',
+              ask: `A ${it.ropes}-rope pulley lifts a ${it.load} N crate slowly. How much effort force F does the worker pull with?`,
+              formula: 'F = F_g ÷ ropes', hints: [], needs: { routes: [[it.load, it.ropes]] },
+              mistake: v => near(v, it.load * it.ropes) ? ['multiplied', 'More ropes reduce the force — divide by the number of supporting ropes.'] : null,
+              right: `F = ${it.load} N ÷ ${it.ropes} = ${fmt(it.target)} N`
+            };
+          }
+          return {
+            id: 'q_pd', sym: 'd', unit: 'm', calc: true, target: it.target, skill: 'pulley',
+            ask: `A ${it.ropes}-rope pulley lifts a ${it.load} N crate to a height of ${fmt(it.h)} m. How much rope d must be pulled through?`,
+            formula: 'd = h × ropes', hints: [], needs: { routes: [[it.h, it.ropes]] },
+            mistake: v => near(v, it.h / it.ropes) ? ['divided', 'You pull MORE rope to earn the force advantage — multiply by ropes.'] : null,
+            right: `d = ${fmt(it.h)} m × ${it.ropes} = ${fmt(it.target)} m`
+          };
+        }
+        if (it.type === 'ramp') {
+          const W = it.m * G * it.h;
+          if (it.askW) {
+            return {
+              id: 'q_rw', sym: 'W', unit: 'J', calc: true, target: W, skill: 'ramp',
+              ask: `A ${it.m} kg cart is pulled up a smooth ${fmt(it.d)} m ramp to a ${fmt(it.h)} m shelf. What ideal work W is done?`,
+              formula: 'W = m × g × h', hints: [], needs: { routes: [[it.m, G, it.h], [it.m * G, it.h]] },
+              mistake: v => near(v, it.m * G * it.d) ? ['used_ramp_d', 'W = m × g × h uses vertical height h, or smaller ramp force × ramp length d.'] : null,
+              right: `W = ${it.m} kg × 10 m/s² × ${fmt(it.h)} m = ${fmt(W)} J`
+            };
+          }
+          return {
+            id: 'q_rf', sym: 'F', unit: 'N', calc: true, target: it.target, skill: 'ramp',
+            ask: `A ${it.m} kg cart (${it.m * G} N weight) is pulled slowly up a smooth ${fmt(it.d)} m ramp to reach height h = ${fmt(it.h)} m. What pull force F is required?`,
+            formula: 'F = (m × g × h) ÷ d', hints: [], needs: { routes: [[it.m, G, it.h, it.d], [it.m * G, it.h, it.d], [W, it.d]] },
+            mistake: v => near(v, W) ? ['gave_work', 'That is the work in J. Divide by ramp length d for force in N.'] : null,
+            right: `F = (${it.m} × 10 × ${fmt(it.h)}) ÷ ${fmt(it.d)} = ${fmt(it.target)} N`
+          };
+        }
+        if (it.type === 'graph') {
+          return {
+            id: 'q_gr', sym: 'F', unit: 'N', target: it.target, rel: 0.06, abs: 6, skill: 'graph',
+            ask: `Use this graph for a different crate: follow the dashed marker at d = ${it.d} m to the curve. What pull force F does it require?`,
+            formula: 'trace up from d to curve, then left to F', hints: [],
+            mistake: v => near(v, it.d) ? ['read_gave_d', 'Read F from the vertical axis.'] : null,
+            right: `F = about ${fmt(it.target)} N`
+          };
+        }
+        if (it.type === 'work') {
+          return {
+            id: 'q_wk', sym: 'W_in', unit: 'J', target: it.target, rel: 0.01, abs: 1, skill: 'work',
+            ask: `Lifting a ${it.Fg} N crate straight up ${fmt(it.h)} m takes ${it.target} J of work. How much ideal work does sliding it up a smooth 6.0 m ramp to the same ${fmt(it.h)} m height take?`,
+            formula: 'smooth ramp: W_in = W_out', hints: [],
+            mistake: v => near(v, it.target / 3) ? ['divided', 'A ramp reduces force, not total ideal work!'] : null,
+            right: `W_in = ${it.target} J`
+          };
+        }
+        if (it.type === 'designC') {
+          return {
+            id: 'q_dc', sym: 'd', unit: 'm', target: it.target, rel: 0.01, abs: 0.1, skill: 'design',
+            ask: `An accessibility ramp must climb h = ${fmt(it.h)} m. If push effort can only be 1/10 of the chair's weight, how long (d) must the ramp be?`,
+            formula: '1/10 force → 10 × height', hints: [],
+            right: `d = ${fmt(it.h)} m × 10 = ${fmt(it.target)} m`
+          };
+        }
+        if (it.type === 'designCP') {
+          const w = it.Fg * it.h;
+          return {
+            id: 'q_dcp', sym: 'd', unit: 'm', calc: true, target: it.target, skill: 'design',
+            ask: `A crew lifts a ${it.Fg} N crate onto a ${fmt(it.h)} m dock using a winch rated for F_max = ${it.Fmax} N. What is the shortest ramp length d needed?`,
+            formula: 'd = (F_g × h) ÷ F_max', hints: [], needs: { routes: [[it.Fg, it.h, it.Fmax], [w, it.Fmax]] },
+            right: `d = (${it.Fg} × ${fmt(it.h)}) ÷ ${it.Fmax} = ${fmt(it.target)} m`
+          };
+        }
+        return {
+          id: 'q_dh', sym: 'Eff', unit: '%', calc: true, target: it.target, rel: 0.02, abs: 0.5, skill: 'design',
+          ask: `Pulling a ${it.Fg} N crate up a ${fmt(it.d)} m rough ramp to height h = ${fmt(it.h)} m requires F_pull = ${it.Fpull} N. Calculate the ramp's percent efficiency.`,
+          formula: 'Eff = (W_out ÷ W_in) × 100%', hints: [],
+          needs: { routes: [[it.Fg, it.h, it.Fpull, it.d], [it.Wout, it.Fpull, it.d], [it.Fg, it.h, it.Win], [it.Wout, it.Win]] },
+          mistake: v => near(v, it.Wout / it.Win, 0.02, 0.02) ? ['not_percent', 'Multiply by 100 for %.'] : null,
+          right: `Eff = (${it.Wout} ÷ ${it.Win}) × 100% = ${fmt(it.target)}%`
+        };
+      }
+
+      function gradeQuiz(items, answers) {
+        const results = items.map((it, i) => {
+          const a = answers[i] || {};
+          return Object.assign({ skill: it.skill }, grade(quizQuestion(it), a.value === undefined ? '' : a.value));
+        });
+        const score = results.filter(r => r.ok).length;
+        const skills = {};
+        results.forEach(r => { skills[r.skill] = r.ok ? 1 : 0; });
+        return { results, score, total: items.length, percent: Math.round((score / items.length) * 100), skills, mistakes: results.filter(r => !r.ok && r.mistake).map(r => r.mistake) };
+      }
+
+      // =========================================================================
+      // 4. LESSON STRUCTURE (5 PARTS)
+      // =========================================================================
+      const PARTS = [
+        { id: 'pulley', name: 'Pulley Lab', icon: '⚙️', weight: 2 },
+        { id: 'ramp', name: 'Ramp Lab', icon: '📐', weight: 2 },
+        { id: 'graph', name: 'Graph It', icon: '📈', weight: 2 },
+        { id: 'work', name: 'Work In = Out', icon: '⚖️', weight: 1 },
+        { id: 'quiz', name: 'Mastery Check', icon: '🏁', weight: 0 }
+      ];
+      const PART_POINTS = 6, QUIZ_POINTS = 4;
+      const TOTAL_WEIGHT = PARTS.reduce((s, p) => s + p.weight, 0);
+
+      const PULLEY_PAGES = [
+        { id: 'p_pred', kind: 'pPred', ungraded: true, title: 'Predict: 4-rope pulley vs. 1 rope' },
+        { id: 'p1', kind: 'pulley', n: 1, tIdx: 0, title: 'Trial 1: 1-rope pulley' },
+        { id: 'p2', kind: 'pulley', n: 2, tIdx: 1, title: 'Trial 2: 2-rope pulley' },
+        { id: 'p3', kind: 'pulley', n: 3, tIdx: 2, title: 'Trial 3: 3-rope pulley' },
+        { id: 'p4', kind: 'pulley', n: 4, tIdx: 3, title: 'Trial 4: 4-rope pulley' }
+      ];
+      const RAMP_PAGES = [
+        { id: 'r_pred', kind: 'rPred', ungraded: true, title: 'Predict: 6 m smooth ramp' },
+        { id: 'r1', kind: 'ramp', idx: 1, tIdx: 4, title: 'Trial 5: Ramp 1' },
+        { id: 'r2', kind: 'ramp', idx: 2, tIdx: 5, title: 'Trial 6: Ramp 2' },
+        { id: 'r3', kind: 'ramp', idx: 3, tIdx: 6, title: 'Trial 7: Ramp 3' }
+      ];
+      const GRAPH_EXTRA = {
+        conceptual: [
+          { id: 'g_half', kind: 'ask', q: 'halfC', pic: 'graph', title: 'Twice as far' },
+          { id: 'g_quarter', kind: 'ask', q: 'quarterC', pic: 'graph', title: '4 times as far' },
+          { id: 'g_overlap', kind: 'overlap', title: 'Pulley meets ramp' },
+          { id: 'g_read', kind: 'ask', q: 'readLine', pic: 'graph', title: 'Read your curve' }
+        ],
+        cp: [
+          { id: 'g_read', kind: 'ask', q: 'readLine', pic: 'graph', title: 'Read your curve' }
+        ],
+        honors: [
+          { id: 'g_read', kind: 'ask', q: 'readLine', pic: 'graph', title: 'Read your curve' },
+          { id: 'g_inv', kind: 'ask', q: 'inverseRule', pic: 'graph', title: 'Inverse ratio' }
+        ]
+      };
+      const WORK_PAGES = {
+        conceptual: [
+          { id: 'w_out', kind: 'wout2', title: 'Output work W_out' },
+          { id: 'w_r1', kind: 'ask', q: 'win1', pic: 'rect1', title: 'Trial 1 rectangle' },
+          { id: 'w_r7', kind: 'ask', q: 'win7', pic: 'rect7', title: 'Trial 7 rectangle' },
+          { id: 'w_same', kind: 'ask', q: 'wsame', pic: 'ramp', title: 'Same work check' },
+          { id: 'w_pred', kind: 'ask', q: 'predC', pic: 'curvePred', title: 'Predict 5 m ramp' },
+          { id: 'w_test', kind: 'testRamp', title: 'Test 5 m ramp' }
+        ],
+        cp: [
+          { id: 'w_out', kind: 'ask', q: 'wout', pic: 'pulley', title: 'Output work W_out' },
+          { id: 'w_r1', kind: 'ask', q: 'win1', pic: 'rect1', title: 'Trial 1 rectangle' },
+          { id: 'w_r7', kind: 'ask', q: 'win7', pic: 'rect7', title: 'Trial 7 rectangle' },
+          { id: 'w_same', kind: 'ask', q: 'wsame', pic: 'ramp', title: 'Same work check' },
+          { id: 'w_pred', kind: 'ask', q: 'predCP', pic: 'ramp', title: 'Predict 7.5 m ramp' },
+          { id: 'w_test', kind: 'testRamp', title: 'Test 7.5 m ramp' }
+        ],
+        honors: [
+          { id: 'w_out', kind: 'ask', q: 'wout', pic: 'pulley', title: 'Output work W_out' },
+          { id: 'w_r1', kind: 'ask', q: 'win1', pic: 'rect1', title: 'Trial 1 rectangle' },
+          { id: 'w_r7', kind: 'ask', q: 'win7', pic: 'rect7', title: 'Trial 7 rectangle' },
+          { id: 'w_same', kind: 'ask', q: 'wsame', pic: 'ramp', title: 'Same work check' },
+          { id: 'w_design', kind: 'ask', q: 'designH', pic: 'ramp', title: 'Design a safe ramp' },
+          { id: 'w_test', kind: 'testRamp', title: 'Test your ramp' },
+          { id: 'w_eff', kind: 'eff2', title: 'Real rough ramp efficiency' }
+        ]
+      };
+      function pagesFor(partId, tier) {
+        if (partId === 'pulley') return PULLEY_PAGES;
+        if (partId === 'ramp') return RAMP_PAGES;
+        if (partId === 'graph') return Array.from({ length: 7 }, (_, i) => ({ id: `pl${i + 1}`, kind: 'plot', n: i + 1, title: `Plot Trial ${i + 1}` })).concat(GRAPH_EXTRA[tier]);
+        if (partId === 'work') return WORK_PAGES[tier];
+        return [];
+      }
+      function partProgress(st, id, tier) {
+        const p = st.parts[id];
+        if (!p) return 0;
+        if (p.done) return 1;
+        const n = pagesFor(id, tier).length;
+        return n ? Math.min(1, (p.far || 0) / n) : 0;
+      }
+      function earnedPoints(st, tier) {
+        const guided = PARTS.reduce((s, p) => s + (p.weight / TOTAL_WEIGHT) * PART_POINTS * partProgress(st, p.id, tier), 0);
+        return guided + QUIZ_POINTS * ((st.quiz && st.quiz.best) || 0) / 100;
+      }
+
+      // =========================================================================
+      // 5. HIGH-DETAIL SVG RENDERER (PULLEY, RAMP, INSTRUMENTS, GRAPH)
+      // =========================================================================
+      const W = 760, H = 520;
+      const BAY = { floor: 248, pxH: 54, shelfX: 570, tapeY: 256, tapeH: 26 };
+      const shelfTop = () => BAY.floor - H_TARGET * BAY.pxH; // 167
+      const DIALG = { cx: 112, cy: 408, R: 78 };
+      const LOUPE = { cx: 266, cy: 414, r: 52, zoom: 2.75 };
+      const TAPEZ = { x: 338, y: 344, w: 236, h: 120, zoom: 2.1 };
+      const calm = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function richSVG(str) {
+        let out = '', last = 0, shifted = false;
+        const s = String(str);
+        s.replace(SUB_RE, (m, base, sub, idx) => {
+          out += (shifted ? `<tspan dy="-5">${esc(s.slice(last, idx))}</tspan>` : esc(s.slice(last, idx))) + base;
+          out += `<tspan dy="5" font-size="72%">${sub}</tspan>`;
+          shifted = true;
+          last = idx + m.length;
+          return m;
+        });
+        const rest = s.slice(last);
+        return out + (shifted ? `<tspan dy="-5">${esc(rest) || '&#8203;'}</tspan>` : esc(rest));
+      }
+      const svText = (x, y, str, cls = '', anchor = 'middle', id = '') => `<text x="${x}" y="${y}" class="sv-text ${cls}" text-anchor="${anchor}"${id ? ` id="${id}"` : ''}>${richSVG(str)}</text>`;
+      function plate(x, y, str, cls = '', anchor = 'middle') {
+        const w = String(str).replace(/_/g, '').length * 9.0 + 16;
+        const left = anchor === 'middle' ? x - w / 2 : anchor === 'end' ? x - w : x;
+        const cx = Math.max(4, Math.min(W - w - 4, left));
+        return `<rect x="${cx}" y="${y - 18}" width="${w}" height="26" rx="6" class="sv-plate"/>${svText(cx + w / 2, y, str, cls)}`;
+      }
+      function arrow(x1, y1, x2, y2, cls, width = 5) {
+        const len = Math.hypot(x2 - x1, y2 - y1);
+        if (len < 3) return '';
+        const head = Math.min(width * 3, len * 0.6);
+        const ux = (x2 - x1) / len, uy = (y2 - y1) / len;
+        const bx = x2 - ux * head, by = y2 - uy * head;
+        const nx = -uy * head * 0.55, ny = ux * head * 0.55;
+        return `<g class="${cls}"><line x1="${x1}" y1="${y1}" x2="${bx}" y2="${by}" stroke-width="${width}" stroke-linecap="round"/><polygon points="${x2},${y2} ${bx + nx},${by + ny} ${bx - nx},${by - ny}"/></g>`;
+      }
+      const frame = (inner, cls = '') => `<svg viewBox="0 0 ${W} ${H}" class="scene-svg ${cls}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"><rect x="0" y="0" width="${W}" height="${H}" class="sv-floor"/>${inner}</svg>`;
+
+      function bayBackdrop(w, floor, topY = 0) {
+        let s = '';
+        [36, Math.round(w * 0.5), w - 36].forEach(cx => {
+          s += `<rect x="${cx - 7}" y="${topY}" width="14" height="${Math.max(0, floor - topY)}" class="wk-bay-wall"/>`;
+        });
+        const ty = topY + 10;
+        if (ty + 22 < floor) {
+          s += `<line x1="0" y1="${ty}" x2="${w}" y2="${ty}" class="wk-bay-truss"/><line x1="0" y1="${ty + 16}" x2="${w}" y2="${ty + 16}" class="wk-bay-truss"/>`;
+          let zig = '';
+          for (let x = 0; x < w; x += 36) zig += `M ${x} ${ty + 16} L ${x + 18} ${ty} L ${x + 36} ${ty + 16} `;
+          s += `<path d="${zig}" class="wk-bay-truss"/>`;
+        }
+        s += `<rect x="0" y="${floor}" width="${w}" height="5" class="wk-hazard"/>`;
+        return s;
+      }
+
+      const readouts = list => list.map((b, i) => {
+        const x = 14 + i * 246;
+        return `<rect x="${x}" y="8" width="236" height="36" rx="9" class="fl-box"/>${svText(x + 11, 31, b.label, 'sv-small fl-dim', 'start')}<text x="${x + 226}" y="33" class="sv-text fl-value" text-anchor="end"${b.id ? ` id="${b.id}"` : ''}>${esc(b.value)}</text>`;
+      }).join('');
+
+      const crate = (x, y, w, h, lbl) => `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" class="wk-crate"/><path d="M ${x} ${y} L ${x + w} ${y + h} M ${x + w} ${y} L ${x} ${y + h}" class="wk-crate-x"/><rect x="${x + 4}" y="${y + 4}" width="${w - 8}" height="${h - 8}" rx="2" class="wk-crate-trim"/>${lbl ? svText(x + w / 2, y + h / 2 + 6, lbl, 'sv-small wk-crate-label') : ''}</g>`;
+
+      function person(x, floor, hands, lean = 0) {
+        const hip = { x, y: floor - 48 }, sh = { x: x + lean, y: floor - 94 }, head = { x: x + lean * 1.2, y: floor - 116 };
+        const arm = ([hx, hy]) => `<polyline points="${sh.x},${sh.y} ${(sh.x + hx) / 2},${(sh.y + hy) / 2 + 5} ${hx},${hy}" class="wk-p-arm"/><circle cx="${hx}" cy="${hy}" r="4.5" class="wk-p-skin"/>`;
+        return `<g><line x1="${hip.x}" y1="${hip.y}" x2="${x - 9}" y2="${floor - 2}" class="wk-p-leg"/><line x1="${hip.x}" y1="${hip.y}" x2="${x + 9}" y2="${floor - 2}" class="wk-p-leg"/>`
+          + `<line x1="${hip.x}" y1="${hip.y}" x2="${sh.x}" y2="${sh.y + 4}" class="wk-p-shirt"/>`
+          + `<circle cx="${head.x}" cy="${head.y}" r="12" class="wk-p-skin"/><path d="M ${head.x - 13} ${head.y - 3} a 13 11 0 0 1 26 0 z" class="wk-helmet"/><line x1="${head.x - 15}" y1="${head.y - 3}" x2="${head.x + 15}" y2="${head.y - 3}" class="wk-helmet-brim"/>`
+          + (hands || []).map(arm).join('') + '</g>';
+      }
+
+      // Console Instruments: Dial + Loupe + Linear Distance Tape + Status Panel
+      const dialAngle = F => -135 + 270 * (Math.max(0, Math.min(DIAL.max, F)) / DIAL.max);
+      const onDial = (F, r) => { const a = dialAngle(F) * Math.PI / 180; return { x: DIALG.cx + r * Math.sin(a), y: DIALG.cy - r * Math.cos(a) }; };
+      const loupeTransform = F => { const t = onDial(F, DIALG.R - 11); return `translate(${LOUPE.cx} ${LOUPE.cy}) scale(${LOUPE.zoom}) translate(${(-t.x).toFixed(2)} ${(-t.y).toFixed(2)})`; };
+
+      const TAPE_X0 = 96, TAPE_PXM = 72;
+      const tapeX = d => TAPE_X0 + d * TAPE_PXM;
+      const tapeLoupeTransform = d => `translate(${TAPEZ.x + TAPEZ.w / 2} ${TAPEZ.y + TAPEZ.h / 2 + 8}) scale(${TAPEZ.zoom}) translate(${(-tapeX(d)).toFixed(2)} ${-(BAY.tapeY + BAY.tapeH / 2 - 4)})`;
+
+      function dialConsole(F, coach) {
+        const { cx, cy, R } = DIALG;
+        let s = svText(cx, cy - R - 14, 'Spring scale (N)', 'fl-title wk-F-text');
+        s += `<circle cx="${cx}" cy="${cy}" r="${R + 6}" class="fl-dial-rim"/><circle cx="${cx}" cy="${cy}" r="${R}" class="fl-dial-face"/><g id="dialG">`;
+        for (let n = 0; n <= DIAL.max; n += 2) {
+          const major = n % 50 === 0, mid = n % 10 === 0;
+          const p = onDial(n, R - 2), q = onDial(n, R - (major ? 16 : mid ? 11 : 6.5));
+          s += `<line x1="${p.x.toFixed(1)}" y1="${p.y.toFixed(1)}" x2="${q.x.toFixed(1)}" y2="${q.y.toFixed(1)}" class="fl-tick${major ? ' fl-tick-major' : mid ? ' fl-tick-mid' : ''}"/>`;
+          if (major && n <= 300) { const t = onDial(n, R - 27); s += svText(t.x.toFixed(1), (t.y + 4.5).toFixed(1), String(n), 'fl-dial-num'); }
+        }
+        s += `<g id="needle" transform="rotate(${dialAngle(F || 0)} ${cx} ${cy})"><line x1="${cx}" y1="${cy + 12}" x2="${cx}" y2="${cy - R + 8}" class="fl-needle"/></g></g><circle cx="${cx}" cy="${cy}" r="6" class="fl-needle-hub"/>`;
+        s += svText(cx, cy - 18, 'newtons', 'sv-small fl-dim');
+        if (coach) s += plate(cx, cy + R + 12, 'small mark = 2 N · mid = 10 N', 'sv-small fl-coach');
+        const L = LOUPE;
+        s += svText(L.cx, L.cy - L.r - 10, '🔍 scale close-up', 'sv-small fl-dim');
+        s += `<clipPath id="loupeClip"><circle cx="${L.cx}" cy="${L.cy}" r="${L.r}"/></clipPath><circle cx="${L.cx}" cy="${L.cy}" r="${L.r}" class="fl-dial-face"/>`
+          + `<g clip-path="url(#loupeClip)"><use id="loupeUse" href="#dialG" transform="${loupeTransform(F || 0)}"/>`
+          + `<line x1="${L.cx - L.r}" y1="${L.cy}" x2="${L.cx + L.r}" y2="${L.cy}" class="wk-loupe-cross"/>`
+          + `<line x1="${L.cx}" y1="${L.cy - L.r}" x2="${L.cx}" y2="${L.cy + L.r}" class="wk-loupe-cross"/></g>`
+          + `<circle cx="${L.cx}" cy="${L.cy}" r="${L.r}" class="fl-loupe-rim"/>`;
+        return s;
+      }
+
+      function tapeBar() {
+        const y = BAY.tapeY, h = BAY.tapeH;
+        let s = `<g id="tapeG"><rect x="${TAPE_X0 - 14}" y="${y}" width="${8 * TAPE_PXM + 36}" height="${h}" rx="3" class="wk-tape"/>`;
+        for (let i = 0; i <= 80; i++) {
+          const x = tapeX(i / 10).toFixed(1), major = i % 10 === 0, mid = i % 5 === 0;
+          s += `<line x1="${x}" y1="${y}" x2="${x}" y2="${y + (major ? 14 : mid ? 9 : 5)}" class="wk-tape-tick${major ? ' major' : ''}"/>`;
+          if (major) s += `<text x="${x}" y="${y + h - 2}" class="sv-text wk-tape-num" text-anchor="middle">${i / 10}</text>`;
+        }
+        return s + `<text x="${tapeX(8) + 18}" y="${y + h - 2}" class="sv-text wk-tape-num" text-anchor="start">m</text></g>`;
+      }
+
+      function statusPanel(o) {
+        const x = 588, y = 324, w = 156, h = 150;
+        const latched = !!o.latched;
+        let s = `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="12" class="fl-box${latched ? ' fl-box-good' : ''}"/>`;
+        s += svText(x + w / 2, y + 24, 'Lift status', 'fl-title');
+        s += svText(x + w / 2, y + 54, `h = ${(o.y || 0).toFixed(2)} m`, 'fl-value wk-W-text', 'middle', 'statH');
+        s += svText(x + w / 2, y + 76, `target: ${H_TARGET.toFixed(1)} m`, 'sv-small fl-dim');
+        if (latched) {
+          s += `<rect x="${x + 12}" y="${y + 88}" width="${w - 24}" height="32" rx="8" class="wk-latch-ok"/>`;
+          s += svText(x + w / 2, y + 109, '🔒 Latched', 'sv-small wk-W-text');
+        } else {
+          const pct = Math.min(1, Math.max(0, (o.Fpull || 0) / Math.max(1, o.Fneed || 1)));
+          s += `<rect x="${x + 14}" y="${y + 94}" width="${w - 28}" height="12" rx="6" class="wk-ground" stroke="var(--border-color)"/>`;
+          s += `<rect id="pullBar" x="${x + 14}" y="${y + 94}" width="${((w - 28) * pct).toFixed(1)}" height="12" rx="6" fill="var(--c-F)"/>`;
+          s += svText(x + w / 2, y + 125, 'Hold in green zone', 'sv-small fl-dim');
+        }
+        s += svText(x + w / 2, y + 142, `d = ${(o.d || 0).toFixed(2)} m`, 'sv-small wk-d-text', 'middle', 'statD');
+        return s;
+      }
+
+      function consoleBase(o) {
+        let s = `<line x1="0" y1="286" x2="${W}" y2="286" class="fl-divider"/>`;
+        s += `<rect x="10" y="292" width="${W - 20}" height="222" rx="14" class="wk-console"/>`;
+        s += dialConsole(o.F || 0, o.coach);
+        const Z = TAPEZ;
+        s += svText(Z.x + Z.w / 2, Z.y - 10, '🔍 distance d pulled (m)', 'sv-small wk-d-text');
+        s += `<clipPath id="tapeClip"><rect x="${Z.x}" y="${Z.y}" width="${Z.w}" height="${Z.h}" rx="10"/></clipPath><rect x="${Z.x}" y="${Z.y}" width="${Z.w}" height="${Z.h}" rx="10" class="fl-dial-face"/>`
+          + `<g clip-path="url(#tapeClip)"><use id="tapeUse" href="#tapeG" transform="${tapeLoupeTransform(o.d || 0)}"/>`
+          + `<line x1="${Z.x + Z.w / 2}" y1="${Z.y}" x2="${Z.x + Z.w / 2}" y2="${Z.y + Z.h}" class="wk-pointer"/>`
+          + `<polygon points="${Z.x + Z.w / 2 - 6},${Z.y + 1} ${Z.x + Z.w / 2 + 6},${Z.y + 1} ${Z.x + Z.w / 2},${Z.y + 11}" class="wk-pointer-head"/></g>`
+          + `<rect x="${Z.x}" y="${Z.y}" width="${Z.w}" height="${Z.h}" rx="10" class="fl-loupe-rim"/>`;
+        if (o.coach) s += plate(Z.x + Z.w / 2, Z.y + Z.h + 22, 'each small mark = 0.1 m', 'sv-small fl-coach');
+        s += statusPanel(o);
+        return s;
+      }
+
+      function pulleyLive(o) {
+        const y = Math.max(0, Math.min(H_TARGET, o.y || 0)), n = o.n || 1;
+        const dy = y * BAY.pxH;
+        const beamY = 48, bx = 350, R = 14;
+        const boxW = 66, boxH = 38, crateFloor = BAY.floor - dy;
+        const topBlkY = beamY + 20;
+        const movBlkY = crateFloor - boxH - 16;
+        const turn = ((o.d || 0) * BAY.pxH / R) * 180 / Math.PI;
+        let s = '';
+        // Support strands
+        if (n === 1) {
+          s += `<line x1="${bx - R}" y1="${topBlkY}" x2="${bx - R}" y2="${crateFloor - boxH}" class="wk-rope"/>`;
+          s += `<line x1="${bx + R}" y1="${topBlkY}" x2="195" y2="${BAY.floor - 54}" class="wk-rope"/>`;
+          s += `<line x1="${bx + R}" y1="${topBlkY}" x2="195" y2="${BAY.floor - 54}" class="wk-rope-marks" stroke-dashoffset="${(-(o.d || 0) * 55).toFixed(1)}"/>`;
+          s += `<circle cx="${bx}" cy="${topBlkY}" r="${R}" class="wk-pulley"/>`;
+          s += `<g transform="rotate(${turn.toFixed(1)} ${bx} ${topBlkY})"><line x1="${bx - R + 3}" y1="${topBlkY}" x2="${bx + R - 3}" y2="${topBlkY}" class="wk-spoke"/><line x1="${bx}" y1="${topBlkY - R + 3}" x2="${bx}" y2="${topBlkY + R - 3}" class="wk-spoke"/></g>`;
+          s += `<circle cx="${bx}" cy="${topBlkY}" r="3.5" class="wk-hub"/>`;
+        } else {
+          // Draw n distinct numbered supporting strands between top block and movable block
+          const xs = Array.from({ length: n }, (_, i) => bx - ((n - 1) * 10) + i * 20);
+          xs.forEach((sx, idx) => {
+            s += `<line x1="${sx}" y1="${topBlkY}" x2="${sx}" y2="${movBlkY}" class="wk-rope"/>`;
+            s += `<text x="${sx + (idx === n - 1 ? 8 : -9)}" y="${(topBlkY + movBlkY) / 2}" class="sv-text sv-small wk-F-text" text-anchor="middle">${idx + 1}</text>`;
+          });
+          // Free rope off side down to worker
+          s += `<line x1="${xs[0] - 8}" y1="${topBlkY}" x2="192" y2="${BAY.floor - 54}" class="wk-rope"/>`;
+          s += `<line x1="${xs[0] - 8}" y1="${topBlkY}" x2="192" y2="${BAY.floor - 54}" class="wk-rope-marks" stroke-dashoffset="${(-(o.d || 0) * 55).toFixed(1)}"/>`;
+          // Upper & lower blocks
+          s += `<rect x="${bx - n * 12}" y="${topBlkY - 11}" width="${n * 24}" height="22" rx="9" class="wk-pulley"/>`;
+          s += `<rect x="${bx - n * 11}" y="${movBlkY - 9}" width="${n * 22}" height="18" rx="7" class="wk-pulley"/>`;
+          s += `<line x1="${bx}" y1="${movBlkY + 9}" x2="${bx}" y2="${crateFloor - boxH}" class="wk-rope"/>`;
+          s += `<g transform="rotate(${turn.toFixed(1)} ${bx} ${topBlkY})"><line x1="${bx - 8}" y1="${topBlkY}" x2="${bx + 8}" y2="${topBlkY}" class="wk-spoke"/></g>`;
+          s += `<circle cx="${bx}" cy="${topBlkY}" r="3.5" class="wk-hub"/>`;
+          s += `<g transform="rotate(${turn.toFixed(1)} ${bx} ${movBlkY})"><line x1="${bx - 7}" y1="${movBlkY}" x2="${bx + 7}" y2="${movBlkY}" class="wk-spoke"/></g>`;
+          s += `<circle cx="${bx}" cy="${movBlkY}" r="3.5" class="wk-hub"/>`;
+        }
+        // Hanging crate
+        s += crate(bx - boxW / 2, crateFloor - boxH, boxW, boxH, `${o.m} kg`);
+        // Worker holding rope
+        s += person(156, BAY.floor, [[192, BAY.floor - 54], [186, BAY.floor - 62]], o.F > 0 ? -6 : 0);
+        return s;
+      }
+
+      function pulleyScene(o) {
+        const sTop = shelfTop(), n = o.n || 1, rig = o.rig || { m: 12 };
+        const boxes = [{ label: 'Setup', value: `${n}-rope pulley` }, { label: 'Load mass', value: `${rig.m} kg (g=10)` }];
+        if (o.latched) boxes.push({ label: 'State', value: '🔒 Latched' });
+        let s = bayBackdrop(W, BAY.floor, 48) + readouts(boxes);
+        s += `<rect x="0" y="${BAY.floor}" width="${W}" height="${BAY.tapeY - BAY.floor}" class="wk-ground"/><line x1="0" y1="${BAY.floor}" x2="${W}" y2="${BAY.floor}" class="wk-floor-line"/>`;
+        // Overhead gantry beam + posts
+        s += `<rect x="240" y="48" width="240" height="10" rx="3" class="wk-beam"/><rect x="256" y="58" width="10" height="${BAY.floor - 58}" class="wk-mast"/><rect x="454" y="58" width="10" height="${BAY.floor - 58}" class="wk-mast"/>`;
+        // Vertical height ruler + shelf & green latch zone at 1.5m
+        const rx = 505;
+        s += `<rect x="${rx}" y="${sTop - 16}" width="18" height="${BAY.floor - sTop + 16}" class="wk-tape"/>`;
+        for (let i = 0; i <= 15; i += 5) {
+          const yy = BAY.floor - (i / 10) * BAY.pxH;
+          s += `<line x1="${rx}" y1="${yy}" x2="${rx + 12}" y2="${yy}" class="wk-tape-tick major"/>`;
+          if (i % 5 === 0) s += svText(rx + 26, yy + 4, `${(i / 10).toFixed(1)}`, 'sv-small', 'start');
+        }
+        s += `<rect x="570" y="${sTop}" width="150" height="10" class="wk-shelf"/><rect x="570" y="${sTop + 10}" width="150" height="${BAY.floor - sTop - 10}" class="wk-shelf-face"/>`;
+        s += svText(645, sTop + 48, 'Shelf h = 1.5 m', 'sv-small fl-dim');
+        // Target height line across crate zone
+        s += `<rect x="308" y="${sTop - 6}" width="84" height="12" rx="4" class="wk-zone"/>`;
+        s += `<g id="pulleyLive">${pulleyLive({ y: o.y, d: o.d, n, m: rig.m, F: o.F })}</g>`;
+        // Main yellow tape bar along bottom + live red pointer
+        s += tapeBar();
+        const px = tapeX(o.d || 0);
+        s += `<g id="tapePtr"><line x1="${px.toFixed(1)}" y1="${BAY.tapeY - 6}" x2="${px.toFixed(1)}" y2="${BAY.tapeY + 20}" class="wk-pointer"/><polygon points="${px - 5},${BAY.tapeY - 7} ${px + 5},${BAY.tapeY - 7} ${px},${BAY.tapeY}" class="wk-pointer-head"/></g>`;
+        s += consoleBase({ F: o.F, d: o.d, y: o.y, latched: o.latched, Fpull: o.Fpull, Fneed: o.Fneed, coach: o.coach });
+        return frame(s);
+      }
+
+      // Smooth Inclined Plane Scene (ends on shelf top at x = 570, y = 146)
+      const RAMP_PXM = 60;
+      function rampGeom(L) {
+        const runM = Math.sqrt(Math.max(0.25, L * L - H_TARGET * H_TARGET));
+        const xTop = BAY.shelfX, yTop = shelfTop();
+        const xBot = xTop - runM * RAMP_PXM, yBot = BAY.floor;
+        const dx = xTop - xBot, dy = yTop - yBot, pxLen = Math.hypot(dx, dy);
+        return { L, runM, xBot, yBot, xTop, yTop, ux: dx / pxLen, uy: dy / pxLen, nx: dy / pxLen, ny: -dx / pxLen, deg: Math.atan2(-dy, dx) * 180 / Math.PI };
+      }
+
+      function rampLive(o) {
+        const g = rampGeom(o.L || 3.0);
+        const sPos = Math.max(0, Math.min(g.L, o.d || 0));
+        const frac = sPos / g.L;
+        const cx = g.xBot + (g.xTop - g.xBot) * frac;
+        const cy = g.yBot + (g.yTop - g.yBot) * frac;
+        // Rope pulls parallel from cart front up to roller on shelf post
+        const postX = g.xTop + 26, postY = g.yTop - 16;
+        const rx = cx + g.ux * 22 + g.nx * 14, ry = cy + g.uy * 22 + g.ny * 14;
+        const rEndX = g.xTop + g.ux * 6 + g.nx * 14, rEndY = g.yTop + g.uy * 6 + g.ny * 14;
+        let s = `<line x1="${rx.toFixed(1)}" y1="${ry.toFixed(1)}" x2="${rEndX.toFixed(1)}" y2="${rEndY.toFixed(1)}" class="wk-rope"/>`;
+        s += `<line x1="${rEndX.toFixed(1)}" y1="${rEndY.toFixed(1)}" x2="${postX + 26}" y2="${g.yTop - 52}" class="wk-rope"/>`;
+        s += `<circle cx="${rEndX.toFixed(1)}" cy="${rEndY.toFixed(1)}" r="7" class="wk-pulley"/>`;
+        // Cart oriented along ramp slope (note y is negative upward)
+        s += `<g transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${(-g.deg).toFixed(2)})">`;
+        s += `<circle cx="-13" cy="-5" r="5" class="wk-wheel"/><circle cx="13" cy="-5" r="5" class="wk-wheel"/>`;
+        s += `<rect x="-24" y="-34" width="48" height="26" rx="4" class="wk-cart-body"/>`;
+        s += `<text x="0" y="-17" class="sv-text sv-small" fill="#ffffff" text-anchor="middle">${o.m} kg</text>`;
+        s += `</g>`;
+        // Worker standing on the shelf pulling rope
+        s += person(postX + 58, g.yTop, [[postX + 26, g.yTop - 52], [postX + 34, g.yTop - 44]], o.F > 0 ? 5 : 0);
+        return s;
+      }
+
+      function rampScene(o) {
+        const sTop = shelfTop(), L = o.L || 3.0, rig = o.rig || { m: 12 }, g = rampGeom(L);
+        const dTxt = o.hideLen ? 'd = ? m' : `d = ${L.toFixed(1)} m`;
+        const boxes = [{ label: 'Ramp length', value: dTxt }, { label: 'Shelf height', value: 'h = 1.5 m' }];
+        if (o.latched) boxes.push({ label: 'State', value: '🔒 Latched' });
+        let s = bayBackdrop(W, BAY.floor, 48) + readouts(boxes);
+        s += `<rect x="0" y="${BAY.floor}" width="${W}" height="${BAY.tapeY - BAY.floor}" class="wk-ground"/><line x1="0" y1="${BAY.floor}" x2="${W}" y2="${BAY.floor}" class="wk-floor-line"/>`;
+        // Right shelf
+        s += `<rect x="${BAY.shelfX}" y="${sTop}" width="160" height="10" class="wk-shelf"/><rect x="${BAY.shelfX}" y="${sTop + 10}" width="160" height="${BAY.floor - sTop - 10}" class="wk-shelf-face"/>`;
+        s += svText(BAY.shelfX + 80, BAY.floor - 18, 'Shelf h = 1.5 m', 'sv-small fl-dim');
+        // Ramp triangle + green latch zone near top of ramp
+        s += `<polygon points="${g.xBot.toFixed(1)},${g.yBot} ${g.xTop},${g.yTop} ${g.xTop},${g.yBot}" class="wk-ramp"/>`;
+        s += `<circle cx="${g.xTop}" cy="${g.yTop}" r="12" class="wk-zone"/>`;
+        s += svText(((g.xBot + 2 * g.xTop) / 3).toFixed(1), (((2 * g.yBot + g.yTop) / 3) + 5).toFixed(1), dTxt, 'sv-small wk-d-text');
+        s += `<g id="rampLive">${rampLive({ L, d: o.d, m: rig.m, F: o.F })}</g>`;
+        // Bottom yellow tape bar + pointer
+        s += tapeBar();
+        const px = tapeX(o.d || 0);
+        s += `<g id="tapePtr"><line x1="${px.toFixed(1)}" y1="${BAY.tapeY - 6}" x2="${px.toFixed(1)}" y2="${BAY.tapeY + 20}" class="wk-pointer"/><polygon points="${px - 5},${BAY.tapeY - 7} ${px + 5},${BAY.tapeY - 7} ${px},${BAY.tapeY}" class="wk-pointer-head"/></g>`;
+        s += consoleBase({ F: o.F, d: o.d, y: o.y, latched: o.latched, Fpull: o.Fpull, Fneed: o.Fneed, coach: o.coach });
+        return frame(s);
+      }
+
+      // Graph F vs. d renderer (circles for pulleys, larger triangles for ramps, shaded W rectangles)
+      function graphSceneSVG(o) {
+        const { spec } = o, b = spec.box, px = (x, y) => toPx(spec, x, y);
+        let s = `<rect x="${b.x0}" y="${b.y1}" width="${b.x1 - b.x0}" height="${b.y0 - b.y1}" class="fl-plot"/>`;
+        for (let i = 1; i * spec.x.minor <= spec.x.max + 1e-9; i++) {
+          const v = i * spec.x.minor, major = Math.abs(v / spec.x.step - Math.round(v / spec.x.step)) < 1e-6, X = px(v, 0).x.toFixed(1);
+          s += `<line x1="${X}" y1="${b.y0}" x2="${X}" y2="${b.y1}" class="${major ? 'fl-grid-major' : 'fl-grid-minor'}"/>`;
+          if (major) s += svText(X, b.y0 + 22, String(v), 'sv-small');
+        }
+        for (let i = 1; i * spec.y.minor <= spec.y.max + 1e-9; i++) {
+          const v = i * spec.y.minor, major = Math.abs(v / spec.y.step - Math.round(v / spec.y.step)) < 1e-6, Y = px(0, v).y.toFixed(1);
+          s += `<line x1="${b.x0}" y1="${Y}" x2="${b.x1}" y2="${Y}" class="${major ? 'fl-grid-major' : 'fl-grid-minor'}"/>`;
+          if (major) s += svText(b.x0 - 10, Number(Y) + 5, String(Math.round(v)), 'sv-small', 'end');
+        }
+        s += svText(b.x0 - 10, b.y0 + 22, '0', 'sv-small', 'end');
+        s += `<path d="M ${b.x0} ${b.y1} V ${b.y0} H ${b.x1}" class="fl-axis"/>`;
+        s += svText((b.x0 + b.x1) / 2, H - 18, spec.x.label, 'fl-axis-label wk-d-text');
+        s += `<text transform="translate(26 ${(b.y0 + b.y1) / 2}) rotate(-90)" class="sv-text fl-axis-label wk-F-text" text-anchor="middle">${esc(spec.y.label)}</text>`;
+        // Shaded work rectangles (Work In = Work Out area proof)
+        if (o.rectAlt) {
+          const r = px(o.rectAlt.d, o.rectAlt.F);
+          s += `<rect x="${b.x0}" y="${r.y.toFixed(1)}" width="${(r.x - b.x0).toFixed(1)}" height="${(b.y0 - r.y).toFixed(1)}" class="fl-rect-alt"/>`;
+        }
+        if (o.rect) {
+          const r = px(o.rect.d, o.rect.F);
+          s += `<rect x="${b.x0}" y="${r.y.toFixed(1)}" width="${(r.x - b.x0).toFixed(1)}" height="${(b.y0 - r.y).toFixed(1)}" class="fl-rect"/>`;
+          s += plate((b.x0 + r.x) / 2, (b.y0 + r.y) / 2 + 6, o.rect.label || `Area = ${fmt(round(o.rect.d * o.rect.F, 1))} J`, 'sv-small wk-W-text');
+        }
+        if (o.guide) {
+          const g = px(o.guide.d, o.guide.F);
+          s += `<path d="M ${g.x} ${b.y0} V ${g.y} H ${b.x0}" class="fl-guide"/>`;
+        }
+        if (typeof o.readX === 'number') {
+          const rx = px(o.readX, 0).x.toFixed(1);
+          s += `<line x1="${rx}" y1="${b.y0}" x2="${rx}" y2="${b.y1}" class="wk-read-line"/>` + plate(Number(rx), b.y0 - 16, `d = ${fmt(o.readX)} m`, 'sv-small wk-d-text');
+        }
+        // Hyperbolic curve F = W / d
+        if (o.curveW) {
+          const Wv = o.curveW, dMin = Math.max(0.6, Wv / spec.y.max);
+          let pathD = '';
+          for (let step = 0; step <= 80; step++) {
+            const xVal = dMin + ((spec.x.max - dMin) * step) / 80;
+            const yVal = Wv / xVal;
+            if (yVal > spec.y.max) continue;
+            const p = px(xVal, yVal);
+            pathD += (pathD ? ' L ' : 'M ') + `${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
+          }
+          if (pathD) s += `<path d="${pathD}" class="fl-fit"/>`;
+        }
+        // Points: draw ramp triangles FIRST and slightly larger so pulley circles show cleanly inside shared spots
+        const pts = o.points || [];
+        pts.filter(p => p.kind === 'ramp').forEach(pt => {
+          const c = px(pt.d, pt.F), r = 11.5;
+          const tri = `${c.x.toFixed(1)},${(c.y - r).toFixed(1)} ${(c.x - r * 0.92).toFixed(1)},${(c.y + r * 0.72).toFixed(1)} ${(c.x + r * 0.92).toFixed(1)},${(c.y + r * 0.72).toFixed(1)}`;
+          s += `<polygon points="${tri}" class="fl-pt-r${pt.isNew ? ' fl-pt-new' : ''}${pt.clickable ? ' fl-pt-hit' : ''}"${pt.i !== undefined ? ` data-pt="${pt.i}"` : ''}/>`;
+        });
+        pts.filter(p => p.kind !== 'ramp').forEach(pt => {
+          const c = px(pt.d, pt.F);
+          s += `<circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="${pt.isNew ? 8.5 : 6.5}" class="fl-pt-p${pt.isNew ? ' fl-pt-new' : ''}${pt.clickable ? ' fl-pt-hit' : ''}"${pt.i !== undefined ? ` data-pt="${pt.i}"` : ''}/>`;
+        });
+        // Legend plate
+        s += plate(b.x1 - 12, b.y1 + 26, '● Pulley   ▲ Ramp', 'sv-small', 'end');
+        if (o.note) s += plate(b.x0 + 14, b.y1 + 26, o.note, 'sv-small', 'start');
+        if (o.miss) s += `<path d="M ${o.miss.x - 7} ${o.miss.y - 7} l 14 14 m 0 -14 l -14 14" class="fl-miss"/>`;
+        return frame(s, o.clickable ? 'fl-click fl-cross' : '');
+      }
+
+      // =========================================================================
+      // 6. APPLICATION STATE, TAP-TO-PULL PHYSICS & UI CONTROLLERS
+      // =========================================================================
+      const $ = id => document.getElementById(id);
+      const App = {
+        kinds: {}, state: null, cloud: null, profile: null, tier: 'cp',
+        ui: { fb: null, draft: '', work: null, hints: 0 }, rec: {},
+        sim: { y: 0, d: 0, v: 0, L: 3.0, n: 1, mode: 'pulley', Fneed: 120, Fpull: 0, Fshow: 0, taps: [], auto: false, holdTime: 0, latched: false, on: false, raf: 0, last: 0, tick: null }
+      };
+
+      const newState = () => {
+        const parts = {};
+        PARTS.filter(p => p.id !== 'quiz').forEach(p => { parts[p.id] = { i: 0, far: 0, done: false }; });
+        return { v: 1, tier: null, current: 'pulley', rig: null, parts, pg: {}, table: [], graph: {}, prediction: null, rampPred: null, quiz: { best: 0, attempts: [], cur: null, last: null, lockUntil: 0 }, mistakes: {}, tries: {}, time: {}, calcUnavailable: false, bestPoints: 0, savedAt: 0 };
+      };
+      const validState = s => !!(s && s.v === 1 && s.parts && s.parts.pulley && s.quiz && s.pg && typeof s.current === 'string');
+
+      function scoreState(st, tier = App.tier) {
+        const points = round(earnedPoints(st, tier), 1);
+        st.bestPoints = Math.max(st.bestPoints || 0, points);
+        const tries = Object.values(st.tries || {});
+        const progress = {}, required = {}, done = {};
+        PARTS.forEach(p => {
+          if (p.id === 'quiz') { done.quiz = (st.quiz.attempts || []).length > 0; progress.quiz = done.quiz ? 1 : 0; required.quiz = 1; return; }
+          progress[p.id] = round(partProgress(st, p.id, tier), 2);
+          required[p.id] = pagesFor(p.id, tier).length;
+          done[p.id] = !!st.parts[p.id].done;
+        });
+        return {
+          points, maxPoints: MAX_POINTS, percentage: Math.round((points / MAX_POINTS) * 100),
+          quizBest: st.quiz.best || 0, quizHistory: st.quiz.attempts || [],
+          skills: (st.quiz.attempts || []).length ? (st.quiz.attempts[st.quiz.attempts.length - 1].skills || {}) : {},
+          mistakes: st.mistakes || {}, tries: st.tries || {}, done, progress, required,
+          calcUnavailable: !!st.calcUnavailable, cert: st.cert || null,
+          questions: tries.length, firstTry: tries.filter(t => t.first).length,
+          minutes: Math.round(Object.values(st.time || {}).reduce((s, v) => s + v, 0) / 60)
+        };
+      }
+      const save = immediate => { scoreState(App.state); if (App.cloud) App.cloud.queueSave(immediate); updateScoreChip(); };
+      const recordMistake = id => { if (id && id !== 'blank') App.state.mistakes[id] = (App.state.mistakes[id] || 0) + 1; };
+      const recordTry = (key, ok) => { const t = App.state.tries[key] || (App.state.tries[key] = { n: 0, first: !!ok }); t.n++; };
+
+      const fast = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) && /[?&]fast\b/.test(location.search);
+      const waitUntil = secs => Date.now() + secs * (fast ? 50 : 1000);
+      const leftSecs = until => { const ms = (until || 0) - Date.now(); return ms > 0 && ms < 120000 ? Math.ceil(ms / 1000) : 0; };
+      const waitBtn = (id, label, cls = 'btn-primary', until = 0) => {
+        const left = leftSecs(until);
+        return `<button type="button" class="${cls}" id="${id}" ${left ? `disabled data-until="${until}" data-label="${esc(label)}"` : ''}>${label}${left ? ` (${left})` : ''}</button>`;
+      };
+      setInterval(() => document.querySelectorAll('[data-until]').forEach(b => {
+        const left = leftSecs(Number(b.dataset.until));
+        if (left) { b.textContent = `${b.dataset.label} (${left})`; return; }
+        b.disabled = false; b.textContent = b.dataset.label; b.removeAttribute('data-until');
+      }), 250);
+
+      let lastTick = Date.now(), lastInput = Date.now();
+      ['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, () => { lastInput = Date.now(); }, true));
+      setInterval(() => {
+        const now = Date.now(), gap = Math.min(30, (now - lastTick) / 1000);
+        lastTick = now;
+        if (!App.state || document.hidden || now - lastInput > 120000) return;
+        const key = App.state.current === 'quiz' ? 'quiz' : (curPage() ? curPage().id : null);
+        if (key) App.state.time[key] = Math.round(((App.state.time[key] || 0) + gap) * 10) / 10;
+      }, 5000);
+
+      const curPart = () => App.state.parts[App.state.current];
+      const curPages = () => pagesFor(App.state.current, App.tier);
+      const curPage = () => (App.state.current === 'quiz' || !curPart() || curPart().i >= curPages().length ? null : curPages()[curPart().i]);
+      const pageData = id => { const k = id || curPage().id; return App.state.pg[k] || (App.state.pg[k] = {}); };
+      const curKind = () => { const pg = curPage(); return pg ? App.kinds[pg.kind] : null; };
+      const unlockedAll = () => App.profile.teacher || App.profile.preview;
+      const isUnlocked = id => {
+        if (unlockedAll()) return true;
+        const idx = PARTS.findIndex(p => p.id === id);
+        return idx === 0 || !!(App.state.parts[PARTS[idx - 1].id] && App.state.parts[PARTS[idx - 1].id].done);
+      };
+
+      function fillSampleData(opts = {}) {
+        if (!unlockedAll()) return;
+        const st = App.state, tier = App.tier, rig = st.rig || (st.rig = newRig());
+        if (!st.table || st.table.length < 7 || opts.force) st.table = sampleTable(tier, rig);
+        for (let n = 1; n <= 4; n++) { const d = pageData(`p${n}`); d.step = 'done'; }
+        for (let n = 1; n <= 3; n++) { const d = pageData(`r${n}`); d.L = st.table[3 + n].d; d.step = 'done'; }
+        if (opts.plotAll) {
+          for (let n = 1; n <= 7; n++) pageData(`pl${n}`).ok = true;
+          st.graph.n = 7;
+        }
+      }
+
+      // Tap-to-Pull + Steady Pull Simulation Loop
+      const S = App.sim;
+      const TAP_N = 40; // N per tap per second
+      const stopSim = () => { if (S.raf) cancelAnimationFrame(S.raf); S.raf = 0; S.on = false; };
+      const resetSim = () => { stopSim(); Object.assign(S, { y: 0, d: 0, v: 0, Fpull: 0, Fshow: 0, taps: [], auto: false, holdTime: 0, latched: false, tick: null }); App.rec = {}; };
+
+      function placeSim() {
+        const rig = App.state ? App.state.rig : { m: 12 };
+        const live = S.mode === 'pulley' ? $('pulleyLive') : $('rampLive');
+        if (live) live.innerHTML = S.mode === 'pulley' ? pulleyLive({ y: S.y, d: S.d, n: S.n, m: rig.m, F: S.Fshow }) : rampLive({ L: S.L, d: S.d, m: rig.m, F: S.Fshow });
+        const px = tapeX(S.d);
+        const ptr = $('tapePtr');
+        if (ptr) ptr.innerHTML = `<line x1="${px.toFixed(1)}" y1="${BAY.tapeY - 6}" x2="${px.toFixed(1)}" y2="${BAY.tapeY + 20}" class="wk-pointer"/><polygon points="${px - 5},${BAY.tapeY - 7} ${px + 5},${BAY.tapeY - 7} ${px},${BAY.tapeY}" class="wk-pointer-head"/>`;
+        const tu = $('tapeUse'); if (tu) tu.setAttribute('transform', tapeLoupeTransform(S.d));
+        const nd = $('needle'); if (nd) nd.setAttribute('transform', `rotate(${dialAngle(S.Fshow).toFixed(2)} ${DIALG.cx} ${DIALG.cy})`);
+        const lu = $('loupeUse'); if (lu) lu.setAttribute('transform', loupeTransform(S.Fshow));
+        const sh = $('statH'); if (sh) sh.textContent = `h = ${S.y.toFixed(2)} m`;
+        const sd = $('statD'); if (sd) sd.textContent = `d = ${S.d.toFixed(2)} m`;
+        const pb = $('pullBar'); if (pb) pb.setAttribute('width', (128 * Math.min(1, Math.max(0, S.Fpull / Math.max(1, S.Fneed)))).toFixed(1));
+      }
+
+      function tapRate(now) {
+        while (S.taps.length && now - S.taps[0] > 3000) S.taps.shift();
+        const k = S.taps.length;
+        if (!k) return 0;
+        if (k === 1) return Math.max(0, 1 - (now - S.taps[0]) / 1200);
+        const recent = S.taps.slice(-4);
+        const span = (now - recent[0]) / 1000;
+        if (now - S.taps[k - 1] > 950) return Math.max(0, 1 - (now - S.taps[k - 1]) / 1400);
+        return Math.min(12, recent.length / Math.max(0.28, span));
+      }
+
+      function simFrame(now) {
+        const dt = Math.min(0.05, Math.max(0.004, (now - S.last) / 1000));
+        S.last = now;
+        if (S.latched) { S.raf = 0; placeSim(); return; }
+        const maxD = S.mode === 'pulley' ? pulleyDist(S.n) : S.L;
+        if (S.auto) {
+          const speed = calm || fast ? Math.max(4.5, maxD * 1.4) : Math.max(1.8, maxD * 0.65);
+          S.d = Math.min(maxD, S.d + speed * dt);
+          S.y = H_TARGET * (S.d / maxD);
+          S.Fpull = S.Fneed;
+          S.Fshow += (S.Fneed - S.Fshow) * (calm || fast ? 1 : 1 - Math.exp(-10 * dt));
+          if (S.d >= maxD - 0.01) {
+            S.d = maxD; S.y = H_TARGET; S.Fpull = S.Fneed; S.Fshow = S.Fneed; S.latched = true; S.on = false;
+            placeSim();
+            if (S.tick) S.tick();
+            return;
+          }
+        } else {
+          const targetPull = tapRate(now) * TAP_N;
+          S.Fpull += (targetPull - S.Fpull) * (1 - Math.exp(-8 * dt));
+          const ma = S.mode === 'pulley' ? S.n : S.L / H_TARGET;
+          const net = (S.Fpull - S.Fneed) * ma;
+          S.v += ((net - 36 * S.v) / 6) * dt;
+          S.y = Math.max(0, Math.min(H_TARGET, S.y + S.v * dt));
+          if (S.y <= 0 && S.v < 0) S.v = 0;
+          if (S.y >= H_TARGET) { S.y = H_TARGET; S.v = 0; }
+          S.d = (S.y / H_TARGET) * maxD;
+          S.Fshow += (S.Fpull - S.Fshow) * (1 - Math.exp(-10 * dt));
+          if (S.y >= H_TARGET - 0.04) {
+            S.holdTime += dt;
+            if (S.holdTime >= 0.45) {
+              S.d = maxD; S.y = H_TARGET; S.Fpull = S.Fneed; S.Fshow = S.Fneed; S.latched = true; S.on = false;
+              placeSim();
+              if (S.tick) S.tick();
+              return;
+            }
+          } else {
+            S.holdTime = 0;
+          }
+        }
+        placeSim();
+        S.raf = requestAnimationFrame(simFrame);
+      }
+
+      const startSim = (opts, onLatch) => {
+        stopSim();
+        Object.assign(S, { y: 0, d: 0, v: 0, Fpull: 0, Fshow: 0, taps: [], auto: false, holdTime: 0, latched: false, on: true, tick: onLatch }, opts);
+      };
+      const wakeSim = () => { if (!S.latched && !S.raf) { S.last = performance.now(); S.raf = requestAnimationFrame(simFrame); } };
+      const registerTap = () => { if (S.on && !S.latched) { S.auto = false; S.taps.push(performance.now()); wakeSim(); } };
+      const triggerAuto = () => { if (S.on && !S.latched) { S.auto = true; wakeSim(); } };
+      const showLatched = opts => {
+        stopSim();
+        const maxD = opts.mode === 'pulley' ? pulleyDist(opts.n) : opts.L;
+        Object.assign(S, opts, { y: H_TARGET, d: maxD, Fpull: opts.Fneed, Fshow: opts.Fneed, latched: true });
+      };
+
+      document.addEventListener('keydown', e => {
+        if (e.key && e.key.toLowerCase() === 'p' && !e.repeat && document.activeElement.tagName !== 'INPUT') registerTap();
+      });
+
+      // UI helpers
+      const freshUI = () => { App.ui = { fb: null, draft: '', work: null, hints: App.tier === 'conceptual' ? 1 : 0 }; resetSim(); if (App.clearCalc) App.clearCalc(); };
+      const enterPage = () => { freshUI(); const pg = curPage(), k = curKind(); if (pg && k && k.enter) k.enter(pg, pageData()); if (App.quizEnter) App.quizEnter(); };
+      const goTo = i => { const p = curPart(); p.far = Math.max(p.far || 0, i); p.i = i; enterPage(); save(); renderAll(); };
+      const advance = () => { const p = curPart(), n = curPages().length; if (p.i + 1 < n) return goTo(p.i + 1); p.far = n; p.i = n; p.done = true; freshUI(); save(true); renderAll(); };
+      const prevPart = () => { const i = PARTS.findIndex(x => x.id === App.state.current); return i > 0 ? PARTS[i - 1].id : null; };
+      const canBack = () => !(App.ui.fb && App.ui.fb.bad) && (!!prevPart() || (curPart() && curPart().i > 0));
+      function goBack() {
+        if (App.state.current === 'quiz') return App.quizBack();
+        const p = curPart();
+        if (p.i === 0) return openPart(prevPart());
+        p.i = Math.min(p.i, curPages().length) - 1;
+        enterPage(); save(); renderAll();
+      }
+      function openPart(id) {
+        if (!id || !isUnlocked(id)) return;
+        App.state.current = id;
+        if (id === 'graph' && unlockedAll() && (!App.state.table || App.state.table.length < 7)) fillSampleData();
+        enterPage(); save(); renderAll();
+      }
+
+      function readAloud() {
+        if (!('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        const el = $('taskCard');
+        const text = el ? el.innerText.replace(/🔊 Read to me/g, '').trim() : '';
+        if (text) window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+      }
+
+      const backBtn = () => (canBack() ? '<button type="button" class="btn-secondary" id="btnBack">◀ Back</button>' : '');
+      const nextBtn = (label = 'Next ▶') => `<button type="button" class="btn-primary" id="btnNext">${label}</button>`;
+      const actions = (...btns) => `<div class="task-actions">${backBtn()}${btns.join('')}</div>`;
+      const titleHTML = t => `<h2 class="task-title" id="readable">${t}</h2>`;
+      const noteHTML = (cls, html) => `<div class="feedback ${cls}" role="status">${html}</div>`;
+      const okNote = msg => noteHTML('fb-ok', `<strong>✓ Correct!</strong> ${msg || ''}`);
+      const fbHTML = () => {
+        const fb = App.ui.fb;
+        if (!fb) return '';
+        if (fb.ok) return okNote(fb.msg);
+        if (fb.retry) return noteHTML('fb-retry', fb.msg);
+        return noteHTML('fb-bad', `<strong>✗ Not yet.</strong> ${fb.msg}`);
+      };
+      const hintsHTML = list => {
+        const arr = list || [];
+        if (!arr.length) return '';
+        const shown = arr.slice(0, App.ui.hints).map(h => `<div class="hint">💡 ${h}</div>`).join('');
+        const more = App.ui.hints < arr.length ? `<button type="button" class="btn-hint" id="btnHint">${App.ui.hints ? 'Another hint' : 'Show a hint'}</button>` : '';
+        return `<div class="hints">${shown}${more}</div>`;
+      };
+      function topHTML(label) {
+        const canJump = unlockedAll() && App.state.current !== 'quiz' && curPages().length > 1;
+        const jump = canJump ? `<select id="stepJump" class="step-jump" aria-label="Teacher jump to step">${curPages().map((pg, idx) => `<option value="${idx}" ${idx === curPart().i ? 'selected' : ''}>Step ${idx + 1}: ${esc(pg.title)}</option>`).join('')}</select>` : '';
+        return `<div class="task-top"><span class="task-count">${label}</span><div class="task-top-tools">${jump}<button type="button" class="btn-read" id="btnRead" title="Read aloud">🔊 Read to me</button></div></div>`;
+      }
+      const headerHTML = () => topHTML(`${PARTS.find(p => p.id === App.state.current).name} · Step ${curPart().i + 1} of ${curPages().length}`);
+
+      function answerBox(q, locked, val = '') {
+        const ro = !!(q.calc && !App.state.calcUnavailable && window.Desmos);
+        const ph = ro ? 'use calculator' : '';
+        const dis = locked ? 'disabled' : ro ? 'readonly class="calc-readonly"' : '';
+        return `<div class="ans-row"><span class="ans-sym">${q.sym} =</span><input type="text" id="answer" inputmode="decimal" autocomplete="off" value="${esc(val)}" placeholder="${ph}" ${dis} aria-label="${esc(q.sym)}"><span>${q.unit || ''}</span></div>`;
+      }
+      function qHTML(q, d, opts = {}) {
+        const done = !!d.ok, bad = !!d.bad && !done;
+        const eq = !q.noEq && q.formula ? `<p class="formula-box"><span class="formula">${q.formula}</span></p>` : '';
+        const btns = done ? nextBtn() : bad ? waitBtn('btnNew', opts.newLabel || 'Try new numbers ▶', 'btn-primary', d.until) : `<button type="button" class="btn-primary" id="btnCheck">Check</button>${opts.extra || ''}`;
+        return titleHTML(q.ask) + eq + answerBox(q, done || bad, done ? fmt(q.target) : App.ui.draft) + fbHTML() + actions(btns) + (done || bad ? '' : hintsHTML(q.hints));
+      }
+      function checkQ(q, d, tryKey, opts = {}) {
+        const raw = q.calc && !App.state.calcUnavailable && window.Desmos ? App.ui.draft : (($('answer') && $('answer').value) || '');
+        const res = grade(q, raw);
+        recordTry(tryKey, res.ok);
+        if (res.ok) {
+          d.ok = true; d.bad = null;
+          if (opts.onOk) opts.onOk(parseNum(raw));
+          App.ui.fb = { ok: true, msg: opts.okMsg ? opts.okMsg(parseNum(raw)) : res.msg };
+        } else {
+          recordMistake(res.mistake);
+          if (res.retry) App.ui.fb = { retry: true, msg: res.msg };
+          else { d.bad = res.msg; d.until = waitUntil(5); App.ui.fb = { bad: true, msg: res.msg }; }
+        }
+        save(); renderAll();
+      }
+
+      // =========================================================================
+      // 7. PART HANDLERS (pulley, ramp, graph, work)
+      // =========================================================================
+      // Part 1 & 2 Predictions
+      const PRED_UI = {
+        pPred: {
+          mode: 'pulley', n: 4, L: 6.0, sub: 'A 4-rope pulley uses 4 strands to hold the same load.',
+          q1: { k: 'f', ask: '1. Compared to 1 rope, the pull force with 4 ropes will be:', opts: [['less', '4× smaller'], ['same', 'the same'], ['more', '4× bigger']] },
+          q2: { k: 'd', ask: '2. How much rope will you have to pull through for the same 1.5 m lift?', opts: [['more', '4× longer (6.0 m)'], ['same', 'the same (1.5 m)'], ['less', '4× shorter']] },
+          key: 'prediction', doneMsg: 'Prediction locked! Test 1 to 4 ropes and measure both instruments.'
+        },
+        rPred: {
+          mode: 'ramp', n: 1, L: 6.0, sub: 'A smooth 6.0 m ramp climbs the exact same 1.5 m shelf height.',
+          q1: { k: 'f', ask: '1. Compared to lifting straight up, the pull force on a 6 m ramp will be:', opts: [['less', '4× smaller'], ['same', 'the same'], ['more', '4× larger']] },
+          q2: { k: 'w', ask: '2. Total ideal work to reach the 1.5 m shelf will be:', opts: [['less', '4× less work'], ['same', 'the same work'], ['more', '4× more work']] },
+          key: 'rampPred', doneMsg: 'Prediction locked! Test three ramps and read the instruments.'
+        }
+      };
+      ['pPred', 'rPred'].forEach(kindName => {
+        const P0 = PRED_UI[kindName];
+        App.kinds[kindName] = {
+          scene: () => P0.mode === 'pulley' ? pulleyScene({ rig: App.state.rig, n: P0.n, y: 0, d: 0, F: 0 }) : rampScene({ rig: App.state.rig, L: P0.L, y: 0, d: 0, F: 0 }),
+          task(pg, d) {
+            const block = q => `<div class="pred-block"><p class="pred-label">${q.ask}</p><div class="opts opts-row">${q.opts.map(([id, lbl]) => `<button type="button" class="opt ${d[q.k] === id ? 'opt-picked' : ''}" data-p="${q.k}:${id}" ${d.ok ? 'disabled' : ''}>${lbl}</button>`).join('')}</div></div>`;
+            const s = titleHTML(pg.title) + `<p class="task-body">${P0.sub} <em>(Ungraded prediction)</em></p>` + block(P0.q1) + block(P0.q2);
+            return d.ok ? s + noteHTML('fb-ok', P0.doneMsg) + actions(nextBtn()) : s + fbHTML() + actions('<button type="button" class="btn-primary" id="btnLock">Lock in prediction</button>');
+          },
+          bindTask(pg, d) {
+            document.querySelectorAll('#taskCard [data-p]').forEach(b => b.addEventListener('click', () => { const [k, v] = b.dataset.p.split(':'); d[k] = v; App.ui.fb = null; renderTask(); }));
+            onClick('btnLock', () => {
+              if (!d[P0.q1.k] || !d[P0.q2.k]) { App.ui.fb = { retry: true, msg: 'Pick one answer for both questions first.' }; return renderTask(); }
+              App.state[P0.key] = { a: d[P0.q1.k], b: d[P0.q2.k] }; d.ok = true; advance();
+            });
+          }
+        };
+      });
+
+      // Pull Trials: Pulleys (Trials 1-4) and Ramps (Trials 5-7)
+      const READ_HINTS = [
+        'Force F: read the dial close-up inside the purple circle. Numbered marks go by 50 N, mid ticks by 10 N, small ticks by 2 N.',
+        'Distance d: read the yellow tape close-up at the red pointer. Big numbers are meters; each small tick is 0.1 m.'
+      ];
+      App.kinds.pulley = {
+        enter(pg, d) {
+          const fn = pulleyForce(App.state.rig, pg.n);
+          if (d.step === 'read' || d.step === 'done') showLatched({ mode: 'pulley', n: pg.n, Fneed: fn });
+          else { d.step = 'pull'; startSim({ mode: 'pulley', n: pg.n, Fneed: fn }, () => { d.step = 'read'; save(); renderAll(); }); }
+        },
+        scene: (pg, d) => pulleyScene({ rig: App.state.rig, n: pg.n, y: S.y, d: S.d, F: S.Fshow, latched: S.latched, Fpull: S.Fpull, Fneed: S.Fneed, coach: d.step === 'read' && pg.n === 1 }),
+        ctl(pg, d) {
+          if (d.step !== 'pull') return `<span class="ctl-note">${d.step === 'done' ? 'Recorded in table' : '🔒 Latched at h = 1.5 m — read both close-ups.'}</span>`;
+          return `<button type="button" class="btn-step" id="btnTap">💪 Tap P to Pull</button><button type="button" class="btn-ghost" id="btnAuto">▶ Steady Pull</button><span class="ctl-note">Tap <kbd>P</kbd> repeatedly until latched at 1.5 m</span>`;
+        },
+        bindStage() { onClick('btnTap', registerTap); onClick('btnAuto', triggerAuto); },
+        task(pg, d) {
+          const tag = `<p class="launch-tag">Pulley Trial ${pg.n} of 4 · Overall Trial ${pg.tIdx + 1} of 7</p>`;
+          if (d.step === 'pull') return tag + titleHTML(`Lift ${App.state.rig.m} kg with ${pg.n} supporting ${pg.n === 1 ? 'rope' : 'ropes'}.`) + `<p class="task-body">Tap <kbd>P</kbd> (or click <strong>Steady Pull</strong>) to lift the crate 1.5 m until it latches.</p>` + actions();
+          if (d.step === 'read') return tag + titleHTML('Read both close-ups and record this trial.') + `<div class="rec-row">${recInput('d', '<span class="wk-d-text">rope d</span>', 'm')}${recInput('F', '<span class="wk-F-text">force F</span>', 'N')}</div>` + fbHTML() + actions(waitBtn('btnRecord', 'Record in my table', 'btn-primary', d.until)) + hintsHTML(READ_HINTS);
+          return tag + titleHTML(`Trial ${pg.tIdx + 1} saved!`) + okNote('Look at your table under the picture.') + actions(nextBtn());
+        },
+        bindTask(pg, d) {
+          const submit = () => {
+            if (d.step !== 'read' || leftSecs(d.until)) return;
+            const dTrue = pulleyDist(pg.n), fTrue = pulleyForce(App.state.rig, pg.n);
+            const rD = checkDistRead(App.rec.d || '', dTrue, fTrue), rF = checkForceRead(App.rec.F || '', fTrue, dTrue);
+            const blank = [rD, rF].find(r => r.mistake === 'blank');
+            if (blank) { App.ui.fb = { retry: true, msg: blank.msg }; return renderTask(); }
+            const bad = !rD.ok ? rD : !rF.ok ? rF : null;
+            recordTry(`${pg.id}_read`, !bad);
+            if (bad) { recordMistake(bad.mistake); d.miss = (d.miss || 0) + 1; d.until = waitUntil(Math.min(18, 3 + 3 * d.miss)); App.ui.fb = { retry: true, msg: bad.msg }; save(); return renderAll(); }
+            App.state.table[pg.tIdx] = { kind: 'pulley', n: pg.n, d: round(parseNum(App.rec.d), 2), F: round(parseNum(App.rec.F), 1) };
+            d.step = 'done'; d.until = 0; App.rec = {}; App.ui.fb = null; save(); renderAll();
+          };
+          onClick('btnRecord', submit); bindRec(submit);
+        }
+      };
+
+      App.kinds.ramp = {
+        enter(pg, d) {
+          const def = rampDist(App.tier, pg.idx) || d.L || (pg.idx === 1 ? 2.2 : pg.idx === 2 ? 5.8 : 3.8);
+          d.L = d.L || def;
+          const fn = rampForce(App.state.rig, d.L);
+          if (d.step === 'read' || d.step === 'done') showLatched({ mode: 'ramp', L: d.L, Fneed: fn });
+          else { d.step = 'set'; startSim({ mode: 'ramp', L: d.L, Fneed: fn }, () => { d.step = 'read'; save(); renderAll(); }); }
+        },
+        scene: (pg, d) => rampScene({ rig: App.state.rig, L: d.L || 3.0, y: S.y, d: S.d, F: S.Fshow, latched: S.latched, Fpull: S.Fpull, Fneed: S.Fneed, coach: d.step === 'read' && pg.idx === 1 }),
+        ctl(pg, d) {
+          if (d.step === 'read' || d.step === 'done') return `<span class="ctl-note">${d.step === 'done' ? 'Recorded in table' : '🔒 Reached shelf h = 1.5 m — read both close-ups.'}</span>`;
+          if (d.step === 'pull') return `<button type="button" class="btn-step" id="btnTap">💪 Tap P to Pull</button><button type="button" class="btn-ghost" id="btnAuto">▶ Steady Pull</button><button type="button" class="btn-ghost" id="btnChangeL">Change ramp</button>`;
+          return `<span class="ctl-label" id="rampLLbl">Ramp ${d.L.toFixed(1)} m</span><input type="range" class="ctl-range" id="rampRange" min="2.0" max="6.6" step="0.1" value="${d.L}" aria-label="Ramp length"><button type="button" class="btn-step" id="btnLockRamp">Use this ramp ▶</button>`;
+        },
+        bindStage(pg, d) {
+          const rng = $('rampRange');
+          if (rng) rng.addEventListener('input', () => {
+            d.L = round(Number(rng.value), 1); S.L = d.L;
+            $('rampLLbl').textContent = `Ramp ${d.L.toFixed(1)} m`;
+            renderStage();
+          });
+          onClick('btnLockRamp', () => {
+            const rule = rampRule(App.tier, pg.idx, App.state.table);
+            if (!rule.ok(d.L)) { App.ui.fb = { retry: true, msg: rule.why }; return renderTask(); }
+            d.step = 'pull'; App.ui.fb = null;
+            startSim({ mode: 'ramp', L: d.L, Fneed: rampForce(App.state.rig, d.L) }, () => { d.step = 'read'; save(); renderAll(); });
+            save(); renderAll();
+          });
+          onClick('btnTap', registerTap); onClick('btnAuto', triggerAuto);
+          onClick('btnChangeL', () => { d.step = 'set'; resetSim(); renderAll(); });
+        },
+        task(pg, d) {
+          const tag = `<p class="launch-tag">Ramp Trial ${pg.idx} of 3 · Overall Trial ${pg.tIdx + 1} of 7</p>`;
+          const rule = rampRule(App.tier, pg.idx, App.state.table);
+          if (d.step === 'set') return tag + titleHTML(rule.text) + `<p class="task-body">Slide the ramp length under the picture, then click <strong>Use this ramp ▶</strong>.</p>` + fbHTML() + actions();
+          if (d.step === 'pull') return tag + titleHTML(`Pull the ${App.state.rig.m} kg cart up the ${fmt(d.L)} m ramp.`) + `<p class="task-body">Tap <kbd>P</kbd> (or click <strong>Steady Pull</strong>) until it reaches the 1.5 m shelf.</p>` + actions();
+          if (d.step === 'read') return tag + titleHTML('Read both close-ups and record this ramp trial.') + `<div class="rec-row">${recInput('d', '<span class="wk-d-text">ramp d</span>', 'm')}${recInput('F', '<span class="wk-F-text">force F</span>', 'N')}</div>` + fbHTML() + actions(waitBtn('btnRecord', 'Record in my table', 'btn-primary', d.until)) + hintsHTML(READ_HINTS);
+          return tag + titleHTML(`Trial ${pg.tIdx + 1} saved!`) + okNote('Look at your table under the picture.') + actions(nextBtn());
+        },
+        bindTask(pg, d) {
+          const submit = () => {
+            if (d.step !== 'read' || leftSecs(d.until)) return;
+            const dTrue = d.L, fTrue = rampForce(App.state.rig, d.L);
+            const rD = checkDistRead(App.rec.d || '', dTrue, fTrue), rF = checkForceRead(App.rec.F || '', fTrue, dTrue);
+            const blank = [rD, rF].find(r => r.mistake === 'blank');
+            if (blank) { App.ui.fb = { retry: true, msg: blank.msg }; return renderTask(); }
+            const bad = !rD.ok ? rD : !rF.ok ? rF : null;
+            recordTry(`${pg.id}_read`, !bad);
+            if (bad) { recordMistake(bad.mistake); d.miss = (d.miss || 0) + 1; d.until = waitUntil(Math.min(18, 3 + 3 * d.miss)); App.ui.fb = { retry: true, msg: bad.msg }; save(); return renderAll(); }
+            App.state.table[pg.tIdx] = { kind: 'ramp', d: round(parseNum(App.rec.d), 2), F: round(parseNum(App.rec.F), 1) };
+            d.step = 'done'; d.until = 0; App.rec = {}; App.ui.fb = null; save(); renderAll();
+          };
+          onClick('btnRecord', submit); bindRec(submit);
+        }
+      };
+
+      // Part 3: Graph It + Analysis
+      const drawGraph = (o = {}) => {
+        const n = o.n === undefined ? (App.state.graph.n || 0) : o.n;
+        const pts = App.state.table.slice(0, n).map((r, i) => Object.assign({}, r, { i }));
+        const base = { spec: specFor(App.state.rig.Fg), points: pts, n };
+        if (o.fit !== false && n >= 7) base.curveW = App.state.rig.W;
+        return graphSceneSVG(Object.assign(base, o));
+      };
+
+      App.kinds.plot = {
+        scene(pg, d) {
+          const cnt = Math.max(App.state.graph.n || 0, d.ok ? pg.n : 0);
+          const pts = App.state.table.slice(0, cnt).map((r, i) => Object.assign({}, r, { i, isNew: d.ok && i === pg.n - 1 }));
+          return drawGraph({ points: pts, n: cnt, fit: cnt >= 7, guide: pg.n === 1 && !d.ok ? App.state.table[0] : null, miss: d.ok ? null : d.miss, clickable: !d.ok });
+        },
+        bindStage(pg, d) {
+          if (d.ok) return;
+          onStageClick(p => {
+            const res = checkPlot(specFor(App.state.rig.Fg), p, App.state.table[pg.n - 1]);
+            recordTry(pg.id, res.ok);
+            if (res.ok) { d.ok = true; d.miss = null; App.state.graph.n = Math.max(App.state.graph.n || 0, pg.n); App.ui.fb = null; }
+            else { recordMistake(res.mistake); d.miss = { x: Math.round(p.x), y: Math.round(p.y) }; App.ui.fb = { retry: true, msg: res.msg }; }
+            save(); renderAll();
+          });
+        },
+        task(pg, d) {
+          const row = App.state.table[pg.n - 1];
+          const sym = row.kind === 'pulley' ? '● pulley circle' : '▲ ramp triangle';
+          const s = `<p class="launch-tag">Point ${pg.n} of 7</p>` + titleHTML(`Plot Trial ${pg.n} (${sym}) on the graph.`);
+          if (d.ok) return s + okNote(pg.n === 7 ? 'All 7 points plotted! Both pulleys (●) and ramps (▲) follow the exact same curve.' : 'Point plotted.') + actions(nextBtn());
+          return s + `<p class="task-body">Click where <strong class="wk-d-text">d = ${fmt(row.d)} m</strong> and <strong class="wk-F-text">F = ${fmt(row.F)} N</strong> meet.${pg.n === 1 ? ' Follow the dashed guide for Point 1.' : ''}</p>` + fbHTML() + actions();
+        }
+      };
+
+      // Conceptual overlap click task: click a spot where ● sits inside ▲
+      App.kinds.overlap = {
+        scene(pg, d) {
+          const pts = App.state.table.map((r, i) => Object.assign({}, r, { i, clickable: !d.ok, isNew: d.picked === i }));
+          return drawGraph({ points: pts, n: 7, clickable: !d.ok, note: 'Click a ● inside a ▲' });
+        },
+        bindStage(pg, d) {
+          if (d.ok) return;
+          document.querySelectorAll('#stage [data-pt]').forEach(el => el.addEventListener('click', e => {
+            e.stopPropagation();
+            const i = Number(el.dataset.pt), row = App.state.table[i];
+            const shared = [3.0, 4.5, 6.0].some(x => Math.abs(row.d - x) < 0.08);
+            recordTry(pg.id, shared);
+            if (shared) { d.ok = true; d.picked = i; App.ui.fb = null; }
+            else { recordMistake('not_shared'); App.ui.fb = { retry: true, msg: `Trial 1 (1.5 m) only used a pulley. Look at d = 3.0 m, 4.5 m, or 6.0 m where a ramp ▲ sits right around a pulley ●.` }; }
+            save(); renderAll();
+          }));
+        },
+        task(pg, d) {
+          const s = titleHTML('Where do pulleys and ramps agree?') + `<p class="task-body">Click a spot on your graph where a <strong>pulley circle (●)</strong> sits inside a <strong>ramp triangle (▲)</strong>.</p>`;
+          return d.ok ? s + okNote('Same d and same F! At the same distance, a smooth ramp and a multi-rope pulley require the exact same force.') + actions(nextBtn()) : s + fbHTML() + actions();
+        }
+      };
+
+      // Unified Ask Handler (Graph questions + Work In/Out steps)
+      const BUILD_ASK = {
+        halfC: () => Q.halfC(App.state.rig),
+        quarterC: () => Q.quarterC(App.state.rig),
+        readLine: () => Q.readLine(App.state.graph.readX || (App.state.graph.readX = readCurveSpot(App.state.table, App.tier)), App.state.rig),
+        inverseRule: () => Q.inverseRule(),
+        wout: () => Q.wOut(App.state.rig),
+        win1: () => Q.wIn(App.state.table[0], 'Trial 1 (narrow & tall)'),
+        win7: () => Q.wIn(App.state.table[6], 'Trial 7 (wide & short)'),
+        wsame: () => Q.wSame(App.state.rig),
+        predC: () => Q.predForce(App.state.rig, 5.0, false),
+        predCP: () => Q.predForce(App.state.rig, 7.5, true),
+        designH: () => Q.designLen(App.state.rig)
+      };
+      App.kinds.ask = {
+        scene(pg, d) {
+          const rig = App.state.rig;
+          if (pg.pic === 'pulley') return pulleyScene({ rig, n: 1, y: H_TARGET, d: H_TARGET, F: rig.Fg, latched: true });
+          if (pg.pic === 'ramp') {
+            const L = pg.q === 'predCP' ? 7.5 : pg.q === 'designH' ? rig.testLen : 7.5;
+            return rampScene({ rig, L, y: 0, d: 0, F: 0, hideLen: pg.q === 'designH' && !(d && d.ok) });
+          }
+          if (pg.pic === 'rect1') return drawGraph({ rect: { d: App.state.table[0].d, F: App.state.table[0].F, label: `F × d = ?` } });
+          if (pg.pic === 'rect7') return drawGraph({ rectAlt: { d: App.state.table[0].d, F: App.state.table[0].F }, rect: { d: App.state.table[6].d, F: App.state.table[6].F, label: `F × d = ?` } });
+          const rx = pg.pic === 'curvePred' ? 5.0 : pg.q === 'readLine' ? (App.state.graph.readX || (App.state.graph.readX = readCurveSpot(App.state.table, App.tier))) : undefined;
+          return drawGraph({ readX: rx });
+        },
+        task: (pg, d) => qHTML(BUILD_ASK[pg.q](), d),
+        bindTask: (pg, d) => onClick('btnCheck', () => {
+          const q = BUILD_ASK[pg.q]();
+          checkQ(q, d, pg.id, { onOk: v => { if (pg.q === 'predC' || pg.q === 'predCP') App.state.predF = round(v, 1); if (pg.q === 'designH') App.state.designD = round(v, 1); } });
+        }),
+        calc: (pg, d) => { const q = BUILD_ASK[pg.q](); return q.calc && !d.ok ? q : null; }
+      };
+
+      // Two-box Conceptual W_out & Two-box Honors Rough Ramp Efficiency
+      function bindTwoBox(kindName, boxesFor, sceneFor) {
+        App.kinds[kindName] = {
+          scene: sceneFor,
+          task(pg, d) {
+            const steps = boxesFor(App.state.rig);
+            const i = steps.findIndex(q => !(d[q.id] && d[q.id].ok));
+            const idx = i < 0 ? steps.length - 1 : i, q = steps[idx], st = d[q.id] || (d[q.id] = {});
+            const prev = idx > 0 && d[steps[0].id].ok ? `<div class="prev-step">✓ ${stack(steps[0].right)}</div>` : '';
+            return `<p class="launch-tag">Box ${idx + 1} of ${steps.length}</p>${prev}` + qHTML(q, st);
+          },
+          bindTask(pg, d) {
+            const steps = boxesFor(App.state.rig);
+            const i = steps.findIndex(q => !(d[q.id] && d[q.id].ok));
+            const idx = i < 0 ? steps.length - 1 : i, q = steps[idx], st = d[q.id] || (d[q.id] = {});
+            onClick('btnCheck', () => {
+              const more = idx + 1 < steps.length;
+              checkQ(q, st, `${pg.id}_${q.id}`);
+              if (st.ok && more) { freshUI(); renderAll(); }
+            });
+          },
+          calc(pg, d) {
+            const steps = boxesFor(App.state.rig);
+            const i = steps.findIndex(q => !(d[q.id] && d[q.id].ok));
+            if (i < 0) return null;
+            const q = steps[i], st = d[q.id] || {};
+            return q.calc && !st.ok && !st.bad ? q : null;
+          }
+        };
+      }
+      bindTwoBox('wout2', rig => [Q.weightBox(rig), Q.wOutBox(rig)], () => pulleyScene({ rig: App.state.rig, n: 1, y: H_TARGET, d: H_TARGET, F: App.state.rig.Fg, latched: true }));
+      bindTwoBox('eff2', rig => [Q.roughWin(rig), Q.roughEff(rig)], () => {
+        const rig = App.state.rig, fPull = round(rig.W / 6.0, 1) + rig.Ff;
+        return rampScene({ rig, L: 6.0, y: H_TARGET, d: 6.0, F: fPull, latched: true });
+      });
+
+      // Test untested / designed ramp
+      App.kinds.testRamp = {
+        enter(pg, d) {
+          const L = App.tier === 'conceptual' ? 5.0 : App.tier === 'cp' ? 7.5 : App.state.rig.testLen;
+          const Fneed = rampForce(App.state.rig, L);
+          if (d.step === 'read' || d.step === 'done') showLatched({ mode: 'ramp', L, Fneed });
+          else { d.step = 'pull'; startSim({ mode: 'ramp', L, Fneed }, () => { d.step = 'read'; save(); renderAll(); }); }
+        },
+        scene() {
+          const L = App.tier === 'conceptual' ? 5.0 : App.tier === 'cp' ? 7.5 : App.state.rig.testLen;
+          return rampScene({ rig: App.state.rig, L, y: S.y, d: S.d, F: S.Fshow, latched: S.latched, Fpull: S.Fpull, Fneed: S.Fneed });
+        },
+        ctl(pg, d) {
+          if (d.step !== 'pull') return `<span class="ctl-note">${d.step === 'done' ? 'Verified!' : '🔒 Reached shelf h = 1.5 m — read the spring scale.'}</span>`;
+          return `<button type="button" class="btn-step" id="btnTap">💪 Tap P to Pull</button><button type="button" class="btn-ghost" id="btnAuto">▶ Steady Pull</button>`;
+        },
+        bindStage() { onClick('btnTap', registerTap); onClick('btnAuto', triggerAuto); },
+        task(pg, d) {
+          const L = App.tier === 'conceptual' ? 5.0 : App.tier === 'cp' ? 7.5 : App.state.rig.testLen;
+          if (d.step === 'pull') return titleHTML(`Test your ${fmt(L)} m ramp!`) + `<p class="task-body">Pull the crate up your untested ${fmt(L)} m ramp to see if your model holds.</p>` + actions();
+          if (d.step === 'read') return titleHTML('Read the spring scale at the top.') + `<div class="rec-row">${recInput('F', '<span class="wk-F-text">force F</span>', 'N')}</div>` + fbHTML() + actions(waitBtn('btnRecord', 'Check reading', 'btn-primary', d.until));
+          return titleHTML(`Meter reads F = ${fmt(App.state.testF)} N`) + noteHTML('fb-ok', '<strong>Your force–distance model held up!</strong> Longer ramps trade distance for smaller pull force while keeping ideal work conserved.') + actions(nextBtn());
+        },
+        bindTask(pg, d) {
+          const L = App.tier === 'conceptual' ? 5.0 : App.tier === 'cp' ? 7.5 : App.state.rig.testLen;
+          const rec = () => {
+            if (d.step !== 'read' || leftSecs(d.until)) return;
+            const res = checkForceRead(App.rec.F || '', rampForce(App.state.rig, L), L);
+            if (res.mistake === 'blank') { App.ui.fb = { retry: true, msg: res.msg }; return renderTask(); }
+            recordTry(pg.id, res.ok);
+            if (!res.ok) { d.until = waitUntil(4); App.ui.fb = { retry: true, msg: res.msg }; save(); return renderAll(); }
+            App.state.testF = round(parseNum(App.rec.F), 1); d.step = 'done'; App.rec = {}; App.ui.fb = null; save(); renderAll();
+          };
+          onClick('btnRecord', rec); bindRec(rec);
+        }
+      };
+
+      // =========================================================================
+      // 8. MASTERY CHECK & PDF CERTIFICATE
+      // =========================================================================
+      const QSt = () => App.state.quiz;
+      const QCur = () => QSt().cur;
+      const QItem = () => QCur().items[QCur().i];
+      const QAns = () => QCur().answers[QCur().i] || {};
+
+      function certStatus() {
+        const missing = PARTS.filter(p => p.weight > 0 && !App.state.parts[p.id].done);
+        const best = QSt().best || 0;
+        return { ready: !missing.length && QSt().attempts.length > 0 && best >= CERT_PERCENT, missing, best };
+      }
+      function updateCert() {
+        const p = App.profile;
+        if ((p.guest && !p.preview) || !certStatus().ready) return;
+        const id = p.preview ? 'SAMPLE' : (App.cloud && App.cloud.studentId) || 'TEACHER';
+        let h = 5381; const txt = `${id}|${QSt().best}|PWL-33`;
+        for (let i = 0; i < txt.length; i++) h = ((h * 33) ^ txt.charCodeAt(i)) >>> 0;
+        const code = `MUD-PWL-${id}-${QSt().best}-${h.toString(16).toUpperCase().padStart(8, '0')}`;
+        if (!App.state.cert || App.state.cert.code !== code) App.state.cert = { code, at: (App.state.cert && App.state.cert.at) || Date.now() };
+      }
+      function certHTML() {
+        const c = certStatus();
+        if (App.profile.guest && !App.profile.preview) return '<div class="cert-box cert-wait">🎓 <strong>Certificates require school Google sign-in.</strong></div>';
+        if (c.ready) return '<div class="cert-box cert-ready"><strong>🎓 Certificate unlocked!</strong><button type="button" class="btn-primary" data-cert>📄 Download PDF</button></div>';
+        const need = c.missing.length ? `finish ${c.missing.map(p => p.name).join(', ')} and ` : '';
+        return `<div class="cert-box cert-wait">🎓 <strong>Earn a certificate:</strong> ${need}score ${CERT_PERCENT}%+ on Mastery Check (best: ${c.best}%).</div>`;
+      }
+      async function downloadCert(btn) {
+        updateCert();
+        if (!App.state.cert) return;
+        const lbl = btn.textContent;
+        btn.disabled = true; btn.textContent = 'Generating PDF…';
+        try {
+          if (!window.jspdf) {
+            await new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = '../assets/vendor/jspdf.umd.min.js'; sc.onload = res; sc.onerror = () => rej(new Error('PDF lib error')); document.head.appendChild(sc); });
+          }
+          const doc = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'pt', format: 'letter', compress: true });
+          const PW = 792, PH = 612, cx = PW / 2, info = { name: App.profile.preview ? 'Sample Student' : App.profile.name, best: QSt().best, honors: App.tier === 'honors', earned: App.state.cert.at, code: App.state.cert.code };
+          doc.setDrawColor('#0f4c81'); doc.setLineWidth(4); doc.rect(24, 24, PW - 48, PH - 48);
+          doc.setDrawColor('#b7892b'); doc.setLineWidth(1.2); doc.rect(33, 33, PW - 66, PH - 66);
+          doc.setTextColor('#475569'); doc.setFont('helvetica', 'bold'); doc.setFontSize(12);
+          doc.text('ORANGE HIGH SCHOOL PHYSICS  ·  UNIT 3  ·  DAY 3', cx, 96, { align: 'center' });
+          doc.setTextColor('#0f4c81'); doc.setFont('times', 'bold'); doc.setFontSize(40);
+          doc.text('Certificate of Completion', cx, 148, { align: 'center' });
+          doc.setTextColor('#475569'); doc.setFont('helvetica', 'normal'); doc.setFontSize(14);
+          doc.text('This certifies that', cx, 184, { align: 'center' });
+          doc.setTextColor('#0f172a'); doc.setFont('helvetica', 'bold'); doc.setFontSize(30);
+          doc.text(info.name, cx, 232, { align: 'center' });
+          doc.setDrawColor('#b7892b'); doc.setLineWidth(1); doc.line(cx - 210, 242, cx + 210, 242);
+          doc.setTextColor('#0f172a'); doc.setFontSize(16);
+          doc.text('has completed the Pulley & Ramp Trade-Off Lab', cx, 278, { align: 'center' });
+          doc.setFont('helvetica', 'normal'); doc.setFontSize(12); doc.setTextColor('#475569');
+          doc.text('Pulleys, inclined planes, F vs. d inverse curve analysis, and Work In = Work Out proofs', cx, 300, { align: 'center' });
+          if (info.honors) { doc.setFont('helvetica', 'bold'); doc.setTextColor('#0f4c81'); doc.text('Completed at the Honors Physics level', cx, 322, { align: 'center' }); }
+          const when = new Date(info.earned).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+          doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor('#0f172a');
+          doc.text(`Mastery Check: ${info.best}%    ·    Date: ${when}`, cx, 385, { align: 'center' });
+          doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor('#475569');
+          doc.text(`Mr. Mudry, Physics  ·  Verification code: ${info.code}`, cx, 554, { align: 'center' });
+          doc.save(`Pulley_Ramp_Tradeoff_Lab_${info.name.replace(/\s+/g, '_')}.pdf`);
+          btn.textContent = lbl;
+        } catch (e) { console.error(e); btn.textContent = 'Try again'; }
+        btn.disabled = false; save(true);
+      }
+
+      App.quizEnter = () => { if (App.state.current === 'quiz' && QCur()) { App.ui.draft = QAns().value || ''; App.ui.work = QAns().work || null; } };
+      App.quizDraft = () => { if (QCur()) { QCur().answers[QCur().i] = { value: App.ui.draft, work: App.ui.work || null }; save(); } };
+      App.quizCalc = () => (App.state.current === 'quiz' && QCur() ? (q => q.calc ? q : null)(quizQuestion(QItem())) : null);
+      App.quizBack = () => { if (QCur() && QCur().i > 0) { QCur().i--; enterPage(); save(); renderAll(); return; } openPart('work'); };
+
+      function quizScene() {
+        if (!QCur()) return pulleyScene({ rig: App.state.rig, n: 2, y: 0, d: 0, F: 0 });
+        const it = QItem();
+        if (it.type === 'pulley') return pulleyScene({ rig: { m: Math.round(it.load / G) }, n: it.ropes, y: it.h, d: it.h * it.ropes, F: it.load / it.ropes, latched: true });
+        if (it.type === 'graph') {
+          const pts = [1.5, 2, 3, 4, 6].map((d, i) => ({ kind: 'ramp', d, F: round(it.W / d, 1), i }));
+          return graphSceneSVG({ spec: specFor(it.W), points: pts, curveW: it.W, readX: it.d, note: `W_out = ${it.W} J` });
+        }
+        const L = it.d || 5.0;
+        const m = it.m || (it.Fg ? Math.round(it.Fg / G) : 12);
+        return rampScene({ rig: { m }, L, y: 0, d: 0, F: 0 });
+      }
+      function quizTask() {
+        const c = QCur();
+        if (!c && !QSt().attempts.length) {
+          $('taskCard').innerHTML = subHTML(`${topHTML('Mastery Check')}<h2 class="task-title">Mastery Check</h2>
+            <div class="task-body" id="readable"><p><strong>5 new transfer questions</strong> combining pulleys, ramps, W<sub>in</sub> = W<sub>out</sub>, and reading an F vs. d curve.</p>
+            <p>You can go back to edit answers before finishing. Your <strong>best attempt</strong> counts for 4 of 10 points.</p></div>${certHTML()}${actions('<button type="button" class="btn-primary" id="btnStartQuiz">Start Mastery Check ▶</button>')}`);
+        } else if (!c) {
+          const q = QSt(), last = q.attempts[q.attempts.length - 1], s = scoreState(App.state), g = q.last ? gradeQuiz(q.last.items, q.last.answers) : null;
+          const right = g ? g.results.filter(r => r.ok).map(r => QUIZ_SKILLS[r.skill]) : [];
+          const misses = g ? g.results.filter(r => !r.ok).map(r => `<li><strong>${QUIZ_SKILLS[r.skill]}:</strong> ${r.msg}</li>`).join('') : '';
+          $('taskCard').innerHTML = subHTML(`${topHTML('Mastery Check · Results')}<h2 class="task-title">Mastery Check Results</h2>
+            <div class="score-big"><strong>${last.pct}%</strong><span>this try · best ${q.best}%</span></div>
+            <p>Current lab grade: <strong class="nowrap">${s.points.toFixed(1)} / 10</strong></p>${certHTML()}
+            <div class="task-body" id="readable">${right.length ? `<p><strong>✓ Mastered:</strong> ${right.join(' · ')}</p>` : ''}${misses ? `<p><strong>Review before retaking:</strong></p><ul class="misses">${misses}</ul>` : ''}</div>
+            ${actions(waitBtn('btnStartQuiz', 'Retake with new situations ▶', certStatus().ready ? 'btn-secondary' : 'btn-primary', q.lockUntil))}`);
+        } else {
+          const it = QItem(), last = c.i + 1 === c.items.length, top = topHTML(`Mastery Check · Question ${c.i + 1} of ${c.items.length}`);
+          const q = quizQuestion(it);
+          const act = `<p id="quizMsg" class="quiz-msg" role="alert"></p>${actions(`<button type="button" class="btn-primary" id="btnQuizNext">${last ? 'Finish' : 'Next ▶'}</button>`)}`;
+          $('taskCard').innerHTML = subHTML(top + titleHTML(q.ask) + (q.formula ? `<p class="formula-box"><span class="formula">${q.formula}</span></p>` : '') + answerBox(q, false, App.ui.draft) + act);
+        }
+        bindCommon();
+        onClick('btnStartQuiz', () => { if (leftSecs(QSt().lockUntil)) return; const items = buildQuiz(App.tier); QSt().cur = { items, answers: items.map(() => null), i: 0, startedAt: Date.now() }; enterPage(); save(); renderAll(); });
+        onClick('btnQuizNext', () => {
+          const a = QAns();
+          if (parseNum(a.value) === null) { $('quizMsg').textContent = 'Enter an answer first.'; return; }
+          if (QCur().i + 1 < QCur().items.length) { QCur().i++; enterPage(); save(); renderAll(); return; }
+          const cur = QCur(), g = gradeQuiz(cur.items, cur.answers);
+          g.mistakes.forEach(recordMistake);
+          g.results.forEach((r, i) => recordTry(`quiz${QSt().attempts.length + 1}_${i + 1}`, r.ok));
+          QSt().attempts.push({ pct: g.percent, score: g.score, total: g.total, at: Date.now(), secs: cur.startedAt ? Math.round((Date.now() - cur.startedAt) / 1000) : null, skills: g.skills });
+          QSt().best = Math.max(QSt().best || 0, g.percent);
+          QSt().last = { items: cur.items, answers: cur.answers };
+          QSt().cur = null;
+          QSt().lockUntil = g.score < g.total ? waitUntil(8 * (g.total - g.score)) : 0;
+          updateCert(); freshUI(); save(true); renderAll();
+        });
+        document.querySelectorAll('#taskCard [data-cert]').forEach(b => b.addEventListener('click', () => downloadCert(b)));
+      }
+
+      // =========================================================================
+      // 9. RENDERING, DESMOS & DISPLAY TOOLS
+      // =========================================================================
+      const onClick = (id, fn) => { const el = $(id); if (el) el.addEventListener('click', fn); };
+      function onStageClick(fn) {
+        const svg = $('stage').querySelector('svg');
+        if (!svg || !svg.createSVGPoint) return;
+        svg.addEventListener('click', e => {
+          const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+          const m = svg.getScreenCTM();
+          if (m) fn(pt.matrixTransform(m.inverse()), e);
+        });
+      }
+      const recInput = (key, label, unit) => `<label>${label} <input type="text" inputmode="decimal" autocomplete="off" data-rec="${key}" value="${esc(App.rec[key] || '')}" aria-label="${esc(label.replace(/<[^>]+>/g, ''))}"> ${unit}</label>`;
+      const bindRec = submit => document.querySelectorAll('#taskCard [data-rec]').forEach(el => {
+        el.addEventListener('input', () => { App.rec[el.dataset.rec] = el.value; });
+        el.addEventListener('keydown', e => { if (e.key === 'Enter' && submit) submit(); });
+      });
+
+      function renderStrip() {
+        const st = App.state;
+        $('partStrip').innerHTML = PARTS.map(p => {
+          const open = isUnlocked(p.id), on = st.current === p.id;
+          const pct = p.id === 'quiz' ? (st.quiz.best || 0) : Math.round(partProgress(st, p.id, App.tier) * 100);
+          const done = p.id === 'quiz' ? st.quiz.attempts.length > 0 : st.parts[p.id].done;
+          return `<button type="button" class="part-tab ${on ? 'part-on' : ''} ${done ? 'part-done' : ''}" data-part="${p.id}" ${open ? '' : 'disabled'}>`
+            + `<span class="part-name">${p.icon} ${p.name}${done ? ' ✓' : ''}</span>`
+            + `<span class="part-bar"><span style="width:${pct}%"></span></span></button>`;
+        }).join('');
+        document.querySelectorAll('#partStrip [data-part]').forEach(b => b.addEventListener('click', () => openPart(b.dataset.part)));
+      }
+
+      function updateScoreChip() {
+        const el = $('scoreChip');
+        if (el && App.state) el.textContent = `${scoreState(App.state).points.toFixed(1)} / ${MAX_POINTS}`;
+        $('btnCert').hidden = !(certStatus().ready && (!App.profile.guest || App.profile.preview));
+      }
+
+      function renderTable() {
+        const el = $('dataTable'), show = ['pulley', 'ramp', 'graph'].includes(App.state.current);
+        el.hidden = !show;
+        if (!show) return;
+        const table = App.state.table, pg = curPage();
+        const now = pg && pg.kind === 'pulley' ? pg.tIdx : pg && pg.kind === 'ramp' ? pg.tIdx : pg && pg.kind === 'plot' ? pg.n - 1 : -1;
+        const cls = i => (i === now ? ' class="cell-now"' : '');
+        const cols = [0, 1, 2, 3, 4, 5, 6];
+        const head = `<tr><th>Trial</th>${cols.map(i => `<th${cls(i)}>${i + 1} <span class="${i < 4 ? 'tag-p' : 'tag-r'}">${i < 4 ? '●' : '▲'}</span></th>`).join('')}</tr>`;
+        const rows = [['d (m)', r => r.d, 'wk-d-text'], ['F (N)', r => r.F, 'wk-F-text']];
+        const body = rows.map(([lbl, get, color]) => `<tr><th class="${color}">${lbl}</th>${cols.map(i => {
+          const v = table[i] ? get(table[i]) : undefined;
+          return `<td${cls(i)}>${v === undefined ? '' : esc(fmt(v))}</td>`;
+        }).join('')}</tr>`).join('');
+        el.innerHTML = `<table class="data-table"><thead>${head}</thead><tbody>${body}</tbody></table>`;
+      }
+
+      function renderStage() {
+        const pg = curPage(), k = curKind();
+        if (App.state.current === 'quiz') {
+          $('stage').innerHTML = quizScene(); $('stageCtl').innerHTML = ''; return;
+        }
+        const d = pg ? pageData() : null;
+        $('stage').innerHTML = pg ? k.scene(pg, d) : pulleyScene({ rig: App.state.rig, n: 4, y: H_TARGET, d: 6.0, F: pulleyForce(App.state.rig, 4), latched: true });
+        $('stageCtl').innerHTML = pg && k.ctl ? k.ctl(pg, d) : '';
+        if (pg && k.bindStage) k.bindStage(pg, d);
+      }
+
+      function renderTask() {
+        if (App.state.current === 'quiz') { quizTask(); syncCalc(); return; }
+        const pg = curPage(), k = curKind();
+        if (!pg) {
+          const idx = PARTS.findIndex(p => p.id === App.state.current), next = PARTS[idx + 1];
+          $('taskCard').innerHTML = subHTML(`<div class="done-card"><div class="done-mark" aria-hidden="true">✅</div><h2 class="task-title">${PARTS[idx].name} complete!</h2><p>Your credit is saved.</p><div class="task-actions">${backBtn()}<button type="button" class="btn-secondary" id="btnReview">Review this part</button>${next ? `<button type="button" class="btn-primary" data-part="${next.id}">${next.name} ▶</button>` : ''}</div></div>`);
+        } else {
+          $('taskCard').innerHTML = subHTML(headerHTML() + k.task(pg, pageData()));
+        }
+        bindCommon();
+        if (pg && k.bindTask) k.bindTask(pg, pageData());
+        syncCalc();
+      }
+
+      function bindCommon() {
+        onClick('btnNext', advance);
+        onClick('btnBack', goBack);
+        onClick('btnHint', () => { App.ui.hints++; renderTask(); });
+        onClick('btnRead', readAloud);
+        onClick('btnReview', () => { curPart().i = 0; enterPage(); save(); renderAll(); });
+        const jump = $('stepJump');
+        if (jump) {
+          jump.addEventListener('change', e => {
+            const idx = Number(e.target.value);
+            if (App.state.current === 'ramp' || App.state.current === 'graph' || App.state.current === 'work') {
+              if (!App.state.table || App.state.table.length < 7) fillSampleData();
+              if (App.state.current === 'graph' && idx >= 7) fillSampleData({ plotAll: true });
+              else if (App.state.current === 'graph') { for (let n = 1; n <= idx; n++) pageData(`pl${n}`).ok = true; App.state.graph.n = Math.max(App.state.graph.n || 0, idx); }
+              if (App.state.current === 'work') fillSampleData({ plotAll: true });
+            }
+            goTo(idx);
+          });
+        }
+        document.querySelectorAll('#taskCard [data-part]').forEach(b => b.addEventListener('click', () => openPart(b.dataset.part)));
+        const input = $('answer');
+        if (input && !input.readOnly) {
+          input.addEventListener('input', () => { App.ui.draft = input.value; if (App.quizDraft) App.quizDraft(); });
+          input.addEventListener('keydown', e => { if (e.key === 'Enter') { const b = $('btnCheck') || $('btnQuizNext'); if (b && !b.disabled) b.click(); } });
+          if (!input.disabled) input.focus({ preventScroll: true });
+        }
+      }
+      function renderAll() { renderStrip(); renderStage(); renderTable(); renderTask(); updateScoreChip(); }
+
+      // Desmos setup
+      let desmos = null;
+      function toggleCalc(open) {
+        $('calcPanel').hidden = !open;
+        document.body.classList.toggle('calc-open', open);
+        if (!open || !window.Desmos) return;
+        if (!desmos) {
+          try {
+            desmos = window.Desmos.ScientificCalculator($('calcHost'), {
+              degreeMode: true,
+              invertedColors: document.documentElement.classList.contains('theme-dark'),
+              fontSize: window.Desmos.FontSizes ? window.Desmos.FontSizes.LARGE : undefined
+            });
+          } catch {
+            $('calcHost').innerHTML = '<p class="calc-missing">Calculator unavailable — type your answer directly.</p>';
+            if (App.state) App.state.calcUnavailable = true;
+          }
+        } else if (desmos.resize) desmos.resize();
+      }
+      const sayCalc = msg => { $('calcMsg').hidden = !msg; $('calcMsg').innerHTML = msg ? subHTML(msg) : ''; };
+      App.clearCalc = () => { if (desmos && desmos.setBlank) desmos.setBlank(); sayCalc(''); };
+      const calcQuestion = () => {
+        if (!App.state) return null;
+        if (App.state.current === 'quiz') return App.quizCalc();
+        const pg = curPage(), k = curKind();
+        return pg && k && k.calc ? k.calc(pg, pageData()) : null;
+      };
+      const syncCalc = () => toggleCalc(!!(calcQuestion() && window.Desmos));
+
+      function grabCalcAnswer() {
+        const q = calcQuestion();
+        if (!q || !desmos) return;
+        const work = readCalculator(desmos.getState());
+        if (work.empty) return sayCalc('Type your calculation in Desmos first.');
+        if (work.unreadable) return sayCalc('Finish the expression or clear it and retype.');
+        const problem = workProblem(work, q.needs || {});
+        if (problem) return sayCalc(problem);
+        sayCalc('');
+        App.ui.draft = String(Number(work.value.toFixed(3)));
+        App.ui.work = work.latex;
+        if (App.ui.fb && App.ui.fb.retry) App.ui.fb = null;
+        App.quizDraft();
+        renderTask();
+      }
+
+      function bindCalcDrag() {
+        const panel = $('calcPanel'), head = $('calcHead');
+        let grab = null;
+        head.addEventListener('pointerdown', e => { const r = panel.getBoundingClientRect(); grab = { dx: e.clientX - r.left, dy: e.clientY - r.top }; head.setPointerCapture(e.pointerId); });
+        head.addEventListener('pointermove', e => {
+          if (!grab) return;
+          const r = panel.getBoundingClientRect();
+          panel.style.left = `${Math.max(0, Math.min(innerWidth - r.width, e.clientX - grab.dx))}px`;
+          panel.style.top = `${Math.max(0, Math.min(innerHeight - r.height, e.clientY - grab.dy))}px`;
+          panel.style.right = 'auto'; panel.style.bottom = 'auto';
+        });
+        head.addEventListener('pointerup', () => { grab = null; });
+      }
+
+      function bindDisplayTools() {
+        const root = document.documentElement;
+        const store = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+        const sync = () => {
+          if (window.pwlFit) window.pwlFit();
+          if (desmos && desmos.updateSettings) desmos.updateSettings({ invertedColors: root.classList.contains('theme-dark') });
+          $('btn-theme-toggle').textContent = root.classList.contains('theme-dark') ? '☀️ Light' : '🌙 Dark';
+          $('btn-projector-mode').classList.toggle('btn-on', root.classList.contains('projector'));
+        };
+        $('btn-theme-toggle').addEventListener('click', () => {
+          root.classList.remove('projector');
+          root.classList.toggle('theme-dark');
+          store('pwl_theme', root.classList.contains('theme-dark') ? 'dark' : 'light');
+          store('pwl_projector', 'off');
+          sync();
+        });
+        $('btn-projector-mode').addEventListener('click', () => {
+          const on = !root.classList.contains('projector');
+          root.classList.toggle('projector', on);
+          if (on) { root.classList.remove('theme-dark'); store('pwl_theme', 'light'); }
+          store('pwl_projector', on ? 'on' : 'off');
+          sync();
+        });
+        sync();
+      }
+
+      // =========================================================================
+      // 10. FIREBASE AUTH, ROSTER LOOKUP & FIRESTORE SYNC
+      // =========================================================================
+      const tierForPeriod = p => (p === 0 ? 'honors' : [1, 2, 3].includes(p) ? 'conceptual' : 'cp');
+
+      class LabAuth {
+        constructor(onReady) {
+          this.onReady = onReady; this.started = false; this.user = null; this.studentId = null;
+          this.saveTimer = null; this.saving = false; this.pending = false; this.state = null;
+          this.guest = false; this.preview = false; this.stalled = false; this.profile = null;
+          this.gate = $('loginGate'); this.gateError = $('gateError'); this.gateBtn = $('btnGateSignIn');
+          this.gateStatus = $('gateStatus'); this.indicator = $('saveIndicator');
+
+          this.gateBtn.addEventListener('click', () => this.signIn());
+          $('btnGateGuest').addEventListener('click', () => this.startGuest());
+          $('btnSignOut').addEventListener('click', () => this.signOut());
+          $('btnChipSignIn').addEventListener('click', () => this.signIn());
+          document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && this.saveTimer) this.flush(); });
+          window.addEventListener('pagehide', () => { if (this.saveTimer) this.flush(); });
+
+          const params = new URLSearchParams(window.location.search);
+          if (params.has('preview')) { this.startPreview(params.get('view') || 'cp'); return; }
+          if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) {
+            this.showError('Could not load Google Sign-In. Refresh or continue as guest.');
+            this.gateBtn.disabled = true;
+            return;
+          }
+          this.db = firebase.firestore();
+          firebase.auth().getRedirectResult().catch(err => this.showError(`Sign-in error: ${err.message || err.code}`));
+          firebase.auth().onAuthStateChanged(user => this.handleUser(user));
+        }
+        showError(msg) { this.gateError.textContent = msg; this.gateError.hidden = !msg; }
+        setGateBusy(text) { this.gateStatus.textContent = text || ''; this.gateBtn.hidden = !!text; }
+        signIn() {
+          if (!this.db) return;
+          this.showError('');
+          const provider = new firebase.auth.GoogleAuthProvider();
+          provider.setCustomParameters({ hd: 'orangeusd.org', prompt: 'select_account' });
+          this.gateBtn.disabled = true;
+          firebase.auth().signInWithPopup(provider).catch(err => {
+            if (err.code === 'auth/popup-blocked') firebase.auth().signInWithRedirect(provider);
+            else if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') this.showError(`Sign-in error: ${err.message || err.code}`);
+          }).finally(() => { this.gateBtn.disabled = false; });
+        }
+        async signOut() {
+          if (!window.confirm('Sign out? Your progress is saved to your school account.')) return;
+          await this.flush(); await firebase.auth().signOut(); window.location.reload();
+        }
+        docRef() { return this.db.collection('student_results').doc(ASSIGNMENT_ID).collection('students').doc(this.studentId); }
+        localKey() { return this.guest ? GUEST_KEY : `pwl_state_${this.studentId}`; }
+        static readLocal(key) { try { const s = JSON.parse(localStorage.getItem(key)); return validState(s) ? s : null; } catch { return null; } }
+        showChip(name, track) { $('userName').textContent = name; $('userTrack').textContent = track || ''; $('userChip').hidden = false; }
+        startPreview(view) {
+          const tier = ['conceptual', 'cp', 'honors'].includes(view) ? view : 'cp';
+          this.preview = true; this.guest = true; this.state = newState();
+          this.profile = { guest: true, preview: true, previewView: tier, tier, period: null, name: 'Preview' };
+          this.started = true; this.gate.hidden = true;
+          this.showChip('👁 Preview', ''); $('btnSignOut').hidden = true;
+          this.onReady({ state: this.state, cloud: this, profile: this.profile });
+          this.setIndicator('guest', 'Preview mode');
+        }
+        startGuest() {
+          if (this.started) return;
+          this.guest = true; this.state = LabAuth.readLocal(GUEST_KEY) || newState();
+          this.profile = { guest: true, tier: 'cp', period: null, name: 'Guest' };
+          this.started = true; this.gate.hidden = true;
+          this.showChip('👤 Guest', ''); $('btnSignOut').hidden = true; $('btnChipSignIn').hidden = !this.db;
+          this.onReady({ state: this.state, cloud: this, profile: this.profile });
+          this.setIndicator('guest', '💾 This device only');
+        }
+        async lookupPeriod(email) {
+          if (TEACHER_EMAILS.includes(email)) return { period: 'T', teacher: true };
+          try {
+            const snap = await this.db.collection('roster').doc(this.studentId).get();
+            if (snap.exists) {
+              const d = snap.data();
+              const p = d.class_period !== undefined && d.class_period !== null ? d.class_period : (d.period !== undefined && d.period !== null ? d.period : null);
+              if (p !== null) { const num = parseInt(p, 10); return { period: Number.isNaN(num) ? p : num }; }
+            }
+          } catch (e) { console.warn('Roster lookup failed; defaulting to CP:', e); }
+          return { period: null };
+        }
+        async handleUser(user) {
+          if (!user) { if (this.started && !this.guest) window.location.reload(); if (!this.started) { this.gate.hidden = false; this.setGateBusy(''); } return; }
+          const email = (user.email || '').toLowerCase();
+          if (!email.endsWith('@orangeusd.org') && !TEACHER_EMAILS.includes(email)) {
+            this.showError(`${email} is not an @orangeusd.org school account.`); firebase.auth().signOut(); return;
+          }
+          if (this.started && this.guest) { this.flushLocal(); window.location.reload(); return; }
+          if (this.started) return;
+          this.user = user; this.studentId = email.split('@')[0];
+          this.setGateBusy('Loading your saved progress…');
+          let cloudDoc = null;
+          for (let tryNum = 1; ; tryNum++) {
+            try { const snap = await this.docRef().get(); cloudDoc = snap.exists ? snap.data() : null; break; }
+            catch { this.setGateBusy(`Connecting… (try ${tryNum})`); await new Promise(r => setTimeout(r, Math.min(8000, 1500 * tryNum))); }
+          }
+          const roster = await this.lookupPeriod(email);
+          const cloudState = cloudDoc && validState(cloudDoc.studioState) ? cloudDoc.studioState : null;
+          const localState = LabAuth.readLocal(this.localKey());
+          let state = cloudState;
+          if (localState && (!state || (localState.savedAt || 0) > (state.savedAt || 0))) state = localState;
+          const guestState = LabAuth.readLocal(GUEST_KEY);
+          if (!state && guestState) { state = guestState; try { localStorage.removeItem(GUEST_KEY); } catch {} }
+          if (!state) state = newState();
+          if (cloudDoc) state.bestPoints = Math.max(state.bestPoints || 0, cloudDoc.score || 0);
+          this.state = state;
+          this.profile = { guest: false, period: roster.period, teacher: !!roster.teacher, tier: tierForPeriod(roster.period), name: user.displayName || this.studentId };
+          this.started = true; this.gate.hidden = true;
+          const track = roster.teacher ? 'Teacher' : roster.period === null ? '' : `Period ${roster.period}${roster.period === 0 ? ' · Honors' : ''}`;
+          this.showChip(this.profile.name, track);
+          this.onReady({ state, cloud: this, profile: this.profile });
+          if (state !== cloudState) this.queueSave(true); else this.setIndicator('ok', '☁️ Saved');
+        }
+        setIndicator(kind, text) { this.indicator.textContent = text; this.indicator.className = `save-indicator save-${kind}`; }
+        flushLocal() { if (!this.state || this.preview) return; try { localStorage.setItem(this.localKey(), JSON.stringify(this.state)); } catch {} }
+        queueSave(immediate = false) {
+          if (!this.state || this.preview) return;
+          this.state.savedAt = Date.now(); this.flushLocal();
+          if (this.guest) return;
+          clearTimeout(this.saveTimer);
+          if (!this.stalled) this.setIndicator('busy', '⏳ Saving…');
+          this.saveTimer = setTimeout(() => this.flush(), immediate ? 0 : 1200);
+        }
+        async flush() {
+          clearTimeout(this.saveTimer); this.saveTimer = null;
+          if (!this.state || !this.studentId || this.guest) return;
+          if (this.saving) { this.pending = true; return; }
+          this.saving = true;
+          const s = scoreState(this.state, this.profile.tier);
+          const period = this.profile.period !== undefined && this.profile.period !== null ? this.profile.period : null;
+          const partNow = this.state.parts[this.state.current];
+          const rawPayload = {
+            student_id: this.studentId,
+            student_name: this.profile.name || this.studentId,
+            email: (this.user && this.user.email) || `${this.studentId}@orangeusd.org`,
+            score: s.points,
+            maxScore: MAX_POINTS,
+            maxPoints: MAX_POINTS,
+            percentage: s.percentage,
+            parts_done: s.done,
+            parts_progress: s.progress,
+            parts_required: s.required,
+            current_part: this.state.current,
+            current_page: partNow ? partNow.i : null,
+            prediction: this.state.prediction || null,
+            ramp_prediction: this.state.rampPred || null,
+            trials: (this.state.table || []).length,
+            first_try: s.firstTry,
+            questions: s.questions,
+            minutes: s.minutes,
+            quiz_best: s.quizBest,
+            quiz_history: s.quizHistory,
+            quiz_skills: s.skills,
+            mistakes: s.mistakes,
+            calc_unavailable: s.calcUnavailable,
+            certificate_code: s.cert ? s.cert.code : null,
+            certificate_earned_at: s.cert ? s.cert.at : null,
+            track: this.profile.tier,
+            class_period: period,
+            honors_required: this.profile.tier === 'honors',
+            isCompleted: s.points >= MAX_POINTS,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            studioState: JSON.parse(JSON.stringify(this.state))
+          };
+          const payload = Object.fromEntries(Object.entries(rawPayload).map(([k, v]) => [k, v === undefined ? null : v]));
+          const slow = setTimeout(() => { this.stalled = true; this.setIndicator('error', '⚠️ Offline: saved locally'); }, 6000);
+          try {
+            await this.docRef().set(payload, { mergeFields: Object.keys(payload) });
+            this.stalled = false; this.setIndicator('ok', '☁️ Saved');
+          } catch (e) {
+            console.error('Firestore save failed:', e);
+            this.setIndicator('error', '⚠️ Retrying save…');
+            this.saveTimer = setTimeout(() => this.flush(), 8000);
+          } finally {
+            clearTimeout(slow); this.saving = false;
+            if (this.pending) { this.pending = false; this.flush(); }
+          }
+        }
+      }
+
+      function startApp(s, c, prof) {
+        App.state = s; App.cloud = c; App.profile = prof; App.tier = prof.tier;
+        if (!s.rig || s.tier !== App.tier) {
+          const keep = s.bestPoints || 0;
+          Object.keys(s).forEach(k => delete s[k]);
+          Object.assign(s, newState(), { tier: App.tier, rig: newRig(), bestPoints: keep });
+        }
+        if (s.current !== 'quiz' && !s.parts[s.current]) s.current = 'pulley';
+        $('btnUseCalc').addEventListener('click', grabCalcAnswer);
+        $('btnCert').addEventListener('click', () => downloadCert($('btnCert')));
+        bindCalcDrag();
+        bindDisplayTools();
+        if (prof.teacher || prof.preview) {
+          $('viewWrap').hidden = false;
+          $('viewSelect').value = prof.previewView || 'teacher';
+          $('viewSelect').addEventListener('change', e => { location.search = e.target.value === 'teacher' ? '' : `?preview&view=${e.target.value}`; });
+          const btnSample = $('btnSampleData');
+          btnSample.hidden = false;
+          btnSample.addEventListener('click', () => {
+            fillSampleData({ force: true, plotAll: true });
+            App.state.parts.pulley.done = true; App.state.parts.pulley.far = PULLEY_PAGES.length;
+            App.state.parts.ramp.done = true; App.state.parts.ramp.far = RAMP_PAGES.length;
+            App.state.current = 'graph'; App.state.parts.graph.i = 7;
+            App.state.parts.graph.far = Math.max(App.state.parts.graph.far || 0, 7);
+            enterPage(); save(); renderAll();
+          });
+        }
+        enterPage();
+        renderAll();
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        window.labAuth = new LabAuth(({ state, cloud, profile }) => startApp(state, cloud, profile));
+        window.PulleyRampLab = { App, debug: () => ({ App, desmos, registerTap, triggerAuto }) };
+      });
+    })();
+  </script>
+</body>
 </html>
