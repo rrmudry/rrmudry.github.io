@@ -91,6 +91,33 @@
       if (desmos && desmos.updateSettings) desmos.updateSettings({ invertedColors: false });
       show();
     });
+    // Full screen: recommend on start via banner whenever not full screen, plus a header toggle.
+    const isFull = () => !!document.fullscreenElement || (window.innerHeight >= screen.height - 2);
+    const goFull = () => {
+      const el = document.documentElement;
+      if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+    };
+    let fsDismissed = false;
+    const fsPaint = () => {
+      const banner = $('fsBanner'), btn = $('btnFull');
+      if (banner) banner.hidden = fsDismissed || isFull();
+      if (btn) {
+        const active = !!document.fullscreenElement;
+        btn.textContent = active ? '⛶ Exit full screen' : '⛶ Full screen';
+        btn.classList.toggle('btn-on', active);
+      }
+      if (window.smpFit) window.smpFit();
+      if (desmos && desmos.resize) requestAnimationFrame(() => desmos.resize());
+    };
+    $('btnFull').addEventListener('click', () => {
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      else goFull();
+    });
+    $('btnFsBanner').addEventListener('click', goFull);
+    $('btnFsClose').addEventListener('click', () => { fsDismissed = true; fsPaint(); });
+    document.addEventListener('fullscreenchange', fsPaint);
+    window.addEventListener('resize', fsPaint);
+    fsPaint();
     show();
   }
 

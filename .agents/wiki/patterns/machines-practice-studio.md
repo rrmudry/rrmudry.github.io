@@ -1,7 +1,7 @@
 # Work & Simple Machines Practice Studio (Unit 3, Day 4)
 
 > **Tags**: `work`, `simple-machines`, `pulley`, `ramp`, `mechanical-advantage`, `friction`, `guess-method`, `scaffolding`, `differentiation`, `desmos`, `firestore`, `monitor`, `inline-build`
-> **Last Updated**: 2026-11-18
+> **Last Updated**: 2026-11-19
 
 Code: `Unit_3/machines_practice/` (edit `src.html`, `js/`, `css/`; `index.html` is built via `node scripts/inline-studio.js Unit_3/machines_practice`). Monitor at `admin/machines_practice_monitor.html` (built from `admin/machines_practice_monitor.src.html`), tests in `tests/machinesPractice.test.js`.
 Assignment ID: `unit3_day4_machines_practice`. Built on the `work_studio` framework (Desmos checking, step-by-step credit, certificate, teacher monitor) adapted for interactive **GUESS-method** problem solving.
@@ -24,7 +24,8 @@ Assignment ID: `unit3_day4_machines_practice`. Built on the `work_studio` framew
 - **Live 5-cell GUESS Strip (`#guessBoard`):** sits directly under the SVG scene showing `G | U | E | S | S` progress in real time (`now` / `done`) without cluttering the task card.
 - **Zero-Cold-Equation Scaffolding:** every GUESS setup (`setup_w`, `setup_f`, `setup_d`, `setup_ma`) and calculation step with new symbols (`MA`, `F_out`, `F_in`, `W_in`, `W_out`, `W_f`) pairs plain-English symbol decoder pills (`.sym-key`) with a concept anchor box (`.teach-box`), a highlighted formula triangle (`Scene.triangleSVG(cover)` / `Scene.maTriangleSVG(cover)` with the unknown vertex circled), or a proportional energy-split bar (`Scene.frictionBarHTML`), plus 2 progressive hints on both Stage A and Stage B and number-specific wrong-equation explanations (`explainWrongEq`).
 - **Taller Desmos Expression Display (`#calcPanel`):** Moves `📥 Use calculator answer` into the top-right corner of `.calc-head` globally (`grid-template: auto minmax(0, 1fr) auto / minmax(0, 1fr) auto`), widens `#calcPanel` to `min(29rem, calc(41vw - 1.5rem))`, sets `--calc-height: clamp(22.5rem, calc(100vh - 23.5rem), 36rem)` (`20.6rem` in `html.short`), uses Desmos medium default font size, and runs `requestAnimationFrame(() => desmos.resize())` so typed expressions and stacked fractions never clip (`148 px` screen at `768 px` height, `86 px` at `650 px` height) while `.task-top` stays single-line clear of Desmos.
-- **Native `<dialog id="loginGate">`:** uses `showModal()`/`close()` with `overscroll-behavior: contain`, `display: flex` scoped strictly to `dialog.login-gate[open]`, and `cancel` prevention while sign-in is required.
+- **Native `<dialog id="loginGate">`:** uses `showModal()`/`close()` with `overscroll-behavior: contain`, `display: flex` scoped strictly to `dialog.login-gate[open]`, and `cancel` prevention while sign-in is required. Includes a full-screen recommendation tip right in `.gate-grading`.
+- **Full-screen recommendation on start (`#fsBanner` + `#btnFull`):** mirrors `Unit_3/tradeoff_lab` with a dismissible top recommendation banner (`Go full screen` button + Chromebook `⛶` key hint) whenever the studio starts outside full screen, plus a persistent header toggle (`#btnFull`) that re-runs `window.smpFit()` and `desmos.resize()` on `fullscreenchange`/`resize`.
 - **Theme + `<meta name="color-scheme">` sync:** `:root` maps `color-scheme` via `:has(> head > meta[name="color-scheme"][content="dark"|"light"])` alongside `#btn-theme-toggle` and `#btn-projector-mode`.
 - **SVG label spacing pitfall:** on pulley diagrams, `F` sits next to the angled pull arrow (`x=426, y=152`) while the vertical rope-distance `dim()` line sits at `x=556` so `F` and `d` plates never overlap.
 

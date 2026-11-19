@@ -3,6 +3,12 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-19 — Work & Simple Machines Practice (`Unit_3/machines_practice`) Full-Screen Recommendation
+**Patterns Updated**: `machines-practice-studio.md`.
+**Files Updated**: `Unit_3/machines_practice/src.html`, `Unit_3/machines_practice/css/style.css`, `Unit_3/machines_practice/js/app.js`, `Unit_3/machines_practice/index.html` (via `scripts/inline-studio.js`).
+**Notes**:
+- Added a full-screen recommendation tip on the sign-in gate (`<dialog id="loginGate">`), a dismissible high-contrast top banner (`#fsBanner`) shown upon starting whenever the app is not in full screen (with one-click `Go full screen` button and Chromebook `⛶` key hint), and a persistent `#btnFull` header toggle that automatically triggers `smpFit()` and `desmos.resize()`.
+
 ## 2026-11-18 — Pulleys and Ramps Lab (`Unit_3/tradeoff_lab`) Tapping & Green Zone Tuning
 **Patterns Updated**: `tradeoff-lab.md`.
 **Files Updated**: `Unit_3/tradeoff_lab/js/app.js`, `Unit_3/tradeoff_lab/js/scene.js`, `Unit_3/tradeoff_lab/index.html` (via `scripts/inline-studio.js`).
