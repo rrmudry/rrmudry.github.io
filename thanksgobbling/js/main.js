@@ -17,7 +17,7 @@ const MUZZLE_DROP = 3;
 
 // ---------- settings ----------
 const loadJSON = k => { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch (e) { return {}; } };
-const settings = Object.assign({ sound: true, music: true, quality: 'high', computer: true, invert: false }, loadJSON('tg_settings'));
+const settings = Object.assign({ sound: true, music: true, quality: 'high', computer: true, invert: false, sens: 1 }, loadJSON('tg_settings'));
 const saveSettings = () => { try { localStorage.setItem('tg_settings', JSON.stringify(settings)); } catch (e) { } };
 let best = 0; try { best = +localStorage.getItem('tg_best') || 0; } catch (e) { }
 let TOUCH = matchMedia('(pointer: coarse)').matches;
@@ -169,7 +169,8 @@ for (let i = 0; i < 4; i++) {
 let state = 'loading';     // title | playing | paused | upgrade | over
 let time = 0, planeAng = 0;
 const planePos = new THREE.Vector3(), planeVel = new THREE.Vector3();
-const aim = new THREE.Vector3();
+const aim = new THREE.Vector3();      // where the crosshair is now (eases toward aimGoal)
+const aimGoal = new THREE.Vector3();  // where the mouse has asked it to go
 const camPos = new THREE.Vector3();
 let shake = 0;
 let turkeys = [], neighbors = [], projectiles = [], decals = [], popups = [];
@@ -190,7 +191,7 @@ function resetGame() {
   score = 0; wave = 0; feast = 100; drainMul = 1; picked = {};
   stats = { shots: 0, hits: 0, sauced: 0, delivered: 0, oops: 0, toms: 0, bestMulti: 0 };
   spawnQueue = []; waveActive = false; feastWarned = false; gobbleTimer = 2; munchTimer = 0;
-  aim.set(0, 0, 0);
+  aim.set(0, 0, 0); aimGoal.set(0, 0, 0);
   setDishes();
   buildWeaponHud();
 }
@@ -209,17 +210,23 @@ function updatePlane(dt) {
 }
 
 function rotateAim(dx, dy) {
-  const dir = _p.copy(aim).sub(camPos).normalize();
+  const dir = _p.copy(aimGoal).sub(camPos).normalize();
   let yaw = Math.atan2(dir.x, dir.z), pitch = Math.asin(clamp(dir.y, -1, 1));
   yaw -= dx; pitch -= settings.invert ? -dy : dy;
   pitch = clamp(pitch, -1.5, -0.2);
   const nd = new THREE.Vector3(Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), Math.cos(yaw) * Math.cos(pitch));
-  aim.copy(camPos).addScaledVector(nd, -camPos.y / nd.y);
-  aim.y = 0;
-  const r = Math.hypot(aim.x, aim.z);
-  if (r > W.AIM_R) aim.multiplyScalar(W.AIM_R / r);
+  aimGoal.copy(camPos).addScaledVector(nd, -camPos.y / nd.y);
+  aimGoal.y = 0;
+  const r = Math.hypot(aimGoal.x, aimGoal.z);
+  if (r > W.AIM_R) aimGoal.multiplyScalar(W.AIM_R / r);
 }
-const lookSens = () => 0.0021 * (camera.fov / 50);
+// Radians per pixel. Narrower zoom turns slower so the crosshair moves about the same distance on screen.
+const SENS = [0.6, 1, 1.5], SENS_NAMES = ['Slow', 'Normal', 'Fast'];
+const lookSens = () => 0.0012 * settings.sens * (camera.fov / 50);
+const capPx = v => clamp(v, -120, 120); // pointer lock sometimes reports a huge jump; ignore spikes
+function smoothAim(dt) {
+  aim.lerp(aimGoal, 1 - Math.exp(-14 * dt)); // eases in about 0.15 s
+}
 
 // ---------- ballistics ----------
 // Launch velocity (relative to the air) that lands at target: p(t) = p0 + v t + ½ g t², with |v − v_plane| = muzzle speed.
@@ -828,6 +835,7 @@ function renderSettings() {
     ['music', () => `Music: ${settings.music ? 'On' : 'Off'}`, () => { settings.music = !settings.music; sfx.setMusic(settings.music); }],
     ['computer', () => `Ballistic computer: ${settings.computer ? 'On' : 'Off (hard)'}`, () => { settings.computer = !settings.computer; }],
     ['quality', () => `Graphics: ${settings.quality === 'high' ? 'Fancy' : 'Fast'}`, () => { settings.quality = settings.quality === 'high' ? 'low' : 'high'; applyQuality(); }],
+    ['sens', () => `Aim speed: ${SENS_NAMES[Math.max(0, SENS.indexOf(settings.sens))] || 'Normal'}`, () => { settings.sens = SENS[(SENS.indexOf(settings.sens) + 1) % SENS.length]; }],
     ['invert', () => `Invert look: ${settings.invert ? 'On' : 'Off'}`, () => { settings.invert = !settings.invert; }],
   ];
   for (const host of [$('settingsTitle'), $('settingsPause')]) {
@@ -872,7 +880,7 @@ canvas.addEventListener('mousedown', e => {
 addEventListener('mouseup', e => { if (e.button === 0) fireHeld = false; });
 addEventListener('mousemove', e => {
   if (state !== 'playing' || performance.now() - lastTouch < 1000) return;
-  if (document.pointerLockElement || e.buttons) rotateAim(e.movementX * lookSens(), e.movementY * lookSens());
+  if (document.pointerLockElement || e.buttons) rotateAim(capPx(e.movementX) * lookSens(), capPx(e.movementY) * lookSens());
 });
 addEventListener('wheel', e => { if (state === 'playing') selectWeapon(wi + (e.deltaY > 0 ? 1 : -1)); }, { passive: true });
 addEventListener('keydown', e => {
@@ -904,7 +912,7 @@ canvas.addEventListener('pointerdown', e => {
 });
 addEventListener('pointermove', e => {
   if (e.pointerId !== dragId) return;
-  const s = 0.0042 * (camera.fov / 50);
+  const s = 0.0026 * settings.sens * (camera.fov / 50);
   rotateAim((e.clientX - dragX) * s, (e.clientY - dragY) * s);
   dragX = e.clientX; dragY = e.clientY;
 });
@@ -963,10 +971,11 @@ function frame(now) {
     if (running) {
       perf.tick(rdt);
       // keyboard look
-      const ks = 1.6 * dt * (camera.fov / 50);
+      const ks = 1.0 * settings.sens * dt * (camera.fov / 50);
       const kx = (keys.KeyD || keys.ArrowRight ? 1 : 0) - (keys.KeyA || keys.ArrowLeft ? 1 : 0);
       const ky = (keys.KeyS || keys.ArrowDown ? 1 : 0) - (keys.KeyW || keys.ArrowUp ? 1 : 0);
       if (kx || ky) rotateAim(kx * ks, ky * ks);
+      smoothAim(rdt);
       updateWeapons(dt);
       updateProjectiles(dt);
       const eating = updateTurkeys(dt);
@@ -1015,8 +1024,8 @@ requestAnimationFrame(frame);
 window.TG = {
   get state() { return state; }, get turkeys() { return turkeys; }, get neighbors() { return neighbors; }, get projectiles() { return projectiles; },
   get feast() { return feast; }, set feast(v) { feast = v; }, get score() { return score; }, get wave() { return wave; }, get stats() { return stats; },
-  aim, camPos, planeVel, startGame, pause, resume, selectWeapon, tryFire, solveLaunch, settings,
-  fireAt(x, z) { aim.set(x, 0, z); cur().cool = 0; cur().reloading = 0; if (cur().ammo <= 0) cur().ammo = cur().mag; switching = 0; tryFire(); },
+  aim, aimGoal, camPos, planeVel, startGame, pause, resume, selectWeapon, tryFire, solveLaunch, settings,
+  fireAt(x, z) { aim.set(x, 0, z); aimGoal.set(x, 0, z); cur().cool = 0; cur().reloading = 0; if (cur().ammo <= 0) cur().ammo = cur().mag; switching = 0; tryFire(); },
   clearWave() { spawnQueue = []; for (const t of turkeys) t.dead = true; },
   spawn(type = 'turkey', lane = 0, s = 0) { spawnTurkey(type, lane, s); }, spawnNeighbor,
 };

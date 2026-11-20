@@ -15,6 +15,8 @@ Students fly in the *Gravy Boat*, a cargo plane circling the town at 115 m altit
 
 ## Controls
 The gimbal is locked to a ground point (`aim`) and the camera always looks at it, so the view stays steady as the plane orbits.
+- Input moves `aimGoal`, and the crosshair (`aim`) eases toward it (rate 14/s, settles in about 0.15 s at 60 fps). The teacher found the first, direct mouse mapping too fast and jumpy.
+- Base speed is 0.0012 rad/px, scaled by field of view and the Aim speed setting (Slow 0.6 / Normal 1 / Fast 1.5, `settings.sens`). Each pointer-lock event is capped at 120 px to ignore spikes.
 - Desktop: pointer lock. Mouse to look, left click to fire, right click or Z to zoom, 1/2/3 or the wheel to switch food, R to reload, WASD to look with keys.
 - Touch: drag to look, FIRE and ZOOM buttons. These appear on the first touch, so they also work on touchscreen Chromebooks.
 
