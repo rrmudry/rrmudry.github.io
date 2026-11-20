@@ -3,7 +3,7 @@
 > `thanksgobbling/` is a seasonal 3D game linked from `games.html`. It is not a graded studio, so it has no saving, classes or Firestore.
 
 ## Concept
-Students fly in the *Gravy Boat*, a cargo plane circling the town at 115 m altitude, 135 m radius and 22 m/s. Turkeys walk in from the woods toward the feast hall, and the student drops cranberries (rapid fire), sweet potatoes (5 per load) or pumpkin pie (single shot, huge splat) on them. Turkeys at the tables drain the feast meter. Neighbors with blue rings carry pies to the hall, and splatting one costs points. After each wave the student picks one of three kitchen upgrades.
+Students fly in the *Gravy Boat*, a cargo plane circling the town at 115 m altitude, 135 m radius. Orbit speed is a setting: Calm 8 m/s (default, one lap every 106 s), Normal 14 m/s, or Fast 22 m/s. The teacher found 22 m/s dizzying because the ground-locked view spins the town 9° per second. There is no camera bob. Turkeys walk in from the woods toward the feast hall, and the student drops cranberries (rapid fire), sweet potatoes (5 per load) or pumpkin pie (single shot, huge splat) on them. Turkeys at the tables drain the feast meter. Neighbors with blue rings carry pies to the hall, and splatting one costs points. After each wave the student picks one of three kitchen upgrades.
 
 ## Physics (class conventions)
 - g = 10 m/s², 1 unit = 1 m.

@@ -10,14 +10,17 @@ const rand = Math.random;
 // ---------- physics constants (1 unit = 1 m) ----------
 const G = 10;                                   // class convention: g = 10 m/s²
 const GRAV = new THREE.Vector3(0, -G, 0);
-const ORBIT_R = 135, ORBIT_H = 115, PLANE_V = 22;
-const OMEGA = PLANE_V / ORBIT_R;
-const BANK = Math.atan(PLANE_V * PLANE_V / (G * ORBIT_R)); // tan(bank) = v²/(g r)
+const ORBIT_R = 135, ORBIT_H = 115;
+// Orbit speed is a setting: a fast orbit spins the whole town on screen, which makes some players dizzy.
+const ORBITS = [8, 14, 22], ORBIT_NAMES = ['Calm', 'Normal', 'Fast'];
+const planeV = () => (ORBITS.includes(settings.orbit) ? settings.orbit : ORBITS[0]);
+const omega = () => planeV() / ORBIT_R;
+const bank = () => Math.atan(planeV() * planeV() / (G * ORBIT_R)); // tan(bank) = v²/(g r)
 const MUZZLE_DROP = 3;
 
 // ---------- settings ----------
 const loadJSON = k => { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch (e) { return {}; } };
-const settings = Object.assign({ sound: true, music: true, quality: 'high', computer: true, invert: false, sens: 1 }, loadJSON('tg_settings'));
+const settings = Object.assign({ sound: true, music: true, quality: 'high', computer: true, invert: false, sens: 1, orbit: 8 }, loadJSON('tg_settings'));
 const saveSettings = () => { try { localStorage.setItem('tg_settings', JSON.stringify(settings)); } catch (e) { } };
 let best = 0; try { best = +localStorage.getItem('tg_best') || 0; } catch (e) { }
 let TOUCH = matchMedia('(pointer: coarse)').matches;
@@ -198,6 +201,7 @@ function resetGame() {
 
 // ---------- plane & gimbal ----------
 function updatePlane(dt) {
+  const OMEGA = omega();
   planeAng += OMEGA * dt;
   const c = Math.cos(planeAng), s = Math.sin(planeAng);
   planePos.set(ORBIT_R * c, ORBIT_H, ORBIT_R * s);
@@ -206,7 +210,7 @@ function updatePlane(dt) {
   p.position.copy(planePos).add(_p.set(0, 7, 0));
   p.rotation.set(0, 0, 0);
   p.rotation.y = Math.atan2(planeVel.x, planeVel.z);
-  p.rotateZ(-BANK); // banked into the turn, left wing toward the town
+  p.rotateZ(-bank()); // banked into the turn, left wing toward the town
 }
 
 function rotateAim(dx, dy) {
@@ -756,7 +760,7 @@ function updateHud(dt) {
   if (readoutTimer <= 0) {
     readoutTimer = 0.15;
     const sol = solveLaunch(muzzle(), aim, w.speed);
-    $('readout').innerHTML = `GRAVY BOAT   ALT <b>${ORBIT_H} m</b>  SPD <b>${PLANE_V} m/s</b>  BANK <b>${THREE.MathUtils.radToDeg(BANK).toFixed(0)}°</b>\n` +
+    $('readout').innerHTML = `GRAVY BOAT   ALT <b>${ORBIT_H} m</b>  SPD <b>${planeV()} m/s</b>  BANK <b>${THREE.MathUtils.radToDeg(bank()).toFixed(0)}°</b>\n` +
       `RANGE <b>${dist.toFixed(0)} m</b>  LAUNCH <b>${w.speed} m/s</b>  FALL TIME <b>${sol.t.toFixed(1)} s</b>\n` +
       `A turkey walks about <b>${(3 * sol.t).toFixed(0)} m</b> before your ${w.id === 'pie' ? 'pie' : w.id === 'yam' ? 'potato' : 'berry'} lands\n` +
       `<span id="computer" class="${settings.computer ? '' : 'off'}">BALLISTIC COMPUTER ${settings.computer ? 'ON' : 'OFF'}</span>   ZOOM ${zoom ? '2×' : '1×'}   g = 10 m/s²`;
@@ -835,6 +839,7 @@ function renderSettings() {
     ['music', () => `Music: ${settings.music ? 'On' : 'Off'}`, () => { settings.music = !settings.music; sfx.setMusic(settings.music); }],
     ['computer', () => `Ballistic computer: ${settings.computer ? 'On' : 'Off (hard)'}`, () => { settings.computer = !settings.computer; }],
     ['quality', () => `Graphics: ${settings.quality === 'high' ? 'Fancy' : 'Fast'}`, () => { settings.quality = settings.quality === 'high' ? 'low' : 'high'; applyQuality(); }],
+    ['orbit', () => `Orbit speed: ${ORBIT_NAMES[Math.max(0, ORBITS.indexOf(planeV()))]}`, () => { settings.orbit = ORBITS[(ORBITS.indexOf(planeV()) + 1) % ORBITS.length]; }],
     ['sens', () => `Aim speed: ${SENS_NAMES[Math.max(0, SENS.indexOf(settings.sens))] || 'Normal'}`, () => { settings.sens = SENS[(SENS.indexOf(settings.sens) + 1) % SENS.length]; }],
     ['invert', () => `Invert look: ${settings.invert ? 'On' : 'Off'}`, () => { settings.invert = !settings.invert; }],
   ];
@@ -994,7 +999,6 @@ function frame(now) {
     // camera: sits in the gun port, looks at the locked ground point
     const sh = shake * (matchMedia('(prefers-reduced-motion: reduce)').matches ? 0.3 : 1);
     camera.position.copy(camPos).add(_p.set((rand() - 0.5) * sh, (rand() - 0.5) * sh, (rand() - 0.5) * sh));
-    camera.position.y += Math.sin(time * 0.7) * 0.4;
     camera.lookAt(aim);
     shake *= Math.exp(-7 * rdt);
     const targetFov = cur().fov[zoom];
