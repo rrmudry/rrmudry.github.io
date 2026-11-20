@@ -36,9 +36,9 @@ let weapons, wi = 0, zoom = 0, switching = 0;
 
 // ---------- turkeys ----------
 const TT = {
-  turkey: { hp: 1, speed: 3.0, scale: 1.5, pts: 100, tint: new THREE.Color('#ffffff'), drain: 1.6 },
-  runner: { hp: 1, speed: 6.2, scale: 1.25, pts: 150, tint: new THREE.Color('#f5dcb4'), drain: 1.2 },
-  tom: { hp: 7, speed: 1.9, scale: 2.4, pts: 400, tint: new THREE.Color('#a08070'), drain: 4.0 },
+  turkey: { hp: 1, speed: 3.6, scale: 1.5, pts: 100, tint: new THREE.Color('#ffffff'), drain: 1.6 },
+  runner: { hp: 1, speed: 7.0, scale: 1.25, pts: 150, tint: new THREE.Color('#f5dcb4'), drain: 1.2 },
+  tom: { hp: 7, speed: 2.3, scale: 2.4, pts: 400, tint: new THREE.Color('#a08070'), drain: 4.0 },
 };
 const RED = new THREE.Color('#ff3030');
 
@@ -319,7 +319,7 @@ function updateProjectiles(dt) {
         const f = p.prev.y / (p.prev.y - p.pos.y);
         const hitP = p.prev.clone().lerp(p.pos, f); hitP.y = 0;
         impact(hitP, p.w); p.hit = true;
-      } else if (p.pos.y < 15) {
+      } else if (p.pos.y < 35) {
         const b = world.hitBuilding(p.pos);
         if (b) { impact(p.pos.clone(), p.w, b); p.hit = true; }
       }
@@ -403,6 +403,7 @@ function killTurkey(k) {
 
 function oops(n) {
   n.state = 'flee'; n.t = 0;
+  n.path = [new THREE.Vector2(n.px, n.pz), ...n.path.slice(0, n.seg + 1).reverse()]; n.seg = 0;
   hideRing(n.idx);
   stats.oops++;
   score = Math.max(0, score - 250);
@@ -413,7 +414,7 @@ function oops(n) {
 function addDecal(p, r, hex, life) {
   if (decals.length >= 240) { const old = decals.shift(); decalPool.give(old.idx); }
   const idx = decalPool.take(); if (idx < 0) return;
-  const d = { idx, x: p.x, z: p.z, r, life, max: life, rot: rand() * 6.28, y: 0.06 + (idx % 40) * 0.003 };
+  const d = { idx, x: p.x, z: p.z, r, life, max: life, rot: rand() * 6.28, y: 0.14 + (idx % 40) * 0.003 };
   decals.push(d);
   decalPool.mesh.setColorAt(idx, _c.set(hex));
   decalPool.mesh.instanceColor.needsUpdate = true;
@@ -444,15 +445,30 @@ function updateShocks(dt) {
 }
 
 // ---------- turkeys & neighbors ----------
-function spawnTurkey(type, lane, sOff = 0) {
+// Walk an entity along its waypoint path. Returns true once it reaches the last point.
+function walkPath(o, dist) {
+  while (dist > 0 && o.seg < o.path.length - 1) {
+    const t = o.path[o.seg + 1], dx = t.x - o.px, dz = t.y - o.pz, d = Math.hypot(dx, dz);
+    if (d < 1e-6) { o.seg++; continue; }
+    o.hx = dx / d; o.hz = dz / d;
+    if (d <= dist) { o.px = t.x; o.pz = t.y; o.seg++; dist -= d; }
+    else { o.px += o.hx * dist; o.pz += o.hz * dist; dist = 0; }
+  }
+  return o.seg >= o.path.length - 1;
+}
+const turnToward = (cur, target, k) => cur + Math.atan2(Math.sin(target - cur), Math.cos(target - cur)) * Math.min(1, k);
+
+function spawnTurkey(type, entry, back = 0, startSeg = 0) {
   const idx = tPool.take(); if (idx < 0) return;
   const T = TT[type];
-  const L = world.lanes[lane];
+  const path = world.turkeyPath(entry, rand);
+  const a = path[startSeg], b = path[startSeg + 1], d = a.distanceTo(b) || 1;
+  const hx = (b.x - a.x) / d, hz = (b.y - a.y) / d;
   const speedUp = 1 + Math.min(0.45, (wave - 1) * 0.045);
   turkeys.push({
-    type, T, idx, hp: T.hp, ang: L.ang, lat0: (rand() * 2 - 1) * L.latMax, s: W.SPAWN_R + sOff,
+    type, T, idx, hp: T.hp, path, seg: startSeg, px: a.x - hx * back, pz: a.y - hz * back, hx, hz, yaw: Math.atan2(hx, hz),
     speed: T.speed * speedUp * (0.9 + rand() * 0.2), phase: rand() * 10, state: 'walk', peckT: 0, flash: 0,
-    pos: new THREE.Vector3(), yaw: 0, feastS: W.FEAST_R + rand() * 3.5, zig: type === 'runner' ? 2.6 : 0.5, dead: false,
+    pos: new THREE.Vector3(), sway: type === 'runner' ? 1.3 : 0.35, dead: false,
   });
   tPool.mesh.setColorAt(idx, T.tint);
   tPool.mesh.instanceColor.needsUpdate = true;
@@ -464,9 +480,8 @@ function updateTurkeys(dt, demo) {
     if (k.dead) continue;
     if (k.state === 'walk') {
       if (k.type !== 'runner' && rand() < dt * 0.12) { k.state = 'peck'; k.peckT = 0.6 + rand() * 0.9; }
-      k.s -= k.speed * dt;
-      if (k.s <= k.feastS) {
-        k.s = k.feastS; k.state = 'feast';
+      if (walkPath(k, k.speed * dt)) {
+        k.state = 'feast';
         if (demo) { k.dead = true; continue; }
         sfx.gobble(0.9 + rand() * 0.2, 0.14);
         if (!feastWarned) { feastWarned = true; showHint('Turkeys are eating the feast! Splat them fast!', 3); }
@@ -477,11 +492,13 @@ function updateTurkeys(dt, demo) {
       feasting++;
       feast -= k.T.drain * drainMul * dt;
     }
-    const wob = k.state === 'walk' ? 1 : 0.15;
-    const lat = k.lat0 + Math.sin(time * (k.type === 'runner' ? 2.2 : 0.7) + k.phase) * k.zig * wob;
-    const ca = Math.cos(k.ang), sa = Math.sin(k.ang);
-    k.pos.set(ca * k.s - sa * lat, 0, sa * k.s + ca * lat);
-    k.yaw = Math.atan2(-ca, -sa) + Math.cos(time * (k.type === 'runner' ? 2.2 : 0.7) + k.phase) * 0.35 * wob * (k.type === 'runner' ? 1.5 : 0.6);
+    // a little side-to-side sway (runners zigzag), and turn smoothly at corners
+    const wob = k.state === 'walk' ? 1 : 0;
+    const f = k.type === 'runner' ? 2.2 : 0.9;
+    const off = Math.sin(time * f + k.phase) * k.sway * wob;
+    k.pos.set(k.px + k.hz * off, 0, k.pz - k.hx * off);
+    const want = k.state === 'feast' ? Math.atan2(-k.px, -k.pz) : Math.atan2(k.hx, k.hz) + Math.cos(time * f + k.phase) * 0.3 * wob;
+    k.yaw = turnToward(k.yaw, want, dt * 6);
     const moving = k.state === 'walk';
     const ph = time * k.speed * 2.4 + k.phase;
     const bob = moving ? Math.abs(Math.sin(ph)) * 0.16 : 0;
@@ -505,7 +522,8 @@ function updateTurkeys(dt, demo) {
 function spawnNeighbor() {
   const idx = nPool.take(); if (idx < 0) return;
   const h = world.houses[(rand() * world.houses.length) | 0];
-  neighbors.push({ idx, ang: h.roadAng, s: h.s, lat: h.side * 2.6, speed: 2.0 + rand() * 0.6, state: 'walk', t: 0, phase: rand() * 10, pos: new THREE.Vector3() });
+  const path = world.neighborPath(h, rand);
+  neighbors.push({ idx, path, seg: 0, px: path[0].x, pz: path[0].y, hx: 0, hz: 1, yaw: 0, speed: 2.0 + rand() * 0.6, state: 'walk', t: 0, phase: rand() * 10, pos: new THREE.Vector3() });
   nPool.mesh.setColorAt(idx, _c.setHSL(rand(), 0.15, 0.95));
   nPool.mesh.instanceColor.needsUpdate = true;
 }
@@ -513,21 +531,17 @@ function updateNeighbors(dt) {
   for (const n of neighbors) {
     n.t += dt;
     if (n.state === 'walk') {
-      n.s -= n.speed * dt;
-      if (n.s <= W.DELIVER_R) {
+      if (walkPath(n, n.speed * dt)) {
         n.state = 'done'; stats.delivered++; score += 75;
         popup(n.pos.clone().setY(4), 'Pie delivered! +75'); sfx.deliver();
       }
     } else if (n.state === 'flee') {
-      n.s += 5.5 * dt;
-      if (n.t > 3.5) n.state = 'done';
+      if (walkPath(n, 5.5 * dt) || n.t > 4) n.state = 'done';
     }
-    const ca = Math.cos(n.ang), sa = Math.sin(n.ang);
-    n.pos.set(ca * n.s - sa * n.lat, 0, sa * n.s + ca * n.lat);
-    const dirSign = n.state === 'flee' ? 1 : -1;
-    const yaw = Math.atan2(ca * dirSign, sa * dirSign);
+    n.pos.set(n.px, 0, n.pz);
+    n.yaw = turnToward(n.yaw, Math.atan2(n.hx, n.hz), dt * 8);
     const ph = time * (n.state === 'flee' ? 14 : 8) + n.phase;
-    _q.setFromEuler(_e.set(0, yaw, Math.sin(ph) * 0.06, 'YXZ'));
+    _q.setFromEuler(_e.set(0, n.yaw, Math.sin(ph) * 0.06, 'YXZ'));
     _m.compose(_p.set(n.pos.x, Math.abs(Math.sin(ph)) * 0.1, n.pos.z), _q, _s.setScalar(1.25));
     nPool.mesh.setMatrixAt(n.idx, _m);
     if (n.state === 'walk') {
@@ -563,9 +577,9 @@ function updateWave(dt) {
   }
   spawnTimer -= dt;
   if (spawnTimer <= 0 && spawnQueue.length) {
-    const lane = (rand() * world.lanes.length) | 0;
+    const entry = (rand() * world.entries.length) | 0;
     const g = Math.min(spawnQueue.length, 1 + ((rand() * Math.min(4, 1 + wave / 2)) | 0));
-    for (let i = 0; i < g; i++) spawnTurkey(spawnQueue.pop(), lane, i * 2.8 + rand() * 1.5);
+    for (let i = 0; i < g; i++) spawnTurkey(spawnQueue.pop(), entry, i * 2.8 + rand() * 1.5);
     spawnTimer = Math.max(0.5, 1.6 - wave * 0.1) * g * (0.7 + rand() * 0.6);
   }
   if (neighborsLeft > 0) {
@@ -706,8 +720,17 @@ function drawRadar() {
   const fx = aim.x - camPos.x, fz = aim.z - camPos.z, fl = Math.hypot(fx, fz) || 1;
   const f = [fx / fl, fz / fl], rt = [-f[1], f[0]];
   const map = (x, z) => [c - (x * rt[0] + z * rt[1]) * k, c - (x * f[0] + z * f[1]) * k];
-  rctx.strokeStyle = 'rgba(160, 120, 80, 0.7)'; rctx.lineWidth = 6;
-  for (const a of world.roadAngles) { const [x1, y1] = map(Math.cos(a) * 20, Math.sin(a) * 20), [x2, y2] = map(Math.cos(a) * 195, Math.sin(a) * 195); rctx.beginPath(); rctx.moveTo(x1, y1); rctx.lineTo(x2, y2); rctx.stroke(); }
+  rctx.save();
+  rctx.beginPath(); rctx.arc(c, c, c - 4, 0, 6.283); rctx.clip();
+  rctx.strokeStyle = 'rgba(170, 135, 95, 0.75)';
+  for (const r of world.roads) {
+    const [x1, y1] = map(r.x1, r.z1), [x2, y2] = map(r.x2, r.z2);
+    rctx.lineWidth = Math.max(2.5, r.w * k * 0.8);
+    rctx.beginPath(); rctx.moveTo(x1, y1); rctx.lineTo(x2, y2); rctx.stroke();
+  }
+  rctx.restore();
+  rctx.fillStyle = 'rgba(110, 143, 60, 0.9)';
+  { const pts = [[-20, -20], [20, -20], [20, 20], [-20, 20]].map(([x, z]) => map(x, z)); rctx.beginPath(); pts.forEach(([x, y], n) => n ? rctx.lineTo(x, y) : rctx.moveTo(x, y)); rctx.fill(); }
   rctx.fillStyle = '#f2b544'; rctx.beginPath(); rctx.arc(c, c, 10, 0, 6.283); rctx.fill();
   for (const t of turkeys) {
     const [x, y] = map(t.pos.x, t.pos.z);
@@ -762,7 +785,7 @@ function updateHud(dt) {
     const sol = solveLaunch(muzzle(), aim, w.speed);
     $('readout').innerHTML = `GRAVY BOAT   ALT <b>${ORBIT_H} m</b>  SPD <b>${planeV()} m/s</b>  BANK <b>${THREE.MathUtils.radToDeg(bank()).toFixed(0)}°</b>\n` +
       `RANGE <b>${dist.toFixed(0)} m</b>  LAUNCH <b>${w.speed} m/s</b>  FALL TIME <b>${sol.t.toFixed(1)} s</b>\n` +
-      `A turkey walks about <b>${(3 * sol.t).toFixed(0)} m</b> before your ${w.id === 'pie' ? 'pie' : w.id === 'yam' ? 'potato' : 'berry'} lands\n` +
+      `A turkey walks about <b>${(3.6 * sol.t).toFixed(0)} m</b> before your ${w.id === 'pie' ? 'pie' : w.id === 'yam' ? 'potato' : 'berry'} lands\n` +
       `<span id="computer" class="${settings.computer ? '' : 'off'}">BALLISTIC COMPUTER ${settings.computer ? 'ON' : 'OFF'}</span>   ZOOM ${zoom ? '2×' : '1×'}   g = 10 m/s²`;
   }
   if (reticleTimer > 0) { reticleTimer -= dt; if (reticleTimer <= 0) $('reticle').classList.remove('hit'); }
@@ -968,7 +991,7 @@ function frame(now) {
     if (camera.fov !== 45) { camera.fov = 45; camera.updateProjectionMatrix(); updateScale(); }
     setPlaneGhost(false);
     demoTimer -= dt;
-    if (demoTimer <= 0 && turkeys.length < 30) { spawnTurkey(rand() < 0.15 ? 'runner' : rand() < 0.1 ? 'tom' : 'turkey', (rand() * world.lanes.length) | 0, -40 - rand() * 60); demoTimer = 0.7; }
+    if (demoTimer <= 0 && turkeys.length < 30) { spawnTurkey(rand() < 0.15 ? 'runner' : rand() < 0.1 ? 'tom' : 'turkey', (rand() * world.entries.length) | 0, -rand() * 40, 1); demoTimer = 0.7; }
     updateTurkeys(dt, true);
   } else {
     setPlaneGhost(true);
@@ -1028,7 +1051,7 @@ requestAnimationFrame(frame);
 window.TG = {
   get state() { return state; }, get turkeys() { return turkeys; }, get neighbors() { return neighbors; }, get projectiles() { return projectiles; },
   get feast() { return feast; }, set feast(v) { feast = v; }, get score() { return score; }, get wave() { return wave; }, get stats() { return stats; },
-  aim, aimGoal, camPos, planeVel, startGame, pause, resume, selectWeapon, tryFire, solveLaunch, settings,
+  world, aim, aimGoal, camPos, planeVel, startGame, pause, resume, selectWeapon, tryFire, solveLaunch, settings,
   fireAt(x, z) { aim.set(x, 0, z); aimGoal.set(x, 0, z); cur().cool = 0; cur().reloading = 0; if (cur().ammo <= 0) cur().ammo = cur().mag; switching = 0; tryFire(); },
   clearWave() { spawnQueue = []; for (const t of turkeys) t.dead = true; },
   spawn(type = 'turkey', lane = 0, s = 0) { spawnTurkey(type, lane, s); }, spawnNeighbor,
