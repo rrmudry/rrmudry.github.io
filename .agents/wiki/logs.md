@@ -1926,3 +1926,6 @@ Append-only log tracking pattern changes across recent sessions.
 
 ## 2026-11-18 — Work & Simple Machines Practice posted
 - `unit3_day4_machines_practice` scheduled in all 7 periods for Thu 11/19 at each period's start (P0 8:30 … P6 2:45), due 6 PM. `npm run verify` green, then linked first on Unit 3 Day 4 in `assets/lessons-data.js` and `Unit_3/outline.md`.
+
+## 2026-11-19 — Thanksgobbling game
+- New seasonal 3D game `thanksgobbling/`: the Gravy Boat circles an autumn town while students splat turkeys with cranberries, sweet potatoes and pumpkin pie (g = 10 m/s², real launch ballistics). Linked first on `games.html`. Checked with puppeteer play-throughs (desktop and phone landscape).

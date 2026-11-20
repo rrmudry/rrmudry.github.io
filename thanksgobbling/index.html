@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Thanksgobbling • Defend the Feast</title>
+  <meta name="description" content="Circle the town in the Gravy Boat and splat runaway turkeys with cranberries, sweet potatoes and pumpkin pie before they eat the feast." />
+  <link rel="icon" type="image/png" href="../head.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Share+Tech+Mono&family=Nunito:wght@600;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cream: #fff4e0; --pumpkin: #e8761f; --cran: #b3122e; --gold: #f2b544; --brown: #3a2414;
+      --ink: rgba(255, 244, 224, 0.95); --hud: #ffe9c2; --hudDim: rgba(255, 233, 194, 0.55);
+      --panel: rgba(40, 22, 12, 0.72);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; overflow: hidden; background: #2c1a10; color: var(--cream); font-family: 'Nunito', system-ui, sans-serif; }
+    body { touch-action: none; user-select: none; -webkit-user-select: none; }
+    canvas#view { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+    [hidden] { display: none !important; }
+    #vignette { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, rgba(30, 12, 4, 0.55) 100%); }
+
+    /* ---------- HUD ---------- */
+    #hud { position: fixed; inset: 0; pointer-events: none; font-family: 'Share Tech Mono', monospace; color: var(--hud); text-shadow: 0 1px 2px #000, 0 0 6px rgba(0,0,0,0.6); }
+    #weapons { position: absolute; top: 14px; left: 14px; display: flex; flex-direction: column; gap: 6px; pointer-events: auto; }
+    .wslot { display: grid; grid-template-columns: 26px 1fr; gap: 0 8px; align-items: center; width: 230px; padding: 6px 10px; border: 2px solid transparent; border-radius: 8px; background: rgba(30, 16, 8, 0.45); color: var(--hudDim); font: inherit; text-align: left; cursor: pointer; text-shadow: inherit; }
+    .wslot.on { border-color: var(--gold); color: var(--hud); background: rgba(60, 30, 10, 0.7); }
+    .wslot .k { grid-row: span 2; font-size: 20px; text-align: center; }
+    .wslot .n { font-size: 15px; letter-spacing: 1px; }
+    .wslot .a { font-size: 12px; display: flex; align-items: center; gap: 6px; }
+    .wslot .bar { flex: 1; height: 6px; background: rgba(255,255,255,0.15); border-radius: 3px; overflow: hidden; }
+    .wslot .bar i { display: block; height: 100%; width: 100%; background: var(--gold); }
+    .wslot.reloading .bar i { background: #ff9a5a; }
+    #topc { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); text-align: center; }
+    #waveLbl { font-family: 'Lilita One', sans-serif; font-size: 26px; letter-spacing: 2px; color: var(--cream); }
+    #leftLbl { font-size: 14px; }
+    #scoreBox { position: absolute; top: 12px; right: 16px; text-align: right; }
+    #score { font-family: 'Lilita One', sans-serif; font-size: 34px; color: var(--cream); }
+    #best { font-size: 12px; color: var(--hudDim); }
+    #readout { position: absolute; left: 16px; bottom: 16px; font-size: 13px; line-height: 1.5; white-space: pre; }
+    #readout b { color: var(--cream); font-weight: normal; }
+    #computer { color: #9be38f; }
+    #computer.off { color: #ff9a5a; }
+    #feast { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); width: min(420px, 60vw); text-align: center; }
+    #feastLbl { font-family: 'Lilita One', sans-serif; font-size: 16px; letter-spacing: 2px; color: var(--cream); margin-bottom: 4px; }
+    #feastBar { height: 16px; border-radius: 9px; background: rgba(0,0,0,0.45); border: 2px solid rgba(255, 233, 194, 0.6); overflow: hidden; }
+    #feastFill { height: 100%; width: 100%; background: linear-gradient(90deg, #e8761f, #f2b544); transition: width 0.2s; }
+    #feast.danger #feastFill { background: linear-gradient(90deg, #b3122e, #e8761f); }
+    #feast.danger #feastLbl { color: #ffb3a0; animation: blink 0.6s infinite alternate; }
+    @keyframes blink { to { opacity: 0.35; } }
+    #radar { position: absolute; right: 14px; bottom: 14px; width: 170px; height: 170px; border-radius: 50%; }
+
+    #reticle { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+    #reticle svg { display: block; overflow: visible; }
+    #reticle.hit svg * { stroke: #ff6b5a !important; }
+    #ring { position: absolute; left: 50%; top: 50%; border: 2px dashed rgba(255, 233, 194, 0.65); border-radius: 50%; transform: translate(-50%, -50%); }
+    #pipper { position: absolute; width: 18px; height: 18px; margin: -9px 0 0 -9px; border: 3px solid #ff9a5a; transform: rotate(45deg); box-shadow: 0 0 6px #000; }
+    #pipper.edge { border-color: #ff5a3a; border-radius: 50%; animation: blink 0.4s infinite alternate; }
+    #switching { position: absolute; left: 50%; top: calc(50% + 60px); transform: translateX(-50%); font-size: 15px; letter-spacing: 2px; }
+    #popups { position: absolute; inset: 0; overflow: hidden; }
+    .pop { position: absolute; transform: translate(-50%, -100%); font-family: 'Lilita One', sans-serif; font-size: 20px; color: var(--cream); white-space: nowrap; }
+    .pop.bad { color: #7cc6ff; }
+    .pop.big { font-size: 30px; color: var(--gold); }
+    #banner { position: absolute; left: 0; right: 0; top: 24%; text-align: center; font-family: 'Lilita One', sans-serif; opacity: 0; transition: opacity 0.35s; }
+    #banner.show { opacity: 1; }
+    #banner .t { font-size: clamp(34px, 7vw, 64px); color: var(--cream); letter-spacing: 2px; text-shadow: 0 3px 0 var(--brown), 0 0 20px rgba(0,0,0,0.6); }
+    #banner .s { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: clamp(16px, 2.6vw, 22px); color: var(--gold); }
+    #hint { position: absolute; left: 50%; top: calc(50% + 90px); transform: translateX(-50%); font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 16px; padding: 6px 14px; border-radius: 20px; background: var(--panel); }
+    #pauseBtn { position: absolute; top: 64px; right: 16px; pointer-events: auto; width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--hudDim); background: var(--panel); color: var(--hud); font: 700 15px 'Nunito', sans-serif; cursor: pointer; }
+    #touch { position: absolute; inset: 0; pointer-events: none; }
+    #touch button { position: absolute; pointer-events: auto; border-radius: 50%; border: 3px solid rgba(255, 233, 194, 0.8); color: var(--cream); font: 22px 'Lilita One', sans-serif; letter-spacing: 1px; }
+    #tFire { right: 26px; bottom: 210px; width: 110px; height: 110px; background: rgba(179, 18, 46, 0.6); }
+    #tZoom { right: 150px; bottom: 230px; width: 70px; height: 70px; background: rgba(40, 22, 12, 0.6); font-size: 15px !important; }
+    #flash { position: fixed; inset: 0; pointer-events: none; background: #fff3d6; opacity: 0; }
+
+    /* ---------- screens ---------- */
+    .screen { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px; background: linear-gradient(180deg, rgba(30, 14, 6, 0.25), rgba(30, 14, 6, 0.65)); overflow-y: auto; }
+    .card { margin: auto; width: min(640px, 100%); background: rgba(46, 24, 12, 0.88); border: 3px solid rgba(242, 181, 68, 0.6); border-radius: 18px; padding: 22px 26px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+    h1.logo { margin: 0; font-family: 'Lilita One', sans-serif; font-weight: normal; font-size: clamp(44px, 10vw, 84px); line-height: 0.95; letter-spacing: 1px; color: var(--pumpkin); text-shadow: 0 4px 0 #7a2a0c, 0 8px 24px rgba(0,0,0,0.6); }
+    h1.logo span { color: var(--cran); text-shadow: 0 4px 0 #4a0710, 0 8px 24px rgba(0,0,0,0.6); }
+    .tag { margin: 6px 0 16px; font-size: 19px; font-weight: 800; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; }
+    h2 { font-family: 'Lilita One', sans-serif; font-weight: normal; font-size: 36px; margin: 0 0 10px; color: var(--cream); }
+    p { margin: 8px 0; line-height: 1.45; font-size: 17px; }
+    .btn { display: inline-block; margin: 6px; padding: 12px 26px; border: none; border-radius: 40px; font: 22px 'Lilita One', sans-serif; letter-spacing: 1px; cursor: pointer; color: #fff; background: linear-gradient(180deg, #f08a2c, #c85a10); box-shadow: 0 4px 0 #7a2a0c; text-decoration: none; }
+    .btn:hover { filter: brightness(1.08); }
+    .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #7a2a0c; }
+    .btn.alt { background: linear-gradient(180deg, #6b4a32, #4a3020); box-shadow: 0 4px 0 #24150b; font-size: 18px; padding: 10px 20px; }
+    .foods { display: flex; justify-content: center; gap: 10px; margin: 14px 0; flex-wrap: wrap; }
+    .food { flex: 1 1 150px; max-width: 180px; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.06); }
+    .food .e { font-size: 34px; }
+    .food b { display: block; font-size: 16px; }
+    .food small { display: block; color: #e9d3b0; font-size: 13px; line-height: 1.3; }
+    .controls { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; text-align: left; font-size: 15px; margin: 10px auto; max-width: 440px; }
+    .controls kbd { font-family: 'Share Tech Mono', monospace; background: rgba(255,255,255,0.12); padding: 1px 7px; border-radius: 5px; white-space: nowrap; }
+    .settings { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 12px; }
+    .tog { padding: 7px 12px; border-radius: 20px; border: 2px solid rgba(242, 181, 68, 0.5); background: transparent; color: var(--cream); font: 700 14px 'Nunito', sans-serif; cursor: pointer; }
+    .tog.on { background: rgba(242, 181, 68, 0.25); border-color: var(--gold); }
+    .bestline { color: #e9d3b0; font-size: 15px; }
+    .stats { display: grid; grid-template-columns: 1fr auto; gap: 4px 20px; max-width: 340px; margin: 10px auto; text-align: left; font-size: 17px; }
+    .stats b { text-align: right; color: var(--gold); }
+    .upgrades { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 14px 0 6px; }
+    .upg { flex: 1 1 160px; max-width: 190px; padding: 16px 12px; border-radius: 14px; border: 3px solid rgba(242, 181, 68, 0.45); background: rgba(255,255,255,0.06); color: var(--cream); cursor: pointer; font: inherit; }
+    .upg:hover, .upg:focus-visible { border-color: var(--gold); background: rgba(242, 181, 68, 0.15); outline: none; }
+    .upg .e { font-size: 38px; }
+    .upg b { display: block; font-family: 'Lilita One', sans-serif; font-weight: normal; font-size: 21px; margin: 4px 0; }
+    .upg small { font-size: 14px; color: #e9d3b0; }
+    .upg kbd { display: inline-block; margin-top: 8px; font-family: 'Share Tech Mono', monospace; background: rgba(255,255,255,0.12); padding: 1px 7px; border-radius: 5px; }
+    #back { position: fixed; top: 12px; left: 14px; color: var(--cream); font-weight: 800; text-decoration: none; background: var(--panel); padding: 6px 12px; border-radius: 20px; z-index: 5; }
+    #loading { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; font: 26px 'Lilita One', sans-serif; color: var(--gold); background: #2c1a10; z-index: 10; }
+    .physics { font-size: 14px; color: #e9d3b0; margin-top: 10px; }
+
+    @media (max-height: 520px) {
+      .wslot { width: 150px; padding: 3px 8px; grid-template-columns: 18px 1fr; }
+      .wslot .k { font-size: 15px; }
+      .wslot .n { font-size: 11px; }
+      #weapons { top: 6px; left: 6px; gap: 3px; }
+      #readout { display: none; }
+      #radar { width: 96px; height: 96px; right: 8px; bottom: 8px; }
+      #feast { bottom: 8px; width: 40vw; }
+      #feastLbl { font-size: 12px; }
+      #waveLbl { font-size: 18px; }
+      #score { font-size: 22px; }
+      #pauseBtn { top: 44px; right: 8px; width: 34px; height: 34px; }
+      #tFire { right: 16px; bottom: 116px; width: 92px; height: 92px; }
+      #tZoom { right: 120px; bottom: 128px; width: 60px; height: 60px; }
+      #banner { top: 16%; }
+      .card { padding: 14px 18px; }
+      h1.logo { font-size: 48px; }
+      .tag { margin: 2px 0 8px; font-size: 15px; }
+      p { font-size: 15px; margin: 5px 0; }
+      .food .e { font-size: 24px; }
+    }
+    @media (max-width: 760px) {
+      .wslot { width: 160px; padding: 4px 8px; }
+      .wslot .n { font-size: 12px; }
+      #weapons { top: 8px; left: 8px; gap: 4px; }
+      #waveLbl { font-size: 20px; }
+      #scoreBox { top: 8px; right: 10px; }
+      #score { font-size: 24px; }
+      #radar { width: 110px; height: 110px; right: 8px; bottom: 8px; }
+      #readout { display: none; }
+      #feast { bottom: 10px; width: 50vw; left: 40%; }
+      #pauseBtn { top: 50px; right: 10px; }
+      #tFire { bottom: 130px; right: 16px; width: 96px; height: 96px; }
+      #tZoom { bottom: 150px; right: 124px; }
+      #topc { top: 70px; }
+    }
+  </style>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <canvas id="view"></canvas>
+  <div id="vignette"></div>
+  <div id="flash"></div>
+
+  <div id="hud" hidden>
+    <div id="weapons"></div>
+    <div id="topc"><div id="waveLbl">WAVE 1</div><div id="leftLbl"></div></div>
+    <div id="scoreBox"><div id="score">0</div><div id="best"></div></div>
+    <div id="ring"></div>
+    <div id="reticle"></div>
+    <div id="pipper" hidden></div>
+    <div id="switching" hidden></div>
+    <div id="readout"></div>
+    <div id="feast"><div id="feastLbl">THE FEAST</div><div id="feastBar"><div id="feastFill"></div></div></div>
+    <canvas id="radar" width="340" height="340"></canvas>
+    <div id="popups"></div>
+    <div id="banner"><div class="t"></div><div class="s"></div></div>
+    <div id="hint" hidden></div>
+    <button id="pauseBtn" aria-label="Pause">II</button>
+    <div id="touch" hidden><button id="tFire">FIRE</button><button id="tZoom">ZOOM</button></div>
+  </div>
+
+  <a id="back" href="../games.html">← Games</a>
+
+  <section id="title" class="screen" hidden>
+    <div class="card">
+      <h1 class="logo">Thanks<span>gobbling</span></h1>
+      <div class="tag">Defend the Feast</div>
+      <p>The turkeys have figured out what Thursday is for, and they're marching on the town feast! Circle overhead in the <b>Gravy Boat</b> and drop dinner on them first.</p>
+      <div class="foods">
+        <div class="food"><div class="e">🍒</div><b>Cranberries</b><small>Hold to fire fast. Small splat.</small></div>
+        <div class="food"><div class="e">🍠</div><b>Sweet Potatoes</b><small>5 per load. Medium splat.</small></div>
+        <div class="food"><div class="e">🥧</div><b>Pumpkin Pie</b><small>One at a time. HUGE splat.</small></div>
+      </div>
+      <p>Don't splat the <b style="color:#7cc6ff">neighbors with blue rings</b>. They're bringing pies!</p>
+      <button class="btn" id="playBtn">Play</button>
+      <button class="btn alt" id="howBtn">How to play</button>
+      <div class="settings" id="settingsTitle"></div>
+      <p class="bestline" id="bestLine"></p>
+    </div>
+  </section>
+
+  <section id="how" class="screen" hidden>
+    <div class="card">
+      <h2>Gunner's Seat</h2>
+      <div class="controls" id="controlsList"></div>
+      <p class="physics">Your food leaves the plane with the <b>plane's speed</b> plus its launch speed, then falls with <b>g = 10 m/s²</b>. The ballistic computer aims for that. Turn it off to see where each shot really lands (orange diamond). Food takes time to fall, so aim a little ahead of a running turkey.</p>
+      <button class="btn" id="howBack">Got it</button>
+    </div>
+  </section>
+
+  <section id="pause" class="screen" hidden>
+    <div class="card">
+      <h2>Paused</h2>
+      <button class="btn" id="resumeBtn">Resume</button>
+      <button class="btn alt" id="restartBtn">Restart</button>
+      <button class="btn alt" id="quitBtn">Main menu</button>
+      <div class="settings" id="settingsPause"></div>
+    </div>
+  </section>
+
+  <section id="upgrade" class="screen" hidden>
+    <div class="card">
+      <h2 id="upTitle">Feast saved!</h2>
+      <p id="upSub"></p>
+      <p>Pick a kitchen upgrade:</p>
+      <div class="upgrades" id="upgList"></div>
+    </div>
+  </section>
+
+  <section id="over" class="screen" hidden>
+    <div class="card">
+      <h2 id="overTitle">The turkeys ate the feast!</h2>
+      <div class="stats" id="overStats"></div>
+      <p class="bestline" id="overBest"></p>
+      <button class="btn" id="againBtn">Play again</button>
+      <button class="btn alt" id="overMenuBtn">Main menu</button>
+    </div>
+  </section>
+
+  <div id="loading">Preheating the oven…</div>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
