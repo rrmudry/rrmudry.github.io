@@ -5,6 +5,12 @@
 ## Concept
 Students fly in the *Gravy Boat*, a cargo plane circling the town at 115 m altitude, 135 m radius. Orbit speed is a setting: Calm 8 m/s (default, one lap every 106 s), Normal 14 m/s, or Fast 22 m/s. The teacher found 22 m/s dizzying because the ground-locked view spins the town 9° per second. There is no camera bob. Turkeys walk in from the woods along the streets toward the feast hall on the town green, and the student drops cranberries (rapid fire), sweet potatoes (5 per load) or pumpkin pie (single shot, huge splat) on them. Turkeys at the tables drain the feast meter. Neighbors with blue rings carry pies to the hall, and splatting one costs points. After each wave the student picks one of three kitchen upgrades.
 
+## Paez (VIP neighbor)
+- Requested by the teacher. Paez wears an orange baseball cap and a white jersey with an orange stripe, and carries the big pie (`paezGeometry` in `world.js`). He has his own mesh, a pulsing gold ring, a floating "⭐ PAEZ" name tag (`#paezTag`), and a gold square on the radar.
+- One Paez per wave, 6–16 s after the wave starts (`paezTimer`). He walks a bit faster than other neighbors (2.4 m/s).
+- Delivering him to the feast earns +500 (`PAEZ_BONUS`). Splatting him costs 750 (`PAEZ_PENALTY`, score floors at 0), and he runs home. The game-over screen shows "Paez made it: X of Y".
+- Like the other humans, he is someone to protect, never a target.
+
 ## Town layout (Gobbleville)
 - Built on a street grid with lines at x, z = ±25, ±75 and ±125 (`GRID` in `world.js`). The middle square is the green, with the feast hall, its tables, and two diagonal footpaths.
 - **Downtown** is the 8 blocks around the square. Brick storefronts (2–3 floors, flat gravel roofs, awnings, lit shop windows) line the square's streets (±25). On the middle blocks the row facing the green runs full length; on corner blocks the east–west row does, and the other rows stop short at the corner. There are sidewalks, lamp posts, curbside cars and parking lots behind the shops. The church with its steeple faces the green from the north block.

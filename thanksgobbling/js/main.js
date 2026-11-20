@@ -96,6 +96,13 @@ const tPool = pool(W.turkeyGeometry(), new THREE.MeshStandardMaterial({ vertexCo
 const nPool = pool(W.neighborGeometry(), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.75 }), 24);
 const ringPool = pool(new THREE.RingGeometry(1.3, 1.85, 28).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#38bdf8', transparent: true, opacity: 0.9, depthWrite: false }), 24, false);
 const hideRing = i => ringPool.mesh.setMatrixAt(i, ZERO);
+// Paez, the VIP: one per wave, his own mesh, a gold ring and a name tag
+const PAEZ_BONUS = 500, PAEZ_PENALTY = 750;
+const paezMesh = new THREE.Mesh(W.paezGeometry(), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.7 }));
+paezMesh.castShadow = true; paezMesh.visible = false; scene.add(paezMesh);
+const paezRing = new THREE.Mesh(new THREE.RingGeometry(1.5, 2.25, 32).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#ffd34d', transparent: true, opacity: 0.95, depthWrite: false }));
+paezRing.visible = false; scene.add(paezRing);
+const releaseNeighbor = n => { if (n.vip) { paezMesh.visible = false; paezRing.visible = false; $('paezTag').hidden = true; } else { nPool.give(n.idx); hideRing(n.idx); } };
 const projPools = {
   cran: pool(new THREE.SphereGeometry(0.42, 8, 6), new THREE.MeshStandardMaterial({ color: '#b3122e', emissive: '#4a0010', roughness: 0.35 }), 140),
   yam: pool(W.yamGeometry(), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.7 }), 30),
@@ -177,13 +184,14 @@ const aimGoal = new THREE.Vector3();  // where the mouse has asked it to go
 const camPos = new THREE.Vector3();
 let shake = 0;
 let turkeys = [], neighbors = [], projectiles = [], decals = [], popups = [];
+let paezTimer = 0;
 let score, wave, feast, drainMul, spawnQueue, spawnTimer, neighborsLeft, neighborTimer, waveTimer, stats, picked, waveActive, feastWarned, gobbleTimer, munchTimer;
 let fireHeld = false, fireQueued = false;
 const keys = {};
 
 function resetGame() {
   for (const t of turkeys) tPool.give(t.idx);
-  for (const n of neighbors) { nPool.give(n.idx); hideRing(n.idx); }
+  for (const n of neighbors) releaseNeighbor(n);
   for (const p of projectiles) projPools[p.w.id].give(p.idx);
   for (const d of decals) decalPool.give(d.idx);
   turkeys = []; neighbors = []; projectiles = []; decals = [];
@@ -192,7 +200,7 @@ function resetGame() {
   weapons = BASE_WEAPONS.map(w => ({ ...w, ammo: w.mag, cool: 0, reloading: 0 }));
   wi = 0; zoom = 0; switching = 0;
   score = 0; wave = 0; feast = 100; drainMul = 1; picked = {};
-  stats = { shots: 0, hits: 0, sauced: 0, delivered: 0, oops: 0, toms: 0, bestMulti: 0 };
+  stats = { shots: 0, hits: 0, sauced: 0, delivered: 0, oops: 0, toms: 0, bestMulti: 0, paezSaved: 0, paezSplatted: 0 };
   spawnQueue = []; waveActive = false; feastWarned = false; gobbleTimer = 2; munchTimer = 0;
   aim.set(0, 0, 0); aimGoal.set(0, 0, 0);
   setDishes();
@@ -404,6 +412,14 @@ function killTurkey(k) {
 function oops(n) {
   n.state = 'flee'; n.t = 0;
   n.path = [new THREE.Vector2(n.px, n.pz), ...n.path.slice(0, n.seg + 1).reverse()]; n.seg = 0;
+  if (n.vip) {
+    paezRing.visible = false;
+    stats.paezSplatted++;
+    score = Math.max(0, score - PAEZ_PENALTY);
+    popup(n.pos.clone().setY(5), `Not Paez!! −${PAEZ_PENALTY}`, 'bad big');
+    sfx.oops(); sfx.oops();
+    return;
+  }
   hideRing(n.idx);
   stats.oops++;
   score = Math.max(0, score - 250);
@@ -519,11 +535,18 @@ function updateTurkeys(dt, demo) {
   return feasting;
 }
 
-function spawnNeighbor() {
-  const idx = nPool.take(); if (idx < 0) return;
+function spawnNeighbor(vip = false) {
+  if (vip && neighbors.some(n => n.vip)) return;
+  const idx = vip ? -1 : nPool.take(); if (!vip && idx < 0) return;
   const h = world.houses[(rand() * world.houses.length) | 0];
   const path = world.neighborPath(h, rand);
-  neighbors.push({ idx, path, seg: 0, px: path[0].x, pz: path[0].y, hx: 0, hz: 1, yaw: 0, speed: 2.0 + rand() * 0.6, state: 'walk', t: 0, phase: rand() * 10, pos: new THREE.Vector3() });
+  neighbors.push({ idx, vip, path, seg: 0, px: path[0].x, pz: path[0].y, hx: 0, hz: 1, yaw: 0, speed: vip ? 2.4 : 2.0 + rand() * 0.6, state: 'walk', t: 0, phase: rand() * 10, pos: new THREE.Vector3() });
+  if (vip) {
+    paezMesh.visible = true; paezRing.visible = true; $('paezTag').hidden = false;
+    showHint(`Paez (orange cap, gold ring) is bringing the big pie. Get him to the feast: +${PAEZ_BONUS}!`, 5);
+    sfx.deliver();
+    return;
+  }
   nPool.mesh.setColorAt(idx, _c.setHSL(rand(), 0.15, 0.95));
   nPool.mesh.instanceColor.needsUpdate = true;
 }
@@ -532,8 +555,14 @@ function updateNeighbors(dt) {
     n.t += dt;
     if (n.state === 'walk') {
       if (walkPath(n, n.speed * dt)) {
-        n.state = 'done'; stats.delivered++; score += 75;
-        popup(n.pos.clone().setY(4), 'Pie delivered! +75'); sfx.deliver();
+        n.state = 'done';
+        if (n.vip) {
+          stats.paezSaved++; score += PAEZ_BONUS;
+          popup(n.pos.clone().setY(5), `Paez made it! +${PAEZ_BONUS}`, 'big'); sfx.pick(); sfx.deliver();
+        } else {
+          stats.delivered++; score += 75;
+          popup(n.pos.clone().setY(4), 'Pie delivered! +75'); sfx.deliver();
+        }
       }
     } else if (n.state === 'flee') {
       if (walkPath(n, 5.5 * dt) || n.t > 4) n.state = 'done';
@@ -542,6 +571,12 @@ function updateNeighbors(dt) {
     n.yaw = turnToward(n.yaw, Math.atan2(n.hx, n.hz), dt * 8);
     const ph = time * (n.state === 'flee' ? 14 : 8) + n.phase;
     _q.setFromEuler(_e.set(0, n.yaw, Math.sin(ph) * 0.06, 'YXZ'));
+    if (n.vip) {
+      paezMesh.position.set(n.pos.x, Math.abs(Math.sin(ph)) * 0.1, n.pos.z);
+      paezMesh.quaternion.copy(_q); paezMesh.scale.setScalar(1.35);
+      if (n.state === 'walk') { paezRing.position.set(n.pos.x, 0.13, n.pos.z); paezRing.scale.setScalar(1 + Math.sin(time * 5) * 0.1); }
+      continue;
+    }
     _m.compose(_p.set(n.pos.x, Math.abs(Math.sin(ph)) * 0.1, n.pos.z), _q, _s.setScalar(1.25));
     nPool.mesh.setMatrixAt(n.idx, _m);
     if (n.state === 'walk') {
@@ -549,7 +584,7 @@ function updateNeighbors(dt) {
       ringPool.mesh.setMatrixAt(n.idx, _m);
     }
   }
-  neighbors = neighbors.filter(n => { if (n.state === 'done') { nPool.give(n.idx); hideRing(n.idx); return false; } return true; });
+  neighbors = neighbors.filter(n => { if (n.state === 'done') { releaseNeighbor(n); return false; } return true; });
   nPool.mesh.instanceMatrix.needsUpdate = true;
   ringPool.mesh.instanceMatrix.needsUpdate = true;
 }
@@ -565,7 +600,7 @@ function startWave(n) {
   for (let i = 0; i < runners; i++) spawnQueue.push('runner');
   for (let i = 0; i < toms; i++) spawnQueue.push('tom');
   for (let i = spawnQueue.length - 1; i > 0; i--) { const j = (rand() * (i + 1)) | 0; [spawnQueue[i], spawnQueue[j]] = [spawnQueue[j], spawnQueue[i]]; }
-  spawnTimer = 2.5; neighborsLeft = 2 + Math.floor(n * 1.3); neighborTimer = 3 + rand() * 4;
+  spawnTimer = 2.5; neighborsLeft = 2 + Math.floor(n * 1.3); neighborTimer = 3 + rand() * 4; paezTimer = 6 + rand() * 10;
   waveActive = true; feastWarned = false;
   banner(`Wave ${n}`, n === 1 ? 'Here they come!' : toms && n === 3 ? 'Watch out for Big Toms!' : runners && n === 2 ? 'Some of these birds are fast!' : `${count} gobblers incoming`);
   sfx.bell();
@@ -582,6 +617,7 @@ function updateWave(dt) {
     for (let i = 0; i < g; i++) spawnTurkey(spawnQueue.pop(), entry, i * 2.8 + rand() * 1.5);
     spawnTimer = Math.max(0.5, 1.6 - wave * 0.1) * g * (0.7 + rand() * 0.6);
   }
+  if (paezTimer > 0) { paezTimer -= dt; if (paezTimer <= 0) spawnNeighbor(true); }
   if (neighborsLeft > 0) {
     neighborTimer -= dt;
     if (neighborTimer <= 0) { spawnNeighbor(); neighborsLeft--; neighborTimer = 5 + rand() * 7; }
@@ -681,6 +717,16 @@ function popup(pos, text, cls = '') {
   $('popups').appendChild(el);
   popups.push({ el, pos, life: cls === 'big' ? 1.6 : 1.1, max: cls === 'big' ? 1.6 : 1.1 });
 }
+function updatePaezTag() {
+  const n = neighbors.find(n => n.vip), tag = $('paezTag');
+  if (!n || state === 'title') { tag.hidden = true; return; }
+  _p.set(n.pos.x, 4.2, n.pos.z).project(camera);
+  if (_p.z > 1) { tag.hidden = true; return; }
+  tag.hidden = false;
+  tag.classList.toggle('flee', n.state === 'flee');
+  tag.style.left = `${(_p.x * 0.5 + 0.5) * innerWidth}px`;
+  tag.style.top = `${(-_p.y * 0.5 + 0.5) * innerHeight}px`;
+}
 function updatePopups(dt) {
   const w = innerWidth, h = innerHeight;
   for (const p of popups) {
@@ -737,8 +783,11 @@ function drawRadar() {
     rctx.fillStyle = t.state === 'feast' ? (Math.sin(time * 12) > 0 ? '#ff3030' : '#ffd0d0') : t.type === 'tom' ? '#ff7a3a' : '#e5484d';
     rctx.beginPath(); rctx.arc(x, y, t.type === 'tom' ? 7 : 4.5, 0, 6.283); rctx.fill();
   }
-  rctx.fillStyle = '#7cc6ff';
-  for (const n of neighbors) if (n.state === 'walk') { const [x, y] = map(n.pos.x, n.pos.z); rctx.fillRect(x - 4, y - 4, 8, 8); }
+  for (const n of neighbors) if (n.state === 'walk') {
+    const [x, y] = map(n.pos.x, n.pos.z);
+    rctx.fillStyle = n.vip ? '#ffd34d' : '#7cc6ff';
+    const r = n.vip ? 7 : 4; rctx.fillRect(x - r, y - r, r * 2, r * 2);
+  }
   const [ax, ay] = map(aim.x, aim.z);
   rctx.strokeStyle = '#ffe9c2'; rctx.lineWidth = 3;
   rctx.beginPath(); rctx.moveTo(ax - 9, ay); rctx.lineTo(ax + 9, ay); rctx.moveTo(ax, ay - 9); rctx.lineTo(ax, ay + 9); rctx.stroke();
@@ -843,7 +892,7 @@ function gameOver() {
   const acc = stats.shots ? Math.round(100 * stats.hits / stats.shots) : 0;
   $('overStats').innerHTML = [
     ['Score', score.toLocaleString()], ['Waves survived', waveActive ? wave - 1 : wave], ['Turkeys sauced', stats.sauced], ['Big Toms', stats.toms],
-    ['Best multi-splat', stats.bestMulti || '—'], ['Shots that hit', `${acc}%`], ['Pies delivered', stats.delivered], ['Neighbors splatted', stats.oops],
+    ['Best multi-splat', stats.bestMulti || '—'], ['Shots that hit', `${acc}%`], ['Pies delivered', stats.delivered], ['Neighbors splatted', stats.oops], ['Paez made it', `${stats.paezSaved} of ${stats.paezSaved + stats.paezSplatted + (neighbors.some(n => n.vip) ? 1 : 0)}`],
   ].map(([a, b]) => `<span>${a}</span><b>${b}</b>`).join('');
   $('overBest').textContent = newBest ? '🏆 New best score!' : `Best: ${best.toLocaleString()}`;
   showScreen('over');
@@ -1033,6 +1082,7 @@ function frame(now) {
   }
   if (dt > 0) particles.update(dt);
   updatePopups(dt);
+  updatePaezTag();
   if (flashV > 0) { $('flash').style.opacity = flashV; flashV = Math.max(0, flashV - rdt * 1.5); }
   // the sun's shadow box follows nothing: it already covers the town
   renderer.render(scene, camera);
@@ -1054,5 +1104,5 @@ window.TG = {
   world, aim, aimGoal, camPos, planeVel, startGame, pause, resume, selectWeapon, tryFire, solveLaunch, settings,
   fireAt(x, z) { aim.set(x, 0, z); aimGoal.set(x, 0, z); cur().cool = 0; cur().reloading = 0; if (cur().ammo <= 0) cur().ammo = cur().mag; switching = 0; tryFire(); },
   clearWave() { spawnQueue = []; for (const t of turkeys) t.dead = true; },
-  spawn(type = 'turkey', lane = 0, s = 0) { spawnTurkey(type, lane, s); }, spawnNeighbor,
+  spawn(type = 'turkey', lane = 0, s = 0) { spawnTurkey(type, lane, s); }, spawnNeighbor, spawnPaez() { spawnNeighbor(true); },
 };

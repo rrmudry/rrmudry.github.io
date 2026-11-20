@@ -91,6 +91,24 @@ export function neighborGeometry() {
   return merge(p);
 }
 
+// Paez: a VIP neighbor in an orange baseball cap and a white jersey, carrying the big pie.
+export function paezGeometry() {
+  const p = [];
+  const add = (g, c) => p.push(paint(g, c));
+  for (const sx of [-1, 1]) add(new THREE.BoxGeometry(0.2, 0.85, 0.22).translate(sx * 0.13, 0.43, 0), '#2b3a55');
+  add(new THREE.CylinderGeometry(0.28, 0.34, 0.8, 10).translate(0, 1.22, 0), '#f4f4f4');
+  add(new THREE.BoxGeometry(0.5, 0.12, 0.02).translate(0, 1.34, 0.31), '#e8761f');            // jersey stripe
+  add(new THREE.SphereGeometry(0.19, 10, 8).translate(0, 1.82, 0), '#c98f6a');
+  add(new THREE.SphereGeometry(0.205, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2).translate(0, 1.86, 0), '#e8761f'); // cap crown
+  add(new THREE.BoxGeometry(0.3, 0.035, 0.24).translate(0, 1.88, 0.27), '#e8761f');           // cap bill
+  add(new THREE.SphereGeometry(0.035, 6, 4).translate(0, 2.06, 0), '#ffffff');                // button on top
+  for (const sx of [-1, 1]) add(new THREE.BoxGeometry(0.12, 0.12, 0.5).translate(sx * 0.3, 1.32, 0.25), '#f4f4f4');
+  add(new THREE.CylinderGeometry(0.45, 0.4, 0.12, 16).translate(0, 1.42, 0.6), '#c98a3c');
+  add(new THREE.CylinderGeometry(0.39, 0.39, 0.02, 16).translate(0, 1.49, 0.6), '#e07b24');
+  add(new THREE.SphereGeometry(0.1, 8, 6).scale(1, 0.6, 1).translate(0, 1.53, 0.6), '#fff8ec');
+  return merge(p);
+}
+
 export function pieGeometry() {
   return merge([
     paint(new THREE.CylinderGeometry(1.0, 0.85, 0.28, 18), '#c98a3c'),
