@@ -3,11 +3,19 @@
 Append-only log tracking pattern changes across recent sessions.
 > Historical evolution entries prior to September 23, 2026 are archived in [logs-archive-2026.md](logs-archive-2026.md).
 
+## 2026-11-20 — Thanksgobbling (`thanksgobbling/`) Stylized QR Join Card
+**Patterns Updated**: `thanksgobbling-game.md`.
+**Files Added/Updated**: `thanksgobbling/qr-join.svg`, `thanksgobbling/index.html`.
+**Notes**:
+- Generated a self-contained, stylized Thanksgiving QR code (`thanksgobbling/qr-join.svg`, ISO 18004 Version 5-H, cranberry/pumpkin finder eyes, espresso rounded modules, and pumpkin pie center emblem) verified via Puppeteer + `html5-qrcode` to decode cleanly to `https://rrmudry.github.io/thanksgobbling/`.
+- Added the clickable `.qr-join` card to both the Main Menu (`#title`) and Pause Menu (`#pause`) with a tap-to-enlarge `#qrModal` dialog for easy classroom/projector scanning.
+
 ## 2026-11-19 — Work & Simple Machines Practice (`Unit_3/machines_practice`) Full-Screen Recommendation
 **Patterns Updated**: `machines-practice-studio.md`.
 **Files Updated**: `Unit_3/machines_practice/src.html`, `Unit_3/machines_practice/css/style.css`, `Unit_3/machines_practice/js/app.js`, `Unit_3/machines_practice/index.html` (via `scripts/inline-studio.js`).
 **Notes**:
 - Added a full-screen recommendation tip on the sign-in gate (`<dialog id="loginGate">`), a dismissible high-contrast top banner (`#fsBanner`) shown upon starting whenever the app is not in full screen (with one-click `Go full screen` button and Chromebook `⛶` key hint), and a persistent `#btnFull` header toggle that automatically triggers `smpFit()` and `desmos.resize()`.
+- Added a teacher-only `🗑 Reset my data` button (`#btnResetTeacher`, visible only when `prof.teacher || prof.preview`) backed by `PracticeAuth.resetState(fresh)` to clear only the teacher's own local and Firestore progress.
 
 ## 2026-11-18 — Pulleys and Ramps Lab (`Unit_3/tradeoff_lab`) Tapping & Green Zone Tuning
 **Patterns Updated**: `tradeoff-lab.md`.

@@ -45,4 +45,5 @@ The gimbal is locked to a ground point (`aim`) and the camera always looks at it
 - `audio.js` synthesizes every sound (propeller drone, gobbles, splats, a folk music loop).
 - If the first 5 s of play run under 28 fps, graphics auto-drop to Fast (1024 shadow map, pixel ratio 1).
 - Settings are stored in `localStorage.tg_settings` and the best score in `tg_best`.
+- **Stylized QR Join Card (`qr-join.svg` + `#qrModal`):** Both the main menu (`#title`) and pause menu (`#pause`) include a clickable Thanksgiving-themed QR code (`thanksgobbling/qr-join.svg`, offline ISO 18004 Version 5-H with pumpkin pie center emblem) linking to `https://rrmudry.github.io/thanksgobbling/` so spectators/classmates can scan and start their own game. Clicking enlarges it in `#qrModal` (`Escape` closes `#qrModal` in capture phase without unpausing).
 - `window.TG` exposes hooks for puppeteer play-throughs: `startGame`, `spawn`, `fireAt`, `clearWave`, `solveLaunch`.

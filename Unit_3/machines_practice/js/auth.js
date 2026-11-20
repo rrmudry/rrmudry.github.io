@@ -205,6 +205,14 @@ class PracticeAuth {
   setIndicator(kind, text) { this.indicator.textContent = text; this.indicator.className = `save-indicator save-${kind}`; }
   flushLocal() { if (!this.state || this.preview) return; try { localStorage.setItem(this.localKey(), JSON.stringify(this.state)); } catch (e) { /* blocked */ } }
 
+  resetState(freshState) {
+    clearTimeout(this.saveTimer);
+    this.saveTimer = null;
+    this.state = freshState;
+    if (this.preview) return;
+    this.queueSave(true);
+  }
+
   queueSave(immediate = false) {
     if (!this.state || this.preview) return;
     this.state.savedAt = Date.now();

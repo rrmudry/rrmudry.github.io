@@ -137,6 +137,20 @@
       $('viewSelect').addEventListener('change', e => {
         location.search = e.target.value === 'teacher' ? '' : `?preview&view=${e.target.value}`;
       });
+      const resetBtn = $('btnResetTeacher');
+      if (resetBtn) {
+        resetBtn.hidden = false;
+        resetBtn.addEventListener('click', () => {
+          if (!window.confirm('Reset your teacher view? This clears only your own saved progress (never any student data).')) return;
+          const fresh = A.newState();
+          fresh.tier = A.tier;
+          A.state = fresh;
+          if (A.cloud && A.cloud.resetState) A.cloud.resetState(fresh);
+          A.enter();
+          A.updateScoreChip();
+          A.render();
+        });
+      }
     }
     if (prof.teacher) $('btnMonitor').hidden = false;
     A.enter();

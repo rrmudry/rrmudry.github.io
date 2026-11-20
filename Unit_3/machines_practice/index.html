@@ -2086,6 +2086,7 @@ html.short .opt {
         <button type="button" id="btn-projector-mode" class="btn-tool" title="Big text and extra contrast for the classroom projector">🖥️ Projector</button>
         <button type="button" id="btn-theme-toggle" class="btn-tool" title="Toggle light / dark theme">🌙 Dark</button>
         <a id="btnMonitor" href="../../admin/machines_practice_monitor.html" target="_blank" class="btn-tool" title="See class progress and common mistakes" hidden>📊 Class Progress</a>
+        <button type="button" id="btnResetTeacher" class="btn-tool" title="Clear your own teacher progress (never affects students)" hidden>🗑 Reset my data</button>
         <button type="button" id="btnCert" class="cert-chip" title="Download your certificate as a PDF" hidden>🎓 Certificate</button>
         <a href="../../unit3-dashboard.html" class="btn-tool" title="Back to Unit 3 Dashboard">🏠 Unit 3</a>
         <div id="userChip" class="user-chip" hidden>
@@ -5393,6 +5394,20 @@ window.NGSS_STANDARDS_DATA = window.NGSS_STANDARDS_DATA || [
       $('viewSelect').addEventListener('change', e => {
         location.search = e.target.value === 'teacher' ? '' : `?preview&view=${e.target.value}`;
       });
+      const resetBtn = $('btnResetTeacher');
+      if (resetBtn) {
+        resetBtn.hidden = false;
+        resetBtn.addEventListener('click', () => {
+          if (!window.confirm('Reset your teacher view? This clears only your own saved progress (never any student data).')) return;
+          const fresh = A.newState();
+          fresh.tier = A.tier;
+          A.state = fresh;
+          if (A.cloud && A.cloud.resetState) A.cloud.resetState(fresh);
+          A.enter();
+          A.updateScoreChip();
+          A.render();
+        });
+      }
     }
     if (prof.teacher) $('btnMonitor').hidden = false;
     A.enter();
@@ -5609,6 +5624,14 @@ class PracticeAuth {
 
   setIndicator(kind, text) { this.indicator.textContent = text; this.indicator.className = `save-indicator save-${kind}`; }
   flushLocal() { if (!this.state || this.preview) return; try { localStorage.setItem(this.localKey(), JSON.stringify(this.state)); } catch (e) { /* blocked */ } }
+
+  resetState(freshState) {
+    clearTimeout(this.saveTimer);
+    this.saveTimer = null;
+    this.state = freshState;
+    if (this.preview) return;
+    this.queueSave(true);
+  }
 
   queueSave(immediate = false) {
     if (!this.state || this.preview) return;
