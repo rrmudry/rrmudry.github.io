@@ -170,11 +170,15 @@ const inSquare = (i, j) => i >= 2 && i <= 3 && j >= 2 && j <= 3;
 
 export function buildWorld(scene, quality) {
   const R = rng(1121);
+  // Scenery is drawn less saturated than the characters so turkeys and people stand out.
+  const ENV_SAT = 0.62, TREE_SAT = 0.5, GROUND_SAT = 0.55;
+  const hsl = {};
+  const mute = (c, k) => { c.getHSL(hsl); return c.setHSL(hsl.h, hsl.s * k, hsl.l); };
   const out = { houses: [], obbs: [], roads: [], entries: [] };
   const obbs = out.obbs, roads = out.roads, flatRects = [];
 
   // ---------- sky, light, ground ----------
-  const horizon = new THREE.Color('#f2a65e'), mid = new THREE.Color('#d97b5b'), top = new THREE.Color('#2c3e6b');
+  const horizon = new THREE.Color('#d9b796'), mid = new THREE.Color('#b9907e'), top = new THREE.Color('#3b4a6b');
   const sunDir = new THREE.Vector3().setFromSphericalCoords(1, THREE.MathUtils.degToRad(90 - 33), THREE.MathUtils.degToRad(215));
   const sky = new THREE.Mesh(new THREE.SphereGeometry(1200, 32, 16), new THREE.ShaderMaterial({
     side: THREE.BackSide, depthWrite: false, fog: false,
@@ -192,10 +196,10 @@ export function buildWorld(scene, quality) {
   }));
   sky.renderOrder = -1;
   scene.add(sky);
-  scene.fog = new THREE.Fog(horizon, 280, 780);
+  scene.fog = new THREE.Fog(horizon, 170, 520);
 
-  scene.add(new THREE.HemisphereLight('#ffd9b0', '#4a3b2a', 1.25));
-  const sun = new THREE.DirectionalLight('#ffc48a', 2.8);
+  scene.add(new THREE.HemisphereLight('#efe4d6', '#4a4338', 1.3));
+  const sun = new THREE.DirectionalLight('#ffd9b5', 2.6);
   sun.position.copy(sunDir).multiplyScalar(340);
   sun.castShadow = true;
   const sc = sun.shadow.camera;
@@ -212,6 +216,7 @@ export function buildWorld(scene, quality) {
       const x = p.getX(i), z = p.getZ(i);
       const n = Math.sin(x * 0.021) * Math.cos(z * 0.017) + 0.5 * Math.sin(x * 0.063 + z * 0.041) + 0.25 * Math.sin(x * 0.17 - z * 0.13);
       tmp.copy(a).lerp(b, THREE.MathUtils.clamp(0.5 + n * 0.4, 0, 1)).lerp(c, THREE.MathUtils.clamp(-n * 0.5, 0, 0.6));
+      mute(tmp, GROUND_SAT);
       cols.set([tmp.r, tmp.g, tmp.b], i * 3);
     }
     groundGeo.setAttribute('color', new THREE.BufferAttribute(cols, 3));
@@ -226,7 +231,7 @@ export function buildWorld(scene, quality) {
   const inst = (list, x, y, z, sx, sy, sz, yaw, color) => {
     Q.setFromAxisAngle(Yax, yaw || 0);
     M.compose(P.set(x, y, z), Q, S.set(sx, sy, sz));
-    list.push({ m: M.clone(), c: color ? new THREE.Color(color) : null });
+    list.push({ m: M.clone(), c: color ? mute(new THREE.Color(color), ENV_SAT) : null });
   };
   // a part placed in a building's own frame (local +z is the front)
   const part = (list, b, lx, ly, lz, sx, sy, sz, color) => {
@@ -649,10 +654,10 @@ export function buildWorld(scene, quality) {
     Q.setFromAxisAngle(Yax, R() * 6.28);
     if (t.conifer) {
       M.compose(P.set(t.x, trunkH * 0.6, t.z), Q, S.set(t.r * 0.9, t.h, t.r * 0.9)); conMesh.setMatrixAt(ci, M);
-      conMesh.setColorAt(ci++, col.set('#3f5a2e').offsetHSL(0, 0, (R() - 0.5) * 0.08));
+      conMesh.setColorAt(ci++, mute(col.set('#3f5a2e').offsetHSL(0, 0, (R() - 0.5) * 0.08), TREE_SAT));
     } else {
       M.compose(P.set(t.x, trunkH + t.r * 0.7, t.z), Q, S.set(t.r, t.r * 1.15, t.r)); leafMesh.setMatrixAt(li, M);
-      leafMesh.setColorAt(li++, col.set(t.c).offsetHSL((R() - 0.5) * 0.03, 0, (R() - 0.5) * 0.1));
+      leafMesh.setColorAt(li++, mute(col.set(t.c).offsetHSL((R() - 0.5) * 0.03, 0, (R() - 0.5) * 0.1), TREE_SAT));
     }
   });
   conMesh.count = nCon;
@@ -689,11 +694,11 @@ export function buildWorld(scene, quality) {
     M.compose(P.set(x, 4.15, z), Q.identity(), S.set(1, 1, 1)); lampMesh.setMatrixAt(i, M);
   });
   postMesh.castShadow = true;
-  const pumpkinMesh = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 12, 8).scale(1, 0.75, 1), new THREE.MeshStandardMaterial({ color: '#e8761f', roughness: 0.6 }), Math.max(1, pumpkins.length));
+  const pumpkinMesh = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 12, 8).scale(1, 0.75, 1), new THREE.MeshStandardMaterial({ color: mute(new THREE.Color('#e8761f'), 0.7), roughness: 0.6 }), Math.max(1, pumpkins.length));
   pumpkins.forEach(([x, z, r], i) => { M.compose(P.set(x, r * 0.7, z), Q.identity(), S.setScalar(r)); pumpkinMesh.setMatrixAt(i, M); });
-  const baleMesh = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.85, 0.85, 1.3, 14).rotateZ(Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#cfa64b', roughness: 1 }), Math.max(1, bales.length));
+  const baleMesh = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.85, 0.85, 1.3, 14).rotateZ(Math.PI / 2), new THREE.MeshStandardMaterial({ color: mute(new THREE.Color('#cfa64b'), ENV_SAT), roughness: 1 }), Math.max(1, bales.length));
   bales.forEach(([x, z, r], i) => { M.compose(P.set(x, 0.85, z), Q.setFromAxisAngle(Yax, r), S.set(1, 1, 1)); baleMesh.setMatrixAt(i, M); });
-  const shockMesh = new THREE.InstancedMesh(new THREE.ConeGeometry(0.9, 2.6, 8).translate(0, 1.3, 0), new THREE.MeshStandardMaterial({ color: '#c9a25a', roughness: 1, flatShading: true }), Math.max(1, shocks.length));
+  const shockMesh = new THREE.InstancedMesh(new THREE.ConeGeometry(0.9, 2.6, 8).translate(0, 1.3, 0), new THREE.MeshStandardMaterial({ color: mute(new THREE.Color('#c9a25a'), ENV_SAT), roughness: 1, flatShading: true }), Math.max(1, shocks.length));
   shocks.forEach(([x, z, r], i) => { M.compose(P.set(x, 0, z), Q.setFromAxisAngle(Yax, r), S.set(1, 1, 1)); shockMesh.setMatrixAt(i, M); });
   for (const m of [pumpkinMesh, baleMesh, shockMesh]) { m.castShadow = true; m.receiveShadow = true; }
   for (const m of [...meshes, postMesh, lampMesh, pumpkinMesh, baleMesh, shockMesh]) {

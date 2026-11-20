@@ -34,6 +34,11 @@ The gimbal is locked to a ground point (`aim`) and the camera always looks at it
 - Desktop: pointer lock. Mouse to look, left click to fire, right click or Z to zoom, 1/2/3 or the wheel to switch food, R to reload, WASD to look with keys.
 - Touch: drag to look, FIRE and ZOOM buttons. These appear on the first touch, so they also work on touchscreen Chromebooks.
 
+## Look
+- Scenery colors are muted in `world.js` (`mute()` scales HSL saturation: buildings and props ×0.62, trees ×0.5, ground ×0.55). Characters keep full color. The teacher found the first palette too saturated to spot turkeys.
+- The light is a softer peach (sun `#ffd9b5`, hemisphere `#efe4d6`) instead of strong orange.
+- Linear fog runs from 170 to 520 m, and its color matches the sky's horizon color. The far side of town is slightly hazy, and the woods fade into the sky instead of ending at a hard line.
+
 ## Tech
 - Three.js 0.160 from jsdelivr via import map.
 - `world.js` builds everything as InstancedMeshes: houses, trees, props, and the turkey and neighbor merged vertex-color geometry.
